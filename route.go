@@ -60,11 +60,11 @@ func Register(w http.ResponseWriter, r *http.Request) {
 
 func Base(w http.ResponseWriter, r *http.Request) {
 	//w.Header().Set("Content-Type", "application/json")
-	renderTemplate(w, "index")
+	renderTemplate(w, "dashboard")
 }
 
 func Base_Campaigns(w http.ResponseWriter, r *http.Request) {
-	renderTemplate(w, "index")
+	renderTemplate(w, "dashboard")
 }
 
 func Login(w http.ResponseWriter, r *http.Request) {
@@ -72,6 +72,6 @@ func Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func renderTemplate(w http.ResponseWriter, tmpl string) {
-	t, _ := template.ParseFiles("static/templates/" + tmpl + ".html")
-	t.Execute(w, "T")
+	t := template.Must(template.New("template").ParseFiles("templates/base.html", "templates/nav.html", "templates/"+tmpl+".html"))
+	t.ExecuteTemplate(w, "base", "T")
 }
