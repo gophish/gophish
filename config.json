@@ -1,0 +1,9 @@
+{
+	"url" : "localhost:3333",
+	"smtp" : {
+		"server" : "smtp.example.com",
+		"port" : 25,
+		"user" : "username",
+		"pass" : "password"
+	}
+}

@@ -1,23 +1,6 @@
-gophish
-=======
+package main
 
-Open-Source Phishing Toolkit
-
-Gophish is an open-source phishing toolkits designed for businesses and penetration testers. It provides the ability to quickly and easily setup and execute phishing engagements.
-
-###Current Status
-Development of gophish is currently ongoing. It is not anywhere close to being functional yet, but should get there soon.
-
-Until then, you can keep up-to-date with development news and articles on [my blog](http://jordan-wright.github.io/blog/categories/gophish/).
-
-###Install
-
-Installation of gophish is dead-simple - download and extract the zip, and run the binary. Gophish has binary releases for all platforms.
-
-###Setup
-After running the gophish binary, open an Internet browser to http://localhost:3333 and follow the setup instructions.
-
-###License
+/*
 gophish - Open-Source Phishing Framework
 
 The MIT License (MIT)
@@ -41,3 +24,12 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
+*/
+import ( 
+	"net/http"
+)
+
+func main() {
+    http.Handle("/", createRouter())
+    http.ListenAndServe("localhost:3333", nil)
+}
