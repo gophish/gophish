@@ -1,3 +1,5 @@
+![gophish logo](https://raw.github.com/jordan-wright/gophish/master/static/images/logo.png)
+
 gophish
 =======
 
