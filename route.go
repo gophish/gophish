@@ -28,9 +28,13 @@ THE SOFTWARE.
 
 import (
 	"github.com/gorilla/mux"
+	"github.com/gorilla/securecookie"
+	"github.com/gorilla/sessions"
 	"html/template"
 	"net/http"
 )
+
+var store = sessions.NewCookieStore([]byte(securecookie.GenerateRandomKey(64)))
 
 func createRouter() http.Handler {
 	router := mux.NewRouter()
@@ -44,8 +48,7 @@ func createRouter() http.Handler {
 	api := router.PathPrefix("/api").Subrouter()
 	api.HandleFunc("/", API)
 	api.HandleFunc("/campaigns", API_Campaigns)
-	api.HandleFunc("/campaigns/{id}", API_Campaigns_Id_Post).Methods("POST")
-	api.HandleFunc("/campaigns/{id}", API_Campaigns_Id_Get).Methods("GET")
+	api.HandleFunc("/campaigns/{id}", API_Campaigns_Id)
 
 	//Setup static file serving
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./static/")))
