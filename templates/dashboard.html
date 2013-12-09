@@ -1,7 +1,7 @@
 {{define "content"}} {{template "nav"}}
 <div class="jumbotron">
     <div class="container" style="text-align:center;">
-        <h1 class="header">
+        <h1 class="sans header">
             Dashboard
         </h1>
     </div>
@@ -15,16 +15,73 @@
             </li>
             <li><a href="/settings">Settings</a>
             </li>
+            <li><a href="/api/doc">API Documentation</a>
+            </li>
         </ul>
     </div>
     <div class="col-md-9">
-        Testing
+        <div class="row">
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#newCampaignModal"><i class="fa fa-plus"></i> New Campaign</button>
+        </div>
+        &nbsp;
+        <div class="row">
+            <table class="table table-hover table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Name</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Mark</td>
+                        <td>Otto</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Mark</td>
+                        <td>Otto</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Jacob</td>
+                        <td>Thornton</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Larry the Bird</td>
+                        <td>@twitter</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
-<div class="container">
-    <hr>
-    <footer>
-        <p>&copy; Jordan (jordan-wright) 2013</p>
-    </footer>
+<!-- New Campaign Modal -->
+<div class="modal" id="newCampaignModal" tabindex="-1" role="dialog" aria-labelledby="campaignModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="campaignModalLabel">New Campaign</h4>
+            </div>
+            <form action="/">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="name">Name:</label>
+                        <input type="text" class="form-control" id="name">
+                        <label for="users">Users &amp; Groups:</label>
+                        <input type="text" class="form-control" id="users">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" type="submit">Launch Campaign</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 {{end}}

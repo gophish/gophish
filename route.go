@@ -49,6 +49,7 @@ func createRouter() http.Handler {
 	api.HandleFunc("/", API)
 	api.HandleFunc("/campaigns", API_Campaigns)
 	api.HandleFunc("/campaigns/{id}", API_Campaigns_Id)
+	api.HandleFunc("/doc", API_Doc)
 
 	//Setup static file serving
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./static/")))
@@ -62,11 +63,14 @@ func Register(w http.ResponseWriter, r *http.Request) {
 }
 
 func Base(w http.ResponseWriter, r *http.Request) {
-	//w.Header().Set("Content-Type", "application/json")
+	session, _ := store.Get(r, "gophish")
+	// Example of saving session - will be removed.
+	session.Save(r, w)
 	renderTemplate(w, "dashboard")
 }
 
 func Base_Campaigns(w http.ResponseWriter, r *http.Request) {
+	session, _ := store.Get(r, "gophish")
 	renderTemplate(w, "dashboard")
 }
 

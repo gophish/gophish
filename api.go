@@ -19,3 +19,7 @@ func API_Campaigns_Id(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	fmt.Fprintf(w, "{\"method\" : \""+r.Method+"\", \"id\" : "+vars["id"]+"}")
 }
+
+func API_Doc(w http.ResponseWriter, r *http.Request) {
+	renderTemplate(w, "api_doc")
+}
