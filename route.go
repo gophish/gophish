@@ -70,7 +70,7 @@ func Base(w http.ResponseWriter, r *http.Request) {
 }
 
 func Base_Campaigns(w http.ResponseWriter, r *http.Request) {
-	session, _ := store.Get(r, "gophish")
+	//session, _ := store.Get(r, "gophish")
 	renderTemplate(w, "dashboard")
 }
 

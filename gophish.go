@@ -33,18 +33,6 @@ import (
 	"os"
 )
 
-type SMTPServer struct {
-	Server   string `json:"host"`
-	Port     int    `json:"port"`
-	User     string `json:"user"`
-	Password string `json:"password"`
-}
-
-type Config struct {
-	URL  string     `json:"url"`
-	SMTP SMTPServer `json:"smtp"`
-}
-
 var config Config
 
 func main() {
