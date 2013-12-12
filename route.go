@@ -43,6 +43,8 @@ func createRouter() http.Handler {
 	router.HandleFunc("/login", Login)
 	router.HandleFunc("/register", Register)
 	router.HandleFunc("/campaigns", Base_Campaigns)
+	router.HandleFunc("/users", Users)
+	router.HandleFunc("/settings", Settings)
 
 	// Create the API routes
 	api := router.PathPrefix("/api").Subrouter()
@@ -67,6 +69,14 @@ func Base(w http.ResponseWriter, r *http.Request) {
 	// Example of saving session - will be removed.
 	session.Save(r, w)
 	renderTemplate(w, "dashboard")
+}
+
+func Users(w http.ResponseWriter, r *http.Request) {
+	renderTemplate(w, "users")
+}
+
+func Settings(w http.ResponseWriter, r *http.Request) {
+	renderTemplate(w, "settings")
 }
 
 func Base_Campaigns(w http.ResponseWriter, r *http.Request) {

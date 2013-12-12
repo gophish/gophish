@@ -19,3 +19,10 @@ type Config struct {
 	URL  string     `json:"url"`
 	SMTP SMTPServer `json:"smtp"`
 }
+
+type User struct {
+	Id       string
+	Username string
+	Hash     string
+	APIKey   string
+}
