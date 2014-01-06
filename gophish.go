@@ -26,7 +26,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 import (
+	"database/sql"
+	"encoding/gob"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -34,15 +37,27 @@ import (
 )
 
 var config Config
+var db sql.DB
+var setupFlag = flag.Bool("setup", false, "Starts the initial setup process for Gophish")
+
+//init registers the necessary models to be saved in the session later
+func init() {
+	gob.Register(&User{})
+}
 
 func main() {
 	// Get the config file
-	config_file, e := ioutil.ReadFile("./config.json")
-	if e != nil {
-		fmt.Printf("File error: %v\n", e)
+	config_file, err := ioutil.ReadFile("./config.json")
+	defer db.Close()
+	if err != nil {
+		fmt.Printf("File error: %v\n", err)
 		os.Exit(1)
 	}
 	json.Unmarshal(config_file, &config)
+	_, err = Setup()
+	if err != nil {
+		fmt.Println(err)
+	}
 	fmt.Printf("Gophish server started at http://%s\n", config.URL)
 	http.Handle("/", createRouter())
 	http.ListenAndServe(config.URL, nil)

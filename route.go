@@ -27,11 +27,12 @@ THE SOFTWARE.
 */
 
 import (
+	"html/template"
+	"net/http"
+
 	"github.com/gorilla/mux"
 	"github.com/gorilla/securecookie"
 	"github.com/gorilla/sessions"
-	"html/template"
-	"net/http"
 )
 
 var store = sessions.NewCookieStore([]byte(securecookie.GenerateRandomKey(64)))
@@ -66,7 +67,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 
 func Base(w http.ResponseWriter, r *http.Request) {
 	session, _ := store.Get(r, "gophish")
-	// Example of saving session - will be removed.
+	// Example of using session - will be removed.
 	session.Save(r, w)
 	renderTemplate(w, "dashboard")
 }
@@ -85,10 +86,27 @@ func Base_Campaigns(w http.ResponseWriter, r *http.Request) {
 }
 
 func Login(w http.ResponseWriter, r *http.Request) {
-	renderTemplate(w, "login")
+	switch {
+	case r.Method == "GET":
+		renderTemplate(w, "login")
+	case r.Method == "POST":
+		//Attempt to login
+		if login(r) {
+			session, _ := store.Get(r, "gophish")
+			session.Save(r, w)
+			http.Redirect(w, r, "/", 302)
+		}
+	}
 }
 
 func renderTemplate(w http.ResponseWriter, tmpl string) {
 	t := template.Must(template.New("template").ParseFiles("templates/base.html", "templates/nav.html", "templates/"+tmpl+".html"))
 	t.ExecuteTemplate(w, "base", "T")
+}
+
+func login(r *http.Request) bool {
+	//session, _ := store.Get(r, "gophish")
+	//session.Values["user"] = User{1, "jordan", "hash", "key"}
+	//user := session.Values["user"].(*User)
+	return true
 }

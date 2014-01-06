@@ -4,5 +4,6 @@
 		"host" : "smtp.example.com:25",
 		"user" : "username",
 		"pass" : "password"
-	}
+	},
+	"dbpath" : "db/gophish.db"
 }

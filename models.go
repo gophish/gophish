@@ -6,22 +6,14 @@ type SMTPServer struct {
 	Password string `json:"password"`
 }
 
-type Email struct {
-	Subject string
-	Body    string
-	To      []string
-	Bcc     []string
-	Cc      []string
-	From    string
-}
-
 type Config struct {
-	URL  string     `json:"url"`
-	SMTP SMTPServer `json:"smtp"`
+	URL    string     `json:"url"`
+	SMTP   SMTPServer `json:"smtp"`
+	DBPath string     `json:"dbpath"`
 }
 
 type User struct {
-	Id       string
+	Id       int
 	Username string
 	Hash     string
 	APIKey   string
