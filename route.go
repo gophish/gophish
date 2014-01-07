@@ -90,11 +90,21 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	case r.Method == "GET":
 		renderTemplate(w, "login")
 	case r.Method == "POST":
+		session, _ := store.Get(r, "gophish")
 		//Attempt to login
-		if login(r) {
-			session, _ := store.Get(r, "gophish")
+		if err := r.ParseForm(); err != nil {
+			http.Error(w, "Error parsing request", http.StatusInternalServerError)
+		}
+		succ, err := login(r)
+		if err != nil {
+			http.Error(w, "Error logging in", http.StatusInternalServerError)
+		}
+		//If we've logged in, save the session and redirect to the dashboard
+		if succ {
 			session.Save(r, w)
 			http.Redirect(w, r, "/", 302)
+		} else {
+			session.AddFlash("Invalid Username/Password")
 		}
 	}
 }
@@ -102,11 +112,4 @@ func Login(w http.ResponseWriter, r *http.Request) {
 func renderTemplate(w http.ResponseWriter, tmpl string) {
 	t := template.Must(template.New("template").ParseFiles("templates/base.html", "templates/nav.html", "templates/"+tmpl+".html"))
 	t.ExecuteTemplate(w, "base", "T")
-}
-
-func login(r *http.Request) bool {
-	//session, _ := store.Get(r, "gophish")
-	//session.Values["user"] = User{1, "jordan", "hash", "key"}
-	//user := session.Values["user"].(*User)
-	return true
 }
