@@ -2,20 +2,32 @@ package main
 
 import (
 	"database/sql"
+	"encoding/gob"
 	"fmt"
 	"os"
 
+	"github.com/jordan-wright/gophish/config"
+	"github.com/jordan-wright/gophish/models"
 	_ "github.com/mattn/go-sqlite3"
 )
 
-//Setup creates and returns the database needed by Gophish
-func Setup() (*sql.DB, error) {
+var Db sql.DB
+
+//init registers the necessary models to be saved in the session later
+func init() {
+	gob.Register(&models.User{})
+	Setup()
+}
+
+// Setup creates and returns the database needed by Gophish.
+// It also populates the Gophish Config object
+func Setup() {
 	//If the file already exists, delete it and recreate it
-	if _, err := os.Stat(config.DBPath); err == nil {
-		os.Remove(config.DBPath)
+	if _, err := os.Stat(config.Conf.DBPath); err == nil {
+		os.Remove(Conf.DBPath)
 	}
-	fmt.Println("Creating db at " + config.DBPath)
-	db, err := sql.Open("sqlite3", config.DBPath)
+	fmt.Println("Creating db at " + config.Conf.DBPath)
+	db, err := sql.Open("sqlite3", config.Conf.DBPath)
 	if err != nil {
 		return nil, err
 	}

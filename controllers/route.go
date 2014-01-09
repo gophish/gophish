@@ -1,4 +1,4 @@
-package main
+package controllers
 
 /*
 gophish - Open-Source Phishing Framework
@@ -31,13 +31,10 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/gorilla/securecookie"
-	"github.com/gorilla/sessions"
+	"github.com/jordan-wright/gophish/auth"
 )
 
-var store = sessions.NewCookieStore([]byte(securecookie.GenerateRandomKey(64)))
-
-func createRouter() http.Handler {
+func CreateRouter() http.Handler {
 	router := mux.NewRouter()
 	// Base Front-end routes
 	router.HandleFunc("/", Base)
@@ -66,7 +63,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 }
 
 func Base(w http.ResponseWriter, r *http.Request) {
-	session, _ := store.Get(r, "gophish")
+	session, _ := auth.Store.Get(r, "gophish")
 	// Example of using session - will be removed.
 	session.Save(r, w)
 	renderTemplate(w, "dashboard")
@@ -81,7 +78,7 @@ func Settings(w http.ResponseWriter, r *http.Request) {
 }
 
 func Base_Campaigns(w http.ResponseWriter, r *http.Request) {
-	//session, _ := store.Get(r, "gophish")
+	//session, _ := auth.Store.Get(r, "gophish")
 	renderTemplate(w, "dashboard")
 }
 
@@ -90,12 +87,12 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	case r.Method == "GET":
 		renderTemplate(w, "login")
 	case r.Method == "POST":
-		session, _ := store.Get(r, "gophish")
+		session, _ := auth.Store.Get(r, "gophish")
 		//Attempt to login
 		if err := r.ParseForm(); err != nil {
 			http.Error(w, "Error parsing request", http.StatusInternalServerError)
 		}
-		succ, err := login(r)
+		succ, err := auth.CheckLogin(r)
 		if err != nil {
 			http.Error(w, "Error logging in", http.StatusInternalServerError)
 		}

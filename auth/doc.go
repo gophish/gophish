@@ -1,5 +1,3 @@
-package main
-
 /*
 gophish - Open-Source Phishing Framework
 
@@ -26,15 +24,5 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-import "net/http"
-
-//Use allows us to stack middleware to process the request
-//Example taken from https://github.com/gorilla/mux/pull/36#issuecomment-25849172
-func Use(handler http.Handler, middleware ...func(http.Handler) http.Handler) http.Handler {
-	for _, m := range middleware {
-		handler = m(handler)
-	}
-	return handler
-}
-
-//TODO: Add RequireLogin() Middleware
+// Package auth implements the authentication in use for gophish.
+package auth

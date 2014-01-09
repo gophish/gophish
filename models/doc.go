@@ -1,5 +1,3 @@
-package main
-
 /*
 gophish - Open-Source Phishing Framework
 
@@ -25,24 +23,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-import (
-	"flag"
-	"fmt"
-	"net/http"
 
-	"github.com/jordan-wright/gophish/controllers"
-	"github.com/jordan-wright/gophish/middleware"
-)
-
-var setupFlag = flag.Bool("setup", false, "Starts the initial setup process for Gophish")
-
-func main() {
-	//Setup the global variables and settings
-	_, err = Setup()
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Printf("Gophish server started at http://%s\n", config.Conf.URL)
-	http.Handle("/", middleware.Use(controllers.CreateRouter(), middleware.GetContext))
-	http.ListenAndServe(config.URL, nil)
-}
+// Package models implements the types and structs needed in gophish.
+package models

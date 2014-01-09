@@ -1,5 +1,3 @@
-package main
-
 /*
 gophish - Open-Source Phishing Framework
 
@@ -26,45 +24,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-import (
-	"database/sql"
-	"net/http"
-
-	"code.google.com/p/go.crypto/bcrypt"
-	ctx "github.com/gorilla/context"
-)
-
-func CheckLogin(r *http.Request) (bool, error) {
-	username, password := r.FormValue("username"), r.FormValue("password")
-	session, _ := store.Get(r, "gophish")
-	stmt, err := db.Prepare("SELECT * FROM Users WHERE username=?")
-	if err != nil {
-		return false, err
-	}
-	hash, err := bcrypt.GenerateFromPassword(password, bcrypt.DefaultCost)
-	if err != nil {
-		return false, err
-	}
-	err = stmt.QueryRow(username).Scan(&u.Id, &u.Username, &u.Hash, &u.APIKey)
-	if err == sql.ErrNoRows {
-		return false, err
-	}
-	//If we've made it here, we should have a valid user stored in u
-	//Let's check the password
-	err = bcrypt.CompareHashAndPassword(u.Hash, hash)
-	if err != nil {
-		ctx.Set(r, User, nil)
-		//Return false, but don't return an error
-		return false, nil
-	}
-	ctx.Set(r, User, u)
-	session.Values["id"] = GetUser(r).Id
-	return true, nil
-}
-
-func GetUser(r *http.Request) User {
-	if rv := ctx.Get(r, User); rv != nil {
-		return rv.(User)
-	}
-	return nil
-}
+// Package middleware is responsible for the definition/implementation of middleware functionality.
+// This package will also handle maintaining request Context and Session.
+package middleware

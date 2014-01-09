@@ -1,4 +1,4 @@
-package main
+package models
 
 type SMTPServer struct {
 	Host     string `json:"host"`
