@@ -30,7 +30,9 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/jordan-wright/gophish/config"
 	"github.com/jordan-wright/gophish/controllers"
+	"github.com/jordan-wright/gophish/db"
 	"github.com/jordan-wright/gophish/middleware"
 )
 
@@ -38,11 +40,13 @@ var setupFlag = flag.Bool("setup", false, "Starts the initial setup process for 
 
 func main() {
 	//Setup the global variables and settings
-	err = Setup()
+	err := db.Setup()
+	//defer db.Conn.Close()
 	if err != nil {
 		fmt.Println(err)
 	}
 	fmt.Printf("Gophish server started at http://%s\n", config.Conf.URL)
 	http.Handle("/", middleware.Use(controllers.CreateRouter(), middleware.GetContext))
-	http.ListenAndServe(config.URL, nil)
+	http.ListenAndServe(config.Conf.URL, nil)
+	fmt.Println("Closed.")
 }

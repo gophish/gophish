@@ -3,6 +3,8 @@ package middleware
 import (
 	"fmt"
 	"net/http"
+
+	ctx "github.com/gorilla/context"
 )
 
 // Use allows us to stack middleware to process the request
@@ -19,8 +21,9 @@ func Use(handler http.Handler, middleware ...func(http.Handler) http.Handler) ht
 func GetContext(handler http.Handler) http.Handler {
 	// Set the context here
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("Get context called!")
+		// Set the context appropriately here.
 		handler.ServeHTTP(w, r)
+		ctx.Clear(r)
 	})
 }
 

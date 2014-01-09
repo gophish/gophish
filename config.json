@@ -5,5 +5,5 @@
 		"user" : "username",
 		"pass" : "password"
 	},
-	"dbpath" : "db/gophish.db"
+	"dbpath" : "gophish.db"
 }
