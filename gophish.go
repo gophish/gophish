@@ -38,7 +38,7 @@ var setupFlag = flag.Bool("setup", false, "Starts the initial setup process for 
 
 func main() {
 	//Setup the global variables and settings
-	_, err = Setup()
+	err = Setup()
 	if err != nil {
 		fmt.Println(err)
 	}
