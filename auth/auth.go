@@ -33,6 +33,9 @@ func CheckLogin(r *http.Request) (bool, error) {
 	u := models.User{}
 	err = stmt.QueryRow(username).Scan(&u.Id, &u.Username, &u.Hash, &u.APIKey)
 	if err == sql.ErrNoRows {
+		//Return false, but don't return an error
+		return false, nil
+	} else if err != nil {
 		return false, err
 	}
 	//If we've made it here, we should have a valid user stored in u

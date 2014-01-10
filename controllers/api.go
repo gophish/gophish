@@ -33,5 +33,5 @@ func API_Campaigns_Id(w http.ResponseWriter, r *http.Request) {
 
 //API_Doc renders a template describing the API documentation.
 func API_Doc(w http.ResponseWriter, r *http.Request) {
-	renderTemplate(w, "api_doc")
+	getTemplate(w, "api_doc").ExecuteTemplate(w, "base", nil)
 }

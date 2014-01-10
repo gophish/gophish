@@ -30,8 +30,11 @@ import (
 	"html/template"
 	"net/http"
 
+	ctx "github.com/gorilla/context"
 	"github.com/gorilla/mux"
+	"github.com/gorilla/sessions"
 	"github.com/jordan-wright/gophish/auth"
+	"github.com/jordan-wright/gophish/models"
 )
 
 func CreateRouter() http.Handler {
@@ -63,31 +66,35 @@ func Register(w http.ResponseWriter, r *http.Request) {
 }
 
 func Base(w http.ResponseWriter, r *http.Request) {
-	session, _ := auth.Store.Get(r, "gophish")
 	// Example of using session - will be removed.
-	session.Save(r, w)
-	renderTemplate(w, "dashboard")
+	getTemplate(w, "dashboard").ExecuteTemplate(w, "base", nil)
 }
 
 func Users(w http.ResponseWriter, r *http.Request) {
-	renderTemplate(w, "users")
+	getTemplate(w, "users").ExecuteTemplate(w, "base", nil)
 }
 
 func Settings(w http.ResponseWriter, r *http.Request) {
-	renderTemplate(w, "settings")
+	getTemplate(w, "settings").ExecuteTemplate(w, "base", nil)
 }
 
 func Base_Campaigns(w http.ResponseWriter, r *http.Request) {
 	//session, _ := auth.Store.Get(r, "gophish")
-	renderTemplate(w, "dashboard")
+	getTemplate(w, "dashboard").ExecuteTemplate(w, "base", nil)
 }
 
 func Login(w http.ResponseWriter, r *http.Request) {
+	params := struct {
+		User    models.User
+		Title   string
+		Flashes []interface{}
+	}{}
+	session := ctx.Get(r, "session").(*sessions.Session)
+	params.Title = "Login"
 	switch {
 	case r.Method == "GET":
-		renderTemplate(w, "login")
+		getTemplate(w, "login").ExecuteTemplate(w, "base", params)
 	case r.Method == "POST":
-		session, _ := auth.Store.Get(r, "gophish")
 		//Attempt to login
 		if err := r.ParseForm(); err != nil {
 			http.Error(w, "Error parsing request", http.StatusInternalServerError)
@@ -101,13 +108,16 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			session.Save(r, w)
 			http.Redirect(w, r, "/", 302)
 		} else {
-			session.AddFlash("Invalid Username/Password")
-			renderTemplate(w, "login")
+			session.AddFlash(models.Flash{
+				Type:    "danger",
+				Message: "Invalid Username/Password",
+			})
+			params.Flashes = session.Flashes()
+			getTemplate(w, "login").ExecuteTemplate(w, "base", params)
 		}
 	}
 }
 
-func renderTemplate(w http.ResponseWriter, tmpl string) {
-	t := template.Must(template.New("template").ParseFiles("templates/base.html", "templates/nav.html", "templates/"+tmpl+".html"))
-	t.ExecuteTemplate(w, "base", "T")
+func getTemplate(w http.ResponseWriter, tmpl string) *template.Template {
+	return template.Must(template.New("template").ParseFiles("templates/base.html", "templates/nav.html", "templates/"+tmpl+".html", "templates/flashes.html"))
 }

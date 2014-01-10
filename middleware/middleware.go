@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	ctx "github.com/gorilla/context"
+	"github.com/jordan-wright/gophish/auth"
 )
 
 // Use allows us to stack middleware to process the request
@@ -22,7 +23,13 @@ func GetContext(handler http.Handler) http.Handler {
 	// Set the context here
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Set the context appropriately here.
+		// Set the session
+		session, _ := auth.Store.Get(r, "gophish")
+		ctx.Set(r, "session", session)
 		handler.ServeHTTP(w, r)
+		// Save the session
+		session.Save()
+		// Remove context contents
 		ctx.Clear(r)
 	})
 }

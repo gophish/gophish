@@ -10,7 +10,7 @@
     <meta name="author" content="">
     <link rel="shortcut icon" href="../../docs-assets/ico/favicon.png">
 
-    <title>Gophish - Dashboard</title>
+    <title>Gophish - {{.Title}}</title>
 
     <!-- Bootstrap core CSS -->
     <link href="/css/bootstrap.css" rel="stylesheet">
@@ -22,7 +22,7 @@
 </head>
 
 <body>
-    {{template "content"}}
+    {{template "content" .}}
     <!-- Footer -->
     <div class="container">
         <hr>
