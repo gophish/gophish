@@ -51,9 +51,16 @@ func CheckLogin(r *http.Request) (bool, error) {
 	return true, nil
 }
 
-func GetUser(r *http.Request) models.User {
-	if rv := ctx.Get(r, "user"); rv != nil {
-		return rv.(models.User)
+func GetUser(id int) (models.User, error) {
+	u := models.User{}
+	stmt, err := db.Conn.Prepare("SELECT * FROM Users WHERE id=?")
+	if err != nil {
+		return u, err
 	}
-	return models.User{}
+	err = stmt.QueryRow(id).Scan(&u.Id, &u.Username, &u.Hash, &u.APIKey)
+	if err != nil {
+		//Return false, but don't return an error
+		return u, err
+	}
+	return u, nil
 }

@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"fmt"
 	"net/http"
 
 	ctx "github.com/gorilla/context"
@@ -25,10 +24,20 @@ func GetContext(handler http.Handler) http.Handler {
 		// Set the context appropriately here.
 		// Set the session
 		session, _ := auth.Store.Get(r, "gophish")
+		// Put the session in the context so that
 		ctx.Set(r, "session", session)
+		if id, ok := session.Values["id"]; ok {
+			u, err := auth.GetUser(id.(int))
+			if err != nil {
+				ctx.Set(r, "user", nil)
+			}
+			ctx.Set(r, "user", u)
+		} else {
+			ctx.Set(r, "user", nil)
+		}
 		handler.ServeHTTP(w, r)
 		// Save the session
-		session.Save()
+		session.Save(r, w)
 		// Remove context contents
 		ctx.Clear(r)
 	})
@@ -38,7 +47,10 @@ func GetContext(handler http.Handler) http.Handler {
 // If not, the function returns a 302 redirect to the login page.
 func RequireLogin(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("RequireLogin called!!")
-		handler.ServeHTTP(w, r)
+		if u := ctx.Get(r, "user"); u != nil {
+			handler.ServeHTTP(w, r)
+		} else {
+			http.Redirect(w, r, "/login", 302)
+		}
 	})
 }

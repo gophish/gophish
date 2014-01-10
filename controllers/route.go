@@ -27,6 +27,7 @@ THE SOFTWARE.
 */
 
 import (
+	"fmt"
 	"html/template"
 	"net/http"
 
@@ -34,13 +35,14 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
 	"github.com/jordan-wright/gophish/auth"
+	"github.com/jordan-wright/gophish/middleware"
 	"github.com/jordan-wright/gophish/models"
 )
 
 func CreateRouter() http.Handler {
 	router := mux.NewRouter()
 	// Base Front-end routes
-	router.HandleFunc("/", Base)
+	router.Handle("/", middleware.Use(http.HandlerFunc(Base), middleware.RequireLogin))
 	router.HandleFunc("/login", Login)
 	router.HandleFunc("/register", Register)
 	router.HandleFunc("/campaigns", Base_Campaigns)
@@ -67,6 +69,13 @@ func Register(w http.ResponseWriter, r *http.Request) {
 
 func Base(w http.ResponseWriter, r *http.Request) {
 	// Example of using session - will be removed.
+	params := struct {
+		User    models.User
+		Title   string
+		Flashes []interface{}
+	}{}
+	params.User = ctx.Get(r, "user").(models.User)
+	fmt.Println(params.User.Username)
 	getTemplate(w, "dashboard").ExecuteTemplate(w, "base", nil)
 }
 
