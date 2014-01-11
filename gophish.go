@@ -41,12 +41,11 @@ var setupFlag = flag.Bool("setup", false, "Starts the initial setup process for 
 func main() {
 	//Setup the global variables and settings
 	err := db.Setup()
-	//defer db.Conn.Close()
+	defer db.Conn.Close()
 	if err != nil {
 		fmt.Println(err)
 	}
 	fmt.Printf("Gophish server started at http://%s\n", config.Conf.URL)
-	http.Handle("/", middleware.Use(controllers.CreateRouter(), middleware.GetContext))
+	http.Handle("/", controllers.Use(controllers.CreateRouter(), middleware.GetContext))
 	http.ListenAndServe(config.Conf.URL, nil)
-	fmt.Println("Closed.")
 }

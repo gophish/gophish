@@ -35,19 +35,20 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
 	"github.com/jordan-wright/gophish/auth"
-	"github.com/jordan-wright/gophish/middleware"
+	mid "github.com/jordan-wright/gophish/middleware"
 	"github.com/jordan-wright/gophish/models"
 )
 
 func CreateRouter() http.Handler {
 	router := mux.NewRouter()
 	// Base Front-end routes
-	router.Handle("/", middleware.Use(http.HandlerFunc(Base), middleware.RequireLogin))
 	router.HandleFunc("/login", Login)
 	router.HandleFunc("/register", Register)
-	router.HandleFunc("/campaigns", Base_Campaigns)
-	router.HandleFunc("/users", Users)
-	router.HandleFunc("/settings", Settings)
+	router.Handle("/", Use(http.HandlerFunc(Base), mid.RequireLogin))
+	router.Handle("/campaigns", Use(http.HandlerFunc(Campaigns), mid.RequireLogin))
+	router.Handle("/campaigns/{id}", Use(http.HandlerFunc(Campaigns_Id), mid.RequireLogin))
+	router.Handle("/users", Use(http.HandlerFunc(Users), mid.RequireLogin))
+	router.Handle("/settings", Use(http.HandlerFunc(Settings), mid.RequireLogin))
 
 	// Create the API routes
 	api := router.PathPrefix("/api").Subrouter()
@@ -59,6 +60,15 @@ func CreateRouter() http.Handler {
 	//Setup static file serving
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./static/")))
 	return router
+}
+
+// Use allows us to stack middleware to process the request
+// Example taken from https://github.com/gorilla/mux/pull/36#issuecomment-25849172
+func Use(handler http.Handler, mid ...func(http.Handler) http.Handler) http.Handler {
+	for _, m := range mid {
+		handler = m(handler)
+	}
+	return handler
 }
 
 func Register(w http.ResponseWriter, r *http.Request) {
@@ -87,7 +97,12 @@ func Settings(w http.ResponseWriter, r *http.Request) {
 	getTemplate(w, "settings").ExecuteTemplate(w, "base", nil)
 }
 
-func Base_Campaigns(w http.ResponseWriter, r *http.Request) {
+func Campaigns(w http.ResponseWriter, r *http.Request) {
+	//session, _ := auth.Store.Get(r, "gophish")
+	getTemplate(w, "dashboard").ExecuteTemplate(w, "base", nil)
+}
+
+func Campaigns_Id(w http.ResponseWriter, r *http.Request) {
 	//session, _ := auth.Store.Get(r, "gophish")
 	getTemplate(w, "dashboard").ExecuteTemplate(w, "base", nil)
 }
