@@ -46,6 +46,6 @@ func main() {
 		fmt.Println(err)
 	}
 	fmt.Printf("Gophish server started at http://%s\n", config.Conf.URL)
-	http.Handle("/", controllers.Use(controllers.CreateRouter(), middleware.GetContext))
+	http.Handle("/", controllers.Use(controllers.CreateRouter().ServeHTTP, middleware.GetContext))
 	http.ListenAndServe(config.Conf.URL, nil)
 }

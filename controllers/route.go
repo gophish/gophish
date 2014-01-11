@@ -39,16 +39,16 @@ import (
 	"github.com/jordan-wright/gophish/models"
 )
 
-func CreateRouter() http.Handler {
+func CreateRouter() *mux.Router {
 	router := mux.NewRouter()
 	// Base Front-end routes
 	router.HandleFunc("/login", Login)
 	router.HandleFunc("/register", Register)
-	router.Handle("/", Use(http.HandlerFunc(Base), mid.RequireLogin))
-	router.Handle("/campaigns", Use(http.HandlerFunc(Campaigns), mid.RequireLogin))
-	router.Handle("/campaigns/{id}", Use(http.HandlerFunc(Campaigns_Id), mid.RequireLogin))
-	router.Handle("/users", Use(http.HandlerFunc(Users), mid.RequireLogin))
-	router.Handle("/settings", Use(http.HandlerFunc(Settings), mid.RequireLogin))
+	router.HandleFunc("/", Use(Base, mid.RequireLogin))
+	router.HandleFunc("/campaigns", Use(Campaigns, mid.RequireLogin))
+	router.HandleFunc("/campaigns/{id}", Use(Campaigns_Id, mid.RequireLogin))
+	router.HandleFunc("/users", Use(Users, mid.RequireLogin))
+	router.HandleFunc("/settings", Use(Settings, mid.RequireLogin))
 
 	// Create the API routes
 	api := router.PathPrefix("/api").Subrouter()
@@ -64,7 +64,7 @@ func CreateRouter() http.Handler {
 
 // Use allows us to stack middleware to process the request
 // Example taken from https://github.com/gorilla/mux/pull/36#issuecomment-25849172
-func Use(handler http.Handler, mid ...func(http.Handler) http.Handler) http.Handler {
+func Use(handler http.HandlerFunc, mid ...func(http.Handler) http.HandlerFunc) http.HandlerFunc {
 	for _, m := range mid {
 		handler = m(handler)
 	}

@@ -9,9 +9,9 @@ import (
 
 // GetContext wraps each request in a function which fills in the context for a given request.
 // This includes setting the User and Session keys and values as necessary for use in later functions.
-func GetContext(handler http.Handler) http.Handler {
+func GetContext(handler http.Handler) http.HandlerFunc {
 	// Set the context here
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
 		// Set the context appropriately here.
 		// Set the session
 		session, _ := auth.Store.Get(r, "gophish")
@@ -31,17 +31,17 @@ func GetContext(handler http.Handler) http.Handler {
 		session.Save(r, w)
 		// Remove context contents
 		ctx.Clear(r)
-	})
+	}
 }
 
 // RequireLogin is a simple middleware which checks to see if the user is currently logged in.
 // If not, the function returns a 302 redirect to the login page.
-func RequireLogin(handler http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+func RequireLogin(handler http.Handler) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
 		if u := ctx.Get(r, "user"); u != nil {
 			handler.ServeHTTP(w, r)
 		} else {
 			http.Redirect(w, r, "/login", 302)
 		}
-	})
+	}
 }

@@ -18,7 +18,10 @@ func init() {
 	gob.Register(&models.User{})
 }
 
-var Store = sessions.NewCookieStore([]byte(securecookie.GenerateRandomKey(64)))
+var Store = sessions.NewCookieStore(
+	[]byte(securecookie.GenerateRandomKey(64)), //Signing key
+	[]byte(securecookie.GenerateRandomKey(64)), //Encryption key
+)
 
 // CheckLogin attempts to request a SQL record with the given username.
 // If successful, it then compares the received bcrypt hash.
