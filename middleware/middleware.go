@@ -27,8 +27,6 @@ func GetContext(handler http.Handler) http.HandlerFunc {
 			ctx.Set(r, "user", nil)
 		}
 		handler.ServeHTTP(w, r)
-		// Save the session
-		session.Save(r, w)
 		// Remove context contents
 		ctx.Clear(r)
 	}

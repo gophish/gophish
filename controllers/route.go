@@ -123,7 +123,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		if err := r.ParseForm(); err != nil {
 			http.Error(w, "Error parsing request", http.StatusInternalServerError)
 		}
-		succ, err := auth.CheckLogin(r)
+		succ, err := auth.Login(r)
 		if err != nil {
 			http.Error(w, "Error logging in", http.StatusInternalServerError)
 		}

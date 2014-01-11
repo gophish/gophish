@@ -20,13 +20,12 @@ func init() {
 
 var Store = sessions.NewCookieStore(
 	[]byte(securecookie.GenerateRandomKey(64)), //Signing key
-	[]byte(securecookie.GenerateRandomKey(64)), //Encryption key
-)
+	[]byte(securecookie.GenerateRandomKey(32)))
 
 // CheckLogin attempts to request a SQL record with the given username.
 // If successful, it then compares the received bcrypt hash.
 // If all checks pass, this function sets the session id for later use.
-func CheckLogin(r *http.Request) (bool, error) {
+func Login(r *http.Request) (bool, error) {
 	username, password := r.FormValue("username"), r.FormValue("password")
 	session, _ := Store.Get(r, "gophish")
 	stmt, err := db.Conn.Prepare("SELECT * FROM Users WHERE username=?")
