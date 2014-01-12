@@ -14,7 +14,7 @@ Until then, you can keep up-to-date with development news and articles on [my bl
 
 ###Install
 
-Installation of gophish is dead-simple - download and extract the zip, and run the binary. Gophish has binary releases for all platforms.
+Installation of gophish is dead-simple - once the binaries are released (coming soon!), just download and extract the zip, and run the binary. Gophish will have binary releases for all platforms.
 
 ###Setup
 After running the gophish binary, open an Internet browser to http://localhost:3333 and follow the setup instructions.
