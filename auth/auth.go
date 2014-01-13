@@ -53,13 +53,27 @@ func Login(r *http.Request) (bool, error) {
 	return true, nil
 }
 
-func GetUser(id int) (models.User, error) {
+func GetUserById(id int) (models.User, error) {
 	u := models.User{}
-	stmt, err := db.Conn.Prepare("SELECT * FROM Users WHERE id=?")
+	stmt, err := db.Conn.Prepare("SELECT id, username, apikey FROM Users WHERE id=?")
 	if err != nil {
 		return u, err
 	}
-	err = stmt.QueryRow(id).Scan(&u.Id, &u.Username, &u.Hash, &u.APIKey)
+	err = stmt.QueryRow(id).Scan(&u.Id, &u.Username, &u.APIKey)
+	if err != nil {
+		//Return false, but don't return an error
+		return u, err
+	}
+	return u, nil
+}
+
+func GetUserByAPIKey(key []byte) (models.User, error) {
+	u := models.User{}
+	stmt, err := db.Conn.Prepare("SELECT id, username, apikey FROM Users WHERE apikey=?")
+	if err != nil {
+		return u, err
+	}
+	err = stmt.QueryRow(key).Scan(&u.Id, &u.Username, &u.APIKey)
 	if err != nil {
 		//Return false, but don't return an error
 		return u, err
