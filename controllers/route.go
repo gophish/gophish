@@ -52,7 +52,7 @@ func CreateRouter() *mux.Router {
 
 	// Create the API routes
 	api := router.PathPrefix("/api").Subrouter()
-	api.HandleFunc("/", API)
+	api.HandleFunc("/", Use(API, mid.RequireLogin))
 	api.HandleFunc("/campaigns", API_Campaigns)
 	api.HandleFunc("/campaigns/{id}", API_Campaigns_Id)
 	api.HandleFunc("/doc", API_Doc)

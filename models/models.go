@@ -16,10 +16,10 @@ type Config struct {
 
 // User represents the user model for gophish.
 type User struct {
-	Id       int
-	Username string
-	Hash     string
-	APIKey   string
+	Id       int    `json:"id"`
+	Username string `json:"username"`
+	Hash     string `json:"-"`
+	APIKey   string `json:"apikey"`
 }
 
 // Flash is used to hold flash information for use in templates.
