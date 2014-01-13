@@ -83,8 +83,7 @@ func Base(w http.ResponseWriter, r *http.Request) {
 		User    models.User
 		Title   string
 		Flashes []interface{}
-	}{}
-	params.User = ctx.Get(r, "user").(models.User)
+	}{Title: "Dashboard", User: ctx.Get(r, "user").(models.User)}
 	fmt.Println(params.User.Username)
 	getTemplate(w, "dashboard").ExecuteTemplate(w, "base", nil)
 }
@@ -112,9 +111,8 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		User    models.User
 		Title   string
 		Flashes []interface{}
-	}{}
+	}{Title: "Login"}
 	session := ctx.Get(r, "session").(*sessions.Session)
-	params.Title = "Login"
 	switch {
 	case r.Method == "GET":
 		getTemplate(w, "login").ExecuteTemplate(w, "base", params)

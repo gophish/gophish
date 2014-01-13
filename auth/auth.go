@@ -53,6 +53,8 @@ func Login(r *http.Request) (bool, error) {
 	return true, nil
 }
 
+// GetUserById returns the user that the given id corresponds to. If no user is found, an
+// error is thrown.
 func GetUserById(id int) (models.User, error) {
 	u := models.User{}
 	stmt, err := db.Conn.Prepare("SELECT id, username, apikey FROM Users WHERE id=?")
@@ -61,12 +63,13 @@ func GetUserById(id int) (models.User, error) {
 	}
 	err = stmt.QueryRow(id).Scan(&u.Id, &u.Username, &u.APIKey)
 	if err != nil {
-		//Return false, but don't return an error
 		return u, err
 	}
 	return u, nil
 }
 
+// GetUserByAPIKey returns the user that the given API Key corresponds to. If no user is found, an
+// error is thrown.
 func GetUserByAPIKey(key []byte) (models.User, error) {
 	u := models.User{}
 	stmt, err := db.Conn.Prepare("SELECT id, username, apikey FROM Users WHERE apikey=?")
@@ -75,7 +78,6 @@ func GetUserByAPIKey(key []byte) (models.User, error) {
 	}
 	err = stmt.QueryRow(key).Scan(&u.Id, &u.Username, &u.APIKey)
 	if err != nil {
-		//Return false, but don't return an error
 		return u, err
 	}
 	return u, nil

@@ -40,7 +40,8 @@ var setupFlag = flag.Bool("setup", false, "Starts the initial setup process for 
 
 func main() {
 	//Setup the global variables and settings
-	err := db.Setup()
+	flag.Parse()
+	err := db.Setup(*setupFlag)
 	defer db.Conn.Close()
 	if err != nil {
 		fmt.Println(err)
