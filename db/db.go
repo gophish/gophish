@@ -14,6 +14,11 @@ var Conn *sql.DB
 // Setup initializes the Conn object
 // It also populates the Gophish Config object
 func Setup() error {
+	createTablesSQL := []string{
+		//Create tables
+		`CREATE TABLE Users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT NOT NULL, hash VARCHAR(60) NOT NULL, apikey VARCHAR(32));`,
+		`CREATE TABLE Campaigns (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, created_date TEXT NOT NULL, completed_date TEXT, status TEXT NOT NULL);`,
+	}
 	//If the file already exists, delete it and recreate it
 	_, err := os.Stat(config.Conf.DBPath)
 	if err == nil {
@@ -25,10 +30,11 @@ func Setup() error {
 		return err
 	}
 	//Create the tables needed
-	_, err = Conn.Exec(
-		`CREATE TABLE Users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, hash VARCHAR(60), apikey VARCHAR(32));`)
-	if err != nil {
-		return err
+	for _, stmt := range createTablesSQL {
+		_, err = Conn.Exec(stmt)
+		if err != nil {
+			return err
+		}
 	}
 	//Create the default user
 	stmt, err := Conn.Prepare(`INSERT INTO Users (username, hash, apikey) VALUES (?, ?, ?);`)

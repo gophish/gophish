@@ -43,6 +43,6 @@ type Campaign struct {
 	CreatedDate   time.Time      `json:"created_date"`
 	CompletedDate time.Time      `json:"completed_date"`
 	Targets       []mail.Address `json:"targets"`
-	Template      email.Email    `json:"template"`
+	Template      *email.Email   `json:"template"` //This may change
 	Status        string         `json:"status"`
 }
