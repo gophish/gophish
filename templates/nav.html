@@ -13,9 +13,15 @@
         <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav navbar-right">
                 <li>
-                    <a id="navbar-login" href="/login">
+                    {{if .}}
+                    <a href="/settings">
+                        <button type="button" class="btn btn-primary"><i class="fa fa-user"></i> {{.Username}}</button>
+                    </a>
+                    {{else}}
+                    <a href="/login">
                         <button type="button" class="btn btn-primary">Login</button>
                     </a>
+                    {{end}}
                 </li>
             </ul>
         </div>
