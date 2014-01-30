@@ -84,7 +84,6 @@ func Base(w http.ResponseWriter, r *http.Request) {
 		Title   string
 		Flashes []interface{}
 	}{Title: "Dashboard", User: ctx.Get(r, "user").(models.User)}
-	fmt.Println(params.User.Username)
 	getTemplate(w, "dashboard").ExecuteTemplate(w, "base", params)
 }
 
@@ -93,7 +92,11 @@ func Users(w http.ResponseWriter, r *http.Request) {
 }
 
 func Settings(w http.ResponseWriter, r *http.Request) {
-	getTemplate(w, "settings").ExecuteTemplate(w, "base", nil)
+	params := struct {
+		User  models.User
+		Title string
+	}{Title: "Settings", User: ctx.Get(r, "user").(models.User)}
+	getTemplate(w, "settings").ExecuteTemplate(w, "base", params)
 }
 
 func Campaigns(w http.ResponseWriter, r *http.Request) {

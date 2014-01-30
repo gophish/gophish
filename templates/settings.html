@@ -1,4 +1,4 @@
-{{define "content"}} {{template "nav"}}
+{{define "content"}} {{template "nav" .User}}
 <div class="jumbotron">
     <div class="container" style="text-align:center;">
         <h1 class="sans header">
@@ -20,10 +20,9 @@
         </ul>
     </div>
     <div class="col-md-9 sans">
-        <h1 style="margin-top:0px"><i class="fa fa-gear"></i> Gophish API</h1>
-        <p>Gophish runs on top of a RESTful API which allows developers to automate phishing campaigns easily. The following documentation and examples demonstrate the API functionality</p>
-        <h2 class="api_heading">/api/campaigns</h2>
-        <p>Test.</p>
+        <h1 style="margin-top:0px">User Settings</h1>
+        <p><b>Username:</b> {{.User.Username}}</p>
+        <p><b>Api Key:</b> {{.User.APIKey}}</p>
     </div>
 </div>
 {{end}}
