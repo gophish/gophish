@@ -28,12 +28,8 @@ var Store = sessions.NewCookieStore(
 func Login(r *http.Request) (bool, error) {
 	username, password := r.FormValue("username"), r.FormValue("password")
 	session, _ := Store.Get(r, "gophish")
-	stmt, err := db.Conn.Prepare("SELECT * FROM Users WHERE username=?")
-	if err != nil {
-		return false, err
-	}
 	u := models.User{}
-	err = stmt.QueryRow(username).Scan(&u.Id, &u.Username, &u.Hash, &u.APIKey)
+	err := db.Conn.SelectOne(&u, "SELECT * FROM Users WHERE username=?", username)
 	if err == sql.ErrNoRows {
 		//Return false, but don't return an error
 		return false, nil
@@ -57,11 +53,7 @@ func Login(r *http.Request) (bool, error) {
 // error is thrown.
 func GetUserById(id int) (models.User, error) {
 	u := models.User{}
-	stmt, err := db.Conn.Prepare("SELECT id, username, apikey FROM Users WHERE id=?")
-	if err != nil {
-		return u, err
-	}
-	err = stmt.QueryRow(id).Scan(&u.Id, &u.Username, &u.APIKey)
+	err := db.Conn.SelectOne(&u, "SELECT id, username, apikey FROM Users WHERE id=?", id)
 	if err != nil {
 		return u, err
 	}
@@ -72,11 +64,7 @@ func GetUserById(id int) (models.User, error) {
 // error is thrown.
 func GetUserByAPIKey(key []byte) (models.User, error) {
 	u := models.User{}
-	stmt, err := db.Conn.Prepare("SELECT id, username, apikey FROM Users WHERE apikey=?")
-	if err != nil {
-		return u, err
-	}
-	err = stmt.QueryRow(key).Scan(&u.Id, &u.Username, &u.APIKey)
+	err := db.Conn.SelectOne(&u, "SELECT id, username, apikey FROM Users WHERE apikey=?", key)
 	if err != nil {
 		return u, err
 	}

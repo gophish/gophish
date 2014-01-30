@@ -85,7 +85,7 @@ func Base(w http.ResponseWriter, r *http.Request) {
 		Flashes []interface{}
 	}{Title: "Dashboard", User: ctx.Get(r, "user").(models.User)}
 	fmt.Println(params.User.Username)
-	getTemplate(w, "dashboard").ExecuteTemplate(w, "base", nil)
+	getTemplate(w, "dashboard").ExecuteTemplate(w, "base", params)
 }
 
 func Users(w http.ResponseWriter, r *http.Request) {
@@ -123,6 +123,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		}
 		succ, err := auth.Login(r)
 		if err != nil {
+			fmt.Println(err)
 			http.Error(w, "Error logging in", http.StatusInternalServerError)
 		}
 		//If we've logged in, save the session and redirect to the dashboard

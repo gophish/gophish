@@ -14,9 +14,20 @@
             <ul class="nav navbar-nav navbar-right">
                 <li>
                     {{if .}}
-                    <a href="/settings">
+                    <div class="btn-group" id="navbar-dropdown">
                         <button type="button" class="btn btn-primary"><i class="fa fa-user"></i> {{.Username}}</button>
-                    </a>
+                        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                            <span class="caret" style="border-top-color:#FFFFFF"></span>
+                            <span class="sr-only">Toggle Dropdown</span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a href="/settings">Settings</a>
+                            </li>
+                            <li class="divider"></li>
+                            <li><a href="/logout">Logout</a>
+                            </li>
+                        </ul>
+                    </div>
                     {{else}}
                     <a href="/login">
                         <button type="button" class="btn btn-primary">Login</button>

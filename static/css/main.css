@@ -7,6 +7,9 @@
       padding-top:8px;
       padding-bottom:0px;
   }
+  #navbar-dropdown {
+    margin-top:8px;
+  }
   .sans {
       font-family:'Open Sans', sans-serif !important;
   }

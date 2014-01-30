@@ -5,8 +5,6 @@ import (
 
 	// SMTPServer is used to provide a default SMTP server preference.
 	"time"
-
-	"github.com/jordan-wright/email"
 )
 
 type SMTPServer struct {
@@ -38,11 +36,32 @@ type Flash struct {
 
 //Campaign is a struct representing a created campaign
 type Campaign struct {
-	Id            int            `json:"id"`
-	Name          string         `json:"name"`
-	CreatedDate   time.Time      `json:"created_date"`
-	CompletedDate time.Time      `json:"completed_date"`
-	Targets       []mail.Address `json:"targets"`
-	Template      *email.Email   `json:"template"` //This may change
-	Status        string         `json:"status"`
+	Id            int       `json:"id"`
+	Name          string    `json:"name"`
+	CreatedDate   time.Time `json:"created_date" db:"created_date"`
+	CompletedDate time.Time `json:"completed_date" db:"completed_date"`
+	Template      string    `json:"template"` //This may change
+	Status        string    `json:"status"`
+	Uid           int
+}
+
+type UserCampaigns struct {
+	CampaignId int
+	UserId     int
+}
+
+type Result struct {
+	Id       int
+	TargetId int
+	Status   string `json:"status"`
+}
+
+type CampaignResults struct {
+	CampaignId int
+	TargetId   int
+}
+
+type Target struct {
+	Id    int          `json:"-"`
+	Email mail.Address `json:"email"`
 }

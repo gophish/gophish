@@ -26,7 +26,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 import (
-	"flag"
 	"fmt"
 	"net/http"
 
@@ -36,13 +35,10 @@ import (
 	"github.com/jordan-wright/gophish/middleware"
 )
 
-var setupFlag = flag.Bool("setup", false, "Starts the initial setup process for Gophish")
-
 func main() {
 	//Setup the global variables and settings
-	flag.Parse()
-	err := db.Setup(*setupFlag)
-	defer db.Conn.Close()
+	err := db.Setup()
+	defer db.DB.Close()
 	if err != nil {
 		fmt.Println(err)
 	}
