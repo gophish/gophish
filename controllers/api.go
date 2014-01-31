@@ -4,11 +4,19 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
 	ctx "github.com/gorilla/context"
 	"github.com/gorilla/mux"
 	"github.com/jordan-wright/gophish/db"
 	"github.com/jordan-wright/gophish/models"
+)
+
+const (
+	IN_PROGRESS string = "In progress"
+	WAITING     string = "Waiting"
+	COMPLETE    string = "Completed"
+	ERROR       string = "Error"
 )
 
 func API(w http.ResponseWriter, r *http.Request) {
@@ -32,19 +40,39 @@ func API_Campaigns(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "GET":
 		cs := []models.Campaign{}
-		_, err := db.Conn.Select(&cs, "SELECT name, created_date, completed_date, status, template FROM campaigns, users WHERE campaigns.uid=users.id AND users.apikey=?", ctx.Get(r, "api_key"))
+		_, err := db.Conn.Select(&cs, "SELECT campaigns.id, name, created_date, completed_date, status, template FROM campaigns, users WHERE campaigns.uid=users.id AND users.api_key=?", ctx.Get(r, "api_key"))
 		if err != nil {
 			fmt.Println(err)
 		}
-		d, err := json.MarshalIndent(cs, "", "  ")
-		if err != nil {
-			fmt.Println(err)
+		cj, err := json.MarshalIndent(cs, "", "  ")
+		if checkError(err, w, "Error looking up campaigns") {
+			return
 		}
-		writeJSON(w, d)
+		writeJSON(w, cj)
 	case r.Method == "POST":
-		fmt.Fprintf(w, "Hello POST!")
+		c := models.Campaign{}
+		// Put the request into a campaign
+		err := json.NewDecoder(r.Body).Decode(&c)
+		checkError(err, w, "Invalid Request")
+		// Fill in the details
+		c.CreatedDate = time.Now()
+		c.CompletedDate = time.Time{}
+		c.Status = IN_PROGRESS
+		c.Uid, err = db.Conn.SelectInt("SELECT id FROM users WHERE api_key=?", ctx.Get(r, "api_key"))
+		if checkError(err, w, "Invalid API Key") {
+			return
+		}
+		// Insert into the DB
+		err = db.Conn.Insert(&c)
+		if checkError(err, w, "Cannot insert campaign into database") {
+			return
+		}
+		cj, err := json.MarshalIndent(c, "", "  ")
+		if checkError(err, w, "Error creating JSON response") {
+			return
+		}
+		writeJSON(w, cj)
 	}
-	//fmt.Fprintf(w, "Hello api")
 }
 
 //API_Campaigns_Id returns details about the requested campaign. If the campaign is not

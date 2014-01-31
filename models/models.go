@@ -22,10 +22,10 @@ type Config struct {
 
 // User represents the user model for gophish.
 type User struct {
-	Id       int    `json:"id"`
+	Id       int64  `json:"id"`
 	Username string `json:"username"`
 	Hash     string `json:"-"`
-	APIKey   string `json:"apikey"`
+	APIKey   string `json:"api_key" db:"api_key"`
 }
 
 // Flash is used to hold flash information for use in templates.
@@ -36,32 +36,32 @@ type Flash struct {
 
 //Campaign is a struct representing a created campaign
 type Campaign struct {
-	Id            int       `json:"id"`
+	Id            int64     `json:"id"`
 	Name          string    `json:"name"`
 	CreatedDate   time.Time `json:"created_date" db:"created_date"`
 	CompletedDate time.Time `json:"completed_date" db:"completed_date"`
 	Template      string    `json:"template"` //This may change
 	Status        string    `json:"status"`
-	Uid           int       `json:"-"`
+	Uid           int64     `json:"-"`
 }
 
 type UserCampaigns struct {
-	CampaignId int
-	UserId     int
+	CampaignId int64
+	UserId     int64
 }
 
 type Result struct {
-	Id       int
-	TargetId int
+	Id       int64
+	TargetId int64
 	Status   string `json:"status"`
 }
 
 type CampaignResults struct {
-	CampaignId int
-	TargetId   int
+	CampaignId int64
+	TargetId   int64
 }
 
 type Target struct {
-	Id    int          `json:"-"`
+	Id    int64        `json:"-"`
 	Email mail.Address `json:"email"`
 }

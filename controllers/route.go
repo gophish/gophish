@@ -122,9 +122,13 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	case r.Method == "POST":
 		//Attempt to login
 		err := r.ParseForm()
-		checkError(err, w, "Error parsing request")
+		if checkError(err, w, "Error parsing request") {
+			return
+		}
 		succ, err := auth.Login(r)
-		checkError(err, w, "Error logging in")
+		if checkError(err, w, "Error logging in") {
+			return
+		}
 		//If we've logged in, save the session and redirect to the dashboard
 		if succ {
 			session.Save(r, w)
@@ -144,9 +148,11 @@ func getTemplate(w http.ResponseWriter, tmpl string) *template.Template {
 	return template.Must(template.New("template").ParseFiles("templates/base.html", "templates/nav.html", "templates/"+tmpl+".html", "templates/flashes.html"))
 }
 
-func checkError(e error, w http.ResponseWriter, m string) {
+func checkError(e error, w http.ResponseWriter, m string) bool {
 	if e != nil {
 		fmt.Println(e)
-		http.Error(w, m, http.StatusInternalServerError)
+		http.Error(w, "Error: "+m, http.StatusInternalServerError)
+		return true
 	}
+	return false
 }
