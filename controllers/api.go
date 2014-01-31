@@ -36,7 +36,7 @@ func API_Campaigns(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			fmt.Println(err)
 		}
-		d, err := json.Marshal(cs)
+		d, err := json.MarshalIndent(cs, "", "  ")
 		if err != nil {
 			fmt.Println(err)
 		}

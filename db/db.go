@@ -42,7 +42,7 @@ func Setup() error {
 		}
 		//Create the default user
 		init_user := models.User{
-			Username: "jordan",
+			Username: "admin",
 			Hash:     "$2a$10$d4OtT.RkEOQn.iruVWIQ5u8CeV/85ZYF41y8wKeUwsAPqPNFvTccW",
 			APIKey:   "12345678901234567890123456789012",
 		}
