@@ -52,9 +52,9 @@ func CreateRouter() *mux.Router {
 
 	// Create the API routes
 	api := router.PathPrefix("/api").Subrouter()
-	api.HandleFunc("/", Use(API, mid.RequireLogin))
-	api.HandleFunc("/campaigns", API_Campaigns)
-	api.HandleFunc("/campaigns/{id}", API_Campaigns_Id)
+	api.HandleFunc("/", Use(API, mid.RequireAPIKey))
+	api.HandleFunc("/campaigns", Use(API_Campaigns, mid.RequireAPIKey))
+	api.HandleFunc("/campaigns/{id}", Use(API_Campaigns_Id, mid.RequireAPIKey))
 	api.HandleFunc("/doc", API_Doc)
 
 	//Setup static file serving
@@ -121,14 +121,10 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		getTemplate(w, "login").ExecuteTemplate(w, "base", params)
 	case r.Method == "POST":
 		//Attempt to login
-		if err := r.ParseForm(); err != nil {
-			http.Error(w, "Error parsing request", http.StatusInternalServerError)
-		}
+		err := r.ParseForm()
+		checkError(err, w, "Error parsing request")
 		succ, err := auth.Login(r)
-		if err != nil {
-			fmt.Println(err)
-			http.Error(w, "Error logging in", http.StatusInternalServerError)
-		}
+		checkError(err, w, "Error logging in")
 		//If we've logged in, save the session and redirect to the dashboard
 		if succ {
 			session.Save(r, w)
@@ -146,4 +142,11 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 func getTemplate(w http.ResponseWriter, tmpl string) *template.Template {
 	return template.Must(template.New("template").ParseFiles("templates/base.html", "templates/nav.html", "templates/"+tmpl+".html", "templates/flashes.html"))
+}
+
+func checkError(e error, w http.ResponseWriter, m string) {
+	if e != nil {
+		fmt.Println(e)
+		http.Error(w, m, http.StatusInternalServerError)
+	}
 }

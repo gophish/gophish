@@ -20,10 +20,28 @@
         </ul>
     </div>
     <div class="col-md-9 sans">
-        <h1 style="margin-top:0px">User Settings</h1>
-        <p><b>Username:</b> {{.User.Username}}</p>
-        <p><b>Api Key:</b> {{.User.APIKey}}</p>
+        <h1 style="margin:0px 0px 15px 0px;">User Settings</h1>
+        <div class="row">
+            <div class="col-md-2">
+                <p><b>Username:</b> 
+                </p>
+            </div>
+            <div class="col-md-6">
+                <input type="text" value="{{.User.Username}}" class="form-control" />
+            </div>
+        </div>
+        <br/>
+        <div class="row">
+            <div class="col-md-2">
+                <p><b>API Key:</b> 
+                </p>
+            </div>
+            <div class="col-md-6">
+                <input type="text" value="{{.User.APIKey}}" class="form-control" readonly/>
+            </div>
+        </div>
+        <br />
+        <button class="btn btn-primary">Save</button>
     </div>
 </div>
 {{end}}
-

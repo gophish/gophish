@@ -42,7 +42,7 @@ type Campaign struct {
 	CompletedDate time.Time `json:"completed_date" db:"completed_date"`
 	Template      string    `json:"template"` //This may change
 	Status        string    `json:"status"`
-	Uid           int
+	Uid           int       `json:"-"`
 }
 
 type UserCampaigns struct {

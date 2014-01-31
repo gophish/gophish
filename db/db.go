@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/coopernurse/gorp"
 	"github.com/jordan-wright/gophish/config"
@@ -28,8 +29,8 @@ func Setup() error {
 		fmt.Println("Database not found, recreating...")
 		createTablesSQL := []string{
 			//Create tables
-			`CREATE TABLE Users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT NOT NULL, hash VARCHAR(60) NOT NULL, apikey VARCHAR(32));`,
-			`CREATE TABLE Campaigns (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, created_date TEXT NOT NULL, completed_date TEXT, template TEXT, status TEXT NOT NULL, uid INTEGER, FOREIGN KEY (uid) REFERENCES Users(id));`,
+			`CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT NOT NULL, hash VARCHAR(60) NOT NULL, apikey VARCHAR(32));`,
+			`CREATE TABLE campaigns (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, created_date TIMESTAMP NOT NULL, completed_date TIMESTAMP, template TEXT, status TEXT NOT NULL, uid INTEGER, FOREIGN KEY (uid) REFERENCES Users(id));`,
 		}
 		fmt.Println("Creating db at " + config.Conf.DBPath)
 		//Create the tables needed
@@ -49,6 +50,15 @@ func Setup() error {
 		if err != nil {
 			fmt.Println(err)
 		}
+		c := models.Campaign{
+			Name:          "Test Campaigns",
+			CreatedDate:   time.Now().UTC(),
+			CompletedDate: time.Now().UTC(),
+			Template:      "test template",
+			Status:        "In progress",
+			Uid:           init_user.Id,
+		}
+		Conn.Insert(&c)
 	}
 	return nil
 }
