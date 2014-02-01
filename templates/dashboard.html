@@ -28,14 +28,14 @@
             <table class="table table-hover table-striped table-bordered">
                 <thead>
                     <tr>
-                        <th>Date</th>
-                        <th>Name</th>
-                        <th>Status</th>
+                        <th class="col-sm-1">Date</th>
+                        <th class="col-sm-2">Name</th>
+                        <th class="col-sm-1">Status</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr ng-repeat="campaign in campaigns">
-                        <td>{{campaign.id}}</td>
+                        <td>{{campaign.created_date | date:'medium'}}</td>
                         <td>{{campaign.name}}</td>
                         <td>{{campaign.status}}</td>
                     </tr>
