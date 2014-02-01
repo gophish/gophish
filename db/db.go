@@ -25,12 +25,17 @@ func Setup() error {
 	_, err = os.Stat(config.Conf.DBPath)
 	Conn.AddTableWithName(models.User{}, "users").SetKeys(true, "Id")
 	Conn.AddTableWithName(models.Campaign{}, "campaigns").SetKeys(true, "Id")
+	Conn.AddTableWithName(models.Group{}, "groups").SetKeys(true, "Id")
+	Conn.AddTableWithName(models.GroupTarget{}, "group_target")
 	if err != nil {
 		fmt.Println("Database not found, recreating...")
 		createTablesSQL := []string{
 			//Create tables
 			`CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT NOT NULL, hash VARCHAR(60) NOT NULL, api_key VARCHAR(32));`,
-			`CREATE TABLE campaigns (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, created_date TIMESTAMP NOT NULL, completed_date TIMESTAMP, template TEXT, status TEXT NOT NULL, uid INTEGER, FOREIGN KEY (uid) REFERENCES Users(id));`,
+			`CREATE TABLE campaigns (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, created_date TIMESTAMP NOT NULL, completed_date TIMESTAMP, template TEXT, status TEXT NOT NULL, uid INTEGER, FOREIGN KEY (uid) REFERENCES users(id));`,
+			`CREATE TABLE targets (id INTEGER PRIMARY KEY AUTOINCREMENT, address TEXT NOT NULL);`,
+			`CREATE TABLE groups (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL);`,
+			`CREATE TABLE group_targets (gid INTEGER NOT NULL, tid INTEGER NOT NULL, FOREIGN KEY (gid) REFERENCES groups(id), FOREIGN KEY (tid) REFERENCES targets(id));`,
 		}
 		fmt.Println("Creating db at " + config.Conf.DBPath)
 		//Create the tables needed

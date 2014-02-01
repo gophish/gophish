@@ -42,6 +42,7 @@ type Campaign struct {
 	CompletedDate time.Time `json:"completed_date" db:"completed_date"`
 	Template      string    `json:"template"` //This may change
 	Status        string    `json:"status"`
+	Results       []Result  `json:"results" db:"-"`
 	Uid           int64     `json:"-"`
 }
 
@@ -56,9 +57,15 @@ type Result struct {
 	Status   string `json:"status"`
 }
 
-type CampaignResults struct {
-	CampaignId int64
-	TargetId   int64
+type Group struct {
+	Id      int64 `json:"id"`
+	Targets []Target
+	Uid     int64
+}
+
+type GroupTarget struct {
+	Gid int64
+	Tid int64
 }
 
 type Target struct {
