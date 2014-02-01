@@ -1,6 +1,6 @@
-{{define "base"}}
+{{% define "base" %}}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" ng-app="gophishApp">
 
 <head>
     <meta charset="utf-8">
@@ -10,7 +10,7 @@
     <meta name="author" content="">
     <link rel="shortcut icon" href="../../docs-assets/ico/favicon.png">
 
-    <title>Gophish - {{.Title}}</title>
+    <title>Gophish - {{% .Title %}}</title>
 
     <!-- Bootstrap core CSS -->
     <link href="/css/bootstrap.css" rel="stylesheet">
@@ -19,10 +19,13 @@
     <link href="/css/main.css" rel="stylesheet">
     <link href="/css/font-awesome.min.css" rel="stylesheet">
     <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700' rel='stylesheet' type='text/css'>
+    {{%if .User%}}
+    <script>var API_KEY = {{%.User.APIKey%}}</script>
+    {{%end%}}
 </head>
 
 <body>
-    {{template "content" .}}
+    {{% template "content" . %}}
     <!-- Footer -->
     <div class="container">
         <hr>
@@ -33,7 +36,9 @@
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="/js/jquery.js"></script>
     <script src="/js/bootstrap.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.10/angular.min.js"></script>
+    <script src="/js/app/controllers.js"></script>
 </body>
 
 </html>
-{{end}}
+{{% end %}}

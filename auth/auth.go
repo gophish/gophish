@@ -51,9 +51,9 @@ func Login(r *http.Request) (bool, error) {
 
 // GetUserById returns the user that the given id corresponds to. If no user is found, an
 // error is thrown.
-func GetUserById(id int) (models.User, error) {
+func GetUserById(id int64) (models.User, error) {
 	u := models.User{}
-	err := db.Conn.SelectOne(&u, "SELECT id, username, apikey FROM Users WHERE id=?", id)
+	err := db.Conn.SelectOne(&u, "SELECT id, username, api_key FROM Users WHERE id=?", id)
 	if err != nil {
 		return u, err
 	}
@@ -64,7 +64,7 @@ func GetUserById(id int) (models.User, error) {
 // error is thrown.
 func GetUserByAPIKey(key []byte) (models.User, error) {
 	u := models.User{}
-	err := db.Conn.SelectOne(&u, "SELECT id, username, apikey FROM Users WHERE apikey=?", key)
+	err := db.Conn.SelectOne(&u, "SELECT id, username, api_key FROM Users WHERE apikey=?", key)
 	if err != nil {
 		return u, err
 	}

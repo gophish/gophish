@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	ctx "github.com/gorilla/context"
@@ -78,9 +79,27 @@ func API_Campaigns(w http.ResponseWriter, r *http.Request) {
 //API_Campaigns_Id returns details about the requested campaign. If the campaign is not
 //valid, API_Campaigns_Id returns null.
 func API_Campaigns_Id(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
-	fmt.Fprintf(w, "{\"method\" : \""+r.Method+"\", \"id\" : "+vars["id"]+"}")
+	id, err := strconv.ParseInt(vars["id"], 0, 64)
+	if checkError(err, w, "Invalid Int") {
+		return
+	}
+	switch {
+	case r.Method == "GET":
+		c := models.Campaign{}
+		err := db.Conn.SelectOne(&c, "SELECT campaigns.id, name, created_date, completed_date, status, template FROM campaigns, users WHERE campaigns.uid=users.id AND campaigns.id =? AND users.api_key=?", id, ctx.Get(r, "api_key"))
+		if checkError(err, w, "No campaign found") {
+			return
+		}
+		fmt.Printf("%v\n", c)
+		cj, err := json.MarshalIndent(c, "", "  ")
+		if checkError(err, w, "Error creating JSON response") {
+			return
+		}
+		writeJSON(w, cj)
+	case r.Method == "DELETE":
+		//c := models.Campaign{}
+	}
 }
 
 //API_Doc renders a template describing the API documentation.

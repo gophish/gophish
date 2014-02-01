@@ -18,7 +18,7 @@ func GetContext(handler http.Handler) http.HandlerFunc {
 		// Put the session in the context so that
 		ctx.Set(r, "session", session)
 		if id, ok := session.Values["id"]; ok {
-			u, err := auth.GetUserById(id.(int))
+			u, err := auth.GetUserById(id.(int64))
 			if err != nil {
 				ctx.Set(r, "user", nil)
 			}

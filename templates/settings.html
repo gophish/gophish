@@ -1,4 +1,4 @@
-{{define "content"}} {{template "nav" .User}}
+{{%define "content"%}} {{%template "nav" .User%}}
 <div class="jumbotron">
     <div class="container" style="text-align:center;">
         <h1 class="sans header">
@@ -27,7 +27,7 @@
                 </p>
             </div>
             <div class="col-md-6">
-                <input type="text" value="{{.User.Username}}" class="form-control" />
+                <input type="text" value="{{%.User.Username%}}" class="form-control" />
             </div>
         </div>
         <br/>
@@ -37,11 +37,11 @@
                 </p>
             </div>
             <div class="col-md-6">
-                <input type="text" value="{{.User.APIKey}}" class="form-control" readonly/>
+                <input type="text" value="{{%.User.APIKey%}}" class="form-control" readonly/>
             </div>
         </div>
         <br />
         <button class="btn btn-primary">Save</button>
     </div>
 </div>
-{{end}}
+{{%end%}}

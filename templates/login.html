@@ -1,9 +1,9 @@
-{{define "content"}}
+{{%define "content"%}}
 <div class="container">
     <form class="form-signin" action="/login" method="POST">
         <img id="logo" src="/images/logo.png" />
         <h2 class="form-signin-heading">Please sign in</h2>
-        {{template "flashes" .Flashes}}
+        {{%template "flashes" .Flashes%}}
         <input type="text" name="username" class="form-control" placeholder="Username" required autofocus>
         <input type="password" name="password" class="form-control" placeholder="Password" required>
         <label class="checkbox">
@@ -12,4 +12,4 @@
         <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
     </form>
 </div>
-{{end}}
+{{%end%}}

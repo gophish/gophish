@@ -1,4 +1,4 @@
-{{define "content"}} {{template "nav" .User}}
+{{% define "content" %}} {{% template "nav" .User %}}
 <div class="jumbotron">
     <div class="container" style="text-align:center;">
         <h1 class="sans header">
@@ -19,7 +19,7 @@
             </li>
         </ul>
     </div>
-    <div class="col-md-9">
+    <div class="col-md-9" ng-controller="CampaignCtrl">
         <div class="row">
             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#newCampaignModal"><i class="fa fa-plus"></i> New Campaign</button>
         </div>
@@ -34,25 +34,10 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td>Mark</td>
-                        <td>Otto</td>
-                    </tr>
-                    <tr>
-                        <td>3</td>
-                        <td>Mark</td>
-                        <td>Otto</td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>Jacob</td>
-                        <td>Thornton</td>
-                    </tr>
-                    <tr>
-                        <td>3</td>
-                        <td>Larry the Bird</td>
-                        <td>@twitter</td>
+                    <tr ng-repeat="campaign in campaigns">
+                        <td>{{campaign.id}}</td>
+                        <td>{{campaign.name}}</td>
+                        <td>{{campaign.status}}</td>
                     </tr>
                 </tbody>
             </table>
@@ -84,4 +69,4 @@
         </div>
     </div>
 </div>
-{{end}}
+{{% end %}}

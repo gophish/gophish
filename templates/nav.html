@@ -1,4 +1,4 @@
-{{define "nav"}}
+{{%define "nav"%}}
 <div class="navbar navbar-inverse navbar-fixed-top">
     <div class="container">
         <div class="navbar-header">
@@ -13,29 +13,28 @@
         <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav navbar-right">
                 <li>
-                    {{if .}}
+                    {{%if .%}}
                     <div class="btn-group" id="navbar-dropdown">
-                        <button type="button" class="btn btn-primary"><i class="fa fa-user"></i> {{.Username}}</button>
+                        <button type="button" class="btn btn-primary"><i class="fa fa-user"></i> {{%.Username%}}</button>
                         <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
                             <span class="caret" style="border-top-color:#FFFFFF"></span>
                             <span class="sr-only">Toggle Dropdown</span>
                         </button>
-                        <ul class="dropdown-menu" role="menu">
-                            <li><a href="/settings">Settings</a>
+                        <ul class="dropdown-menu" role="menu"> <li><a href="/settings">Settings</a>
                             </li>
                             <li class="divider"></li>
                             <li><a href="/logout">Logout</a>
                             </li>
                         </ul>
                     </div>
-                    {{else}}
+                    {{%else%}}
                     <a href="/login">
                         <button type="button" class="btn btn-primary">Login</button>
                     </a>
-                    {{end}}
+                    {{%end%}}
                 </li>
             </ul>
         </div>
     </div>
 </div>
-{{end}}
+{{%end%}}

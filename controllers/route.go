@@ -39,6 +39,8 @@ import (
 	"github.com/jordan-wright/gophish/models"
 )
 
+var templateDelims = []string{"{{%", "%}}"}
+
 func CreateRouter() *mux.Router {
 	router := mux.NewRouter()
 	// Base Front-end routes
@@ -145,7 +147,13 @@ func Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func getTemplate(w http.ResponseWriter, tmpl string) *template.Template {
-	return template.Must(template.New("template").ParseFiles("templates/base.html", "templates/nav.html", "templates/"+tmpl+".html", "templates/flashes.html"))
+	templates := template.New("template")
+	templates.Delims(templateDelims[0], templateDelims[1])
+	_, err := templates.ParseFiles("templates/base.html", "templates/nav.html", "templates/"+tmpl+".html", "templates/flashes.html")
+	if err != nil {
+		fmt.Println(err)
+	}
+	return template.Must(templates, err)
 }
 
 func checkError(e error, w http.ResponseWriter, m string) bool {
