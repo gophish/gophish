@@ -20,23 +20,16 @@ const (
 	ERROR       string = "Error"
 )
 
+// API (/api) provides access to api documentation
 func API(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "GET" {
-
-	}
-	if r.Method == "POST" {
-		//Add a new campaign
-		//v :=
-	}
-	if u, err := json.Marshal(ctx.Get(r, "user")); err == nil {
-		writeJSON(w, u)
-	} else {
-		http.Error(w, "Server Error", 500)
+	switch {
+	case r.Method == "GET":
+		getTemplate(w, "api_doc").ExecuteTemplate(w, "base", nil)
 	}
 }
 
-//API_Campaigns returns a list of campaigns if requested via GET.
-//If requested via POST, API_Campaigns creates a new campaign and returns a reference to it.
+// API_Campaigns returns a list of campaigns if requested via GET.
+// If requested via POST, API_Campaigns creates a new campaign and returns a reference to it.
 func API_Campaigns(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "GET":
@@ -76,8 +69,8 @@ func API_Campaigns(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-//API_Campaigns_Id returns details about the requested campaign. If the campaign is not
-//valid, API_Campaigns_Id returns null.
+// API_Campaigns_Id returns details about the requested campaign. If the campaign is not
+// valid, API_Campaigns_Id returns null.
 func API_Campaigns_Id(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.ParseInt(vars["id"], 0, 64)
@@ -100,11 +93,6 @@ func API_Campaigns_Id(w http.ResponseWriter, r *http.Request) {
 	case r.Method == "DELETE":
 		//c := models.Campaign{}
 	}
-}
-
-//API_Doc renders a template describing the API documentation.
-func API_Doc(w http.ResponseWriter, r *http.Request) {
-	getTemplate(w, "api_doc").ExecuteTemplate(w, "base", nil)
 }
 
 func writeJSON(w http.ResponseWriter, c []byte) {

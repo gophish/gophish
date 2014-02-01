@@ -47,17 +47,15 @@ func CreateRouter() *mux.Router {
 	router.HandleFunc("/login", Login)
 	router.HandleFunc("/register", Register)
 	router.HandleFunc("/", Use(Base, mid.RequireLogin))
-	router.HandleFunc("/campaigns", Use(Campaigns, mid.RequireLogin))
 	router.HandleFunc("/campaigns/{id}", Use(Campaigns_Id, mid.RequireLogin))
 	router.HandleFunc("/users", Use(Users, mid.RequireLogin))
 	router.HandleFunc("/settings", Use(Settings, mid.RequireLogin))
 
 	// Create the API routes
 	api := router.PathPrefix("/api").Subrouter()
-	api.HandleFunc("/", Use(API, mid.RequireAPIKey))
+	api.HandleFunc("/", Use(API, mid.RequireLogin))
 	api.HandleFunc("/campaigns", Use(API_Campaigns, mid.RequireAPIKey))
 	api.HandleFunc("/campaigns/{id}", Use(API_Campaigns_Id, mid.RequireAPIKey))
-	api.HandleFunc("/doc", API_Doc)
 
 	//Setup static file serving
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./static/")))
@@ -101,14 +99,13 @@ func Settings(w http.ResponseWriter, r *http.Request) {
 	getTemplate(w, "settings").ExecuteTemplate(w, "base", params)
 }
 
-func Campaigns(w http.ResponseWriter, r *http.Request) {
-	//session, _ := auth.Store.Get(r, "gophish")
-	getTemplate(w, "dashboard").ExecuteTemplate(w, "base", nil)
-}
-
 func Campaigns_Id(w http.ResponseWriter, r *http.Request) {
-	//session, _ := auth.Store.Get(r, "gophish")
-	getTemplate(w, "dashboard").ExecuteTemplate(w, "base", nil)
+	params := struct {
+		User    models.User
+		Title   string
+		Flashes []interface{}
+	}{Title: "Results", User: ctx.Get(r, "user").(models.User)}
+	getTemplate(w, "dashboard").ExecuteTemplate(w, "base", params)
 }
 
 func Login(w http.ResponseWriter, r *http.Request) {
