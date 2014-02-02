@@ -19,6 +19,7 @@ func CreateRouter() *mux.Router {
 	router := mux.NewRouter()
 	// Base Front-end routes
 	router.HandleFunc("/login", Login)
+	router.HandleFunc("/logout", Use(Logout, mid.RequireLogin))
 	router.HandleFunc("/register", Register)
 	router.HandleFunc("/", Use(Base, mid.RequireLogin))
 	router.HandleFunc("/campaigns/{id:[0-9]+}", Use(Campaigns_Id, mid.RequireLogin))
@@ -52,6 +53,19 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	// If it is a post request, attempt to register the account
 	// Now that we are all registered, we can log the user in
 	Login(w, r)
+}
+
+func Logout(w http.ResponseWriter, r *http.Request) {
+	// If it is a post request, attempt to register the account
+	// Now that we are all registered, we can log the user in
+	session := ctx.Get(r, "session").(*sessions.Session)
+	delete(session.Values, "id")
+	session.AddFlash(models.Flash{
+		Type:    "success",
+		Message: "You have successfully logged out.",
+	})
+	session.Save(r, w)
+	http.Redirect(w, r, "login", 302)
 }
 
 func Base(w http.ResponseWriter, r *http.Request) {
