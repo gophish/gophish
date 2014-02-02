@@ -1,4 +1,4 @@
-{{%define "content"%}} {{%template "nav"%}}
+{{%define "content"%}} {{%template "nav" .User %}}
 <div class="jumbotron">
     <div class="container" style="text-align:center;">
         <h1 class="sans header">
@@ -15,15 +15,33 @@
             </li>
             <li><a href="/settings">Settings</a>
             </li>
-            <li><a href="/api/doc">API Documentation</a>
+            <li><a href="/api/">API Documentation</a>
             </li>
         </ul>
     </div>
-    <div class="col-md-9 sans">
-        <h1 style="margin-top:0px"><i class="fa fa-gear"></i> Gophish API</h1>
-        <p>Gophish runs on top of a RESTful API which allows developers to automate phishing campaigns easily. The following documentation and examples demonstrate the API functionality</p>
-        <h2 class="api_heading">/api/campaigns</h2>
-        <p>Test.</p>
+    <div class="col-md-9" ng-controller="GroupCtrl">
+        <div class="row">
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#newCampaignModal"><i class="fa fa-plus"></i> New Group</button>
+        </div>
+        &nbsp;
+        <div class="row">
+            <table class="table table-hover table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th class="col-sm-1">Name</th>
+                        <th class="col-sm-2">Members</th>
+                        <th class="col-sm-1">Modified Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="group in groups">
+                        <td>{{group.name}}</td>
+                        <td>{{group.status}}</td>
+                        <td>{{group.modified_date | date:'medium'}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 {{%end%}}

@@ -81,6 +81,10 @@ func API_Campaigns(w http.ResponseWriter, r *http.Request) {
 		c.CompletedDate = time.Time{}
 		c.Status = IN_PROGRESS
 		c.Uid, err = db.Conn.SelectInt("SELECT id FROM users WHERE api_key=?", ctx.Get(r, "api_key"))
+		if c.Uid == 0 {
+			http.Error(w, "Error: Invalid API Key", http.StatusInternalServerError)
+			return
+		}
 		if checkError(err, w, "Invalid API Key") {
 			return
 		}
@@ -112,7 +116,6 @@ func API_Campaigns_Id(w http.ResponseWriter, r *http.Request) {
 		if checkError(err, w, "No campaign found") {
 			return
 		}
-		fmt.Printf("%v\n", c)
 		cj, err := json.MarshalIndent(c, "", "  ")
 		if checkError(err, w, "Error creating JSON response") {
 			return
@@ -121,6 +124,18 @@ func API_Campaigns_Id(w http.ResponseWriter, r *http.Request) {
 	case r.Method == "DELETE":
 		//c := models.Campaign{}
 	}
+}
+
+// API_Groups returns details about the requested group. If the campaign is not
+// valid, API_Groups returns null.
+func API_Groups(w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r, "/", 302)
+}
+
+// API_Campaigns_Id returns details about the requested campaign. If the campaign is not
+// valid, API_Campaigns_Id returns null.
+func API_Groups_Id(w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r, "/", 302)
 }
 
 func writeJSON(w http.ResponseWriter, c []byte) {

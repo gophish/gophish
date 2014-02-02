@@ -21,7 +21,7 @@ func CreateRouter() *mux.Router {
 	router.HandleFunc("/login", Login)
 	router.HandleFunc("/register", Register)
 	router.HandleFunc("/", Use(Base, mid.RequireLogin))
-	router.HandleFunc("/campaigns/{id}", Use(Campaigns_Id, mid.RequireLogin))
+	router.HandleFunc("/campaigns/{id:[0-9]+}", Use(Campaigns_Id, mid.RequireLogin))
 	router.HandleFunc("/users", Use(Users, mid.RequireLogin))
 	router.HandleFunc("/settings", Use(Settings, mid.RequireLogin))
 
@@ -30,7 +30,9 @@ func CreateRouter() *mux.Router {
 	api.HandleFunc("/", Use(API, mid.RequireLogin))
 	api.HandleFunc("/reset", Use(API_Reset, mid.RequireLogin))
 	api.HandleFunc("/campaigns", Use(API_Campaigns, mid.RequireAPIKey))
-	api.HandleFunc("/campaigns/{id}", Use(API_Campaigns_Id, mid.RequireAPIKey))
+	api.HandleFunc("/campaigns/{id:[0-9]+}", Use(API_Campaigns_Id, mid.RequireAPIKey))
+	api.HandleFunc("/groups", Use(API_Groups, mid.RequireAPIKey))
+	api.HandleFunc("/groups/{id:[0-9]+}", Use(API_Groups_Id, mid.RequireAPIKey))
 
 	//Setup static file serving
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./static/")))
@@ -63,7 +65,12 @@ func Base(w http.ResponseWriter, r *http.Request) {
 }
 
 func Users(w http.ResponseWriter, r *http.Request) {
-	getTemplate(w, "users").ExecuteTemplate(w, "base", nil)
+	params := struct {
+		User    models.User
+		Title   string
+		Flashes []interface{}
+	}{Title: "Users & Groups", User: ctx.Get(r, "user").(models.User)}
+	getTemplate(w, "users").ExecuteTemplate(w, "base", params)
 }
 
 func Settings(w http.ResponseWriter, r *http.Request) {

@@ -48,7 +48,7 @@ func Setup() error {
 		//Create the default user
 		init_user := models.User{
 			Username: "admin",
-			Hash:     "$2a$10$d4OtT.RkEOQn.iruVWIQ5u8CeV/85ZYF41y8wKeUwsAPqPNFvTccW",
+			Hash:     "$2a$10$IYkPp0.QsM81lYYPrQx6W.U6oQGw7wMpozrKhKAHUBVL4mkm/EvAS",
 			APIKey:   "12345678901234567890123456789012",
 		}
 		Conn.Insert(&init_user)
