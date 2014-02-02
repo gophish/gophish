@@ -28,6 +28,7 @@ func CreateRouter() *mux.Router {
 	// Create the API routes
 	api := router.PathPrefix("/api").Subrouter()
 	api.HandleFunc("/", Use(API, mid.RequireLogin))
+	api.HandleFunc("/reset", Use(API_Reset, mid.RequireLogin))
 	api.HandleFunc("/campaigns", Use(API_Campaigns, mid.RequireAPIKey))
 	api.HandleFunc("/campaigns/{id}", Use(API_Campaigns_Id, mid.RequireAPIKey))
 
@@ -67,9 +68,13 @@ func Users(w http.ResponseWriter, r *http.Request) {
 
 func Settings(w http.ResponseWriter, r *http.Request) {
 	params := struct {
-		User  models.User
-		Title string
+		User    models.User
+		Title   string
+		Flashes []interface{}
 	}{Title: "Settings", User: ctx.Get(r, "user").(models.User)}
+	session := ctx.Get(r, "session").(*sessions.Session)
+	params.Flashes = session.Flashes()
+	session.Save(r, w)
 	getTemplate(w, "settings").ExecuteTemplate(w, "base", params)
 }
 
@@ -91,6 +96,8 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	session := ctx.Get(r, "session").(*sessions.Session)
 	switch {
 	case r.Method == "GET":
+		params.Flashes = session.Flashes()
+		session.Save(r, w)
 		getTemplate(w, "login").ExecuteTemplate(w, "base", params)
 	case r.Method == "POST":
 		//Attempt to login
@@ -111,8 +118,8 @@ func Login(w http.ResponseWriter, r *http.Request) {
 				Type:    "danger",
 				Message: "Invalid Username/Password",
 			})
-			params.Flashes = session.Flashes()
-			getTemplate(w, "login").ExecuteTemplate(w, "base", params)
+			session.Save(r, w)
+			http.Redirect(w, r, "/login", 302)
 		}
 	}
 }

@@ -16,6 +16,7 @@ import (
 //init registers the necessary models to be saved in the session later
 func init() {
 	gob.Register(&models.User{})
+	gob.Register(&models.Flash{})
 }
 
 var Store = sessions.NewCookieStore(

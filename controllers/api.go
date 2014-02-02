@@ -1,14 +1,17 @@
 package controllers
 
 import (
+	"crypto/rand"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"strconv"
 	"time"
 
 	ctx "github.com/gorilla/context"
 	"github.com/gorilla/mux"
+	"github.com/gorilla/sessions"
 	"github.com/jordan-wright/gophish/db"
 	"github.com/jordan-wright/gophish/models"
 )
@@ -28,21 +31,46 @@ func API(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// API (/api/reset) resets a user's API key
+func API_Reset(w http.ResponseWriter, r *http.Request) {
+	switch {
+	case r.Method == "GET":
+		u := ctx.Get(r, "user").(models.User)
+		// Inspired from gorilla/securecookie
+		k := make([]byte, 32)
+		_, err := io.ReadFull(rand.Reader, k)
+		checkError(err, w, "Error setting new API key")
+		u.APIKey = fmt.Sprintf("%x", k)
+		db.Conn.Exec("UPDATE users SET api_key=? WHERE id=?", u.APIKey, u.Id)
+		session := ctx.Get(r, "session").(*sessions.Session)
+		session.AddFlash(models.Flash{
+			Type:    "success",
+			Message: "API Key Successfully Reset",
+		})
+		session.Save(r, w)
+		http.Redirect(w, r, "/settings", 302)
+	}
+}
+
 // API_Campaigns returns a list of campaigns if requested via GET.
 // If requested via POST, API_Campaigns creates a new campaign and returns a reference to it.
 func API_Campaigns(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "GET":
 		cs := []models.Campaign{}
-		_, err := db.Conn.Select(&cs, "SELECT campaigns.id, name, created_date, completed_date, status, template FROM campaigns, users WHERE campaigns.uid=users.id AND users.api_key=?", ctx.Get(r, "api_key"))
+		_, err := db.Conn.Select(&cs, "SELECT c.id, name, created_date, completed_date, status, template FROM campaigns c, users u WHERE c.uid=u.id AND u.api_key=?", ctx.Get(r, "api_key"))
 		if err != nil {
 			fmt.Println(err)
 		}
+		/*for c := range cs {
+			_, err := db.Conn.Select(&cs.Results, "SELECT r.id ")
+		}*/
 		cj, err := json.MarshalIndent(cs, "", "  ")
 		if checkError(err, w, "Error looking up campaigns") {
 			return
 		}
 		writeJSON(w, cj)
+	//POST: Create a new campaign and return it as JSON
 	case r.Method == "POST":
 		c := models.Campaign{}
 		// Put the request into a campaign

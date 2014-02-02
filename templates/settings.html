@@ -20,6 +20,7 @@
         </ul>
     </div>
     <div class="col-md-9 sans">
+        {{%template "flashes" .Flashes%}}
         <h1 style="margin:0px 0px 15px 0px;">User Settings</h1>
         <div class="row">
             <div class="col-md-2">
@@ -39,6 +40,9 @@
             <div class="col-md-6">
                 <input type="text" value="{{%.User.APIKey%}}" class="form-control" readonly/>
             </div>
+            <a href="/api/reset">
+            <button class="btn btn-primary"><i class="fa fa-refresh"></i> Reset</button>
+            </a>
         </div>
         <br />
         <button class="btn btn-primary">Save</button>
