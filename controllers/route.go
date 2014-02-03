@@ -11,11 +11,12 @@ import (
 	"github.com/jordan-wright/gophish/auth"
 	mid "github.com/jordan-wright/gophish/middleware"
 	"github.com/jordan-wright/gophish/models"
+	"github.com/justinas/nosurf"
 )
 
 var templateDelims = []string{"{{%", "%}}"}
 
-func CreateRouter() *mux.Router {
+func CreateRouter() *nosurf.CSRFHandler {
 	router := mux.NewRouter()
 	// Base Front-end routes
 	router.HandleFunc("/login", Login)
@@ -37,7 +38,12 @@ func CreateRouter() *mux.Router {
 
 	//Setup static file serving
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./static/")))
-	return router
+
+	//Setup CSRF Protection
+	csrfHandler := nosurf.New(router)
+	csrfHandler.ExemptGlob("/api/*")
+	csrfHandler.ExemptGlob("/static/*")
+	return csrfHandler
 }
 
 // Use allows us to stack middleware to process the request
@@ -113,7 +119,8 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		User    models.User
 		Title   string
 		Flashes []interface{}
-	}{Title: "Login"}
+		Token   string
+	}{Title: "Login", Token: nosurf.Token(r)}
 	session := ctx.Get(r, "session").(*sessions.Session)
 	switch {
 	case r.Method == "GET":

@@ -38,10 +38,12 @@
                 </p>
             </div>
             <div class="col-md-6">
-                <input type="text" value="{{%.User.APIKey%}}" class="form-control" readonly/>
+                <input type="text" onclick="this.select();" value="{{%.User.APIKey%}}" class="form-control" readonly/>
             </div>
-            <a href="/api/reset">
-            <button class="btn btn-primary"><i class="fa fa-refresh"></i> Reset</button>
+            <form action="/api/reset" method="POST">
+                <button class="btn btn-primary"><i class="fa fa-refresh" type="submit"></i> Reset</button>
+                <input type="hidden" name="csrf_token" value={{%.Token%}}/>
+            </form>
             </a>
         </div>
         <br />

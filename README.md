@@ -17,7 +17,7 @@ Until then, you can keep up-to-date with development news and articles on [my bl
 Installation of gophish is dead-simple - once the binaries are released (coming soon!), just download and extract the zip, and run the binary. Gophish will have binary releases for all platforms.
 
 ###Setup
-After running the gophish binary, open an Internet browser to http://localhost:3333 and follow the setup instructions.
+After running the gophish binary, open an Internet browser to http://localhost:3333 and login with the default username (admin) and password (gophish).
 
 ###License
 gophish - Open-Source Phishing Framework

@@ -34,7 +34,7 @@ func API(w http.ResponseWriter, r *http.Request) {
 // API (/api/reset) resets a user's API key
 func API_Reset(w http.ResponseWriter, r *http.Request) {
 	switch {
-	case r.Method == "GET":
+	case r.Method == "POST":
 		u := ctx.Get(r, "user").(models.User)
 		// Inspired from gorilla/securecookie
 		k := make([]byte, 32)
