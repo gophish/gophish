@@ -5,6 +5,7 @@ import (
 
 	ctx "github.com/gorilla/context"
 	"github.com/jordan-wright/gophish/auth"
+	"github.com/jordan-wright/gophish/db"
 )
 
 // GetContext wraps each request in a function which fills in the context for a given request.
@@ -12,6 +13,11 @@ import (
 func GetContext(handler http.Handler) http.HandlerFunc {
 	// Set the context here
 	return func(w http.ResponseWriter, r *http.Request) {
+		// Parse the request form
+		err := r.ParseForm()
+		if err != nil {
+			http.Error(w, "Error parsing request", http.StatusInternalServerError)
+		}
 		// Set the context appropriately here.
 		// Set the session
 		session, _ := auth.Store.Get(r, "gophish")
@@ -39,6 +45,12 @@ func RequireAPIKey(handler http.Handler) http.HandlerFunc {
 		if ak == "" {
 			JSONError(w, 500, "API Key not set")
 		} else {
+			id, err := db.Conn.SelectInt("SELECT id FROM users WHERE api_key=?", ak)
+			if id == 0 || err != nil {
+				http.Error(w, "Error: Invalid API Key", http.StatusInternalServerError)
+				return
+			}
+			ctx.Set(r, "user_id", id)
 			ctx.Set(r, "api_key", ak)
 			handler.ServeHTTP(w, r)
 		}

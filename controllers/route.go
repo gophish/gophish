@@ -37,12 +37,14 @@ func CreateRouter() *nosurf.CSRFHandler {
 	api.HandleFunc("/groups", Use(API_Groups, mid.RequireAPIKey))
 	api.HandleFunc("/groups/{id:[0-9]+}", Use(API_Groups_Id, mid.RequireAPIKey))
 
-	//Setup static file serving
+	// Setup static file serving
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./static/")))
 
-	//Setup CSRF Protection
+	// Setup CSRF Protection
 	csrfHandler := nosurf.New(router)
-	csrfHandler.ExemptGlob("/api/*/*")
+	// Exempt API routes and Static files
+	csrfHandler.ExemptGlob("/api/campaigns*")
+	csrfHandler.ExemptGlob("/api/groups*")
 	csrfHandler.ExemptGlob("/static/*")
 	return csrfHandler
 }

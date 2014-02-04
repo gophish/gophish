@@ -1,11 +1,9 @@
 package models
 
-import (
-	"net/mail"
+import
 
-	// SMTPServer is used to provide a default SMTP server preference.
-	"time"
-)
+// SMTPServer is used to provide a default SMTP server preference.
+"time"
 
 type SMTPServer struct {
 	Host     string `json:"host"`
@@ -46,11 +44,6 @@ type Campaign struct {
 	Uid           int64     `json:"-"`
 }
 
-type UserCampaigns struct {
-	CampaignId int64
-	UserId     int64
-}
-
 type Result struct {
 	Id       int64
 	TargetId int64
@@ -58,17 +51,14 @@ type Result struct {
 }
 
 type Group struct {
-	Id      int64 `json:"id"`
-	Targets []Target
-	Uid     int64
-}
-
-type GroupTarget struct {
-	Gid int64
-	Tid int64
+	Id           int64     `json:"id"`
+	Name         string    `json:"name"`
+	ModifiedDate time.Time `json:"modified_date" db:"modified_date"`
+	Targets      []Target  `json:"targets" db:"-"`
+	Uid          int64     `json:"-"`
 }
 
 type Target struct {
-	Id    int64        `json:"-"`
-	Email mail.Address `json:"email"`
+	Id    int64  `json:"-"`
+	Email string `json:"email"`
 }
