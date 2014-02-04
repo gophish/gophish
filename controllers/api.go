@@ -126,6 +126,10 @@ func API_Campaigns_Id(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func API_Campaigns_Id_Launch(w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r, "/", 302)
+}
+
 // API_Groups returns details about the requested group. If the campaign is not
 // valid, API_Groups returns null.
 func API_Groups(w http.ResponseWriter, r *http.Request) {

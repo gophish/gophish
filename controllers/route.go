@@ -33,6 +33,7 @@ func CreateRouter() *nosurf.CSRFHandler {
 	api.HandleFunc("/reset", Use(API_Reset, mid.RequireLogin))
 	api.HandleFunc("/campaigns", Use(API_Campaigns, mid.RequireAPIKey))
 	api.HandleFunc("/campaigns/{id:[0-9]+}", Use(API_Campaigns_Id, mid.RequireAPIKey))
+	api.HandleFunc("/campaigns/id:[0-9]+}", Use(API_Campaigns_Id_Launch, mid.RequireAPIKey))
 	api.HandleFunc("/groups", Use(API_Groups, mid.RequireAPIKey))
 	api.HandleFunc("/groups/{id:[0-9]+}", Use(API_Groups_Id, mid.RequireAPIKey))
 
@@ -41,7 +42,7 @@ func CreateRouter() *nosurf.CSRFHandler {
 
 	//Setup CSRF Protection
 	csrfHandler := nosurf.New(router)
-	csrfHandler.ExemptGlob("/api/*")
+	csrfHandler.ExemptGlob("/api/*/*")
 	csrfHandler.ExemptGlob("/static/*")
 	return csrfHandler
 }
@@ -98,8 +99,10 @@ func Settings(w http.ResponseWriter, r *http.Request) {
 		User    models.User
 		Title   string
 		Flashes []interface{}
+		Token   string
 	}{Title: "Settings", User: ctx.Get(r, "user").(models.User)}
 	session := ctx.Get(r, "session").(*sessions.Session)
+	params.Token = nosurf.Token(r)
 	params.Flashes = session.Flashes()
 	session.Save(r, w)
 	getTemplate(w, "settings").ExecuteTemplate(w, "base", params)
