@@ -21,7 +21,7 @@
     </div>
     <div class="col-md-9" ng-controller="GroupCtrl">
         <div class="row">
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#newCampaignModal"><i class="fa fa-plus"></i> New Group</button>
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#newGroupModal"><i class="fa fa-plus"></i> New Group</button>
         </div>
         &nbsp;
         <div class="row">
@@ -44,5 +44,37 @@
         </div>
     </div>
 </div>
+<!-- New Campaign Modal -->
+<div class="modal" id="newGroupModal" tabindex="-1" role="dialog" aria-labelledby="groupModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="groupModalLabel">New Group</h4>
+            </div>
+            <form action="/">
+                <div class="modal-body">
+                    <label class="control-label" for="name">Name:</label>
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Group name" id="name" />
+                    </div>
+                    <div class="form-group">
+                        <button class="btn btn-danger"><i class="fa fa-plus"></i> Bulk Import Users</button>
+                    </div>
+                    <label class="control-label" for="users">Users:</label>
+                    <div class="input-group">
+                        <input type="email" class="form-control" placeholder="test@example.com" id="users" />
+                        <span class="input-group-btn">
+                            <button class="btn btn-primary"><i class="fa fa-plus"></i> Add</button>
+                        </span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" type="submit">Save Group</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 {{%end%}}
-
