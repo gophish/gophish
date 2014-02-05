@@ -1,10 +1,8 @@
 package controllers
 
 import (
-	"crypto/rand"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"strconv"
 	"time"
@@ -12,6 +10,7 @@ import (
 	ctx "github.com/gorilla/context"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
+	"github.com/jordan-wright/gophish/auth"
 	"github.com/jordan-wright/gophish/db"
 	"github.com/jordan-wright/gophish/models"
 )
@@ -36,11 +35,7 @@ func API_Reset(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "POST":
 		u := ctx.Get(r, "user").(models.User)
-		// Inspired from gorilla/securecookie
-		k := make([]byte, 32)
-		_, err := io.ReadFull(rand.Reader, k)
-		checkError(err, w, "Error setting new API key")
-		u.APIKey = fmt.Sprintf("%x", k)
+		u.APIKey = auth.GenerateSecureKey()
 		db.Conn.Exec("UPDATE users SET api_key=? WHERE id=?", u.APIKey, u.Id)
 		session := ctx.Get(r, "session").(*sessions.Session)
 		session.AddFlash(models.Flash{
@@ -75,19 +70,14 @@ func API_Campaigns(w http.ResponseWriter, r *http.Request) {
 		c := models.Campaign{}
 		// Put the request into a campaign
 		err := json.NewDecoder(r.Body).Decode(&c)
-		checkError(err, w, "Invalid Request")
+		if checkError(err, w, "Invalid Request") {
+			return
+		}
 		// Fill in the details
 		c.CreatedDate = time.Now()
 		c.CompletedDate = time.Time{}
 		c.Status = IN_PROGRESS
-		c.Uid, err = db.Conn.SelectInt("SELECT id FROM users WHERE api_key=?", ctx.Get(r, "api_key"))
-		if c.Uid == 0 {
-			http.Error(w, "Error: Invalid API Key", http.StatusInternalServerError)
-			return
-		}
-		if checkError(err, w, "Invalid API Key") {
-			return
-		}
+		c.Uid = ctx.Get(r, "user_id").(int64)
 		// Insert into the DB
 		err = db.Conn.Insert(&c)
 		if checkError(err, w, "Cannot insert campaign into database") {
@@ -133,7 +123,49 @@ func API_Campaigns_Id_Launch(w http.ResponseWriter, r *http.Request) {
 // API_Groups returns details about the requested group. If the campaign is not
 // valid, API_Groups returns null.
 func API_Groups(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, "/", 302)
+	switch {
+	case r.Method == "GET":
+		gs := []models.Group{}
+		_, err := db.Conn.Select(&gs, "SELECT g.id, g.name, g.modified_date FROM groups g, users u WHERE g.uid=u.id AND u.api_key=?", ctx.Get(r, "api_key"))
+		if err != nil {
+			fmt.Println(err)
+		}
+		for _, g := range gs {
+			_, err := db.Conn.Select(&g.Targets, "SELECT t.id t.email FROM targets t, groups g, group_targets gt WHERE gt.gid=? AND gt.tid=t.id", g.Id)
+			if checkError(err, w, "Error looking up groups") {
+				return
+			}
+		}
+		gj, err := json.MarshalIndent(gs, "", "  ")
+		if checkError(err, w, "Error looking up groups") {
+			return
+		}
+		writeJSON(w, gj)
+	//POST: Create a new group and return it as JSON
+	case r.Method == "POST":
+		g := models.Group{}
+		// Put the request into a group
+		err := json.NewDecoder(r.Body).Decode(&g)
+		if checkError(err, w, "Invalid Request") {
+			return
+		}
+		// Check to make sure targets were specified
+		if len(g.Targets) == 0 {
+			http.Error(w, "Error: No targets specified", http.StatusInternalServerError)
+			return
+		}
+		g.ModifiedDate = time.Now()
+		// Insert into the DB
+		err = db.Conn.Insert(&g)
+		if checkError(err, w, "Cannot insert group into database") {
+			return
+		}
+		gj, err := json.MarshalIndent(g, "", "  ")
+		if checkError(err, w, "Error creating JSON response") {
+			return
+		}
+		writeJSON(w, gj)
+	}
 }
 
 // API_Campaigns_Id returns details about the requested campaign. If the campaign is not

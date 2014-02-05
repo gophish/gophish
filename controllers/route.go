@@ -61,7 +61,48 @@ func Use(handler http.HandlerFunc, mid ...func(http.Handler) http.HandlerFunc) h
 func Register(w http.ResponseWriter, r *http.Request) {
 	// If it is a post request, attempt to register the account
 	// Now that we are all registered, we can log the user in
-	Login(w, r)
+	params := struct {
+		Title   string
+		Flashes []interface{}
+		User    models.User
+		Token   string
+	}{Title: "Register", Token: nosurf.Token(r)}
+	session := ctx.Get(r, "session").(*sessions.Session)
+	switch {
+	case r.Method == "GET":
+		params.Flashes = session.Flashes()
+		session.Save(r, w)
+		getTemplate(w, "register").ExecuteTemplate(w, "base", params)
+	case r.Method == "POST":
+		//Attempt to register
+		succ, err := auth.Register(r)
+		//If we've registered, redirect to the login page
+		if succ {
+			session.AddFlash(models.Flash{
+				Type:    "success",
+				Message: "Registration successful!.",
+			})
+			session.Save(r, w)
+			http.Redirect(w, r, "/login", 302)
+		} else {
+			// Check the error
+			m := ""
+			if err == auth.ErrUsernameTaken {
+				m = "Username already taken"
+			} else {
+				m = "Unknown error - please try again"
+				fmt.Println(err)
+			}
+			fmt.Println(m)
+			session.AddFlash(models.Flash{
+				Type:    "danger",
+				Message: m,
+			})
+			session.Save(r, w)
+			http.Redirect(w, r, "/register", 302)
+		}
+
+	}
 }
 
 func Logout(w http.ResponseWriter, r *http.Request) {
@@ -134,10 +175,6 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		getTemplate(w, "login").ExecuteTemplate(w, "base", params)
 	case r.Method == "POST":
 		//Attempt to login
-		err := r.ParseForm()
-		if checkError(err, w, "Error parsing request") {
-			return
-		}
 		succ, err := auth.Login(r)
 		if checkError(err, w, "Error logging in") {
 			return
