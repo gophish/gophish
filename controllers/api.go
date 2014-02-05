@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/mail"
 	"strconv"
 	"time"
 
@@ -122,6 +123,18 @@ func API_Campaigns_Id_Launch(w http.ResponseWriter, r *http.Request) {
 
 // API_Groups returns details about the requested group. If the campaign is not
 // valid, API_Groups returns null.
+// Example:
+/*
+POST	/api/groups
+		{ "name" : "Test Group",
+		  "targets" : ["test@example.com", "test2@example.com"]
+		}
+
+RESULT { "name" : "Test Group",
+		  "targets" : ["test@example.com", "test2@example.com"]
+		  "id" : 1
+		}
+*/
 func API_Groups(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "GET":
@@ -158,6 +171,34 @@ func API_Groups(w http.ResponseWriter, r *http.Request) {
 		// Insert into the DB
 		err = db.Conn.Insert(&g)
 		if checkError(err, w, "Cannot insert group into database") {
+			return
+		}
+		// Let's start a transaction to handle the bulk inserting
+		trans, err := db.Conn.Begin()
+		if checkError(err, w, "Error starting transaction to insert data") {
+			return
+		}
+		// Now, let's add the user->user_groups->group mapping
+		// TODO
+		for _, t := range g.Targets {
+			if _, err = mail.ParseAddress(t.Email); err != nil {
+				fmt.Printf("Found invalid email %s\n", t.Email)
+				continue
+			}
+			res, err := db.Conn.Exec("INSERT OR IGNORE INTO targets VALUES (null, ?)", t.Email)
+			if err != nil {
+				fmt.Printf("Error adding email: %s\n", t.Email)
+			}
+			t.Id, err = res.LastInsertId()
+			if err != nil {
+				fmt.Printf("Error getting last insert id for email: %s\n", t.Email)
+			}
+			_, err = db.Conn.Exec("INSERT OR IGNORE INTO group_targets VALUES (?,?)", g.Id, t.Id)
+			if err != nil {
+				fmt.Printf("Error adding many-many mapping for %s\n", t.Email)
+			}
+		}
+		if checkError(trans.Commit(), w, "Error committing transaction") {
 			return
 		}
 		gj, err := json.MarshalIndent(g, "", "  ")
