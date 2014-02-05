@@ -24,7 +24,7 @@ func GetContext(handler http.Handler) http.HandlerFunc {
 		// Put the session in the context so that
 		ctx.Set(r, "session", session)
 		if id, ok := session.Values["id"]; ok {
-			u, err := auth.GetUserById(id.(int64))
+			u, err := db.GetUser(id.(int64))
 			if err != nil {
 				ctx.Set(r, "user", nil)
 			}
@@ -47,7 +47,7 @@ func RequireAPIKey(handler http.Handler) http.HandlerFunc {
 		} else {
 			id, err := db.Conn.SelectInt("SELECT id FROM users WHERE api_key=?", ak)
 			if id == 0 || err != nil {
-				http.Error(w, "Error: Invalid API Key", http.StatusInternalServerError)
+				JSONError(w, 500, "Invalid API Key")
 				return
 			}
 			ctx.Set(r, "user_id", id)

@@ -2,6 +2,7 @@ package db
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"os"
 	"time"
@@ -15,6 +16,7 @@ import (
 var Conn *gorp.DbMap
 var DB *sql.DB
 var err error
+var ErrUsernameTaken = errors.New("Username already taken")
 
 // Setup initializes the Conn object
 // It also populates the Gophish Config object
@@ -66,4 +68,56 @@ func Setup() error {
 		Conn.Insert(&c)
 	}
 	return nil
+}
+
+// API Functions (GET, POST, PUT, DELETE)
+
+// GetUser returns the user that the given id corresponds to. If no user is found, an
+// error is thrown.
+func GetUser(id int64) (models.User, error) {
+	u := models.User{}
+	err := Conn.SelectOne(&u, "SELECT * FROM Users WHERE id=?", id)
+	if err != nil {
+		return u, err
+	}
+	return u, nil
+}
+
+// GetUserByAPIKey returns the user that the given API Key corresponds to. If no user is found, an
+// error is thrown.
+func GetUserByAPIKey(key []byte) (models.User, error) {
+	u := models.User{}
+	err := Conn.SelectOne(&u, "SELECT id, username, api_key FROM Users WHERE apikey=?", key)
+	if err != nil {
+		return u, err
+	}
+	return u, nil
+}
+
+// GetUserByAPIKey returns the user that the given API Key corresponds to. If no user is found, an
+// error is thrown.
+func GetUserByUsername(username string) (models.User, error) {
+	u := models.User{}
+	err := Conn.SelectOne(&u, "SELECT * FROM Users WHERE username=?", username)
+	if err != sql.ErrNoRows {
+		return u, ErrUsernameTaken
+	} else if err != nil {
+		return u, err
+	}
+	return u, nil
+}
+
+func PutUser(u *models.User) error {
+	_, err := Conn.Update(u)
+	return err
+}
+
+func GetCampaigns(key interface{}) ([]models.Campaign, error) {
+	cs := []models.Campaign{}
+	_, err := Conn.Select(&cs, "SELECT c.id, name, created_date, completed_date, status, template FROM campaigns c, users u WHERE c.uid=u.id AND u.api_key=?", key)
+	return cs, err
+}
+
+func GetCampaign(id int64) {
+
 }

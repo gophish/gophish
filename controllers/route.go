@@ -9,6 +9,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
 	"github.com/jordan-wright/gophish/auth"
+	"github.com/jordan-wright/gophish/db"
 	mid "github.com/jordan-wright/gophish/middleware"
 	"github.com/jordan-wright/gophish/models"
 	"github.com/justinas/nosurf"
@@ -87,7 +88,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		} else {
 			// Check the error
 			m := ""
-			if err == auth.ErrUsernameTaken {
+			if err == db.ErrUsernameTaken {
 				m = "Username already taken"
 			} else {
 				m = "Unknown error - please try again"
@@ -110,11 +111,7 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 	// Now that we are all registered, we can log the user in
 	session := ctx.Get(r, "session").(*sessions.Session)
 	delete(session.Values, "id")
-	session.AddFlash(models.Flash{
-		Type:    "success",
-		Message: "You have successfully logged out.",
-	})
-	session.Save(r, w)
+	Flash(w, r, "success", "You have successfully logged out")
 	http.Redirect(w, r, "login", 302)
 }
 
@@ -184,11 +181,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			session.Save(r, w)
 			http.Redirect(w, r, "/", 302)
 		} else {
-			session.AddFlash(models.Flash{
-				Type:    "danger",
-				Message: "Invalid Username/Password",
-			})
-			session.Save(r, w)
+			Flash(w, r, "danger", "Invalid Username/Password")
 			http.Redirect(w, r, "/login", 302)
 		}
 	}
@@ -211,4 +204,13 @@ func checkError(e error, w http.ResponseWriter, m string) bool {
 		return true
 	}
 	return false
+}
+
+func Flash(w http.ResponseWriter, r *http.Request, t string, m string) {
+	session := ctx.Get(r, "session").(*sessions.Session)
+	session.AddFlash(models.Flash{
+		Type:    t,
+		Message: m,
+	})
+	session.Save(r, w)
 }
