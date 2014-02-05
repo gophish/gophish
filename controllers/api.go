@@ -127,7 +127,12 @@ func API_Campaigns_Id_Launch(w http.ResponseWriter, r *http.Request) {
 /*
 POST	/api/groups
 		{ "name" : "Test Group",
-		  "targets" : ["test@example.com", "test2@example.com"]
+		  "targets" : [
+		  {
+		  	"email" : "test@example.com"
+		  },
+		  { "email" : test2@example.com"
+		  }]
 		}
 
 RESULT { "name" : "Test Group",
@@ -139,12 +144,12 @@ func API_Groups(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "GET":
 		gs := []models.Group{}
-		_, err := db.Conn.Select(&gs, "SELECT g.id, g.name, g.modified_date FROM groups g, users u WHERE g.uid=u.id AND u.api_key=?", ctx.Get(r, "api_key"))
+		_, err := db.Conn.Select(&gs, "SELECT g.id, g.name, g.modified_date FROM groups g, users u, user_groups ug WHERE ug.uid=u.id AND ug.gid=g.id AND u.api_key=?", ctx.Get(r, "api_key"))
 		if err != nil {
 			fmt.Println(err)
 		}
-		for _, g := range gs {
-			_, err := db.Conn.Select(&g.Targets, "SELECT t.id t.email FROM targets t, groups g, group_targets gt WHERE gt.gid=? AND gt.tid=t.id", g.Id)
+		for i, _ := range gs {
+			_, err := db.Conn.Select(&gs[i].Targets, "SELECT t.id, t.email FROM targets t, groups g, group_targets gt WHERE gt.gid=? AND gt.tid=t.id", gs[i].Id)
 			if checkError(err, w, "Error looking up groups") {
 				return
 			}
@@ -179,6 +184,10 @@ func API_Groups(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		// Now, let's add the user->user_groups->group mapping
+		_, err = db.Conn.Exec("INSERT OR IGNORE INTO user_groups VALUES (?,?)", ctx.Get(r, "user_id").(int64), g.Id)
+		if err != nil {
+			fmt.Printf("Error adding many-many mapping for group %s\n", g.Name)
+		}
 		// TODO
 		for _, t := range g.Targets {
 			if _, err = mail.ParseAddress(t.Email); err != nil {

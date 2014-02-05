@@ -55,7 +55,6 @@ type Group struct {
 	Name         string    `json:"name"`
 	ModifiedDate time.Time `json:"modified_date" db:"modified_date"`
 	Targets      []Target  `json:"targets" db:"-"`
-	Uid          int64     `json:"-" db:"-"`
 }
 
 type Target struct {
