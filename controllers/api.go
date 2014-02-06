@@ -137,19 +137,12 @@ RESULT { "name" : "Test Group",
 func API_Groups(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "GET":
-		gs := []models.Group{}
-		_, err := db.Conn.Select(&gs, "SELECT g.id, g.name, g.modified_date FROM groups g, users u, user_groups ug WHERE ug.uid=u.id AND ug.gid=g.id AND u.api_key=?", ctx.Get(r, "api_key"))
-		if err != nil {
-			fmt.Println(err)
-		}
-		for i, _ := range gs {
-			_, err := db.Conn.Select(&gs[i].Targets, "SELECT t.id, t.email FROM targets t, group_targets gt WHERE gt.gid=? AND gt.tid=t.id", gs[i].Id)
-			if checkError(err, w, "Error looking up groups") {
-				return
-			}
+		gs, err := db.GetGroups(ctx.Get(r, "api_key"))
+		if checkError(err, w, "Cannot retrieve group information") {
+			return
 		}
 		gj, err := json.MarshalIndent(gs, "", "  ")
-		if checkError(err, w, "Error looking up groups") {
+		if checkError(err, w, "Error marshaling group information") {
 			return
 		}
 		writeJSON(w, gj)

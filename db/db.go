@@ -128,3 +128,19 @@ func PutCampaign(c *models.Campaign) error {
 	_, err := Conn.Update(c)
 	return err
 }
+
+func GetGroups(key interface{}) ([]models.Group, error) {
+	gs := []models.Group{}
+	_, err := Conn.Select(&gs, "SELECT g.id, g.name, g.modified_date FROM groups g, user_groups ug, users u WHERE ug.uid=u.id AND ug.gid=g.id AND u.api_key=?", key)
+	if err != nil {
+		fmt.Println(err)
+		return gs, err
+	}
+	for i, _ := range gs {
+		_, err := Conn.Select(&gs[i].Targets, "SELECT t.id, t.email FROM targets t, group_targets gt WHERE gt.gid=? AND gt.tid=t.id", gs[i].Id)
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
+	return gs, nil
+}
