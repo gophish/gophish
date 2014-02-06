@@ -143,7 +143,7 @@ func API_Groups(w http.ResponseWriter, r *http.Request) {
 			fmt.Println(err)
 		}
 		for i, _ := range gs {
-			_, err := db.Conn.Select(&gs[i].Targets, "SELECT t.id, t.email FROM targets t, groups g, group_targets gt WHERE gt.gid=? AND gt.tid=t.id", gs[i].Id)
+			_, err := db.Conn.Select(&gs[i].Targets, "SELECT t.id, t.email FROM targets t, group_targets gt WHERE gt.gid=? AND gt.tid=t.id", gs[i].Id)
 			if checkError(err, w, "Error looking up groups") {
 				return
 			}
@@ -188,13 +188,14 @@ func API_Groups(w http.ResponseWriter, r *http.Request) {
 				fmt.Printf("Found invalid email %s\n", t.Email)
 				continue
 			}
-			res, err := db.Conn.Exec("INSERT OR IGNORE INTO targets VALUES (null, ?)", t.Email)
+			_, err := db.Conn.Exec("INSERT OR IGNORE INTO targets VALUES (null, ?)", t.Email)
 			if err != nil {
 				fmt.Printf("Error adding email: %s\n", t.Email)
 			}
-			t.Id, err = res.LastInsertId()
+			// Bug: res.LastInsertId() does not work for this, so we need to select it manually (how frustrating.)
+			t.Id, err = db.Conn.SelectInt("SELECT id FROM targets WHERE email=?", t.Email)
 			if err != nil {
-				fmt.Printf("Error getting last insert id for email: %s\n", t.Email)
+				fmt.Printf("Error getting id for email: %s\n", t.Email)
 			}
 			_, err = db.Conn.Exec("INSERT OR IGNORE INTO group_targets VALUES (?,?)", g.Id, t.Id)
 			if err != nil {
