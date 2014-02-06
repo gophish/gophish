@@ -10,7 +10,6 @@ import (
 
 	ctx "github.com/gorilla/context"
 	"github.com/gorilla/mux"
-	"github.com/gorilla/sessions"
 	"github.com/jordan-wright/gophish/auth"
 	"github.com/jordan-wright/gophish/db"
 	"github.com/jordan-wright/gophish/models"
@@ -37,13 +36,12 @@ func API_Reset(w http.ResponseWriter, r *http.Request) {
 	case r.Method == "POST":
 		u := ctx.Get(r, "user").(models.User)
 		u.APIKey = auth.GenerateSecureKey()
-		db.Conn.Exec("UPDATE users SET api_key=? WHERE id=?", u.APIKey, u.Id)
-		session := ctx.Get(r, "session").(*sessions.Session)
-		session.AddFlash(models.Flash{
-			Type:    "success",
-			Message: "API Key Successfully Reset",
-		})
-		session.Save(r, w)
+		err := db.PutUser(&u)
+		if err != nil {
+			Flash(w, r, "danger", "Error resetting API Key")
+		} else {
+			Flash(w, r, "success", "API Key Successfully Reset")
+		}
 		http.Redirect(w, r, "/settings", 302)
 	}
 }
@@ -53,8 +51,7 @@ func API_Reset(w http.ResponseWriter, r *http.Request) {
 func API_Campaigns(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "GET":
-		cs := []models.Campaign{}
-		_, err := db.Conn.Select(&cs, "SELECT c.id, name, created_date, completed_date, status, template FROM campaigns c, users u WHERE c.uid=u.id AND u.api_key=?", ctx.Get(r, "api_key"))
+		cs, err := db.GetCampaigns(ctx.Get(r, "api_key"))
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -96,14 +93,11 @@ func API_Campaigns(w http.ResponseWriter, r *http.Request) {
 // valid, API_Campaigns_Id returns null.
 func API_Campaigns_Id(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	id, err := strconv.ParseInt(vars["id"], 0, 64)
-	if checkError(err, w, "Invalid Int") {
-		return
-	}
+	id, _ := strconv.ParseInt(vars["id"], 0, 64)
 	switch {
 	case r.Method == "GET":
 		c := models.Campaign{}
-		err := db.Conn.SelectOne(&c, "SELECT campaigns.id, name, created_date, completed_date, status, template FROM campaigns, users WHERE campaigns.uid=users.id AND campaigns.id =? AND users.api_key=?", id, ctx.Get(r, "api_key"))
+		c, err := db.GetCampaign(id, ctx.Get(r, "api_key"))
 		if checkError(err, w, "No campaign found") {
 			return
 		}

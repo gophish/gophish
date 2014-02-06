@@ -118,6 +118,13 @@ func GetCampaigns(key interface{}) ([]models.Campaign, error) {
 	return cs, err
 }
 
-func GetCampaign(id int64) {
+func GetCampaign(id int64, key interface{}) (models.Campaign, error) {
+	c := models.Campaign{}
+	err := Conn.SelectOne(&c, "SELECT campaigns.id, name, created_date, completed_date, status, template FROM campaigns, users WHERE campaigns.uid=users.id AND campaigns.id =? AND users.api_key=?", id, key)
+	return c, err
+}
 
+func PutCampaign(c *models.Campaign) error {
+	_, err := Conn.Update(c)
+	return err
 }

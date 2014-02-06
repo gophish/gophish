@@ -23,22 +23,9 @@
         {{%template "flashes" .Flashes%}}
         <h1 style="margin:0px 0px 15px 0px;">User Settings</h1>
         <div class="row">
-            <div class="col-md-2">
-                <p><b>Username:</b> 
-                </p>
-            </div>
+            <label for="api_key" class="col-sm-2 control-label form-label">API Key:</label>
             <div class="col-md-6">
-                <input type="text" value="{{%.User.Username%}}" class="form-control" />
-            </div>
-        </div>
-        <br/>
-        <div class="row">
-            <div class="col-md-2">
-                <p><b>API Key:</b> 
-                </p>
-            </div>
-            <div class="col-md-6">
-                <input type="text" onclick="this.select();" value="{{%.User.APIKey%}}" class="form-control" readonly/>
+                <input type="text" id="api_key" onclick="this.select();" value="{{%.User.APIKey%}}" class="form-control" readonly/>
             </div>
             <form action="/api/reset" method="POST">
                 <button class="btn btn-primary"><i class="fa fa-refresh" type="submit"></i> Reset</button>
@@ -46,6 +33,29 @@
             </form>
         </div>
         <br />
+        <form action="/settings" method="POST">
+            <div class="row">
+                <label for="username" class="col-sm-2 control-label form-label">Username:</label>
+                <div class="col-md-6">
+                    <input type="text" id="username" value="{{%.User.Username%}}" class="form-control" />
+                </div>
+            </div>
+            <br />
+            <div class="row">
+                <label for="current_password" class="col-sm-2 control-label form-label">Old Password:</label>
+                <div class="col-md-6">
+                    <input type="password" id="current_password" class="form-control" />
+                </div>
+            </div>
+            <br />
+            <div class="row">
+                <label for="new_password" class="col-sm-2 control-label form-label">New Password:</label>
+                <div class="col-md-6">
+                    <input type="password" id="new_password" class="form-control" />
+                </div>
+            </div>
+        </form>
+        <br/>
         <button class="btn btn-primary">Save</button>
     </div>
 </div>

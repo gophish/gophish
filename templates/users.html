@@ -36,7 +36,9 @@
                 <tbody>
                     <tr ng-repeat="group in groups">
                         <td>{{group.name}}</td>
-                        <td>{{group.targets}}</td>
+                        <td><span ng-repeat="target in group.targets">
+                        {{target.email}}{{$last ? '' : ', '}}
+                        </span></td>
                         <td>{{group.modified_date | date:'medium'}}</td>
                     </tr>
                 </tbody>

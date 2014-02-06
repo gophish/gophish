@@ -173,8 +173,8 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	case r.Method == "POST":
 		//Attempt to login
 		succ, err := auth.Login(r)
-		if checkError(err, w, "Error logging in") {
-			return
+		if err != nil {
+			fmt.Println(err)
 		}
 		//If we've logged in, save the session and redirect to the dashboard
 		if succ {
