@@ -34,9 +34,25 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr ng-repeat="campaign in campaigns">
+                    <tr ng-repeat="campaign in campaigns" class="editable-row">
                         <td>{{campaign.created_date | date:'medium'}}</td>
-                        <td>{{campaign.name}}</td>
+                        <td>{{campaign.name}}
+                            <div class="btn-group" style="float: right;">
+                                <button type="button" class="btn btn-primary dropdown-toggle edit-button" data-toggle="dropdown">
+                                    <span class="caret" style="border-top-color:#FFFFFF"></span>
+                                    <span class="sr-only">Toggle Dropdown</span>
+                                </button>
+                                <ul class="dropdown-menu" style="left:auto; right:0;" role="menu">
+                                    <li><a href="/settings">View</a>
+                                    </li>
+                                    <li><a href="/settings">Edit</a>
+                                    </li>
+                                    <li class="divider"></li>
+                                    <li><a href="/logout">Delete</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
                         <td>{{campaign.status}}</td>
                     </tr>
                 </tbody>

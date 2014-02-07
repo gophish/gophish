@@ -179,7 +179,7 @@ func API_Groups(w http.ResponseWriter, r *http.Request) {
 		if checkError(err, w, "Error creating JSON response") {
 			return
 		}
-		writeJSON(w, "{\"success\" : \"true\"}")
+		writeJSON(w, []byte("{\"success\" : \"true\"}"))
 	}
 }
 
