@@ -86,3 +86,17 @@
   .form-label {
     padding-top:7px;
   }
+
+  .hover {
+    visibility: visible;
+  }
+
+  .edit-button {
+    display:none;
+  }
+
+  .editable-row:hover .edit-button {
+    display : inline-block;
+    padding: 3px 6px;
+    font-size:9px;
+  }

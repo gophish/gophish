@@ -34,11 +34,28 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr ng-repeat="group in groups">
+                    <tr ng-repeat="group in groups" class="editable-row">
                         <td>{{group.name}}</td>
-                        <td><span ng-repeat="target in group.targets">
-                        {{target.email}}{{$last ? '' : ', '}}
-                        </span></td>
+                        <td>
+                            <span ng-repeat="target in group.targets">
+                                {{target.email}}{{$last ? '' : ', '}}
+                            </span>
+                            <div class="btn-group" style="float: right;">
+                                <button type="button" class="btn btn-primary dropdown-toggle edit-button" data-toggle="dropdown">
+                                    <span class="caret" style="border-top-color:#FFFFFF"></span>
+                                    <span class="sr-only">Toggle Dropdown</span>
+                                </button>
+                                <ul class="dropdown-menu" style="left:auto; right:0;" role="menu">
+                                    <li><a href="/settings">View</a>
+                                    </li>
+                                    <li><a href="/settings">Edit</a>
+                                    </li>
+                                    <li class="divider"></li>
+                                    <li><a href="/logout">Delete</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
                         <td>{{group.modified_date | date:'medium'}}</td>
                     </tr>
                 </tbody>
