@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"net/mail"
 	"strconv"
 	"time"
 
@@ -130,8 +129,12 @@ POST	/api/groups
 		}
 
 RESULT { "name" : "Test Group",
-		  "targets" : ["test@example.com", "test2@example.com"]
-		  "id" : 1
+		  "targets" : [
+		  {
+		  	"email" : "test@example.com"
+		  },
+		  { "email" : test2@example.com"
+		  }]
 		}
 */
 func API_Groups(w http.ResponseWriter, r *http.Request) {
@@ -160,42 +163,8 @@ func API_Groups(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		g.ModifiedDate = time.Now()
-		// Insert into the DB
-		err = db.Conn.Insert(&g)
-		if checkError(err, w, "Cannot insert group into database") {
-			return
-		}
-		// Let's start a transaction to handle the bulk inserting
-		trans, err := db.Conn.Begin()
-		if checkError(err, w, "Error starting transaction to insert data") {
-			return
-		}
-		// Now, let's add the user->user_groups->group mapping
-		_, err = db.Conn.Exec("INSERT OR IGNORE INTO user_groups VALUES (?,?)", ctx.Get(r, "user_id").(int64), g.Id)
-		if err != nil {
-			fmt.Printf("Error adding many-many mapping for group %s\n", g.Name)
-		}
-		// TODO
-		for _, t := range g.Targets {
-			if _, err = mail.ParseAddress(t.Email); err != nil {
-				fmt.Printf("Found invalid email %s\n", t.Email)
-				continue
-			}
-			_, err := db.Conn.Exec("INSERT OR IGNORE INTO targets VALUES (null, ?)", t.Email)
-			if err != nil {
-				fmt.Printf("Error adding email: %s\n", t.Email)
-			}
-			// Bug: res.LastInsertId() does not work for this, so we need to select it manually (how frustrating.)
-			t.Id, err = db.Conn.SelectInt("SELECT id FROM targets WHERE email=?", t.Email)
-			if err != nil {
-				fmt.Printf("Error getting id for email: %s\n", t.Email)
-			}
-			_, err = db.Conn.Exec("INSERT OR IGNORE INTO group_targets VALUES (?,?)", g.Id, t.Id)
-			if err != nil {
-				fmt.Printf("Error adding many-many mapping for %s\n", t.Email)
-			}
-		}
-		if checkError(trans.Commit(), w, "Error committing transaction") {
+		err = db.PostGroup(&g, ctx.Get(r, "user_id").(int64))
+		if checkError(err, w, "Error inserting group") {
 			return
 		}
 		gj, err := json.MarshalIndent(g, "", "  ")
@@ -203,6 +172,14 @@ func API_Groups(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		writeJSON(w, gj)
+	case r.Method == "DELETE":
+		vars := mux.Vars(r)
+		id, _ := strconv.ParseInt(vars["id"], 0, 64)
+		err := db.DeleteGroup(id)
+		if checkError(err, w, "Error creating JSON response") {
+			return
+		}
+		writeJSON(w, "{\"success\" : \"true\"}")
 	}
 }
 

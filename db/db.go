@@ -3,7 +3,8 @@ package db
 import (
 	"database/sql"
 	"errors"
-	"fmt"
+	"log"
+	"net/mail"
 	"os"
 	"time"
 
@@ -17,6 +18,7 @@ var Conn *gorp.DbMap
 var DB *sql.DB
 var err error
 var ErrUsernameTaken = errors.New("Username already taken")
+var Logger = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile)
 
 // Setup initializes the Conn object
 // It also populates the Gophish Config object
@@ -29,7 +31,7 @@ func Setup() error {
 	Conn.AddTableWithName(models.Campaign{}, "campaigns").SetKeys(true, "Id")
 	Conn.AddTableWithName(models.Group{}, "groups").SetKeys(true, "Id")
 	if err != nil {
-		fmt.Println("Database not found, recreating...")
+		Logger.Println("Database not found, recreating...")
 		createTablesSQL := []string{
 			//Create tables
 			`CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT NOT NULL, hash VARCHAR(60) NOT NULL, api_key VARCHAR(32), UNIQUE(username), UNIQUE(api_key));`,
@@ -39,7 +41,7 @@ func Setup() error {
 			`CREATE TABLE user_groups (uid INTEGER NOT NULL, gid INTEGER NOT NULL, FOREIGN KEY (uid) REFERENCES users(id), FOREIGN KEY (gid) REFERENCES groups(id), UNIQUE(uid, gid))`,
 			`CREATE TABLE group_targets (gid INTEGER NOT NULL, tid INTEGER NOT NULL, FOREIGN KEY (gid) REFERENCES groups(id), FOREIGN KEY (tid) REFERENCES targets(id), UNIQUE(gid, tid));`,
 		}
-		fmt.Println("Creating db at " + config.Conf.DBPath)
+		Logger.Printf("Creating db at %s\n", config.Conf.DBPath)
 		//Create the tables needed
 		for _, stmt := range createTablesSQL {
 			_, err = DB.Exec(stmt)
@@ -55,7 +57,7 @@ func Setup() error {
 		}
 		Conn.Insert(&init_user)
 		if err != nil {
-			fmt.Println(err)
+			Logger.Println(err)
 		}
 		c := models.Campaign{
 			Name:          "Test Campaigns",
@@ -133,14 +135,64 @@ func GetGroups(key interface{}) ([]models.Group, error) {
 	gs := []models.Group{}
 	_, err := Conn.Select(&gs, "SELECT g.id, g.name, g.modified_date FROM groups g, user_groups ug, users u WHERE ug.uid=u.id AND ug.gid=g.id AND u.api_key=?", key)
 	if err != nil {
-		fmt.Println(err)
+		Logger.Println(err)
 		return gs, err
 	}
 	for i, _ := range gs {
 		_, err := Conn.Select(&gs[i].Targets, "SELECT t.id, t.email FROM targets t, group_targets gt WHERE gt.gid=? AND gt.tid=t.id", gs[i].Id)
 		if err != nil {
-			fmt.Println(err)
+			Logger.Println(err)
 		}
 	}
 	return gs, nil
+}
+
+func PostGroup(g *models.Group, uid int64) error {
+	// Insert into the DB
+	err = Conn.Insert(g)
+	if err != nil {
+		Logger.Println(err)
+		return err
+	}
+	// Let's start a transaction to handle the bulk inserting
+	trans, err := Conn.Begin()
+	if err != nil {
+		Logger.Println(err)
+		return err
+	}
+	// Now, let's add the user->user_groups->group mapping
+	_, err = Conn.Exec("INSERT OR IGNORE INTO user_groups VALUES (?,?)", uid, g.Id)
+	if err != nil {
+		Logger.Printf("Error adding many-many mapping for group %s\n", g.Name)
+	}
+	// TODO
+	for _, t := range g.Targets {
+		if _, err = mail.ParseAddress(t.Email); err != nil {
+			Logger.Printf("Invalid email %s\n", t.Email)
+			continue
+		}
+		_, err := Conn.Exec("INSERT OR IGNORE INTO targets VALUES (null, ?)", t.Email)
+		if err != nil {
+			Logger.Printf("Error adding email: %s\n", t.Email)
+		}
+		// Bug: res.LastInsertId() does not work for this, so we need to select it manually (how frustrating.)
+		t.Id, err = Conn.SelectInt("SELECT id FROM targets WHERE email=?", t.Email)
+		if err != nil {
+			Logger.Printf("Error getting id for email: %s\n", t.Email)
+		}
+		_, err = Conn.Exec("INSERT OR IGNORE INTO group_targets VALUES (?,?)", g.Id, t.Id)
+		if err != nil {
+			Logger.Printf("Error adding many-many mapping for %s\n", t.Email)
+		}
+	}
+	err = trans.Commit()
+	if err != nil {
+		Logger.Println(err)
+		return err
+	}
+	return nil
+}
+
+func DeleteGroup(id int) error {
+	return nil
 }
