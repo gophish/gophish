@@ -100,3 +100,8 @@
     padding: 3px 6px;
     font-size:9px;
   }
+
+  .remove-row {
+    float:right;
+    cursor:pointer;
+  }
