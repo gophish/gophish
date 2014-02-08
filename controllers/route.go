@@ -32,10 +32,10 @@ func CreateRouter() *nosurf.CSRFHandler {
 	api := router.PathPrefix("/api").Subrouter()
 	api.HandleFunc("/", Use(API, mid.RequireLogin))
 	api.HandleFunc("/reset", Use(API_Reset, mid.RequireLogin))
-	api.HandleFunc("/campaigns", Use(API_Campaigns, mid.RequireAPIKey))
+	api.HandleFunc("/campaigns/", Use(API_Campaigns, mid.RequireAPIKey))
 	api.HandleFunc("/campaigns/{id:[0-9]+}", Use(API_Campaigns_Id, mid.RequireAPIKey))
 	api.HandleFunc("/campaigns/id:[0-9]+}", Use(API_Campaigns_Id_Launch, mid.RequireAPIKey))
-	api.HandleFunc("/groups", Use(API_Groups, mid.RequireAPIKey))
+	api.HandleFunc("/groups/", Use(API_Groups, mid.RequireAPIKey))
 	api.HandleFunc("/groups/{id:[0-9]+}", Use(API_Groups_Id, mid.RequireAPIKey))
 
 	// Setup static file serving
