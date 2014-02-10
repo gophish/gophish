@@ -24,10 +24,25 @@ app.controller('CampaignCtrl', function($scope, CampaignService) {
     })
 });
 
-app.controller('GroupCtrl', function($scope, GroupService) {
-    GroupService.query(function(groups) {
-        $scope.groups = groups
-    })
+app.controller('GroupCtrl', function($scope, GroupService, ngTableParams) {
+
+
+    $scope.tableParams = new ngTableParams({
+        page: 1, // show first page
+        count: 10, // count per page
+        sorting: {
+            name: 'asc'     // initial sorting
+        }
+    }, {
+        total: 0, // length of data
+        getData: function($defer, params) {
+            GroupService.query(function(groups) {
+                $scope.groups = groups
+                params.total(groups.length)
+                $defer.resolve(groups.slice((params.page() - 1) * params.count(), params.page() * params.count()));
+            })
+        }
+    });
 
     $scope.editGroup = function(group) {
         if (group === 'new') {
@@ -61,8 +76,7 @@ app.controller('GroupCtrl', function($scope, GroupService) {
             newGroup.$save(function() {
                 $scope.groups.push(newGroup);
             });
-        }
-        else {
+        } else {
             newGroup.$update()
         }
     }

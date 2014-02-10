@@ -25,18 +25,11 @@
         </div>
         &nbsp;
         <div class="row">
-            <table ng-table class="table table-hover table-striped table-bordered">
-                <thead>
-                    <tr>
-                        <th class="col-sm-1">Name</th>
-                        <th class="col-sm-2">Members</th>
-                        <th class="col-sm-1">Modified Date</th>
-                    </tr>
-                </thead>
+            <table ng-table="tableParams" class="table table-hover table-striped table-bordered">
                 <tbody>
-                    <tr ng-repeat="group in groups" class="editable-row">
-                        <td>{{group.name}}</td>
-                        <td>
+                    <tr ng-repeat="group in $data" class="editable-row">
+                        <td data-title="'Name'" class="col-sm-1">{{group.name}}</td>
+                        <td data-title="'Members'" class="col-sm-2">
                             <span ng-repeat="target in group.targets">
                                 {{target.email}}{{$last ? '' : ', '}}
                             </span>
@@ -56,14 +49,14 @@
                                 </ul>
                             </div>
                         </td>
-                        <td>{{group.modified_date | date:'medium'}}</td>
+                        <td data-title="'Modified Date'" class="col-sm-1">{{group.modified_date | date:'medium'}}</td>
                     </tr>
                 </tbody>
             </table>
         </div>
     </div>
     <!-- New Campaign Modal -->
-    <div class="modal" id="newGroupModal" tabindex="-1" role="dialog" aria-labelledby="groupModalLabel" aria-hidden="true" >
+    <div class="modal" id="newGroupModal" tabindex="-1" role="dialog" aria-labelledby="groupModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -81,12 +74,12 @@
                     </div>
                     <label class="control-label" for="users">Users:</label>
                     <form ng:submit="addTarget()">
-                    <div class="input-group">
-                        <input type="email" class="form-control" placeholder="test@example.com" id="users" ng-model="newTarget.email" />
-                        <span class="input-group-btn">
-                            <button class="btn btn-primary"><i class="fa fa-plus"></i> Add</button>
-                        </span>
-                    </div>
+                        <div class="input-group">
+                            <input type="email" class="form-control" placeholder="test@example.com" id="users" ng-model="newTarget.email" />
+                            <span class="input-group-btn">
+                                <button class="btn btn-primary"><i class="fa fa-plus"></i> Add</button>
+                            </span>
+                        </div>
                     </form>
                     <br />
                     <table ng-table class="table table-hover table-striped table-condensed">

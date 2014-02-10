@@ -207,6 +207,6 @@ func PostGroup(g *models.Group, uid int64) error {
 	return nil
 }
 
-func DeleteGroup(id int64) error {
+func DeleteGroup(id int64, uid int64) error {
 	return nil
 }

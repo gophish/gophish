@@ -190,7 +190,7 @@ func API_Groups_Id(w http.ResponseWriter, r *http.Request) {
 		}
 		writeJSON(w, gj)
 	case r.Method == "DELETE":
-		err := db.DeleteGroup(id)
+		err := db.DeleteGroup(id, ctx.Get(r, "user_id").(int64))
 		if checkError(err, w, "Error creating JSON response") {
 			return
 		}
