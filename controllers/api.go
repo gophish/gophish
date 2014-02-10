@@ -50,13 +50,10 @@ func API_Reset(w http.ResponseWriter, r *http.Request) {
 func API_Campaigns(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "GET":
-		cs, err := db.GetCampaigns(ctx.Get(r, "api_key"))
+		cs, err := db.GetCampaigns(ctx.Get(r, "user_id").(int64))
 		if err != nil {
 			fmt.Println(err)
 		}
-		/*for c := range cs {
-			_, err := db.Conn.Select(&cs.Results, "SELECT r.id ")
-		}*/
 		cj, err := json.MarshalIndent(cs, "", "  ")
 		if checkError(err, w, "Error looking up campaigns") {
 			return
@@ -96,7 +93,7 @@ func API_Campaigns_Id(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "GET":
 		c := models.Campaign{}
-		c, err := db.GetCampaign(id, ctx.Get(r, "api_key"))
+		c, err := db.GetCampaign(id, ctx.Get(r, "user_id").(int64))
 		if checkError(err, w, "No campaign found") {
 			return
 		}
@@ -140,7 +137,7 @@ RESULT { "name" : "Test Group",
 func API_Groups(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "GET":
-		gs, err := db.GetGroups(ctx.Get(r, "api_key"))
+		gs, err := db.GetGroups(ctx.Get(r, "user_id").(int64))
 		if checkError(err, w, "Cannot retrieve group information") {
 			return
 		}
@@ -172,21 +169,33 @@ func API_Groups(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		writeJSON(w, gj)
+	}
+}
+
+// API_Groups_Id returns details about the requested campaign. If the campaign is not
+// valid, API_Campaigns_Id returns null.
+func API_Groups_Id(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, _ := strconv.ParseInt(vars["id"], 0, 64)
+	switch {
+	case r.Method == "GET":
+		g := models.Group{}
+		g, err := db.GetGroup(id, ctx.Get(r, "user_id").(int64))
+		if checkError(err, w, "No group found") {
+			return
+		}
+		gj, err := json.MarshalIndent(g, "", "  ")
+		if checkError(err, w, "Error creating JSON response") {
+			return
+		}
+		writeJSON(w, gj)
 	case r.Method == "DELETE":
-		vars := mux.Vars(r)
-		id, _ := strconv.ParseInt(vars["id"], 0, 64)
 		err := db.DeleteGroup(id)
 		if checkError(err, w, "Error creating JSON response") {
 			return
 		}
 		writeJSON(w, []byte("{\"success\" : \"true\"}"))
 	}
-}
-
-// API_Campaigns_Id returns details about the requested campaign. If the campaign is not
-// valid, API_Campaigns_Id returns null.
-func API_Groups_Id(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, "/", 302)
 }
 
 func writeJSON(w http.ResponseWriter, c []byte) {

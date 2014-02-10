@@ -34,7 +34,7 @@ func CreateRouter() *nosurf.CSRFHandler {
 	api.HandleFunc("/reset", Use(API_Reset, mid.RequireLogin))
 	api.HandleFunc("/campaigns/", Use(API_Campaigns, mid.RequireAPIKey))
 	api.HandleFunc("/campaigns/{id:[0-9]+}", Use(API_Campaigns_Id, mid.RequireAPIKey))
-	api.HandleFunc("/campaigns/id:[0-9]+}", Use(API_Campaigns_Id_Launch, mid.RequireAPIKey))
+	//api.HandleFunc("/campaigns/id:[0-9]+}", Use(API_Campaigns_Id_Launch, mid.RequireAPIKey))
 	api.HandleFunc("/groups/", Use(API_Groups, mid.RequireAPIKey))
 	api.HandleFunc("/groups/{id:[0-9]+}", Use(API_Groups_Id, mid.RequireAPIKey))
 
@@ -44,8 +44,8 @@ func CreateRouter() *nosurf.CSRFHandler {
 	// Setup CSRF Protection
 	csrfHandler := nosurf.New(router)
 	// Exempt API routes and Static files
-	csrfHandler.ExemptGlob("/api/campaigns*")
-	csrfHandler.ExemptGlob("/api/groups*")
+	csrfHandler.ExemptGlob("/api/campaigns/*")
+	csrfHandler.ExemptGlob("/api/groups/*")
 	csrfHandler.ExemptGlob("/static/*")
 	return csrfHandler
 }

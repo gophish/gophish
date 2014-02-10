@@ -114,15 +114,15 @@ func PutUser(u *models.User) error {
 	return err
 }
 
-func GetCampaigns(key interface{}) ([]models.Campaign, error) {
+func GetCampaigns(uid int64) ([]models.Campaign, error) {
 	cs := []models.Campaign{}
-	_, err := Conn.Select(&cs, "SELECT c.id, name, created_date, completed_date, status, template FROM campaigns c, users u WHERE c.uid=u.id AND u.api_key=?", key)
+	_, err := Conn.Select(&cs, "SELECT c.id, name, created_date, completed_date, status, template FROM campaigns c, users u WHERE c.uid=u.id AND u.id=?", uid)
 	return cs, err
 }
 
-func GetCampaign(id int64, key interface{}) (models.Campaign, error) {
+func GetCampaign(id int64, uid int64) (models.Campaign, error) {
 	c := models.Campaign{}
-	err := Conn.SelectOne(&c, "SELECT campaigns.id, name, created_date, completed_date, status, template FROM campaigns, users WHERE campaigns.uid=users.id AND campaigns.id =? AND users.api_key=?", id, key)
+	err := Conn.SelectOne(&c, "SELECT c.id, name, created_date, completed_date, status, template FROM campaigns c, users u WHERE c.uid=u.id AND c.id =? AND u.id=?", id, uid)
 	return c, err
 }
 
@@ -131,9 +131,9 @@ func PutCampaign(c *models.Campaign) error {
 	return err
 }
 
-func GetGroups(key interface{}) ([]models.Group, error) {
+func GetGroups(uid int64) ([]models.Group, error) {
 	gs := []models.Group{}
-	_, err := Conn.Select(&gs, "SELECT g.id, g.name, g.modified_date FROM groups g, user_groups ug, users u WHERE ug.uid=u.id AND ug.gid=g.id AND u.api_key=?", key)
+	_, err := Conn.Select(&gs, "SELECT g.id, g.name, g.modified_date FROM groups g, user_groups ug, users u WHERE ug.uid=u.id AND ug.gid=g.id AND u.id=?", uid)
 	if err != nil {
 		Logger.Println(err)
 		return gs, err
@@ -145,6 +145,20 @@ func GetGroups(key interface{}) ([]models.Group, error) {
 		}
 	}
 	return gs, nil
+}
+
+func GetGroup(id int64, uid int64) (models.Group, error) {
+	g := models.Group{}
+	err := Conn.SelectOne(&g, "SELECT g.id, g.name, g.modified_date FROM groups g, user_groups ug, users u WHERE ug.uid=u.id AND ug.gid=g.id AND g.id=? AND u.id=?", id, uid)
+	if err != nil {
+		Logger.Println(err)
+		return g, err
+	}
+	_, err = Conn.Select(&g.Targets, "SELECT t.id, t.email FROM targets t, group_targets gt WHERE gt.gid=? AND gt.tid=t.id", g.Id)
+	if err != nil {
+		Logger.Println(err)
+	}
+	return g, nil
 }
 
 func PostGroup(g *models.Group, uid int64) error {

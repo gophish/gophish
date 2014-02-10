@@ -11,9 +11,7 @@ app.factory('CampaignService', function($resource) {
 });
 
 app.factory('GroupService', function($resource) {
-    return $resource('/api/groups/:id?api_key=' + API_KEY, {
-        id: "@id"
-    }, {
+    return $resource('/api/groups/:id?api_key=' + API_KEY, {}, {
         update: {
             method: 'PUT'
         }
@@ -57,4 +55,15 @@ app.controller('GroupCtrl', function($scope, GroupService) {
     $scope.removeTarget = function(target) {
         $scope.group.targets.splice($scope.group.targets.indexOf(target), 1);
     };
+    $scope.saveGroup = function(group) {
+        var newGroup = new GroupService($scope.group);
+        if ($scope.newGroup) {
+            newGroup.$save(function() {
+                $scope.groups.push(newGroup);
+            });
+        }
+        else {
+            newGroup.$update()
+        }
+    }
 })
