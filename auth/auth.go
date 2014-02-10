@@ -1,7 +1,9 @@
 package auth
 
 import (
+	"database/sql"
 	"encoding/gob"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -24,6 +26,8 @@ func init() {
 var Store = sessions.NewCookieStore(
 	[]byte(securecookie.GenerateRandomKey(64)), //Signing key
 	[]byte(securecookie.GenerateRandomKey(32)))
+
+var ErrInvalidPassword = errors.New("Invalid Password")
 
 // Login attempts to login the user given a request.
 func Login(r *http.Request) (bool, error) {
@@ -52,7 +56,8 @@ func Login(r *http.Request) (bool, error) {
 func Register(r *http.Request) (bool, error) {
 	username, password := r.FormValue("username"), r.FormValue("password")
 	u, err := db.GetUserByUsername(username)
-	if err != nil {
+	// If we have an error which is not simply indicating that no user was found, report it
+	if err != sql.ErrNoRows {
 		return false, err
 	}
 	//If we've made it here, we should have a valid username given
@@ -78,21 +83,23 @@ func GenerateSecureKey() string {
 	return fmt.Sprintf("%x", k)
 }
 
-func ChangePassword(u *models.User, c string, n string) bool {
+func ChangePassword(r *http.Request) error {
+	u := ctx.Get(r, "user").(models.User)
+	c, n := r.FormValue("current_password"), r.FormValue("new_password")
 	// Check the current password
 	err := bcrypt.CompareHashAndPassword([]byte(u.Hash), []byte(c))
 	if err != nil {
-		return false
+		return ErrInvalidPassword
 	} else {
 		// Generate the new hash
 		h, err := bcrypt.GenerateFromPassword([]byte(n), bcrypt.DefaultCost)
 		if err != nil {
-			return false
+			return err
 		}
 		u.Hash = string(h)
-		if err = db.PutUser(u); err != nil {
-			return false
+		if err = db.PutUser(&u); err != nil {
+			return err
 		}
-		return true
+		return nil
 	}
 }

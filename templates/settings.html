@@ -44,19 +44,20 @@
             <div class="row">
                 <label for="current_password" class="col-sm-2 control-label form-label">Old Password:</label>
                 <div class="col-md-6">
-                    <input type="password" id="current_password" class="form-control" />
+                    <input type="password" id="current_password" name="current_password" class="form-control" />
                 </div>
             </div>
             <br />
             <div class="row">
                 <label for="new_password" class="col-sm-2 control-label form-label">New Password:</label>
                 <div class="col-md-6">
-                    <input type="password" id="new_password" class="form-control" />
+                    <input type="password" id="new_password" name="new_password" class="form-control" />
                 </div>
             </div>
+            <input type="hidden" name="csrf_token" value={{%.Token%}}/>
+            <button class="btn btn-primary" type="submit">Save</button>
         </form>
         <br/>
-        <button class="btn btn-primary">Save</button>
     </div>
 </div>
 {{%end%}}

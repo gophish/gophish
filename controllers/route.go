@@ -142,10 +142,23 @@ func Settings(w http.ResponseWriter, r *http.Request) {
 		Token   string
 	}{Title: "Settings", User: ctx.Get(r, "user").(models.User)}
 	session := ctx.Get(r, "session").(*sessions.Session)
-	params.Token = nosurf.Token(r)
-	params.Flashes = session.Flashes()
-	session.Save(r, w)
-	getTemplate(w, "settings").ExecuteTemplate(w, "base", params)
+	switch {
+	case r.Method == "GET":
+		params.Token = nosurf.Token(r)
+		params.Flashes = session.Flashes()
+		session.Save(r, w)
+		getTemplate(w, "settings").ExecuteTemplate(w, "base", params)
+	case r.Method == "POST":
+		err := auth.ChangePassword(r)
+		if err == auth.ErrInvalidPassword {
+			Flash(w, r, "danger", "Invalid Password")
+		} else if err != nil {
+			Flash(w, r, "danger", "Unknown Error")
+		} else {
+			Flash(w, r, "success", "Password successfully reset")
+		}
+		http.Redirect(w, r, "/settings", 302)
+	}
 }
 
 func Campaigns_Id(w http.ResponseWriter, r *http.Request) {

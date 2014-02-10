@@ -101,9 +101,16 @@ app.controller('GroupCtrl', function($scope, GroupService, ngTableParams) {
         if ($scope.newGroup) {
             newGroup.$save(function() {
                 $scope.groups.push(newGroup);
+                $scope.mainTableParams.reload()
             });
         } else {
             newGroup.$update()
         }
+        $scope.group = {
+                name: '',
+                targets: [],
+                id: 0
+            };
+        $scope.editGroupTableParams.reload()
     }
 })
