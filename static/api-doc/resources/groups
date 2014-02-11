@@ -40,9 +40,51 @@
     {
       "path": "/groups/{group_id}",
       "operations": [
+      {
+          "method": "GET",
+          "summary": "Find group by ID",
+          "notes": "",
+          "responseClass": "Group",
+          "nickname": "getGroupByID",
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "group_id",
+              "description": "The ID of the group that needs to be fetched.",
+              "required": true,
+              "allowMultiple": false,
+              "dataType": "int64",
+              "paramType": "path"
+            }
+          ],
+          "responseMessages": [
+            {
+              "code": 400,
+              "message": "Invalid API Key"
+            },
+            {
+              "code": 400,
+              "message": "API Key not set"
+            },
+            {
+              "code": 400,
+              "message": "Invalid ID supplied"
+            },
+            {
+              "code": 200,
+              "message": "Group fetched successfully"
+            },
+            {
+              "code": 404,
+              "message": "Group not found"
+            }
+          ]
+        },
         {
           "method": "PUT",
-          "summary": "Updated group",
+          "summary": "Update group",
           "notes": "Requires an API Key.",
           "responseClass": "void",
           "nickname": "updateGroup",
@@ -119,48 +161,6 @@
             {
               "code": 200,
               "message": "Group deleted successfully"
-            },
-            {
-              "code": 404,
-              "message": "Group not found"
-            }
-          ]
-        },
-        {
-          "method": "GET",
-          "summary": "Get group by group id",
-          "notes": "",
-          "responseClass": "Group",
-          "nickname": "getGroupByID",
-          "produces": [
-            "application/json"
-          ],
-          "parameters": [
-            {
-              "name": "group_id",
-              "description": "The ID of the group that needs to be fetched.",
-              "required": true,
-              "allowMultiple": false,
-              "dataType": "int64",
-              "paramType": "path"
-            }
-          ],
-          "responseMessages": [
-            {
-              "code": 400,
-              "message": "Invalid API Key"
-            },
-            {
-              "code": 400,
-              "message": "API Key not set"
-            },
-            {
-              "code": 400,
-              "message": "Invalid ID supplied"
-            },
-            {
-              "code": 200,
-              "message": "Group fetched successfully"
             },
             {
               "code": 404,

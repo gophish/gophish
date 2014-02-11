@@ -7,6 +7,59 @@
     "application/json"
   ],
   "apis": [
+  {
+      "path": "/templates/",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Returns all templates for the given user",
+          "notes": "Requires an API Key",
+          "responseClass": "List[Template]",
+          "nickname": "getTemplates",
+          "responseMessages": [
+            {
+              "code": 400,
+              "message": "Invalid API Key"
+            },
+            {
+              "code": 404,
+              "message": "API Key not set"
+            }
+          ]
+        },
+        {
+          "method": "POST",
+          "summary": "Create template",
+          "notes": "Requires an API Key",
+          "responseClass": "void",
+          "nickname": "createTemplate",
+          "parameters": [
+            {
+              "name": "body",
+              "description": "Template to be added",
+              "required": true,
+              "allowMultiple": false,
+              "dataType": "Template",
+              "paramType": "body"
+            }
+          ],
+          "responseMessages": [
+            {
+              "code": 400,
+              "message": "Invalid API Key"
+            },
+            {
+              "code": 404,
+              "message": "API Key not set"
+            },
+            {
+              "code": 400,
+              "message": "Invalid template supplied"
+            }
+          ]
+        }
+      ]
+    },
     {
       "path": "/templates/{templateId}",
       "operations": [
@@ -49,43 +102,8 @@
           ]
         },
         {
-          "method": "DELETE",
-          "summary": "Delete template by ID",
-          "notes": "Requires an API Key",
-          "responseClass": "void",
-          "nickname": "deleteTemplate",
-          "parameters": [
-            {
-              "name": "templateId",
-              "description": "ID of the template that needs to be deleted",
-              "required": true,
-              "allowMultiple": false,
-              "dataType": "int64",
-              "paramType": "path"
-            }
-          ],
-          "responseMessages": [
-            {
-              "code": 400,
-              "message": "Invalid API Key"
-            },
-            {
-              "code": 404,
-              "message": "API Key not set"
-            },
-            {
-              "code": 400,
-              "message": "Invalid ID supplied"
-            },
-            {
-              "code": 404,
-              "message": "Template not found"
-            }
-          ]
-        },
-        {
           "method": "PUT",
-          "summary": "Updates the given template",
+          "summary": "Update template",
           "notes": "Requires an API Key",
           "responseClass": "Template",
           "nickname": "putTemplate",
@@ -121,26 +139,21 @@
               "message": "Invalid template supplied"
             }
           ]
-        }
-      ]
-    },
-    {
-      "path": "/templates/",
-      "operations": [
+        },
         {
-          "method": "POST",
-          "summary": "Create a new template",
+          "method": "DELETE",
+          "summary": "Delete template",
           "notes": "Requires an API Key",
           "responseClass": "void",
-          "nickname": "createTemplate",
+          "nickname": "deleteTemplate",
           "parameters": [
             {
-              "name": "body",
-              "description": "Template to be added",
+              "name": "templateId",
+              "description": "ID of the template that needs to be deleted",
               "required": true,
               "allowMultiple": false,
-              "dataType": "Template",
-              "paramType": "body"
+              "dataType": "int64",
+              "paramType": "path"
             }
           ],
           "responseMessages": [
@@ -154,24 +167,11 @@
             },
             {
               "code": 400,
-              "message": "Invalid template supplied"
-            }
-          ]
-        },
-        {
-          "method": "GET",
-          "summary": "Returns all templates owned by the given user",
-          "notes": "Requires an API Key",
-          "responseClass": "List[Template]",
-          "nickname": "getTemplates",
-          "responseMessages": [
-            {
-              "code": 400,
-              "message": "Invalid API Key"
+              "message": "Invalid ID supplied"
             },
             {
               "code": 404,
-              "message": "API Key not set"
+              "message": "Template not found"
             }
           ]
         }

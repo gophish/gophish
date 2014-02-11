@@ -1,7 +1,7 @@
 var app = angular.module('gophish', ['ngTable', 'ngResource']);
 
 app.factory('CampaignService', function($resource) {
-    return $resource('/api/campaigns/:id?api_key=' + API_KEY, {}, {
+    return $resource('/api/campaigns/:id?api_key=' + API_KEY, {id: "@id"}, {
         update: {
             method: 'PUT'
         }
@@ -9,7 +9,7 @@ app.factory('CampaignService', function($resource) {
 });
 
 app.factory('GroupService', function($resource) {
-    return $resource('/api/groups/:id?api_key=' + API_KEY, {}, {
+    return $resource('/api/groups/:id?api_key=' + API_KEY, {id: "@id"}, {
         update: {
             method: 'PUT'
         }
@@ -104,7 +104,8 @@ app.controller('GroupCtrl', function($scope, GroupService, ngTableParams) {
                 $scope.mainTableParams.reload()
             });
         } else {
-            newGroup.$update()
+            console.log(newGroup.id)
+            newGroup.$update({id : newGroup.id})
         }
         $scope.group = {
                 name: '',

@@ -96,7 +96,7 @@ func GetUserByAPIKey(key []byte) (models.User, error) {
 	return u, nil
 }
 
-// GetUserByAPIKey returns the user that the given API Key corresponds to. If no user is found, an
+// GetUserByUsername returns the user that the given username corresponds to. If no user is found, an
 // error is thrown.
 func GetUserByUsername(username string) (models.User, error) {
 	u := models.User{}
@@ -109,28 +109,27 @@ func GetUserByUsername(username string) (models.User, error) {
 	return u, nil
 }
 
+// PutUser updates the given user
 func PutUser(u *models.User) error {
 	_, err := Conn.Update(u)
 	return err
 }
 
+// GetCampaigns returns the campaigns owned by the given user.
 func GetCampaigns(uid int64) ([]models.Campaign, error) {
 	cs := []models.Campaign{}
 	_, err := Conn.Select(&cs, "SELECT c.id, name, created_date, completed_date, status, template FROM campaigns c, users u WHERE c.uid=u.id AND u.id=?", uid)
 	return cs, err
 }
 
+// GetCampaign returns the campaign, if it exists, specified by the given id and user_id.
 func GetCampaign(id int64, uid int64) (models.Campaign, error) {
 	c := models.Campaign{}
 	err := Conn.SelectOne(&c, "SELECT c.id, name, created_date, completed_date, status, template FROM campaigns c, users u WHERE c.uid=u.id AND c.id =? AND u.id=?", id, uid)
 	return c, err
 }
 
-func PutCampaign(c *models.Campaign) error {
-	_, err := Conn.Update(c)
-	return err
-}
-
+// GetGroups returns the groups owned by the given user.
 func GetGroups(uid int64) ([]models.Group, error) {
 	gs := []models.Group{}
 	_, err := Conn.Select(&gs, "SELECT g.id, g.name, g.modified_date FROM groups g, user_groups ug, users u WHERE ug.uid=u.id AND ug.gid=g.id AND u.id=?", uid)
@@ -147,6 +146,7 @@ func GetGroups(uid int64) ([]models.Group, error) {
 	return gs, nil
 }
 
+// GetGroup returns the group, if it exists, specified by the given id and user_id.
 func GetGroup(id int64, uid int64) (models.Group, error) {
 	g := models.Group{}
 	err := Conn.SelectOne(&g, "SELECT g.id, g.name, g.modified_date FROM groups g, user_groups ug, users u WHERE ug.uid=u.id AND ug.gid=g.id AND g.id=? AND u.id=?", id, uid)
@@ -161,15 +161,10 @@ func GetGroup(id int64, uid int64) (models.Group, error) {
 	return g, nil
 }
 
+// PostGroup creates a new group in the database.
 func PostGroup(g *models.Group, uid int64) error {
 	// Insert into the DB
 	err = Conn.Insert(g)
-	if err != nil {
-		Logger.Println(err)
-		return err
-	}
-	// Let's start a transaction to handle the bulk inserting
-	trans, err := Conn.Begin()
 	if err != nil {
 		Logger.Println(err)
 		return err
@@ -179,29 +174,92 @@ func PostGroup(g *models.Group, uid int64) error {
 	if err != nil {
 		Logger.Printf("Error adding many-many mapping for group %s\n", g.Name)
 	}
-	// TODO
 	for _, t := range g.Targets {
-		if _, err = mail.ParseAddress(t.Email); err != nil {
-			Logger.Printf("Invalid email %s\n", t.Email)
-			continue
+		insertTargetIntoGroup(t, g.Id)
+	}
+	return nil
+}
+
+// PutGroup updates the given group if found in the database.
+func PutGroup(g *models.Group, uid int64) error {
+	// Update all the foreign keys, and many to many relationships
+	// We will only delete the group->targets entries. We keep the actual targets
+	// since they are needed by the Results table
+	// Get all the targets currently in the database for the group
+	ts := []models.Target{}
+	_, err = Conn.Select(&ts, "SELECT t.id, t.email FROM targets t, group_targets gt WHERE gt.gid=? AND gt.tid=t.id", g.Id)
+	if err != nil {
+		Logger.Printf("Error getting targets from group ID: %d", g.Id)
+		return err
+	}
+	// Enumerate through, removing any entries that are no longer in the group
+	// For every target in the database
+	tExists := false
+	for _, t := range ts {
+		tExists = false
+		// Is the target still in the group?
+		for _, nt := range g.Targets {
+			if t.Email == nt.Email {
+				tExists = true
+				break
+			}
 		}
-		_, err := Conn.Exec("INSERT OR IGNORE INTO targets VALUES (null, ?)", t.Email)
-		if err != nil {
-			Logger.Printf("Error adding email: %s\n", t.Email)
+		// If the target does not exist in the group any longer, we delete it
+		if !tExists {
+			_, err = Conn.Exec("DELETE FROM group_targets WHERE gid=? AND tid=?", g.Id, t.Id)
+			if err != nil {
+				Logger.Printf("Error deleting email %s\n", t.Email)
+			}
 		}
-		// Bug: res.LastInsertId() does not work for this, so we need to select it manually (how frustrating.)
-		t.Id, err = Conn.SelectInt("SELECT id FROM targets WHERE email=?", t.Email)
-		if err != nil {
-			Logger.Printf("Error getting id for email: %s\n", t.Email)
+	}
+	// Insert any entries that are not in the database
+	// For every target in the new group
+	for _, nt := range g.Targets {
+		// Check and see if the target already exists in the db
+		tExists = false
+		for _, t := range ts {
+			if t.Email == nt.Email {
+				tExists = true
+				break
+			}
 		}
-		_, err = Conn.Exec("INSERT OR IGNORE INTO group_targets VALUES (?,?)", g.Id, t.Id)
-		if err != nil {
-			Logger.Printf("Error adding many-many mapping for %s\n", t.Email)
+		// If the target is not in the db, we add it
+		if !tExists {
+			insertTargetIntoGroup(nt, g.Id)
 		}
+	}
+	return nil
+}
+
+func insertTargetIntoGroup(t models.Target, gid int64) error {
+	if _, err = mail.ParseAddress(t.Email); err != nil {
+		Logger.Printf("Invalid email %s\n", t.Email)
+		return err
+	}
+	trans, err := Conn.Begin()
+	if err != nil {
+		Logger.Println(err)
+		return err
+	}
+	_, err = trans.Exec("INSERT OR IGNORE INTO targets VALUES (null, ?)", t.Email)
+	if err != nil {
+		Logger.Printf("Error adding email: %s\n", t.Email)
+		return err
+	}
+	// Bug: res.LastInsertId() does not work for this, so we need to select it manually (how frustrating.)
+	t.Id, err = trans.SelectInt("SELECT id FROM targets WHERE email=?", t.Email)
+	if err != nil {
+		Logger.Printf("Error getting id for email: %s\n", t.Email)
+		return err
+	}
+	_, err = trans.Exec("INSERT OR IGNORE INTO group_targets VALUES (?,?)", gid, t.Id)
+	if err != nil {
+		Logger.Printf("Error adding many-many mapping for %s\n", t.Email)
+		return err
 	}
 	err = trans.Commit()
 	if err != nil {
-		Logger.Println(err)
+		Logger.Printf("Error committing db changes\n")
 		return err
 	}
 	return nil

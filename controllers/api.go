@@ -185,7 +185,6 @@ func API_Groups_Id(w http.ResponseWriter, r *http.Request) {
 	id, _ := strconv.ParseInt(vars["id"], 0, 64)
 	switch {
 	case r.Method == "GET":
-		g := models.Group{}
 		g, err := db.GetGroup(id, ctx.Get(r, "user_id").(int64))
 		if checkError(err, w, "No group found") {
 			return
@@ -201,6 +200,26 @@ func API_Groups_Id(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		writeJSON(w, []byte("{\"success\" : \"true\"}"))
+	case r.Method == "PUT":
+		_, err := db.GetGroup(id, ctx.Get(r, "user_id").(int64))
+		if checkError(err, w, "No group found") {
+			return
+		}
+		g := models.Group{}
+		err = json.NewDecoder(r.Body).Decode(&g)
+		if g.Id != id {
+			http.Error(w, "Error: /:id and group_id mismatch", http.StatusBadRequest)
+			return
+		}
+		err = db.PutGroup(&g, ctx.Get(r, "user_id").(int64))
+		if checkError(err, w, "Error updating group") {
+			return
+		}
+		gj, err := json.MarshalIndent(g, "", "  ")
+		if checkError(err, w, "Error creating JSON response") {
+			return
+		}
+		writeJSON(w, gj)
 	}
 }
 

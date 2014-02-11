@@ -35,7 +35,7 @@
         },
         {
           "method": "POST",
-          "summary": "Add a new campaign",
+          "summary": "Create campaign",
           "notes": "Requires an API key.",
           "responseClass": "Campaign",
           "nickname" : "addCampaigns",
@@ -66,15 +66,18 @@
       "path": "/campaigns/{campaignId}",
       "operations": [
         {
-          "method": "DELETE",
-          "summary": "Deletes a campaign",
-          "notes": "Requires an API Key",
-          "responseClass": "void",
-          "nickname": "deleteCampaign",
+          "method": "GET",
+          "summary": "Find campaign by ID",
+          "notes": "Returns a campaign based on ID",
+          "responseClass": "Campaign",
+          "nickname": "getCampaignById",
+          "produces": [
+            "application/json"
+          ],
           "parameters": [
             {
               "name": "campaignId",
-              "description": "Campaign id to delete",
+              "description": "ID of campaign that needs to be fetched",
               "required": true,
               "allowMultiple": false,
               "dataType": "int64",
@@ -101,18 +104,15 @@
           ]
         },
         {
-          "method": "GET",
-          "summary": "Find campaign by ID",
-          "notes": "Returns a campaign based on ID",
-          "responseClass": "Campaign",
-          "nickname": "getCampaignById",
-          "produces": [
-            "application/json"
-          ],
+          "method": "DELETE",
+          "summary": "Delete campaign",
+          "notes": "Requires an API Key",
+          "responseClass": "void",
+          "nickname": "deleteCampaign",
           "parameters": [
             {
               "name": "campaignId",
-              "description": "ID of campaign that needs to be fetched",
+              "description": "Campaign id to delete",
               "required": true,
               "allowMultiple": false,
               "dataType": "int64",
