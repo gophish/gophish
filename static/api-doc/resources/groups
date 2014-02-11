@@ -1,0 +1,242 @@
+{
+  "apiVersion": null,
+  "swaggerVersion": "1.2",
+  "basePath": "http://localhost:3333/api",
+  "resourcePath": "/groups",
+  "produces": [
+    "application/json",
+    "application/xml"
+  ],
+  "apis": [
+    {
+      "path": "/groups/",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Returns all groups for the given user",
+          "notes": "Requires an API Key",
+          "responseClass": "List[Group]",
+          "nickname": "getGroups"
+        },
+        {
+          "method": "POST",
+          "summary": "Create group",
+          "notes": "Requires an API Key",
+          "responseClass": "Group",
+          "nickname": "createGroup",
+          "parameters": [
+            {
+              "name": "body",
+              "description": "Created group object",
+              "required": true,
+              "allowMultiple": false,
+              "dataType": "Group",
+              "paramType": "body"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/groups/{group_id}",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Updated group",
+          "notes": "Requires an API Key.",
+          "responseClass": "void",
+          "nickname": "updateGroup",
+          "parameters": [
+            {
+              "name": "group_id",
+              "description": "ID that needs to be updated",
+              "required": true,
+              "allowMultiple": false,
+              "dataType": "int64",
+              "paramType": "path"
+            },
+            {
+              "name": "body",
+              "description": "Updated group object",
+              "required": true,
+              "allowMultiple": false,
+              "dataType": "Group",
+              "paramType": "body"
+            }
+          ],
+          "responseMessages": [
+            {
+              "code": 400,
+              "message": "Invalid API Key"
+            },
+            {
+              "code": 400,
+              "message": "API Key not set"
+            },
+            {
+              "code": 400,
+              "message": "Invalid ID supplied"
+            },
+            {
+              "code": 200,
+              "message": "Group updated successfully"
+            },
+            {
+              "code": 404,
+              "message": "Group not found"
+            }
+          ]
+        },
+        {
+          "method": "DELETE",
+          "summary": "Delete group",
+          "notes": "Requires an API Key",
+          "responseClass": "void",
+          "nickname": "deleteUser",
+          "parameters": [
+            {
+              "name": "group_id",
+              "description": "The name that needs to be deleted",
+              "required": true,
+              "allowMultiple": false,
+              "dataType": "int64",
+              "paramType": "path"
+            }
+          ],
+          "responseMessages": [
+            {
+              "code": 400,
+              "message": "Invalid API Key"
+            },
+            {
+              "code": 400,
+              "message": "API Key not set"
+            },
+            {
+              "code": 400,
+              "message": "Invalid ID supplied"
+            },
+            {
+              "code": 200,
+              "message": "Group deleted successfully"
+            },
+            {
+              "code": 404,
+              "message": "Group not found"
+            }
+          ]
+        },
+        {
+          "method": "GET",
+          "summary": "Get group by group id",
+          "notes": "",
+          "responseClass": "Group",
+          "nickname": "getGroupByID",
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "group_id",
+              "description": "The ID of the group that needs to be fetched.",
+              "required": true,
+              "allowMultiple": false,
+              "dataType": "int64",
+              "paramType": "path"
+            }
+          ],
+          "responseMessages": [
+            {
+              "code": 400,
+              "message": "Invalid API Key"
+            },
+            {
+              "code": 400,
+              "message": "API Key not set"
+            },
+            {
+              "code": 400,
+              "message": "Invalid ID supplied"
+            },
+            {
+              "code": 200,
+              "message": "Group fetched successfully"
+            },
+            {
+              "code": 404,
+              "message": "Group not found"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "models": {
+    "Target": {
+      "id": "Target",
+      "properties": {
+        "email": {
+          "type": "string"
+        }
+      }
+    },
+    "Group": {
+      "id": "Group",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "targets": {
+          "type" : "array",
+          "items" : {
+            "$ref" : "Target"
+          }
+        },
+        "modified_date": {
+          "type" : "date"
+        }
+      }
+    },
+    "User": {
+      "id": "User",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "username": {
+          "type": "string"
+        },
+        "userStatus": {
+          "type": "integer",
+          "format": "int32",
+          "description": "User Status",
+          "enum": [
+            "1-registered",
+            "2-active",
+            "3-closed"
+          ]
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "firstName": {
+          "type": "string"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

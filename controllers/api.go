@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"text/template"
 	"time"
 
 	ctx "github.com/gorilla/context"
@@ -25,7 +26,12 @@ const (
 func API(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "GET":
-		getTemplate(w, "api_doc").ExecuteTemplate(w, "base", nil)
+		templates := template.New("template")
+		_, err := templates.ParseFiles("templates/api-docs.html")
+		if err != nil {
+			fmt.Println(err)
+		}
+		template.Must(templates, err).ExecuteTemplate(w, "base", nil)
 	}
 }
 

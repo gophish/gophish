@@ -1,0 +1,18 @@
+{
+  "apiVersion": "0.1",
+  "swaggerVersion": "1.2",
+  "apis": [
+    {
+      "path": "/../resources/campaigns",
+      "description": "Operations about campaigns"
+    },
+    {
+      "path": "/../resources/groups",
+      "description": "Operations about groups"
+    },
+    {
+      "path": "/../resources/templates",
+      "description": "Operations about templates"
+    }
+  ]
+}
