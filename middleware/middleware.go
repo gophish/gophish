@@ -42,12 +42,19 @@ func RequireAPIKey(handler http.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		r.ParseForm()
 		ak := r.Form.Get("api_key")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		if r.Method == "OPTIONS" {
+			w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
+			w.Header().Set("Access-Control-Max-Age", "1000")
+			w.Header().Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
+			return
+		}
 		if ak == "" {
-			JSONError(w, 500, "API Key not set")
+			JSONError(w, 400, "API Key not set")
 		} else {
 			id, err := db.Conn.SelectInt("SELECT id FROM users WHERE api_key=?", ak)
 			if id == 0 || err != nil {
-				JSONError(w, 500, "Invalid API Key")
+				JSONError(w, 400, "Invalid API Key")
 				return
 			}
 			ctx.Set(r, "user_id", id)
