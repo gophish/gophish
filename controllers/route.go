@@ -210,10 +210,10 @@ func getTemplate(w http.ResponseWriter, tmpl string) *template.Template {
 	return template.Must(templates, err)
 }
 
-func checkError(e error, w http.ResponseWriter, m string) bool {
+func checkError(e error, w http.ResponseWriter, m string, c int) bool {
 	if e != nil {
 		fmt.Println(e)
-		http.Error(w, "Error: "+m, http.StatusInternalServerError)
+		http.Error(w, "Error: "+m, c)
 		return true
 	}
 	return false

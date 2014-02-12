@@ -61,7 +61,7 @@ func API_Campaigns(w http.ResponseWriter, r *http.Request) {
 			fmt.Println(err)
 		}
 		cj, err := json.MarshalIndent(cs, "", "  ")
-		if checkError(err, w, "Error looking up campaigns") {
+		if checkError(err, w, "Error looking up campaigns", http.StatusInternalServerError) {
 			return
 		}
 		writeJSON(w, cj)
@@ -70,7 +70,7 @@ func API_Campaigns(w http.ResponseWriter, r *http.Request) {
 		c := models.Campaign{}
 		// Put the request into a campaign
 		err := json.NewDecoder(r.Body).Decode(&c)
-		if checkError(err, w, "Invalid Request") {
+		if checkError(err, w, "Invalid Request", http.StatusBadRequest) {
 			return
 		}
 		// Fill in the details
@@ -80,11 +80,11 @@ func API_Campaigns(w http.ResponseWriter, r *http.Request) {
 		c.Uid = ctx.Get(r, "user_id").(int64)
 		// Insert into the DB
 		err = db.Conn.Insert(&c)
-		if checkError(err, w, "Cannot insert campaign into database") {
+		if checkError(err, w, "Cannot insert campaign into database", http.StatusInternalServerError) {
 			return
 		}
 		cj, err := json.MarshalIndent(c, "", "  ")
-		if checkError(err, w, "Error creating JSON response") {
+		if checkError(err, w, "Error creating JSON response", http.StatusInternalServerError) {
 			return
 		}
 		writeJSON(w, cj)
@@ -100,11 +100,11 @@ func API_Campaigns_Id(w http.ResponseWriter, r *http.Request) {
 	case r.Method == "GET":
 		c := models.Campaign{}
 		c, err := db.GetCampaign(id, ctx.Get(r, "user_id").(int64))
-		if checkError(err, w, "No campaign found") {
+		if checkError(err, w, "No campaign found", http.StatusNotFound) {
 			return
 		}
 		cj, err := json.MarshalIndent(c, "", "  ")
-		if checkError(err, w, "Error creating JSON response") {
+		if checkError(err, w, "Error creating JSON response", http.StatusInternalServerError) {
 			return
 		}
 		writeJSON(w, cj)
@@ -144,11 +144,11 @@ func API_Groups(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "GET":
 		gs, err := db.GetGroups(ctx.Get(r, "user_id").(int64))
-		if checkError(err, w, "Cannot retrieve group information") {
+		if checkError(err, w, "Groups not found", http.StatusNotFound) {
 			return
 		}
 		gj, err := json.MarshalIndent(gs, "", "  ")
-		if checkError(err, w, "Error marshaling group information") {
+		if checkError(err, w, "Error marshaling group information", http.StatusInternalServerError) {
 			return
 		}
 		writeJSON(w, gj)
@@ -157,21 +157,21 @@ func API_Groups(w http.ResponseWriter, r *http.Request) {
 		g := models.Group{}
 		// Put the request into a group
 		err := json.NewDecoder(r.Body).Decode(&g)
-		if checkError(err, w, "Invalid Request") {
+		if checkError(err, w, "Invalid Request", http.StatusBadRequest) {
 			return
 		}
 		// Check to make sure targets were specified
 		if len(g.Targets) == 0 {
-			http.Error(w, "Error: No targets specified", http.StatusInternalServerError)
+			http.Error(w, "Error: No targets specified", http.StatusBadRequest)
 			return
 		}
 		g.ModifiedDate = time.Now()
 		err = db.PostGroup(&g, ctx.Get(r, "user_id").(int64))
-		if checkError(err, w, "Error inserting group") {
+		if checkError(err, w, "Error inserting group", http.StatusInternalServerError) {
 			return
 		}
 		gj, err := json.MarshalIndent(g, "", "  ")
-		if checkError(err, w, "Error creating JSON response") {
+		if checkError(err, w, "Error creating JSON response", http.StatusInternalServerError) {
 			return
 		}
 		writeJSON(w, gj)
@@ -186,23 +186,23 @@ func API_Groups_Id(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "GET":
 		g, err := db.GetGroup(id, ctx.Get(r, "user_id").(int64))
-		if checkError(err, w, "No group found") {
+		if checkError(err, w, "No group found", http.StatusNotFound) {
 			return
 		}
 		gj, err := json.MarshalIndent(g, "", "  ")
-		if checkError(err, w, "Error creating JSON response") {
+		if checkError(err, w, "Error creating JSON response", http.StatusInternalServerError) {
 			return
 		}
 		writeJSON(w, gj)
 	case r.Method == "DELETE":
 		err := db.DeleteGroup(id, ctx.Get(r, "user_id").(int64))
-		if checkError(err, w, "Error creating JSON response") {
+		if checkError(err, w, "Error creating JSON response", http.StatusInternalServerError) {
 			return
 		}
 		writeJSON(w, []byte("{\"success\" : \"true\"}"))
 	case r.Method == "PUT":
 		_, err := db.GetGroup(id, ctx.Get(r, "user_id").(int64))
-		if checkError(err, w, "No group found") {
+		if checkError(err, w, "No group found", http.StatusNotFound) {
 			return
 		}
 		g := models.Group{}
@@ -212,11 +212,11 @@ func API_Groups_Id(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		err = db.PutGroup(&g, ctx.Get(r, "user_id").(int64))
-		if checkError(err, w, "Error updating group") {
+		if checkError(err, w, "Error updating group", http.StatusInternalServerError) {
 			return
 		}
 		gj, err := json.MarshalIndent(g, "", "  ")
-		if checkError(err, w, "Error creating JSON response") {
+		if checkError(err, w, "Error creating JSON response", http.StatusInternalServerError) {
 			return
 		}
 		writeJSON(w, gj)

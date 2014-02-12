@@ -73,7 +73,6 @@ app.controller('GroupCtrl', function($scope, GroupService, ngTableParams) {
             $scope.group = {
                 name: '',
                 targets: [],
-                id: 0
             };
 
         } else {
@@ -99,7 +98,7 @@ app.controller('GroupCtrl', function($scope, GroupService, ngTableParams) {
     $scope.saveGroup = function(group) {
         var newGroup = new GroupService($scope.group);
         if ($scope.newGroup) {
-            newGroup.$save(function() {
+            newGroup.$save({},function() {
                 $scope.groups.push(newGroup);
                 $scope.mainTableParams.reload()
             });
@@ -110,7 +109,6 @@ app.controller('GroupCtrl', function($scope, GroupService, ngTableParams) {
         $scope.group = {
                 name: '',
                 targets: [],
-                id: 0
             };
         $scope.editGroupTableParams.reload()
     }
