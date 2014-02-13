@@ -96,14 +96,13 @@ app.controller('GroupCtrl', function($scope, GroupService, ngTableParams) {
         $scope.editGroupTableParams.reload()
     };
     $scope.saveGroup = function(group) {
-        var newGroup = new GroupService($scope.group);
+        var newGroup = new GroupService(group);
         if ($scope.newGroup) {
             newGroup.$save({},function() {
                 $scope.groups.push(newGroup);
                 $scope.mainTableParams.reload()
             });
         } else {
-            console.log(newGroup.id)
             newGroup.$update({id : newGroup.id})
         }
         $scope.group = {
@@ -111,5 +110,11 @@ app.controller('GroupCtrl', function($scope, GroupService, ngTableParams) {
                 targets: [],
             };
         $scope.editGroupTableParams.reload()
+    }
+    $scope.deleteGroup = function(group) {
+        var deleteGroup = new GroupService(group);
+        deleteGroup.$delete({id : deleteGroup.id}, function() {
+            $scope.mainTableParams.reload();
+        });
     }
 })
