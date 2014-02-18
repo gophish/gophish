@@ -77,9 +77,7 @@ func API_Campaigns(w http.ResponseWriter, r *http.Request) {
 		c.CreatedDate = time.Now()
 		c.CompletedDate = time.Time{}
 		c.Status = IN_PROGRESS
-		c.Uid = ctx.Get(r, "user_id").(int64)
-		// Insert into the DB
-		err = db.Conn.Insert(&c)
+		err = db.PostCampaign(&c, ctx.Get(r, "user_id").(int64))
 		if checkError(err, w, "Cannot insert campaign into database", http.StatusInternalServerError) {
 			return
 		}
@@ -109,7 +107,15 @@ func API_Campaigns_Id(w http.ResponseWriter, r *http.Request) {
 		}
 		writeJSON(w, cj)
 	case r.Method == "DELETE":
-		//c := models.Campaign{}
+		_, err := db.GetCampaign(id, ctx.Get(r, "user_id").(int64))
+		if checkError(err, w, "No campaign found", http.StatusNotFound) {
+			return
+		}
+		err = db.DeleteCampaign(id)
+		if checkError(err, w, "Error deleting campaign", http.StatusInternalServerError) {
+			return
+		}
+		writeJSON(w, []byte("{\"success\" : \"true\"}"))
 	}
 }
 

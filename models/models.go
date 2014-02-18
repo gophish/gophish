@@ -41,13 +41,12 @@ type Campaign struct {
 	Template      string    `json:"template"` //This may change
 	Status        string    `json:"status"`
 	Results       []Result  `json:"results" db:"-"`
-	Uid           int64     `json:"-"`
+	Groups        []Group   `json:"groups" db:"-"`
 }
 
 type Result struct {
-	Id       int64
-	TargetId int64
-	Status   string `json:"status"`
+	Target
+	Status string `json:"status"`
 }
 
 type Group struct {

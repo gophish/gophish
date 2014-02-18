@@ -21,7 +21,7 @@ app.factory('GroupService', function($resource) {
 });
 
 app.controller('CampaignCtrl', function($scope, CampaignService, ngTableParams) {
-    $scope.tableParams = new ngTableParams({
+    $scope.mainTableParams = new ngTableParams({
         page: 1, // show first page
         count: 10, // count per page
         sorting: {
@@ -99,6 +99,15 @@ app.controller('CampaignCtrl', function($scope, CampaignService, ngTableParams) 
             targets: [],
         };
         $scope.editGroupTableParams.reload()
+    }
+
+    $scope.deleteCampaign = function(campaign) {
+        var deleteCampaign = new CampaignService(campaign);
+        deleteCampaign.$delete({
+            id: deleteCampaign.id
+        }, function() {
+            $scope.mainTableParams.reload();
+        });
     }
 });
 

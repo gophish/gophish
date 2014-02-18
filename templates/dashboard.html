@@ -25,7 +25,7 @@
         </div>
         &nbsp;
         <div class="row">
-            <table ng-table="tableParams" class="table table-hover table-striped table-bordered">
+            <table ng-table="mainTableParams" class="table table-hover table-striped table-bordered">
                 <tbody>
                     <tr ng-repeat="campaign in $data" class="editable-row">
                         <td data-title="'Created Date'" class="col-sm-1">{{campaign.created_date | date:'medium'}}</td>
@@ -41,7 +41,7 @@
                                     <li><a href="/campaigns/{{campaign.id}}/relaunch">Relaunch</a>
                                     </li>
                                     <li class="divider"></li>
-                                    <li><a href="/campaigns/{{campaign.id}}/delete">Delete</a>
+                                    <li><a ng-click="deleteCampaign(campaign)" ng-href="#">Delete</a>
                                     </li>
                                 </ul>
                             </div>

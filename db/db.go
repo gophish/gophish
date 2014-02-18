@@ -3,10 +3,10 @@ package db
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"log"
 	"net/mail"
 	"os"
-	"time"
 
 	"github.com/coopernurse/gorp"
 	"github.com/jordan-wright/gophish/config"
@@ -35,10 +35,11 @@ func Setup() error {
 		createTablesSQL := []string{
 			//Create tables
 			`CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT NOT NULL, hash VARCHAR(60) NOT NULL, api_key VARCHAR(32), UNIQUE(username), UNIQUE(api_key));`,
-			`CREATE TABLE campaigns (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, created_date TIMESTAMP NOT NULL, completed_date TIMESTAMP, template TEXT, status TEXT NOT NULL, uid INTEGER, FOREIGN KEY (uid) REFERENCES users(id));`,
+			`CREATE TABLE campaigns (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, created_date TIMESTAMP NOT NULL, completed_date TIMESTAMP, template TEXT, status TEXT NOT NULL);`,
 			`CREATE TABLE targets (id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT NOT NULL, UNIQUE(email));`,
 			`CREATE TABLE groups (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, modified_date TIMESTAMP NOT NULL);`,
-			`CREATE TABLE campaign_results (cid INTEGER NOT NULL, tid INTEGER NOT NULL, result TEXT NOT NULL, FOREIGN KEY (cid) REFERENCES users(id), FOREIGN KEY (tid) REFERENCES targets(id), UNIQUE(cid, tid))`,
+			`CREATE TABLE campaign_results (cid INTEGER NOT NULL, email TEXT NOT NULL, result TEXT NOT NULL, FOREIGN KEY (cid) REFERENCES users(id), UNIQUE(cid, email))`,
+			`CREATE TABLE user_campaigns (uid INTEGER NOT NULL, cid INTEGER NOT NULL, FOREIGN KEY (uid) REFERENCES users(id), FOREIGN KEY (cid) REFERENCES campaigns(id), UNIQUE(uid, cid))`,
 			`CREATE TABLE user_groups (uid INTEGER NOT NULL, gid INTEGER NOT NULL, FOREIGN KEY (uid) REFERENCES users(id), FOREIGN KEY (gid) REFERENCES groups(id), UNIQUE(uid, gid))`,
 			`CREATE TABLE group_targets (gid INTEGER NOT NULL, tid INTEGER NOT NULL, FOREIGN KEY (gid) REFERENCES groups(id), FOREIGN KEY (tid) REFERENCES targets(id), UNIQUE(gid, tid));`,
 		}
@@ -53,22 +54,13 @@ func Setup() error {
 		//Create the default user
 		init_user := models.User{
 			Username: "admin",
-			Hash:     "$2a$10$IYkPp0.QsM81lYYPrQx6W.U6oQGw7wMpozrKhKAHUBVL4mkm/EvAS",
+			Hash:     "$2a$10$IYkPp0.QsM81lYYPrQx6W.U6oQGw7wMpozrKhKAHUBVL4mkm/EvAS", //gophish
 			APIKey:   "12345678901234567890123456789012",
 		}
 		Conn.Insert(&init_user)
 		if err != nil {
 			Logger.Println(err)
 		}
-		c := models.Campaign{
-			Name:          "Test Campaigns",
-			CreatedDate:   time.Now().UTC(),
-			CompletedDate: time.Now().UTC(),
-			Template:      "test template",
-			Status:        "In progress",
-			Uid:           init_user.Id,
-		}
-		Conn.Insert(&c)
 	}
 	return nil
 }
@@ -119,15 +111,69 @@ func PutUser(u *models.User) error {
 // GetCampaigns returns the campaigns owned by the given user.
 func GetCampaigns(uid int64) ([]models.Campaign, error) {
 	cs := []models.Campaign{}
-	_, err := Conn.Select(&cs, "SELECT c.id, name, created_date, completed_date, status, template FROM campaigns c, users u WHERE c.uid=u.id AND u.id=?", uid)
+	_, err := Conn.Select(&cs, "SELECT c.id, name, created_date, completed_date, status, template FROM campaigns c, user_campaigns uc, users u WHERE uc.uid=u.id AND uc.cid=c.id AND u.id=?", uid)
 	return cs, err
 }
 
 // GetCampaign returns the campaign, if it exists, specified by the given id and user_id.
 func GetCampaign(id int64, uid int64) (models.Campaign, error) {
 	c := models.Campaign{}
-	err := Conn.SelectOne(&c, "SELECT c.id, name, created_date, completed_date, status, template FROM campaigns c, users u WHERE c.uid=u.id AND c.id =? AND u.id=?", id, uid)
+	err := Conn.SelectOne(&c, "SELECT c.id, name, created_date, completed_date, status, template FROM campaigns c, user_campaigns uc, users u WHERE uc.uid=u.id AND uc.cid=c.id AND c.id=? AND u.id=?", id, uid)
 	return c, err
+}
+
+// PostCampaign inserts a campaign and all associated records into the database.
+func PostCampaign(c *models.Campaign, uid int64) error {
+	// Insert into the DB
+	err = Conn.Insert(c)
+	if err != nil {
+		Logger.Println(err)
+		return err
+	}
+	// Insert all the results
+	for i, g := range c.Groups {
+		c.Groups[i], err = GetGroupByName(g.Name, uid)
+		if err == sql.ErrNoRows {
+			Logger.Printf("Error - Group %s does not exist", g.Name)
+			return err
+		} else if err != nil {
+			Logger.Println(err)
+			return err
+		}
+		// Insert a result for each target in the group
+		for _, t := range c.Groups[i].Targets {
+			r := models.Result{Target: t, Status: "Unknown"}
+			c.Results = append(c.Results, r)
+			fmt.Printf("%v", c.Results)
+			_, err = Conn.Exec("INSERT INTO campaign_results VALUES (?,?,?)", c.Id, r.Email, r.Status)
+			if err != nil {
+				Logger.Printf("Error adding result record for target %s\n", t.Email)
+				Logger.Println(err)
+			}
+		}
+	}
+	// Now, let's add the user->user_groups->group mapping
+	_, err = Conn.Exec("INSERT OR IGNORE INTO user_campaigns VALUES (?,?)", uid, c.Id)
+	if err != nil {
+		Logger.Printf("Error adding many-many mapping for campaign %s\n", c.Name)
+	}
+	return nil
+}
+
+func DeleteCampaign(id int64) error {
+	// Delete all the campaign_results entries for this group
+	_, err := Conn.Exec("DELETE FROM campaign_results WHERE cid=?", id)
+	if err != nil {
+		return err
+	}
+	// Delete the reference to the campaign in the user_campaigns table
+	_, err = Conn.Exec("DELETE FROM user_campaigns WHERE cid=?", id)
+	if err != nil {
+		return err
+	}
+	// Delete the campaign itself
+	_, err = Conn.Exec("DELETE FROM campaigns WHERE id=?", id)
+	return err
 }
 
 // GetGroups returns the groups owned by the given user.
@@ -151,6 +197,21 @@ func GetGroups(uid int64) ([]models.Group, error) {
 func GetGroup(id int64, uid int64) (models.Group, error) {
 	g := models.Group{}
 	err := Conn.SelectOne(&g, "SELECT g.id, g.name, g.modified_date FROM groups g, user_groups ug, users u WHERE ug.uid=u.id AND ug.gid=g.id AND g.id=? AND u.id=?", id, uid)
+	if err != nil {
+		Logger.Println(err)
+		return g, err
+	}
+	_, err = Conn.Select(&g.Targets, "SELECT t.id, t.email FROM targets t, group_targets gt WHERE gt.gid=? AND gt.tid=t.id", g.Id)
+	if err != nil {
+		Logger.Println(err)
+	}
+	return g, nil
+}
+
+// GetGroup returns the group, if it exists, specified by the given name and user_id.
+func GetGroupByName(n string, uid int64) (models.Group, error) {
+	g := models.Group{}
+	err := Conn.SelectOne(&g, "SELECT g.id, g.name, g.modified_date FROM groups g, user_groups ug, users u WHERE ug.uid=u.id AND ug.gid=g.id AND g.name=? AND u.id=?", n, uid)
 	if err != nil {
 		Logger.Println(err)
 		return g, err
