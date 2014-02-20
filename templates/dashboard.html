@@ -60,6 +60,9 @@
                         <h4 class="modal-title" id="campaignModalLabel">New Campaign</h4>
                     </div>
                     <div class="modal-body">
+                        <div ng-repeat="flash in flashes" style="text-align:center" class="alert alert-{{flash.type}}">
+                            <i class="fa {{flash.icon}}"></i> {{flash.message}}
+                        </div>
                         <div class="form-group">
                             <label for="name">Name:</label>
                             <input type="text" class="form-control" ng-model="campaign.name" id="name" placeholder="Campaign name">

@@ -73,6 +73,10 @@ func API_Campaigns(w http.ResponseWriter, r *http.Request) {
 		if checkError(err, w, "Invalid Request", http.StatusBadRequest) {
 			return
 		}
+		if len(c.Groups) == 0 {
+			http.Error(w, "Error: No groups specified", http.StatusBadRequest)
+			return
+		}
 		// Fill in the details
 		c.CreatedDate = time.Now()
 		c.CompletedDate = time.Time{}

@@ -124,13 +124,7 @@ func GetCampaign(id int64, uid int64) (models.Campaign, error) {
 
 // PostCampaign inserts a campaign and all associated records into the database.
 func PostCampaign(c *models.Campaign, uid int64) error {
-	// Insert into the DB
-	err = Conn.Insert(c)
-	if err != nil {
-		Logger.Println(err)
-		return err
-	}
-	// Insert all the results
+	// Check to make sure all the groups already exist
 	for i, g := range c.Groups {
 		c.Groups[i], err = GetGroupByName(g.Name, uid)
 		if err == sql.ErrNoRows {
@@ -140,8 +134,17 @@ func PostCampaign(c *models.Campaign, uid int64) error {
 			Logger.Println(err)
 			return err
 		}
+	}
+	// Insert into the DB
+	err = Conn.Insert(c)
+	if err != nil {
+		Logger.Println(err)
+		return err
+	}
+	// Insert all the results
+	for _, g := range c.Groups {
 		// Insert a result for each target in the group
-		for _, t := range c.Groups[i].Targets {
+		for _, t := range g.Targets {
 			r := models.Result{Target: t, Status: "Unknown"}
 			c.Results = append(c.Results, r)
 			fmt.Printf("%v", c.Results)

@@ -21,6 +21,7 @@ app.factory('GroupService', function($resource) {
 });
 
 app.controller('CampaignCtrl', function($scope, CampaignService, ngTableParams) {
+    $scope.flashes = []
     $scope.mainTableParams = new ngTableParams({
         page: 1, // show first page
         count: 10, // count per page
@@ -89,14 +90,16 @@ app.controller('CampaignCtrl', function($scope, CampaignService, ngTableParams) 
     };
 
     $scope.saveCampaign = function(campaign) {
+        $scope.flashes = []
         var newCampaign = new CampaignService(campaign);
         newCampaign.$save({}, function() {
             $scope.campaigns.push(newCampaign);
             $scope.mainTableParams.reload()
+        }, function(response){
+            $scope.errorFlash(response.data)
         });
-        $scope.group = {
-            name: '',
-            targets: [],
+        $scope.campaign = {
+            groups: [],
         };
         $scope.editGroupTableParams.reload()
     }
@@ -108,6 +111,10 @@ app.controller('CampaignCtrl', function($scope, CampaignService, ngTableParams) 
         }, function() {
             $scope.mainTableParams.reload();
         });
+    }
+
+    $scope.errorFlash = function(message) {
+        $scope.flashes.push({"type" : "danger", "message" : message, "icon" : "fa-exclamation-circle"})
     }
 });
 
