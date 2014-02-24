@@ -70,7 +70,7 @@
                             <label class="control-label" for="users">Groups:</label>
                             <form ng:submit="addGroup()">
                                 <div class="input-group">
-                                    <input type="text" class="form-control" placeholder="Group Name" id="users" ng-model="group.name" />
+                                    <input type="text" class="form-control" placeholder="Group Name" id="users" typeahead="group.name for group in getGroups($viewValue)" typeahead-editable="false" ng-model="group.name" />
                                     <span class="input-group-btn">
                                         <button class="btn btn-primary"><i class="fa fa-plus"></i> Add</button>
                                     </span>
