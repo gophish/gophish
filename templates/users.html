@@ -28,7 +28,7 @@
             <table ng-table="mainTableParams" class="table table-hover table-striped table-bordered">
                 <tbody>
                     <tr ng-repeat="group in $data" class="editable-row">
-                        <td data-title="'Name'" class="col-sm-1">{{group.name}}</td>
+                        <td data-title="'Name'" sortable="'name'" class="col-sm-1">{{group.name}}</td>
                         <td data-title="'Members'" class="col-sm-2">
                             <span ng-repeat="target in group.targets">
                                 {{target.email}}{{$last ? '' : ', '}}

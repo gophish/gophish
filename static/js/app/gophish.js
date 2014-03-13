@@ -20,7 +20,7 @@ app.factory('GroupService', function($resource) {
     });
 });
 
-app.controller('CampaignCtrl', function($scope, CampaignService, ngTableParams, $http) {
+app.controller('CampaignCtrl', function($scope, CampaignService, GroupService, ngTableParams, $http) {
     $scope.flashes = []
     $scope.mainTableParams = new ngTableParams({
         page: 1, // show first page
@@ -38,6 +38,10 @@ app.controller('CampaignCtrl', function($scope, CampaignService, ngTableParams, 
             })
         }
     });
+
+    GroupService.query(function(groups) {
+        $scope.groups = groups;
+    })
 
     $scope.addGroup = function() {
         if ($scope.group.name != "") {
@@ -74,20 +78,6 @@ app.controller('CampaignCtrl', function($scope, CampaignService, ngTableParams, 
             $defer.resolve($scope.campaign.groups.slice((params.page() - 1) * params.count(), params.page() * params.count()));
         }
     });
-
-    $scope.getGroups = function(val) {
-        return $http.get('/api/groups/?api_key=' + API_KEY, {
-            params: {
-                q: val
-            }
-        }).then(function(res) {
-            var groups = [];
-            angular.forEach(res.data, function(item) {
-                groups.push(item);
-            });
-            return groups;
-        });
-    };
 
     $scope.saveCampaign = function(campaign) {
         $scope.flashes = []
