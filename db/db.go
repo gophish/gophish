@@ -38,7 +38,7 @@ func Setup() error {
 			`CREATE TABLE campaigns (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, created_date TIMESTAMP NOT NULL, completed_date TIMESTAMP, template TEXT, status TEXT NOT NULL);`,
 			`CREATE TABLE targets (id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT NOT NULL, UNIQUE(email));`,
 			`CREATE TABLE groups (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, modified_date TIMESTAMP NOT NULL);`,
-			`CREATE TABLE campaign_results (cid INTEGER NOT NULL, email TEXT NOT NULL, result TEXT NOT NULL, FOREIGN KEY (cid) REFERENCES users(id), UNIQUE(cid, email))`,
+			`CREATE TABLE campaign_results (cid INTEGER NOT NULL, email TEXT NOT NULL, status TEXT NOT NULL, FOREIGN KEY (cid) REFERENCES campaigns(id), UNIQUE(cid, email, status))`,
 			`CREATE TABLE user_campaigns (uid INTEGER NOT NULL, cid INTEGER NOT NULL, FOREIGN KEY (uid) REFERENCES users(id), FOREIGN KEY (cid) REFERENCES campaigns(id), UNIQUE(uid, cid))`,
 			`CREATE TABLE user_groups (uid INTEGER NOT NULL, gid INTEGER NOT NULL, FOREIGN KEY (uid) REFERENCES users(id), FOREIGN KEY (gid) REFERENCES groups(id), UNIQUE(uid, gid))`,
 			`CREATE TABLE group_targets (gid INTEGER NOT NULL, tid INTEGER NOT NULL, FOREIGN KEY (gid) REFERENCES groups(id), FOREIGN KEY (tid) REFERENCES targets(id), UNIQUE(gid, tid));`,
@@ -119,6 +119,10 @@ func GetCampaigns(uid int64) ([]models.Campaign, error) {
 func GetCampaign(id int64, uid int64) (models.Campaign, error) {
 	c := models.Campaign{}
 	err := Conn.SelectOne(&c, "SELECT c.id, name, created_date, completed_date, status, template FROM campaigns c, user_campaigns uc, users u WHERE uc.uid=u.id AND uc.cid=c.id AND c.id=? AND u.id=?", id, uid)
+	if err != nil {
+		return c, err
+	}
+	_, err = Conn.Select(&c.Results, "SELECT r.email, r.status FROM campaign_results r WHERE r.cid=?", c.Id)
 	return c, err
 }
 
@@ -155,7 +159,6 @@ func PostCampaign(c *models.Campaign, uid int64) error {
 			}
 		}
 	}
-	// Now, let's add the user->user_groups->group mapping
 	_, err = Conn.Exec("INSERT OR IGNORE INTO user_campaigns VALUES (?,?)", uid, c.Id)
 	if err != nil {
 		Logger.Printf("Error adding many-many mapping for campaign %s\n", c.Name)

@@ -108,6 +108,31 @@ app.controller('CampaignCtrl', function($scope, CampaignService, GroupService, n
     }
 });
 
+app.controller('CampaignResultsCtrl', function($scope, CampaignService, GroupService, ngTableParams, $http, $window) {
+    id = $window.location.pathname.split( '/' )[2];
+    $scope.flashes = []
+    $scope.mainTableParams = new ngTableParams({
+        page: 1, // show first page
+        count: 10, // count per page
+        sorting: {
+            name: 'asc' // initial sorting
+        }
+    }, {
+        total: 0, // length of data
+        getData: function($defer, params) {
+            CampaignService.get({"id" : id}, function(campaign) {
+                $scope.campaign = campaign
+                params.total(campaign.results.length)
+                $defer.resolve(campaign.results.slice((params.page() - 1) * params.count(), params.page() * params.count()));
+            })
+        }
+    });
+
+    $scope.errorFlash = function(message) {
+        $scope.flashes.push({"type" : "danger", "message" : message, "icon" : "fa-exclamation-circle"})
+    }
+});
+
 app.controller('GroupCtrl', function($scope, GroupService, ngTableParams) {
     $scope.mainTableParams = new ngTableParams({
         page: 1, // show first page

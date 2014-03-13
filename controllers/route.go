@@ -167,7 +167,7 @@ func Campaigns_Id(w http.ResponseWriter, r *http.Request) {
 		Title   string
 		Flashes []interface{}
 	}{Title: "Results", User: ctx.Get(r, "user").(models.User)}
-	getTemplate(w, "dashboard").ExecuteTemplate(w, "base", params)
+	getTemplate(w, "campaign_results").ExecuteTemplate(w, "base", params)
 }
 
 func Login(w http.ResponseWriter, r *http.Request) {
