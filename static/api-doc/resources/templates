@@ -1,8 +1,8 @@
 {
   "apiVersion": null,
   "swaggerVersion": "1.2",
-  "basePath": "/api",
-  "resourcePath": "/templates",
+  "basePath": "http://localhost:3333/api",
+  "resourcePath": "/templates/",
   "produces": [
     "application/json"
   ],
@@ -191,6 +191,9 @@
         },
         "html": {
           "type": "string"
+        },
+        "text": {
+          "type" : "string"
         }
       }
     }
