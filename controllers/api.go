@@ -238,7 +238,36 @@ func API_Groups_Id(w http.ResponseWriter, r *http.Request) {
 }
 
 func API_Templates(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, "/", 302)
+	switch {
+	case r.Method == "GET":
+		ts, err := db.GetTemplates(ctx.Get(r, "user_id").(int64))
+		if checkError(err, w, "Templates not found", http.StatusNotFound) {
+			return
+		}
+		tj, err := json.MarshalIndent(ts, "", "  ")
+		if checkError(err, w, "Error marshaling template information", http.StatusInternalServerError) {
+			return
+		}
+		writeJSON(w, tj)
+	//POST: Create a new group and return it as JSON
+	case r.Method == "POST":
+		t := models.Template{}
+		// Put the request into a group
+		err := json.NewDecoder(r.Body).Decode(&t)
+		if checkError(err, w, "Invalid Request", http.StatusBadRequest) {
+			return
+		}
+		t.ModifiedDate = time.Now()
+		err = db.PostTemplate(&t, ctx.Get(r, "user_id").(int64))
+		if checkError(err, w, "Error inserting template", http.StatusInternalServerError) {
+			return
+		}
+		tj, err := json.MarshalIndent(t, "", "  ")
+		if checkError(err, w, "Error creating JSON response", http.StatusInternalServerError) {
+			return
+		}
+		writeJSON(w, tj)
+	}
 }
 
 func API_Templates_Id(w http.ResponseWriter, r *http.Request) {
