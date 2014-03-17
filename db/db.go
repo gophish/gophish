@@ -42,6 +42,8 @@ func Setup() error {
 			`CREATE TABLE user_campaigns (uid INTEGER NOT NULL, cid INTEGER NOT NULL, FOREIGN KEY (uid) REFERENCES users(id), FOREIGN KEY (cid) REFERENCES campaigns(id), UNIQUE(uid, cid))`,
 			`CREATE TABLE user_groups (uid INTEGER NOT NULL, gid INTEGER NOT NULL, FOREIGN KEY (uid) REFERENCES users(id), FOREIGN KEY (gid) REFERENCES groups(id), UNIQUE(uid, gid))`,
 			`CREATE TABLE group_targets (gid INTEGER NOT NULL, tid INTEGER NOT NULL, FOREIGN KEY (gid) REFERENCES groups(id), FOREIGN KEY (tid) REFERENCES targets(id), UNIQUE(gid, tid));`,
+			`CREATE TABLE templates (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, modified_date TIMESTAMP NOT NULL, html TEXT NOT NULL, plaintext TEXT NOT NULL;`,
+			`CREATE TABLE user_templates (uid INTEGER NOT NULL, tid INTEGER NOT NULL, FOREIGN KEY (uid) REFERENCES users(id), FOREIGN KEY (tid) REFERENCES templates(id), UNIQUE(uid, tid));`,
 		}
 		Logger.Printf("Creating db at %s\n", config.Conf.DBPath)
 		//Create the tables needed
@@ -112,6 +114,9 @@ func PutUser(u *models.User) error {
 func GetCampaigns(uid int64) ([]models.Campaign, error) {
 	cs := []models.Campaign{}
 	_, err := Conn.Select(&cs, "SELECT c.id, name, created_date, completed_date, status, template FROM campaigns c, user_campaigns uc, users u WHERE uc.uid=u.id AND uc.cid=c.id AND u.id=?", uid)
+	for i, _ := range cs {
+		_, err = Conn.Select(&cs[i].Results, "SELECT r.email, r.status FROM campaign_results r WHERE r.cid=?", cs[i].Id)
+	}
 	return cs, err
 }
 
@@ -297,6 +302,23 @@ func PutGroup(g *models.Group, uid int64) error {
 		}
 	}
 	return nil
+}
+
+// GetCampaigns returns the campaigns owned by the given user.
+func GetTemplates(uid int64) ([]models.Template, error) {
+	ts := []models.Template{}
+	_, err := Conn.Select(&ts, "SELECT t.id, t.name, t.modified_date, t.text, t.html FROM templates t, user_templates ut, users u WHERE ut.uid=u.id AND ut.tid=c.id AND u.id=?", uid)
+	return ts, err
+}
+
+// GetCampaign returns the campaign, if it exists, specified by the given id and user_id.
+func GetTemplate(id int64, uid int64) (models.Template, error) {
+	t := models.Template{}
+	err := Conn.SelectOne(&t, "SELECT t.id, t.name, t.modified_date, t.text, t.html FROM templates t, user_templates ut, users u WHERE ut.uid=u.id AND ut.tid=t.id AND t.id=? AND u.id=?", id, uid)
+	if err != nil {
+		return t, err
+	}
+	return t, err
 }
 
 func insertTargetIntoGroup(t models.Target, gid int64) error {

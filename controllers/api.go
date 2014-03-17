@@ -237,6 +237,14 @@ func API_Groups_Id(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func API_Templates(w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r, "/", 302)
+}
+
+func API_Templates_Id(w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r, "/", 302)
+}
+
 func writeJSON(w http.ResponseWriter, c []byte) {
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprintf(w, "%s", c)

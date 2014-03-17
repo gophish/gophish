@@ -60,3 +60,11 @@ type Target struct {
 	Id    int64  `json:"-"`
 	Email string `json:"email"`
 }
+
+type Template struct {
+	Id           int64     `json:"-"`
+	Name         string    `json:"name"`
+	Text         string    `json:"text"`
+	Html         string    `json:"html"`
+	ModifiedDate time.Time `json:"modified_date" db:"modified_date"`
+}
