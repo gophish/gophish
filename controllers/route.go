@@ -30,6 +30,7 @@ func CreateRouter() *nosurf.CSRFHandler {
 
 	// Create the API routes
 	api := router.PathPrefix("/api").Subrouter()
+	api = api.StrictSlash(true)
 	api.HandleFunc("/", Use(API, mid.RequireLogin))
 	api.HandleFunc("/reset", Use(API_Reset, mid.RequireLogin))
 	api.HandleFunc("/campaigns/", Use(API_Campaigns, mid.RequireAPIKey))
