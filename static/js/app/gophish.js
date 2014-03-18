@@ -1,5 +1,11 @@
 var app = angular.module('gophish', ['ngTable', 'ngResource', 'ui.bootstrap']);
 
+app.filter('unsafe', function($sce) {
+    return function(val) {
+        return $sce.trustAsHtml(val);
+    };
+});
+
 app.factory('CampaignService', function($resource) {
     return $resource('/api/campaigns/:id?api_key=' + API_KEY, {
         id: "@id"
@@ -12,6 +18,16 @@ app.factory('CampaignService', function($resource) {
 
 app.factory('GroupService', function($resource) {
     return $resource('/api/groups/:id?api_key=' + API_KEY, {
+        id: "@id"
+    }, {
+        update: {
+            method: 'PUT'
+        }
+    });
+});
+
+app.factory('TemplateService', function($resource) {
+    return $resource('/api/templates/:id?api_key=' + API_KEY, {
         id: "@id"
     }, {
         update: {
@@ -215,6 +231,67 @@ app.controller('GroupCtrl', function($scope, GroupService, ngTableParams) {
         var deleteGroup = new GroupService(group);
         deleteGroup.$delete({
             id: deleteGroup.id
+        }, function() {
+            $scope.mainTableParams.reload();
+        });
+    }
+})
+
+app.controller('TemplateCtrl', function($scope, TemplateService, ngTableParams) {
+    $scope.mainTableParams = new ngTableParams({
+        page: 1, // show first page
+        count: 10, // count per page
+        sorting: {
+            name: 'asc' // initial sorting
+        }
+    }, {
+        total: 0, // length of data
+        getData: function($defer, params) {
+            TemplateService.query(function(templates) {
+                $scope.templates = templates
+                params.total(templates.length)
+                $defer.resolve(templates.slice((params.page() - 1) * params.count(), params.page() * params.count()));
+            })
+        }
+    });
+
+    $scope.editTemplate = function(template) {
+        if (template === 'new') {
+            $scope.newTemplate = true;
+            $scope.template = {
+                name: '',
+                html: '',
+                text: '',
+            };
+
+        } else {
+            $scope.newTemplate = false;
+            $scope.template = template;
+        }
+    };
+
+    $scope.saveTemplate = function(template) {
+        var newTemplate = new TemplateService(template);
+        if ($scope.newTemplate) {
+            newTemplate.$save({}, function() {
+                $scope.templates.push(newTemplate);
+                $scope.mainTableParams.reload()
+            });
+        } else {
+            newTemplate.$update({
+                id: newTemplate.id
+            })
+        }
+        $scope.template = {
+                name: '',
+                html: '',
+                text: '',
+        };
+    }
+    $scope.deleteTemplate = function(template) {
+        var deleteTemplate = new TemplateService(template);
+        deleteTemplate.$delete({
+            id: deleteTemplate.id
         }, function() {
             $scope.mainTableParams.reload();
         });

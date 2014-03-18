@@ -27,6 +27,7 @@ func CreateRouter() *nosurf.CSRFHandler {
 	router.HandleFunc("/campaigns/{id:[0-9]+}", Use(Campaigns_Id, mid.RequireLogin))
 	router.HandleFunc("/users", Use(Users, mid.RequireLogin))
 	router.HandleFunc("/settings", Use(Settings, mid.RequireLogin))
+	router.HandleFunc("/templates", Use(Templates, mid.RequireLogin))
 
 	// Create the API routes
 	api := router.PathPrefix("/api").Subrouter()
@@ -135,6 +136,15 @@ func Users(w http.ResponseWriter, r *http.Request) {
 		Flashes []interface{}
 	}{Title: "Users & Groups", User: ctx.Get(r, "user").(models.User)}
 	getTemplate(w, "users").ExecuteTemplate(w, "base", params)
+}
+
+func Templates(w http.ResponseWriter, r *http.Request) {
+	params := struct {
+		User    models.User
+		Title   string
+		Flashes []interface{}
+	}{Title: "Templates", User: ctx.Get(r, "user").(models.User)}
+	getTemplate(w, "templates").ExecuteTemplate(w, "base", params)
 }
 
 func Settings(w http.ResponseWriter, r *http.Request) {
