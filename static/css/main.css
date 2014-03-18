@@ -109,3 +109,9 @@
   .pagination {
     margin:0px;
   }
+
+@media (min-width: 992px) {
+  .modal-lg {
+    width: 900px;
+  }
+}
