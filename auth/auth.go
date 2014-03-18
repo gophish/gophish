@@ -8,8 +8,8 @@ import (
 	"io"
 	"net/http"
 
-	"crypto/rand"
 	"code.google.com/p/go.crypto/bcrypt"
+	"crypto/rand"
 	ctx "github.com/gorilla/context"
 	"github.com/gorilla/securecookie"
 	"github.com/gorilla/sessions"
@@ -35,7 +35,6 @@ func Login(r *http.Request) (bool, error) {
 	session, _ := Store.Get(r, "gophish")
 	u, err := db.GetUserByUsername(username)
 	if err != db.ErrUsernameTaken {
-		//Return false, but don't return an error
 		return false, err
 	}
 	//If we've made it here, we should have a valid user stored in u
