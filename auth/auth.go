@@ -41,10 +41,8 @@ func Login(r *http.Request) (bool, error) {
 	//Let's check the password
 	err = bcrypt.CompareHashAndPassword([]byte(u.Hash), []byte(password))
 	if err != nil {
-		fmt.Println("Error in comparing hash and password")
 		ctx.Set(r, "user", nil)
-		//Return false, but don't return an error
-		return false, nil
+		return false, ErrInvalidPassword
 	}
 	ctx.Set(r, "user", u)
 	session.Values["id"] = u.Id
