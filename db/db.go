@@ -40,11 +40,13 @@ func Setup() error {
 			`CREATE TABLE targets (id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT NOT NULL, UNIQUE(email));`,
 			`CREATE TABLE groups (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, modified_date TIMESTAMP NOT NULL);`,
 			`CREATE TABLE campaign_results (cid INTEGER NOT NULL, email TEXT NOT NULL, status TEXT NOT NULL, FOREIGN KEY (cid) REFERENCES campaigns(id), UNIQUE(cid, email, status))`,
+			`CREATE TABLE templates (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, modified_date TIMESTAMP NOT NULL, html TEXT NOT NULL, text TEXT NOT NULL);`,
+			`CREATE TABLE files (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, path TEXT NOT NULL);`,
 			`CREATE TABLE user_campaigns (uid INTEGER NOT NULL, cid INTEGER NOT NULL, FOREIGN KEY (uid) REFERENCES users(id), FOREIGN KEY (cid) REFERENCES campaigns(id), UNIQUE(uid, cid))`,
 			`CREATE TABLE user_groups (uid INTEGER NOT NULL, gid INTEGER NOT NULL, FOREIGN KEY (uid) REFERENCES users(id), FOREIGN KEY (gid) REFERENCES groups(id), UNIQUE(uid, gid))`,
 			`CREATE TABLE group_targets (gid INTEGER NOT NULL, tid INTEGER NOT NULL, FOREIGN KEY (gid) REFERENCES groups(id), FOREIGN KEY (tid) REFERENCES targets(id), UNIQUE(gid, tid));`,
-			`CREATE TABLE templates (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, modified_date TIMESTAMP NOT NULL, html TEXT NOT NULL, text TEXT NOT NULL);`,
 			`CREATE TABLE user_templates (uid INTEGER NOT NULL, tid INTEGER NOT NULL, FOREIGN KEY (uid) REFERENCES users(id), FOREIGN KEY (tid) REFERENCES templates(id), UNIQUE(uid, tid));`,
+			`CREATE TABLE template_files (tid INTEGER NOT NULL, fid INTEGER NOT NULL, FOREIGN KEY (tid) REFERENCES templates(id), FOREIGN KEY(fid) REFERENCES files(id), UNIQUE(tid, fid));`,
 		}
 		Logger.Printf("Creating db at %s\n", config.Conf.DBPath)
 		//Create the tables needed
@@ -220,7 +222,7 @@ func GetGroup(id int64, uid int64) (models.Group, error) {
 	return g, nil
 }
 
-// GetGroup returns the group, if it exists, specified by the given name and user_id.
+// GetGroupByName returns the group, if it exists, specified by the given name and user_id.
 func GetGroupByName(n string, uid int64) (models.Group, error) {
 	g := models.Group{}
 	err := Conn.SelectOne(&g, "SELECT g.id, g.name, g.modified_date FROM groups g, user_groups ug, users u WHERE ug.uid=u.id AND ug.gid=g.id AND g.name=? AND u.id=?", n, uid)
@@ -335,6 +337,10 @@ func PostTemplate(t *models.Template, uid int64) error {
 	if err != nil {
 		Logger.Printf("Error adding many-many mapping for template %s\n", t.Name)
 	}
+	return nil
+}
+
+func PutTemplate(t *models.Template, uid int64) error {
 	return nil
 }
 

@@ -145,8 +145,8 @@
     "Result": {
       "id": "Result",
       "properties": {
-        "target": {
-        "$ref": "Target"
+        "email": {
+          "type": "string"
         },
         "status": {
           "type": "string"
@@ -192,64 +192,13 @@
         "targets": {
           "type" : "array",
           "items" : {
-            "$ref" : "Target"
+            "email" : {
+              "type" : "string"
+            }
           }
         },
         "modified_date": {
           "type" : "date"
-        }
-      }
-    },
-    "Pet": {
-      "id": "Pet",
-      "description": "A pet is a person's best friend",
-      "required": [
-        "name",
-        "id"
-      ],
-      "properties": {
-        "name": {
-          "type": "string"
-        },
-        "tags": {
-          "type": "array",
-          "items": {
-            "$ref": "Tag"
-          }
-        },
-        "photoUrls": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "id": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "status": {
-          "type": "string",
-          "description": "pet status in the store",
-          "enum": [
-            "available",
-            "pending",
-            "sold"
-          ]
-        },
-        "category": {
-          "$ref": "Category"
-        }
-      }
-    },
-    "Category": {
-      "id": "Category",
-      "properties": {
-        "name": {
-          "type": "string"
-        },
-        "id": {
-          "type": "integer",
-          "format": "int64"
         }
       }
     }

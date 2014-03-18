@@ -40,8 +40,8 @@ type Campaign struct {
 	CompletedDate time.Time `json:"completed_date" db:"completed_date"`
 	Template      string    `json:"template"` //This may change
 	Status        string    `json:"status"`
-	Results       []Result  `json:"results" db:"-"`
-	Groups        []Group   `json:"groups" db:"-"`
+	Results       []Result  `json:"results,omitempty" db:"-"`
+	Groups        []Group   `json:"groups,omitempty" db:"-"`
 }
 
 type Result struct {
