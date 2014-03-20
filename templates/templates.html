@@ -83,7 +83,7 @@
                         <div class="tab-pane" id="template_html">
                             <textarea rows="10" class="form-control" ng-model="template.html" placeholder="HTML"></textarea>
                         </div>
-                        <div class="tab-pane" id="template_preview" ng-bind-html="template.html | unsafe"></div>
+                        <div class="tab-pane" id="template_preview" ng-model="template.html" contenteditable></div>
                     </div>
                     <fieldset disabled>
                         <div class="form-group" style="margin-top:15px">
