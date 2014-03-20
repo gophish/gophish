@@ -54,7 +54,7 @@
             </table>
         </div>
         <!-- New Campaign Modal -->
-        <div class="modal" id="newCampaignModal" tabindex="-1" role="dialog" aria-labelledby="campaignModalLabel" aria-hidden="true">
+        <div class="modal" id="newCampaignModal" role="dialog" aria-labelledby="campaignModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -67,7 +67,7 @@
                         </div>
                         <div class="form-group">
                             <label for="name">Name:</label>
-                            <input type="text" class="form-control" ng-model="campaign.name" id="name" placeholder="Campaign name">
+                            <input type="text" class="form-control" ng-model="campaign.name" id="name" placeholder="Campaign name" autofocus>
                             <br />
                             <label class="control-label" for="users">Groups:</label>
                             <form ng:submit="addGroup()">

@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/mail"
 	"os"
+	"time"
 
 	"github.com/coopernurse/gorp"
 	"github.com/jordan-wright/gophish/config"
@@ -303,6 +304,13 @@ func PutGroup(g *models.Group, uid int64) error {
 		if !tExists {
 			insertTargetIntoGroup(nt, g.Id)
 		}
+	}
+	// Update the group
+	g.ModifiedDate = time.Now()
+	_, err = Conn.Update(g)
+	if err != nil {
+		Logger.Println(err)
+		return err
 	}
 	return nil
 }
