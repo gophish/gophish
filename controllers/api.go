@@ -225,6 +225,11 @@ func API_Groups_Id(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Error: /:id and group_id mismatch", http.StatusBadRequest)
 			return
 		}
+		// Check to make sure targets were specified
+		if len(g.Targets) == 0 {
+			http.Error(w, "Error: No targets specified", http.StatusBadRequest)
+			return
+		}
 		err = db.PutGroup(&g, ctx.Get(r, "user_id").(int64))
 		if checkError(err, w, "Error updating group", http.StatusInternalServerError) {
 			return
