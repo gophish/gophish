@@ -19,7 +19,7 @@ var Logger = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile)
 
 // Setup initializes the Conn object
 // It also populates the Gophish Config object
-func init() {
+func Setup() error {
 	DB, err := sql.Open("sqlite3", config.Conf.DBPath)
 	Conn = &gorp.DbMap{Db: DB, Dialect: gorp.SqliteDialect{}}
 	//If the file already exists, delete it and recreate it
@@ -50,7 +50,7 @@ func init() {
 		for _, stmt := range createTablesSQL {
 			_, err = DB.Exec(stmt)
 			if err != nil {
-				/*				return nil, err*/
+				return err
 			}
 		}
 		//Create the default user
@@ -64,7 +64,7 @@ func init() {
 			Logger.Println(err)
 		}
 	}
-	/*	return Conn, nil*/
+	return nil
 }
 
 // Flash is used to hold flash information for use in templates.

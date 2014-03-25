@@ -37,10 +37,11 @@ import (
 
 func main() {
 	//Setup the global variables and settings
+	err := models.Setup()
 	defer models.DB.Close()
-	/*	if err != nil {
+	if err != nil {
 		fmt.Println(err)
-	}*/
+	}
 	fmt.Printf("Gophish server started at http://%s\n", config.Conf.URL)
 	http.Handle("/", controllers.Use(controllers.CreateRouter().ServeHTTP, middleware.GetContext))
 	http.ListenAndServe(config.Conf.URL, nil)
