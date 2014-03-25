@@ -11,7 +11,6 @@ import (
 	ctx "github.com/gorilla/context"
 	"github.com/gorilla/mux"
 	"github.com/jordan-wright/gophish/auth"
-	"github.com/jordan-wright/gophish/db"
 	"github.com/jordan-wright/gophish/models"
 )
 
@@ -41,7 +40,7 @@ func API_Reset(w http.ResponseWriter, r *http.Request) {
 	case r.Method == "POST":
 		u := ctx.Get(r, "user").(models.User)
 		u.APIKey = auth.GenerateSecureKey()
-		err := db.PutUser(&u)
+		err := models.PutUser(&u)
 		if err != nil {
 			Flash(w, r, "danger", "Error resetting API Key")
 		} else {
@@ -56,7 +55,7 @@ func API_Reset(w http.ResponseWriter, r *http.Request) {
 func API_Campaigns(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "GET":
-		cs, err := db.GetCampaigns(ctx.Get(r, "user_id").(int64))
+		cs, err := models.GetCampaigns(ctx.Get(r, "user_id").(int64))
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -81,7 +80,7 @@ func API_Campaigns(w http.ResponseWriter, r *http.Request) {
 		c.CreatedDate = time.Now()
 		c.CompletedDate = time.Time{}
 		c.Status = IN_PROGRESS
-		err = db.PostCampaign(&c, ctx.Get(r, "user_id").(int64))
+		err = models.PostCampaign(&c, ctx.Get(r, "user_id").(int64))
 		if checkError(err, w, "Cannot insert campaign into database", http.StatusInternalServerError) {
 			return
 		}
@@ -101,7 +100,7 @@ func API_Campaigns_Id(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "GET":
 		c := models.Campaign{}
-		c, err := db.GetCampaign(id, ctx.Get(r, "user_id").(int64))
+		c, err := models.GetCampaign(id, ctx.Get(r, "user_id").(int64))
 		if checkError(err, w, "No campaign found", http.StatusNotFound) {
 			return
 		}
@@ -111,11 +110,11 @@ func API_Campaigns_Id(w http.ResponseWriter, r *http.Request) {
 		}
 		writeJSON(w, cj)
 	case r.Method == "DELETE":
-		_, err := db.GetCampaign(id, ctx.Get(r, "user_id").(int64))
+		_, err := models.GetCampaign(id, ctx.Get(r, "user_id").(int64))
 		if checkError(err, w, "No campaign found", http.StatusNotFound) {
 			return
 		}
-		err = db.DeleteCampaign(id)
+		err = models.DeleteCampaign(id)
 		if checkError(err, w, "Error deleting campaign", http.StatusInternalServerError) {
 			return
 		}
@@ -153,7 +152,7 @@ RESULT { "name" : "Test Group",
 func API_Groups(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "GET":
-		gs, err := db.GetGroups(ctx.Get(r, "user_id").(int64))
+		gs, err := models.GetGroups(ctx.Get(r, "user_id").(int64))
 		if checkError(err, w, "Groups not found", http.StatusNotFound) {
 			return
 		}
@@ -176,7 +175,7 @@ func API_Groups(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		g.ModifiedDate = time.Now()
-		err = db.PostGroup(&g, ctx.Get(r, "user_id").(int64))
+		err = models.PostGroup(&g, ctx.Get(r, "user_id").(int64))
 		if checkError(err, w, "Error inserting group", http.StatusInternalServerError) {
 			return
 		}
@@ -195,7 +194,7 @@ func API_Groups_Id(w http.ResponseWriter, r *http.Request) {
 	id, _ := strconv.ParseInt(vars["id"], 0, 64)
 	switch {
 	case r.Method == "GET":
-		g, err := db.GetGroup(id, ctx.Get(r, "user_id").(int64))
+		g, err := models.GetGroup(id, ctx.Get(r, "user_id").(int64))
 		if checkError(err, w, "No group found", http.StatusNotFound) {
 			return
 		}
@@ -205,17 +204,17 @@ func API_Groups_Id(w http.ResponseWriter, r *http.Request) {
 		}
 		writeJSON(w, gj)
 	case r.Method == "DELETE":
-		_, err := db.GetGroup(id, ctx.Get(r, "user_id").(int64))
+		_, err := models.GetGroup(id, ctx.Get(r, "user_id").(int64))
 		if checkError(err, w, "No group found", http.StatusNotFound) {
 			return
 		}
-		err = db.DeleteGroup(id)
+		err = models.DeleteGroup(id)
 		if checkError(err, w, "Error deleting group", http.StatusInternalServerError) {
 			return
 		}
 		writeJSON(w, []byte("{\"success\" : \"true\"}"))
 	case r.Method == "PUT":
-		_, err := db.GetGroup(id, ctx.Get(r, "user_id").(int64))
+		_, err := models.GetGroup(id, ctx.Get(r, "user_id").(int64))
 		if checkError(err, w, "No group found", http.StatusNotFound) {
 			return
 		}
@@ -230,7 +229,7 @@ func API_Groups_Id(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Error: No targets specified", http.StatusBadRequest)
 			return
 		}
-		err = db.PutGroup(&g, ctx.Get(r, "user_id").(int64))
+		err = models.PutGroup(&g, ctx.Get(r, "user_id").(int64))
 		if checkError(err, w, "Error updating group", http.StatusInternalServerError) {
 			return
 		}
@@ -245,7 +244,7 @@ func API_Groups_Id(w http.ResponseWriter, r *http.Request) {
 func API_Templates(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "GET":
-		ts, err := db.GetTemplates(ctx.Get(r, "user_id").(int64))
+		ts, err := models.GetTemplates(ctx.Get(r, "user_id").(int64))
 		if checkError(err, w, "Templates not found", http.StatusNotFound) {
 			return
 		}
@@ -263,7 +262,7 @@ func API_Templates(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		t.ModifiedDate = time.Now()
-		err = db.PostTemplate(&t, ctx.Get(r, "user_id").(int64))
+		err = models.PostTemplate(&t, ctx.Get(r, "user_id").(int64))
 		if checkError(err, w, "Error inserting template", http.StatusInternalServerError) {
 			return
 		}

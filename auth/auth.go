@@ -8,12 +8,11 @@ import (
 	"io"
 	"net/http"
 
-	"code.google.com/p/go.crypto/bcrypt"
 	"crypto/rand"
+	"code.google.com/p/go.crypto/bcrypt"
 	ctx "github.com/gorilla/context"
 	"github.com/gorilla/securecookie"
 	"github.com/gorilla/sessions"
-	"github.com/jordan-wright/gophish/db"
 	"github.com/jordan-wright/gophish/models"
 )
 
@@ -33,8 +32,8 @@ var ErrInvalidPassword = errors.New("Invalid Password")
 func Login(r *http.Request) (bool, error) {
 	username, password := r.FormValue("username"), r.FormValue("password")
 	session, _ := Store.Get(r, "gophish")
-	u, err := db.GetUserByUsername(username)
-	if err != db.ErrUsernameTaken {
+	u, err := models.GetUserByUsername(username)
+	if err != models.ErrUsernameTaken {
 		return false, err
 	}
 	//If we've made it here, we should have a valid user stored in u
@@ -52,7 +51,7 @@ func Login(r *http.Request) (bool, error) {
 // Register attempts to register the user given a request.
 func Register(r *http.Request) (bool, error) {
 	username, password := r.FormValue("username"), r.FormValue("password")
-	u, err := db.GetUserByUsername(username)
+	u, err := models.GetUserByUsername(username)
 	// If we have an error which is not simply indicating that no user was found, report it
 	if err != sql.ErrNoRows {
 		return false, err
@@ -66,7 +65,7 @@ func Register(r *http.Request) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	err = db.Conn.Insert(&u)
+	err = models.Conn.Insert(&u)
 	if err != nil {
 		return false, err
 	}
@@ -94,7 +93,7 @@ func ChangePassword(r *http.Request) error {
 			return err
 		}
 		u.Hash = string(h)
-		if err = db.PutUser(&u); err != nil {
+		if err = models.PutUser(&u); err != nil {
 			return err
 		}
 		return nil

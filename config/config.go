@@ -5,11 +5,22 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-
-	"github.com/jordan-wright/gophish/models"
 )
 
-var Conf models.Config
+type SMTPServer struct {
+	Host     string `json:"host"`
+	User     string `json:"user"`
+	Password string `json:"password"`
+}
+
+// Config represents the configuration information.
+type Config struct {
+	URL    string     `json:"url"`
+	SMTP   SMTPServer `json:"smtp"`
+	DBPath string     `json:"dbpath"`
+}
+
+var Conf Config
 
 func init() {
 	// Get the config file

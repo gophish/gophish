@@ -31,17 +31,16 @@ import (
 
 	"github.com/jordan-wright/gophish/config"
 	"github.com/jordan-wright/gophish/controllers"
-	"github.com/jordan-wright/gophish/db"
 	"github.com/jordan-wright/gophish/middleware"
+	"github.com/jordan-wright/gophish/models"
 )
 
 func main() {
 	//Setup the global variables and settings
-	err := db.Setup()
-	defer db.DB.Close()
-	if err != nil {
+	defer models.DB.Close()
+	/*	if err != nil {
 		fmt.Println(err)
-	}
+	}*/
 	fmt.Printf("Gophish server started at http://%s\n", config.Conf.URL)
 	http.Handle("/", controllers.Use(controllers.CreateRouter().ServeHTTP, middleware.GetContext))
 	http.ListenAndServe(config.Conf.URL, nil)

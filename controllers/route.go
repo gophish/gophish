@@ -9,7 +9,6 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
 	"github.com/jordan-wright/gophish/auth"
-	"github.com/jordan-wright/gophish/db"
 	mid "github.com/jordan-wright/gophish/middleware"
 	"github.com/jordan-wright/gophish/models"
 	"github.com/justinas/nosurf"
@@ -92,7 +91,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		} else {
 			// Check the error
 			m := ""
-			if err == db.ErrUsernameTaken {
+			if err == models.ErrUsernameTaken {
 				m = "Username already taken"
 			} else {
 				m = "Unknown error - please try again"
