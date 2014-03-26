@@ -8,8 +8,18 @@ import (
 type Group struct {
 	Id           int64     `json:"id"`
 	Name         string    `json:"name"`
-	ModifiedDate time.Time `json:"modified_date" db:"modified_date"`
-	Targets      []Target  `json:"targets" db:"-"`
+	ModifiedDate time.Time `json:"modified_date"`
+	Targets      []Target  `json:"targets" sql:"-"`
+}
+
+type UserGroup struct {
+	UserId  int64 `json:"-"`
+	GroupId int64 `json:"-"`
+}
+
+type GroupTarget struct {
+	GroupId  int64 `json:"-"`
+	TargetId int64 `json:"-"`
 }
 
 type Target struct {
@@ -20,13 +30,14 @@ type Target struct {
 // GetGroups returns the groups owned by the given user.
 func GetGroups(uid int64) ([]Group, error) {
 	gs := []Group{}
-	_, err := Conn.Select(&gs, "SELECT g.id, g.name, g.modified_date FROM groups g, user_groups ug, users u WHERE ug.uid=u.id AND ug.gid=g.id AND u.id=?", uid)
+	err := db.Debug().Table("groups g").Select("g.id, g.name, g.modified_date").Joins("left join user_groups ug ON g.id = ug.group_id").Where("ug.user_id=?", uid).Scan(&gs).Error
+	/*_, err := Conn.Select(&gs, "SELECT g.id, g.name, g.modified_date FROM groups g, user_groups ug, users u WHERE ug.uid=u.id AND ug.gid=g.id AND u.id=?", uid)*/
 	if err != nil {
 		Logger.Println(err)
 		return gs, err
 	}
 	for i, _ := range gs {
-		_, err := Conn.Select(&gs[i].Targets, "SELECT t.id, t.email FROM targets t, group_targets gt WHERE gt.gid=? AND gt.tid=t.id", gs[i].Id)
+		gs[i].Targets, err = GetTargets(gs[i].Id)
 		if err != nil {
 			Logger.Println(err)
 		}
@@ -37,12 +48,14 @@ func GetGroups(uid int64) ([]Group, error) {
 // GetGroup returns the group, if it exists, specified by the given id and user_id.
 func GetGroup(id int64, uid int64) (Group, error) {
 	g := Group{}
-	err := Conn.SelectOne(&g, "SELECT g.id, g.name, g.modified_date FROM groups g, user_groups ug, users u WHERE ug.uid=u.id AND ug.gid=g.id AND g.id=? AND u.id=?", id, uid)
+	err := db.Debug().Table("groups g").Select("g.id, g.name, g.modified_date").Joins("left join user_groups ug ON g.id = ug.group_id").Where("ug.user_id=? and g.id=?", uid, id).Scan(&g).Error
+	/*err := Conn.SelectOne(&g, "SELECT g.id, g.name, g.modified_date FROM groups g, user_groups ug, users u WHERE ug.uid=u.id AND ug.gid=g.id AND g.id=? AND u.id=?", id, uid)*/
 	if err != nil {
 		Logger.Println(err)
 		return g, err
 	}
-	_, err = Conn.Select(&g.Targets, "SELECT t.id, t.email FROM targets t, group_targets gt WHERE gt.gid=? AND gt.tid=t.id", g.Id)
+	g.Targets, err = GetTargets(g.Id)
+	/*_, err = Conn.Select(&g.Targets, "SELECT t.id, t.email FROM targets t, group_targets gt WHERE gt.gid=? AND gt.tid=t.id", g.Id)*/
 	if err != nil {
 		Logger.Println(err)
 	}
@@ -52,12 +65,14 @@ func GetGroup(id int64, uid int64) (Group, error) {
 // GetGroupByName returns the group, if it exists, specified by the given name and user_id.
 func GetGroupByName(n string, uid int64) (Group, error) {
 	g := Group{}
-	err := Conn.SelectOne(&g, "SELECT g.id, g.name, g.modified_date FROM groups g, user_groups ug, users u WHERE ug.uid=u.id AND ug.gid=g.id AND g.name=? AND u.id=?", n, uid)
+	err := db.Debug().Table("groups g").Select("g.id, g.name, g.modified_date").Joins("left join user_groups ug ON g.id = ug.group_id").Where("ug.user_id=? and g.name=?", uid, n).Scan(&g).Error
+	/*err := Conn.SelectOne(&g, "SELECT g.id, g.name, g.modified_date FROM groups g, user_groups ug, users u WHERE ug.uid=u.id AND ug.gid=g.id AND g.name=? AND u.id=?", n, uid)*/
 	if err != nil {
 		Logger.Println(err)
 		return g, err
 	}
-	_, err = Conn.Select(&g.Targets, "SELECT t.id, t.email FROM targets t, group_targets gt WHERE gt.gid=? AND gt.tid=t.id", g.Id)
+	g.Targets, err = GetTargets(g.Id)
+	/*_, err = Conn.Select(&g.Targets, "SELECT t.id, t.email FROM targets t, group_targets gt WHERE gt.gid=? AND gt.tid=t.id", g.Id)*/
 	if err != nil {
 		Logger.Println(err)
 	}
@@ -67,16 +82,22 @@ func GetGroupByName(n string, uid int64) (Group, error) {
 // PostGroup creates a new group in the database.
 func PostGroup(g *Group, uid int64) error {
 	// Insert into the DB
-	err = Conn.Insert(g)
+	/*err = Conn.Insert(g)*/
+	err = db.Save(&g).Error
 	if err != nil {
 		Logger.Println(err)
 		return err
 	}
 	// Now, let's add the user->user_groups->group mapping
-	_, err = Conn.Exec("INSERT OR IGNORE INTO user_groups VALUES (?,?)", uid, g.Id)
+	err = db.Save(&UserGroup{GroupId: g.Id, UserId: uid}).Error
+	if err != nil {
+		Logger.Println(err)
+		return err
+	}
+	/*_, err = Conn.Exec("INSERT OR IGNORE INTO user_groups VALUES (?,?)", uid, g.Id)
 	if err != nil {
 		Logger.Printf("Error adding many-many mapping for group %s\n", g.Name)
-	}
+	}*/
 	for _, t := range g.Targets {
 		insertTargetIntoGroup(t, g.Id)
 	}
@@ -90,7 +111,8 @@ func PutGroup(g *Group, uid int64) error {
 	// since they are needed by the Results table
 	// Get all the targets currently in the database for the group
 	ts := []Target{}
-	_, err = Conn.Select(&ts, "SELECT t.id, t.email FROM targets t, group_targets gt WHERE gt.gid=? AND gt.tid=t.id", g.Id)
+	ts, err = GetTargets(g.Id)
+	/*_, err = Conn.Select(&ts, "SELECT t.id, t.email FROM targets t, group_targets gt WHERE gt.gid=? AND gt.tid=t.id", g.Id)*/
 	if err != nil {
 		Logger.Printf("Error getting targets from group ID: %d", g.Id)
 		return err
@@ -133,7 +155,8 @@ func PutGroup(g *Group, uid int64) error {
 	}
 	// Update the group
 	g.ModifiedDate = time.Now()
-	_, err = Conn.Update(g)
+	err = db.Debug().Update(&g).Error
+	/*_, err = Conn.Update(g)*/
 	if err != nil {
 		Logger.Println(err)
 		return err
@@ -178,16 +201,35 @@ func insertTargetIntoGroup(t Target, gid int64) error {
 // DeleteGroup deletes a given group by group ID and user ID
 func DeleteGroup(id int64) error {
 	// Delete all the group_targets entries for this group
-	_, err := Conn.Exec("DELETE FROM group_targets WHERE gid=?", id)
+	err := db.Debug().Where("group_id=?", id).Delete(&GroupTarget{}).Error
+	/*_, err := Conn.Exec("DELETE FROM group_targets WHERE gid=?", id)*/
 	if err != nil {
+		Logger.Println(err)
 		return err
 	}
 	// Delete the reference to the group in the user_group table
-	_, err = Conn.Exec("DELETE FROM user_groups WHERE gid=?", id)
+	err = db.Debug().Where("group_id=?", id).Delete(&UserGroup{}).Error
+	/*_, err = Conn.Exec("DELETE FROM user_groups WHERE gid=?", id)*/
 	if err != nil {
+		Logger.Println(err)
 		return err
 	}
 	// Delete the group itself
-	_, err = Conn.Exec("DELETE FROM groups WHERE id=?", id)
+	err = db.Debug().Delete(&Group{Id: id}).Error
+	/*_, err = Conn.Exec("DELETE FROM groups WHERE id=?", id)*/
+	if err != nil {
+		Logger.Println(err)
+		return err
+	}
 	return err
+}
+
+func GetTargets(gid int64) ([]Target, error) {
+	ts := []Target{}
+	err := db.Debug().Table("targets t").Select("t.id, t.email").Joins("left join group_targets gt ON t.id = gt.target_id").Where("gt.group_id=?", gid).Scan(&ts).Error
+	/*_, err := Conn.Select(&gs[i].Targets, "SELECT t.id, t.email FROM targets t, group_targets gt WHERE gt.gid=? AND gt.tid=t.id", gs[i].Id)*/
+	if err != nil {
+		return nil, err
+	}
+	return ts, nil
 }

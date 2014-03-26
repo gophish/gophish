@@ -33,7 +33,7 @@ func Login(r *http.Request) (bool, error) {
 	username, password := r.FormValue("username"), r.FormValue("password")
 	session, _ := Store.Get(r, "gophish")
 	u, err := models.GetUserByUsername(username)
-	if err != models.ErrUsernameTaken {
+	if err != nil && err != models.ErrUsernameTaken {
 		return false, err
 	}
 	//If we've made it here, we should have a valid user stored in u
@@ -61,7 +61,7 @@ func Register(r *http.Request) (bool, error) {
 	h, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	u.Username = username
 	u.Hash = string(h)
-	u.APIKey = GenerateSecureKey()
+	u.ApiKey = GenerateSecureKey()
 	if err != nil {
 		return false, err
 	}

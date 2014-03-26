@@ -3,24 +3,41 @@ package models
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/coopernurse/gorp"
+	"github.com/jinzhu/gorm"
 	"github.com/jordan-wright/gophish/config"
 	_ "github.com/mattn/go-sqlite3"
 )
 
 var Conn *gorp.DbMap
+var db gorm.DB
 var DB *sql.DB
 var err error
-var ErrUsernameTaken = errors.New("Username already taken")
-var Logger = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile)
+var ErrUsernameTaken = errors.New("username already taken")
+var Logger = log.New(os.Stdout, " ", log.Ldate|log.Ltime|log.Lshortfile)
 
 // Setup initializes the Conn object
 // It also populates the Gophish Config object
 func Setup() error {
 	DB, err := sql.Open("sqlite3", config.Conf.DBPath)
+	if err != nil {
+		fmt.Printf("%v", err)
+	}
+	db, err = gorm.Open("sqlite3", "gophish_gorm.db")
+	db.SetLogger(Logger)
+	db.CreateTable(User{})
+	db.CreateTable(Target{})
+	db.CreateTable(Result{})
+	db.CreateTable(Group{})
+	db.CreateTable(GroupTarget{})
+	db.CreateTable(UserGroup{})
+	db.CreateTable(Template{})
+	db.CreateTable(Campaign{})
 	Conn = &gorp.DbMap{Db: DB, Dialect: gorp.SqliteDialect{}}
 	//If the file already exists, delete it and recreate it
 	_, err = os.Stat(config.Conf.DBPath)
@@ -57,9 +74,63 @@ func Setup() error {
 		init_user := User{
 			Username: "admin",
 			Hash:     "$2a$10$IYkPp0.QsM81lYYPrQx6W.U6oQGw7wMpozrKhKAHUBVL4mkm/EvAS", //gophish
-			APIKey:   "12345678901234567890123456789012",
+			ApiKey:   "12345678901234567890123456789012",
 		}
-		Conn.Insert(&init_user)
+		err = db.Save(&init_user).Error
+		if err != nil {
+			Logger.Println(err)
+		}
+		init_campaign := Campaign{
+			UserId:        1,
+			Name:          "First Campaign",
+			CreatedDate:   time.Now(), //gophish
+			CompletedDate: time.Now(),
+			Template:      "",
+			Status:        "In Progress",
+			Results:       []Result{},
+			Groups:        []Group{},
+		}
+		err = db.Debug().Save(&init_campaign).Error
+		if err != nil {
+			Logger.Println(err)
+		}
+		init_result := Result{
+			CampaignId: 1,
+			Email:      "test@example.com",
+			Status:     "Unsuccessful",
+		}
+		err = db.Debug().Save(&init_result).Error
+		if err != nil {
+			Logger.Println(err)
+		}
+		init_group := Group{
+			Name:         "New Group",
+			ModifiedDate: time.Now(),
+		}
+		err = db.Debug().Save(&init_group).Error
+		if err != nil {
+			Logger.Println(err)
+		}
+		init_ug := UserGroup{
+			UserId:  1,
+			GroupId: 1,
+		}
+		err = db.Debug().Save(&init_ug).Error
+		if err != nil {
+			Logger.Println(err)
+		}
+		init_target := Target{
+			Email: "test@example.com",
+		}
+		err = db.Debug().Save(&init_target).Error
+		if err != nil {
+			Logger.Println(err)
+		}
+		init_gt := GroupTarget{
+			GroupId:  1,
+			TargetId: 1,
+		}
+		err = db.Debug().Save(&init_gt).Error
 		if err != nil {
 			Logger.Println(err)
 		}

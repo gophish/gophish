@@ -39,7 +39,7 @@ func API_Reset(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "POST":
 		u := ctx.Get(r, "user").(models.User)
-		u.APIKey = auth.GenerateSecureKey()
+		u.ApiKey = auth.GenerateSecureKey()
 		err := models.PutUser(&u)
 		if err != nil {
 			Flash(w, r, "danger", "Error resetting API Key")

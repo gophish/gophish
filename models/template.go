@@ -4,10 +4,10 @@ import "time"
 
 type Template struct {
 	Id           int64     `json:"id"`
-	Name         string    `json:"name" db:"name"`
-	Text         string    `json:"text" db:"text"`
-	Html         string    `json:"html" db:"html"`
-	ModifiedDate time.Time `json:"modified_date" db:"modified_date"`
+	Name         string    `json:"name"`
+	Text         string    `json:"text"`
+	Html         string    `json:"html"`
+	ModifiedDate time.Time `json:"modified_date"`
 }
 
 // GetTemplates returns the templates owned by the given user.
