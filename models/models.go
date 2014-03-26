@@ -106,31 +106,16 @@ func Setup() error {
 		init_group := Group{
 			Name:         "New Group",
 			ModifiedDate: time.Now(),
+			Targets: []Target{Target{
+				Email: "test@example.com"},
+			},
 		}
-		err = db.Debug().Save(&init_group).Error
+		err = PostGroup(&init_group, 1)
 		if err != nil {
 			Logger.Println(err)
 		}
-		init_ug := UserGroup{
-			UserId:  1,
-			GroupId: 1,
-		}
-		err = db.Debug().Save(&init_ug).Error
-		if err != nil {
-			Logger.Println(err)
-		}
-		init_target := Target{
-			Email: "test@example.com",
-		}
-		err = db.Debug().Save(&init_target).Error
-		if err != nil {
-			Logger.Println(err)
-		}
-		init_gt := GroupTarget{
-			GroupId:  1,
-			TargetId: 1,
-		}
-		err = db.Debug().Save(&init_gt).Error
+		init_group.Targets = []Target{Target{Email: "test2@example.com"}}
+		err = PutGroup(&init_group, 1)
 		if err != nil {
 			Logger.Println(err)
 		}
