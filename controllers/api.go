@@ -80,6 +80,7 @@ func API_Campaigns(w http.ResponseWriter, r *http.Request) {
 		c.CreatedDate = time.Now()
 		c.CompletedDate = time.Time{}
 		c.Status = IN_PROGRESS
+		c.UserId = ctx.Get(r, "user_id").(int64)
 		err = models.PostCampaign(&c, ctx.Get(r, "user_id").(int64))
 		if checkError(err, w, "Cannot insert campaign into database", http.StatusInternalServerError) {
 			return

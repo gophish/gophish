@@ -74,7 +74,7 @@ func PostCampaign(c *Campaign, uid int64) error {
 	}
 	// Insert into the DB
 	/*err = Conn.Insert(c)*/
-	err = db.Debug().Save(&c).Error
+	err = db.Debug().Save(c).Error
 	if err != nil {
 		Logger.Println(err)
 		return err
