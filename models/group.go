@@ -9,14 +9,10 @@ import (
 
 type Group struct {
 	Id           int64     `json:"id"`
+	UserId       int64     `json:"-"`
 	Name         string    `json:"name"`
 	ModifiedDate time.Time `json:"modified_date"`
 	Targets      []Target  `json:"targets" sql:"-"`
-}
-
-type UserGroup struct {
-	UserId  int64 `json:"-"`
-	GroupId int64 `json:"-"`
 }
 
 type GroupTarget struct {
@@ -32,7 +28,7 @@ type Target struct {
 // GetGroups returns the groups owned by the given user.
 func GetGroups(uid int64) ([]Group, error) {
 	gs := []Group{}
-	err := db.Table("groups g").Select("g.*").Joins("left join user_groups ug ON g.id = ug.group_id").Where("ug.user_id=?", uid).Scan(&gs).Error
+	err := db.Where("user_id=?", uid).Find(&gs).Error
 	if err != nil {
 		Logger.Println(err)
 		return gs, err
@@ -49,7 +45,7 @@ func GetGroups(uid int64) ([]Group, error) {
 // GetGroup returns the group, if it exists, specified by the given id and user_id.
 func GetGroup(id int64, uid int64) (Group, error) {
 	g := Group{}
-	err := db.Table("groups g").Select("g.*").Joins("left join user_groups ug ON g.id = ug.group_id").Where("ug.user_id=? and g.id=?", uid, id).Scan(&g).Error
+	err := db.Where("user_id=? and id=?", uid, id).Find(&g).Error
 	if err != nil {
 		Logger.Println(err)
 		return g, err
@@ -64,7 +60,7 @@ func GetGroup(id int64, uid int64) (Group, error) {
 // GetGroupByName returns the group, if it exists, specified by the given name and user_id.
 func GetGroupByName(n string, uid int64) (Group, error) {
 	g := Group{}
-	err := db.Table("groups g").Select("g.*").Joins("left join user_groups ug ON g.id = ug.group_id").Where("ug.user_id=? and g.name=?", uid, n).Scan(&g).Error
+	err := db.Where("user_id=? and name=?", uid, n).Find(&g).Error
 	if err != nil {
 		Logger.Println(err)
 		return g, err
@@ -77,15 +73,9 @@ func GetGroupByName(n string, uid int64) (Group, error) {
 }
 
 // PostGroup creates a new group in the database.
-func PostGroup(g *Group, uid int64) error {
+func PostGroup(g *Group) error {
 	// Insert into the DB
 	err = db.Save(g).Error
-	if err != nil {
-		Logger.Println(err)
-		return err
-	}
-	// Now, let's add the user->user_groups->group mapping
-	err = db.Save(&UserGroup{GroupId: g.Id, UserId: uid}).Error
 	if err != nil {
 		Logger.Println(err)
 		return err
@@ -97,11 +87,7 @@ func PostGroup(g *Group, uid int64) error {
 }
 
 // PutGroup updates the given group if found in the database.
-func PutGroup(g *Group, uid int64) error {
-	// Update all the foreign keys, and many to many relationships
-	// We will only delete the group->targets entries. We keep the actual targets
-	// since they are needed by the Results table
-	// Get all the targets currently in the database for the group
+func PutGroup(g *Group) error {
 	ts := []Target{}
 	ts, err = GetTargets(g.Id)
 	if err != nil {
@@ -144,8 +130,6 @@ func PutGroup(g *Group, uid int64) error {
 			insertTargetIntoGroup(nt, g.Id)
 		}
 	}
-	// Update the group
-	g.ModifiedDate = time.Now()
 	err = db.Save(g).Error
 	/*_, err = Conn.Update(g)*/
 	if err != nil {
@@ -155,6 +139,23 @@ func PutGroup(g *Group, uid int64) error {
 	return nil
 }
 
+// DeleteGroup deletes a given group by group ID and user ID
+func DeleteGroup(g *Group) error {
+	// Delete all the group_targets entries for this group
+	err := db.Where("group_id=?", g.Id).Delete(&GroupTarget{}).Error
+	if err != nil {
+		Logger.Println(err)
+		return err
+	}
+	// Delete the group itself
+	err = db.Delete(g).Error
+	if err != nil {
+		Logger.Println(err)
+		return err
+	}
+	return err
+}
+
 func insertTargetIntoGroup(t Target, gid int64) error {
 	if _, err = mail.ParseAddress(t.Email); err != nil {
 		Logger.Printf("Invalid email %s\n", t.Email)
@@ -162,7 +163,6 @@ func insertTargetIntoGroup(t Target, gid int64) error {
 	}
 	trans := db.Begin()
 	trans.Where(t).FirstOrCreate(&t)
-	Logger.Printf("ID of Target after FirstOrCreate: %d", t.Id)
 	if err != nil {
 		Logger.Printf("Error adding target: %s\n", t.Email)
 		return err
@@ -185,29 +185,6 @@ func insertTargetIntoGroup(t Target, gid int64) error {
 		return err
 	}
 	return nil
-}
-
-// DeleteGroup deletes a given group by group ID and user ID
-func DeleteGroup(id int64) error {
-	// Delete all the group_targets entries for this group
-	err := db.Where("group_id=?", id).Delete(&GroupTarget{}).Error
-	if err != nil {
-		Logger.Println(err)
-		return err
-	}
-	// Delete the reference to the group in the user_group table
-	err = db.Where("group_id=?", id).Delete(&UserGroup{}).Error
-	if err != nil {
-		Logger.Println(err)
-		return err
-	}
-	// Delete the group itself
-	err = db.Delete(&Group{Id: id}).Error
-	if err != nil {
-		Logger.Println(err)
-		return err
-	}
-	return err
 }
 
 func GetTargets(gid int64) ([]Target, error) {

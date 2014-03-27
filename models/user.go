@@ -47,6 +47,6 @@ func GetUserByUsername(username string) (User, error) {
 
 // PutUser updates the given user
 func PutUser(u *User) error {
-	err := db.Update(&u).Error
+	err := db.Save(u).Error
 	return err
 }

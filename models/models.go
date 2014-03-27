@@ -42,8 +42,8 @@ func Setup() error {
 		db.CreateTable(Result{})
 		db.CreateTable(Group{})
 		db.CreateTable(GroupTarget{})
-		db.CreateTable(UserGroup{})
 		db.CreateTable(Template{})
+		db.CreateTable(UserTemplate{})
 		db.CreateTable(Campaign{})
 		//Create the default user
 		init_user := User{
