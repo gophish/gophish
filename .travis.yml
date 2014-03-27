@@ -5,4 +5,5 @@ go:
   - tip
 
 install:
+  - go get -d -v ./... && go build -v ./...
   - go get launchpad.net/gocheck
