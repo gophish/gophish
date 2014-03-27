@@ -33,7 +33,7 @@ func GetCampaigns(uid int64) ([]Campaign, error) {
 	if err != nil {
 		fmt.Println(err)
 	}
-	 */for i, _ := range cs {
+	for i, _ := range cs {
 		err := db.Model(&cs[i]).Related(&cs[i].Results).Error
 		if err != nil {
 			fmt.Println(err)
@@ -47,11 +47,11 @@ func GetCampaigns(uid int64) ([]Campaign, error) {
 func GetCampaign(id int64, uid int64) (Campaign, error) {
 	c := Campaign{}
 	err := db.Where("id = ?", id).Where("user_id = ?", uid).Find(&c).Error
-	 */if err != nil {
+	if err != nil {
 		return c, err
 	}
 	err = db.Model(&c).Related(&c.Results).Error
-	 */return c, err
+	return c, err
 }
 
 // PostCampaign inserts a campaign and all associated records into the database.

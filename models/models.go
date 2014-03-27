@@ -1,7 +1,6 @@
 package models
 
 import (
-	"database/sql"
 	"errors"
 	"log"
 	"os"
@@ -14,7 +13,6 @@ import (
 
 var Conn *gorp.DbMap
 var db gorm.DB
-var DB *sql.DB
 var err error
 var ErrUsernameTaken = errors.New("username already taken")
 var Logger = log.New(os.Stdout, " ", log.Ldate|log.Ltime|log.Lshortfile)
@@ -29,6 +27,7 @@ type Flash struct {
 // It also populates the Gophish Config object
 func Setup() error {
 	db, err = gorm.Open("sqlite3", config.Conf.DBPath)
+	db.LogMode(true)
 	db.SetLogger(Logger)
 	if err != nil {
 		Logger.Println(err)

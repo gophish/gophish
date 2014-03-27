@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"os"
 )
 
 type SMTPServer struct {
@@ -27,7 +26,6 @@ func init() {
 	config_file, err := ioutil.ReadFile("./config.json")
 	if err != nil {
 		fmt.Printf("File error: %v\n", err)
-		os.Exit(1)
 	}
 	json.Unmarshal(config_file, &Conf)
 }
