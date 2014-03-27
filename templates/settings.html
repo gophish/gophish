@@ -27,7 +27,7 @@
         <div class="row">
             <label for="api_key" class="col-sm-2 control-label form-label">API Key:</label>
             <div class="col-md-6">
-                <input type="text" id="api_key" onclick="this.select();" value="{{%.User.APIKey%}}" class="form-control" readonly/>
+                <input type="text" id="api_key" onclick="this.select();" value="{{%.User.ApiKey%}}" class="form-control" readonly/>
             </div>
             <form action="/api/reset" method="POST">
                 <button class="btn btn-primary"><i class="fa fa-refresh" type="submit"></i> Reset</button>

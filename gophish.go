@@ -38,7 +38,7 @@ import (
 func main() {
 	//Setup the global variables and settings
 	err := models.Setup()
-	defer models.DB.Close()
+	//defer models.db.DB().Close()
 	if err != nil {
 		fmt.Println(err)
 	}

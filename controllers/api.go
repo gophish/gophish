@@ -39,7 +39,7 @@ func API_Reset(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "POST":
 		u := ctx.Get(r, "user").(models.User)
-		u.APIKey = auth.GenerateSecureKey()
+		u.ApiKey = auth.GenerateSecureKey()
 		err := models.PutUser(&u)
 		if err != nil {
 			Flash(w, r, "danger", "Error resetting API Key")
@@ -80,6 +80,7 @@ func API_Campaigns(w http.ResponseWriter, r *http.Request) {
 		c.CreatedDate = time.Now()
 		c.CompletedDate = time.Time{}
 		c.Status = IN_PROGRESS
+		c.UserId = ctx.Get(r, "user_id").(int64)
 		err = models.PostCampaign(&c, ctx.Get(r, "user_id").(int64))
 		if checkError(err, w, "Cannot insert campaign into database", http.StatusInternalServerError) {
 			return
@@ -175,7 +176,8 @@ func API_Groups(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		g.ModifiedDate = time.Now()
-		err = models.PostGroup(&g, ctx.Get(r, "user_id").(int64))
+		g.UserId = ctx.Get(r, "user_id").(int64)
+		err = models.PostGroup(&g)
 		if checkError(err, w, "Error inserting group", http.StatusInternalServerError) {
 			return
 		}
@@ -204,11 +206,11 @@ func API_Groups_Id(w http.ResponseWriter, r *http.Request) {
 		}
 		writeJSON(w, gj)
 	case r.Method == "DELETE":
-		_, err := models.GetGroup(id, ctx.Get(r, "user_id").(int64))
+		g, err := models.GetGroup(id, ctx.Get(r, "user_id").(int64))
 		if checkError(err, w, "No group found", http.StatusNotFound) {
 			return
 		}
-		err = models.DeleteGroup(id)
+		err = models.DeleteGroup(&g)
 		if checkError(err, w, "Error deleting group", http.StatusInternalServerError) {
 			return
 		}
@@ -229,7 +231,9 @@ func API_Groups_Id(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Error: No targets specified", http.StatusBadRequest)
 			return
 		}
-		err = models.PutGroup(&g, ctx.Get(r, "user_id").(int64))
+		g.ModifiedDate = time.Now()
+		g.UserId = ctx.Get(r, "user_id").(int64)
+		err = models.PutGroup(&g)
 		if checkError(err, w, "Error updating group", http.StatusInternalServerError) {
 			return
 		}

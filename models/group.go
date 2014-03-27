@@ -3,13 +3,21 @@ package models
 import (
 	"net/mail"
 	"time"
+
+	"github.com/jinzhu/gorm"
 )
 
 type Group struct {
 	Id           int64     `json:"id"`
+	UserId       int64     `json:"-"`
 	Name         string    `json:"name"`
-	ModifiedDate time.Time `json:"modified_date" db:"modified_date"`
-	Targets      []Target  `json:"targets" db:"-"`
+	ModifiedDate time.Time `json:"modified_date"`
+	Targets      []Target  `json:"targets" sql:"-"`
+}
+
+type GroupTarget struct {
+	GroupId  int64 `json:"-"`
+	TargetId int64 `json:"-"`
 }
 
 type Target struct {
@@ -20,13 +28,13 @@ type Target struct {
 // GetGroups returns the groups owned by the given user.
 func GetGroups(uid int64) ([]Group, error) {
 	gs := []Group{}
-	_, err := Conn.Select(&gs, "SELECT g.id, g.name, g.modified_date FROM groups g, user_groups ug, users u WHERE ug.uid=u.id AND ug.gid=g.id AND u.id=?", uid)
+	err := db.Where("user_id=?", uid).Find(&gs).Error
 	if err != nil {
 		Logger.Println(err)
 		return gs, err
 	}
 	for i, _ := range gs {
-		_, err := Conn.Select(&gs[i].Targets, "SELECT t.id, t.email FROM targets t, group_targets gt WHERE gt.gid=? AND gt.tid=t.id", gs[i].Id)
+		gs[i].Targets, err = GetTargets(gs[i].Id)
 		if err != nil {
 			Logger.Println(err)
 		}
@@ -37,12 +45,12 @@ func GetGroups(uid int64) ([]Group, error) {
 // GetGroup returns the group, if it exists, specified by the given id and user_id.
 func GetGroup(id int64, uid int64) (Group, error) {
 	g := Group{}
-	err := Conn.SelectOne(&g, "SELECT g.id, g.name, g.modified_date FROM groups g, user_groups ug, users u WHERE ug.uid=u.id AND ug.gid=g.id AND g.id=? AND u.id=?", id, uid)
+	err := db.Where("user_id=? and id=?", uid, id).Find(&g).Error
 	if err != nil {
 		Logger.Println(err)
 		return g, err
 	}
-	_, err = Conn.Select(&g.Targets, "SELECT t.id, t.email FROM targets t, group_targets gt WHERE gt.gid=? AND gt.tid=t.id", g.Id)
+	g.Targets, err = GetTargets(g.Id)
 	if err != nil {
 		Logger.Println(err)
 	}
@@ -52,12 +60,12 @@ func GetGroup(id int64, uid int64) (Group, error) {
 // GetGroupByName returns the group, if it exists, specified by the given name and user_id.
 func GetGroupByName(n string, uid int64) (Group, error) {
 	g := Group{}
-	err := Conn.SelectOne(&g, "SELECT g.id, g.name, g.modified_date FROM groups g, user_groups ug, users u WHERE ug.uid=u.id AND ug.gid=g.id AND g.name=? AND u.id=?", n, uid)
+	err := db.Where("user_id=? and name=?", uid, n).Find(&g).Error
 	if err != nil {
 		Logger.Println(err)
 		return g, err
 	}
-	_, err = Conn.Select(&g.Targets, "SELECT t.id, t.email FROM targets t, group_targets gt WHERE gt.gid=? AND gt.tid=t.id", g.Id)
+	g.Targets, err = GetTargets(g.Id)
 	if err != nil {
 		Logger.Println(err)
 	}
@@ -65,17 +73,12 @@ func GetGroupByName(n string, uid int64) (Group, error) {
 }
 
 // PostGroup creates a new group in the database.
-func PostGroup(g *Group, uid int64) error {
+func PostGroup(g *Group) error {
 	// Insert into the DB
-	err = Conn.Insert(g)
+	err = db.Save(g).Error
 	if err != nil {
 		Logger.Println(err)
 		return err
-	}
-	// Now, let's add the user->user_groups->group mapping
-	_, err = Conn.Exec("INSERT OR IGNORE INTO user_groups VALUES (?,?)", uid, g.Id)
-	if err != nil {
-		Logger.Printf("Error adding many-many mapping for group %s\n", g.Name)
 	}
 	for _, t := range g.Targets {
 		insertTargetIntoGroup(t, g.Id)
@@ -84,13 +87,9 @@ func PostGroup(g *Group, uid int64) error {
 }
 
 // PutGroup updates the given group if found in the database.
-func PutGroup(g *Group, uid int64) error {
-	// Update all the foreign keys, and many to many relationships
-	// We will only delete the group->targets entries. We keep the actual targets
-	// since they are needed by the Results table
-	// Get all the targets currently in the database for the group
+func PutGroup(g *Group) error {
 	ts := []Target{}
-	_, err = Conn.Select(&ts, "SELECT t.id, t.email FROM targets t, group_targets gt WHERE gt.gid=? AND gt.tid=t.id", g.Id)
+	ts, err = GetTargets(g.Id)
 	if err != nil {
 		Logger.Printf("Error getting targets from group ID: %d", g.Id)
 		return err
@@ -109,7 +108,7 @@ func PutGroup(g *Group, uid int64) error {
 		}
 		// If the target does not exist in the group any longer, we delete it
 		if !tExists {
-			_, err = Conn.Exec("DELETE FROM group_targets WHERE gid=? AND tid=?", g.Id, t.Id)
+			err = db.Where("group_id=? and target_id=?", g.Id, t.Id).Delete(&GroupTarget{}).Error
 			if err != nil {
 				Logger.Printf("Error deleting email %s\n", t.Email)
 			}
@@ -131,14 +130,30 @@ func PutGroup(g *Group, uid int64) error {
 			insertTargetIntoGroup(nt, g.Id)
 		}
 	}
-	// Update the group
-	g.ModifiedDate = time.Now()
-	_, err = Conn.Update(g)
+	err = db.Save(g).Error
+	/*_, err = Conn.Update(g)*/
 	if err != nil {
 		Logger.Println(err)
 		return err
 	}
 	return nil
+}
+
+// DeleteGroup deletes a given group by group ID and user ID
+func DeleteGroup(g *Group) error {
+	// Delete all the group_targets entries for this group
+	err := db.Where("group_id=?", g.Id).Delete(&GroupTarget{}).Error
+	if err != nil {
+		Logger.Println(err)
+		return err
+	}
+	// Delete the group itself
+	err = db.Delete(g).Error
+	if err != nil {
+		Logger.Println(err)
+		return err
+	}
+	return err
 }
 
 func insertTargetIntoGroup(t Target, gid int64) error {
@@ -146,28 +161,25 @@ func insertTargetIntoGroup(t Target, gid int64) error {
 		Logger.Printf("Invalid email %s\n", t.Email)
 		return err
 	}
-	trans, err := Conn.Begin()
+	trans := db.Begin()
+	trans.Where(t).FirstOrCreate(&t)
 	if err != nil {
-		Logger.Println(err)
+		Logger.Printf("Error adding target: %s\n", t.Email)
 		return err
 	}
-	_, err = trans.Exec("INSERT OR IGNORE INTO targets VALUES (null, ?)", t.Email)
-	if err != nil {
-		Logger.Printf("Error adding email: %s\n", t.Email)
-		return err
+	err = trans.Where("group_id=? and target_id=?", gid, t.Id).Find(&GroupTarget{}).Error
+	if err == gorm.RecordNotFound {
+		err = trans.Save(&GroupTarget{GroupId: gid, TargetId: t.Id}).Error
+		if err != nil {
+			Logger.Println(err)
+			return err
+		}
 	}
-	// Bug: res.LastInsertId() does not work for this, so we need to select it manually (how frustrating.)
-	t.Id, err = trans.SelectInt("SELECT id FROM targets WHERE email=?", t.Email)
-	if err != nil {
-		Logger.Printf("Error getting id for email: %s\n", t.Email)
-		return err
-	}
-	_, err = trans.Exec("INSERT OR IGNORE INTO group_targets VALUES (?,?)", gid, t.Id)
 	if err != nil {
 		Logger.Printf("Error adding many-many mapping for %s\n", t.Email)
 		return err
 	}
-	err = trans.Commit()
+	err = trans.Commit().Error
 	if err != nil {
 		Logger.Printf("Error committing db changes\n")
 		return err
@@ -175,19 +187,8 @@ func insertTargetIntoGroup(t Target, gid int64) error {
 	return nil
 }
 
-// DeleteGroup deletes a given group by group ID and user ID
-func DeleteGroup(id int64) error {
-	// Delete all the group_targets entries for this group
-	_, err := Conn.Exec("DELETE FROM group_targets WHERE gid=?", id)
-	if err != nil {
-		return err
-	}
-	// Delete the reference to the group in the user_group table
-	_, err = Conn.Exec("DELETE FROM user_groups WHERE gid=?", id)
-	if err != nil {
-		return err
-	}
-	// Delete the group itself
-	_, err = Conn.Exec("DELETE FROM groups WHERE id=?", id)
-	return err
+func GetTargets(gid int64) ([]Target, error) {
+	ts := []Target{}
+	err := db.Table("targets t").Select("t.id, t.email").Joins("left join group_targets gt ON t.id = gt.target_id").Where("gt.group_id=?", gid).Scan(&ts).Error
+	return ts, err
 }

@@ -52,12 +52,13 @@ func RequireAPIKey(handler http.Handler) http.HandlerFunc {
 		if ak == "" {
 			JSONError(w, 400, "API Key not set")
 		} else {
-			id, err := models.Conn.SelectInt("SELECT id FROM users WHERE api_key=?", ak)
-			if id == 0 || err != nil {
+			u, err := models.GetUserByAPIKey(ak)
+			/*			id, err := models.Conn.SelectInt("SELECT id FROM users WHERE api_key=?", ak)
+			 */if err != nil {
 				JSONError(w, 400, "Invalid API Key")
 				return
 			}
-			ctx.Set(r, "user_id", id)
+			ctx.Set(r, "user_id", u.Id)
 			ctx.Set(r, "api_key", ak)
 			handler.ServeHTTP(w, r)
 		}
