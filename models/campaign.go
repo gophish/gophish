@@ -78,7 +78,6 @@ func PostCampaign(c *Campaign, uid int64) error {
 		for _, t := range g.Targets {
 			r := Result{Email: t.Email, Status: "Unknown", CampaignId: c.Id}
 			c.Results = append(c.Results, r)
-			fmt.Printf("%v", c.Results)
 			err := db.Save(&r).Error
 			if err != nil {
 				Logger.Printf("Error adding result record for target %s\n", t.Email)
@@ -90,7 +89,7 @@ func PostCampaign(c *Campaign, uid int64) error {
 }
 
 func UpdateCampaignStatus(c *Campaign, s string) error {
-	return db.Debug().Model(c).UpdateColumn("status", s).Error
+	return db.Model(c).UpdateColumn("status", s).Error
 }
 
 //DeleteCampaign deletes the specified campaign
@@ -108,4 +107,14 @@ func DeleteCampaign(id int64) error {
 		return err
 	}
 	return err
+}
+
+func ValidateCampaign(c *Campaign) (string, bool) {
+	if c.Name == "" {
+		return "Must specify campaign name", false
+	}
+	if len(c.Groups) == 0 {
+		return "No groups specified", false
+	}
+	return "", true
 }

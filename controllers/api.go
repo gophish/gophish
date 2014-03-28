@@ -73,8 +73,8 @@ func API_Campaigns(w http.ResponseWriter, r *http.Request) {
 		if checkError(err, w, "Invalid Request", http.StatusBadRequest) {
 			return
 		}
-		if len(c.Groups) == 0 {
-			http.Error(w, "Error: No groups specified", http.StatusBadRequest)
+		if m, ok := models.ValidateCampaign(&c); !ok {
+			http.Error(w, "Error: "+m, http.StatusBadRequest)
 			return
 		}
 		// Fill in the details

@@ -30,7 +30,7 @@ app.factory('TemplateService', function($resource) {
     });
 });
 
-app.controller('CampaignCtrl', function($scope, CampaignService, GroupService, ngTableParams, $http) {
+app.controller('CampaignCtrl', function($scope, CampaignService, GroupService, TemplateService, ngTableParams, $http) {
     $scope.flashes = []
     $scope.mainTableParams = new ngTableParams({
         page: 1, // show first page
@@ -51,6 +51,10 @@ app.controller('CampaignCtrl', function($scope, CampaignService, GroupService, n
 
     GroupService.query(function(groups) {
         $scope.groups = groups;
+    })
+
+    TemplateService.query(function(templates) {
+        $scope.templates = templates;
     })
 
     $scope.addGroup = function() {
@@ -91,8 +95,13 @@ app.controller('CampaignCtrl', function($scope, CampaignService, GroupService, n
 
     $scope.saveCampaign = function(campaign) {
         $scope.flashes = []
+        $scope.validated = true
+        /*if (campaign.template.name == "") {
+            $scope.errorFlash("Must specify a template")
+        }*/
         var newCampaign = new CampaignService(campaign);
         newCampaign.$save({}, function() {
+            $scope.successFlash("Campaign added successfully")
             $scope.campaigns.push(newCampaign);
             $scope.mainTableParams.reload()
         }, function(response){
@@ -115,6 +124,10 @@ app.controller('CampaignCtrl', function($scope, CampaignService, GroupService, n
 
     $scope.errorFlash = function(message) {
         $scope.flashes.push({"type" : "danger", "message" : message, "icon" : "fa-exclamation-circle"})
+    }
+
+    $scope.successFlash = function(message) {
+        $scope.flashes.push({"type" : "success", "message" : message, "icon" : "fa-check-circle"})
     }
 });
 

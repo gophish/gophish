@@ -23,6 +23,11 @@
     </div>
     <div class="col-md-9" ng-controller="CampaignCtrl">
         <div class="row">
+            <div ng-repeat="flash in flashes" style="text-align:center" class="alert alert-{{flash.type}}">
+                <i class="fa {{flash.icon}}"></i> {{flash.message}}
+            </div>
+        </div>
+        <div class="row">
             <button type="button" class="btn btn-primary" ng-click="newCampaign()" data-toggle="modal" data-target="#newCampaignModal"><i class="fa fa-plus"></i> New Campaign</button>
         </div>
         &nbsp;
@@ -62,12 +67,12 @@
                         <h4 class="modal-title" id="campaignModalLabel">New Campaign</h4>
                     </div>
                     <div class="modal-body">
-                        <div ng-repeat="flash in flashes" style="text-align:center" class="alert alert-{{flash.type}}">
-                            <i class="fa {{flash.icon}}"></i> {{flash.message}}
-                        </div>
                         <div class="form-group">
                             <label for="name">Name:</label>
                             <input type="text" class="form-control" ng-model="campaign.name" id="name" placeholder="Campaign name" autofocus>
+                            <br />
+                            <label class="control-label" for="users">Template:</label>
+                            <input type="text" class="form-control" placeholder="Template Name" id="template" typeahead="template.name for template in templates | filter:{name:$viewValue}" typeahead-editable="false" ng-model="template.name" />
                             <br />
                             <label class="control-label" for="users">Groups:</label>
                             <form ng:submit="addGroup()">
