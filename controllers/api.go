@@ -12,14 +12,15 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/jordan-wright/gophish/auth"
 	"github.com/jordan-wright/gophish/models"
+	"github.com/jordan-wright/gophish/worker"
 )
 
-const (
-	IN_PROGRESS string = "In progress"
-	WAITING     string = "Waiting"
-	COMPLETE    string = "Completed"
-	ERROR       string = "Error"
-)
+var Worker *worker.Worker
+
+func init() {
+	Worker = worker.New()
+	go Worker.Start()
+}
 
 // API (/api) provides access to api documentation
 func API(w http.ResponseWriter, r *http.Request) {
@@ -79,12 +80,13 @@ func API_Campaigns(w http.ResponseWriter, r *http.Request) {
 		// Fill in the details
 		c.CreatedDate = time.Now()
 		c.CompletedDate = time.Time{}
-		c.Status = IN_PROGRESS
+		c.Status = models.QUEUED
 		c.UserId = ctx.Get(r, "user_id").(int64)
 		err = models.PostCampaign(&c, ctx.Get(r, "user_id").(int64))
 		if checkError(err, w, "Cannot insert campaign into database", http.StatusInternalServerError) {
 			return
 		}
+		Worker.Queue <- &c
 		cj, err := json.MarshalIndent(c, "", "  ")
 		if checkError(err, w, "Error creating JSON response", http.StatusInternalServerError) {
 			return

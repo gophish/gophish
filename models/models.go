@@ -17,6 +17,13 @@ var err error
 var ErrUsernameTaken = errors.New("username already taken")
 var Logger = log.New(os.Stdout, " ", log.Ldate|log.Ltime|log.Lshortfile)
 
+const (
+	IN_PROGRESS string = "In progress"
+	QUEUED      string = "Queued"
+	COMPLETE    string = "Completed"
+	ERROR       string = "Error"
+)
+
 // Flash is used to hold flash information for use in templates.
 type Flash struct {
 	Type    string
@@ -27,7 +34,7 @@ type Flash struct {
 // It also populates the Gophish Config object
 func Setup() error {
 	db, err = gorm.Open("sqlite3", config.Conf.DBPath)
-	db.LogMode(true)
+	db.LogMode(false)
 	db.SetLogger(Logger)
 	if err != nil {
 		Logger.Println(err)

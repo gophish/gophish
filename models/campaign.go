@@ -13,7 +13,7 @@ type Campaign struct {
 	Name          string    `json:"name" sql:"not null"`
 	CreatedDate   time.Time `json:"created_date"`
 	CompletedDate time.Time `json:"completed_date"`
-	Template      string    `json:"template"` //This may change
+	Template      Template  `json:"template"` //This may change
 	Status        string    `json:"status"`
 	Results       []Result  `json:"results,omitempty"`
 	Groups        []Group   `json:"groups,omitempty"`
@@ -39,7 +39,6 @@ func GetCampaigns(uid int64) ([]Campaign, error) {
 			fmt.Println(err)
 		}
 	}
-	fmt.Printf("%v", cs)
 	return cs, err
 }
 
@@ -88,6 +87,10 @@ func PostCampaign(c *Campaign, uid int64) error {
 		}
 	}
 	return nil
+}
+
+func UpdateCampaignStatus(c *Campaign, s string) error {
+	return db.Debug().Model(c).UpdateColumn("status", s).Error
 }
 
 //DeleteCampaign deletes the specified campaign
