@@ -95,7 +95,7 @@ func UpdateCampaignStatus(c *Campaign, s string) error {
 //DeleteCampaign deletes the specified campaign
 func DeleteCampaign(id int64) error {
 	// Delete all the campaign results
-	err := db.Delete(&Result{CampaignId: id}).Error
+	err := db.Where("campaign_id=?", id).Delete(&Result{}).Error
 	if err != nil {
 		Logger.Println(err)
 		return err
