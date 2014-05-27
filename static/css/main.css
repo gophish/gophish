@@ -14,9 +14,17 @@
       font-family:'Open Sans', sans-serif !important;
   }
   .form-signin {
-      max-width: 330px;
+      max-width: 400px;
       padding: 15px;
-      margin: 0 auto;
+      margin: 40px auto 0px auto;
+  }
+  ul .dropdown-menu .ng-isolate-scope {
+    visibility: visible;
+    display:block;
+    opacity: 1;
+  }
+  #login-button{
+    padding:10px 15px;
   }
   .form-signin-heading {
       text-align:center;

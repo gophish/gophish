@@ -23,10 +23,7 @@ func CreateRouter() *nosurf.CSRFHandler {
 	router.HandleFunc("/logout", Use(Logout, mid.RequireLogin))
 	router.HandleFunc("/register", Register)
 	router.HandleFunc("/", Use(Base, mid.RequireLogin))
-	router.HandleFunc("/campaigns/{id:[0-9]+}", Use(Campaigns_Id, mid.RequireLogin))
-	router.HandleFunc("/users", Use(Users, mid.RequireLogin))
 	router.HandleFunc("/settings", Use(Settings, mid.RequireLogin))
-	router.HandleFunc("/templates", Use(Templates, mid.RequireLogin))
 
 	// Create the API routes
 	api := router.PathPrefix("/api").Subrouter()
@@ -124,26 +121,9 @@ func Base(w http.ResponseWriter, r *http.Request) {
 		User    models.User
 		Title   string
 		Flashes []interface{}
-	}{Title: "Dashboard", User: ctx.Get(r, "user").(models.User)}
+		Token   string
+	}{Title: "Dashboard", User: ctx.Get(r, "user").(models.User), Token: nosurf.Token(r)}
 	getTemplate(w, "dashboard").ExecuteTemplate(w, "base", params)
-}
-
-func Users(w http.ResponseWriter, r *http.Request) {
-	params := struct {
-		User    models.User
-		Title   string
-		Flashes []interface{}
-	}{Title: "Users & Groups", User: ctx.Get(r, "user").(models.User)}
-	getTemplate(w, "users").ExecuteTemplate(w, "base", params)
-}
-
-func Templates(w http.ResponseWriter, r *http.Request) {
-	params := struct {
-		User    models.User
-		Title   string
-		Flashes []interface{}
-	}{Title: "Templates", User: ctx.Get(r, "user").(models.User)}
-	getTemplate(w, "templates").ExecuteTemplate(w, "base", params)
 }
 
 func Settings(w http.ResponseWriter, r *http.Request) {
@@ -173,15 +153,6 @@ func Settings(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func Campaigns_Id(w http.ResponseWriter, r *http.Request) {
-	params := struct {
-		User    models.User
-		Title   string
-		Flashes []interface{}
-	}{Title: "Results", User: ctx.Get(r, "user").(models.User)}
-	getTemplate(w, "campaign_results").ExecuteTemplate(w, "base", params)
-}
-
 func Login(w http.ResponseWriter, r *http.Request) {
 	params := struct {
 		User    models.User
@@ -194,7 +165,13 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	case r.Method == "GET":
 		params.Flashes = session.Flashes()
 		session.Save(r, w)
-		getTemplate(w, "login").ExecuteTemplate(w, "base", params)
+		templates := template.New("template")
+		templates.Delims(templateDelims[0], templateDelims[1])
+		_, err := templates.ParseFiles("templates/login.html", "templates/flashes.html")
+		if err != nil {
+			fmt.Println(err)
+		}
+		template.Must(templates, err).ExecuteTemplate(w, "base", params)
 	case r.Method == "POST":
 		//Attempt to login
 		succ, err := auth.Login(r)
@@ -215,7 +192,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 func getTemplate(w http.ResponseWriter, tmpl string) *template.Template {
 	templates := template.New("template")
 	templates.Delims(templateDelims[0], templateDelims[1])
-	_, err := templates.ParseFiles("templates/base.html", "templates/nav.html", "templates/"+tmpl+".html", "templates/flashes.html")
+	_, err := templates.ParseFiles("templates/base.html", "templates/"+tmpl+".html", "templates/flashes.html")
 	if err != nil {
 		fmt.Println(err)
 	}

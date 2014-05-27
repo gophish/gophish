@@ -1,35 +1,3 @@
-var app = angular.module('gophish', ['ngTable', 'ngResource', 'ui.bootstrap']);
-
-app.factory('CampaignService', function($resource) {
-    return $resource('/api/campaigns/:id?api_key=' + API_KEY, {
-        id: "@id"
-    }, {
-        update: {
-            method: 'PUT'
-        }
-    });
-});
-
-app.factory('GroupService', function($resource) {
-    return $resource('/api/groups/:id?api_key=' + API_KEY, {
-        id: "@id"
-    }, {
-        update: {
-            method: 'PUT'
-        }
-    });
-});
-
-app.factory('TemplateService', function($resource) {
-    return $resource('/api/templates/:id?api_key=' + API_KEY, {
-        id: "@id"
-    }, {
-        update: {
-            method: 'PUT'
-        }
-    });
-});
-
 app.controller('CampaignCtrl', function($scope, CampaignService, GroupService, TemplateService, ngTableParams, $http) {
     $scope.flashes = []
     $scope.mainTableParams = new ngTableParams({
@@ -132,7 +100,7 @@ app.controller('CampaignCtrl', function($scope, CampaignService, GroupService, T
 });
 
 app.controller('CampaignResultsCtrl', function($scope, CampaignService, GroupService, ngTableParams, $http, $window) {
-    id = $window.location.pathname.split( '/' )[2];
+    id = $window.location.hash.split( '/' )[2];
     $scope.flashes = []
     $scope.mainTableParams = new ngTableParams({
         page: 1, // show first page
@@ -305,35 +273,28 @@ app.controller('TemplateCtrl', function($scope, TemplateService, ngTableParams) 
     }
 })
 
-// Example provided by http://docs.angularjs.org/api/ng/type/ngModel.NgModelController
-app.directive('contenteditable', function() {
-    return {
-      restrict: 'A', // only activate on element attribute
-      require: '?ngModel', // get a hold of NgModelController
-      link: function(scope, element, attrs, ngModel) {
-        if(!ngModel) return; // do nothing if no ng-model
- 
-        // Specify how UI should be updated
-        ngModel.$render = function() {
-          element.html(ngModel.$viewValue || '');
-        };
- 
-        // Listen for change events to enable binding
-        element.on('blur keyup change', function() {
-          scope.$apply(read);
-        });
-        read(); // initialize
- 
-        // Write data to the model
-        function read() {
-          var html = element.html();
-          // When we clear the content editable the browser leaves a <br> behind
-          // If strip-br attribute is provided then we strip this out
-          if( attrs.stripBr && html == '<br>' ) {
-            html = '';
-          }
-          ngModel.$setViewValue(html);
-        }
-      }
-    };
-  });
+app.controller('SettingsCtrl', function($scope, $http) {
+    $scope.user = user;
+    $scope.form_data = {
+        csrf_token : csrf_token
+    }
+    $scope.api_reset = function(){
+        $http({
+            method  : 'POST',
+            url     : '/api/reset',
+            data    : $.param($scope.form_data),  // pass in data as strings
+            headers : { 'Content-Type': 'application/x-www-form-urlencoded' }  // set the headers so angular passing info as form data (not request payload)
+        })
+        .success(function(data){
+            $scope.user.api_key = data
+            $scope.successFlash("API Key Successfully Reset")
+        })
+    }
+    $scope.errorFlash = function(message) {
+        $scope.flashes.push({"type" : "danger", "message" : message, "icon" : "fa-exclamation-circle"})
+    }
+
+    $scope.successFlash = function(message) {
+        $scope.flashes.push({"type" : "success", "message" : message, "icon" : "fa-check-circle"})
+    }
+})

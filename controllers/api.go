@@ -43,11 +43,10 @@ func API_Reset(w http.ResponseWriter, r *http.Request) {
 		u.ApiKey = auth.GenerateSecureKey()
 		err := models.PutUser(&u)
 		if err != nil {
-			Flash(w, r, "danger", "Error resetting API Key")
+			http.Error(w, "Error setting API Key", http.StatusInternalServerError)
 		} else {
-			Flash(w, r, "success", "API Key Successfully Reset")
+			writeJSON(w, []byte(u.ApiKey))
 		}
-		http.Redirect(w, r, "/settings", 302)
 	}
 }
 
@@ -259,10 +258,10 @@ func API_Templates(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		writeJSON(w, tj)
-	//POST: Create a new group and return it as JSON
+	//POST: Create a new template and return it as JSON
 	case r.Method == "POST":
 		t := models.Template{}
-		// Put the request into a group
+		// Put the request into a template
 		err := json.NewDecoder(r.Body).Decode(&t)
 		if checkError(err, w, "Invalid Request", http.StatusBadRequest) {
 			return

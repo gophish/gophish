@@ -1,0 +1,103 @@
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-3 col-md-2 sidebar">
+            <ul class="nav nav-sidebar">
+                <li><a href="#">Dashboard</a>
+                </li>
+                <li><a href="#/users">Users &amp; Groups</a>
+                </li>
+                <li class="active"><a href="#/templates">Templates</a>
+                </li>
+                <li><a href="#/settings">Settings</a>
+                </li>
+                <li><a href="/api/">API Documentation</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main" ng-controller="TemplateCtrl">
+    <h1 class="page-header">
+        Templates
+    </h1>
+    <div class="row">
+        <button type="button" class="btn btn-primary" ng-click="editTemplate('new')" data-toggle="modal" data-target="#newTemplateModal"><i class="fa fa-plus"></i> New Template</button>
+    </div>
+    &nbsp;
+    <div class="row">
+        <table ng-table="mainTableParams" class="table table-hover table-striped table-bordered">
+            <tbody>
+                <tr ng-repeat="template in $data" class="editable-row">
+                    <td data-title="'Modified Date'" class="col-sm-1">{{template.modified_date | date:'medium'}}</td>
+                    <td data-title="'Name'" sortable="'name'" class="col-sm-2">{{template.name}}
+                        <div class="btn-group" style="float: right;">
+                            <button type="button" class="btn btn-primary dropdown-toggle edit-button" data-toggle="dropdown">
+                                <span class="caret" style="border-top-color:#FFFFFF"></span>
+                                <span class="sr-only">Toggle Dropdown</span>
+                            </button>
+                            <ul class="dropdown-menu" style="left:auto; right:0;" role="menu">
+                                <li><a ng-click="editTemplate(template)" data-toggle="modal" ng-href="#" data-target="#newTemplateModal">Edit</a>
+                                </li>
+                                <li class="divider"></li>
+                                <li><a ng-click="deleteTemplate(template)" ng-href="#">Delete</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<!-- New Template Modal -->
+<div class="modal" id="newTemplateModal" role="dialog" aria-labelledby="templateModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" ng-hide="newTemplate" id="groupModalLabel">Edit Template: {{template.name}}</h4>
+                <h4 class="modal-title" ng-show="newTemplate" id="groupModalLabel">New Template</h4>
+            </div>
+            <div class="modal-body">
+                <label class="control-label" for="name">Name:</label>
+                <div class="form-group">
+                    <input type="text" class="form-control" ng-model="template.name" placeholder="Template name" id="name" autofocus/>
+                </div>
+                <fieldset disabled>
+                    <div class="form-group">
+                        <button class="btn btn-danger btn-disabled"><i class="fa fa-envelope"></i> Import Email (Coming Soon!)</button>
+                    </div>
+                </fieldset>
+                <!-- Nav tabs -->
+                <ul class="nav nav-tabs">
+                    <li class="active"><a href="#template_text" data-toggle="tab">Text</a>
+                    </li>
+                    <li><a href="#template_html" data-toggle="tab">HTML</a>
+                    </li>
+                    <li><a href="#template_preview" data-toggle="tab">Preview</a>
+                    </li>
+                </ul>
+
+                <!-- Tab panes -->
+                <div class="tab-content">
+                    <div class="tab-pane active" id="template_text">
+                        <textarea rows="10" class="form-control" ng-model="template.text" placeholder="Plaintext"></textarea>
+                    </div>
+                    <div class="tab-pane" id="template_html">
+                        <textarea rows="10" class="form-control" ng-model="template.html" placeholder="HTML"></textarea>
+                    </div>
+                    <div class="tab-pane" id="template_preview" ng-model="template.html" contenteditable></div>
+                </div>
+                <fieldset disabled>
+                    <div class="form-group" style="margin-top:15px">
+                        <button class="btn btn-danger btn-disabled"><i class="fa fa-plus"></i> Add Files (Coming Soon!)</button>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" ng-click="saveTemplate(template)" data-dismiss="modal">Save Template</button>
+            </div>
+        </div>
+    </div>
+</div>

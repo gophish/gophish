@@ -1,27 +1,26 @@
-{{% define "content" %}} {{% template "nav" .User %}}
-<div class="jumbotron">
-    <div class="container" style="text-align:center;">
-        <h1 class="sans header">
+<!-- {{% define "content" %}} {{% template "nav" .User %}} -->
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-3 col-md-2 sidebar">
+                <ul class="nav nav-sidebar">
+                    <li class="active"><a href="#">Dashboard</a>
+                    </li>
+                    <li><a href="#/users">Users &amp; Groups</a>
+                    </li>
+                    <li><a href="#/templates">Templates</a>
+                    </li>
+                    <li><a href="#/settings">Settings</a>
+                    </li>
+                    <li><a href="/api/">API Documentation</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main" ng-controller="CampaignCtrl">
+        <h1 class="page-header">
             Dashboard
         </h1>
-    </div>
-</div>
-<div class="container">
-    <div class="col-md-3 sidebar">
-        <ul class="nav nav-pills nav-stacked">
-            <li class="active"><a href="#">Dashboard</a>
-            </li>
-            <li><a href="/users">Users &amp; Groups</a>
-            </li>
-            <li><a href="/templates">Templates</a>
-            </li>
-            <li><a href="/settings">Settings</a>
-            </li>
-            <li><a href="/api/">API Documentation</a>
-            </li>
-        </ul>
-    </div>
-    <div class="col-md-9" ng-controller="CampaignCtrl">
         <div class="row">
             <div ng-repeat="flash in flashes" style="text-align:center" class="alert alert-{{flash.type}}">
                 <i class="fa {{flash.icon}}"></i> {{flash.message}}
@@ -71,8 +70,14 @@
                             <label for="name">Name:</label>
                             <input type="text" class="form-control" ng-model="campaign.name" id="name" placeholder="Campaign name" autofocus>
                             <br />
-                            <label class="control-label" for="users">Template:</label>
+                            <label class="control-label" for="template">Template:</label>
                             <input type="text" class="form-control" placeholder="Template Name" id="template" typeahead="template.name for template in templates | filter:{name:$viewValue}" typeahead-editable="false" ng-model="template.name" />
+                            <br />
+                            <label class="control-label" for="from">From:</label>
+                            <input type="text" class="form-control" placeholder="First Last <test@example.com>" id="form">
+                            <br />
+                            <label class="control-label" for="smtp_server">SMTP Server:</label>
+                            <input type="text" class="form-control" placeholder="host:port" id="smtp_server">
                             <br />
                             <label class="control-label" for="users">Groups:</label>
                             <form ng:submit="addGroup()">
@@ -104,5 +109,4 @@
             </div>
         </div>
     </div>
-</div>
-{{% end %}}
+<!-- {{% end %}} -->

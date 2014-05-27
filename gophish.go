@@ -28,7 +28,9 @@ THE SOFTWARE.
 import (
 	"fmt"
 	"net/http"
+	"os"
 
+	"github.com/gorilla/handlers"
 	"github.com/jordan-wright/gophish/config"
 	"github.com/jordan-wright/gophish/controllers"
 	"github.com/jordan-wright/gophish/middleware"
@@ -43,6 +45,6 @@ func main() {
 		fmt.Println(err)
 	}
 	fmt.Printf("Gophish server started at http://%s\n", config.Conf.URL)
-	http.Handle("/", controllers.Use(controllers.CreateRouter().ServeHTTP, middleware.GetContext))
+	http.Handle("/", handlers.CombinedLoggingHandler(os.Stdout, controllers.Use(controllers.CreateRouter().ServeHTTP, middleware.GetContext)))
 	http.ListenAndServe(config.Conf.URL, nil)
 }
