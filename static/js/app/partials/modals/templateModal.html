@@ -1,0 +1,39 @@
+<!-- New Template Modal -->
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+    <h4 class="modal-title" ng-hide="newTemplate" id="groupModalLabel">Edit Template: {{template.name}}</h4>
+    <h4 class="modal-title" ng-show="newTemplate" id="groupModalLabel">New Template</h4>
+</div>
+<div class="modal-body">
+    <label class="control-label" for="name">Name:</label>
+    <div class="form-group">
+        <input type="text" class="form-control" ng-model="template.name" placeholder="Template name" id="name" autofocus/>
+    </div>
+    <fieldset disabled>
+        <div class="form-group">
+            <button class="btn btn-danger btn-disabled"><i class="fa fa-envelope"></i> Import Email (Coming Soon!)</button>
+        </div>
+    </fieldset>
+    <!-- Nav tabs -->
+    <tabset>
+        <tab heading="Text">
+            <textarea rows="10" class="form-control" ng-model="template.text" placeholder="Plaintext"></textarea>
+        </tab>
+        <tab heading="HTML">
+            <textarea rows="10" class="form-control" ng-model="template.html" placeholder="HTML"></textarea>
+        </tab>
+        <tab heading="Preview">
+            <textarea rows="10" class="form-control" ng-model="template.html" contenteditable></textarea>
+        </tab>
+    </tabset>
+
+    <fieldset disabled>
+        <div class="form-group" style="margin-top:15px">
+            <button class="btn btn-danger btn-disabled"><i class="fa fa-plus"></i> Add Files (Coming Soon!)</button>
+        </div>
+    </fieldset>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+    <button type="button" class="btn btn-primary" ng-click="saveTemplate(template)" data-dismiss="modal">Save Template</button>
+</div>

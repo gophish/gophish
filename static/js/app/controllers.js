@@ -1,4 +1,4 @@
-app.controller('CampaignCtrl', function($scope, CampaignService, GroupService, TemplateService, ngTableParams, $http) {
+app.controller('CampaignCtrl', function($scope, $modal, CampaignService, GroupService, TemplateService, ngTableParams, $http) {
     $scope.flashes = []
     $scope.mainTableParams = new ngTableParams({
         page: 1, // show first page
@@ -25,12 +25,12 @@ app.controller('CampaignCtrl', function($scope, CampaignService, GroupService, T
         $scope.templates = templates;
     })
 
-    $scope.addGroup = function() {
-        if ($scope.group.name != "") {
+    $scope.addGroup = function(group) {
+        if (group.name != "") {
             $scope.campaign.groups.push({
-                name: $scope.group.name
+                name: group.name
             });
-            $scope.group.name = ""
+            group.name = ""
             $scope.editGroupTableParams.reload()
         }
     };
@@ -45,6 +45,21 @@ app.controller('CampaignCtrl', function($scope, CampaignService, GroupService, T
             name: '',
             groups: []
         };
+        $scope.editCampaign($scope.campaign)
+    };
+
+    $scope.editCampaign = function(campaign){
+        var modalInstance = $modal.open({
+            templateUrl: '/js/app/partials/modals/campaignModal.html',
+            controller: CampaignModalCtrl,
+            scope: $scope
+        });
+
+        modalInstance.result.then(function(selectedItem) {
+            $scope.selected = selectedItem;
+        }, function() {
+            console.log('closed')
+        });
     };
 
     $scope.editGroupTableParams = new ngTableParams({
@@ -64,9 +79,6 @@ app.controller('CampaignCtrl', function($scope, CampaignService, GroupService, T
     $scope.saveCampaign = function(campaign) {
         $scope.flashes = []
         $scope.validated = true
-        /*if (campaign.template.name == "") {
-            $scope.errorFlash("Must specify a template")
-        }*/
         var newCampaign = new CampaignService(campaign);
         newCampaign.$save({}, function() {
             $scope.successFlash("Campaign added successfully")
@@ -98,6 +110,8 @@ app.controller('CampaignCtrl', function($scope, CampaignService, GroupService, T
         $scope.flashes.push({"type" : "success", "message" : message, "icon" : "fa-check-circle"})
     }
 });
+
+var CampaignModalCtrl = function($scope, $modalInstance){};
 
 app.controller('CampaignResultsCtrl', function($scope, CampaignService, GroupService, ngTableParams, $http, $window) {
     id = $window.location.hash.split( '/' )[2];
@@ -212,7 +226,7 @@ app.controller('GroupCtrl', function($scope, GroupService, ngTableParams) {
     }
 })
 
-app.controller('TemplateCtrl', function($scope, TemplateService, ngTableParams) {
+app.controller('TemplateCtrl', function($scope, $modal, TemplateService, ngTableParams) {
     $scope.mainTableParams = new ngTableParams({
         page: 1, // show first page
         count: 10, // count per page
@@ -243,6 +257,17 @@ app.controller('TemplateCtrl', function($scope, TemplateService, ngTableParams) 
             $scope.newTemplate = false;
             $scope.template = template;
         }
+        var modalInstance = $modal.open({
+            templateUrl: '/js/app/partials/modals/templateModal.html',
+            controller: TemplateModalCtrl,
+            scope: $scope
+        });
+
+        modalInstance.result.then(function(selectedItem) {
+            $scope.selected = selectedItem;
+        }, function() {
+            console.log('closed')
+        });
     };
 
     $scope.saveTemplate = function(template) {
@@ -273,8 +298,20 @@ app.controller('TemplateCtrl', function($scope, TemplateService, ngTableParams) 
     }
 })
 
+var TemplateModalCtrl = function($scope, $modalInstance){};
+
 app.controller('SettingsCtrl', function($scope, $http) {
+    $scope.flashes = [];
     $scope.user = user;
+    $scope.errorFlash = function(message) {
+        $scope.flashes = [];
+        $scope.flashes.push({"type" : "danger", "message" : message, "icon" : "fa-exclamation-circle"})
+    }
+
+    $scope.successFlash = function(message) {
+        $scope.flashes = [];
+        $scope.flashes.push({"type" : "success", "message" : message, "icon" : "fa-check-circle"})
+    }
     $scope.form_data = {
         csrf_token : csrf_token
     }
@@ -289,12 +326,5 @@ app.controller('SettingsCtrl', function($scope, $http) {
             $scope.user.api_key = data
             $scope.successFlash("API Key Successfully Reset")
         })
-    }
-    $scope.errorFlash = function(message) {
-        $scope.flashes.push({"type" : "danger", "message" : message, "icon" : "fa-exclamation-circle"})
-    }
-
-    $scope.successFlash = function(message) {
-        $scope.flashes.push({"type" : "success", "message" : message, "icon" : "fa-check-circle"})
     }
 })

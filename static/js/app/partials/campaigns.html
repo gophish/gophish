@@ -26,7 +26,7 @@
         </div>
     </div>
     <div class="row">
-        <button type="button" class="btn btn-primary" ng-click="newCampaign()" data-toggle="modal" data-target="#newCampaignModal"><i class="fa fa-plus"></i> New Campaign</button>
+        <button type="button" class="btn btn-primary" ng-click="newCampaign()"><i class="fa fa-plus"></i> New Campaign</button>
     </div>
     &nbsp;
     <div class="row">
@@ -55,56 +55,5 @@
                 </tr>
             </tbody>
         </table>
-    </div>
-    <!-- New Campaign Modal -->
-    <div class="modal" id="newCampaignModal" role="dialog" aria-labelledby="campaignModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title" id="campaignModalLabel">New Campaign</h4>
-                </div>
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label for="name">Name:</label>
-                        <input type="text" class="form-control" ng-model="campaign.name" id="name" placeholder="Campaign name" autofocus>
-                        <br />
-                        <label class="control-label" for="template">Template:</label>
-                        <input type="text" class="form-control" placeholder="Template Name" id="template" typeahead="template.name for template in templates | filter:{name:$viewValue}" typeahead-editable="false" ng-model="template.name" />
-                        <br />
-                        <label class="control-label" for="from">From:</label>
-                        <input type="text" class="form-control" placeholder="First Last <test@example.com>" id="form">
-                        <br />
-                        <label class="control-label" for="smtp_server">SMTP Server:</label>
-                        <input type="text" class="form-control" placeholder="host:port" id="smtp_server">
-                        <br />
-                        <label class="control-label" for="users">Groups:</label>
-                        <form ng:submit="addGroup()">
-                            <div class="input-group">
-                                <input type="text" class="form-control" placeholder="Group Name" id="users" typeahead="group.name for group in groups | filter:{name:$viewValue}" typeahead-editable="false" ng-model="group.name" />
-                                <span class="input-group-btn">
-                                    <button class="btn btn-primary"><i class="fa fa-plus"></i> Add</button>
-                                </span>
-                            </div>
-                        </form>
-                        <br />
-                        <table ng-table="editGroupTableParams" class="table table-hover table-striped table-condensed">
-                            <tbody>
-                                <tr ng-repeat="group in $data" class="editable-row">
-                                    <td>{{group.name}}
-                                        <span ng-click="removeGroup(group)" class="remove-row"><i class="fa fa-trash-o"></i>
-                                        </span>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="saveCampaign(campaign)" type="submit">Launch Campaign</button>
-                </div>
-            </div>
-        </div>
     </div>
 </div>

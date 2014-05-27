@@ -1175,7 +1175,7 @@ label {
 fieldset[disabled] .form-control {
   background-color: #f4f6f6;
   border-color: #d5dbdb;
-  color: #d5dbdb;
+  color: #555555;
   cursor: default;
   opacity: 0.7;
   filter: alpha(opacity=70);
