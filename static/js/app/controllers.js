@@ -48,7 +48,7 @@ app.controller('CampaignCtrl', function($scope, $modal, CampaignService, GroupSe
         $scope.editCampaign($scope.campaign)
     };
 
-    $scope.editCampaign = function(campaign){
+    $scope.editCampaign = function(campaign) {
         var modalInstance = $modal.open({
             templateUrl: '/js/app/partials/modals/campaignModal.html',
             controller: CampaignModalCtrl,
@@ -84,7 +84,7 @@ app.controller('CampaignCtrl', function($scope, $modal, CampaignService, GroupSe
             $scope.successFlash("Campaign added successfully")
             $scope.campaigns.push(newCampaign);
             $scope.mainTableParams.reload()
-        }, function(response){
+        }, function(response) {
             $scope.errorFlash(response.data)
         });
         $scope.campaign = {
@@ -103,18 +103,30 @@ app.controller('CampaignCtrl', function($scope, $modal, CampaignService, GroupSe
     }
 
     $scope.errorFlash = function(message) {
-        $scope.flashes.push({"type" : "danger", "message" : message, "icon" : "fa-exclamation-circle"})
+        $scope.flashes.push({
+            "type": "danger",
+            "message": message,
+            "icon": "fa-exclamation-circle"
+        })
     }
 
     $scope.successFlash = function(message) {
-        $scope.flashes.push({"type" : "success", "message" : message, "icon" : "fa-check-circle"})
+        $scope.flashes.push({
+            "type": "success",
+            "message": message,
+            "icon": "fa-check-circle"
+        })
     }
 });
 
-var CampaignModalCtrl = function($scope, $modalInstance){};
+var CampaignModalCtrl = function($scope, $modalInstance) {
+    $scope.cancel = function() {
+        $modalInstance.dismiss('cancel');
+    };
+};
 
 app.controller('CampaignResultsCtrl', function($scope, CampaignService, GroupService, ngTableParams, $http, $window) {
-    id = $window.location.hash.split( '/' )[2];
+    id = $window.location.hash.split('/')[2];
     $scope.flashes = []
     $scope.mainTableParams = new ngTableParams({
         page: 1, // show first page
@@ -125,7 +137,9 @@ app.controller('CampaignResultsCtrl', function($scope, CampaignService, GroupSer
     }, {
         total: 0, // length of data
         getData: function($defer, params) {
-            CampaignService.get({"id" : id}, function(campaign) {
+            CampaignService.get({
+                "id": id
+            }, function(campaign) {
                 $scope.campaign = campaign
                 params.total(campaign.results.length)
                 $defer.resolve(campaign.results.slice((params.page() - 1) * params.count(), params.page() * params.count()));
@@ -134,7 +148,11 @@ app.controller('CampaignResultsCtrl', function($scope, CampaignService, GroupSer
     });
 
     $scope.errorFlash = function(message) {
-        $scope.flashes.push({"type" : "danger", "message" : message, "icon" : "fa-exclamation-circle"})
+        $scope.flashes.push({
+            "type": "danger",
+            "message": message,
+            "icon": "fa-exclamation-circle"
+        })
     }
 });
 
@@ -283,9 +301,9 @@ app.controller('TemplateCtrl', function($scope, $modal, TemplateService, ngTable
             })
         }
         $scope.template = {
-                name: '',
-                html: '',
-                text: '',
+            name: '',
+            html: '',
+            text: '',
         };
     }
     $scope.deleteTemplate = function(template) {
@@ -298,33 +316,48 @@ app.controller('TemplateCtrl', function($scope, $modal, TemplateService, ngTable
     }
 })
 
-var TemplateModalCtrl = function($scope, $modalInstance){};
+var TemplateModalCtrl = function($scope, $modalInstance) {
+    $scope.cancel = function() {
+        $modalInstance.dismiss('cancel');
+    };
+};
 
 app.controller('SettingsCtrl', function($scope, $http) {
     $scope.flashes = [];
     $scope.user = user;
     $scope.errorFlash = function(message) {
         $scope.flashes = [];
-        $scope.flashes.push({"type" : "danger", "message" : message, "icon" : "fa-exclamation-circle"})
+        $scope.flashes.push({
+            "type": "danger",
+            "message": message,
+            "icon": "fa-exclamation-circle"
+        })
     }
 
     $scope.successFlash = function(message) {
         $scope.flashes = [];
-        $scope.flashes.push({"type" : "success", "message" : message, "icon" : "fa-check-circle"})
+        $scope.flashes.push({
+            "type": "success",
+            "message": message,
+            "icon": "fa-check-circle"
+        })
     }
     $scope.form_data = {
-        csrf_token : csrf_token
+        csrf_token: csrf_token
     }
-    $scope.api_reset = function(){
+    $scope.api_reset = function() {
         $http({
-            method  : 'POST',
-            url     : '/api/reset',
-            data    : $.param($scope.form_data),  // pass in data as strings
-            headers : { 'Content-Type': 'application/x-www-form-urlencoded' }  // set the headers so angular passing info as form data (not request payload)
+            method: 'POST',
+            url: '/api/reset',
+            data: $.param($scope.form_data), // pass in data as strings
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            } // set the headers so angular passing info as form data (not request payload)
         })
-        .success(function(data){
-            $scope.user.api_key = data
-            $scope.successFlash("API Key Successfully Reset")
-        })
+            .success(function(data) {
+                $scope.user.api_key = data;
+                user.api_key = data;
+                $scope.successFlash("API Key Successfully Reset")
+            })
     }
 })
