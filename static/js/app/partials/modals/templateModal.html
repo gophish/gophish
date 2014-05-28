@@ -1,6 +1,6 @@
 <!-- New Template Modal -->
 <div class="modal-header">
-    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+    <button type="button" class="close" ng-click="cancel()">&times;</button>
     <h4 class="modal-title" ng-hide="newTemplate" id="groupModalLabel">Edit Template: {{template.name}}</h4>
     <h4 class="modal-title" ng-show="newTemplate" id="groupModalLabel">New Template</h4>
 </div>
@@ -34,6 +34,6 @@
     </fieldset>
 </div>
 <div class="modal-footer">
-    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+    <button type="button" class="btn btn-default" ng-click="cancel()">Cancel</button>
     <button type="button" class="btn btn-primary" ng-click="saveTemplate(template)" data-dismiss="modal">Save Template</button>
 </div>

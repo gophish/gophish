@@ -124,10 +124,6 @@ func API_Campaigns_Id(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func API_Campaigns_Id_Launch(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, "/", 302)
-}
-
 // API_Groups returns details about the requested group. If the campaign is not
 // valid, API_Groups returns null.
 // Example:
@@ -267,7 +263,8 @@ func API_Templates(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		t.ModifiedDate = time.Now()
-		err = models.PostTemplate(&t, ctx.Get(r, "user_id").(int64))
+		t.UserId = ctx.Get(r, "user_id").(int64)
+		err = models.PostTemplate(&t)
 		if checkError(err, w, "Error inserting template", http.StatusInternalServerError) {
 			return
 		}
@@ -280,7 +277,47 @@ func API_Templates(w http.ResponseWriter, r *http.Request) {
 }
 
 func API_Templates_Id(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, "/", 302)
+	vars := mux.Vars(r)
+	id, _ := strconv.ParseInt(vars["id"], 0, 64)
+	switch {
+	case r.Method == "GET":
+		t, err := models.GetTemplate(id, ctx.Get(r, "user_id").(int64))
+		if checkError(err, w, "No template found", http.StatusNotFound) {
+			return
+		}
+		tj, err := json.MarshalIndent(t, "", "  ")
+		if checkError(err, w, "Error creating JSON response", http.StatusInternalServerError) {
+			return
+		}
+		writeJSON(w, tj)
+	case r.Method == "DELETE":
+		err := models.DeleteTemplate(id, ctx.Get(r, "user_id").(int64))
+		if checkError(err, w, "Error deleting group", http.StatusInternalServerError) {
+			return
+		}
+		writeJSON(w, []byte("{\"success\" : \"true\"}"))
+	case r.Method == "PUT":
+		_, err := models.GetTemplate(id, ctx.Get(r, "user_id").(int64))
+		if checkError(err, w, "No group found", http.StatusNotFound) {
+			return
+		}
+		t := models.Template{}
+		err = json.NewDecoder(r.Body).Decode(&t)
+		if t.Id != id {
+			http.Error(w, "Error: /:id and template_id mismatch", http.StatusBadRequest)
+			return
+		}
+		t.ModifiedDate = time.Now()
+		err = models.PutTemplate(&t, ctx.Get(r, "user_id").(int64))
+		if checkError(err, w, "Error updating group", http.StatusInternalServerError) {
+			return
+		}
+		tj, err := json.MarshalIndent(t, "", "  ")
+		if checkError(err, w, "Error creating JSON response", http.StatusInternalServerError) {
+			return
+		}
+		writeJSON(w, tj)
+	}
 }
 
 func writeJSON(w http.ResponseWriter, c []byte) {
