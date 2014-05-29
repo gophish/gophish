@@ -32,32 +32,32 @@
         </div>
         <form ng-submit="api_reset()">
             <button class="btn btn-primary"><i class="fa fa-refresh" type="submit"></i> Reset</button>
-            <input type="hidden" name="csrf_token" value="{{form.csrf_token}}"/>
+            <input type="hidden" name="csrf_token" value="{{form_data.csrf_token}}"/>
         </form>
     </div>
     <br />
-    <form action="/settings" method="POST">
+    <form ng-submit="save_settings()" method="POST">
         <div class="row">
             <label for="username" class="col-sm-2 control-label form-label">Username:</label>
             <div class="col-md-6">
-                <input type="text" id="username" value="{{user.username}}" class="form-control" />
+                <input type="text" id="username" class="form-control" ng-model="form_data.username" />
             </div>
         </div>
         <br />
         <div class="row">
             <label for="current_password" class="col-sm-2 control-label form-label">Old Password:</label>
             <div class="col-md-6">
-                <input type="password" id="current_password" name="current_password" class="form-control" />
+                <input type="password" id="current_password" name="current_password" class="form-control" ng-model="form_data.current_password" />
             </div>
         </div>
         <br />
         <div class="row">
             <label for="new_password" class="col-sm-2 control-label form-label">New Password:</label>
             <div class="col-md-6">
-                <input type="password" id="new_password" name="new_password" class="form-control" />
+                <input type="password" id="new_password" name="new_password" class="form-control" ng-model="form_data.new_password" />
             </div>
         </div>
-        <input type="hidden" name="csrf_token" value=/>
+        <input type="hidden" name="csrf_token" ng-model="form_data.csrf_token"/>
         <br />
         <button class="btn btn-primary" type="submit">Save</button>
     </form>

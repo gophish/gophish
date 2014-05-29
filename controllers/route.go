@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -127,29 +128,25 @@ func Base(w http.ResponseWriter, r *http.Request) {
 }
 
 func Settings(w http.ResponseWriter, r *http.Request) {
-	params := struct {
-		User    models.User
-		Title   string
-		Flashes []interface{}
-		Token   string
-	}{Title: "Settings", User: ctx.Get(r, "user").(models.User)}
-	session := ctx.Get(r, "session").(*sessions.Session)
 	switch {
-	case r.Method == "GET":
-		params.Token = nosurf.Token(r)
-		params.Flashes = session.Flashes()
-		session.Save(r, w)
-		getTemplate(w, "settings").ExecuteTemplate(w, "base", params)
 	case r.Method == "POST":
 		err := auth.ChangePassword(r)
+		msg := struct {
+			Message string `json:"message"`
+			Success bool   `json:"success"`
+		}{Message: "Settings Updated Successfully", Success: true}
 		if err == auth.ErrInvalidPassword {
-			Flash(w, r, "danger", "Invalid Password")
+			msg.Message = "Invalid Password"
+			msg.Success = false
 		} else if err != nil {
-			Flash(w, r, "danger", "Unknown Error")
-		} else {
-			Flash(w, r, "success", "Password successfully reset")
+			msg.Message = "Unknown Error Occured"
+			msg.Success = false
 		}
-		http.Redirect(w, r, "/settings", 302)
+		msgj, err := json.MarshalIndent(msg, "", "  ")
+		if checkError(err, w, "Error marshaling response", http.StatusInternalServerError) {
+			return
+		}
+		writeJSON(w, msgj)
 	}
 }
 

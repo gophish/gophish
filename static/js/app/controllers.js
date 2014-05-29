@@ -356,6 +356,7 @@ app.controller('SettingsCtrl', function($scope, $http, $window) {
         })
     }
     $scope.form_data = {
+        username: user.username,
         csrf_token: csrf_token
     }
     $scope.api_reset = function() {
@@ -371,6 +372,24 @@ app.controller('SettingsCtrl', function($scope, $http, $window) {
                 $scope.user.api_key = data;
                 $window.user.api_key = data;
                 $scope.successFlash("API Key Successfully Reset")
+            })
+    }
+    $scope.save_settings = function(){
+        $http({
+            method: 'POST',
+            url: '/settings',
+            data: $.param($scope.form_data),
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        })
+            .success(function(data) {
+                if (data.success) {
+                    $scope.successFlash(data.message)
+                }
+                else {
+                    $scope.errorFlash(data.message)
+                }
             })
     }
 })
