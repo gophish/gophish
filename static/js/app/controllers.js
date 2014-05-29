@@ -329,7 +329,6 @@ app.controller('TemplateCtrl', function($scope, $modal, TemplateService, ngTable
 })
 
 var TemplateModalCtrl = function($scope, $modalInstance) {
-    console.log($scope.template)
     $scope.cancel = function() {
         $modalInstance.dismiss('cancel');
     };

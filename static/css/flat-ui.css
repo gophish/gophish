@@ -1962,17 +1962,6 @@ fieldset[disabled] .input-group-btn .btn-default.active {
   height: 53px;
   line-height: 53px;
 }
-.navbar-toggle:before {
-  color: #16a085;
-  content: "\e00c";
-  font-family: "Flat-UI-Icons";
-  font-size: 22px;
-  font-style: normal;
-  font-weight: normal;
-  -webkit-font-smoothing: antialiased;
-  -webkit-transition: color 0.25s linear;
-  transition: color 0.25s linear;
-}
 .navbar-toggle:hover,
 .navbar-toggle:focus {
   outline: none;
@@ -1980,9 +1969,6 @@ fieldset[disabled] .input-group-btn .btn-default.active {
 .navbar-toggle:hover:before,
 .navbar-toggle:focus:before {
   color: #1abc9c;
-}
-.navbar-toggle .icon-bar {
-  display: none;
 }
 @media (min-width: 768px) {
   .navbar-toggle {
