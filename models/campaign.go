@@ -89,7 +89,8 @@ func PostCampaign(c *Campaign, uid int64) error {
 }
 
 func UpdateCampaignStatus(c *Campaign, s string) error {
-	return db.Model(c).UpdateColumn("status", s).Error
+	// This could be made simpler, but I think there's a bug in gorm
+	return db.Debug().Table("campaigns").Where("id=?", c.Id).Update("status", s).Error
 }
 
 //DeleteCampaign deletes the specified campaign
