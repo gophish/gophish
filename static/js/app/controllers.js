@@ -156,7 +156,7 @@ app.controller('CampaignResultsCtrl', function($scope, CampaignService, GroupSer
     }
 });
 
-app.controller('GroupCtrl', function($scope, GroupService, ngTableParams) {
+app.controller('GroupCtrl', function($scope, $modal, GroupService, ngTableParams) {
     $scope.mainTableParams = new ngTableParams({
         page: 1, // show first page
         count: 10, // count per page
@@ -201,6 +201,12 @@ app.controller('GroupCtrl', function($scope, GroupService, ngTableParams) {
             $scope.group = group;
             $scope.editGroupTableParams.reload()
         }
+        $scope.newTarget = {};
+        var modalInstance = $modal.open({
+            templateUrl: '/js/app/partials/modals/userModal.html',
+            controller: GroupModalCtrl,
+            scope: $scope
+        });
     };
 
     $scope.addTarget = function() {
@@ -243,6 +249,12 @@ app.controller('GroupCtrl', function($scope, GroupService, ngTableParams) {
         });
     }
 })
+
+var GroupModalCtrl = function($scope, $modalInstance) {
+    $scope.cancel = function() {
+        $modalInstance.dismiss('cancel');
+    };
+}
 
 app.controller('TemplateCtrl', function($scope, $modal, TemplateService, ngTableParams) {
     $scope.mainTableParams = new ngTableParams({
@@ -317,12 +329,13 @@ app.controller('TemplateCtrl', function($scope, $modal, TemplateService, ngTable
 })
 
 var TemplateModalCtrl = function($scope, $modalInstance) {
+    console.log($scope.template)
     $scope.cancel = function() {
         $modalInstance.dismiss('cancel');
     };
 };
 
-app.controller('SettingsCtrl', function($scope, $http) {
+app.controller('SettingsCtrl', function($scope, $http, $window) {
     $scope.flashes = [];
     $scope.user = user;
     $scope.errorFlash = function(message) {
@@ -356,7 +369,7 @@ app.controller('SettingsCtrl', function($scope, $http) {
         })
             .success(function(data) {
                 $scope.user.api_key = data;
-                user.api_key = data;
+                $window.user.api_key = data;
                 $scope.successFlash("API Key Successfully Reset")
             })
     }

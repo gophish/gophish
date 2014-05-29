@@ -52,7 +52,6 @@ app.directive('contenteditable', function() {
         element.on('blur keyup change', function() {
           scope.$apply(read);
         });
-        read(); // initialize
  
         // Write data to the model
         function read() {
