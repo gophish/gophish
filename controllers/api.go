@@ -59,11 +59,7 @@ func API_Campaigns(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			fmt.Println(err)
 		}
-		cj, err := json.MarshalIndent(cs, "", "  ")
-		if checkError(err, w, "Error looking up campaigns", http.StatusInternalServerError) {
-			return
-		}
-		writeJSON(w, cj)
+		writeJSON(w, cs)
 	//POST: Create a new campaign and return it as JSON
 	case r.Method == "POST":
 		c := models.Campaign{}
@@ -86,11 +82,7 @@ func API_Campaigns(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		Worker.Queue <- &c
-		cj, err := json.MarshalIndent(c, "", "  ")
-		if checkError(err, w, "Error creating JSON response", http.StatusInternalServerError) {
-			return
-		}
-		writeJSON(w, cj)
+		writeJSON(w, c)
 	}
 }
 
@@ -106,11 +98,7 @@ func API_Campaigns_Id(w http.ResponseWriter, r *http.Request) {
 		if checkError(err, w, "No campaign found", http.StatusNotFound) {
 			return
 		}
-		cj, err := json.MarshalIndent(c, "", "  ")
-		if checkError(err, w, "Error creating JSON response", http.StatusInternalServerError) {
-			return
-		}
-		writeJSON(w, cj)
+		writeJSON(w, c)
 	case r.Method == "DELETE":
 		_, err := models.GetCampaign(id, ctx.Get(r, "user_id").(int64))
 		if checkError(err, w, "No campaign found", http.StatusNotFound) {
@@ -154,11 +142,7 @@ func API_Groups(w http.ResponseWriter, r *http.Request) {
 		if checkError(err, w, "Groups not found", http.StatusNotFound) {
 			return
 		}
-		gj, err := json.MarshalIndent(gs, "", "  ")
-		if checkError(err, w, "Error marshaling group information", http.StatusInternalServerError) {
-			return
-		}
-		writeJSON(w, gj)
+		writeJSON(w, gs)
 	//POST: Create a new group and return it as JSON
 	case r.Method == "POST":
 		g := models.Group{}
@@ -178,11 +162,7 @@ func API_Groups(w http.ResponseWriter, r *http.Request) {
 		if checkError(err, w, "Error inserting group", http.StatusInternalServerError) {
 			return
 		}
-		gj, err := json.MarshalIndent(g, "", "  ")
-		if checkError(err, w, "Error creating JSON response", http.StatusInternalServerError) {
-			return
-		}
-		writeJSON(w, gj)
+		writeJSON(w, g)
 	}
 }
 
@@ -197,11 +177,7 @@ func API_Groups_Id(w http.ResponseWriter, r *http.Request) {
 		if checkError(err, w, "No group found", http.StatusNotFound) {
 			return
 		}
-		gj, err := json.MarshalIndent(g, "", "  ")
-		if checkError(err, w, "Error creating JSON response", http.StatusInternalServerError) {
-			return
-		}
-		writeJSON(w, gj)
+		writeJSON(w, g)
 	case r.Method == "DELETE":
 		g, err := models.GetGroup(id, ctx.Get(r, "user_id").(int64))
 		if checkError(err, w, "No group found", http.StatusNotFound) {
@@ -234,11 +210,7 @@ func API_Groups_Id(w http.ResponseWriter, r *http.Request) {
 		if checkError(err, w, "Error updating group", http.StatusInternalServerError) {
 			return
 		}
-		gj, err := json.MarshalIndent(g, "", "  ")
-		if checkError(err, w, "Error creating JSON response", http.StatusInternalServerError) {
-			return
-		}
-		writeJSON(w, gj)
+		writeJSON(w, g)
 	}
 }
 
@@ -249,11 +221,7 @@ func API_Templates(w http.ResponseWriter, r *http.Request) {
 		if checkError(err, w, "Templates not found", http.StatusNotFound) {
 			return
 		}
-		tj, err := json.MarshalIndent(ts, "", "  ")
-		if checkError(err, w, "Error marshaling template information", http.StatusInternalServerError) {
-			return
-		}
-		writeJSON(w, tj)
+		writeJSON(w, ts)
 	//POST: Create a new template and return it as JSON
 	case r.Method == "POST":
 		t := models.Template{}
@@ -268,11 +236,7 @@ func API_Templates(w http.ResponseWriter, r *http.Request) {
 		if checkError(err, w, "Error inserting template", http.StatusInternalServerError) {
 			return
 		}
-		tj, err := json.MarshalIndent(t, "", "  ")
-		if checkError(err, w, "Error creating JSON response", http.StatusInternalServerError) {
-			return
-		}
-		writeJSON(w, tj)
+		writeJSON(w, t)
 	}
 }
 
@@ -285,11 +249,7 @@ func API_Templates_Id(w http.ResponseWriter, r *http.Request) {
 		if checkError(err, w, "No template found", http.StatusNotFound) {
 			return
 		}
-		tj, err := json.MarshalIndent(t, "", "  ")
-		if checkError(err, w, "Error creating JSON response", http.StatusInternalServerError) {
-			return
-		}
-		writeJSON(w, tj)
+		writeJSON(w, t)
 	case r.Method == "DELETE":
 		err := models.DeleteTemplate(id, ctx.Get(r, "user_id").(int64))
 		if checkError(err, w, "Error deleting group", http.StatusInternalServerError) {
@@ -312,15 +272,15 @@ func API_Templates_Id(w http.ResponseWriter, r *http.Request) {
 		if checkError(err, w, "Error updating group", http.StatusInternalServerError) {
 			return
 		}
-		tj, err := json.MarshalIndent(t, "", "  ")
-		if checkError(err, w, "Error creating JSON response", http.StatusInternalServerError) {
-			return
-		}
-		writeJSON(w, tj)
+		writeJSON(w, t)
 	}
 }
 
-func writeJSON(w http.ResponseWriter, c []byte) {
+func writeJSON(w http.ResponseWriter, c interface{}) {
+	cj, err := json.MarshalIndent(c, "", "  ")
+	if checkError(err, w, "Error creating JSON response", http.StatusInternalServerError) {
+		return
+	}
 	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprintf(w, "%s", c)
+	fmt.Fprintf(w, "%s", cj)
 }
