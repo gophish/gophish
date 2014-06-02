@@ -1,9 +1,10 @@
 package controllers
 
 import (
-	"fmt"
 	"html/template"
+	"log"
 	"net/http"
+	"os"
 
 	ctx "github.com/gorilla/context"
 	"github.com/gorilla/mux"
@@ -15,6 +16,7 @@ import (
 )
 
 var templateDelims = []string{"{{%", "%}}"}
+var Logger = log.New(os.Stdout, " ", log.Ldate|log.Ltime|log.Lshortfile)
 
 func CreateRouter() *nosurf.CSRFHandler {
 	router := mux.NewRouter()
@@ -92,7 +94,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 				m = "Username already taken"
 			} else {
 				m = "Unknown error - please try again"
-				fmt.Println(err)
+				Logger.Println(err)
 			}
 			session.AddFlash(models.Flash{
 				Type:    "danger",
@@ -157,14 +159,14 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		templates.Delims(templateDelims[0], templateDelims[1])
 		_, err := templates.ParseFiles("templates/login.html", "templates/flashes.html")
 		if err != nil {
-			fmt.Println(err)
+			Logger.Println(err)
 		}
 		template.Must(templates, err).ExecuteTemplate(w, "base", params)
 	case r.Method == "POST":
 		//Attempt to login
 		succ, err := auth.Login(r)
 		if err != nil {
-			fmt.Println(err)
+			Logger.Println(err)
 		}
 		//If we've logged in, save the session and redirect to the dashboard
 		if succ {
@@ -182,15 +184,16 @@ func getTemplate(w http.ResponseWriter, tmpl string) *template.Template {
 	templates.Delims(templateDelims[0], templateDelims[1])
 	_, err := templates.ParseFiles("templates/base.html", "templates/"+tmpl+".html", "templates/flashes.html")
 	if err != nil {
-		fmt.Println(err)
+		Logger.Println(err)
 	}
 	return template.Must(templates, err)
 }
 
 func checkError(e error, w http.ResponseWriter, m string, c int) bool {
 	if e != nil {
-		fmt.Println(e)
-		http.Error(w, "Error: "+m, c)
+		Logger.Println(e)
+		w.WriteHeader(c)
+		writeJSON(w, models.Response{Success: false, Message: m})
 		return true
 	}
 	return false

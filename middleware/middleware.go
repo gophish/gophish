@@ -29,8 +29,9 @@ func GetContext(handler http.Handler) http.HandlerFunc {
 			u, err := models.GetUser(id.(int64))
 			if err != nil {
 				ctx.Set(r, "user", nil)
+			} else {
+				ctx.Set(r, "user", u)
 			}
-			ctx.Set(r, "user", u)
 		} else {
 			ctx.Set(r, "user", nil)
 		}

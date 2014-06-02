@@ -31,8 +31,9 @@ type Flash struct {
 }
 
 type Response struct {
-	Message string `json:"message"`
-	Success bool   `json:"success"`
+	Message string      `json:"message"`
+	Success bool        `json:"success"`
+	Data    interface{} `json:"data"`
 }
 
 // Setup initializes the Conn object

@@ -45,7 +45,7 @@ func API_Reset(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			http.Error(w, "Error setting API Key", http.StatusInternalServerError)
 		} else {
-			writeJSON(w, []byte(u.ApiKey))
+			writeJSON(w, models.Response{Success: true, Message: "API Key Successfully Reset", Data: u.ApiKey})
 		}
 	}
 }
@@ -91,24 +91,19 @@ func API_Campaigns(w http.ResponseWriter, r *http.Request) {
 func API_Campaigns_Id(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.ParseInt(vars["id"], 0, 64)
+	c, err := models.GetCampaign(id, ctx.Get(r, "user_id").(int64))
+	if checkError(err, w, "Campaign not found", http.StatusNotFound) {
+		return
+	}
 	switch {
 	case r.Method == "GET":
-		c := models.Campaign{}
-		c, err := models.GetCampaign(id, ctx.Get(r, "user_id").(int64))
-		if checkError(err, w, "No campaign found", http.StatusNotFound) {
-			return
-		}
 		writeJSON(w, c)
 	case r.Method == "DELETE":
-		_, err := models.GetCampaign(id, ctx.Get(r, "user_id").(int64))
-		if checkError(err, w, "No campaign found", http.StatusNotFound) {
-			return
-		}
 		err = models.DeleteCampaign(id)
 		if checkError(err, w, "Error deleting campaign", http.StatusInternalServerError) {
 			return
 		}
-		writeJSON(w, []byte("{\"success\" : \"true\"}"))
+		writeJSON(w, models.Response{Success: true, Message: "Campaign Deleted Successfully!"})
 	}
 }
 
@@ -171,29 +166,21 @@ func API_Groups(w http.ResponseWriter, r *http.Request) {
 func API_Groups_Id(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.ParseInt(vars["id"], 0, 64)
+	g, err := models.GetGroup(id, ctx.Get(r, "user_id").(int64))
+	if checkError(err, w, "Group not found", http.StatusNotFound) {
+		return
+	}
 	switch {
 	case r.Method == "GET":
-		g, err := models.GetGroup(id, ctx.Get(r, "user_id").(int64))
-		if checkError(err, w, "No group found", http.StatusNotFound) {
-			return
-		}
 		writeJSON(w, g)
 	case r.Method == "DELETE":
-		g, err := models.GetGroup(id, ctx.Get(r, "user_id").(int64))
-		if checkError(err, w, "No group found", http.StatusNotFound) {
-			return
-		}
 		err = models.DeleteGroup(&g)
 		if checkError(err, w, "Error deleting group", http.StatusInternalServerError) {
 			return
 		}
-		writeJSON(w, []byte("{\"success\" : \"true\"}"))
+		writeJSON(w, models.Response{Success: true, Message: "Group Deleted Successfully"})
 	case r.Method == "PUT":
-		_, err := models.GetGroup(id, ctx.Get(r, "user_id").(int64))
-		if checkError(err, w, "No group found", http.StatusNotFound) {
-			return
-		}
-		g := models.Group{}
+		g = models.Group{}
 		err = json.NewDecoder(r.Body).Decode(&g)
 		if g.Id != id {
 			http.Error(w, "Error: /:id and group_id mismatch", http.StatusBadRequest)
@@ -243,25 +230,21 @@ func API_Templates(w http.ResponseWriter, r *http.Request) {
 func API_Templates_Id(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.ParseInt(vars["id"], 0, 64)
+	t, err := models.GetTemplate(id, ctx.Get(r, "user_id").(int64))
+	if checkError(err, w, "Template not found", http.StatusNotFound) {
+		return
+	}
 	switch {
 	case r.Method == "GET":
-		t, err := models.GetTemplate(id, ctx.Get(r, "user_id").(int64))
-		if checkError(err, w, "No template found", http.StatusNotFound) {
-			return
-		}
 		writeJSON(w, t)
 	case r.Method == "DELETE":
-		err := models.DeleteTemplate(id, ctx.Get(r, "user_id").(int64))
-		if checkError(err, w, "Error deleting group", http.StatusInternalServerError) {
+		err = models.DeleteTemplate(id, ctx.Get(r, "user_id").(int64))
+		if checkError(err, w, "Error deleting template", http.StatusInternalServerError) {
 			return
 		}
 		writeJSON(w, models.Response{Success: true, Message: "Template Deleted Successfully"})
 	case r.Method == "PUT":
-		_, err := models.GetTemplate(id, ctx.Get(r, "user_id").(int64))
-		if checkError(err, w, "No group found", http.StatusNotFound) {
-			return
-		}
-		t := models.Template{}
+		t = models.Template{}
 		err = json.NewDecoder(r.Body).Decode(&t)
 		if t.Id != id {
 			http.Error(w, "Error: /:id and template_id mismatch", http.StatusBadRequest)
