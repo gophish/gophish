@@ -255,7 +255,7 @@ func API_Templates_Id(w http.ResponseWriter, r *http.Request) {
 		if checkError(err, w, "Error deleting group", http.StatusInternalServerError) {
 			return
 		}
-		writeJSON(w, []byte("{\"success\" : \"true\"}"))
+		writeJSON(w, models.Response{Success: true, Message: "Template Deleted Successfully"})
 	case r.Method == "PUT":
 		_, err := models.GetTemplate(id, ctx.Get(r, "user_id").(int64))
 		if checkError(err, w, "No group found", http.StatusNotFound) {

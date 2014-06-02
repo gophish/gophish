@@ -30,6 +30,11 @@ type Flash struct {
 	Message string
 }
 
+type Response struct {
+	Message string `json:"message"`
+	Success bool   `json:"success"`
+}
+
 // Setup initializes the Conn object
 // It also populates the Gophish Config object
 func Setup() error {

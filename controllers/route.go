@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"encoding/json"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -95,7 +94,6 @@ func Register(w http.ResponseWriter, r *http.Request) {
 				m = "Unknown error - please try again"
 				fmt.Println(err)
 			}
-			fmt.Println(m)
 			session.AddFlash(models.Flash{
 				Type:    "danger",
 				Message: m,
@@ -131,10 +129,7 @@ func Settings(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "POST":
 		err := auth.ChangePassword(r)
-		msg := struct {
-			Message string `json:"message"`
-			Success bool   `json:"success"`
-		}{Message: "Settings Updated Successfully", Success: true}
+		msg := models.Response{Success: true, Message: "Settings Updated Successfully"}
 		if err == auth.ErrInvalidPassword {
 			msg.Message = "Invalid Password"
 			msg.Success = false
@@ -142,11 +137,7 @@ func Settings(w http.ResponseWriter, r *http.Request) {
 			msg.Message = "Unknown Error Occured"
 			msg.Success = false
 		}
-		msgj, err := json.MarshalIndent(msg, "", "  ")
-		if checkError(err, w, "Error marshaling response", http.StatusInternalServerError) {
-			return
-		}
-		writeJSON(w, msgj)
+		writeJSON(w, msg)
 	}
 }
 
