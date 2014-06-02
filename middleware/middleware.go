@@ -1,6 +1,8 @@
 package middleware
 
 import (
+	"encoding/json"
+	"fmt"
 	"net/http"
 
 	ctx "github.com/gorilla/context"
@@ -78,5 +80,8 @@ func RequireLogin(handler http.Handler) http.HandlerFunc {
 }
 
 func JSONError(w http.ResponseWriter, c int, m string) {
-	http.Error(w, m, c)
+	w.WriteHeader(c)
+	w.Header().Set("Content-Type", "application/json")
+	cj, _ := json.MarshalIndent(models.Response{Success: false, Message: m}, "", "  ")
+	fmt.Fprintf(w, "%s", cj)
 }
