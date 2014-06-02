@@ -11,6 +11,16 @@ type Template struct {
 	ModifiedDate time.Time `json:"modified_date"`
 }
 
+func (t *Template) Validate() (string, bool) {
+	switch {
+	case t.Name == "":
+		return "Template Name not specified", false
+	case t.Text == "" && t.Html == "":
+		return "Need to specify at least plaintext or HTML format", false
+	}
+	return "", true
+}
+
 type UserTemplate struct {
 	UserId     int64 `json:"-"`
 	TemplateId int64 `json:"-"`
