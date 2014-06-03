@@ -139,7 +139,7 @@ func Settings(w http.ResponseWriter, r *http.Request) {
 			msg.Message = "Unknown Error Occured"
 			msg.Success = false
 		}
-		writeJSON(w, msg)
+		JSONResponse(w, msg, http.StatusOK)
 	}
 }
 
@@ -193,7 +193,7 @@ func checkError(e error, w http.ResponseWriter, m string, c int) bool {
 	if e != nil {
 		Logger.Println(e)
 		w.WriteHeader(c)
-		writeJSON(w, models.Response{Success: false, Message: m})
+		JSONResponse(w, models.Response{Success: false, Message: m}, http.StatusBadRequest)
 		return true
 	}
 	return false

@@ -10,6 +10,7 @@ import (
 
 	ctx "github.com/gorilla/context"
 	"github.com/gorilla/mux"
+	"github.com/jinzhu/gorm"
 	"github.com/jordan-wright/gophish/auth"
 	"github.com/jordan-wright/gophish/models"
 	"github.com/jordan-wright/gophish/worker"
@@ -45,7 +46,7 @@ func API_Reset(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			http.Error(w, "Error setting API Key", http.StatusInternalServerError)
 		} else {
-			writeJSON(w, models.Response{Success: true, Message: "API Key Successfully Reset", Data: u.ApiKey})
+			JSONResponse(w, models.Response{Success: true, Message: "API Key Successfully Reset", Data: u.ApiKey}, http.StatusOK)
 		}
 	}
 }
@@ -59,7 +60,7 @@ func API_Campaigns(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			fmt.Println(err)
 		}
-		writeJSON(w, cs)
+		JSONResponse(w, cs, http.StatusOK)
 	//POST: Create a new campaign and return it as JSON
 	case r.Method == "POST":
 		c := models.Campaign{}
@@ -68,7 +69,7 @@ func API_Campaigns(w http.ResponseWriter, r *http.Request) {
 		if checkError(err, w, "Invalid Request", http.StatusBadRequest) {
 			return
 		}
-		if m, ok := models.ValidateCampaign(&c); !ok {
+		if m, ok := c.Validate(); !ok {
 			http.Error(w, "Error: "+m, http.StatusBadRequest)
 			return
 		}
@@ -82,7 +83,7 @@ func API_Campaigns(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		Worker.Queue <- &c
-		writeJSON(w, c)
+		JSONResponse(w, c, http.StatusCreated)
 	}
 }
 
@@ -97,13 +98,13 @@ func API_Campaigns_Id(w http.ResponseWriter, r *http.Request) {
 	}
 	switch {
 	case r.Method == "GET":
-		writeJSON(w, c)
+		JSONResponse(w, c, http.StatusOK)
 	case r.Method == "DELETE":
 		err = models.DeleteCampaign(id)
 		if checkError(err, w, "Error deleting campaign", http.StatusInternalServerError) {
 			return
 		}
-		writeJSON(w, models.Response{Success: true, Message: "Campaign Deleted Successfully!"})
+		JSONResponse(w, models.Response{Success: true, Message: "Campaign Deleted Successfully!"}, http.StatusOK)
 	}
 }
 
@@ -137,13 +138,18 @@ func API_Groups(w http.ResponseWriter, r *http.Request) {
 		if checkError(err, w, "Groups not found", http.StatusNotFound) {
 			return
 		}
-		writeJSON(w, gs)
+		JSONResponse(w, gs, http.StatusOK)
 	//POST: Create a new group and return it as JSON
 	case r.Method == "POST":
 		g := models.Group{}
 		// Put the request into a group
 		err := json.NewDecoder(r.Body).Decode(&g)
 		if checkError(err, w, "Invalid Request", http.StatusBadRequest) {
+			return
+		}
+		_, err = models.GetGroupByName(g.Name, ctx.Get(r, "user_id").(int64))
+		if err != gorm.RecordNotFound {
+			JSONResponse(w, models.Response{Success: false, Message: "Group name already in use"}, http.StatusConflict)
 			return
 		}
 		// Check to make sure targets were specified
@@ -157,7 +163,8 @@ func API_Groups(w http.ResponseWriter, r *http.Request) {
 		if checkError(err, w, "Error inserting group", http.StatusInternalServerError) {
 			return
 		}
-		writeJSON(w, g)
+		w.Header().Set("Location", "http://localhost:3333/api/groups/"+string(g.Id))
+		JSONResponse(w, g, http.StatusCreated)
 	}
 }
 
@@ -172,13 +179,13 @@ func API_Groups_Id(w http.ResponseWriter, r *http.Request) {
 	}
 	switch {
 	case r.Method == "GET":
-		writeJSON(w, g)
+		JSONResponse(w, g, http.StatusOK)
 	case r.Method == "DELETE":
 		err = models.DeleteGroup(&g)
 		if checkError(err, w, "Error deleting group", http.StatusInternalServerError) {
 			return
 		}
-		writeJSON(w, models.Response{Success: true, Message: "Group Deleted Successfully"})
+		JSONResponse(w, models.Response{Success: true, Message: "Group Deleted Successfully"}, http.StatusOK)
 	case r.Method == "PUT":
 		g = models.Group{}
 		err = json.NewDecoder(r.Body).Decode(&g)
@@ -197,7 +204,7 @@ func API_Groups_Id(w http.ResponseWriter, r *http.Request) {
 		if checkError(err, w, "Error updating group", http.StatusInternalServerError) {
 			return
 		}
-		writeJSON(w, g)
+		JSONResponse(w, g, http.StatusOK)
 	}
 }
 
@@ -208,7 +215,7 @@ func API_Templates(w http.ResponseWriter, r *http.Request) {
 		if checkError(err, w, "Templates not found", http.StatusNotFound) {
 			return
 		}
-		writeJSON(w, ts)
+		JSONResponse(w, ts, http.StatusOK)
 	//POST: Create a new template and return it as JSON
 	case r.Method == "POST":
 		t := models.Template{}
@@ -217,13 +224,18 @@ func API_Templates(w http.ResponseWriter, r *http.Request) {
 		if checkError(err, w, "Invalid Request", http.StatusBadRequest) {
 			return
 		}
+		_, err = models.GetTemplateByName(t.Name, ctx.Get(r, "user_id").(int64))
+		if err != gorm.RecordNotFound {
+			JSONResponse(w, models.Response{Success: false, Message: "Template name already in use"}, http.StatusConflict)
+			return
+		}
 		t.ModifiedDate = time.Now()
 		t.UserId = ctx.Get(r, "user_id").(int64)
 		err = models.PostTemplate(&t)
 		if checkError(err, w, "Error inserting template", http.StatusInternalServerError) {
 			return
 		}
-		writeJSON(w, t)
+		JSONResponse(w, t, http.StatusCreated)
 	}
 }
 
@@ -236,13 +248,13 @@ func API_Templates_Id(w http.ResponseWriter, r *http.Request) {
 	}
 	switch {
 	case r.Method == "GET":
-		writeJSON(w, t)
+		JSONResponse(w, t, http.StatusOK)
 	case r.Method == "DELETE":
 		err = models.DeleteTemplate(id, ctx.Get(r, "user_id").(int64))
 		if checkError(err, w, "Error deleting template", http.StatusInternalServerError) {
 			return
 		}
-		writeJSON(w, models.Response{Success: true, Message: "Template Deleted Successfully"})
+		JSONResponse(w, models.Response{Success: true, Message: "Template Deleted Successfully"}, http.StatusOK)
 	case r.Method == "PUT":
 		t = models.Template{}
 		err = json.NewDecoder(r.Body).Decode(&t)
@@ -255,15 +267,18 @@ func API_Templates_Id(w http.ResponseWriter, r *http.Request) {
 		if checkError(err, w, "Error updating group", http.StatusInternalServerError) {
 			return
 		}
-		writeJSON(w, t)
+		JSONResponse(w, t, http.StatusOK)
 	}
 }
 
-func writeJSON(w http.ResponseWriter, c interface{}) {
-	cj, err := json.MarshalIndent(c, "", "  ")
+// JSONResponse attempts to set the status code, c, and marshal the given interface, d, into a response that
+// is written to the given ResponseWriter.
+func JSONResponse(w http.ResponseWriter, d interface{}, c int) {
+	dj, err := json.MarshalIndent(d, "", "  ")
 	if checkError(err, w, "Error creating JSON response", http.StatusInternalServerError) {
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprintf(w, "%s", cj)
+	w.WriteHeader(c)
+	fmt.Fprintf(w, "%s", dj)
 }
