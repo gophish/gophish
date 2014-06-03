@@ -98,6 +98,7 @@ app.controller('CampaignCtrl', function($scope, $modal, CampaignService, GroupSe
         deleteCampaign.$delete({
             id: deleteCampaign.id
         }, function() {
+            $scope.successFlash("Campaign deleted successfully")
             $scope.mainTableParams.reload();
         });
     }
@@ -157,6 +158,23 @@ app.controller('CampaignResultsCtrl', function($scope, CampaignService, GroupSer
 });
 
 app.controller('GroupCtrl', function($scope, $modal, GroupService, ngTableParams) {
+    $scope.errorFlash = function(message) {
+        $scope.flashes = [];
+        $scope.flashes.push({
+            "type": "danger",
+            "message": message,
+            "icon": "fa-exclamation-circle"
+        })
+    }
+
+    $scope.successFlash = function(message) {
+        $scope.flashes = [];
+        $scope.flashes.push({
+            "type": "success",
+            "message": message,
+            "icon": "fa-check-circle"
+        })
+    }
     $scope.mainTableParams = new ngTableParams({
         page: 1, // show first page
         count: 10, // count per page
@@ -254,9 +272,31 @@ var GroupModalCtrl = function($scope, $modalInstance) {
     $scope.cancel = function() {
         $modalInstance.dismiss('cancel');
     };
+    $scope.ok = function(group) {
+        $modalInstance.dismiss('')
+        $scope.saveGroup(group)
+    };
 }
 
 app.controller('TemplateCtrl', function($scope, $modal, TemplateService, ngTableParams) {
+    $scope.errorFlash = function(message) {
+        $scope.flashes = [];
+        $scope.flashes.push({
+            "type": "danger",
+            "message": message,
+            "icon": "fa-exclamation-circle"
+        })
+    }
+
+    $scope.successFlash = function(message) {
+        $scope.flashes = [];
+        $scope.flashes.push({
+            "type": "success",
+            "message": message,
+            "icon": "fa-check-circle"
+        })
+    }
+
     $scope.mainTableParams = new ngTableParams({
         page: 1, // show first page
         count: 10, // count per page
@@ -322,7 +362,12 @@ app.controller('TemplateCtrl', function($scope, $modal, TemplateService, ngTable
         var deleteTemplate = new TemplateService(template);
         deleteTemplate.$delete({
             id: deleteTemplate.id
-        }, function() {
+        }, function(response) {
+            if (response.success) {
+                $scope.successFlash(response.message)
+            } else {
+                $scope.errorFlash(response.message)
+            }
             $scope.mainTableParams.reload();
         });
     }
@@ -367,10 +412,12 @@ app.controller('SettingsCtrl', function($scope, $http, $window) {
                 'Content-Type': 'application/x-www-form-urlencoded'
             } // set the headers so angular passing info as form data (not request payload)
         })
-            .success(function(data) {
-                $scope.user.api_key = data;
-                $window.user.api_key = data;
-                $scope.successFlash("API Key Successfully Reset")
+            .success(function(response) {
+                if (response.success) {
+                    $scope.user.api_key = response.data;
+                    $window.user.api_key = response.data;
+                    $scope.successFlash(response.message)
+                }
             })
     }
     $scope.save_settings = function(){
