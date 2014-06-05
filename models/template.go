@@ -6,8 +6,9 @@ type Template struct {
 	Id           int64     `json:"id"`
 	UserId       int64     `json:"-"`
 	Name         string    `json:"name"`
+	Subject      string    `json:"subject"`
 	Text         string    `json:"text"`
-	Html         string    `json:"html"`
+	HTML         string    `json:"html"`
 	ModifiedDate time.Time `json:"modified_date"`
 }
 
@@ -15,7 +16,7 @@ func (t *Template) Validate() (string, bool) {
 	switch {
 	case t.Name == "":
 		return "Template Name not specified", false
-	case t.Text == "" && t.Html == "":
+	case t.Text == "" && t.HTML == "":
 		return "Need to specify at least plaintext or HTML format", false
 	}
 	return "", true

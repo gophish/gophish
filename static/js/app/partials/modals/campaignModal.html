@@ -17,13 +17,10 @@
                     SMTP Options <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': isOpen, 'glyphicon-chevron-right': !isOpen}"></i>
                 </accordion-heading>
                         <label class="control-label" for="from">From:</label>
-                        <input type="text" class="form-control" placeholder="First Last <test@example.com>" id="form">
+                        <input type="text" class="form-control" ng-model="campaign.smtp.from_address" placeholder="First Last <test@example.com>" id="form">
                         <br />
-                        <label class="control-label" for="smtp_server">Hostname:</label>
-                        <input type="text" class="form-control" ng-model="campaign.smtp.hostname" placeholder="host:port" id="smtp_server">
-                        <br />
-                        <label class="control-label" for="smtp_server">Port:</label>
-                        <input type="text" class="form-control" ng-model="campaign.smtp.port" placeholder="host:port" id="smtp_server">
+                        <label class="control-label" for="smtp_server">Host:</label>
+                        <input type="text" class="form-control" ng-model="campaign.smtp.host" placeholder="smtp.example.com:25" id="smtp_server">
                         <br />
                         <label class="control-label" for="smtp_server">Username:</label>
                         <input type="text" class="form-control" ng-model="campaign.smtp.username" placeholder="host:port" id="smtp_server">

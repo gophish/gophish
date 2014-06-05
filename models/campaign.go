@@ -17,9 +17,10 @@ type Campaign struct {
 	TemplateId    int64     `json:"-"`
 	Template      Template  `json:"template"` //This may change
 	Status        string    `json:"status"`
+	EmailsSent    string    `json:"emails_sent"`
 	Results       []Result  `json:"results,omitempty"`
 	Groups        []Group   `json:"groups,omitempty"`
-	SMTP          SMTP      `json:"options,omitempty"`
+	SMTP          SMTP      `json:"smtp"`
 }
 
 func (c *Campaign) Validate() (string, bool) {
@@ -90,8 +91,8 @@ func PostCampaign(c *Campaign, uid int64) error {
 		Logger.Println(err)
 		return err
 	}
+	c.Template = t
 	c.TemplateId = t.Id
-
 	// Insert into the DB
 	err = db.Save(c).Error
 	if err != nil {

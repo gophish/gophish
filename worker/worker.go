@@ -2,8 +2,11 @@ package worker
 
 import (
 	"log"
+	"net/smtp"
 	"os"
+	"strings"
 
+	"github.com/jordan-wright/email"
 	"github.com/jordan-wright/gophish/models"
 )
 
@@ -34,12 +37,28 @@ func processCampaign(c *models.Campaign) {
 	if err != nil {
 		Logger.Println(err)
 	}
+	e := email.Email{
+		Subject: c.Template.Subject,
+		From:    c.SMTP.FromAddress,
+		Text:    []byte(c.Template.Text),
+		HTML:    []byte(c.Template.HTML),
+	}
+	Logger.Println(c.SMTP.Username)
+	Logger.Println(c.SMTP.Password)
+	Logger.Println(c.SMTP.FromAddress)
+	var auth smtp.Auth
+	if c.SMTP.Username != "" && c.SMTP.Password != "" {
+		auth = smtp.PlainAuth("", c.SMTP.Username, c.SMTP.Password, strings.Split(c.SMTP.Host, ":")[0])
+	}
 	for _, t := range c.Results {
 		Logger.Println("Creating email using template")
-		/*e := email.Email{
-			Text: []byte(c.Template.Text),
-			HTML: []byte(c.Template.Html),
-		}*/
+		e.To = []string{t.Email}
+		Logger.Println(e.To)
+		Logger.Println(e.From)
+		err := e.Send(c.SMTP.Host, auth)
+		if err != nil {
+			Logger.Println(err)
+		}
 		Logger.Printf("Sending Email to %s\n", t.Email)
 	}
 }
