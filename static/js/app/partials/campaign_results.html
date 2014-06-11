@@ -36,8 +36,13 @@
         <button type="button" class="btn btn-danger" tooltip="Delete Campaign" tooltip-placement="right"><i class="fa fa-times fa-lg"></i>
         </button>
     </div>
-    &nbsp;
     <div class="row">
+        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+            <highchart config="email_chart"></highchart>
+        </div>
+    </div>
+    <div class="row">
+        <h2>Details</h2>
         <table ng-table="mainTableParams" class="table table-hover table-striped table-bordered">
             <tbody>
                 <tr ng-repeat="result in $data" class="editable-row">

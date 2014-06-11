@@ -142,6 +142,62 @@ app.controller('CampaignResultsCtrl', function($scope, CampaignService, GroupSer
                 "id": id
             }, function(campaign) {
                 $scope.campaign = campaign
+                var result_series = []
+                angular.forEach(campaign.results, function(result, key) {
+                    var new_entry = true;
+                    for (var i = 0; i < result_series.length; i++) {
+                        if (result_series[i].name == result.status) {
+                            result_series[i].y++;
+                            new_entry = false;
+                            break;
+                        }
+                    }
+                    if (new_entry) {
+                        result_series.push({
+                            name: result.status,
+                            y: 1
+                        })
+                    }
+                });
+                $scope.email_chart = {
+                    options: {
+                        chart: {
+                            type: 'pie'
+                        },
+                        tooltip: {
+                            formatter: function() {
+                                return this.point.name + " : " + this.point.y
+                            },
+                            style: {
+                                padding: 10,
+                                fontWeight: 'bold'
+                            }
+                        },
+                        plotOptions: {
+                            pie: {
+                                allowPointSelect: true,
+                                cursor: 'pointer',
+                                dataLabels: {
+                                    enabled: false
+                                },
+                                showInLegend: true
+                            }
+                        }
+                    },
+                    series: [{
+                        data: result_series
+                    }],
+                    title: {
+                        text: 'Email Status'
+                    },
+                    size: {
+                        height: 300
+                    },
+                    credits : {
+                        enabled : false
+                    },
+                    loading: false,
+                }
                 params.total(campaign.results.length)
                 $defer.resolve(campaign.results.slice((params.page() - 1) * params.count(), params.page() * params.count()));
             })
@@ -420,7 +476,7 @@ app.controller('SettingsCtrl', function($scope, $http, $window) {
                 }
             })
     }
-    $scope.save_settings = function(){
+    $scope.save_settings = function() {
         $http({
             method: 'POST',
             url: '/settings',
@@ -432,8 +488,7 @@ app.controller('SettingsCtrl', function($scope, $http, $window) {
             .success(function(data) {
                 if (data.success) {
                     $scope.successFlash(data.message)
-                }
-                else {
+                } else {
                     $scope.errorFlash(data.message)
                 }
             })

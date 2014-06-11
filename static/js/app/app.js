@@ -1,4 +1,4 @@
-var app = angular.module('gophish', ['ngRoute', 'ngTable', 'ngResource', 'ui.bootstrap']);
+var app = angular.module('gophish', ['ngRoute', 'ngTable', 'ngResource', 'ui.bootstrap', 'highcharts-ng']);
 
 app.config(function($routeProvider) {
     $routeProvider
