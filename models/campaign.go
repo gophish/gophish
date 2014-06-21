@@ -20,6 +20,7 @@ type Campaign struct {
 	EmailsSent    string    `json:"emails_sent"`
 	Results       []Result  `json:"results,omitempty"`
 	Groups        []Group   `json:"groups,omitempty"`
+	Events        []Event   `json:"timeline,omitemtpy"`
 	SMTP          SMTP      `json:"smtp"`
 }
 
@@ -40,6 +41,14 @@ type Result struct {
 	CampaignId int64  `json:"-"`
 	Email      string `json:"email"`
 	Status     string `json:"status" sql:"not null"`
+}
+
+type Event struct {
+	Id         int64     `json:"-"`
+	CampaignId int64     `json:"-"`
+	Email      string    `json:"email"`
+	Time       time.Time `json:"time"`
+	Message    time.Time `json:"message"`
 }
 
 // GetCampaigns returns the campaigns owned by the given user.
@@ -71,6 +80,11 @@ func GetCampaign(id int64, uid int64) (Campaign, error) {
 
 // PostCampaign inserts a campaign and all associated records into the database.
 func PostCampaign(c *Campaign, uid int64) error {
+	// Fill in the details
+	c.CreatedDate = time.Now()
+	c.CompletedDate = time.Time{}
+	c.Status = QUEUED
+	c.Events = append(c.Events)
 	// Check to make sure all the groups already exist
 	for i, g := range c.Groups {
 		c.Groups[i], err = GetGroupByName(g.Name, uid)

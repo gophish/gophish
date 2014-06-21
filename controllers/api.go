@@ -73,11 +73,6 @@ func API_Campaigns(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Error: "+m, http.StatusBadRequest)
 			return
 		}
-		// Fill in the details
-		c.CreatedDate = time.Now()
-		c.CompletedDate = time.Time{}
-		c.Status = models.QUEUED
-		c.UserId = ctx.Get(r, "user_id").(int64)
 		err = models.PostCampaign(&c, ctx.Get(r, "user_id").(int64))
 		if checkError(err, w, "Cannot insert campaign into database", http.StatusInternalServerError) {
 			return
@@ -110,27 +105,6 @@ func API_Campaigns_Id(w http.ResponseWriter, r *http.Request) {
 
 // API_Groups returns details about the requested group. If the campaign is not
 // valid, API_Groups returns null.
-// Example:
-/*
-POST	/api/groups
-		{ "name" : "Test Group",
-		  "targets" : [
-		  {
-		  	"email" : "test@example.com"
-		  },
-		  { "email" : test2@example.com"
-		  }]
-		}
-
-RESULT { "name" : "Test Group",
-		  "targets" : [
-		  {
-		  	"email" : "test@example.com"
-		  },
-		  { "email" : test2@example.com"
-		  }]
-		}
-*/
 func API_Groups(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "GET":
