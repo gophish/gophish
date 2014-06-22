@@ -21,8 +21,10 @@ type GroupTarget struct {
 }
 
 type Target struct {
-	Id    int64  `json:"-"`
-	Email string `json:"email"`
+	Id        int64  `json:"-"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	Email     string `json:"email"`
 }
 
 // GetGroups returns the groups owned by the given user.

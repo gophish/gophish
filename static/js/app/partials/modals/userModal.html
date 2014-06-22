@@ -10,6 +10,7 @@
         <div class="form-group">
             <input type="text" class="form-control" ng-model="group.name" placeholder="Group name" id="name" autofocus/>
         </div>
+        <input type="file" ng-file-select="onFileSelect($files)">
         <fieldset disabled>
             <div class="form-group">
                 <button class="btn btn-danger"><i class="fa fa-plus"></i> Bulk Import Users (Coming Soon!)</button>

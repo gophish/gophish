@@ -13,6 +13,7 @@ import (
 	"github.com/jinzhu/gorm"
 	"github.com/jordan-wright/gophish/auth"
 	"github.com/jordan-wright/gophish/models"
+	"github.com/jordan-wright/gophish/util"
 	"github.com/jordan-wright/gophish/worker"
 )
 
@@ -243,6 +244,15 @@ func API_Templates_Id(w http.ResponseWriter, r *http.Request) {
 		}
 		JSONResponse(w, t, http.StatusOK)
 	}
+}
+
+func API_Import_Group(w http.ResponseWriter, r *http.Request) {
+	Logger.Println("Parsing CSV....")
+	ts, err := util.ParseCSV(r)
+	if checkError(err, w, "Error deleting template", http.StatusInternalServerError) {
+		return
+	}
+	JSONResponse(w, ts, http.StatusOK)
 }
 
 // JSONResponse attempts to set the status code, c, and marshal the given interface, d, into a response that

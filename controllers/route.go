@@ -38,6 +38,7 @@ func CreateRouter() *nosurf.CSRFHandler {
 	api.HandleFunc("/groups/{id:[0-9]+}", Use(API_Groups_Id, mid.RequireAPIKey))
 	api.HandleFunc("/templates/", Use(API_Templates, mid.RequireAPIKey))
 	api.HandleFunc("/templates/{id:[0-9]+}", Use(API_Templates_Id, mid.RequireAPIKey))
+	api.HandleFunc("/import/group", API_Import_Group)
 
 	// Setup static file serving
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./static/")))
@@ -48,6 +49,7 @@ func CreateRouter() *nosurf.CSRFHandler {
 	csrfHandler.ExemptGlob("/api/campaigns/*")
 	csrfHandler.ExemptGlob("/api/groups/*")
 	csrfHandler.ExemptGlob("/api/templates/*")
+	csrfHandler.ExemptGlob("/api/import/*")
 	csrfHandler.ExemptGlob("/static/*")
 	return csrfHandler
 }

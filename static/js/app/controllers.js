@@ -193,8 +193,8 @@ app.controller('CampaignResultsCtrl', function($scope, CampaignService, GroupSer
                     size: {
                         height: 300
                     },
-                    credits : {
-                        enabled : false
+                    credits: {
+                        enabled: false
                     },
                     loading: false,
                 }
@@ -324,7 +324,25 @@ app.controller('GroupCtrl', function($scope, $modal, GroupService, ngTableParams
     }
 })
 
-var GroupModalCtrl = function($scope, $modalInstance) {
+var GroupModalCtrl = function($scope, $modalInstance, $upload) {
+    $scope.onFileSelect = function($file) {
+        $scope.upload = $upload.upload({
+            url: '/api/import/group',
+            data: {},
+            file: $file,
+        }).progress(function(evt) {
+            console.log('percent: ' + parseInt(100.0 * evt.loaded / evt.total));
+        }).success(function(data, status, headers, config) {
+            // file is uploaded successfully
+            angular.forEach(data, function(record, key) {
+                $scope.group.targets.push({
+                    email: record.email
+                });
+            });
+            $scope.editGroupTableParams.reload();
+            //.error(...)
+        });
+    };
     $scope.cancel = function() {
         $modalInstance.dismiss('cancel');
     };
