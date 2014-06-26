@@ -10,12 +10,11 @@
         <div class="form-group">
             <input type="text" class="form-control" ng-model="group.name" placeholder="Group name" id="name" autofocus/>
         </div>
-        <input type="file" ng-file-select="onFileSelect($files)">
-        <fieldset disabled>
-            <div class="form-group">
-                <button class="btn btn-danger"><i class="fa fa-plus"></i> Bulk Import Users (Coming Soon!)</button>
-            </div>
-        </fieldset>
+        <div class="form-group">
+            <span class="btn btn-danger btn-file" tooltip="Supports CSV files" tooltip-placement="right"><i class="fa fa-plus"></i> Bulk Import Users
+                <input type="file" ng-file-select="onFileSelect($files)">
+            </span>
+        </div>
         <label class="control-label" for="users">Users:</label>
         <form ng:submit="addTarget()">
             <div class="input-group">

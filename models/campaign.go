@@ -36,6 +36,17 @@ func (c *Campaign) Validate() (string, bool) {
 	return "", true
 }
 
+func (c *Campaign) UpdateStatus(s string) error {
+	// This could be made simpler, but I think there's a bug in gorm
+	return db.Table("campaigns").Where("id=?", c.Id).Update("status", s).Error
+}
+
+func (c *Campaign) AddEvent (e Event) error {
+	e.CampaignId = c.Id
+	e.Time = time.Now()
+	return db.Debug().Save(&e).Error
+}
+
 type Result struct {
 	Id         int64  `json:"-"`
 	CampaignId int64  `json:"-"`
@@ -43,12 +54,16 @@ type Result struct {
 	Status     string `json:"status" sql:"not null"`
 }
 
+func (r *Result) UpdateStatus(s string) error {
+	return db.Debug().Table("results").Where("id=?", r.Id).Update("status", s).Error
+}
+
 type Event struct {
 	Id         int64     `json:"-"`
 	CampaignId int64     `json:"-"`
 	Email      string    `json:"email"`
 	Time       time.Time `json:"time"`
-	Message    time.Time `json:"message"`
+	Message    string `json:"message"`
 }
 
 // GetCampaigns returns the campaigns owned by the given user.
@@ -81,10 +96,10 @@ func GetCampaign(id int64, uid int64) (Campaign, error) {
 // PostCampaign inserts a campaign and all associated records into the database.
 func PostCampaign(c *Campaign, uid int64) error {
 	// Fill in the details
+	c.UserId = uid
 	c.CreatedDate = time.Now()
 	c.CompletedDate = time.Time{}
 	c.Status = QUEUED
-	c.Events = append(c.Events)
 	// Check to make sure all the groups already exist
 	for i, g := range c.Groups {
 		c.Groups[i], err = GetGroupByName(g.Name, uid)
@@ -113,25 +128,24 @@ func PostCampaign(c *Campaign, uid int64) error {
 		Logger.Println(err)
 		return err
 	}
+	err = c.AddEvent(Event{Message:"Campaign Created"})
+	if err != nil {
+		Logger.Println(err)
+	}
 	// Insert all the results
 	for _, g := range c.Groups {
 		// Insert a result for each target in the group
 		for _, t := range g.Targets {
 			r := Result{Email: t.Email, Status: "Unknown", CampaignId: c.Id}
-			c.Results = append(c.Results, r)
 			err := db.Save(&r).Error
 			if err != nil {
 				Logger.Printf("Error adding result record for target %s\n", t.Email)
 				Logger.Println(err)
 			}
+			c.Results = append(c.Results, r)
 		}
 	}
 	return nil
-}
-
-func UpdateCampaignStatus(c *Campaign, s string) error {
-	// This could be made simpler, but I think there's a bug in gorm
-	return db.Table("campaigns").Where("id=?", c.Id).Update("status", s).Error
 }
 
 //DeleteCampaign deletes the specified campaign

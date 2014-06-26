@@ -124,6 +124,10 @@ var CampaignModalCtrl = function($scope, $modalInstance) {
     $scope.cancel = function() {
         $modalInstance.dismiss('cancel');
     };
+    $scope.ok = function(campaign) {
+        $modalInstance.dismiss("")
+        $scope.saveCampaign(campaign)
+    }
 };
 
 app.controller('CampaignResultsCtrl', function($scope, CampaignService, GroupService, ngTableParams, $http, $window) {
@@ -333,7 +337,6 @@ var GroupModalCtrl = function($scope, $modalInstance, $upload) {
         }).progress(function(evt) {
             console.log('percent: ' + parseInt(100.0 * evt.loaded / evt.total));
         }).success(function(data, status, headers, config) {
-            // file is uploaded successfully
             angular.forEach(data, function(record, key) {
                 $scope.group.targets.push({
                     email: record.email
@@ -450,6 +453,10 @@ app.controller('TemplateCtrl', function($scope, $modal, TemplateService, ngTable
 var TemplateModalCtrl = function($scope, $modalInstance) {
     $scope.cancel = function() {
         $modalInstance.dismiss('cancel');
+    };
+    $scope.ok = function(template) {
+        $modalInstance.dismiss('')
+        $scope.saveTemplate(template)
     };
 };
 

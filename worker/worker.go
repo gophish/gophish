@@ -33,7 +33,7 @@ func (w *Worker) Start() {
 
 func processCampaign(c *models.Campaign) {
 	Logger.Printf("Worker received: %s", c.Name)
-	err := models.UpdateCampaignStatus(c, models.IN_PROGRESS)
+	err := c.UpdateStatus(models.IN_PROGRESS)
 	if err != nil {
 		Logger.Println(err)
 	}
@@ -58,7 +58,17 @@ func processCampaign(c *models.Campaign) {
 		err := e.Send(c.SMTP.Host, auth)
 		if err != nil {
 			Logger.Println(err)
+			err = t.UpdateStatus("Error")
+			if err != nil {
+				Logger.Println(err)
+			}
+		} else {
+			err = t.UpdateStatus("Email Sent")
+			if err != nil {
+				Logger.Println(err)
+			}
 		}
+
 		Logger.Printf("Sending Email to %s\n", t.Email)
 	}
 }

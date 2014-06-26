@@ -35,6 +35,19 @@ app.config(function($routeProvider) {
     })
 });
 
+app.filter('cut', function() {
+    return function(value, max, tail) {
+        if (!value) return '';
+        max = parseInt(max, 10);
+        truncd = []
+        for(var i=0; i < Math.min(value.length,max); i++) {
+            if (i == max-1) truncd.push("...")
+            else truncd.push(value[i].email);
+        }
+        return truncd;
+    };
+});
+
 // Example provided by http://docs.angularjs.org/api/ng/type/ngModel.NgModelController
 app.directive('contenteditable', function() {
     return {
@@ -59,9 +72,9 @@ app.directive('contenteditable', function() {
                 var html = element.html();
                 // When we clear the content editable the browser leaves a <br> behind
                 // If strip-br attribute is provided then we strip this out
-                if (attrs.stripBr && html == '<br>') {
-                    html = '';
-                }
+                //if (attrs.stripBr && html == '<br>') {
+                //    html = '';
+                //}
                 ngModel.$setViewValue(html);
             }
         }

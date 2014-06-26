@@ -37,8 +37,8 @@
                 <tr ng-repeat="group in $data" class="editable-row">
                     <td data-title="'Name'" sortable="'name'" class="col-sm-1">{{group.name}}</td>
                     <td data-title="'Members'" class="col-sm-2">
-                        <span ng-repeat="target in group.targets">
-                            {{target.email}}{{$last ? '' : ', '}}
+                        <span ng-repeat="target in group.targets | cut:5 track by $index ">
+                            {{target}}{{$last ? '' : ', '}}
                         </span>
                         <div class="btn-group" style="float: right;">
                             <button type="button" class="btn btn-primary dropdown-toggle edit-button" data-toggle="dropdown">
@@ -49,7 +49,7 @@
                                 <li><a ng-click="editGroup(group)">Edit</a>
                                 </li>
                                 <li class="divider"></li>
-                                <li><a ng-click="deleteGroup(group)" ng-href="#">Delete</a>
+                                <li><a ng-click="deleteGroup(group)">Delete</a>
                                 </li>
                             </ul>
                         </div>

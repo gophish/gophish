@@ -57,6 +57,7 @@ func Setup() error {
 		db.CreateTable(GroupTarget{})
 		db.CreateTable(Template{})
 		db.CreateTable(SMTP{})
+		db.CreateTable(Event{})
 		db.CreateTable(Campaign{})
 		//Create the default user
 		init_user := User{
