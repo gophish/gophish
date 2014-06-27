@@ -76,7 +76,15 @@ func GetCampaigns(uid int64) ([]Campaign, error) {
 	for i, _ := range cs {
 		err := db.Model(&cs[i]).Related(&cs[i].Results).Error
 		if err != nil {
-			fmt.Println(err)
+			Logger.Println(err)
+		}
+		err = db.Model(&cs[i]).Related(&cs[i].Events).Error
+		if err != nil {
+			Logger.Println(err)
+		}
+		err = db.Table("templates").Where("id=?", cs[i].TemplateId).Find(&cs[i].Template).Error
+		if err != nil {
+			Logger.Println(err)
 		}
 	}
 	return cs, err
@@ -90,6 +98,14 @@ func GetCampaign(id int64, uid int64) (Campaign, error) {
 		return c, err
 	}
 	err = db.Model(&c).Related(&c.Results).Error
+	if err != nil {
+		return c, err
+	}
+	err = db.Model(&c).Related(&c.Events).Error
+	if err != nil {
+		return c, err
+	}
+	err = db.Table("templates").Where("id=?", c.TemplateId).Find(&c.Template).Error
 	return c, err
 }
 

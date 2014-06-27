@@ -1,10 +1,12 @@
 package worker
 
 import (
+	"bytes"
 	"log"
 	"net/smtp"
 	"os"
 	"strings"
+	"text/template"
 
 	"github.com/jordan-wright/email"
 	"github.com/jordan-wright/gophish/models"
@@ -40,22 +42,37 @@ func processCampaign(c *models.Campaign) {
 	e := email.Email{
 		Subject: c.Template.Subject,
 		From:    c.SMTP.FromAddress,
-		Text:    []byte(c.Template.Text),
-		HTML:    []byte(c.Template.HTML),
 	}
-	Logger.Println(c.SMTP.Username)
-	Logger.Println(c.SMTP.Password)
-	Logger.Println(c.SMTP.FromAddress)
 	var auth smtp.Auth
 	if c.SMTP.Username != "" && c.SMTP.Password != "" {
 		auth = smtp.PlainAuth("", c.SMTP.Username, c.SMTP.Password, strings.Split(c.SMTP.Host, ":")[0])
 	}
 	for _, t := range c.Results {
+		// Parse the templates
+		var buff bytes.Buffer
+		tmpl, err := template.New("html_template").Parse(c.Template.HTML)
+		if err != nil {
+			Logger.Println(err)
+		}
+		err = tmpl.Execute(&buff, t)
+		if err != nil {
+			Logger.Println(err)
+		}
+		e.HTML = buff.Bytes()
+		buff.Reset()
+		tmpl, err = template.New("text_template").Parse(c.Template.Text)
+		if err != nil {
+			Logger.Println(err)
+		}
+		err = tmpl.Execute(&buff, t)
+		if err != nil {
+			Logger.Println(err)
+		}
+		e.Text = buff.Bytes()
+		buff.Reset()
 		Logger.Println("Creating email using template")
 		e.To = []string{t.Email}
-		Logger.Println(e.To)
-		Logger.Println(e.From)
-		err := e.Send(c.SMTP.Host, auth)
+		err = e.Send(c.SMTP.Host, auth)
 		if err != nil {
 			Logger.Println(err)
 			err = t.UpdateStatus("Error")
@@ -68,7 +85,6 @@ func processCampaign(c *models.Campaign) {
 				Logger.Println(err)
 			}
 		}
-
 		Logger.Printf("Sending Email to %s\n", t.Email)
 	}
 }
