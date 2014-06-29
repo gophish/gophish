@@ -18,7 +18,7 @@ import (
 var templateDelims = []string{"{{%", "%}}"}
 var Logger = log.New(os.Stdout, " ", log.Ldate|log.Ltime|log.Lshortfile)
 
-func CreateRouter() *nosurf.CSRFHandler {
+func CreateAdminRouter() http.Handler {
 	router := mux.NewRouter()
 	// Base Front-end routes
 	router.HandleFunc("/login", Login)
@@ -51,7 +51,19 @@ func CreateRouter() *nosurf.CSRFHandler {
 	csrfHandler.ExemptGlob("/api/templates/*")
 	csrfHandler.ExemptGlob("/api/import/*")
 	csrfHandler.ExemptGlob("/static/*")
-	return csrfHandler
+	return Use(csrfHandler.ServeHTTP, mid.GetContext)
+}
+
+//CreateEndpointRouter creates the router that handles phishing connections.
+func CreatePhishingRouter() http.Handler {
+	router := mux.NewRouter()
+	router.PathPrefix("/static").Handler(http.FileServer(http.Dir("./static/endpoint/")))
+	router.HandleFunc("/{path:.*}", PhishHandler)
+	return router
+}
+
+func PhishHandler(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("It Works!"))
 }
 
 // Use allows us to stack middleware to process the request

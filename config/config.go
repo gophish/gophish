@@ -14,9 +14,10 @@ type SMTPServer struct {
 
 // Config represents the configuration information.
 type Config struct {
-	URL    string     `json:"url"`
-	SMTP   SMTPServer `json:"smtp"`
-	DBPath string     `json:"dbpath"`
+	AdminURL string     `json:"admin_url"`
+	PhishURL string     `json:"phish_url"`
+	SMTP     SMTPServer `json:"smtp"`
+	DBPath   string     `json:"dbpath"`
 }
 
 var Conf Config

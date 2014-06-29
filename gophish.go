@@ -33,18 +33,18 @@ import (
 	"github.com/gorilla/handlers"
 	"github.com/jordan-wright/gophish/config"
 	"github.com/jordan-wright/gophish/controllers"
-	"github.com/jordan-wright/gophish/middleware"
 	"github.com/jordan-wright/gophish/models"
 )
 
 func main() {
-	//Setup the global variables and settings
+	// Setup the global variables and settings
 	err := models.Setup()
-	//defer models.db.DB().Close()
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Printf("Gophish server started at http://%s\n", config.Conf.URL)
-	http.Handle("/", handlers.CombinedLoggingHandler(os.Stdout, controllers.Use(controllers.CreateRouter().ServeHTTP, middleware.GetContext)))
-	http.ListenAndServe(config.Conf.URL, nil)
+	// Start the web servers
+	fmt.Printf("Admin server started at http://%s\n", config.Conf.AdminURL)
+	go http.ListenAndServe(config.Conf.AdminURL, handlers.CombinedLoggingHandler(os.Stdout, controllers.CreateAdminRouter()))
+	fmt.Printf("Phishing server started at http://%s\n", config.Conf.PhishURL)
+	http.ListenAndServe(config.Conf.PhishURL, handlers.CombinedLoggingHandler(os.Stdout, controllers.CreatePhishingRouter()))
 }
