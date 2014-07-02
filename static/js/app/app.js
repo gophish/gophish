@@ -5,8 +5,8 @@ app.config(function($routeProvider) {
 
     // route for the home page
     .when('/', {
-        templateUrl: 'js/app/partials/campaigns.html',
-        controller: 'CampaignCtrl'
+        templateUrl: 'js/app/partials/dashboard.html',
+        controller: 'DashboardCtrl'
     })
 
     .when('/campaigns', {

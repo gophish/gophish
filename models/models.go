@@ -18,10 +18,13 @@ var ErrUsernameTaken = errors.New("username already taken")
 var Logger = log.New(os.Stdout, " ", log.Ldate|log.Ltime|log.Lshortfile)
 
 const (
-	IN_PROGRESS string = "In progress"
-	QUEUED      string = "Queued"
-	COMPLETE    string = "Completed"
-	ERROR       string = "Error"
+	CAMPAIGN_IN_PROGRESS string = "In progress"
+	CAMPAIGN_QUEUED      string = "Queued"
+	CAMPAIGN_COMPLETE    string = "Completed"
+	STATUS_SENT          string = "Email Sent"
+	STATUS_OPENED        string = "Email Opened"
+	STATUS_CLICKED       string = "Clicked Link"
+	ERROR                string = "Error"
 )
 
 // Flash is used to hold flash information for use in templates.

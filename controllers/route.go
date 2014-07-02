@@ -18,6 +18,8 @@ import (
 var templateDelims = []string{"{{%", "%}}"}
 var Logger = log.New(os.Stdout, " ", log.Ldate|log.Ltime|log.Lshortfile)
 
+// CreateAdminRouter creates the routes for handling requests to the web interface.
+// This function returns an http.Handler to be used in http.ListenAndServe().
 func CreateAdminRouter() http.Handler {
 	router := mux.NewRouter()
 	// Base Front-end routes
@@ -62,7 +64,21 @@ func CreatePhishingRouter() http.Handler {
 	return router
 }
 
+// PhishHandler handles incoming client connections and registers the associated actions performed
+// (such as clicked link, etc.)
 func PhishHandler(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	id := r.Form.Get("rid")
+	if id == "" {
+		http.NotFound(w, r)
+		return
+	}
+	rs, err := models.GetResult(id)
+	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
+	rs.UpdateStatus("Clicked Link")
 	w.Write([]byte("It Works!"))
 }
 

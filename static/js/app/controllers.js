@@ -1,3 +1,73 @@
+app.controller('DashboardCtrl', function($scope, CampaignService, ngTableParams, $http) {
+    $scope.mainTableParams = new ngTableParams({
+        page: 1, // show first page
+        count: 10, // count per page
+        sorting: {
+            name: 'asc' // initial sorting
+        }
+    }, {
+        total: 0, // length of data
+        getData: function($defer, params) {
+            CampaignService.query(function(campaigns) {
+                $scope.campaigns = campaigns
+                var campaign_series = []
+                angular.forEach(campaigns, function(campaign, key) {
+                    campaign_series.push({
+                        y: 0
+                    })
+                    angular.forEach(campaign.results, function(result, r_key) {
+                        if (result.status == "Clicked Link") {
+                            campaign_series[campaign_series.length - 1].y++;
+                        }
+                    })
+                    campaign_series[campaign_series.length - 1].y = Math.floor((campaign_series[campaign_series.length - 1].y / campaign.results.length)*100)
+                    console.log(campaign_series)
+                });
+                $scope.overview_chart = {
+                    options: {
+                        chart: {
+                            type: 'area'
+                        },
+                        tooltip: {
+                            formatter: function() {
+                                return "Successful Phishes: " + this.point.y + "%"
+                            },
+                            style: {
+                                padding: 10,
+                                fontWeight: 'bold'
+                            }
+                        },
+                        plotOptions: {
+                            pie: {
+                                allowPointSelect: true,
+                                cursor: 'pointer',
+                                dataLabels: {
+                                    enabled: false
+                                },
+                                showInLegend: true
+                            }
+                        }
+                    },
+                    series: [{
+                        data: campaign_series
+                    }],
+                    title: {
+                        text: 'Phishing Success Overview'
+                    },
+                    size: {
+                        height: 300
+                    },
+                    credits: {
+                        enabled: false
+                    },
+                    loading: false,
+                }
+                params.total(Math.min(campaigns.length, 5));
+                $defer.resolve(campaigns.slice(0, params.total()));
+            })
+        }
+    });
+})
 app.controller('CampaignCtrl', function($scope, $modal, CampaignService, GroupService, TemplateService, ngTableParams, $http) {
     $scope.flashes = []
     $scope.mainTableParams = new ngTableParams({

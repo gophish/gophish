@@ -41,21 +41,10 @@ func (c *Campaign) UpdateStatus(s string) error {
 	return db.Table("campaigns").Where("id=?", c.Id).Update("status", s).Error
 }
 
-func (c *Campaign) AddEvent (e Event) error {
+func (c *Campaign) AddEvent(e Event) error {
 	e.CampaignId = c.Id
 	e.Time = time.Now()
 	return db.Debug().Save(&e).Error
-}
-
-type Result struct {
-	Id         int64  `json:"-"`
-	CampaignId int64  `json:"-"`
-	Email      string `json:"email"`
-	Status     string `json:"status" sql:"not null"`
-}
-
-func (r *Result) UpdateStatus(s string) error {
-	return db.Debug().Table("results").Where("id=?", r.Id).Update("status", s).Error
 }
 
 type Event struct {
@@ -63,7 +52,7 @@ type Event struct {
 	CampaignId int64     `json:"-"`
 	Email      string    `json:"email"`
 	Time       time.Time `json:"time"`
-	Message    string `json:"message"`
+	Message    string    `json:"message"`
 }
 
 // GetCampaigns returns the campaigns owned by the given user.
@@ -115,7 +104,7 @@ func PostCampaign(c *Campaign, uid int64) error {
 	c.UserId = uid
 	c.CreatedDate = time.Now()
 	c.CompletedDate = time.Time{}
-	c.Status = QUEUED
+	c.Status = CAMPAIGN_QUEUED
 	// Check to make sure all the groups already exist
 	for i, g := range c.Groups {
 		c.Groups[i], err = GetGroupByName(g.Name, uid)
@@ -144,7 +133,7 @@ func PostCampaign(c *Campaign, uid int64) error {
 		Logger.Println(err)
 		return err
 	}
-	err = c.AddEvent(Event{Message:"Campaign Created"})
+	err = c.AddEvent(Event{Message: "Campaign Created"})
 	if err != nil {
 		Logger.Println(err)
 	}
@@ -153,7 +142,8 @@ func PostCampaign(c *Campaign, uid int64) error {
 		// Insert a result for each target in the group
 		for _, t := range g.Targets {
 			r := Result{Email: t.Email, Status: "Unknown", CampaignId: c.Id}
-			err := db.Save(&r).Error
+			r.GenerateId()
+			err = db.Save(&r).Error
 			if err != nil {
 				Logger.Printf("Error adding result record for target %s\n", t.Email)
 				Logger.Println(err)

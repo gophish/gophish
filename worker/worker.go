@@ -35,7 +35,7 @@ func (w *Worker) Start() {
 
 func processCampaign(c *models.Campaign) {
 	Logger.Printf("Worker received: %s", c.Name)
-	err := c.UpdateStatus(models.IN_PROGRESS)
+	err := c.UpdateStatus(models.CAMPAIGN_IN_PROGRESS)
 	if err != nil {
 		Logger.Println(err)
 	}
