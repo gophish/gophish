@@ -1,6 +1,9 @@
 package models
 
-import "time"
+import (
+	"errors"
+	"time"
+)
 
 type Template struct {
 	Id           int64     `json:"id"`
@@ -12,14 +15,17 @@ type Template struct {
 	ModifiedDate time.Time `json:"modified_date"`
 }
 
-func (t *Template) Validate() (string, bool) {
+var ErrTemplateNameNotSpecified = errors.New("Template Name not specified")
+var ErrTemplateMissingParameter = errors.New("Need to specify at least plaintext or HTML format")
+
+func (t *Template) Validate() error {
 	switch {
 	case t.Name == "":
-		return "Template Name not specified", false
+		return ErrTemplateNameNotSpecified
 	case t.Text == "" && t.HTML == "":
-		return "Need to specify at least plaintext or HTML format", false
+		return ErrTemplateMissingParameter
 	}
-	return "", true
+	return nil
 }
 
 type UserTemplate struct {
@@ -73,9 +79,14 @@ func PostTemplate(t *Template) error {
 
 // PutTemplate edits an existing template in the database.
 // Per the PUT Method RFC, it presumes all data for a template is provided.
-func PutTemplate(t *Template, uid int64) error {
+func PutTemplate(t *Template) error {
+	Logger.Println(t)
+	err := db.Debug().Where("id=?", t.Id).Save(t).Error
+	if err != nil {
+		Logger.Println(err)
+		return err
+	}
 	return nil
-	//err :=
 }
 
 // DeleteTemplate deletes an existing template in the database.

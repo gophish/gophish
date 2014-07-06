@@ -162,6 +162,7 @@ func API_Groups_Id(w http.ResponseWriter, r *http.Request) {
 		}
 		JSONResponse(w, models.Response{Success: true, Message: "Group Deleted Successfully"}, http.StatusOK)
 	case r.Method == "PUT":
+		// Change this to get from URL and uid (don't bother with id in r.Body)
 		g = models.Group{}
 		err = json.NewDecoder(r.Body).Decode(&g)
 		if g.Id != id {
@@ -237,8 +238,13 @@ func API_Templates_Id(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Error: /:id and template_id mismatch", http.StatusBadRequest)
 			return
 		}
+		err = t.Validate()
+/*		if checkError(err, w, http.StatusBadRequest) {
+			return
+		}*/
 		t.ModifiedDate = time.Now()
-		err = models.PutTemplate(&t, ctx.Get(r, "user_id").(int64))
+		t.UserId = ctx.Get(r, "user_id").(int64)
+		err = models.PutTemplate(&t)
 		if checkError(err, w, "Error updating group", http.StatusInternalServerError) {
 			return
 		}
