@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 )
 
+// SMTPServer represents the SMTP configuration details
 type SMTPServer struct {
 	Host     string `json:"host"`
 	User     string `json:"user"`

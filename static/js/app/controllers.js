@@ -1,4 +1,5 @@
-app.controller('DashboardCtrl', function($scope, CampaignService, ngTableParams, $http) {
+app.controller('DashboardCtrl', function($scope, $filter, $location, CampaignService, ngTableParams, $http) {
+    $scope.campaigns = []
     $scope.mainTableParams = new ngTableParams({
         page: 1, // show first page
         count: 10, // count per page
@@ -11,26 +12,26 @@ app.controller('DashboardCtrl', function($scope, CampaignService, ngTableParams,
             CampaignService.query(function(campaigns) {
                 $scope.campaigns = campaigns
                 var campaign_series = []
+                angular.copy(campaigns, campaign_series)
                 angular.forEach(campaigns, function(campaign, key) {
-                    campaign_series.push({
-                        y: 0
-                    })
+                    campaign.x = new Date(campaign.created_date)
+                    campaign.y = 0
                     angular.forEach(campaign.results, function(result, r_key) {
                         if (result.status == "Clicked Link") {
-                            campaign_series[campaign_series.length - 1].y++;
+                            campaign.y++;
                         }
                     })
-                    campaign_series[campaign_series.length - 1].y = Math.floor((campaign_series[campaign_series.length - 1].y / campaign.results.length)*100)
-                    console.log(campaign_series)
+                    campaign.y = Math.floor((campaign.y / campaign.results.length) * 100)
                 });
                 $scope.overview_chart = {
                     options: {
                         chart: {
-                            type: 'area'
+                            type: 'area',
+                            zoomType: "x"
                         },
                         tooltip: {
                             formatter: function() {
-                                return "Successful Phishes: " + this.point.y + "%"
+                                return "Name: " + this.point.name + "<br/>Successful Phishes: " + this.point.y + "%<br/>Date: " + $filter("date")(this.point.x, "medium")
                             },
                             style: {
                                 padding: 10,
@@ -38,18 +39,29 @@ app.controller('DashboardCtrl', function($scope, CampaignService, ngTableParams,
                             }
                         },
                         plotOptions: {
-                            pie: {
-                                allowPointSelect: true,
+                            series: {
                                 cursor: 'pointer',
-                                dataLabels: {
-                                    enabled: false
-                                },
-                                showInLegend: true
+                                point: {
+                                    events: {
+                                        click: function(e) {
+                                            console.log(this)
+                                            $location.path("/campaigns/" + this.id)
+                                            $scope.$apply()
+                                        }
+                                    }
+                                }
                             }
-                        }
+                        },
+                        xAxis: {
+                            type: 'datetime',
+                            max: Date.now(),
+                            title: {
+                                text: 'Date'
+                            }
+                        },
                     },
                     series: [{
-                        data: campaign_series
+                        data: $scope.campaigns
                     }],
                     title: {
                         text: 'Phishing Success Overview'
