@@ -11,7 +11,8 @@ app.controller('DashboardCtrl', function($scope, $filter, $location, CampaignSer
         getData: function($defer, params) {
             CampaignService.query(function(campaigns) {
                 $scope.campaigns = campaigns
-                var campaign_series = []
+                var campaign_series = [];
+                var avg = 0;
                 angular.copy(campaigns, campaign_series)
                 angular.forEach(campaigns, function(campaign, key) {
                     campaign.x = new Date(campaign.created_date)
@@ -22,7 +23,9 @@ app.controller('DashboardCtrl', function($scope, $filter, $location, CampaignSer
                         }
                     })
                     campaign.y = Math.floor((campaign.y / campaign.results.length) * 100)
+                    avg += campaign.y
                 });
+                avg = Math.floor(avg / campaigns.length);
                 $scope.overview_chart = {
                     options: {
                         chart: {
@@ -44,7 +47,6 @@ app.controller('DashboardCtrl', function($scope, $filter, $location, CampaignSer
                                 point: {
                                     events: {
                                         click: function(e) {
-                                            console.log(this)
                                             $location.path("/campaigns/" + this.id)
                                             $scope.$apply()
                                         }
@@ -65,6 +67,56 @@ app.controller('DashboardCtrl', function($scope, $filter, $location, CampaignSer
                     }],
                     title: {
                         text: 'Phishing Success Overview'
+                    },
+                    size: {
+                        height: 300
+                    },
+                    credits: {
+                        enabled: false
+                    },
+                    loading: false,
+                }
+                $scope.average_chart = {
+                    options: {
+                        chart: {
+                            type: 'pie'
+                        },
+                        tooltip: {
+                            formatter: function() {
+                                return this.point.y + "%"
+                            },
+                            style: {
+                                padding: 10,
+                                fontWeight: 'bold'
+                            }
+                        },
+                        plotOptions: {
+                            pie: {
+                                innerSize: '60%',
+                                allowPointSelect: true,
+                                cursor: 'pointer',
+                                dataLabels: {
+                                    enabled: false
+                                },
+                                showInLegend: true
+                            }
+                        },
+                    },
+                    series: [{
+                        data: [
+                        {
+                            name: "Successful Phishes",
+                            color: "#e74c3c",
+                            y: avg
+                        },
+                        {
+                            name: "Unsuccessful Phishes",
+                            color: "#7cb5ec",
+                            y: 100-avg
+                        }]
+                    }],
+                    title: {
+                        text: 'Average Phishing Results'
                     },
                     size: {
                         height: 300
