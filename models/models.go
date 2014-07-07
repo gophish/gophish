@@ -21,9 +21,11 @@ const (
 	CAMPAIGN_IN_PROGRESS string = "In progress"
 	CAMPAIGN_QUEUED      string = "Queued"
 	CAMPAIGN_COMPLETE    string = "Completed"
-	STATUS_SENT          string = "Email Sent"
-	STATUS_OPENED        string = "Email Opened"
-	STATUS_CLICKED       string = "Clicked Link"
+	EVENT_SENT           string = "Email Sent"
+	EVENT_OPENED         string = "Email Opened"
+	EVENT_CLICKED        string = "Clicked Link"
+	STATUS_SUCCESS       string = "Success"
+	STATUS_UNKNOWN       string = "Unknown"
 	ERROR                string = "Error"
 )
 

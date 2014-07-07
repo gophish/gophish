@@ -78,7 +78,12 @@ func PhishHandler(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	rs.UpdateStatus("Clicked Link")
+	rs.UpdateStatus(models.STATUS_SUCCESS)
+	c, err := models.GetCampaign(rs.CampaignId, rs.UserId)
+	if err != nil {
+		Logger.Println(err)
+	}
+	c.AddEvent(models.Event{Email: rs.Email, Message: models.EVENT_CLICKED})
 	w.Write([]byte("It Works!"))
 }
 

@@ -80,7 +80,7 @@ func processCampaign(c *models.Campaign) {
 				Logger.Println(err)
 			}
 		} else {
-			err = t.UpdateStatus("Email Sent")
+			err = t.UpdateStatus(models.EVENT_SENT)
 			if err != nil {
 				Logger.Println(err)
 			}

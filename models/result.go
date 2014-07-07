@@ -11,6 +11,7 @@ import (
 type Result struct {
 	Id         int64  `json:"-"`
 	CampaignId int64  `json:"-"`
+	UserId     int64  `json:"-"`
 	RId        string `json:"id"`
 	Email      string `json:"email"`
 	Status     string `json:"status" sql:"not null"`
