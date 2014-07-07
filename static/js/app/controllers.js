@@ -63,6 +63,7 @@ app.controller('DashboardCtrl', function($scope, $filter, $location, CampaignSer
                         },
                     },
                     series: [{
+                        name: "Campaigns",
                         data: $scope.campaigns
                     }],
                     title: {
