@@ -104,16 +104,14 @@ app.controller('DashboardCtrl', function($scope, $filter, $location, CampaignSer
                         },
                     },
                     series: [{
-                        data: [
-                        {
+                        data: [{
                             name: "Successful Phishes",
                             color: "#e74c3c",
                             y: avg
-                        },
-                        {
+                        }, {
                             name: "Unsuccessful Phishes",
                             color: "#7cb5ec",
-                            y: 100-avg
+                            y: 100 - avg
                         }]
                     }],
                     title: {
@@ -265,7 +263,7 @@ var CampaignModalCtrl = function($scope, $modalInstance) {
     }
 };
 
-app.controller('CampaignResultsCtrl', function($scope, CampaignService, GroupService, ngTableParams, $http, $window) {
+app.controller('CampaignResultsCtrl', function($scope, $filter, CampaignService, GroupService, ngTableParams, $http, $window) {
     id = $window.location.hash.split('/')[2];
     $scope.flashes = []
     $scope.mainTableParams = new ngTableParams({
@@ -298,6 +296,10 @@ app.controller('CampaignResultsCtrl', function($scope, CampaignService, GroupSer
                         })
                     }
                 });
+                angular.forEach(campaign.timeline, function(e, key) {
+                    e.x = new Date(e.time);
+                    e.y = 0;
+                });
                 $scope.email_chart = {
                     options: {
                         chart: {
@@ -328,6 +330,71 @@ app.controller('CampaignResultsCtrl', function($scope, CampaignService, GroupSer
                     }],
                     title: {
                         text: 'Email Status'
+                    },
+                    size: {
+                        height: 300
+                    },
+                    credits: {
+                        enabled: false
+                    },
+                    loading: false,
+                }
+                $scope.timeline_chart = {
+                    options: {
+                        global: {
+                            useUTC: false
+                        },
+                        chart: {
+                            type: 'scatter',
+                            zoomType: "x"
+                        },
+                        tooltip: {
+                            formatter: function() {
+                                var label = "Event: " + this.point.message + "<br/>";
+                                if (this.point.email) {
+                                    label += "Email: " + this.point.email + "<br/>";
+                                }
+                                label += "Date: " + $filter("date")(this.point.x, "medium");
+                                return label
+                            },
+                            style: {
+                                padding: 10,
+                                fontWeight: 'bold'
+                            }
+                        },
+                        plotOptions: {
+                            series: {
+                                cursor: 'pointer',
+                            }
+                        },
+                        yAxis: {
+                            labels: {
+                                enabled: false
+                            },
+                            title: {
+                                text: "Events"
+                            }
+                        },
+                        xAxis: {
+                            type: 'datetime',
+                            dateTimeLabelFormats: { // don't display the dummy year
+                                day: "%e of %b",
+                                hour: "%l:%M",
+                                second: '%l:%M:%S',
+                                minute: '%l:%M'
+                            },
+                            max: Date.now(),
+                            title: {
+                                text: 'Date'
+                            }
+                        },
+                    },
+                    series: [{
+                        name: "Events",
+                        data: $scope.campaign.timeline
+                    }],
+                    title: {
+                        text: 'Campaign Timeline'
                     },
                     size: {
                         height: 300

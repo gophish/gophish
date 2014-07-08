@@ -1,4 +1,6 @@
-  
+.nav-tabs {
+  cursor:pointer;
+}  
   .navbar-logo {
       margin: 4px 0px;
       float: left;

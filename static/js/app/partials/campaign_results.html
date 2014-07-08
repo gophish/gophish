@@ -38,10 +38,24 @@
         <button type="button" class="btn btn-danger" tooltip="Delete Campaign" tooltip-placement="right"><i class="fa fa-times fa-lg"></i>
         </button>
     </div>
+    <br />
     <div class="row">
-        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
-            <highchart config="email_chart"></highchart>
-        </div>
+        <tabset>
+            <tab heading="Overview">
+                <br/>
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                        <highchart config="timeline_chart"></highchart>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                        <highchart config="email_chart"></highchart>
+                    </div>
+                </div>
+            </tab>
+            <tab heading="Timeline">Timeline here</tab>
+            <tab heading="Plugins">Plugins here</tab>
+            <tab heading="Demographics">Demographics here</tab>
+        </tabset>
     </div>
     <div class="row">
         <h2>Details</h2>
