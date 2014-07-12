@@ -18,7 +18,7 @@ app.controller('DashboardCtrl', function($scope, $filter, $location, CampaignSer
                     campaign.x = new Date(campaign.created_date)
                     campaign.y = 0
                     angular.forEach(campaign.results, function(result, r_key) {
-                        if (result.status == "Clicked Link") {
+                        if (result.status == "Success") {
                             campaign.y++;
                         }
                     })
@@ -600,6 +600,7 @@ app.controller('TemplateCtrl', function($scope, $modal, TemplateService, ngTable
                 name: '',
                 html: '',
                 text: '',
+                files: []
             };
 
         } else {
@@ -652,7 +653,24 @@ app.controller('TemplateCtrl', function($scope, $modal, TemplateService, ngTable
     }
 })
 
-var TemplateModalCtrl = function($scope, $modalInstance) {
+var TemplateModalCtrl = function($scope, $upload, $modalInstance) {
+    var reader = new FileReader();
+    $scope.onFileSelect = function($files) {
+        angular.forEach($files, function(file, key) {
+            reader.onload = function(e) {
+                $scope.template.files.push({
+                        name : file.name,
+                        content : reader.result.split(",")[1],
+                        type : file.type || "application/octet-stream"
+                })
+                $scope.$apply();
+            }
+            reader.onerror = function(e) {
+                console.log(e)
+            }
+            reader.readAsDataURL(file)
+        })
+    }
     $scope.cancel = function() {
         $modalInstance.dismiss('cancel');
     };

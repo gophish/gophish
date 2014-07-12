@@ -6,13 +6,14 @@ import (
 )
 
 type Template struct {
-	Id           int64     `json:"id"`
-	UserId       int64     `json:"-"`
-	Name         string    `json:"name"`
-	Subject      string    `json:"subject"`
-	Text         string    `json:"text"`
-	HTML         string    `json:"html"`
-	ModifiedDate time.Time `json:"modified_date"`
+	Id           int64        `json:"id"`
+	UserId       int64        `json:"-"`
+	Name         string       `json:"name"`
+	Subject      string       `json:"subject"`
+	Text         string       `json:"text"`
+	HTML         string       `json:"html"`
+	ModifiedDate time.Time    `json:"modified_date"`
+	Attachments  []Attachment `json:"attachments"`
 }
 
 var ErrTemplateNameNotSpecified = errors.New("Template Name not specified")
@@ -28,11 +29,6 @@ func (t *Template) Validate() error {
 	return nil
 }
 
-type UserTemplate struct {
-	UserId     int64 `json:"-"`
-	TemplateId int64 `json:"-"`
-}
-
 // GetTemplates returns the templates owned by the given user.
 func GetTemplates(uid int64) ([]Template, error) {
 	ts := []Template{}
@@ -41,6 +37,13 @@ func GetTemplates(uid int64) ([]Template, error) {
 		Logger.Println(err)
 		return ts, err
 	}
+	for i, _ := range ts {
+		err = db.Where("template_id=?", ts[i].Id).Find(&ts[i].Attachments).Error
+		if err != nil {
+			Logger.Println(err)
+			return ts, err
+		}
+	}
 	return ts, err
 }
 
@@ -48,6 +51,11 @@ func GetTemplates(uid int64) ([]Template, error) {
 func GetTemplate(id int64, uid int64) (Template, error) {
 	t := Template{}
 	err := db.Where("user_id=? and id=?", uid, id).Find(&t).Error
+	if err != nil {
+		Logger.Println(err)
+		return t, err
+	}
+	err = db.Where("template_id=?", t.Id).Find(&t.Attachments).Error
 	if err != nil {
 		Logger.Println(err)
 		return t, err
@@ -80,8 +88,7 @@ func PostTemplate(t *Template) error {
 // PutTemplate edits an existing template in the database.
 // Per the PUT Method RFC, it presumes all data for a template is provided.
 func PutTemplate(t *Template) error {
-	Logger.Println(t)
-	err := db.Debug().Where("id=?", t.Id).Save(t).Error
+	err := db.Where("id=?", t.Id).Save(t).Error
 	if err != nil {
 		Logger.Println(err)
 		return err

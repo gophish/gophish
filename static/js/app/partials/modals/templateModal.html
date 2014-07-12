@@ -11,7 +11,7 @@
     </div>
     <label class="control-label" for="subject">Subject:</label>
     <div class="form-group">
-        <input type="text" class="form-control" ng-model="template.subject" placeholder="Email Subject" id="subject"/>
+        <input type="text" class="form-control" ng-model="template.subject" placeholder="Email Subject" id="subject" />
     </div>
     <fieldset disabled>
         <div class="form-group">
@@ -30,12 +30,18 @@
             <div ng-model="template.html" contenteditable></div>
         </tab>
     </tabset>
-
-    <fieldset disabled>
-        <div class="form-group" style="margin-top:15px">
-            <button class="btn btn-danger btn-disabled"><i class="fa fa-plus"></i> Add Files (Coming Soon!)</button>
-        </div>
-    </fieldset>
+    <br />
+    <span class="btn btn-danger btn-file"><i class="fa fa-plus"></i> Add Files (Coming Soon!)
+        <input type="file" ng-file-select="onFileSelect($files)">
+    </span>
+    <div ng-repeat="file in template.files" ng-model="template.files">
+        <i class="fa fa-file-excel-o" ng-show="file.type == 'application/vnd.ms-excel'"></i>
+        <i class="fa fa-file-text-o" ng-show="file.type == 'text/plain'"></i>
+        <i class="fa fa-file-image-o" ng-show="file.type == 'image/gif'"></i>
+        <i class="fa fa-file" ng-show="file.type == 'application/octet-stream'"></i>
+        &nbsp;{{file.name}}
+        {{file.type}}
+    </div>
 </div>
 <div class="modal-footer">
     <button type="button" class="btn btn-default" ng-click="cancel()">Cancel</button>

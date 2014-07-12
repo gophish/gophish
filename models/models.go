@@ -61,6 +61,7 @@ func Setup() error {
 		db.CreateTable(Group{})
 		db.CreateTable(GroupTarget{})
 		db.CreateTable(Template{})
+		db.CreateTable(Attachment{})
 		db.CreateTable(SMTP{})
 		db.CreateTable(Event{})
 		db.CreateTable(Campaign{})

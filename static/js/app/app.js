@@ -35,6 +35,15 @@ app.config(function($routeProvider) {
     })
 });
 
+app.config( [
+    '$compileProvider',
+    function( $compileProvider )
+    {   
+        $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|data):/);
+        // Angular before v1.2 uses $compileProvider.urlSanitizationWhitelist(...)
+    }
+]);
+
 app.filter('cut', function() {
     return function(value, max, tail) {
         if (!value) return '';
