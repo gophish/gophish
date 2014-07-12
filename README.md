@@ -5,7 +5,7 @@ gophish
 
 Open-Source Phishing Toolkit
 
-Gophish is an open-source phishing toolkits designed for businesses and penetration testers. It provides the ability to quickly and easily setup and execute phishing engagements.
+Gophish is an open-source phishing toolkit designed for businesses and penetration testers. It provides the ability to quickly and easily setup and execute phishing engagements.
 
 ###Current Status
 Development of gophish is currently ongoing. It is not anywhere close to being functional yet, but should get there soon.
