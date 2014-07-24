@@ -27,6 +27,7 @@ THE SOFTWARE.
 */
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 
@@ -36,6 +37,8 @@ import (
 	"github.com/jordan-wright/gophish/models"
 )
 
+var Logger = log.New(os.Stdout, " ", log.Ldate|log.Ltime|log.Lshortfile)
+
 func main() {
 	// Setup the global variables and settings
 	err := models.Setup()
@@ -43,8 +46,8 @@ func main() {
 		fmt.Println(err)
 	}
 	// Start the web servers
-	fmt.Printf("Admin server started at http://%s\n", config.Conf.AdminURL)
+	Logger.Printf("Admin server started at http://%s\n", config.Conf.AdminURL)
 	go http.ListenAndServe(config.Conf.AdminURL, handlers.CombinedLoggingHandler(os.Stdout, controllers.CreateAdminRouter()))
-	fmt.Printf("Phishing server started at http://%s\n", config.Conf.PhishURL)
+	Logger.Printf("Phishing server started at http://%s\n", config.Conf.PhishURL)
 	http.ListenAndServe(config.Conf.PhishURL, handlers.CombinedLoggingHandler(os.Stdout, controllers.CreatePhishingRouter()))
 }

@@ -31,7 +31,14 @@
         <button type="button" class="btn btn-primary" ng-click="newCampaign()"><i class="fa fa-plus"></i> New Campaign</button>
     </div>
     &nbsp;
-    <div class="row">
+    <div ng-show="!campaigns.length">
+        <div class="row">
+            <div class="alert alert-info">
+                No campaigns yet.
+            </div>
+        </div>
+    </div>
+    <div ng-show="campaigns.length" class="row">
         <table ng-table="mainTableParams" class="table table-hover table-striped table-bordered">
             <tbody>
                 <tr ng-repeat="campaign in $data" class="editable-row">

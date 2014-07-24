@@ -234,14 +234,17 @@ func API_Templates_Id(w http.ResponseWriter, r *http.Request) {
 	case r.Method == "PUT":
 		t = models.Template{}
 		err = json.NewDecoder(r.Body).Decode(&t)
+		if err != nil {
+			Logger.Println(err)
+		}
 		if t.Id != id {
 			http.Error(w, "Error: /:id and template_id mismatch", http.StatusBadRequest)
 			return
 		}
 		err = t.Validate()
-/*		if checkError(err, w, http.StatusBadRequest) {
-			return
-		}*/
+		/*		if checkError(err, w, http.StatusBadRequest) {
+				return
+			}*/
 		t.ModifiedDate = time.Now()
 		t.UserId = ctx.Get(r, "user_id").(int64)
 		err = models.PutTemplate(&t)

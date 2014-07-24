@@ -31,17 +31,24 @@
         </tab>
     </tabset>
     <br />
-    <span class="btn btn-danger btn-file"><i class="fa fa-plus"></i> Add Files (Coming Soon!)
-        <input type="file" ng-file-select="onFileSelect($files)">
-    </span>
-    <div ng-repeat="file in template.files" ng-model="template.files">
+    <label class="control-label" ng-hide="template.attachments.length == 0">Files:</label>
+    <div ng-repeat="file in template.attachments" ng-model="template.attachments">
         <i class="fa fa-file-excel-o" ng-show="file.type == 'application/vnd.ms-excel'"></i>
         <i class="fa fa-file-text-o" ng-show="file.type == 'text/plain'"></i>
         <i class="fa fa-file-image-o" ng-show="file.type == 'image/gif'"></i>
-        <i class="fa fa-file" ng-show="file.type == 'application/octet-stream'"></i>
+        <i class="fa fa-file-pdf-o" ng-show="file.type == 'application/pdf'"></i>
+        <i class="fa fa-file-archive-o" ng-show="file.type == 'application/x-zip-compressed' || file.type == 'application/x-gzip'"></i>
+        <i class="fa fa-file-powerpoint-o" ng-show="file.type == 'application/vnd.openxmlformats-officedocument.presentationml.presentation'"></i>
+        <i class="fa fa-file-word-o" ng-show="file.type == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'"></i>
+        <i class="fa fa-file-o" ng-show="file.type == 'application/octet-stream' || file.type == 'application/x-msdownload'"></i>
         &nbsp;{{file.name}}
-        {{file.type}}
+        <span ng-click="removeFile(file)" class="remove-row"><i class="fa fa-trash-o"></i>
+        </span>
     </div>
+    <br/>
+    <span class="btn btn-danger btn-file"><i class="fa fa-plus"></i> Add Files
+        <input type="file" ng-file-select="onFileSelect($files)" multiple>
+    </span>
 </div>
 <div class="modal-footer">
     <button type="button" class="btn btn-default" ng-click="cancel()">Cancel</button>

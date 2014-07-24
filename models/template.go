@@ -82,13 +82,36 @@ func PostTemplate(t *Template) error {
 		Logger.Println(err)
 		return err
 	}
+	for i, _ := range t.Attachments {
+		Logger.Println(t.Attachments[i].Name)
+		t.Attachments[i].TemplateId = t.Id
+		err := db.Save(&t.Attachments[i]).Error
+		if err != nil {
+			Logger.Println(err)
+			return err
+		}
+	}
 	return nil
 }
 
 // PutTemplate edits an existing template in the database.
 // Per the PUT Method RFC, it presumes all data for a template is provided.
 func PutTemplate(t *Template) error {
-	err := db.Where("id=?", t.Id).Save(t).Error
+	// Delete all attachments, and replace with new ones
+	err := db.Where("template_id=?", t.Id).Delete(&Attachment{}).Error
+	if err != nil {
+		Logger.Println(err)
+		return err
+	}
+	for i, _ := range t.Attachments {
+		t.Attachments[i].TemplateId = t.Id
+		err := db.Save(&t.Attachments[i]).Error
+		if err != nil {
+			Logger.Println(err)
+			return err
+		}
+	}
+	err = db.Where("id=?", t.Id).Save(t).Error
 	if err != nil {
 		Logger.Println(err)
 		return err
@@ -99,7 +122,12 @@ func PutTemplate(t *Template) error {
 // DeleteTemplate deletes an existing template in the database.
 // An error is returned if a template with the given user id and template id is not found.
 func DeleteTemplate(id int64, uid int64) error {
-	err := db.Where("user_id=?", uid).Delete(Template{Id: id}).Error
+	err := db.Where("template_id=?", id).Delete(&Attachment{}).Error
+	if err != nil {
+		Logger.Println(err)
+		return err
+	}
+	err = db.Where("user_id=?", uid).Delete(Template{Id: id}).Error
 	if err != nil {
 		Logger.Println(err)
 		return err

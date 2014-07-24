@@ -162,6 +162,11 @@ func DeleteCampaign(id int64) error {
 		Logger.Println(err)
 		return err
 	}
+	err = db.Where("campaign_id=?", id).Delete(&Event{}).Error
+	if err != nil {
+		Logger.Println(err)
+		return err
+	}
 	// Delete the campaign
 	err = db.Delete(&Campaign{Id: id}).Error
 	if err != nil {

@@ -600,7 +600,7 @@ app.controller('TemplateCtrl', function($scope, $modal, TemplateService, ngTable
                 name: '',
                 html: '',
                 text: '',
-                files: []
+                attachments: []
             };
 
         } else {
@@ -654,11 +654,12 @@ app.controller('TemplateCtrl', function($scope, $modal, TemplateService, ngTable
 })
 
 var TemplateModalCtrl = function($scope, $upload, $modalInstance) {
-    var reader = new FileReader();
     $scope.onFileSelect = function($files) {
+        console.log($files)
         angular.forEach($files, function(file, key) {
+            var reader = new FileReader();
             reader.onload = function(e) {
-                $scope.template.files.push({
+                $scope.template.attachments.push({
                         name : file.name,
                         content : reader.result.split(",")[1],
                         type : file.type || "application/octet-stream"
@@ -678,6 +679,9 @@ var TemplateModalCtrl = function($scope, $upload, $modalInstance) {
         $modalInstance.dismiss('')
         $scope.saveTemplate(template)
     };
+    $scope.removeFile = function(file) {
+        $scope.template.attachments.splice($scope.template.attachments.indexOf(file), 1);
+    }
 };
 
 app.controller('SettingsCtrl', function($scope, $http, $window) {
