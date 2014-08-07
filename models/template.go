@@ -3,6 +3,8 @@ package models
 import (
 	"errors"
 	"time"
+
+	"github.com/jinzhu/gorm"
 )
 
 type Template struct {
@@ -39,9 +41,12 @@ func GetTemplates(uid int64) ([]Template, error) {
 	}
 	for i, _ := range ts {
 		err = db.Where("template_id=?", ts[i].Id).Find(&ts[i].Attachments).Error
-		if err != nil {
+		if err != nil && err != gorm.RecordNotFound {
 			Logger.Println(err)
 			return ts, err
+		}
+		if err == gorm.RecordNotFound {
+			err = nil
 		}
 	}
 	return ts, err
@@ -56,9 +61,12 @@ func GetTemplate(id int64, uid int64) (Template, error) {
 		return t, err
 	}
 	err = db.Where("template_id=?", t.Id).Find(&t.Attachments).Error
-	if err != nil {
+	if err != nil && err != gorm.RecordNotFound {
 		Logger.Println(err)
 		return t, err
+	}
+	if err == gorm.RecordNotFound {
+		err = nil
 	}
 	return t, err
 }
@@ -98,10 +106,13 @@ func PostTemplate(t *Template) error {
 // Per the PUT Method RFC, it presumes all data for a template is provided.
 func PutTemplate(t *Template) error {
 	// Delete all attachments, and replace with new ones
-	err := db.Where("template_id=?", t.Id).Delete(&Attachment{}).Error
-	if err != nil {
+	err := db.Debug().Where("template_id=?", t.Id).Delete(&Attachment{}).Error
+	if err != nil && err != gorm.RecordNotFound {
 		Logger.Println(err)
 		return err
+	}
+	if err == gorm.RecordNotFound {
+		err = nil
 	}
 	for i, _ := range t.Attachments {
 		t.Attachments[i].TemplateId = t.Id
@@ -111,7 +122,7 @@ func PutTemplate(t *Template) error {
 			return err
 		}
 	}
-	err = db.Where("id=?", t.Id).Save(t).Error
+	err = db.Debug().Where("id=?", t.Id).Save(t).Error
 	if err != nil {
 		Logger.Println(err)
 		return err

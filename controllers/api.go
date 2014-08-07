@@ -220,6 +220,7 @@ func API_Templates_Id(w http.ResponseWriter, r *http.Request) {
 	id, _ := strconv.ParseInt(vars["id"], 0, 64)
 	t, err := models.GetTemplate(id, ctx.Get(r, "user_id").(int64))
 	if checkError(err, w, "Template not found", http.StatusNotFound) {
+		Logger.Println(err)
 		return
 	}
 	switch {

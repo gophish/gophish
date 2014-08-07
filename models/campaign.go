@@ -141,7 +141,7 @@ func PostCampaign(c *Campaign, uid int64) error {
 	for _, g := range c.Groups {
 		// Insert a result for each target in the group
 		for _, t := range g.Targets {
-			r := Result{Email: t.Email, Status: STATUS_UNKNOWN, CampaignId: c.Id, UserId: c.UserId}
+			r := Result{Email: t.Email, Status: STATUS_UNKNOWN, CampaignId: c.Id, UserId: c.UserId, FirstName: t.FirstName, LastName: t.LastName}
 			r.GenerateId()
 			err = db.Save(&r).Error
 			if err != nil {
