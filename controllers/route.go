@@ -28,7 +28,6 @@ func CreateAdminRouter() http.Handler {
 	router.HandleFunc("/register", Register)
 	router.HandleFunc("/", Use(Base, mid.RequireLogin))
 	router.HandleFunc("/settings", Use(Settings, mid.RequireLogin))
-
 	// Create the API routes
 	api := router.PathPrefix("/api").Subrouter()
 	api = api.StrictSlash(true)
@@ -56,7 +55,7 @@ func CreateAdminRouter() http.Handler {
 	return Use(csrfHandler.ServeHTTP, mid.GetContext)
 }
 
-//CreateEndpointRouter creates the router that handles phishing connections.
+// CreatePhishingRouter creates the router that handles phishing connections.
 func CreatePhishingRouter() http.Handler {
 	router := mux.NewRouter()
 	router.PathPrefix("/static").Handler(http.FileServer(http.Dir("./static/endpoint/")))
@@ -96,6 +95,7 @@ func Use(handler http.HandlerFunc, mid ...func(http.Handler) http.HandlerFunc) h
 	return handler
 }
 
+// Register creates a new user
 func Register(w http.ResponseWriter, r *http.Request) {
 	// If it is a post request, attempt to register the account
 	// Now that we are all registered, we can log the user in
@@ -142,6 +142,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Logout destroys the current user session
 func Logout(w http.ResponseWriter, r *http.Request) {
 	// If it is a post request, attempt to register the account
 	// Now that we are all registered, we can log the user in
@@ -151,6 +152,7 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "login", 302)
 }
 
+// Base handles the default path and template execution
 func Base(w http.ResponseWriter, r *http.Request) {
 	// Example of using session - will be removed.
 	params := struct {
@@ -162,6 +164,7 @@ func Base(w http.ResponseWriter, r *http.Request) {
 	getTemplate(w, "dashboard").ExecuteTemplate(w, "base", params)
 }
 
+// Settings handles the changing of settings
 func Settings(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "POST":
@@ -178,6 +181,8 @@ func Settings(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Login handles the authentication flow for a user. If credentials are valid,
+// a session is created
 func Login(w http.ResponseWriter, r *http.Request) {
 	params := struct {
 		User    models.User
