@@ -44,21 +44,22 @@
         <table ng-table="mainTableParams" class="table table-hover table-striped table-bordered">
             <tbody>
                 <tr ng-repeat="page in $data" class="editable-row">
-                    <td data-title="'Name'" sortable="'name'" class="col-sm-1">{{page.name}}</td>
+                    <td data-title="'Name'" sortable="'name'" class="col-sm-1">{{page.name}}
+                      <div class="btn-group" style="float: right;">
+                          <button type="button" class="btn btn-primary dropdown-toggle edit-button" data-toggle="dropdown">
+                              <span class="caret" style="border-top-color:#FFFFFF"></span>
+                              <span class="sr-only">Toggle Dropdown</span>
+                          </button>
+                          <ul class="dropdown-menu" style="left:auto; right:0;" role="menu">
+                              <li><a ng-click="editTemplate(template)">Edit</a>
+                              </li>
+                              <li class="divider"></li>
+                              <li><a ng-click="deleteTemplate(template)" ng-href="#">Delete</a>
+                              </li>
+                          </ul>
+                      </div>
+                    </td>
                     <td data-title="'Modified Date'" class="col-sm-1">{{page.modified_date | date:'medium'}}</td>
-                    <div class="btn-group" style="float: right;">
-                        <button type="button" class="btn btn-primary dropdown-toggle edit-button" data-toggle="dropdown">
-                            <span class="caret" style="border-top-color:#FFFFFF"></span>
-                            <span class="sr-only">Toggle Dropdown</span>
-                        </button>
-                        <ul class="dropdown-menu" style="left:auto; right:0;" role="menu">
-                            <li><a ng-click="editPage(page)">Edit</a>
-                            </li>
-                            <li class="divider"></li>
-                            <li><a ng-click="deletePage(page)">Delete</a>
-                            </li>
-                        </ul>
-                    </div>
                 </tr>
             </tbody>
         </table>

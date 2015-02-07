@@ -116,7 +116,13 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	case r.Method == "GET":
 		params.Flashes = session.Flashes()
 		session.Save(r, w)
-		getTemplate(w, "register").ExecuteTemplate(w, "base", params)
+		templates := template.New("template")
+		templates.Delims(templateDelims[0], templateDelims[1])
+		_, err := templates.ParseFiles("templates/register.html", "templates/flashes.html")
+		if err != nil {
+			Logger.Println(err)
+		}
+		template.Must(templates, err).ExecuteTemplate(w, "base", params)
 	case r.Method == "POST":
 		//Attempt to register
 		succ, err := auth.Register(r)

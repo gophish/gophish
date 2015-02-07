@@ -5,14 +5,11 @@ import (
 	"log"
 	"os"
 
-	"github.com/coopernurse/gorp"
 	"github.com/jinzhu/gorm"
 	"github.com/jordan-wright/gophish/config"
 	_ "github.com/mattn/go-sqlite3" // Blank import needed to import sqlite3
 )
 
-// Conn is the connection to the SQLite database
-var Conn *gorp.DbMap
 var db gorm.DB
 var err error
 

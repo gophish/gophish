@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"database/sql"
 	"encoding/gob"
 	"errors"
 	"fmt"
@@ -9,6 +8,7 @@ import (
 	"net/http"
 
 	"crypto/rand"
+
 	"code.google.com/p/go.crypto/bcrypt"
 	ctx "github.com/gorilla/context"
 	"github.com/gorilla/securecookie"
@@ -53,22 +53,22 @@ func Register(r *http.Request) (bool, error) {
 	username, password := r.FormValue("username"), r.FormValue("password")
 	u, err := models.GetUserByUsername(username)
 	// If we have an error which is not simply indicating that no user was found, report it
-	if err != sql.ErrNoRows {
+	if err != nil {
+		fmt.Println(err)
 		return false, err
 	}
+	fmt.Println("Made it here!")
+	u = models.User{}
 	//If we've made it here, we should have a valid username given
 	//Let's create the password hash
 	h, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return false, err
+	}
 	u.Username = username
 	u.Hash = string(h)
 	u.ApiKey = GenerateSecureKey()
-	if err != nil {
-		return false, err
-	}
-	err = models.Conn.Insert(&u)
-	if err != nil {
-		return false, err
-	}
+	err = models.PutUser(&u)
 	return true, nil
 }
 

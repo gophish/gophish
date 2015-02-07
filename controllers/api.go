@@ -17,6 +17,7 @@ import (
 	"github.com/jordan-wright/gophish/worker"
 )
 
+// Worker is the worker that processes phishing events and updates campaigns.
 var Worker *worker.Worker
 
 func init() {
