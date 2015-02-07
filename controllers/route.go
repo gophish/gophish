@@ -55,6 +55,7 @@ func CreateAdminRouter() http.Handler {
 	csrfHandler.ExemptGlob("/api/campaigns/*")
 	csrfHandler.ExemptGlob("/api/groups/*")
 	csrfHandler.ExemptGlob("/api/templates/*")
+	csrfHandler.ExemptGlob("/api/pages/*")
 	csrfHandler.ExemptGlob("/api/import/*")
 	csrfHandler.ExemptGlob("/static/*")
 	return Use(csrfHandler.ServeHTTP, mid.GetContext)

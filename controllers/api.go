@@ -270,18 +270,21 @@ func API_Pages(w http.ResponseWriter, r *http.Request) {
 		p := models.Page{}
 		// Put the request into a page
 		err := json.NewDecoder(r.Body).Decode(&p)
-		if checkError(err, w, "Invalid Request", http.StatusBadRequest) {
+		if err != nil {
+			JSONResponse(w, models.Response{Success: false, Message: "Invalid request"}, http.StatusBadRequest)
 			return
 		}
 		_, err = models.GetPageByName(p.Name, ctx.Get(r, "user_id").(int64))
 		if err != gorm.RecordNotFound {
-			JSONResponse(w, models.Response{Success: false, Message: "Template name already in use"}, http.StatusConflict)
+			JSONResponse(w, models.Response{Success: false, Message: "Page name already in use"}, http.StatusConflict)
+			Logger.Println(err)
 			return
 		}
 		p.ModifiedDate = time.Now()
 		p.UserId = ctx.Get(r, "user_id").(int64)
 		err = models.PostPage(&p)
-		if checkError(err, w, "Error inserting page", http.StatusInternalServerError) {
+		if err != nil {
+			JSONResponse(w, models.Response{Success: false, Message: "Error inserting page"}, http.StatusInternalServerError)
 			return
 		}
 		JSONResponse(w, p, http.StatusCreated)
@@ -312,17 +315,19 @@ func API_Pages_Id(w http.ResponseWriter, r *http.Request) {
 			Logger.Println(err)
 		}
 		if p.Id != id {
-			http.Error(w, "Error: /:id and template_id mismatch", http.StatusBadRequest)
+			JSONResponse(w, models.Response{Success: false, Message: "/:id and /:page_id mismatch"}, http.StatusBadRequest)
 			return
 		}
 		err = p.Validate()
-		/*		if checkError(err, w, http.StatusBadRequest) {
-				return
-			}*/
+		if err != nil {
+			JSONResponse(w, models.Response{Success: false, Message: "Invalid attributes given"}, http.StatusBadRequest)
+			return
+		}
 		p.ModifiedDate = time.Now()
 		p.UserId = ctx.Get(r, "user_id").(int64)
 		err = models.PutPage(&p)
-		if checkError(err, w, "Error updating group", http.StatusInternalServerError) {
+		if err != nil {
+			JSONResponse(w, models.Response{Success: false, Message: "Error updating page"}, http.StatusInternalServerError)
 			return
 		}
 		JSONResponse(w, p, http.StatusOK)

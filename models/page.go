@@ -7,15 +7,15 @@ import (
 
 // Page contains the fields used for a Page model
 type Page struct {
-	Id           int64     `json:"id"`
-	UserId       int64     `json:"-"`
+	Id           int64     `json:"id" gorm:"column:id; primary_key:yes"`
+	UserId       int64     `json:"-" gorm:"column:user_id"`
 	Name         string    `json:"name"`
-	HTML         string    `json:"html"`
+	HTML         string    `json:"html" gorm:"column:html"`
 	ModifiedDate time.Time `json:"modified_date"`
 }
 
 // ErrPageNameNotSpecified is thrown if the name of the landing page is blank.
-var ErrPageNameNotSpecified = errors.New("Template Name not specified")
+var ErrPageNameNotSpecified = errors.New("Page Name not specified")
 
 // Validate ensures that a page contains the appropriate details
 func (p *Page) Validate() error {
@@ -53,13 +53,14 @@ func GetPageByName(n string, uid int64) (Page, error) {
 	if err != nil {
 		Logger.Println(err)
 	}
-	return p, nil
+	return p, err
 }
 
 // PostPage creates a new page in the database.
 func PostPage(p *Page) error {
 	err := p.Validate()
 	if err != nil {
+		Logger.Println(err)
 		return err
 	}
 	// Insert into the DB

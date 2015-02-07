@@ -71,7 +71,7 @@ func GetGroupByName(n string, uid int64) (Group, error) {
 	if err != nil {
 		Logger.Println(err)
 	}
-	return g, nil
+	return g, err
 }
 
 // PostGroup creates a new group in the database.

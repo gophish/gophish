@@ -7,20 +7,25 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+// Template models hold the attributes for an email template to be sent to targets
 type Template struct {
-	Id           int64        `json:"id"`
-	UserId       int64        `json:"-"`
+	Id           int64        `json:"id" gorm:"column:id; primary_key:yes"`
+	UserId       int64        `json:"-" gorm:"column:user_id"`
 	Name         string       `json:"name"`
 	Subject      string       `json:"subject"`
 	Text         string       `json:"text"`
-	HTML         string       `json:"html"`
+	HTML         string       `json:"html" gorm:"column:html"`
 	ModifiedDate time.Time    `json:"modified_date"`
 	Attachments  []Attachment `json:"attachments"`
 }
 
+// ErrTemplateNameNotSpecified is thrown when a template name is not specified
 var ErrTemplateNameNotSpecified = errors.New("Template Name not specified")
+
+// ErrTemplateMissingParameter is thrown when a needed parameter is not provided
 var ErrTemplateMissingParameter = errors.New("Need to specify at least plaintext or HTML format")
 
+// Validate checks the given template to make sure values are appropriate and complete
 func (t *Template) Validate() error {
 	switch {
 	case t.Name == "":
@@ -77,9 +82,8 @@ func GetTemplateByName(n string, uid int64) (Template, error) {
 	err := db.Where("user_id=? and name=?", uid, n).Find(&t).Error
 	if err != nil {
 		Logger.Println(err)
-		return t, err
 	}
-	return t, nil
+	return t, err
 }
 
 // PostTemplate creates a new template in the database.

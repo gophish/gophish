@@ -56,8 +56,7 @@ func RequireAPIKey(handler http.Handler) http.HandlerFunc {
 			JSONError(w, 400, "API Key not set")
 		} else {
 			u, err := models.GetUserByAPIKey(ak)
-			/*			id, err := models.Conn.SelectInt("SELECT id FROM users WHERE api_key=?", ak)
-			 */if err != nil {
+			if err != nil {
 				JSONError(w, 400, "Invalid API Key")
 				return
 			}
