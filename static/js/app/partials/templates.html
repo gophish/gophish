@@ -28,7 +28,14 @@
         <button type="button" class="btn btn-primary" ng-click="editTemplate('new')"><i class="fa fa-plus"></i> New Template</button>
     </div>
     &nbsp;
-    <div class="row">
+    <div ng-show="!templates.length">
+        <div class="row">
+            <div class="alert alert-info">
+                No templates created yet. Let's create one!
+            </div>
+        </div>
+    </div>
+    <div ng-show="templates.length" class="row">
         <table ng-table="mainTableParams" class="table table-hover table-striped table-bordered">
             <tbody>
                 <tr ng-repeat="template in $data" class="editable-row">

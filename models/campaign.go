@@ -15,7 +15,9 @@ type Campaign struct {
 	CreatedDate   time.Time `json:"created_date"`
 	CompletedDate time.Time `json:"completed_date"`
 	TemplateId    int64     `json:"-"`
-	Template      Template  `json:"template"` //This may change
+	Template      Template  `json:"template"`
+	PageId        int64     `json:"-"`
+	Page          Page      `json:"page"`
 	Status        string    `json:"status"`
 	EmailsSent    string    `json:"emails_sent"`
 	Results       []Result  `json:"results,omitempty"`
@@ -24,6 +26,7 @@ type Campaign struct {
 	SMTP          SMTP      `json:"smtp"`
 }
 
+// Validate checks to make sure there are no invalid fields in a submitted campaign
 func (c *Campaign) Validate() (string, bool) {
 	switch {
 	case c.Name == "":
@@ -36,11 +39,13 @@ func (c *Campaign) Validate() (string, bool) {
 	return "", true
 }
 
+// UpdateStatus changes the campaign status appropriately
 func (c *Campaign) UpdateStatus(s string) error {
 	// This could be made simpler, but I think there's a bug in gorm
 	return db.Table("campaigns").Where("id=?", c.Id).Update("status", s).Error
 }
 
+// AddEvent creates a new campaign event in the database
 func (c *Campaign) AddEvent(e Event) error {
 	e.CampaignId = c.Id
 	e.Time = time.Now()

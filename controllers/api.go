@@ -188,8 +188,8 @@ func API_Templates(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "GET":
 		ts, err := models.GetTemplates(ctx.Get(r, "user_id").(int64))
-		if checkError(err, w, "Templates not found", http.StatusNotFound) {
-			return
+		if err != nil {
+			fmt.Println(err)
 		}
 		JSONResponse(w, ts, http.StatusOK)
 	//POST: Create a new template and return it as JSON
@@ -261,8 +261,8 @@ func API_Pages(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "GET":
 		ps, err := models.GetPages(ctx.Get(r, "user_id").(int64))
-		if checkError(err, w, "Pages not found", http.StatusNotFound) {
-			return
+		if err != nil {
+			fmt.Println(err)
 		}
 		JSONResponse(w, ps, http.StatusOK)
 	//POST: Create a new page and return it as JSON

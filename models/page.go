@@ -58,8 +58,12 @@ func GetPageByName(n string, uid int64) (Page, error) {
 
 // PostPage creates a new page in the database.
 func PostPage(p *Page) error {
+	err := p.Validate()
+	if err != nil {
+		return err
+	}
 	// Insert into the DB
-	err := db.Save(p).Error
+	err = db.Save(p).Error
 	if err != nil {
 		Logger.Println(err)
 	}

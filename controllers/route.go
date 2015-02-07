@@ -16,6 +16,8 @@ import (
 )
 
 var templateDelims = []string{"{{%", "%}}"}
+
+// Logger is used to send logging messages to stdout.
 var Logger = log.New(os.Stdout, " ", log.Ldate|log.Ltime|log.Lshortfile)
 
 // CreateAdminRouter creates the routes for handling requests to the web interface.
@@ -23,11 +25,12 @@ var Logger = log.New(os.Stdout, " ", log.Ldate|log.Ltime|log.Lshortfile)
 func CreateAdminRouter() http.Handler {
 	router := mux.NewRouter()
 	// Base Front-end routes
+	router.HandleFunc("/", Use(Base, mid.RequireLogin))
 	router.HandleFunc("/login", Login)
 	router.HandleFunc("/logout", Use(Logout, mid.RequireLogin))
 	router.HandleFunc("/register", Register)
-	router.HandleFunc("/", Use(Base, mid.RequireLogin))
 	router.HandleFunc("/settings", Use(Settings, mid.RequireLogin))
+	router.HandleFunc("/preview", Use(Preview, mid.RequireLogin))
 	// Create the API routes
 	api := router.PathPrefix("/api").Subrouter()
 	api = api.StrictSlash(true)
@@ -144,16 +147,6 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// Logout destroys the current user session
-func Logout(w http.ResponseWriter, r *http.Request) {
-	// If it is a post request, attempt to register the account
-	// Now that we are all registered, we can log the user in
-	session := ctx.Get(r, "session").(*sessions.Session)
-	delete(session.Values, "id")
-	Flash(w, r, "success", "You have successfully logged out")
-	http.Redirect(w, r, "login", 302)
-}
-
 // Base handles the default path and template execution
 func Base(w http.ResponseWriter, r *http.Request) {
 	// Example of using session - will be removed.
@@ -221,6 +214,24 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Logout destroys the current user session
+func Logout(w http.ResponseWriter, r *http.Request) {
+	// If it is a post request, attempt to register the account
+	// Now that we are all registered, we can log the user in
+	session := ctx.Get(r, "session").(*sessions.Session)
+	delete(session.Values, "id")
+	Flash(w, r, "success", "You have successfully logged out")
+	http.Redirect(w, r, "/login", 302)
+}
+
+// Preview allows for the viewing of page html in a separate browser window
+func Preview(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		http.Error(w, "Method not allowed", http.StatusBadRequest)
+	}
+	getTemplate(w, "dashboard").ExecuteTemplate(w, "base", struct{}{})
+}
+
 func getTemplate(w http.ResponseWriter, tmpl string) *template.Template {
 	templates := template.New("template")
 	templates.Delims(templateDelims[0], templateDelims[1])
@@ -241,6 +252,7 @@ func checkError(e error, w http.ResponseWriter, m string, c int) bool {
 	return false
 }
 
+// Flash handles the rendering flash messages
 func Flash(w http.ResponseWriter, r *http.Request, t string, m string) {
 	session := ctx.Get(r, "session").(*sessions.Session)
 	session.AddFlash(models.Flash{

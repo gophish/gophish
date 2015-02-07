@@ -33,7 +33,14 @@
         <button type="button" class="btn btn-primary" ng-click="editGroup('new')" data-toggle="modal" data-target="#newGroupModal"><i class="fa fa-plus"></i> New Group</button>
     </div>
     &nbsp;
-    <div class="row">
+    <div ng-show="!groups.length">
+        <div class="row">
+            <div class="alert alert-info">
+                No groups created yet. Let's create one!
+            </div>
+        </div>
+    </div>
+    <div ng-show="groups.length" class="row">
         <table ng-table="mainTableParams" class="table table-hover table-striped table-bordered">
             <tbody>
                 <tr ng-repeat="group in $data" class="editable-row">
