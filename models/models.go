@@ -8,13 +8,18 @@ import (
 	"github.com/coopernurse/gorp"
 	"github.com/jinzhu/gorm"
 	"github.com/jordan-wright/gophish/config"
-	_ "github.com/mattn/go-sqlite3"
+	_ "github.com/mattn/go-sqlite3" // Blank import needed to import sqlite3
 )
 
+// Conn is the connection to the SQLite database
 var Conn *gorp.DbMap
 var db gorm.DB
 var err error
+
+// ErrUsernameTaken is thrown when a user attempts to register a username that is taken.
 var ErrUsernameTaken = errors.New("username already taken")
+
+// Logger is a global logger used to show informational, warning, and error messages
 var Logger = log.New(os.Stdout, " ", log.Ldate|log.Ltime|log.Lshortfile)
 
 const (
@@ -35,6 +40,7 @@ type Flash struct {
 	Message string
 }
 
+// Response contains the attributes found in an API response
 type Response struct {
 	Message string      `json:"message"`
 	Success bool        `json:"success"`
@@ -62,16 +68,17 @@ func Setup() error {
 		db.CreateTable(GroupTarget{})
 		db.CreateTable(Template{})
 		db.CreateTable(Attachment{})
+		db.CreateTable(Page{})
 		db.CreateTable(SMTP{})
 		db.CreateTable(Event{})
 		db.CreateTable(Campaign{})
 		//Create the default user
-		init_user := User{
+		initUser := User{
 			Username: "admin",
 			Hash:     "$2a$10$IYkPp0.QsM81lYYPrQx6W.U6oQGw7wMpozrKhKAHUBVL4mkm/EvAS", //gophish
 			ApiKey:   "12345678901234567890123456789012",
 		}
-		err = db.Save(&init_user).Error
+		err = db.Save(&initUser).Error
 		if err != nil {
 			Logger.Println(err)
 		}

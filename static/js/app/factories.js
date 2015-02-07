@@ -27,3 +27,13 @@ app.factory('TemplateService', function($resource) {
         }
     });
 });
+
+app.factory('LandingPageService', function($resource) {
+  return $resource('/api/pages/:id?api_key=' + user.api_key, {
+        id : "@id"
+    }, {
+        update: {
+            method: 'PUT'
+        }
+    });
+});

@@ -684,6 +684,109 @@ var TemplateModalCtrl = function($scope, $upload, $modalInstance) {
     }
 };
 
+app.controller('LandingPageCtrl', function($scope, $modal, LandingPageService, ngTableParams) {
+  $scope.errorFlash = function(message) {
+      $scope.flashes = [];
+      $scope.flashes.push({
+          "type": "danger",
+          "message": message,
+          "icon": "fa-exclamation-circle"
+      })
+  }
+
+  $scope.successFlash = function(message) {
+      $scope.flashes = [];
+      $scope.flashes.push({
+          "type": "success",
+          "message": message,
+          "icon": "fa-check-circle"
+      })
+  }
+
+  $scope.mainTableParams = new ngTableParams({
+      page: 1, // show first page
+      count: 10, // count per page
+      sorting: {
+          name: 'asc' // initial sorting
+      }
+  }, {
+      total: 0, // length of data
+      getData: function($defer, params) {
+          LandingPageService.query(function(pages) {
+              $scope.pages = pages
+              params.total(pages.length)
+              $defer.resolve(pages.slice((params.page() - 1) * params.count(), params.page() * params.count()));
+          })
+      }
+  });
+
+  $scope.editPage = function(page) {
+      if (page === 'new') {
+          $scope.newPage = true;
+          $scope.page = {
+              name: '',
+              html: '',
+          };
+
+      } else {
+          $scope.newPage = false;
+          $scope.page = page;
+      }
+      var modalInstance = $modal.open({
+          templateUrl: '/js/app/partials/modals/LandingPageModal.html',
+          controller: LandingPageModalCtrl,
+          scope: $scope
+      });
+
+      modalInstance.result.then(function(selectedItem) {
+          $scope.selected = selectedItem;
+      }, function() {
+          console.log('closed')
+      });
+  };
+
+  $scope.savePage = function(page) {
+      var newPage = new LandingPageService(page);
+      if ($scope.newPage) {
+          newPage.$save({}, function() {
+              $scope.pages.push(newPage);
+              $scope.mainTableParams.reload()
+          });
+      } else {
+          newPage.$update({
+              id: newPage.id
+          })
+      }
+      $scope.page = {
+          name: '',
+          html: '',
+      };
+  }
+  $scope.deletePage = function(page) {
+      var deletePage = new LandingPageService(page);
+      deletePage.$delete({
+          id: deletePage.id
+      }, function(response) {
+          if (response.success) {
+              $scope.successFlash(response.message)
+          } else {
+              $scope.errorFlash(response.message)
+          }
+          $scope.mainTableParams.reload();
+      });
+  }
+});
+
+var LandingPageModalCtrl = function($scope, $modalInstance) {
+    $scope.cancel = function() {
+        $modalInstance.dismiss('cancel');
+    };
+    $scope.ok = function(page) {
+        $modalInstance.dismiss('')
+        $scope.savePage(page)
+    };
+};
+
 app.controller('SettingsCtrl', function($scope, $http, $window) {
     $scope.flashes = [];
     $scope.user = user;

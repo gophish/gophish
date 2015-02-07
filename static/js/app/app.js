@@ -29,6 +29,11 @@ app.config(function($routeProvider) {
         controller: 'TemplateCtrl'
     })
 
+    .when('/landing_pages', {
+        templateUrl: 'js/app/partials/landing_pages.html',
+        controller: 'LandingPageCtrl'
+    })
+
     .when('/settings', {
         templateUrl: 'js/app/partials/settings.html',
         controller: 'SettingsCtrl'

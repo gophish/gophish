@@ -256,6 +256,79 @@ func API_Templates_Id(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// API_Pages handles requests for the /api/pages/ endpoint
+func API_Pages(w http.ResponseWriter, r *http.Request) {
+	switch {
+	case r.Method == "GET":
+		ps, err := models.GetPages(ctx.Get(r, "user_id").(int64))
+		if checkError(err, w, "Pages not found", http.StatusNotFound) {
+			return
+		}
+		JSONResponse(w, ps, http.StatusOK)
+	//POST: Create a new page and return it as JSON
+	case r.Method == "POST":
+		p := models.Page{}
+		// Put the request into a page
+		err := json.NewDecoder(r.Body).Decode(&p)
+		if checkError(err, w, "Invalid Request", http.StatusBadRequest) {
+			return
+		}
+		_, err = models.GetPageByName(p.Name, ctx.Get(r, "user_id").(int64))
+		if err != gorm.RecordNotFound {
+			JSONResponse(w, models.Response{Success: false, Message: "Template name already in use"}, http.StatusConflict)
+			return
+		}
+		p.ModifiedDate = time.Now()
+		p.UserId = ctx.Get(r, "user_id").(int64)
+		err = models.PostPage(&p)
+		if checkError(err, w, "Error inserting page", http.StatusInternalServerError) {
+			return
+		}
+		JSONResponse(w, p, http.StatusCreated)
+	}
+}
+
+func API_Pages_Id(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, _ := strconv.ParseInt(vars["id"], 0, 64)
+	p, err := models.GetPage(id, ctx.Get(r, "user_id").(int64))
+	if checkError(err, w, "Page not found", http.StatusNotFound) {
+		Logger.Println(err)
+		return
+	}
+	switch {
+	case r.Method == "GET":
+		JSONResponse(w, p, http.StatusOK)
+	case r.Method == "DELETE":
+		err = models.DeletePage(id, ctx.Get(r, "user_id").(int64))
+		if checkError(err, w, "Error deleting page", http.StatusInternalServerError) {
+			return
+		}
+		JSONResponse(w, models.Response{Success: true, Message: "Page Deleted Successfully"}, http.StatusOK)
+	case r.Method == "PUT":
+		p = models.Page{}
+		err = json.NewDecoder(r.Body).Decode(&p)
+		if err != nil {
+			Logger.Println(err)
+		}
+		if p.Id != id {
+			http.Error(w, "Error: /:id and template_id mismatch", http.StatusBadRequest)
+			return
+		}
+		err = p.Validate()
+		/*		if checkError(err, w, http.StatusBadRequest) {
+				return
+			}*/
+		p.ModifiedDate = time.Now()
+		p.UserId = ctx.Get(r, "user_id").(int64)
+		err = models.PutPage(&p)
+		if checkError(err, w, "Error updating group", http.StatusInternalServerError) {
+			return
+		}
+		JSONResponse(w, p, http.StatusOK)
+	}
+}
+
 func API_Import_Group(w http.ResponseWriter, r *http.Request) {
 	Logger.Println("Parsing CSV....")
 	ts, err := util.ParseCSV(r)

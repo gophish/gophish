@@ -39,6 +39,8 @@ func CreateAdminRouter() http.Handler {
 	api.HandleFunc("/groups/{id:[0-9]+}", Use(API_Groups_Id, mid.RequireAPIKey))
 	api.HandleFunc("/templates/", Use(API_Templates, mid.RequireAPIKey))
 	api.HandleFunc("/templates/{id:[0-9]+}", Use(API_Templates_Id, mid.RequireAPIKey))
+	api.HandleFunc("/pages/", Use(API_Pages, mid.RequireAPIKey))
+	api.HandleFunc("/pages/{id:[0-9]+}", Use(API_Pages_Id, mid.RequireAPIKey))
 	api.HandleFunc("/import/group", API_Import_Group)
 
 	// Setup static file serving

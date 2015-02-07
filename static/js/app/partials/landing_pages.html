@@ -1,0 +1,59 @@
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-3 col-md-2 sidebar">
+            <ul class="nav nav-sidebar">
+                <li><a href="#">Dashboard</a>
+                </li>
+                <li><a href="#/campaigns">Campaigns</a>
+                </li>
+                <li><a href="#/users">Users &amp; Groups</a>
+                </li>
+                <li><a href="#/templates">Email Templates</a>
+                </li>
+                <li class="active"><a href="#/landing_pages">Landing Pages</a>
+                </li>
+                <li><a href="#/settings">Settings</a>
+                </li>
+                <li><a href="/api/">API Documentation</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main" ng-controller="LandingPageCtrl">
+    <h1 class="page-header">
+        Landing Pages
+    </h1>
+    <div class="row">
+        <div ng-repeat="flash in flashes" style="text-align:center" class="alert alert-{{flash.type}}">
+            <i class="fa {{flash.icon}}"></i> {{flash.message}}
+        </div>
+    </div>
+    <div class="row">
+        <button type="button" class="btn btn-primary" ng-click="editPage('new')" data-toggle="modal" data-target="#newLandingPageModal"><i class="fa fa-plus"></i> New Page</button>
+    </div>
+    &nbsp;
+    <div class="row">
+        <table ng-table="mainTableParams" class="table table-hover table-striped table-bordered">
+            <tbody>
+                <tr ng-repeat="page in $data" class="editable-row">
+                    <td data-title="'Name'" sortable="'name'" class="col-sm-1">{{page.name}}</td>
+                    <td data-title="'Modified Date'" class="col-sm-1">{{page.modified_date | date:'medium'}}</td>
+                    <div class="btn-group" style="float: right;">
+                        <button type="button" class="btn btn-primary dropdown-toggle edit-button" data-toggle="dropdown">
+                            <span class="caret" style="border-top-color:#FFFFFF"></span>
+                            <span class="sr-only">Toggle Dropdown</span>
+                        </button>
+                        <ul class="dropdown-menu" style="left:auto; right:0;" role="menu">
+                            <li><a ng-click="editPage(page)">Edit</a>
+                            </li>
+                            <li class="divider"></li>
+                            <li><a ng-click="deletePage(page)">Delete</a>
+                            </li>
+                        </ul>
+                    </div>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
