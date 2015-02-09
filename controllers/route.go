@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -30,7 +31,8 @@ func CreateAdminRouter() http.Handler {
 	router.HandleFunc("/logout", Use(Logout, mid.RequireLogin))
 	router.HandleFunc("/register", Register)
 	router.HandleFunc("/settings", Use(Settings, mid.RequireLogin))
-	router.HandleFunc("/preview", Use(Preview, mid.RequireLogin))
+	router.HandleFunc("/html/preview", Use(Preview, mid.RequireLogin))
+	router.HandleFunc("/html/clone", Use(Clone, mid.RequireLogin))
 	// Create the API routes
 	api := router.PathPrefix("/api").Subrouter()
 	api = api.StrictSlash(true)
@@ -236,7 +238,19 @@ func Preview(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		http.Error(w, "Method not allowed", http.StatusBadRequest)
 	}
-	getTemplate(w, "dashboard").ExecuteTemplate(w, "base", struct{}{})
+	fmt.Fprintf(w, "%s", r.FormValue("html"))
+}
+
+// Clone takes a URL as a POST parameter and returns the site HTML
+func Clone(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	if r.Method != "POST" {
+		http.Error(w, "Method not allowed", http.StatusBadRequest)
+	}
+	if url, ok := vars["url"]; ok {
+		Logger.Println(url)
+	}
+	http.Error(w, "No URL given.", http.StatusBadRequest)
 }
 
 func getTemplate(w http.ResponseWriter, tmpl string) *template.Template {

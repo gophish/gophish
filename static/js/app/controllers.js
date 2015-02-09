@@ -785,6 +785,7 @@ var LandingPageModalCtrl = function($scope, $modalInstance) {
         $modalInstance.dismiss('')
         $scope.savePage(page)
     };
+    $scope.csrf_token = csrf_token
 };
 
 app.controller('SettingsCtrl', function($scope, $http, $window) {
