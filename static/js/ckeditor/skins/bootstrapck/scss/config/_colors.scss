@@ -1,0 +1,61 @@
+/* ==========================================================================
+   Colors
+
+   This file is exclusively intended for setting up variables
+   Never add styles directly to this file
+   ========================================================================== */
+
+// Grays
+// -------------------------
+
+$gray-darker:           #333;
+$gray-dark:             #555;
+$gray:                  #aaa;
+$gray-light:            #ddd;
+$gray-lighter:          #eee;
+
+// Primary
+// -------------------------
+$primary:               #428bca;
+$primary-light:         #92bce0;
+$primary-lighter:       #e1edf7;
+
+// Forms
+// -------------------------
+$form-blue:             #66afe9;
+
+// Blues
+// -------------------------
+$blue-dark:             #2274c9;
+$blue-dark-hover:       #1e68b4;
+$blue:                  #3F8EDF;
+$blue-hover:            #2981db;
+
+// States
+// -------------------------
+
+$success:               $blue;
+$success-hover:         $blue-hover;
+$success-border:        $blue-dark;
+$success-border-hover:  $blue-dark-hover;
+
+$warning:               #f0ad4e;
+$danger:                #d9534f;
+$info:                  #5bc0de;
+
+// Scaffolding
+// -------------------------
+
+$body-bg:               #fff;
+$text-color:            $gray-darker;
+
+// Links
+// -------------------------
+
+$link-color:            $primary;
+$link-hover-color:      darken($link-color, 15%);
+
+// Hr border color
+// -------------------------
+
+$hr-border:             $gray-light;

@@ -39,7 +39,6 @@
         <table ng-table="mainTableParams" class="table table-hover table-striped table-bordered">
             <tbody>
                 <tr ng-repeat="template in $data" class="editable-row">
-                    <td data-title="'Modified Date'" class="col-sm-1">{{template.modified_date | date:'medium'}}</td>
                     <td data-title="'Name'" sortable="'name'" class="col-sm-2">{{template.name}}
                         <div class="btn-group" style="float: right;">
                             <button type="button" class="btn btn-primary dropdown-toggle edit-button" data-toggle="dropdown">
@@ -55,6 +54,7 @@
                             </ul>
                         </div>
                     </td>
+                    <td data-title="'Modified Date'" class="col-sm-1">{{template.modified_date | date:'medium'}}</td>
                 </tr>
             </tbody>
         </table>

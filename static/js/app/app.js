@@ -1,4 +1,4 @@
-var app = angular.module('gophish', ['ngRoute', 'ngTable', 'ngResource', 'ui.bootstrap', 'highcharts-ng', 'angularFileUpload']);
+var app = angular.module('gophish', ['ngRoute', 'ngTable', 'ngResource', 'ui.bootstrap', 'highcharts-ng', 'angularFileUpload', 'ngCkeditor']);
 
 app.config(function($routeProvider) {
     $routeProvider
@@ -43,7 +43,7 @@ app.config(function($routeProvider) {
 app.config( [
     '$compileProvider',
     function( $compileProvider )
-    {   
+    {
         $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|data):/);
         // Angular before v1.2 uses $compileProvider.urlSanitizationWhitelist(...)
     }

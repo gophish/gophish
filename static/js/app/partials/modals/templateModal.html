@@ -9,25 +9,22 @@
     <div class="form-group">
         <input type="text" class="form-control" ng-model="template.name" placeholder="Template name" id="name" autofocus/>
     </div>
-    <label class="control-label" for="subject">Subject:</label>
-    <div class="form-group">
-        <input type="text" class="form-control" ng-model="template.subject" placeholder="Email Subject" id="subject" />
-    </div>
     <fieldset disabled>
         <div class="form-group">
             <button class="btn btn-danger btn-disabled"><i class="fa fa-envelope"></i> Import Email (Coming Soon!)</button>
         </div>
     </fieldset>
+    <label class="control-label" for="subject">Subject:</label>
+    <div class="form-group">
+        <input type="text" class="form-control" ng-model="template.subject" placeholder="Email Subject" id="subject" />
+    </div>
     <!-- Nav tabs -->
     <tabset>
         <tab heading="Text">
             <textarea rows="10" class="form-control" ng-model="template.text" placeholder="Plaintext"></textarea>
         </tab>
         <tab heading="HTML">
-            <textarea rows="10" class="form-control" ng-model="template.html" placeholder="HTML"></textarea>
-        </tab>
-        <tab heading="Preview">
-            <div ng-model="template.html" contenteditable></div>
+            <textarea ckeditor="editorOptions" ng-model="template.html"></textarea>
         </tab>
     </tabset>
     <br />

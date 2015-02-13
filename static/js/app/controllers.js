@@ -654,6 +654,10 @@ app.controller('TemplateCtrl', function($scope, $modal, TemplateService, ngTable
 })
 
 var TemplateModalCtrl = function($scope, $upload, $modalInstance) {
+    $scope.editorOptions = {
+	      fullPage: true,
+        allowedContent: true
+    }
     $scope.onFileSelect = function($files) {
         console.log($files)
         angular.forEach($files, function(file, key) {
@@ -778,6 +782,11 @@ app.controller('LandingPageCtrl', function($scope, $modal, LandingPageService, n
 });
 
 var LandingPageModalCtrl = function($scope, $modalInstance) {
+    $scope.editorOptions = {
+        fullPage: true,
+        allowedContent: true,
+        startupMode: "source"
+    }
     $scope.cancel = function() {
         $modalInstance.dismiss('cancel');
     };

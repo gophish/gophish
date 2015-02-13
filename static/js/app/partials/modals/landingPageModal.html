@@ -18,10 +18,7 @@
     </fieldset>
     <tabset>
         <tab heading="HTML">
-            <textarea rows="10" class="form-control" ng-model="page.html" name="html" placeholder="HTML"></textarea>
-        </tab>
-        <tab heading="Preview">
-            <div ng-model="page.html" contenteditable></div>
+            <textarea ckeditor="editorOptions" name="html" ng-model="page.html"></textarea>
         </tab>
     </tabset>
     <br />
