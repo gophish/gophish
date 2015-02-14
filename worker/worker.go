@@ -49,6 +49,7 @@ func processCampaign(c *models.Campaign) {
 	}
 	for _, t := range c.Results {
 		// Parse the templates
+		var subj_buff bytes.Buffer
 		var html_buff bytes.Buffer
 		var text_buff bytes.Buffer
 		tmpl, err := template.New("html_template").Parse(c.Template.HTML)
@@ -69,6 +70,15 @@ func processCampaign(c *models.Campaign) {
 			Logger.Println(err)
 		}
 		e.Text = text_buff.Bytes()
+		tmpl, err = template.New("text_template").Parse(c.Template.Subject)
+		if err != nil {
+			Logger.Println(err)
+		}
+		err = tmpl.Execute(&subj_buff, t)
+		if err != nil {
+			Logger.Println(err)
+		}
+		e.Subject = string(subj_buff.Bytes())
 		Logger.Println("Creating email using template")
 		e.To = []string{t.Email}
 		err = e.Send(c.SMTP.Host, auth)
