@@ -46,12 +46,12 @@ func GetTemplates(uid int64) ([]Template, error) {
 	}
 	for i, _ := range ts {
 		err = db.Where("template_id=?", ts[i].Id).Find(&ts[i].Attachments).Error
+		if err == nil && len(ts[i].Attachments) == 0 {
+			ts[i].Attachments = make([]Attachment, 0)
+		}
 		if err != nil && err != gorm.RecordNotFound {
 			Logger.Println(err)
 			return ts, err
-		}
-		if err == gorm.RecordNotFound {
-			err = nil
 		}
 	}
 	return ts, err
@@ -70,8 +70,8 @@ func GetTemplate(id int64, uid int64) (Template, error) {
 		Logger.Println(err)
 		return t, err
 	}
-	if err == gorm.RecordNotFound {
-		err = nil
+	if err == nil && len(t.Attachments) == 0 {
+		t.Attachments = make([]Attachment, 0)
 	}
 	return t, err
 }
