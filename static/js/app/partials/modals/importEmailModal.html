@@ -1,0 +1,19 @@
+<!-- Import Email Modal -->
+<div class="modal-header">
+    <button type="button" class="close" ng-click="cancel()">&times;</button>
+    <h4 class="modal-title">Import Email</h4>
+</div>
+<div class="modal-body">
+    <tabset>
+        <tab>
+          <tab-heading>
+            <span>Raw <i class="fa fa-question-circle" tooltip="Input the raw email content, or &quot;source&quot;" tooltip-placement="right"></i></span>
+          </tab-heading>
+            <textarea rows="10" style="font-family:monospace;" class="form-control" ng-model="email.raw" placeholder="Email Content"></textarea>
+        </tab>
+    </tabset>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-default" ng-click="cancel()">Cancel</button>
+    <button type="button" class="btn btn-primary" ng-click="ok()">Import</button>
+</div>

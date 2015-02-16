@@ -3,6 +3,7 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"strconv"
 	"text/template"
@@ -335,13 +336,26 @@ func API_Pages_Id(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// API_Import_Group imports a CSV of group members
 func API_Import_Group(w http.ResponseWriter, r *http.Request) {
-	Logger.Println("Parsing CSV....")
 	ts, err := util.ParseCSV(r)
 	if checkError(err, w, "Error deleting template", http.StatusInternalServerError) {
 		return
 	}
 	JSONResponse(w, ts, http.StatusOK)
+}
+
+// API_Import_Email allows for the importing of email.
+// Returns a Message object
+func API_Import_Email(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" {
+		body, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			Logger.Println(err)
+		}
+		w.Header().Set("Content-Type", "text/plain")
+		fmt.Fprintf(w, "%s", body)
+	}
 }
 
 // JSONResponse attempts to set the status code, c, and marshal the given interface, d, into a response that

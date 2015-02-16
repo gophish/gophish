@@ -4,10 +4,26 @@ import (
 	"encoding/csv"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
+	"net/mail"
 
+	"github.com/jordan-wright/email"
 	"github.com/jordan-wright/gophish/models"
 )
+
+// ParseMail takes in an HTTP Request and returns an Email object
+// TODO: This function will likely be changed to take in a []byte
+func ParseMail(r *http.Request) (email.Email, error) {
+	e := email.Email{}
+	m, err := mail.ReadMessage(r.Body)
+	if err != nil {
+		fmt.Println(err)
+	}
+	body, err := ioutil.ReadAll(m.Body)
+	e.HTML = body
+	return e, err
+}
 
 func ParseCSV(r *http.Request) ([]models.Target, error) {
 	mr, err := r.MultipartReader()

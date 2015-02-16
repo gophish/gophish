@@ -653,13 +653,12 @@ app.controller('TemplateCtrl', function($scope, $modal, TemplateService, ngTable
     }
 })
 
-var TemplateModalCtrl = function($scope, $upload, $modalInstance) {
+var TemplateModalCtrl = function($scope, $upload, $modalInstance, $modal) {
     $scope.editorOptions = {
 	      fullPage: true,
         allowedContent: true
     }
     $scope.onFileSelect = function($files) {
-        console.log($files)
         angular.forEach($files, function(file, key) {
             var reader = new FileReader();
             reader.onload = function(e) {
@@ -686,6 +685,31 @@ var TemplateModalCtrl = function($scope, $upload, $modalInstance) {
     $scope.removeFile = function(file) {
         $scope.template.attachments.splice($scope.template.attachments.indexOf(file), 1);
     }
+
+    $scope.importEmail = function() {
+        var emailInstance = $modal.open({
+            templateUrl: '/js/app/partials/modals/importEmailModal.html',
+            controller: ImportEmailCtrl,
+            scope: $scope
+        });
+
+        emailInstance.result.then(function(raw) {
+            $scope.template.subject = raw;
+        }, function() {});
+    };
+};
+
+var ImportEmailCtrl = function($scope, $http, $modalInstance) {
+  $scope.email = {}
+  $scope.ok = function() {
+    // Simple POST request example (passing data) :
+    $http.post('/api/import/email', $scope.email.raw,
+      { headers : {"Content-Type" : "text/plain"}}
+    ).success(function(data) {console.log("Success: " + data)})
+    .error(function(data) {console.log("Error: " + data)});
+    $modalInstance.close($scope.email.raw)
+  };
+  $scope.cancel = function() {$modalInstance.dismiss()}
 };
 
 app.controller('LandingPageCtrl', function($scope, $modal, LandingPageService, ngTableParams) {

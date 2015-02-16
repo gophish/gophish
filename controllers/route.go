@@ -47,6 +47,7 @@ func CreateAdminRouter() http.Handler {
 	api.HandleFunc("/pages/", Use(API_Pages, mid.RequireAPIKey))
 	api.HandleFunc("/pages/{id:[0-9]+}", Use(API_Pages_Id, mid.RequireAPIKey))
 	api.HandleFunc("/import/group", API_Import_Group)
+	api.HandleFunc("/import/email", API_Import_Email)
 
 	// Setup static file serving
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./static/")))
