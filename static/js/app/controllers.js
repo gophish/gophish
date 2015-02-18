@@ -541,7 +541,9 @@ var GroupModalCtrl = function($scope, $modalInstance, $upload) {
         }).success(function(data, status, headers, config) {
             angular.forEach(data, function(record, key) {
                 $scope.group.targets.push({
-                    email: record.email
+                  first_name : record.first_name,
+                  last_name : record.last_name,
+                  email: record.email
                 });
             });
             $scope.editGroupTableParams.reload();
