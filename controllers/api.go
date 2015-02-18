@@ -49,7 +49,7 @@ func API_Reset(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			http.Error(w, "Error setting API Key", http.StatusInternalServerError)
 		} else {
-			JSONResponse(w, models.Response{Success: true, Message: "API Key Successfully Reset", Data: u.ApiKey}, http.StatusOK)
+			JSONResponse(w, models.Response{Success: true, Message: "API Key successfully reset!", Data: u.ApiKey}, http.StatusOK)
 		}
 	}
 }
@@ -102,7 +102,7 @@ func API_Campaigns_Id(w http.ResponseWriter, r *http.Request) {
 		if checkError(err, w, "Error deleting campaign", http.StatusInternalServerError) {
 			return
 		}
-		JSONResponse(w, models.Response{Success: true, Message: "Campaign Deleted Successfully!"}, http.StatusOK)
+		JSONResponse(w, models.Response{Success: true, Message: "Campaign deleted successfully!"}, http.StatusOK)
 	}
 }
 
@@ -162,7 +162,7 @@ func API_Groups_Id(w http.ResponseWriter, r *http.Request) {
 		if checkError(err, w, "Error deleting group", http.StatusInternalServerError) {
 			return
 		}
-		JSONResponse(w, models.Response{Success: true, Message: "Group Deleted Successfully"}, http.StatusOK)
+		JSONResponse(w, models.Response{Success: true, Message: "Group deleted successfully!"}, http.StatusOK)
 	case r.Method == "PUT":
 		// Change this to get from URL and uid (don't bother with id in r.Body)
 		g = models.Group{}
@@ -203,6 +203,7 @@ func API_Templates(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		_, err = models.GetTemplateByName(t.Name, ctx.Get(r, "user_id").(int64))
+		fmt.Println(err)
 		if err != gorm.RecordNotFound {
 			JSONResponse(w, models.Response{Success: false, Message: "Template name already in use"}, http.StatusConflict)
 			return
@@ -210,6 +211,14 @@ func API_Templates(w http.ResponseWriter, r *http.Request) {
 		t.ModifiedDate = time.Now()
 		t.UserId = ctx.Get(r, "user_id").(int64)
 		err = models.PostTemplate(&t)
+		if err == models.ErrTemplateNameNotSpecified {
+			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
+			return
+		}
+		if err == models.ErrTemplateMissingParameter {
+			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
+			return
+		}
 		if checkError(err, w, "Error inserting template", http.StatusInternalServerError) {
 			return
 		}
@@ -233,7 +242,7 @@ func API_Templates_Id(w http.ResponseWriter, r *http.Request) {
 		if checkError(err, w, "Error deleting template", http.StatusInternalServerError) {
 			return
 		}
-		JSONResponse(w, models.Response{Success: true, Message: "Template Deleted Successfully"}, http.StatusOK)
+		JSONResponse(w, models.Response{Success: true, Message: "Template deleted successfully!"}, http.StatusOK)
 	case r.Method == "PUT":
 		t = models.Template{}
 		err = json.NewDecoder(r.Body).Decode(&t)

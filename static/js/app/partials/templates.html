@@ -25,6 +25,11 @@
         Email Templates
     </h1>
     <div class="row">
+        <div ng-repeat="flash in flashes.main" style="text-align:center" class="alert alert-{{flash.type}}">
+            <i class="fa {{flash.icon}}"></i> {{flash.message}}
+        </div>
+    </div>
+    <div class="row">
         <button type="button" class="btn btn-primary" ng-click="editTemplate('new')"><i class="fa fa-plus"></i> New Template</button>
     </div>
     &nbsp;
@@ -49,7 +54,7 @@
                                 <li><a ng-click="editTemplate(template)">Edit</a>
                                 </li>
                                 <li class="divider"></li>
-                                <li><a ng-click="deleteTemplate(template)" ng-href="#">Delete</a>
+                                <li><a ng-click="deleteTemplate(template)">Delete</a>
                                 </li>
                             </ul>
                         </div>

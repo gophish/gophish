@@ -23,7 +23,7 @@ type Template struct {
 var ErrTemplateNameNotSpecified = errors.New("Template Name not specified")
 
 // ErrTemplateMissingParameter is thrown when a needed parameter is not provided
-var ErrTemplateMissingParameter = errors.New("Need to specify at least plaintext or HTML format")
+var ErrTemplateMissingParameter = errors.New("Need to specify at least plaintext or HTML content")
 
 // Validate checks the given template to make sure values are appropriate and complete
 func (t *Template) Validate() error {
@@ -89,7 +89,10 @@ func GetTemplateByName(n string, uid int64) (Template, error) {
 // PostTemplate creates a new template in the database.
 func PostTemplate(t *Template) error {
 	// Insert into the DB
-	err := db.Save(t).Error
+	if err := t.Validate(); err != nil {
+		return err
+	}
+	err = db.Save(t).Error
 	if err != nil {
 		Logger.Println(err)
 		return err

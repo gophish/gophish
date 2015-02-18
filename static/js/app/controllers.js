@@ -559,8 +559,8 @@ var GroupModalCtrl = function($scope, $modalInstance, $upload) {
 
 app.controller('TemplateCtrl', function($scope, $modal, TemplateService, ngTableParams) {
     $scope.errorFlash = function(message) {
-        $scope.flashes = [];
-        $scope.flashes.push({
+        $scope.flashes = {"main" : [], "modal" : []};
+        $scope.flashes.main.push({
             "type": "danger",
             "message": message,
             "icon": "fa-exclamation-circle"
@@ -568,8 +568,8 @@ app.controller('TemplateCtrl', function($scope, $modal, TemplateService, ngTable
     }
 
     $scope.successFlash = function(message) {
-        $scope.flashes = [];
-        $scope.flashes.push({
+        $scope.flashes = {"main" : [], "modal" : []};;
+        $scope.flashes.main.push({
             "type": "success",
             "message": message,
             "icon": "fa-check-circle"
@@ -613,31 +613,22 @@ app.controller('TemplateCtrl', function($scope, $modal, TemplateService, ngTable
             scope: $scope
         });
 
-        modalInstance.result.then(function(selectedItem) {
-            $scope.selected = selectedItem;
+        modalInstance.result.then(function(message) {
+            $scope.successFlash(message)
+            $scope.template = {
+                name: '',
+                html: '',
+                text: '',
+            };
         }, function() {
-            console.log('closed')
+          $scope.template = {
+                name: '',
+                html: '',
+                text: '',
+          };
         });
     };
 
-    $scope.saveTemplate = function(template) {
-        var newTemplate = new TemplateService(template);
-        if ($scope.newTemplate) {
-            newTemplate.$save({}, function() {
-                $scope.templates.push(newTemplate);
-                $scope.mainTableParams.reload()
-            });
-        } else {
-            newTemplate.$update({
-                id: newTemplate.id
-            })
-        }
-        $scope.template = {
-            name: '',
-            html: '',
-            text: '',
-        };
-    }
     $scope.deleteTemplate = function(template) {
         var deleteTemplate = new TemplateService(template);
         deleteTemplate.$delete({
@@ -653,10 +644,27 @@ app.controller('TemplateCtrl', function($scope, $modal, TemplateService, ngTable
     }
 })
 
-var TemplateModalCtrl = function($scope, $upload, $modalInstance, $modal) {
+var TemplateModalCtrl = function($scope, TemplateService, $upload, $modalInstance, $modal) {
     $scope.editorOptions = {
 	      fullPage: true,
-        allowedContent: true
+        allowedContent: true,
+    }
+    $scope.errorFlash = function(message) {
+        $scope.flashes = {"main" : [], "modal" : []};
+        $scope.flashes.modal.push({
+            "type": "danger",
+            "message": message,
+            "icon": "fa-exclamation-circle"
+        })
+    }
+
+    $scope.successFlash = function(message) {
+        $scope.flashes = {"main" : [], "modal" : []};;
+        $scope.flashes.modal.push({
+            "type": "success",
+            "message": message,
+            "icon": "fa-check-circle"
+        })
     }
     $scope.onFileSelect = function($files) {
         angular.forEach($files, function(file, key) {
@@ -676,11 +684,34 @@ var TemplateModalCtrl = function($scope, $upload, $modalInstance, $modal) {
         })
     }
     $scope.cancel = function() {
-        $modalInstance.dismiss('cancel');
+        $modalInstance.dismiss();
     };
     $scope.ok = function(template) {
-        $modalInstance.dismiss('')
-        $scope.saveTemplate(template)
+        var newTemplate = new TemplateService(template);
+        // If it's a new template
+        if ($scope.newTemplate) {
+            // POST the template to /api/templates
+            newTemplate.$save({}, function() {
+                // If successful, push the template into the list
+                $scope.templates.push(newTemplate);
+                $scope.mainTableParams.reload()
+                // Close the dialog, returning the template
+                $modalInstance.close("Template created successfully!")
+            }, function(error){
+              // Otherwise, leave the dialog open, showing the error
+              console.log(error.data)
+              $scope.errorFlash(error.data.message)
+            });
+        } else {
+            newTemplate.$update({
+                id: newTemplate.id
+            }, function(){
+                $modalInstance.close("Template updated successfully!")
+            }, function(error){
+                console.log(error.data)
+                $scope.errorFlash(error.data.message)
+            })
+        }
     };
     $scope.removeFile = function(file) {
         $scope.template.attachments.splice($scope.template.attachments.indexOf(file), 1);

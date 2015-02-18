@@ -5,6 +5,11 @@
     <h4 class="modal-title" ng-show="newTemplate" id="groupModalLabel">New Template</h4>
 </div>
 <div class="modal-body">
+    <div class="row">
+        <div ng-repeat="flash in flashes.modal" style="text-align:center" class="alert alert-{{flash.type}}">
+            <i class="fa {{flash.icon}}"></i> {{flash.message}}
+        </div>
+    </div>
     <label class="control-label" for="name">Name:</label>
     <div class="form-group">
         <input type="text" class="form-control" ng-model="template.name" placeholder="Template name" id="name" autofocus/>
