@@ -19,6 +19,14 @@ Installation of gophish is dead-simple - once the binaries are released (coming 
 ###Setup
 After running the gophish binary, open an Internet browser to http://localhost:3333 and login with the default username (admin) and password (gophish).
 
+###Documentation
+
+Documentation is a work in progress. Existing documentation can be found in the [wiki](wiki). Find something missing? Let us know by filing an issue!
+
+###Issues
+
+Find a bug? Want more features? Find something missing in the documentation? Let us know! Please don't hesitate to [file an issue](issues/new) and we'll get right on it.
+
 ###License
 gophish - Open-Source Phishing Framework
 
