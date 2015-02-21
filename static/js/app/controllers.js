@@ -290,6 +290,22 @@ app.controller('CampaignResultsCtrl', function($scope, $filter, CampaignService,
             "icon": "fa-check-circle"
         })
     }
+
+    $scope.delete = function(campaign) {
+        if (confirm("Delete campaign?")) {
+            var deleteCampaign = new CampaignService(campaign);
+            deleteCampaign.$delete({
+                id: deleteCampaign.id
+            }, function(response) {
+                if (response.success) {
+                    $scope.successFlash(response.message)
+                } else {
+                    $scope.errorFlash(response.message)
+                }
+                $scope.mainTableParams.reload();
+            });
+        }
+    }
     $scope.mainTableParams = new ngTableParams({
         page: 1, // show first page
         count: 10, // count per page
