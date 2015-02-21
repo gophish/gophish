@@ -571,7 +571,8 @@ var GroupModalCtrl = function($scope, GroupService, $modalInstance, $upload) {
                 $scope.group.targets.push({
                     first_name : record.first_name,
                     last_name : record.last_name,
-                    email: record.email
+                    email: record.email,
+                    position: record.position
                 });
             });
             $scope.editGroupTableParams.reload();

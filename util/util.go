@@ -25,6 +25,7 @@ func ParseMail(r *http.Request) (email.Email, error) {
 	return e, err
 }
 
+// ParseCSV contains the logic to parse the user provided csv file containing Target entries
 func ParseCSV(r *http.Request) ([]models.Target, error) {
 	mr, err := r.MultipartReader()
 	ts := []models.Target{}
@@ -50,11 +51,12 @@ func ParseCSV(r *http.Request) ([]models.Target, error) {
 		fi := -1
 		li := -1
 		ei := -1
+		pi := -1
 		fn := ""
 		ln := ""
 		ea := ""
+		ps := ""
 		for i, v := range record {
-			fmt.Println(v)
 			switch {
 			case v == "First Name":
 				fi = i
@@ -62,6 +64,8 @@ func ParseCSV(r *http.Request) ([]models.Target, error) {
 				li = i
 			case v == "Email":
 				ei = i
+			case v == "Position":
+				pi = i
 			}
 		}
 		for {
@@ -78,10 +82,14 @@ func ParseCSV(r *http.Request) ([]models.Target, error) {
 			if ei != -1 {
 				ea = record[ei]
 			}
+			if pi != -1 {
+				ps = record[pi]
+			}
 			t := models.Target{
 				FirstName: fn,
 				LastName:  ln,
 				Email:     ea,
+				Position:  ps,
 			}
 			ts = append(ts, t)
 		}
