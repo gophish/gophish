@@ -6,4 +6,4 @@ go:
 
 install:
   - go get -d -v ./... && go build -v ./...
-  - go get launchpad.net/gocheck
+  - go get gopkg.in/check.v1
