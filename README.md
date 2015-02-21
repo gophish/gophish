@@ -21,11 +21,11 @@ After running the gophish binary, open an Internet browser to http://localhost:3
 
 ###Documentation
 
-Documentation is a work in progress. Existing documentation can be found in the [wiki](wiki). Find something missing? Let us know by filing an issue!
+Documentation is a work in progress. Existing documentation can be found in the [wiki](https://github.com/jordan-wright/gophish/wiki). Find something missing? Let us know by filing an issue!
 
 ###Issues
 
-Find a bug? Want more features? Find something missing in the documentation? Let us know! Please don't hesitate to [file an issue](issues/new) and we'll get right on it.
+Find a bug? Want more features? Find something missing in the documentation? Let us know! Please don't hesitate to [file an issue](https://github.com/jordan-wright/gophish/issues/new) and we'll get right on it.
 
 ###License
 gophish - Open-Source Phishing Framework
