@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
@@ -26,17 +27,32 @@ type Campaign struct {
 	SMTP          SMTP      `json:"smtp"`
 }
 
+// ErrCampaignNameNotSpecified indicates there was no template given by the user
+var ErrCampaignNameNotSpecified = errors.New("Campaign name not specified")
+
+// ErrGroupNotSpecified indicates there was no template given by the user
+var ErrGroupNotSpecified = errors.New("No groups specified")
+
+// ErrTemplateNotSpecified indicates there was no template given by the user
+var ErrTemplateNotSpecified = errors.New("No email template specified")
+
+// ErrTemplateNotFound indicates the template specified does not exist in the database
+var ErrTemplateNotFound = errors.New("Template not found")
+
+// ErrGroupnNotFound indicates a group specified by the user does not exist in the database
+var ErrGroupNotFound = errors.New("Group not found")
+
 // Validate checks to make sure there are no invalid fields in a submitted campaign
-func (c *Campaign) Validate() (string, bool) {
+func (c *Campaign) Validate() error {
 	switch {
 	case c.Name == "":
-		return "Must specify campaign name", false
+		return ErrCampaignNameNotSpecified
 	case len(c.Groups) == 0:
-		return "No groups specified", false
+		return ErrGroupNotSpecified
 	case c.Template.Name == "":
-		return "No template specified", false
+		return ErrTemplateNotSpecified
 	}
-	return "", true
+	return nil
 }
 
 // UpdateStatus changes the campaign status appropriately
@@ -105,6 +121,9 @@ func GetCampaign(id int64, uid int64) (Campaign, error) {
 
 // PostCampaign inserts a campaign and all associated records into the database.
 func PostCampaign(c *Campaign, uid int64) error {
+	if err := c.Validate(); err != nil {
+		return err
+	}
 	// Fill in the details
 	c.UserId = uid
 	c.CreatedDate = time.Now()
@@ -115,7 +134,7 @@ func PostCampaign(c *Campaign, uid int64) error {
 		c.Groups[i], err = GetGroupByName(g.Name, uid)
 		if err == gorm.RecordNotFound {
 			Logger.Printf("Error - Group %s does not exist", g.Name)
-			return err
+			return ErrGroupNotFound
 		} else if err != nil {
 			Logger.Println(err)
 			return err
@@ -125,7 +144,7 @@ func PostCampaign(c *Campaign, uid int64) error {
 	t, err := GetTemplateByName(c.Template.Name, uid)
 	if err == gorm.RecordNotFound {
 		Logger.Printf("Error - Template %s does not exist", t.Name)
-		return err
+		return ErrTemplateNotFound
 	} else if err != nil {
 		Logger.Println(err)
 		return err

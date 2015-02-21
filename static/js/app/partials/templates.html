@@ -43,7 +43,7 @@
     <div ng-show="templates.length" class="row">
         <table ng-table="mainTableParams" class="table table-hover table-striped table-bordered">
             <tbody>
-                <tr ng-repeat="template in $data" class="editable-row">
+                <tr ng-repeat="template in $data | orderBy: '-modified_date'" class="editable-row">
                     <td data-title="'Name'" sortable="'name'" class="col-sm-2">{{template.name}}
                         <div class="btn-group" style="float: right;">
                             <button type="button" class="btn btn-primary dropdown-toggle edit-button" data-toggle="dropdown">

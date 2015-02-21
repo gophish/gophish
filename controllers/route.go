@@ -264,16 +264,6 @@ func getTemplate(w http.ResponseWriter, tmpl string) *template.Template {
 	return template.Must(templates, err)
 }
 
-func checkError(e error, w http.ResponseWriter, m string, c int) bool {
-	if e != nil {
-		Logger.Println(e)
-		w.WriteHeader(c)
-		JSONResponse(w, models.Response{Success: false, Message: m}, http.StatusBadRequest)
-		return true
-	}
-	return false
-}
-
 // Flash handles the rendering flash messages
 func Flash(w http.ResponseWriter, r *http.Request, t string, m string) {
 	session := ctx.Get(r, "session").(*sessions.Session)

@@ -1,12 +1,15 @@
 package models
 
 import (
+	"errors"
 	"net/mail"
 	"time"
 
 	"github.com/jinzhu/gorm"
 )
 
+// Group contains the fields needed for a user -> group mapping
+// Groups contain 1..* Targets
 type Group struct {
 	Id           int64     `json:"id"`
 	UserId       int64     `json:"-"`
@@ -15,16 +18,36 @@ type Group struct {
 	Targets      []Target  `json:"targets" sql:"-"`
 }
 
+// GroupTarget is used for a many-to-many relationship between 1..* Groups and 1..* Targets
 type GroupTarget struct {
 	GroupId  int64 `json:"-"`
 	TargetId int64 `json:"-"`
 }
 
+// Target contains the fields needed for individual targets specified by the user
+// Groups contain 1..* Targets, but 1 Target may belong to 1..* Groups
 type Target struct {
 	Id        int64  `json:"-"`
 	FirstName string `json:"first_name"`
 	LastName  string `json:"last_name"`
 	Email     string `json:"email"`
+}
+
+// ErrGroupNameNotSpecified is thrown when a group name is not specified
+var ErrGroupNameNotSpecified = errors.New("Group name not specified")
+
+// ErrNoTargetsSpecified is thrown when no targets are specified by the user
+var ErrNoTargetsSpecified = errors.New("No targets specified")
+
+// Validate performs validation on a group given by the user
+func (g *Group) Validate() error {
+	switch {
+	case g.Name == "":
+		return ErrGroupNameNotSpecified
+	case len(g.Targets) == 0:
+		return ErrNoTargetsSpecified
+	}
+	return nil
 }
 
 // GetGroups returns the groups owned by the given user.
@@ -76,7 +99,11 @@ func GetGroupByName(n string, uid int64) (Group, error) {
 
 // PostGroup creates a new group in the database.
 func PostGroup(g *Group) error {
-	// Insert into the DB
+	Logger.Printf("%v", g.Targets)
+	if err := g.Validate(); err != nil {
+		return err
+	}
+	// Insert the group into the DB
 	err = db.Save(g).Error
 	if err != nil {
 		Logger.Println(err)
@@ -189,6 +216,7 @@ func insertTargetIntoGroup(t Target, gid int64) error {
 	return nil
 }
 
+// GetTargets performs a many-to-many select to get all the Targets for a Group
 func GetTargets(gid int64) ([]Target, error) {
 	ts := []Target{}
 	err := db.Table("targets").Select("targets.id, targets.email, targets.first_name, targets.last_name").Joins("left join group_targets gt ON targets.id = gt.target_id").Where("gt.group_id=?", gid).Scan(&ts).Error

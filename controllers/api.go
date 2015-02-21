@@ -69,15 +69,13 @@ func API_Campaigns(w http.ResponseWriter, r *http.Request) {
 		c := models.Campaign{}
 		// Put the request into a campaign
 		err := json.NewDecoder(r.Body).Decode(&c)
-		if checkError(err, w, "Invalid Request", http.StatusBadRequest) {
-			return
-		}
-		if m, ok := c.Validate(); !ok {
-			http.Error(w, "Error: "+m, http.StatusBadRequest)
+		if err != nil {
+			JSONResponse(w, models.Response{Success: false, Message: "Invalid JSON structure"}, http.StatusBadRequest)
 			return
 		}
 		err = models.PostCampaign(&c, ctx.Get(r, "user_id").(int64))
-		if checkError(err, w, "Cannot insert campaign into database", http.StatusInternalServerError) {
+		if err != nil {
+			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
 			return
 		}
 		Worker.Queue <- &c
@@ -91,7 +89,8 @@ func API_Campaigns_Id(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.ParseInt(vars["id"], 0, 64)
 	c, err := models.GetCampaign(id, ctx.Get(r, "user_id").(int64))
-	if checkError(err, w, "Campaign not found", http.StatusNotFound) {
+	if err != nil {
+		JSONResponse(w, models.Response{Success: false, Message: "Campaign not found"}, http.StatusNotFound)
 		return
 	}
 	switch {
@@ -99,7 +98,8 @@ func API_Campaigns_Id(w http.ResponseWriter, r *http.Request) {
 		JSONResponse(w, c, http.StatusOK)
 	case r.Method == "DELETE":
 		err = models.DeleteCampaign(id)
-		if checkError(err, w, "Error deleting campaign", http.StatusInternalServerError) {
+		if err != nil {
+			JSONResponse(w, models.Response{Success: false, Message: "Error deleting campaign"}, http.StatusInternalServerError)
 			return
 		}
 		JSONResponse(w, models.Response{Success: true, Message: "Campaign deleted successfully!"}, http.StatusOK)
@@ -112,7 +112,8 @@ func API_Groups(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "GET":
 		gs, err := models.GetGroups(ctx.Get(r, "user_id").(int64))
-		if checkError(err, w, "Groups not found", http.StatusNotFound) {
+		if err != nil {
+			JSONResponse(w, models.Response{Success: false, Message: "No groups found"}, http.StatusNotFound)
 			return
 		}
 		JSONResponse(w, gs, http.StatusOK)
@@ -121,7 +122,8 @@ func API_Groups(w http.ResponseWriter, r *http.Request) {
 		g := models.Group{}
 		// Put the request into a group
 		err := json.NewDecoder(r.Body).Decode(&g)
-		if checkError(err, w, "Invalid Request", http.StatusBadRequest) {
+		if err != nil {
+			JSONResponse(w, models.Response{Success: false, Message: "Invalid JSON structure"}, http.StatusBadRequest)
 			return
 		}
 		_, err = models.GetGroupByName(g.Name, ctx.Get(r, "user_id").(int64))
@@ -129,15 +131,11 @@ func API_Groups(w http.ResponseWriter, r *http.Request) {
 			JSONResponse(w, models.Response{Success: false, Message: "Group name already in use"}, http.StatusConflict)
 			return
 		}
-		// Check to make sure targets were specified
-		if len(g.Targets) == 0 {
-			http.Error(w, "Error: No targets specified", http.StatusBadRequest)
-			return
-		}
 		g.ModifiedDate = time.Now()
 		g.UserId = ctx.Get(r, "user_id").(int64)
 		err = models.PostGroup(&g)
-		if checkError(err, w, "Error inserting group", http.StatusInternalServerError) {
+		if err != nil {
+			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
 			return
 		}
 		w.Header().Set("Location", "http://localhost:3333/api/groups/"+string(g.Id))
@@ -151,7 +149,8 @@ func API_Groups_Id(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.ParseInt(vars["id"], 0, 64)
 	g, err := models.GetGroup(id, ctx.Get(r, "user_id").(int64))
-	if checkError(err, w, "Group not found", http.StatusNotFound) {
+	if err != nil {
+		JSONResponse(w, models.Response{Success: false, Message: "Group not found"}, http.StatusNotFound)
 		return
 	}
 	switch {
@@ -159,7 +158,8 @@ func API_Groups_Id(w http.ResponseWriter, r *http.Request) {
 		JSONResponse(w, g, http.StatusOK)
 	case r.Method == "DELETE":
 		err = models.DeleteGroup(&g)
-		if checkError(err, w, "Error deleting group", http.StatusInternalServerError) {
+		if err != nil {
+			JSONResponse(w, models.Response{Success: false, Message: "Error deleting group"}, http.StatusInternalServerError)
 			return
 		}
 		JSONResponse(w, models.Response{Success: true, Message: "Group deleted successfully!"}, http.StatusOK)
@@ -168,18 +168,14 @@ func API_Groups_Id(w http.ResponseWriter, r *http.Request) {
 		g = models.Group{}
 		err = json.NewDecoder(r.Body).Decode(&g)
 		if g.Id != id {
-			http.Error(w, "Error: /:id and group_id mismatch", http.StatusBadRequest)
-			return
-		}
-		// Check to make sure targets were specified
-		if len(g.Targets) == 0 {
-			http.Error(w, "Error: No targets specified", http.StatusBadRequest)
+			JSONResponse(w, models.Response{Success: false, Message: "Error: /:id and group_id mismatch"}, http.StatusInternalServerError)
 			return
 		}
 		g.ModifiedDate = time.Now()
 		g.UserId = ctx.Get(r, "user_id").(int64)
 		err = models.PutGroup(&g)
-		if checkError(err, w, "Error updating group", http.StatusInternalServerError) {
+		if err != nil {
+			JSONResponse(w, models.Response{Success: false, Message: "Error updating group"}, http.StatusInternalServerError)
 			return
 		}
 		JSONResponse(w, g, http.StatusOK)
@@ -199,11 +195,11 @@ func API_Templates(w http.ResponseWriter, r *http.Request) {
 		t := models.Template{}
 		// Put the request into a template
 		err := json.NewDecoder(r.Body).Decode(&t)
-		if checkError(err, w, "Invalid Request", http.StatusBadRequest) {
+		if err != nil {
+			JSONResponse(w, models.Response{Success: false, Message: "Invalid JSON structure"}, http.StatusBadRequest)
 			return
 		}
 		_, err = models.GetTemplateByName(t.Name, ctx.Get(r, "user_id").(int64))
-		fmt.Println(err)
 		if err != gorm.RecordNotFound {
 			JSONResponse(w, models.Response{Success: false, Message: "Template name already in use"}, http.StatusConflict)
 			return
@@ -219,7 +215,9 @@ func API_Templates(w http.ResponseWriter, r *http.Request) {
 			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
 			return
 		}
-		if checkError(err, w, "Error inserting template", http.StatusInternalServerError) {
+		if err != nil {
+			JSONResponse(w, models.Response{Success: false, Message: "Error inserting template into database"}, http.StatusInternalServerError)
+			Logger.Println(err)
 			return
 		}
 		JSONResponse(w, t, http.StatusCreated)
@@ -230,8 +228,8 @@ func API_Templates_Id(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.ParseInt(vars["id"], 0, 64)
 	t, err := models.GetTemplate(id, ctx.Get(r, "user_id").(int64))
-	if checkError(err, w, "Template not found", http.StatusNotFound) {
-		Logger.Println(err)
+	if err != nil {
+		JSONResponse(w, models.Response{Success: false, Message: "Template not found"}, http.StatusNotFound)
 		return
 	}
 	switch {
@@ -239,7 +237,8 @@ func API_Templates_Id(w http.ResponseWriter, r *http.Request) {
 		JSONResponse(w, t, http.StatusOK)
 	case r.Method == "DELETE":
 		err = models.DeleteTemplate(id, ctx.Get(r, "user_id").(int64))
-		if checkError(err, w, "Error deleting template", http.StatusInternalServerError) {
+		if err != nil {
+			JSONResponse(w, models.Response{Success: false, Message: "Error deleting template"}, http.StatusInternalServerError)
 			return
 		}
 		JSONResponse(w, models.Response{Success: true, Message: "Template deleted successfully!"}, http.StatusOK)
@@ -250,17 +249,14 @@ func API_Templates_Id(w http.ResponseWriter, r *http.Request) {
 			Logger.Println(err)
 		}
 		if t.Id != id {
-			http.Error(w, "Error: /:id and template_id mismatch", http.StatusBadRequest)
+			JSONResponse(w, models.Response{Success: false, Message: "Error: /:id and template_id mismatch"}, http.StatusBadRequest)
 			return
 		}
-		err = t.Validate()
-		/*		if checkError(err, w, http.StatusBadRequest) {
-				return
-			}*/
 		t.ModifiedDate = time.Now()
 		t.UserId = ctx.Get(r, "user_id").(int64)
 		err = models.PutTemplate(&t)
-		if checkError(err, w, "Error updating group", http.StatusInternalServerError) {
+		if err != nil {
+			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
 			return
 		}
 		JSONResponse(w, t, http.StatusOK)
@@ -306,8 +302,8 @@ func API_Pages_Id(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.ParseInt(vars["id"], 0, 64)
 	p, err := models.GetPage(id, ctx.Get(r, "user_id").(int64))
-	if checkError(err, w, "Page not found", http.StatusNotFound) {
-		Logger.Println(err)
+	if err != nil {
+		JSONResponse(w, models.Response{Success: false, Message: "Page not found"}, http.StatusNotFound)
 		return
 	}
 	switch {
@@ -315,7 +311,8 @@ func API_Pages_Id(w http.ResponseWriter, r *http.Request) {
 		JSONResponse(w, p, http.StatusOK)
 	case r.Method == "DELETE":
 		err = models.DeletePage(id, ctx.Get(r, "user_id").(int64))
-		if checkError(err, w, "Error deleting page", http.StatusInternalServerError) {
+		if err != nil {
+			JSONResponse(w, models.Response{Success: false, Message: "Error deleting page"}, http.StatusInternalServerError)
 			return
 		}
 		JSONResponse(w, models.Response{Success: true, Message: "Page Deleted Successfully"}, http.StatusOK)
@@ -348,7 +345,8 @@ func API_Pages_Id(w http.ResponseWriter, r *http.Request) {
 // API_Import_Group imports a CSV of group members
 func API_Import_Group(w http.ResponseWriter, r *http.Request) {
 	ts, err := util.ParseCSV(r)
-	if checkError(err, w, "Error deleting template", http.StatusInternalServerError) {
+	if err != nil {
+		JSONResponse(w, models.Response{Success: false, Message: "Error parsing CSV"}, http.StatusInternalServerError)
 		return
 	}
 	JSONResponse(w, ts, http.StatusOK)
@@ -371,8 +369,9 @@ func API_Import_Email(w http.ResponseWriter, r *http.Request) {
 // is written to the given ResponseWriter.
 func JSONResponse(w http.ResponseWriter, d interface{}, c int) {
 	dj, err := json.MarshalIndent(d, "", "  ")
-	if checkError(err, w, "Error creating JSON response", http.StatusInternalServerError) {
-		return
+	if err != nil {
+		http.Error(w, "Error creating JSON response", http.StatusInternalServerError)
+		Logger.Println(err)
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(c)

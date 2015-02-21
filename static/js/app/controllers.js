@@ -132,7 +132,23 @@ app.controller('DashboardCtrl', function($scope, $filter, $location, CampaignSer
     });
 })
 app.controller('CampaignCtrl', function($scope, $modal, CampaignService, GroupService, TemplateService, ngTableParams, $http) {
-    $scope.flashes = []
+    $scope.errorFlash = function(message) {
+        $scope.flashes = {"main" : [], "modal" : []};
+        $scope.flashes.main.push({
+            "type": "danger",
+            "message": message,
+            "icon": "fa-exclamation-circle"
+        })
+    }
+
+    $scope.successFlash = function(message) {
+        $scope.flashes = {"main" : [], "modal" : []};;
+        $scope.flashes.main.push({
+            "type": "success",
+            "message": message,
+            "icon": "fa-check-circle"
+        })
+    }
     $scope.mainTableParams = new ngTableParams({
         page: 1, // show first page
         count: 10, // count per page
@@ -158,21 +174,6 @@ app.controller('CampaignCtrl', function($scope, $modal, CampaignService, GroupSe
         $scope.templates = templates;
     })
 
-    $scope.addGroup = function(group) {
-        if (group.name != "") {
-            $scope.campaign.groups.push({
-                name: group.name
-            });
-            group.name = ""
-            $scope.editGroupTableParams.reload()
-        }
-    };
-
-    $scope.removeGroup = function(group) {
-        $scope.campaign.groups.splice($scope.campaign.groups.indexOf(group), 1);
-        $scope.editGroupTableParams.reload()
-    };
-
     $scope.newCampaign = function() {
         $scope.campaign = {
             name: '',
@@ -188,11 +189,19 @@ app.controller('CampaignCtrl', function($scope, $modal, CampaignService, GroupSe
             scope: $scope
         });
 
-        modalInstance.result.then(function(selectedItem) {
-            $scope.selected = selectedItem;
+        modalInstance.result.then(function(message) {
+            $scope.successFlash(message)
+            $scope.campaign = {
+                name: '',
+                groups: [],
+            };
         }, function() {
-            console.log('closed')
+            $scope.campaign = {
+                name: '',
+                groups: [],
+            };
         });
+        $scope.mainTableParams.reload()
     };
 
     $scope.editGroupTableParams = new ngTableParams({
@@ -209,35 +218,64 @@ app.controller('CampaignCtrl', function($scope, $modal, CampaignService, GroupSe
         }
     });
 
-    $scope.saveCampaign = function(campaign) {
-        $scope.flashes = []
-        $scope.validated = true
-        var newCampaign = new CampaignService(campaign);
-        newCampaign.$save({}, function() {
-            $scope.successFlash("Campaign added successfully")
-            $scope.campaigns.push(newCampaign);
-            $scope.mainTableParams.reload()
-        }, function(response) {
-            $scope.errorFlash(response.data)
-        });
-        $scope.campaign = {
-            groups: [],
-        };
-        $scope.editGroupTableParams.reload()
-    }
-
     $scope.deleteCampaign = function(campaign) {
         var deleteCampaign = new CampaignService(campaign);
         deleteCampaign.$delete({
             id: deleteCampaign.id
-        }, function() {
-            $scope.successFlash("Campaign deleted successfully")
+        }, function(response) {
+            if (response.success) {
+                $scope.successFlash(response.message)
+            } else {
+                $scope.errorFlash(response.message)
+            }
             $scope.mainTableParams.reload();
         });
     }
+});
 
+var CampaignModalCtrl = function($scope, CampaignService, $modalInstance) {
     $scope.errorFlash = function(message) {
-        $scope.flashes.push({
+        $scope.flashes = {"main" : [], "modal" : []};
+        $scope.flashes.modal.push({
+            "type": "danger",
+            "message": message,
+            "icon": "fa-exclamation-circle"
+        })
+    }
+    $scope.addGroup = function(group) {
+        if (group.name != "") {
+            $scope.campaign.groups.push({
+                name: group.name
+            });
+            group.name = ""
+            $scope.editGroupTableParams.reload()
+        }
+    };
+
+    $scope.removeGroup = function(group) {
+        $scope.campaign.groups.splice($scope.campaign.groups.indexOf(group), 1);
+        $scope.editGroupTableParams.reload()
+    };
+    $scope.cancel = function() {
+        $modalInstance.dismiss('cancel');
+    };
+    $scope.ok = function(campaign) {
+        var newCampaign = new CampaignService(campaign);
+        newCampaign.$save({}, function() {
+            $modalInstance.close("Campaign added successfully")
+            $scope.campaigns.push(newCampaign);
+            $scope.mainTableParams.reload()
+        }, function(response) {
+            $scope.errorFlash(response.data.message)
+        });
+    }
+};
+
+app.controller('CampaignResultsCtrl', function($scope, $filter, CampaignService, GroupService, ngTableParams, $http, $window) {
+    id = $window.location.hash.split('/')[2];
+    $scope.errorFlash = function(message) {
+        $scope.flashes = {"main" : [], "modal" : []};
+        $scope.flashes.main.push({
             "type": "danger",
             "message": message,
             "icon": "fa-exclamation-circle"
@@ -245,27 +283,13 @@ app.controller('CampaignCtrl', function($scope, $modal, CampaignService, GroupSe
     }
 
     $scope.successFlash = function(message) {
-        $scope.flashes.push({
+        $scope.flashes = {"main" : [], "modal" : []};;
+        $scope.flashes.main.push({
             "type": "success",
             "message": message,
             "icon": "fa-check-circle"
         })
     }
-});
-
-var CampaignModalCtrl = function($scope, $modalInstance) {
-    $scope.cancel = function() {
-        $modalInstance.dismiss('cancel');
-    };
-    $scope.ok = function(campaign) {
-        $modalInstance.dismiss("")
-        $scope.saveCampaign(campaign)
-    }
-};
-
-app.controller('CampaignResultsCtrl', function($scope, $filter, CampaignService, GroupService, ngTableParams, $http, $window) {
-    id = $window.location.hash.split('/')[2];
-    $scope.flashes = []
     $scope.mainTableParams = new ngTableParams({
         page: 1, // show first page
         count: 10, // count per page
@@ -378,51 +402,43 @@ app.controller('CampaignResultsCtrl', function($scope, $filter, CampaignService,
                         xAxis: {
                             type: 'datetime',
                             dateTimeLabelFormats: { // don't display the dummy year
-                                day: "%e of %b",
-                                hour: "%l:%M",
-                                second: '%l:%M:%S',
-                                minute: '%l:%M'
-                            },
-                            max: Date.now(),
-                            title: {
-                                text: 'Date'
-                            }
+                            day: "%e of %b",
+                            hour: "%l:%M",
+                            second: '%l:%M:%S',
+                            minute: '%l:%M'
                         },
+                        max: Date.now(),
+                        title: {
+                            text: 'Date'
+                        }
                     },
-                    series: [{
-                        name: "Events",
-                        data: $scope.campaign.timeline
-                    }],
-                    title: {
-                        text: 'Campaign Timeline'
-                    },
-                    size: {
-                        height: 300
-                    },
-                    credits: {
-                        enabled: false
-                    },
-                    loading: false,
-                }
-                params.total(campaign.results.length)
-                $defer.resolve(campaign.results.slice((params.page() - 1) * params.count(), params.page() * params.count()));
-            })
-        }
-    });
-
-    $scope.errorFlash = function(message) {
-        $scope.flashes.push({
-            "type": "danger",
-            "message": message,
-            "icon": "fa-exclamation-circle"
+                },
+                series: [{
+                    name: "Events",
+                    data: $scope.campaign.timeline
+                }],
+                title: {
+                    text: 'Campaign Timeline'
+                },
+                size: {
+                    height: 300
+                },
+                credits: {
+                    enabled: false
+                },
+                loading: false,
+            }
+            params.total(campaign.results.length)
+            $defer.resolve(campaign.results.slice((params.page() - 1) * params.count(), params.page() * params.count()));
         })
     }
 });
+})
 
 app.controller('GroupCtrl', function($scope, $modal, GroupService, ngTableParams) {
     $scope.errorFlash = function(message) {
-        $scope.flashes = [];
-        $scope.flashes.push({
+        $scope.flashes = {"main" : [], "modal" : []};
+        $scope.flashes.main.push({
             "type": "danger",
             "message": message,
             "icon": "fa-exclamation-circle"
@@ -430,8 +446,8 @@ app.controller('GroupCtrl', function($scope, $modal, GroupService, ngTableParams
     }
 
     $scope.successFlash = function(message) {
-        $scope.flashes = [];
-        $scope.flashes.push({
+        $scope.flashes = {"main" : [], "modal" : []};;
+        $scope.flashes.main.push({
             "type": "success",
             "message": message,
             "icon": "fa-check-circle"
@@ -487,8 +503,64 @@ app.controller('GroupCtrl', function($scope, $modal, GroupService, ngTableParams
             controller: GroupModalCtrl,
             scope: $scope
         });
+        modalInstance.result.then(function(message) {
+            $scope.successFlash(message)
+            $scope.group = {
+                name: '',
+                targets: [],
+            };
+        }, function() {
+            $scope.group = {
+                name: '',
+                targets: [],
+            };
+        });
+        $scope.mainTableParams.reload()
+
     };
 
+    $scope.deleteGroup = function(group) {
+        var deleteGroup = new GroupService(group);
+        deleteGroup.$delete({
+            id: deleteGroup.id
+        }, function(response) {
+            if (response.success) {
+                $scope.successFlash(response.message)
+            } else {
+                $scope.errorFlash(response.message)
+            }
+            $scope.mainTableParams.reload();
+        });
+    }
+})
+
+var GroupModalCtrl = function($scope, GroupService, $modalInstance, $upload) {
+    $scope.errorFlash = function(message) {
+        $scope.flashes = {"main" : [], "modal" : []};
+        $scope.flashes.modal.push({
+            "type": "danger",
+            "message": message,
+            "icon": "fa-exclamation-circle"
+        })
+    }
+    $scope.onFileSelect = function($file) {
+        $scope.upload = $upload.upload({
+            url: '/api/import/group',
+            data: {},
+            file: $file,
+        }).progress(function(evt) {
+            console.log('percent: ' + parseInt(100.0 * evt.loaded / evt.total));
+        }).success(function(data, status, headers, config) {
+            angular.forEach(data, function(record, key) {
+                $scope.group.targets.push({
+                    first_name : record.first_name,
+                    last_name : record.last_name,
+                    email: record.email
+                });
+            });
+            $scope.editGroupTableParams.reload();
+        });
+    };
     $scope.addTarget = function() {
         if ($scope.newTarget.email != "") {
             $scope.group.targets.push({
@@ -502,60 +574,27 @@ app.controller('GroupCtrl', function($scope, $modal, GroupService, ngTableParams
         $scope.group.targets.splice($scope.group.targets.indexOf(target), 1);
         $scope.editGroupTableParams.reload()
     };
-    $scope.saveGroup = function(group) {
+    $scope.cancel = function() {
+        $modalInstance.dismiss();
+    };
+    $scope.ok = function(group) {
         var newGroup = new GroupService(group);
         if ($scope.newGroup) {
             newGroup.$save({}, function() {
                 $scope.groups.push(newGroup);
-                $scope.mainTableParams.reload()
+                $modalInstance.close("Group created successfully!")
+            }, function(error){
+                $scope.errorFlash(error.data.message)
             });
         } else {
             newGroup.$update({
                 id: newGroup.id
+            },function(){
+                $modalInstance.close("Group updated successfully!")
+            }, function(error){
+                $scope.errorFlash(error.data.message)
             })
         }
-        $scope.group = {
-            name: '',
-            targets: [],
-        };
-        $scope.editGroupTableParams.reload()
-    }
-    $scope.deleteGroup = function(group) {
-        var deleteGroup = new GroupService(group);
-        deleteGroup.$delete({
-            id: deleteGroup.id
-        }, function() {
-            $scope.mainTableParams.reload();
-        });
-    }
-})
-
-var GroupModalCtrl = function($scope, $modalInstance, $upload) {
-    $scope.onFileSelect = function($file) {
-        $scope.upload = $upload.upload({
-            url: '/api/import/group',
-            data: {},
-            file: $file,
-        }).progress(function(evt) {
-            console.log('percent: ' + parseInt(100.0 * evt.loaded / evt.total));
-        }).success(function(data, status, headers, config) {
-            angular.forEach(data, function(record, key) {
-                $scope.group.targets.push({
-                  first_name : record.first_name,
-                  last_name : record.last_name,
-                  email: record.email
-                });
-            });
-            $scope.editGroupTableParams.reload();
-            //.error(...)
-        });
-    };
-    $scope.cancel = function() {
-        $modalInstance.dismiss('cancel');
-    };
-    $scope.ok = function(group) {
-        $modalInstance.dismiss('')
-        $scope.saveGroup(group)
     };
 }
 
@@ -623,11 +662,11 @@ app.controller('TemplateCtrl', function($scope, $modal, TemplateService, ngTable
                 text: '',
             };
         }, function() {
-          $scope.template = {
+            $scope.template = {
                 name: '',
                 html: '',
                 text: '',
-          };
+            };
         });
     };
 
@@ -648,7 +687,7 @@ app.controller('TemplateCtrl', function($scope, $modal, TemplateService, ngTable
 
 var TemplateModalCtrl = function($scope, TemplateService, $upload, $modalInstance, $modal) {
     $scope.editorOptions = {
-	      fullPage: true,
+        fullPage: true,
         allowedContent: true,
     }
     $scope.errorFlash = function(message) {
@@ -673,9 +712,9 @@ var TemplateModalCtrl = function($scope, TemplateService, $upload, $modalInstanc
             var reader = new FileReader();
             reader.onload = function(e) {
                 $scope.template.attachments.push({
-                        name : file.name,
-                        content : reader.result.split(",")[1],
-                        type : file.type || "application/octet-stream"
+                    name : file.name,
+                    content : reader.result.split(",")[1],
+                    type : file.type || "application/octet-stream"
                 })
                 $scope.$apply();
             }
@@ -700,9 +739,8 @@ var TemplateModalCtrl = function($scope, TemplateService, $upload, $modalInstanc
                 // Close the dialog, returning the template
                 $modalInstance.close("Template created successfully!")
             }, function(error){
-              // Otherwise, leave the dialog open, showing the error
-              console.log(error.data)
-              $scope.errorFlash(error.data.message)
+                // Otherwise, leave the dialog open, showing the error
+                $scope.errorFlash(error.data.message)
             });
         } else {
             newTemplate.$update({
@@ -710,7 +748,6 @@ var TemplateModalCtrl = function($scope, TemplateService, $upload, $modalInstanc
             }, function(){
                 $modalInstance.close("Template updated successfully!")
             }, function(error){
-                console.log(error.data)
                 $scope.errorFlash(error.data.message)
             })
         }
@@ -733,109 +770,109 @@ var TemplateModalCtrl = function($scope, TemplateService, $upload, $modalInstanc
 };
 
 var ImportEmailCtrl = function($scope, $http, $modalInstance) {
-  $scope.email = {}
-  $scope.ok = function() {
-    // Simple POST request example (passing data) :
-    $http.post('/api/import/email', $scope.email.raw,
-      { headers : {"Content-Type" : "text/plain"}}
+    $scope.email = {}
+    $scope.ok = function() {
+        // Simple POST request example (passing data) :
+        $http.post('/api/import/email', $scope.email.raw,
+        { headers : {"Content-Type" : "text/plain"}}
     ).success(function(data) {console.log("Success: " + data)})
     .error(function(data) {console.log("Error: " + data)});
     $modalInstance.close($scope.email.raw)
-  };
-  $scope.cancel = function() {$modalInstance.dismiss()}
+};
+$scope.cancel = function() {$modalInstance.dismiss()}
 };
 
 app.controller('LandingPageCtrl', function($scope, $modal, LandingPageService, ngTableParams) {
-  $scope.errorFlash = function(message) {
-      $scope.flashes = [];
-      $scope.flashes.push({
-          "type": "danger",
-          "message": message,
-          "icon": "fa-exclamation-circle"
-      })
-  }
+    $scope.errorFlash = function(message) {
+        $scope.flashes = [];
+        $scope.flashes.push({
+            "type": "danger",
+            "message": message,
+            "icon": "fa-exclamation-circle"
+        })
+    }
 
-  $scope.successFlash = function(message) {
-      $scope.flashes = [];
-      $scope.flashes.push({
-          "type": "success",
-          "message": message,
-          "icon": "fa-check-circle"
-      })
-  }
+    $scope.successFlash = function(message) {
+        $scope.flashes = [];
+        $scope.flashes.push({
+            "type": "success",
+            "message": message,
+            "icon": "fa-check-circle"
+        })
+    }
 
-  $scope.mainTableParams = new ngTableParams({
-      page: 1, // show first page
-      count: 10, // count per page
-      sorting: {
-          name: 'asc' // initial sorting
-      }
-  }, {
-      total: 0, // length of data
-      getData: function($defer, params) {
-          LandingPageService.query(function(pages) {
-              $scope.pages = pages
-              params.total(pages.length)
-              $defer.resolve(pages.slice((params.page() - 1) * params.count(), params.page() * params.count()));
-          })
-      }
-  });
+    $scope.mainTableParams = new ngTableParams({
+        page: 1, // show first page
+        count: 10, // count per page
+        sorting: {
+            name: 'asc' // initial sorting
+        }
+    }, {
+        total: 0, // length of data
+        getData: function($defer, params) {
+            LandingPageService.query(function(pages) {
+                $scope.pages = pages
+                params.total(pages.length)
+                $defer.resolve(pages.slice((params.page() - 1) * params.count(), params.page() * params.count()));
+            })
+        }
+    });
 
-  $scope.editPage = function(page) {
-      if (page === 'new') {
-          $scope.newPage = true;
-          $scope.page = {
-              name: '',
-              html: '',
-          };
+    $scope.editPage = function(page) {
+        if (page === 'new') {
+            $scope.newPage = true;
+            $scope.page = {
+                name: '',
+                html: '',
+            };
 
-      } else {
-          $scope.newPage = false;
-          $scope.page = page;
-      }
-      var modalInstance = $modal.open({
-          templateUrl: '/js/app/partials/modals/LandingPageModal.html',
-          controller: LandingPageModalCtrl,
-          scope: $scope
-      });
+        } else {
+            $scope.newPage = false;
+            $scope.page = page;
+        }
+        var modalInstance = $modal.open({
+            templateUrl: '/js/app/partials/modals/LandingPageModal.html',
+            controller: LandingPageModalCtrl,
+            scope: $scope
+        });
 
-      modalInstance.result.then(function(selectedItem) {
-          $scope.selected = selectedItem;
-      }, function() {
-          console.log('closed')
-      });
-  };
+        modalInstance.result.then(function(selectedItem) {
+            $scope.selected = selectedItem;
+        }, function() {
+            console.log('closed')
+        });
+    };
 
-  $scope.savePage = function(page) {
-      var newPage = new LandingPageService(page);
-      if ($scope.newPage) {
-          newPage.$save({}, function() {
-              $scope.pages.push(newPage);
-              $scope.mainTableParams.reload()
-          });
-      } else {
-          newPage.$update({
-              id: newPage.id
-          })
-      }
-      $scope.page = {
-          name: '',
-          html: '',
-      };
-  }
-  $scope.deletePage = function(page) {
-      var deletePage = new LandingPageService(page);
-      deletePage.$delete({
-          id: deletePage.id
-      }, function(response) {
-          if (response.success) {
-              $scope.successFlash(response.message)
-          } else {
-              $scope.errorFlash(response.message)
-          }
-          $scope.mainTableParams.reload();
-      });
-  }
+    $scope.savePage = function(page) {
+        var newPage = new LandingPageService(page);
+        if ($scope.newPage) {
+            newPage.$save({}, function() {
+                $scope.pages.push(newPage);
+                $scope.mainTableParams.reload()
+            });
+        } else {
+            newPage.$update({
+                id: newPage.id
+            })
+        }
+        $scope.page = {
+            name: '',
+            html: '',
+        };
+    }
+    $scope.deletePage = function(page) {
+        var deletePage = new LandingPageService(page);
+        deletePage.$delete({
+            id: deletePage.id
+        }, function(response) {
+            if (response.success) {
+                $scope.successFlash(response.message)
+            } else {
+                $scope.errorFlash(response.message)
+            }
+            $scope.mainTableParams.reload();
+        });
+    }
 });
 
 var LandingPageModalCtrl = function($scope, $modalInstance) {
@@ -887,13 +924,13 @@ app.controller('SettingsCtrl', function($scope, $http, $window) {
                 'Content-Type': 'application/x-www-form-urlencoded'
             } // set the headers so angular passing info as form data (not request payload)
         })
-            .success(function(response) {
-                if (response.success) {
-                    $scope.user.api_key = response.data;
-                    $window.user.api_key = response.data;
-                    $scope.successFlash(response.message)
-                }
-            })
+        .success(function(response) {
+            if (response.success) {
+                $scope.user.api_key = response.data;
+                $window.user.api_key = response.data;
+                $scope.successFlash(response.message)
+            }
+        })
     }
     $scope.save_settings = function() {
         $http({
@@ -904,12 +941,12 @@ app.controller('SettingsCtrl', function($scope, $http, $window) {
                 'Content-Type': 'application/x-www-form-urlencoded'
             }
         })
-            .success(function(data) {
-                if (data.success) {
-                    $scope.successFlash(data.message)
-                } else {
-                    $scope.errorFlash(data.message)
-                }
-            })
+        .success(function(data) {
+            if (data.success) {
+                $scope.successFlash(data.message)
+            } else {
+                $scope.errorFlash(data.message)
+            }
+        })
     }
 })

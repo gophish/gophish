@@ -25,7 +25,7 @@
         Users &amp; Groups
     </h1>
     <div class="row">
-        <div ng-repeat="flash in flashes" style="text-align:center" class="alert alert-{{flash.type}}">
+        <div ng-repeat="flash in flashes.main" style="text-align:center" class="alert alert-{{flash.type}}">
             <i class="fa {{flash.icon}}"></i> {{flash.message}}
         </div>
     </div>
@@ -43,7 +43,7 @@
     <div ng-show="groups.length" class="row">
         <table ng-table="mainTableParams" class="table table-hover table-striped table-bordered">
             <tbody>
-                <tr ng-repeat="group in $data" class="editable-row">
+                <tr ng-repeat="group in $data | orderBy: '-modified_date'" class="editable-row">
                     <td data-title="'Name'" sortable="'name'" class="col-sm-1">{{group.name}}</td>
                     <td data-title="'Members'" class="col-sm-2">
                         <span ng-repeat="target in group.targets | cut:5 track by $index ">

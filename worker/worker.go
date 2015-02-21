@@ -14,6 +14,7 @@ import (
 
 var Logger = log.New(os.Stdout, " ", log.Ldate|log.Ltime|log.Lshortfile)
 
+// Worker is the background worker that handles watching for new campaigns and sending emails appropriately.
 type Worker struct {
 	Queue chan *models.Campaign
 }

@@ -4,6 +4,11 @@
     <h4 class="modal-title" id="campaignModalLabel">New Campaign</h4>
 </div>
 <div class="modal-body">
+    <div class="row">
+        <div ng-repeat="flash in flashes.modal" style="text-align:center" class="alert alert-{{flash.type}}">
+            <i class="fa {{flash.icon}}"></i> {{flash.message}}
+        </div>
+    </div>
     <div class="form-group">
         <label for="name">Name:</label>
         <input type="text" class="form-control" ng-model="campaign.name" id="name" placeholder="Campaign name" autofocus>
@@ -54,7 +59,7 @@
 </div>
 <div class="modal-footer">
     <button type="button" class="btn btn-default" ng-click="cancel()">Cancel</button>
-    <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="saveCampaign(campaign)" type="submit">Launch Campaign</button>
+    <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="ok(campaign)" type="submit">Launch Campaign</button>
 </div>
 </div>
 </div>

@@ -20,7 +20,7 @@ type Template struct {
 }
 
 // ErrTemplateNameNotSpecified is thrown when a template name is not specified
-var ErrTemplateNameNotSpecified = errors.New("Template Name not specified")
+var ErrTemplateNameNotSpecified = errors.New("Template name not specified")
 
 // ErrTemplateMissingParameter is thrown when a needed parameter is not provided
 var ErrTemplateMissingParameter = errors.New("Need to specify at least plaintext or HTML content")
@@ -112,8 +112,11 @@ func PostTemplate(t *Template) error {
 // PutTemplate edits an existing template in the database.
 // Per the PUT Method RFC, it presumes all data for a template is provided.
 func PutTemplate(t *Template) error {
+	if err := t.Validate(); err != nil {
+		return err
+	}
 	// Delete all attachments, and replace with new ones
-	err := db.Debug().Where("template_id=?", t.Id).Delete(&Attachment{}).Error
+	err = db.Where("template_id=?", t.Id).Delete(&Attachment{}).Error
 	if err != nil && err != gorm.RecordNotFound {
 		Logger.Println(err)
 		return err
@@ -129,7 +132,7 @@ func PutTemplate(t *Template) error {
 			return err
 		}
 	}
-	err = db.Debug().Where("id=?", t.Id).Save(t).Error
+	err = db.Where("id=?", t.Id).Save(t).Error
 	if err != nil {
 		Logger.Println(err)
 		return err
