@@ -31,8 +31,6 @@ func CreateAdminRouter() http.Handler {
 	router.HandleFunc("/logout", Use(Logout, mid.RequireLogin))
 	router.HandleFunc("/register", Register)
 	router.HandleFunc("/settings", Use(Settings, mid.RequireLogin))
-	router.HandleFunc("/html/preview", Use(Preview, mid.RequireLogin))
-	router.HandleFunc("/html/clone", Use(Clone, mid.RequireLogin))
 	// Create the API routes
 	api := router.PathPrefix("/api").Subrouter()
 	api = api.StrictSlash(true)
@@ -48,6 +46,7 @@ func CreateAdminRouter() http.Handler {
 	api.HandleFunc("/pages/{id:[0-9]+}", Use(API_Pages_Id, mid.RequireAPIKey))
 	api.HandleFunc("/import/group", API_Import_Group)
 	api.HandleFunc("/import/email", API_Import_Email)
+	api.HandleFunc("/import/site", API_Import_Site)
 
 	// Setup static file serving
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./static/")))

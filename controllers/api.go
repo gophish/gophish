@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -350,19 +351,56 @@ func API_Import_Group(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	JSONResponse(w, ts, http.StatusOK)
+	return
 }
 
 // API_Import_Email allows for the importing of email.
 // Returns a Message object
 func API_Import_Email(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "POST" {
-		body, err := ioutil.ReadAll(r.Body)
-		if err != nil {
-			Logger.Println(err)
-		}
-		w.Header().Set("Content-Type", "text/plain")
-		fmt.Fprintf(w, "%s", body)
+	if r.Method != "POST" {
+		JSONResponse(w, models.Response{Success: false, Message: "Method not allowed"}, http.StatusBadRequest)
+		return
 	}
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		Logger.Println(err)
+	}
+	w.Header().Set("Content-Type", "text/plain")
+	fmt.Fprintf(w, "%s", body)
+	return
+}
+
+// API_Import_Site allows for the importing of HTML from a website
+// Without "include_resources" set, it will merely place a "base" tag
+// so that all resources can be loaded relative to the given URL.
+func API_Import_Site(w http.ResponseWriter, r *http.Request) {
+	cr := cloneRequest{}
+	if r.Method != "POST" {
+		JSONResponse(w, models.Response{Success: false, Message: "Method not allowed"}, http.StatusBadRequest)
+		return
+	}
+	err := json.NewDecoder(r.Body).Decode(&cr)
+	if err != nil {
+		JSONResponse(w, models.Response{Success: false, Message: "Error decoding JSON Request"}, http.StatusBadRequest)
+		return
+	}
+	if err = cr.validate(); err != nil {
+		JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
+		return
+	}
+	resp, err := http.Get(cr.URL)
+	if err != nil {
+		JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
+		return
+	}
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
+		return
+	}
+	cs := cloneResponse{HTML: string(body)}
+	JSONResponse(w, cs, http.StatusOK)
+	return
 }
 
 // JSONResponse attempts to set the status code, c, and marshal the given interface, d, into a response that
@@ -376,4 +414,20 @@ func JSONResponse(w http.ResponseWriter, d interface{}, c int) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(c)
 	fmt.Fprintf(w, "%s", dj)
+}
+
+type cloneRequest struct {
+	URL              string `json:"url"`
+	IncludeResources bool   `json:"include_resources"`
+}
+
+func (cr *cloneRequest) validate() error {
+	if cr.URL == "" {
+		return errors.New("No URL Specified")
+	}
+	return nil
+}
+
+type cloneResponse struct {
+	HTML string `json:"html"`
 }

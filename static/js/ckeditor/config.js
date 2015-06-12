@@ -32,7 +32,7 @@ CKEDITOR.editorConfig = function( config ) {
 
 	// Set the most common block elements.
 	config.format_tags = 'p;h1;h2;h3;pre';
-
-	// Simplify the dialog windows.
+	config.removePlugins = 'magicline';
 	config.extraPlugins = 'dialogadvtab';
+
 };

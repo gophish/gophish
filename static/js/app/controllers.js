@@ -257,7 +257,7 @@ var CampaignModalCtrl = function($scope, CampaignService, $modalInstance) {
         $scope.editGroupTableParams.reload()
     };
     $scope.cancel = function() {
-        $modalInstance.dismiss('cancel');
+        $modalInstance.dismiss();
     };
     $scope.ok = function(campaign) {
         var newCampaign = new CampaignService(campaign);
@@ -613,7 +613,7 @@ var GroupModalCtrl = function($scope, GroupService, $modalInstance, $upload) {
             })
         }
     };
-}
+};
 
 app.controller('TemplateCtrl', function($scope, $modal, TemplateService, ngTableParams) {
     $scope.errorFlash = function(message) {
@@ -795,14 +795,13 @@ var ImportEmailCtrl = function($scope, $http, $modalInstance) {
     ).success(function(data) {console.log("Success: " + data)})
     .error(function(data) {console.log("Error: " + data)});
     $modalInstance.close($scope.email.raw)
-};
-$scope.cancel = function() {$modalInstance.dismiss()}
-};
+    };
+}
 
 app.controller('LandingPageCtrl', function($scope, $modal, LandingPageService, ngTableParams) {
     $scope.errorFlash = function(message) {
-        $scope.flashes = [];
-        $scope.flashes.push({
+        $scope.flashes = {"main" : [], "modal" : []};
+        $scope.flashes.modal.push({
             "type": "danger",
             "message": message,
             "icon": "fa-exclamation-circle"
@@ -810,8 +809,8 @@ app.controller('LandingPageCtrl', function($scope, $modal, LandingPageService, n
     }
 
     $scope.successFlash = function(message) {
-        $scope.flashes = [];
-        $scope.flashes.push({
+        $scope.flashes = {"main" : [], "modal" : []};;
+        $scope.flashes.modal.push({
             "type": "success",
             "message": message,
             "icon": "fa-check-circle"
@@ -892,21 +891,83 @@ app.controller('LandingPageCtrl', function($scope, $modal, LandingPageService, n
     }
 });
 
-var LandingPageModalCtrl = function($scope, $modalInstance) {
+var LandingPageModalCtrl = function($scope, $modalInstance, $http) {
     $scope.editorOptions = {
         fullPage: true,
         allowedContent: true,
         startupMode: "source"
     }
+    $scope.errorFlash = function(message) {
+        $scope.flashes = {"main" : [], "modal" : []};
+        $scope.flashes.modal.push({
+            "type": "danger",
+            "message": message,
+            "icon": "fa-exclamation-circle"
+        })
+    }
+
+    $scope.successFlash = function(message) {
+        $scope.flashes = {"main" : [], "modal" : []};;
+        $scope.flashes.modal.push({
+            "type": "success",
+            "message": message,
+            "icon": "fa-check-circle"
+        })
+    }
+    $scope.cloneSite = function() {
+        var siteModalInstance = $modal.open({
+            templateUrl: '/js/app/partials/modals/siteCloneModal.html', //<---- Need to make this
+            controller: SiteCloneCtrl,
+            scope: $scope
+        });
+        siteModalInstance.result.then(function(data) {
+            $scope.successFlash(data.message)
+            $scope.html = data.html;
+        }, function() {});
+    };
     $scope.cancel = function() {
-        $modalInstance.dismiss('cancel');
+        $modalInstance.dismiss();
     };
     $scope.ok = function(page) {
         $modalInstance.dismiss('')
         $scope.savePage(page)
     };
-    $scope.csrf_token = csrf_token
 };
+
+var SiteCloneCtrl = function($scope, $modalInstance, $http) {
+    $scope.errorFlash = function(message) {
+        $scope.flashes = {"main" : [], "modal" : []};
+        $scope.flashes.modal.push({
+            "type": "danger",
+            "message": message,
+            "icon": "fa-exclamation-circle"
+        })
+    }
+    $scope.ok = function() {
+        if ($scope.url == "") {
+            $scope.errorFlash("No URL Specified")
+            return
+        }
+        $http.post({
+            method: "POST",
+            url: "/api/import/site",
+            data: {
+                "url" : $scope.url,
+                "include_resources" : $scope.include_resources
+            },
+            headers : {
+                "Content-Type" : "application/json"
+            }
+        }).success(function(response){
+            $modalInstance.close(response);
+        }).error(function(response){
+            $scope.errorFlash(response.message)
+        });
+    }
+    $scope.cancel = function() {
+        $modalInstance.dismiss();
+    };
+}
 
 app.controller('SettingsCtrl', function($scope, $http, $window) {
     $scope.flashes = [];
