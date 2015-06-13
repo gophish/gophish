@@ -1,0 +1,10 @@
+static/api-doc/* linguist-vendored
+static/bootstrap/* linguist-vendored
+static/css/* linguist-vendored
+static/font/* linguist-vendored
+static/images/* linguist-vendored
+static/js/ckeditor/* linguist-vendored
+static/js/angular-* linguist-vendored
+static/js/highcharts* linguist-vendored
+static/js/ui-bootstrap* linguist-vendored
+static/js/ng-* linguist-vendored
