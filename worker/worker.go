@@ -3,15 +3,18 @@ package worker
 import (
 	"bytes"
 	"log"
+	"net"
 	"net/smtp"
 	"os"
 	"strings"
 	"text/template"
+	"time"
 
 	"github.com/jordan-wright/email"
 	"github.com/jordan-wright/gophish/models"
 )
 
+// Logger is the logger for the worker
 var Logger = log.New(os.Stdout, " ", log.Ldate|log.Ltime|log.Lshortfile)
 
 // Worker is the background worker that handles watching for new campaigns and sending emails appropriately.
@@ -19,6 +22,7 @@ type Worker struct {
 	Queue chan *models.Campaign
 }
 
+// New creates a new worker object to handle the creation of campaigns
 func New() *Worker {
 	return &Worker{
 		Queue: make(chan *models.Campaign),
@@ -48,40 +52,57 @@ func processCampaign(c *models.Campaign) {
 	if c.SMTP.Username != "" && c.SMTP.Password != "" {
 		auth = smtp.PlainAuth("", c.SMTP.Username, c.SMTP.Password, strings.Split(c.SMTP.Host, ":")[0])
 	}
+	ips, err := net.InterfaceAddrs()
+	if err != nil {
+		Logger.Println(err)
+	}
+	for _, i := range ips {
+		Logger.Println(i.String())
+	}
 	for _, t := range c.Results {
+		td := struct {
+			models.Result
+			URL     string
+			Tracker string
+		}{
+			t,
+			"http://" + ips[0].String() + "?rid=" + t.RId,
+			"http://" + ips[0].String() + "/track?rid=" + t.RId,
+		}
 		// Parse the templates
-		var subj_buff bytes.Buffer
-		var html_buff bytes.Buffer
-		var text_buff bytes.Buffer
+		var subjBuff bytes.Buffer
+		var htmlBuff bytes.Buffer
+		var textBuff bytes.Buffer
 		tmpl, err := template.New("html_template").Parse(c.Template.HTML)
 		if err != nil {
 			Logger.Println(err)
 		}
-		err = tmpl.Execute(&html_buff, t)
+		err = tmpl.Execute(&htmlBuff, td)
 		if err != nil {
 			Logger.Println(err)
 		}
-		e.HTML = html_buff.Bytes()
+		e.HTML = htmlBuff.Bytes()
 		tmpl, err = template.New("text_template").Parse(c.Template.Text)
 		if err != nil {
 			Logger.Println(err)
 		}
-		err = tmpl.Execute(&text_buff, t)
+		err = tmpl.Execute(&textBuff, td)
 		if err != nil {
 			Logger.Println(err)
 		}
-		e.Text = text_buff.Bytes()
+		e.Text = textBuff.Bytes()
 		tmpl, err = template.New("text_template").Parse(c.Template.Subject)
 		if err != nil {
 			Logger.Println(err)
 		}
-		err = tmpl.Execute(&subj_buff, t)
+		err = tmpl.Execute(&subjBuff, td)
 		if err != nil {
 			Logger.Println(err)
 		}
-		e.Subject = string(subj_buff.Bytes())
+		e.Subject = string(subjBuff.Bytes())
 		Logger.Println("Creating email using template")
 		e.To = []string{t.Email}
+		Logger.Printf("Sending Email to %s\n", t.Email)
 		err = e.Send(c.SMTP.Host, auth)
 		if err != nil {
 			Logger.Println(err)
@@ -95,6 +116,6 @@ func processCampaign(c *models.Campaign) {
 				Logger.Println(err)
 			}
 		}
-		Logger.Printf("Sending Email to %s\n", t.Email)
+		time.Sleep(1)
 	}
 }

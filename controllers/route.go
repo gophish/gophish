@@ -67,8 +67,30 @@ func CreateAdminRouter() http.Handler {
 func CreatePhishingRouter() http.Handler {
 	router := mux.NewRouter()
 	router.PathPrefix("/static").Handler(http.FileServer(http.Dir("./static/endpoint/")))
+	router.HandleFunc("/track", PhishTracker)
 	router.HandleFunc("/{path:.*}", PhishHandler)
 	return router
+}
+
+// PhishTracker tracks emails as they are opened, updating the status for the given Result
+func PhishTracker(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	id := r.Form.Get("rid")
+	if id == "" {
+		http.NotFound(w, r)
+		return
+	}
+	rs, err := models.GetResult(id)
+	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
+	c, err := models.GetCampaign(rs.CampaignId, rs.UserId)
+	if err != nil {
+		Logger.Println(err)
+	}
+	c.AddEvent(models.Event{Email: rs.Email, Message: models.EVENT_OPENED})
+	w.Write([]byte("It Works!"))
 }
 
 // PhishHandler handles incoming client connections and registers the associated actions performed
