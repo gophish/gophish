@@ -11,9 +11,7 @@ app.controller('DashboardCtrl', function($scope, $filter, $location, CampaignSer
         getData: function($defer, params) {
             CampaignService.query(function(campaigns) {
                 $scope.campaigns = campaigns
-                var campaign_series = [];
                 var avg = 0;
-                angular.copy(campaigns, campaign_series)
                 angular.forEach(campaigns, function(campaign, key) {
                     campaign.x = new Date(campaign.created_date)
                     campaign.y = 0
@@ -56,7 +54,6 @@ app.controller('DashboardCtrl', function($scope, $filter, $location, CampaignSer
                         },
                         xAxis: {
                             type: 'datetime',
-                            max: Date.now(),
                             title: {
                                 text: 'Date'
                             }
@@ -271,7 +268,7 @@ var CampaignModalCtrl = function($scope, CampaignService, $modalInstance) {
     }
 };
 
-app.controller('CampaignResultsCtrl', function($scope, $filter, CampaignService, GroupService, ngTableParams, $http, $window) {
+app.controller('CampaignResultsCtrl', function($scope, $filter, $interval, CampaignService, GroupService, ngTableParams, $http, $window) {
     id = $window.location.hash.split('/')[2];
     $scope.errorFlash = function(message) {
         $scope.flashes = {"main" : [], "modal" : []};
@@ -356,12 +353,14 @@ app.controller('CampaignResultsCtrl', function($scope, $filter, CampaignService,
                         },
                         plotOptions: {
                             pie: {
+                                innerSize: '60%',
                                 allowPointSelect: true,
                                 cursor: 'pointer',
                                 dataLabels: {
                                     enabled: false
                                 },
-                                showInLegend: true
+                                showInLegend: true,
+                                animation:false
                             }
                         }
                     },
@@ -423,7 +422,6 @@ app.controller('CampaignResultsCtrl', function($scope, $filter, CampaignService,
                             second: '%l:%M:%S',
                             minute: '%l:%M'
                         },
-                        max: Date.now(),
                         title: {
                             text: 'Date'
                         }
@@ -431,7 +429,14 @@ app.controller('CampaignResultsCtrl', function($scope, $filter, CampaignService,
                 },
                 series: [{
                     name: "Events",
-                    data: $scope.campaign.timeline
+                    data: $scope.campaign.timeline,
+                    marker: {
+                        enabled: true,
+                        radius: 3,
+                        symbol: "circle",
+                        fillColor: "#7cb5ec"
+                    },
+                    animation: false
                 }],
                 title: {
                     text: 'Campaign Timeline'
@@ -449,6 +454,13 @@ app.controller('CampaignResultsCtrl', function($scope, $filter, CampaignService,
         })
     }
 });
+    var promise = $interval($scope.mainTableParams.reload, 10000);
+    $scope.$on('$destroy', function(){
+        if (angular.isDefined(promise)) {
+            $interval.cancel(promise);
+            promise = undefined;
+        }
+    });
 })
 
 app.controller('GroupCtrl', function($scope, $modal, GroupService, ngTableParams) {
