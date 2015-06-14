@@ -49,7 +49,7 @@ app.controller('DashboardCtrl', function($scope, $filter, $location, CampaignSer
                                             $scope.$apply()
                                         }
                                     }
-                                }
+                                },
                             }
                         },
                         xAxis: {
@@ -61,7 +61,15 @@ app.controller('DashboardCtrl', function($scope, $filter, $location, CampaignSer
                     },
                     series: [{
                         name: "Campaigns",
-                        data: $scope.campaigns
+                        data: $scope.campaigns,
+                        marker: {
+                            enabled: true,
+                            radius: 3,
+                            symbol: "circle",
+                            fillColor: "#e74c3c"
+                        },
+                        lineColor:"rgba(231,76,60,.8)",
+                        fillColor:"rgba(231,76,60,.8)"
                     }],
                     title: {
                         text: 'Phishing Success Overview'
@@ -107,7 +115,7 @@ app.controller('DashboardCtrl', function($scope, $filter, $location, CampaignSer
                             y: avg
                         }, {
                             name: "Unsuccessful Phishes",
-                            color: "#7cb5ec",
+                            color: "#1abc9c",
                             y: 100 - avg
                         }]
                     }],
@@ -150,7 +158,7 @@ app.controller('CampaignCtrl', function($scope, $modal, CampaignService, GroupSe
         page: 1, // show first page
         count: 10, // count per page
         sorting: {
-            name: 'asc' // initial sorting
+            modified_date: 'desc' // initial sorting
         }
     }, {
         total: 0, // length of data
@@ -259,7 +267,7 @@ var CampaignModalCtrl = function($scope, CampaignService, $modalInstance) {
     $scope.ok = function(campaign) {
         var newCampaign = new CampaignService(campaign);
         newCampaign.$save({}, function() {
-            $modalInstance.close("Campaign added successfully")
+            $modalInstance.close("Campaign launched successfully")
             $scope.campaigns.push(newCampaign);
             $scope.mainTableParams.reload()
         }, function(response) {
@@ -296,10 +304,11 @@ app.controller('CampaignResultsCtrl', function($scope, $filter, $interval, Campa
             }, function(response) {
                 if (response.success) {
                     $scope.successFlash(response.message)
+                    $location.path("/campaigns/")
+                    $scope.$apply()
                 } else {
                     $scope.errorFlash(response.message)
                 }
-                $scope.mainTableParams.reload();
             });
         }
     }
@@ -434,7 +443,7 @@ app.controller('CampaignResultsCtrl', function($scope, $filter, $interval, Campa
                         enabled: true,
                         radius: 3,
                         symbol: "circle",
-                        fillColor: "#7cb5ec"
+                        fillColor: "#34495e"
                     },
                     animation: false
                 }],

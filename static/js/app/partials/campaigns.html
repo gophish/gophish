@@ -43,7 +43,7 @@
     <div ng-show="campaigns.length" class="row">
         <table ng-table="mainTableParams" class="table table-hover table-striped table-bordered">
             <tbody>
-                <tr ng-repeat="campaign in $data | orderBy: '-modified_date'" class="editable-row">
+                <tr ng-repeat="campaign in $data | orderBy:modified_date:true" class="editable-row">
                     <td data-title="'Created Date'" class="col-sm-1">{{campaign.created_date | date:'medium'}}</td>
                     <td data-title="'Name'" class="col-sm-2">{{campaign.name}}
                         <div class="btn-group" style="float: right;">
