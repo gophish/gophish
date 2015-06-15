@@ -1,4 +1,4 @@
-{{% define "base" %}}
+{{ define "base" }}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -10,7 +10,7 @@
     <meta name="author" content="Jordan Wright (http://github.com/jordan-wright)">
     <link rel="shortcut icon" href="../../docs-assets/ico/favicon.png">
 
-    <title>Gophish - {{% .Title %}}</title>
+    <title>Gophish - {{ .Title }}</title>
 
     <!-- Bootstrap core CSS -->
     <!-- <link href="/css/bootstrap.css" rel="stylesheet"> -->
@@ -51,10 +51,10 @@
         <form class="form-signin" action="/login" method="POST">
             <img id="logo" src="/images/logo_purple.png" />
             <h2 class="form-signin-heading">Please sign in</h2>
-            {{%template "flashes" .Flashes%}}
+            {{template "flashes" .Flashes}}
             <input type="text" name="username" class="form-control" placeholder="Username" required autofocus>
             <input type="password" name="password" class="form-control" placeholder="Password" required>
-            <input type="hidden" name="csrf_token" value="{{%.Token%}}"/>
+            <input type="hidden" name="csrf_token" value="{{.Token}}"/>
             <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
         </form>
     </div>
@@ -67,4 +67,4 @@
 </body>
 
 </html>
-{{% end %}}
+{{ end }}

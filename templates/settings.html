@@ -1,4 +1,4 @@
-{{%define "content"%}} {{%template "nav" .User%}}
+{{define "body"}}
 <div class="jumbotron">
     <div class="container" style="text-align:center;">
         <h1 class="sans header">
@@ -22,7 +22,7 @@
         </ul>
     </div>
     <div class="col-md-9 sans">
-        {{%template "flashes" .Flashes%}}
+        {{template "flashes" .Flashes}}
         <h1 style="margin:0px 0px 15px 0px;">User Settings</h1>
         <div class="row">
             <label for="api_key" class="col-sm-2 control-label form-label">API Key:</label>
@@ -63,4 +63,4 @@
         <br/>
     </div>
 </div>
-{{%end%}}
+{{end}}

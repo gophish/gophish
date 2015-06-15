@@ -1,0 +1,73 @@
+{{define "body"}}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-3 col-md-2 sidebar">
+            <ul class="nav nav-sidebar">
+                <li><a href="#">Dashboard</a>
+                </li>
+                <li><a href="#/campaigns">Campaigns</a>
+                </li>
+                <li class="active"><a href="#/users">Users &amp; Groups</a>
+                </li>
+                <li><a href="#/templates">Email Templates</a>
+                </li>
+                <li><a href="#/landing_pages">Landing Pages</a>
+                </li>
+                <li><a href="#/settings">Settings</a>
+                </li>
+                <li><a href="/api/">API Documentation</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main" ng-controller="GroupCtrl">
+    <h1 class="page-header">
+        Users &amp; Groups
+    </h1>
+    <div class="row">
+        <div ng-repeat="flash in flashes.main" style="text-align:center" class="alert alert-{{flash.type}}">
+            <i class="fa {{flash.icon}}"></i> {{flash.message}}
+        </div>
+    </div>
+    <div class="row">
+        <button type="button" class="btn btn-primary" ng-click="editGroup('new')" data-toggle="modal" data-target="#newGroupModal"><i class="fa fa-plus"></i> New Group</button>
+    </div>
+    &nbsp;
+    <div ng-show="!groups.length">
+        <div class="row">
+            <div class="alert alert-info">
+                No groups created yet. Let's create one!
+            </div>
+        </div>
+    </div>
+    <div ng-show="groups.length" class="row">
+        <table ng-table="mainTableParams" class="table table-hover table-striped table-bordered">
+            <tbody>
+                <tr ng-repeat="group in $data | orderBy: '-modified_date'" class="editable-row">
+                    <td data-title="'Name'" sortable="'name'" class="col-sm-1">{{group.name}}</td>
+                    <td data-title="'Members'" class="col-sm-2">
+                        <span ng-repeat="target in group.targets | cut:5 track by $index ">
+                            {{target}}{{$last ? '' : ', '}}
+                        </span>
+                        <div class="btn-group" style="float: right;">
+                            <button type="button" class="btn btn-primary dropdown-toggle edit-button" data-toggle="dropdown">
+                                <span class="caret" style="border-top-color:#FFFFFF"></span>
+                                <span class="sr-only">Toggle Dropdown</span>
+                            </button>
+                            <ul class="dropdown-menu" style="left:auto; right:0;" role="menu">
+                                <li><a ng-click="editGroup(group)">Edit</a>
+                                </li>
+                                <li class="divider"></li>
+                                <li><a ng-click="deleteGroup(group)">Delete</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </td>
+                    <td data-title="'Modified Date'" class="col-sm-1">{{group.modified_date | date:'medium'}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{{end}}
