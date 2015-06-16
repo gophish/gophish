@@ -1,3 +1,35 @@
+$(document).ready(){
+    function errorFlash(message) {
+        $("#flashes").append(message)
+        // $scope.flashes = {"main" : [], "modal" : []};
+        // $scope.flashes.main.push({
+        //     "type": "danger",
+        //     "message": message,
+        //     "icon": "fa-exclamation-circle"
+        // })
+    }
+
+    function successFlash(message) {
+        $("#flashes").append(message)
+        // $scope.flashes = {"main" : [], "modal" : []};;
+        // $scope.flashes.main.push({
+        //     "type": "success",
+        //     "message": message,
+        //     "icon": "fa-check-circle"
+        // })
+    }
+
+    function api(endpoint, method, data) {
+        return $.ajax({
+            url: BASE_URL + endpoint + API_KEY,
+            async: false,
+            method: method,
+            data: data,
+            dataType:"json"
+        })
+    }
+}
+
 app.controller('DashboardCtrl', function($scope, $filter, $location, CampaignService, ngTableParams, $http) {
     $scope.campaigns = []
     $scope.mainTableParams = new ngTableParams({

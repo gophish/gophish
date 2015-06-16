@@ -1800,7 +1800,6 @@ fieldset[disabled] .checkbox-inline {
 }
 select.input-sm {
   height: 30px;
-  line-height: 30px;
 }
 textarea.input-sm,
 select[multiple].input-sm {
