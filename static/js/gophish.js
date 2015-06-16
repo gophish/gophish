@@ -23,6 +23,7 @@ function api(endpoint, method, data) {
 /*
 Define our API Endpoints
 */
+// campaigns contains the endpoints for /campaigns
 var campaigns = {
     // get() - Queries the API for GET /campaigns
     get: function(){
@@ -34,6 +35,7 @@ var campaigns = {
     }
 }
 
+// campaignId contains the endpoints for /campaigns/:id
 var campaignId = {
     // get() - Queries the API for GET /campaigns/:id
     get: function(id){
@@ -53,32 +55,66 @@ var campaignId = {
     }
 }
 
+// groups contains the endpoints for /groups
 var groups = {
-    // get() - Queries the API for GET /campaigns
+    // get() - Queries the API for GET /groups
     get: function(){
         return api("/groups", "GET", {})
     },
-    // post() - Posts a campaign to POST /campaigns
+    // post() - Posts a campaign to POST /groups
     post: function(group){
         return api("/groups", "POST", group)
     }
 }
 
+// groupId contains the endpoints for /groups/:id
 var groupId = {
     // get() - Queries the API for GET /groups/:id
     get: function(id){
-        return api("/campaigns/" + id, "GET", {})
+        return api("/groups/" + id, "GET", {})
     },
-    // post() - Posts a campaign to POST /campaigns/:id
-    post: function(campaign){
-        return api("/campaigns/" + campaign.id, "POST", data)
+    // post() - Posts a campaign to POST /groups/:id
+    post: function(group){
+        return api("/groups/" + group.id, "POST", data)
     },
-    // put() - Puts a campaign to PUT /campaigns/:id
-    put: function (campaign){
-        return api("/campaigns/" + campaign.id, "PUT", data)
+    // put() - Puts a campaign to PUT /groups/:id
+    put: function (group){
+        return api("/groups/" + group.id, "PUT", data)
     },
-    // delete() - Deletes a campaign at DELETE /campaigns/:id
+    // delete() - Deletes a campaign at DELETE /groups/:id
     delete: function(id){
-        return api("/campaigns/" + id, "DELETE", data)
+        return api("/groups/" + id, "DELETE", data)
+    }
+}
+
+// templates contains the endpoints for /templates
+var templates = {
+    // get() - Queries the API for GET /templates
+    get: function(){
+        return api("/templates", "GET", {})
+    },
+    // post() - Posts a campaign to POST /templates
+    post: function(template){
+        return api("/templates", "POST", template)
+    }
+}
+
+// templateId contains the endpoints for /templates/:id
+var templateId = {
+    // get() - Queries the API for GET /templates/:id
+    get: function(id){
+        return api("/templates/" + id, "GET", {})
+    },
+    // post() - Posts a campaign to POST /templates/:id
+    post: function(template){
+        return api("/templates/" + template.id, "POST", data)
+    },
+    // put() - Puts a campaign to PUT /templates/:id
+    put: function (template){
+        return api("/templates/" + template.id, "PUT", data)
+    },
+    // delete() - Deletes a campaign at DELETE /templates/:id
+    delete: function(id){
+        return api("/templates/" + id, "DELETE", data)
     }
 }
