@@ -27,7 +27,7 @@
     </h1>
     <div id="flashes" class="row"></div>
     <div class="row">
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#groupModal"><i class="fa fa-plus"></i> New Campaign</button>
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#groupModal"><i class="fa fa-plus"></i> New Group</button>
     </div>
     &nbsp;
     <div id="emptyMessage" class="row">
@@ -85,57 +85,35 @@
       </div>
       <div class="modal-body">
           <div class="row" id="modal.flashes"></div>
+          <label class="control-label" for="name">Name:</label>
           <div class="form-group">
-              <label for="name">Name:</label>
-              <input type="text" class="form-control" id="name" placeholder="Campaign name" autofocus>
-              <br />
-              <label class="control-label" for="template">Template:</label>
-              <input type="text" class="form-control" placeholder="Template Name" id="template" typeahead="template.name for template in templates | filter:{name:$viewValue}" typeahead-editable="false" ng-model="campaign.template.name" />
-              <br />
-              <div class="panel panel-default">
-                  <div class="panel-heading" role="tab">
-                      <a role="button" class="collapsed" data-toggle="collapse" href="#smtpPanel" aria-expanded="false" aria-controls="#smtpPanel">
-                          SMTP Options <i class="pull-right glyphicon"></i>
-                      </a>
-                  </div>
-                  <div class="panel-collapse collapse" id="smtpPanel" role="tabpanel">
-                      <div class="panel-body">
-                          <label class="control-label" for="from">From:</label>
-                          <input type="text" class="form-control" placeholder="First Last <test@example.com>" value="" name="from">
-                          <br />
-                          <label class="control-label" for="smtp_server">Host:</label>
-                          <input type="text" class="form-control" placeholder="smtp.example.com:25" value="" name="host">
-                          <br />
-                          <label class="control-label" for="smtp_server">Username:</label>
-                          <input type="text" class="form-control" placeholder="Username" value="" name="username">
-                          <br />
-                          <label class="control-label" for="smtp_server">Password:</label>
-                          <input type="password" class="form-control" placeholder="Password" value="" name="password">
-                          <br />
-                      </div>
-                 </div>
-              </div>
-              <label class="control-label" for="users">Groups:</label>
-              <form>
-                  <div class="input-group">
-                      <input type="text" class="form-control" placeholder="Group Name" id="users" typeahead="group.name for group in groups | filter:{name:$viewValue}" typeahead-editable="false" ng-model="group.name" />
-                      <span class="input-group-btn">
-                          <button class="btn btn-primary"><i class="fa fa-plus"></i> Add</button>
-                      </span>
-                  </div>
-              </form>
-              <br />
-              <table ng-table="editGroupTableParams" class="table table-hover table-striped table-condensed">
-                  <tbody>
-                      <tr ng-repeat="group in $data" class="editable-row">
-                          <td>group.name
-                              <span ng-click="removeGroup(group)" class="remove-row"><i class="fa fa-trash-o"></i>
-                              </span>
-                          </td>
-                      </tr>
-                  </tbody>
-              </table>
+              <input type="text" class="form-control" ng-model="group.name" placeholder="Group name" id="name" autofocus/>
           </div>
+          <div class="form-group">
+              <span class="btn btn-danger btn-file" data-toggle="tooltip" data-placement="right" title="Supports CSV files" id="fileUpload"><i class="fa fa-plus"></i> Bulk Import Users
+                  <input type="file" ng-file-select="onFileSelect($files)">
+              </span>
+          </div>
+          <label class="control-label" for="users">Users:</label>
+          <form ng:submit="addTarget()">
+              <div class="input-group">
+                  <input type="email" class="form-control" placeholder="test@example.com" id="users" ng-model="newTarget.email" />
+                  <span class="input-group-btn">
+                      <button class="btn btn-primary"><i class="fa fa-plus"></i> Add</button>
+                  </span>
+              </div>
+          </form>
+          <br />
+          <table ng-table="editGroupTableParams" class="table table-hover table-striped table-condensed">
+              <tbody>
+                  <tr ng-repeat="target in $data" class="editable-row">
+                      <td>target.email
+                          <span ng-click="removeTarget(target)" class="remove-row"><i class="fa fa-trash-o"></i>
+                          </span>
+                      </td>
+                  </tr>
+              </tbody>
+          </table>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

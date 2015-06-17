@@ -1,6 +1,6 @@
 // Save attempts to POST to /campaigns/
 function save(){
-    var targets = {}
+    var targets = [{}]
     var group = {
         name: $("#name").val(),
         targets: targets
@@ -46,4 +46,5 @@ function load(){
 
 $(document).ready(function(){
     load()
+    $("#fileUpload").hover(function(){$("#fileUpload").tooltip('toggle')})
 })
