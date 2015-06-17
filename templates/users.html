@@ -5,15 +5,15 @@
             <ul class="nav nav-sidebar">
                 <li><a href="#">Dashboard</a>
                 </li>
-                <li><a href="#/campaigns">Campaigns</a>
+                <li><a href="/campaigns">Campaigns</a>
                 </li>
                 <li class="active"><a href="#/users">Users &amp; Groups</a>
                 </li>
-                <li><a href="#/templates">Email Templates</a>
+                <li><a href="/templates">Email Templates</a>
                 </li>
-                <li><a href="#/landing_pages">Landing Pages</a>
+                <li><a href="/landing_pages">Landing Pages</a>
                 </li>
-                <li><a href="#/settings">Settings</a>
+                <li><a href="/settings">Settings</a>
                 </li>
                 <li><a href="/api/">API Documentation</a>
                 </li>
@@ -25,30 +25,35 @@
     <h1 class="page-header">
         Users &amp; Groups
     </h1>
+    <div id="flashes" class="row"></div>
     <div class="row">
-        <div ng-repeat="flash in flashes.main" style="text-align:center" class="alert alert-{{flash.type}}">
-            <i class="fa {{flash.icon}}"></i> {{flash.message}}
-        </div>
-    </div>
-    <div class="row">
-        <button type="button" class="btn btn-primary" ng-click="editGroup('new')" data-toggle="modal" data-target="#newGroupModal"><i class="fa fa-plus"></i> New Group</button>
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#groupModal"><i class="fa fa-plus"></i> New Campaign</button>
     </div>
     &nbsp;
-    <div ng-show="!groups.length">
-        <div class="row">
-            <div class="alert alert-info">
-                No groups created yet. Let's create one!
-            </div>
+    <div id="emptyMessage" class="row">
+        <div class="alert alert-info">
+            No groups created yet. Let's create one!
         </div>
     </div>
-    <div ng-show="groups.length" class="row">
+    <table id="groupTable" class="table" style="display:none;">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Members</th>
+                <th>Modified Date</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    <!-- <div ng-show="groups.length" class="row">
         <table ng-table="mainTableParams" class="table table-hover table-striped table-bordered">
             <tbody>
                 <tr ng-repeat="group in $data | orderBy: '-modified_date'" class="editable-row">
-                    <td data-title="'Name'" sortable="'name'" class="col-sm-1">{{group.name}}</td>
+                    <td data-title="'Name'" sortable="'name'" class="col-sm-1">group.name</td>
                     <td data-title="'Members'" class="col-sm-2">
                         <span ng-repeat="target in group.targets | cut:5 track by $index ">
-                            {{target}}{{$last ? '' : ', '}}
+                            target$last ? '' : ', '
                         </span>
                         <div class="btn-group" style="float: right;">
                             <button type="button" class="btn btn-primary dropdown-toggle edit-button" data-toggle="dropdown">
@@ -64,10 +69,82 @@
                             </ul>
                         </div>
                     </td>
-                    <td data-title="'Modified Date'" class="col-sm-1">{{group.modified_date | date:'medium'}}</td>
+                    <td data-title="'Modified Date'" class="col-sm-1">group.modified_date | date:'medium'</td>
                 </tr>
             </tbody>
         </table>
-    </div>
+    </div> -->
 </div>
+<!-- Modal -->
+<div class="modal fade" id="groupModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="groupModalLabel">New Group</h4>
+      </div>
+      <div class="modal-body">
+          <div class="row" id="modal.flashes"></div>
+          <div class="form-group">
+              <label for="name">Name:</label>
+              <input type="text" class="form-control" id="name" placeholder="Campaign name" autofocus>
+              <br />
+              <label class="control-label" for="template">Template:</label>
+              <input type="text" class="form-control" placeholder="Template Name" id="template" typeahead="template.name for template in templates | filter:{name:$viewValue}" typeahead-editable="false" ng-model="campaign.template.name" />
+              <br />
+              <div class="panel panel-default">
+                  <div class="panel-heading" role="tab">
+                      <a role="button" class="collapsed" data-toggle="collapse" href="#smtpPanel" aria-expanded="false" aria-controls="#smtpPanel">
+                          SMTP Options <i class="pull-right glyphicon"></i>
+                      </a>
+                  </div>
+                  <div class="panel-collapse collapse" id="smtpPanel" role="tabpanel">
+                      <div class="panel-body">
+                          <label class="control-label" for="from">From:</label>
+                          <input type="text" class="form-control" placeholder="First Last <test@example.com>" value="" name="from">
+                          <br />
+                          <label class="control-label" for="smtp_server">Host:</label>
+                          <input type="text" class="form-control" placeholder="smtp.example.com:25" value="" name="host">
+                          <br />
+                          <label class="control-label" for="smtp_server">Username:</label>
+                          <input type="text" class="form-control" placeholder="Username" value="" name="username">
+                          <br />
+                          <label class="control-label" for="smtp_server">Password:</label>
+                          <input type="password" class="form-control" placeholder="Password" value="" name="password">
+                          <br />
+                      </div>
+                 </div>
+              </div>
+              <label class="control-label" for="users">Groups:</label>
+              <form>
+                  <div class="input-group">
+                      <input type="text" class="form-control" placeholder="Group Name" id="users" typeahead="group.name for group in groups | filter:{name:$viewValue}" typeahead-editable="false" ng-model="group.name" />
+                      <span class="input-group-btn">
+                          <button class="btn btn-primary"><i class="fa fa-plus"></i> Add</button>
+                      </span>
+                  </div>
+              </form>
+              <br />
+              <table ng-table="editGroupTableParams" class="table table-hover table-striped table-condensed">
+                  <tbody>
+                      <tr ng-repeat="group in $data" class="editable-row">
+                          <td>group.name
+                              <span ng-click="removeGroup(group)" class="remove-row"><i class="fa fa-trash-o"></i>
+                              </span>
+                          </td>
+                      </tr>
+                  </tbody>
+              </table>
+          </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" onclick="save()">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+{{end}}
+{{define "scripts"}}
+<script src="/js/app/users.js"></script>
 {{end}}

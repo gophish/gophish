@@ -1,3 +1,4 @@
+// Save attempts to POST to /campaigns/
 function save(){
     var campaign = {
         name: $("#name").val(),
@@ -13,32 +14,44 @@ function save(){
         groups: [{name : "Morning catch employees"}]
     }
     // Submit the campaign
-    campaigns.post(campaign)
+    api.campaigns.post(campaign)
     .success(function(data){
-        successFlash("submitted!")
-        console.log(data)
+        successFlash("Campaign successfully launched!")
+        load()
     })
     .error(function(data){
         $("#modal\\.flashes").empty().append("<div style=\"text-align:center\" class=\"alert alert-danger\">\
             <i class=\"fa fa-exclamation-circle\"></i> " + data.responseJSON.message + "</div>")
     })
 }
+
+function groupAdd(name){
+    groups.append({
+        name: name
+    })
+}
+
+function load(){
+    api.campaigns.get()
+    .success(function(campaigns){
+        if (campaigns.length > 0){
+            $("#emptyMessage").hide()
+            $("#campaignTable").show()
+            campaignTable = $("#campaignTable").DataTable();
+            $.each(campaigns, function(i, campaign){
+                campaignTable.row.add([
+                    campaign.created_date,
+                    campaign.name,
+                    campaign.status
+                ]).draw()
+            })
+        }
+    })
+    .error(function(){
+        errorFlash("Error fetching campaigns")
+    })
+}
+
 $(document).ready(function(){
-    var campaignData = {}
-    campaigns.get()
-    .success(function(data){
-        successFlash("worked!")
-        campaignData = data
-    })
-    .error(function(data){
-        errorFlash("No work")
-    })
-    campaignTable = $("#campaignTable").DataTable();
-    $.each(campaignData, function(i, campaign){
-        campaignTable.row.add([
-            campaign.created_date,
-            campaign.name,
-            campaign.status
-        ]).draw()
-    })
+    load()
 })
