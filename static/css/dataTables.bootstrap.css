@@ -39,6 +39,7 @@ div.dataTables_info {
 div.dataTables_paginate ul.pagination {
 	margin: 2px 0;
 	white-space: nowrap;
+	float: right !important;
 }
 
 @media screen and (max-width: 767px) {

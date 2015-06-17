@@ -21,46 +21,31 @@
         </div>
     </div>
 </div>
-<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main" ng-controller="CampaignCtrl">
+<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
     <h1 class="page-header">
         Campaigns
     </h1>
-    <div id="flashes" class="row">
-
-        <!-- <div ng-repeat="flash in flashes.main" style="text-align:center" class="alert alert-flash.type">
-            <i class="fa flash.icon"></i> flash.message
-        </div> -->
-    </div>
+    <div id="flashes" class="row"></div>
     <div class="row">
         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal"><i class="fa fa-plus"></i> New Campaign</button>
     </div>
     &nbsp;
-    <div ng-show="!campaigns.length">
-        <div class="row">
-            <div class="alert alert-info">
-                No campaigns created yet. Let's create one!
-            </div>
+    <div class="row">
+        <div class="alert alert-info">
+            No campaigns created yet. Let's create one!
         </div>
     </div>
-    <div ng-show="campaigns.length" class="row">
-        <table id="campaignTable" class="table">
-    <thead>
-        <tr>
-            <th>Column 1</th>
-            <th>Column 2</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>Row 1 Data 1</td>
-            <td>Row 1 Data 2</td>
-        </tr>
-        <tr>
-            <td>Row 2 Data 1</td>
-            <td>Row 2 Data 2</td>
-        </tr>
-    </tbody>
-</table>
+    <table id="campaignTable" class="table">
+        <thead>
+            <tr>
+                <th>Created Date</th>
+                <th>Name</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
         <!-- <table ng-table="mainTableParams" class="table table-hover table-striped table-bordered">
             <tbody>
                 <tr ng-repeat="campaign in $data | orderBy:modified_date:true" class="editable-row">
@@ -97,11 +82,7 @@
         <h4 class="modal-title" id="campaignModalLabel">New Campaign</h4>
       </div>
       <div class="modal-body">
-          <div class="row">
-              <!-- <div style="text-align:center" class="alert alert-flash.type">
-                  <i class="fa flash.icon"></i> flash.message
-              </div> -->
-          </div>
+          <div class="row" id="modal.flashes"></div>
           <div class="form-group">
               <label for="name">Name:</label>
               <input type="text" class="form-control" id="name" placeholder="Campaign name" autofocus>
@@ -118,22 +99,22 @@
                   <div class="panel-collapse collapse" id="smtpPanel" role="tabpanel">
                       <div class="panel-body">
                           <label class="control-label" for="from">From:</label>
-                          <input type="text" class="form-control" placeholder="First Last <test@example.com>" id="form">
+                          <input type="text" class="form-control" placeholder="First Last <test@example.com>" value="" name="from">
                           <br />
                           <label class="control-label" for="smtp_server">Host:</label>
-                          <input type="text" class="form-control" placeholder="smtp.example.com:25" id="smtp_server">
+                          <input type="text" class="form-control" placeholder="smtp.example.com:25" value="" name="host">
                           <br />
                           <label class="control-label" for="smtp_server">Username:</label>
-                          <input type="text" class="form-control" placeholder="Username" id="smtp_server">
+                          <input type="text" class="form-control" placeholder="Username" value="" name="username">
                           <br />
                           <label class="control-label" for="smtp_server">Password:</label>
-                          <input type="password" class="form-control" placeholder="Password" id="smtp_server">
+                          <input type="password" class="form-control" placeholder="Password" value="" name="password">
                           <br />
                       </div>
                  </div>
               </div>
               <label class="control-label" for="users">Groups:</label>
-              <form ng-submit="addGroup(group)">
+              <form>
                   <div class="input-group">
                       <input type="text" class="form-control" placeholder="Group Name" id="users" typeahead="group.name for group in groups | filter:{name:$viewValue}" typeahead-editable="false" ng-model="group.name" />
                       <span class="input-group-btn">

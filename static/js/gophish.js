@@ -15,8 +15,9 @@ function api(endpoint, method, data) {
         url: "/api" + endpoint + "?api_key=" + user.api_key,
         async: false,
         method: method,
-        data: data,
-        dataType:"json"
+        data: JSON.stringify(data),
+        dataType:"json",
+        contentType: "application/json"
     })
 }
 
@@ -27,11 +28,11 @@ Define our API Endpoints
 var campaigns = {
     // get() - Queries the API for GET /campaigns
     get: function(){
-        return api("/campaigns", "GET", {})
+        return api("/campaigns/", "GET", {})
     },
     // post() - Posts a campaign to POST /campaigns
     post: function(data){
-        return api("/campaigns", "POST", data)
+        return api("/campaigns/", "POST", data)
     }
 }
 
@@ -59,11 +60,11 @@ var campaignId = {
 var groups = {
     // get() - Queries the API for GET /groups
     get: function(){
-        return api("/groups", "GET", {})
+        return api("/groups/", "GET", {})
     },
     // post() - Posts a campaign to POST /groups
     post: function(group){
-        return api("/groups", "POST", group)
+        return api("/groups/", "POST", group)
     }
 }
 
@@ -91,11 +92,11 @@ var groupId = {
 var templates = {
     // get() - Queries the API for GET /templates
     get: function(){
-        return api("/templates", "GET", {})
+        return api("/templates/", "GET", {})
     },
     // post() - Posts a campaign to POST /templates
     post: function(template){
-        return api("/templates", "POST", template)
+        return api("/templates/", "POST", template)
     }
 }
 
