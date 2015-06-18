@@ -25,6 +25,11 @@ function save(){
     })
 }
 
+function dismiss(){
+    $("#modal\\.flashes").empty()
+    $("#modal").modal('hide')
+}
+
 function groupAdd(name){
     groups.append({
         name: name

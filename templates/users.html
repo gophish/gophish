@@ -27,7 +27,7 @@
     </h1>
     <div id="flashes" class="row"></div>
     <div class="row">
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#groupModal"><i class="fa fa-plus"></i> New Group</button>
+        <button type="button" class="btn btn-primary" onclick="edit('new')" data-toggle="modal" data-target="#modal"><i class="fa fa-plus"></i> New Group</button>
     </div>
     &nbsp;
     <div id="emptyMessage" class="row">
@@ -76,7 +76,7 @@
     </div> -->
 </div>
 <!-- Modal -->
-<div class="modal fade" id="groupModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+<div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -94,29 +94,46 @@
                   <input type="file" ng-file-select="onFileSelect($files)">
               </span>
           </div>
-          <label class="control-label" for="users">Users:</label>
-          <form ng:submit="addTarget()">
-              <div class="input-group">
-                  <input type="email" class="form-control" placeholder="test@example.com" id="users" ng-model="newTarget.email" />
-                  <span class="input-group-btn">
-                      <button class="btn btn-primary"><i class="fa fa-plus"></i> Add</button>
-                  </span>
-              </div>
-          </form>
+          <div class="row">
+              <form id="targetForm">
+                  <div class="col-sm-2">
+                      <input type="text" class="form-control" placeholder="First Name" id="firstName">
+                  </div>
+                  <div class="col-sm-2">
+                      <input type="text" class="form-control" placeholder="Last Name" id="lastName">
+                  </div>
+                  <div class="col-sm-3">
+                      <input type="email" class="form-control" placeholder="Email" id="email" required>
+                  </div>
+                  <div class="col-sm-3">
+                      <input type="text" class="form-control" placeholder="Position" id="position">
+                  </div>
+                  <div class="col-sm-1">
+                      <button type="submit" class="btn btn-danger btn-lg"><i class="fa fa-plus"></i> Add</button>
+                  </div>
+              </form>
+          </div>
           <br />
-          <table ng-table="editGroupTableParams" class="table table-hover table-striped table-condensed">
+          <table id="targetsTable" class="table table-hover table-striped">
+              <thead>
+                  <tr>
+                      <th>First Name</th>
+                      <th>Last Name</th>
+                      <th>Email</th>
+                      <th>Position</th>
+                      <th></th>
               <tbody>
-                  <tr ng-repeat="target in $data" class="editable-row">
+                  <!-- <tr ng-repeat="target in $data" class="editable-row">
                       <td>target.email
-                          <span ng-click="removeTarget(target)" class="remove-row"><i class="fa fa-trash-o"></i>
+                          <span onclick="removeTarget()" class="remove-row"><i class="fa fa-trash-o"></i>
                           </span>
                       </td>
-                  </tr>
+                  </tr> -->
               </tbody>
           </table>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-default" onclick="dismiss()">Close</button>
         <button type="button" class="btn btn-primary" onclick="save()">Save changes</button>
       </div>
     </div>

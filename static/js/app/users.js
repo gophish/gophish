@@ -10,6 +10,7 @@ function save(){
     .success(function(data){
         successFlash("Campaign successfully launched!")
         load()
+        dismiss()
     })
     .error(function(data){
         $("#modal\\.flashes").empty().append("<div style=\"text-align:center\" class=\"alert alert-danger\">\
@@ -17,9 +18,44 @@ function save(){
     })
 }
 
+function dismiss(){
+    $("#modal\\.flashes").empty()
+    $("#modal").modal('hide')
+}
+
 function groupAdd(name){
     groups.append({
         name: name
+    })
+}
+
+function edit(group){
+    if (group == "new") {
+        console.log("new")
+        group = {}
+    }
+    targets = $("#targetsTable").dataTable()
+    // Handle Addition
+    $("#targetForm").submit(function(){
+        targets.DataTable()
+        .row.add([
+            $("#firstName").val(),
+            $("#lastName").val(),
+            $("#email").val(),
+            $("#position").val(),
+            '<span><i class="fa fa-trash-o"></i></span>'
+        ])
+        .draw()
+        $("#targetForm>div>input").val('')
+        $("#firstName").focus()
+        return false
+    })
+    // Handle Deletion
+    $("#targetsTable").on("click", "span>i.fa-trash-o", function(){
+        targets.DataTable()
+        .row( $(this).parents('tr') )
+        .remove()
+        .draw();
     })
 }
 
