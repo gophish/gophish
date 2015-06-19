@@ -43,7 +43,7 @@ function edit(group){
             $("#lastName").val(),
             $("#email").val(),
             $("#position").val(),
-            '<span><i class="fa fa-trash-o"></i></span>'
+            '<span style="cursor:pointer;"><i class="fa fa-trash-o"></i></span>'
         ])
         .draw()
         $("#targetForm>div>input").val('')
