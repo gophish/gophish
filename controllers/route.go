@@ -182,7 +182,6 @@ func Register(w http.ResponseWriter, r *http.Request) {
 
 // Base handles the default path and template execution
 func Base(w http.ResponseWriter, r *http.Request) {
-	// Example of using session - will be removed.
 	params := struct {
 		User    models.User
 		Title   string
@@ -255,6 +254,14 @@ func LandingPages(w http.ResponseWriter, r *http.Request) {
 // Settings handles the changing of settings
 func Settings(w http.ResponseWriter, r *http.Request) {
 	switch {
+	case r.Method == "GET":
+		params := struct {
+			User    models.User
+			Title   string
+			Flashes []interface{}
+			Token   string
+		}{Title: "Dashboard", User: ctx.Get(r, "user").(models.User), Token: nosurf.Token(r)}
+		getTemplate(w, "settings").ExecuteTemplate(w, "base", params)
 	case r.Method == "POST":
 		err := auth.ChangePassword(r)
 		msg := models.Response{Success: true, Message: "Settings Updated Successfully"}
