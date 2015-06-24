@@ -3,9 +3,9 @@
     <div class="row">
         <div class="col-sm-3 col-md-2 sidebar">
             <ul class="nav nav-sidebar">
-                <li><a href="#">Dashboard</a>
+                <li><a href="/">Dashboard</a>
                 </li>
-                <li class="active"><a href="#/campaigns">Campaigns</a>
+                <li class="active"><a href="/campaigns">Campaigns</a>
                 </li>
                 <li><a href="/users">Users &amp; Groups</a>
                 </li>
@@ -22,9 +22,11 @@
     </div>
 </div>
 <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-    <h1 class="page-header">
-        Campaigns
-    </h1>
+    <div class="row">
+        <h1 class="page-header">
+            Campaigns
+        </h1>
+    </div>
     <div id="flashes" class="row"></div>
     <div class="row">
         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal"><i class="fa fa-plus"></i> New Campaign</button>
@@ -35,17 +37,19 @@
             No campaigns created yet. Let's create one!
         </div>
     </div>
-    <table id="campaignTable" class="table" style="display:none;">
-        <thead>
-            <tr>
-                <th>Created Date</th>
-                <th>Name</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody>
-        </tbody>
-    </table>
+    <div class="row">
+        <table id="campaignTable" class="table" style="display:none;">
+            <thead>
+                <tr>
+                    <th>Created Date</th>
+                    <th>Name</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
         <!-- <table ng-table="mainTableParams" class="table table-hover table-striped table-bordered">
             <tbody>
                 <tr ng-repeat="campaign in $data | orderBy:modified_date:true" class="editable-row">

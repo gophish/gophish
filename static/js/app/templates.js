@@ -33,6 +33,7 @@ function dismiss(){
 }
 
 function edit(group){
+    $("#html_editor").ckeditor()
     if (group == "new") {
         group = {}
     }
@@ -62,27 +63,25 @@ function edit(group){
 }
 
 function load(){
-    api.groups.get()
-    .success(function(groups){
-        if (groups.length > 0){
+    api.templates.get()
+    .success(function(templates){
+        if (templates.length > 0){
             $("#emptyMessage").hide()
-            $("#groupTable").show()
-            groupTable = $("#groupTable").DataTable();
-            $.each(groups, function(i, group){
-                groupTable.row.add([
-                    group.name,
-                    group.targets.join(),
-                    group.modified_date
+            $("#templateTable").show()
+            templateTable = $("#templateTable").DataTable();
+            $.each(templates, function(i, template){
+                templateTable.row.add([
+                    template.name,
+                    template.modified_date
                 ]).draw()
             })
         }
     })
     .error(function(){
-        errorFlash("Error fetching groups")
+        errorFlash("Error fetching templates")
     })
 }
 
 $(document).ready(function(){
     load()
-    $("#fileUpload").hover(function(){$("#fileUpload").tooltip('toggle')})
 })

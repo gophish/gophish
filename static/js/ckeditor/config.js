@@ -34,5 +34,7 @@ CKEDITOR.editorConfig = function( config ) {
 	config.format_tags = 'p;h1;h2;h3;pre';
 	config.removePlugins = 'magicline';
 	config.extraPlugins = 'dialogadvtab';
-
+	config.fullPage = true;
+	config.allowedContent = true;
+	config.startupMode = "source";
 };

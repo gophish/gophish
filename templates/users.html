@@ -21,10 +21,12 @@
         </div>
     </div>
 </div>
-<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main" ng-controller="GroupCtrl">
-    <h1 class="page-header">
-        Users &amp; Groups
-    </h1>
+<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+    <div class="row">
+        <h1 class="page-header">
+            Users &amp; Groups
+        </h1>
+    </div>
     <div id="flashes" class="row"></div>
     <div class="row">
         <button type="button" class="btn btn-primary" onclick="edit('new')" data-toggle="modal" data-target="#modal"><i class="fa fa-plus"></i> New Group</button>
@@ -35,17 +37,19 @@
             No groups created yet. Let's create one!
         </div>
     </div>
-    <table id="groupTable" class="table" style="display:none;">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Members</th>
-                <th>Modified Date</th>
-            </tr>
-        </thead>
-        <tbody>
-        </tbody>
-    </table>
+    <div class="row">
+        <table id="groupTable" class="table" style="display:none;">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Members</th>
+                    <th>Modified Date</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
     <!-- <div ng-show="groups.length" class="row">
         <table ng-table="mainTableParams" class="table table-hover table-striped table-bordered">
             <tbody>
