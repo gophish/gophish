@@ -98,7 +98,7 @@
             </div>
             <!-- Nav tabs -->
             <ul class="nav nav-tabs" role="tablist">
-                <li role="text"><a href="#text" aria-controls="text" role="tab" data-toggle="tab">Text</a></li>
+                <li class="active" role="text"><a href="#text" aria-controls="text" role="tab" data-toggle="tab">Text</a></li>
                 <li role="html"><a href="#html" aria-controls="html" role="tab" data-toggle="tab">HTML</a></li>
             </ul>
             <!-- Tab panes -->
@@ -111,27 +111,15 @@
                 </div>
             </div>
             <br />
-            <label class="control-label" ng-hide="template.attachments.length == 0">Files:</label>
-            <div ng-repeat="file in template.attachments" ng-model="template.attachments">
-                <i class="fa fa-file-excel-o" ng-show="file.type == 'application/vnd.ms-excel'"></i>
-                <i class="fa fa-file-text-o" ng-show="file.type == 'text/plain'"></i>
-                <i class="fa fa-file-image-o" ng-show="file.type == 'image/gif'"></i>
-                <i class="fa fa-file-pdf-o" ng-show="file.type == 'application/pdf'"></i>
-                <i class="fa fa-file-archive-o" ng-show="file.type == 'application/x-zip-compressed' || file.type == 'application/x-gzip'"></i>
-                <i class="fa fa-file-powerpoint-o" ng-show="file.type == 'application/vnd.openxmlformats-officedocument.presentationml.presentation'"></i>
-                <i class="fa fa-file-word-o" ng-show="file.type == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'"></i>
-                <i class="fa fa-file-o" ng-show="file.type == 'application/octet-stream' || file.type == 'application/x-msdownload'"></i>
-                &nbsp;file.name
-                <span onclick="removeFile(file)" class="remove-row"><i class="fa fa-trash-o"></i>
-                </span>
-            </div>
+            <label class="control-label">Files:</label>
+            <div id="attachments"></div>
             <br/>
             <span class="btn btn-danger btn-file"><i class="fa fa-plus"></i> Add Files
-                <input type="file" multiple>
+                <input type="file" onchange="attach(this.files)" multiple>
             </span>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-default" onclick="cancel()">Cancel</button>
+            <button type="button" class="btn btn-default" onclick="dismiss()">Cancel</button>
             <button type="button" class="btn btn-primary" onclick="save()" data-dismiss="modal">Save Template</button>
         </div>
     </div>

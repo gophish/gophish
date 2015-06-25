@@ -31,7 +31,7 @@
         </tab>
     </tabset>
     <br />
-    <label class="control-label" ng-hide="template.attachments.length == 0">Files:</label>
+    <label class="control-label">Files:</label>
     <div ng-repeat="file in template.attachments" ng-model="template.attachments">
         <i class="fa fa-file-excel-o" ng-show="file.type == 'application/vnd.ms-excel'"></i>
         <i class="fa fa-file-text-o" ng-show="file.type == 'text/plain'"></i>
@@ -47,7 +47,7 @@
     </div>
     <br/>
     <span class="btn btn-danger btn-file"><i class="fa fa-plus"></i> Add Files
-        <input type="file" ng-file-select="onFileSelect($files)" multiple>
+        <input type="file" onchange="attach(this.files)" multiple>
     </span>
 </div>
 <div class="modal-footer">
