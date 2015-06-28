@@ -37,6 +37,7 @@ function dismiss(){
 }
 
 function attach(files){
+    attachmentsTable = $("#attachmentsTable").DataTable();
     $.each(files, function(i, file){
         var reader = new FileReader();
         /* Make this a datatable */
@@ -49,7 +50,11 @@ function attach(files){
             })
             var icon = icons[file.type] || "fa-file-o"
             // Add the record to the modal
-            $("#attachments").append('<i class="fa ' + icon + '"></i>&nbsp;' + file.name + '<span class="remove-row"><i class="fa fa-trash-o"></i></span><br/>');
+            attachmentsTable.row.add([
+                '<i class="fa ' + icon + '"></i>',
+                file.name,
+                '<span class="remove-row"><i class="fa fa-trash-o"></i></span>'
+            ]).draw()
         }
         reader.onerror = function(e) {
             console.log(e)
@@ -60,6 +65,8 @@ function attach(files){
 
 function edit(t){
     $("#html_editor").ckeditor()
+    $("#attachmentsTable").show()
+    $("#attachmentsTable").dataTable();
     if (t == "new") {
         template = {attachments:[]}
     }

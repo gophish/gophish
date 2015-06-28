@@ -95,7 +95,7 @@
           </div>
           <div class="form-group">
               <span class="btn btn-danger btn-file" data-toggle="tooltip" data-placement="right" title="Supports CSV files" id="fileUpload"><i class="fa fa-plus"></i> Bulk Import Users
-                  <input type="file" ng-file-select="onFileSelect($files)">
+                  <input type="file" id="csvupload" data-url="/api/import/group" multiple>
               </span>
           </div>
           <div class="row">
@@ -145,5 +145,8 @@
 </div>
 {{end}}
 {{define "scripts"}}
+<script src="/js/jquery.ui.widget.js"></script>
+<script src="/js/jquery.iframe-transport.js"></script>
+<script src="/js/jquery.fileupload.js"></script>
 <script src="/js/app/users.js"></script>
 {{end}}

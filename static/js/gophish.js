@@ -10,6 +10,11 @@ function successFlash(message) {
     )
 }
 
+function modalError(message){
+    $("#modal\\.flashes").empty().append("<div style=\"text-align:center\" class=\"alert alert-danger\">\
+        <i class=\"fa fa-exclamation-circle\"></i> " + message + "</div>")
+}
+
 function query(endpoint, method, data) {
     return $.ajax({
         url: "/api" + endpoint + "?api_key=" + user.api_key,

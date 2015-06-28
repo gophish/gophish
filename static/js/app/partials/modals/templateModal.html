@@ -32,6 +32,17 @@
     </tabset>
     <br />
     <label class="control-label">Files:</label>
+    <table id="attachmentsTable" class="table">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Name</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
     <div ng-repeat="file in template.attachments" ng-model="template.attachments">
         <i class="fa fa-file-excel-o" ng-show="file.type == 'application/vnd.ms-excel'"></i>
         <i class="fa fa-file-text-o" ng-show="file.type == 'text/plain'"></i>

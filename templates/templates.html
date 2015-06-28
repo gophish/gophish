@@ -111,12 +111,22 @@
                 </div>
             </div>
             <br />
-            <label class="control-label">Files:</label>
-            <div id="attachments"></div>
-            <br/>
             <span class="btn btn-danger btn-file"><i class="fa fa-plus"></i> Add Files
                 <input type="file" onchange="attach(this.files)" multiple>
             </span>
+            <br />
+            <br />
+            <table id="attachmentsTable" class="table">
+                <thead>
+                    <tr>
+                        <th class="col-md-1"></th>
+                        <th class="col-md-10">Name</th>
+                        <th class="col-md-1"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-default" onclick="dismiss()">Cancel</button>

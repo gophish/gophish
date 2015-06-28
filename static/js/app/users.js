@@ -22,12 +22,12 @@ function save(){
         dismiss()
     })
     .error(function(data){
-        $("#modal\\.flashes").empty().append("<div style=\"text-align:center\" class=\"alert alert-danger\">\
-            <i class=\"fa fa-exclamation-circle\"></i> " + data.responseJSON.message + "</div>")
+        modalError(data.responseJSON.message)
     })
 }
 
 function dismiss(){
+    $("#targetsTable").dataTable().DataTable().clear().draw()
     $("#modal\\.flashes").empty()
     $("#modal").modal('hide')
 }
@@ -36,8 +36,35 @@ function edit(group){
     if (group == "new") {
         group = {}
     }
+    // Handle file uploads
     targets = $("#targetsTable").dataTable()
-    // Handle Addition
+    $("#csvupload").fileupload({
+        dataType:"json",
+        add: function(e, data){
+            $("#modal\\.flashes").empty()
+            var acceptFileTypes= /(csv|txt)$/i;
+            var filename = data.originalFiles[0]['name']
+            if (filename && !acceptFileTypes.test(filename.split(".").pop())) {
+                modalError("Unsupported file extension (use .csv or .txt)")
+                return false;
+            }
+            data.submit();
+        },
+        done: function(e, data){
+            console.log(data.result)
+            $.each(data.result, function(i, record) {
+                targets.DataTable()
+                .row.add([
+                    record.first_name,
+                    record.last_name,
+                    record.email,
+                    record.position,
+                    '<span style="cursor:pointer;"><i class="fa fa-trash-o"></i></span>'
+                ]).draw()
+            });
+        }
+    })
+    // Handle manual additions
     $("#targetForm").submit(function(){
         targets.DataTable()
         .row.add([
@@ -69,10 +96,18 @@ function load(){
             $("#groupTable").show()
             groupTable = $("#groupTable").DataTable();
             $.each(groups, function(i, group){
+                var targets = ""
+                $.each(group.targets, function(i, target){
+                    targets += target.email + ", "
+                    if (targets.length > 50) {
+                        targets = targets.slice(0,-3) + "..."
+                        return false;
+                    }
+                })
                 groupTable.row.add([
                     group.name,
-                    group.targets.join(),
-                    group.modified_date
+                    targets,
+                    moment(group.modified_date).format('MMMM Do YYYY, h:mm:ss a')
                 ]).draw()
             })
         }
