@@ -29,7 +29,7 @@
     </div>
     <div id="flashes" class="row"></div>
     <div class="row">
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal"><i class="fa fa-plus"></i> New Campaign</button>
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal" onclick="edit('new')"><i class="fa fa-plus"></i> New Campaign</button>
     </div>
     &nbsp;
     <div id="emptyMessage" class="row">
@@ -92,7 +92,7 @@
               <input type="text" class="form-control" id="name" placeholder="Campaign name" autofocus>
               <br />
               <label class="control-label" for="template">Template:</label>
-              <input type="text" class="form-control" placeholder="Template Name" id="template" typeahead="template.name for template in templates | filter:{name:$viewValue}" typeahead-editable="false" ng-model="campaign.template.name" />
+              <input type="text" class="form-control" placeholder="Template Name" id="template"/>
               <br />
               <div class="panel panel-default">
                   <div class="panel-heading" role="tab">
@@ -120,21 +120,18 @@
               <label class="control-label" for="users">Groups:</label>
               <form>
                   <div class="input-group">
-                      <input type="text" class="form-control" placeholder="Group Name" id="users" typeahead="group.name for group in groups | filter:{name:$viewValue}" typeahead-editable="false" ng-model="group.name" />
+                      <input type="text" class="typeahead form-control" placeholder="Group Name" id="groups" />
                       <span class="input-group-btn">
-                          <button class="btn btn-primary"><i class="fa fa-plus"></i> Add</button>
+                          <button class="btn btn-primary typeahead-button"><i class="fa fa-plus"></i> Add</button>
                       </span>
                   </div>
               </form>
               <br />
-              <table ng-table="editGroupTableParams" class="table table-hover table-striped table-condensed">
+              <table id="groupTable" class="table table-hover table-striped table-condensed">
+                  <thead>
+                      <th>Group Name</th>
+                      <th></th>
                   <tbody>
-                      <tr ng-repeat="group in $data" class="editable-row">
-                          <td>group.name
-                              <span ng-click="removeGroup(group)" class="remove-row"><i class="fa fa-trash-o"></i>
-                              </span>
-                          </td>
-                      </tr>
                   </tbody>
               </table>
           </div>
@@ -148,5 +145,7 @@
 </div>
 {{end}}
 {{define "scripts"}}
+<script src="/js/hogan.js"></script>
+<script src="/js/typeahead.min.js"></script>
 <script src="/js/app/campaigns.js"></script>
 {{end}}

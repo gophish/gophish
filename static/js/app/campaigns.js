@@ -30,10 +30,48 @@ function dismiss(){
     $("#modal").modal('hide')
 }
 
-function groupAdd(name){
-    groups.append({
-        name: name
-    })
+function edit(campaign){
+    if (campaign == "new") {
+        api.groups.get()
+        .success(function(groups){
+            if (groups.length == 0){
+                modalError("No groups found!")
+                return false;
+            }
+            else {
+                // Create the group typeahead objects
+                var groupTable = $("#groupTable").DataTable()
+                var suggestion_template = Hogan.compile('<div>{{name}}</div>')
+                var bh = new Bloodhound({
+                    datumTokenizer: function(g) { return Bloodhound.tokenizers.whitespace(g.name) },
+                    queryTokenizer: Bloodhound.tokenizers.whitespace,
+                    local: groups
+                })
+                bh.initialize()
+                $("#groups.typeahead.form-control").typeahead({
+                    hint: true,
+                    highlight: true,
+                    minLength: 1
+                },
+                {
+                    name: "groups",
+                    source: bh,
+                    templates: {
+                        empty: function(data) {return '<div class="tt-suggestion">No groups matched that query</div>' },
+                        suggestion: function(data){ return '<div>' + data.name + '</div>' }
+                    }
+                })
+                .bind('typeahead:select', function(ev, group){
+                    groupTable.row.add([
+                        group.name,
+                        '<span style="cursor:pointer;"><i class="fa fa-trash-o"></i></span>'
+                    ]).draw()
+                });
+                //<span ng-click="removeGroup(group)" class="remove-row"><i class="fa fa-trash-o"></i>
+                //</span>
+            }
+        })
+    }
 }
 
 function load(){

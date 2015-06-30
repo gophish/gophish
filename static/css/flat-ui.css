@@ -1615,7 +1615,7 @@ fieldset[disabled] .input-group.focus .input-group-btn .btn-default.active {
 }
 .input-group-btn .btn {
   background-color: #ffffff;
-  border: 2px solid #bdc3c7;
+  border: 1px solid #bdc3c7;
   color: #bdc3c7;
   line-height: 18px;
 }
