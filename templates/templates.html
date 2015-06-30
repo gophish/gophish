@@ -94,7 +94,7 @@
             </div>
             <label class="control-label" for="subject">Subject:</label>
             <div class="form-group">
-                <input type="text" class="form-control" ng-model="template.subject" placeholder="Email Subject" id="subject" />
+                <input type="text" class="form-control" placeholder="Email Subject" id="subject" />
             </div>
             <!-- Nav tabs -->
             <ul class="nav nav-tabs" role="tablist">
@@ -104,7 +104,7 @@
             <!-- Tab panes -->
             <div class="tab-content">
                 <div role="tabpanel" class="tab-pane active" id="text">
-                    <textarea rows="10" class="form-control" placeholder="Plaintext"></textarea>
+                    <textarea rows="10" id="text_editor" class="form-control" placeholder="Plaintext"></textarea>
                 </div>
                 <div role="tabpanel" class="tab-pane" id="html">
                     <textarea id="html_editor"></textarea>
@@ -122,6 +122,8 @@
                         <th class="col-md-1"></th>
                         <th class="col-md-10">Name</th>
                         <th class="col-md-1"></th>
+                        <th class="datatable_hidden">Content</th>
+                        <th class="datatable_hidden">Type</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -130,7 +132,7 @@
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-default" onclick="dismiss()">Cancel</button>
-            <button type="button" class="btn btn-primary" onclick="save()" data-dismiss="modal">Save Template</button>
+            <button type="button" class="btn btn-primary" onclick="save()">Save Template</button>
         </div>
     </div>
 </div>

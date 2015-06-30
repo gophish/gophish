@@ -16,7 +16,17 @@ var icons = {
 // Save attempts to POST to /templates/
 function save(){
     template.name = $("#name").val()
-    console.log(template)
+    template.subject = $("#subject").val()
+    template.html = CKEDITOR.instances["html_editor"].getData();
+    template.text = $("#text_editor").val()
+    // Add the attachments
+    $.each($("#attachmentsTable").DataTable().rows().data(), function(i, target){
+        template.attachments.push({
+            name : target[1],
+            content: target[3],
+            type: target[4],
+        })
+    })
     // Submit the template
     api.templates.post(template)
     .success(function(data){
@@ -25,8 +35,7 @@ function save(){
         dismiss()
     })
     .error(function(data){
-        $("#modal\\.flashes").empty().append("<div style=\"text-align:center\" class=\"alert alert-danger\">\
-            <i class=\"fa fa-exclamation-circle\"></i> " + data.responseJSON.message + "</div>")
+        modalError(data.responseJSON.message)
     })
 }
 
@@ -42,18 +51,14 @@ function attach(files){
         var reader = new FileReader();
         /* Make this a datatable */
         reader.onload = function(e){
-            // Add the attachment
-            template.attachments.push({
-                name: file.name,
-                content: reader.result.split(",")[1],
-                type: file.type || "application/octet-stream"
-            })
             var icon = icons[file.type] || "fa-file-o"
             // Add the record to the modal
             attachmentsTable.row.add([
                 '<i class="fa ' + icon + '"></i>',
                 file.name,
-                '<span class="remove-row"><i class="fa fa-trash-o"></i></span>'
+                '<span class="remove-row"><i class="fa fa-trash-o"></i></span>',
+                reader.result.split(",")[1],
+                file.type || "application/octet-stream"
             ]).draw()
         }
         reader.onerror = function(e) {
@@ -66,7 +71,12 @@ function attach(files){
 function edit(t){
     $("#html_editor").ckeditor()
     $("#attachmentsTable").show()
-    $("#attachmentsTable").dataTable();
+    $("#attachmentsTable").DataTable({
+        "aoColumnDefs" : [{
+            "targets" : [3,4],
+            "sClass" : "datatable_hidden"
+        }]
+    });
     if (t == "new") {
         template = {attachments:[]}
     }
@@ -82,7 +92,7 @@ function load(){
             $.each(templates, function(i, template){
                 templateTable.row.add([
                     template.name,
-                    template.modified_date
+                    moment(template.modified_date).format('MMMM Do YYYY, h:mm:ss a')
                 ]).draw()
             })
         }

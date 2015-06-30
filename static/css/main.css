@@ -1,6 +1,9 @@
 .nav-tabs {
   cursor:pointer;
-}  
+}
+.datatable_hidden {
+    display:none;
+}
   .navbar-logo {
       margin: 4px 0px;
       float: left;
