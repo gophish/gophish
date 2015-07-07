@@ -11,7 +11,7 @@ function save(){
             username: $("input[name=username]").val(),
             password: $("input[name=password]").val(),
         },
-        groups: [{name : "Morning catch employees"}]
+        groups: [{name : "Test group"}]
     }
     // Submit the campaign
     api.campaigns.post(campaign)
@@ -28,9 +28,12 @@ function save(){
 function dismiss(){
     $("#modal\\.flashes").empty()
     $("#modal").modal('hide')
+    $("#groupTable").dataTable().DataTable().clear().draw()
 }
 
 function edit(campaign){
+    // Clear the bloodhound instance
+    bh.clear();
     if (campaign == "new") {
         api.groups.get()
         .success(function(groups){
@@ -39,42 +42,13 @@ function edit(campaign){
                 return false;
             }
             else {
-                // Create the group typeahead objects
-                var groupTable = $("#groupTable").DataTable()
-                var suggestion_template = Hogan.compile('<div>{{name}}</div>')
-                var bh = new Bloodhound({
-                    datumTokenizer: function(g) { return Bloodhound.tokenizers.whitespace(g.name) },
-                    queryTokenizer: Bloodhound.tokenizers.whitespace,
-                    local: groups
-                })
-                bh.initialize()
-                $("#groups.typeahead.form-control").typeahead({
-                    hint: true,
-                    highlight: true,
-                    minLength: 1
-                },
-                {
-                    name: "groups",
-                    source: bh,
-                    templates: {
-                        empty: function(data) {return '<div class="tt-suggestion">No groups matched that query</div>' },
-                        suggestion: function(data){ return '<div>' + data.name + '</div>' }
-                    }
-                })
-                .bind('typeahead:select', function(ev, group){
-                    groupTable.row.add([
-                        group.name,
-                        '<span style="cursor:pointer;"><i class="fa fa-trash-o"></i></span>'
-                    ]).draw()
-                });
-                //<span ng-click="removeGroup(group)" class="remove-row"><i class="fa fa-trash-o"></i>
-                //</span>
+                bh.add(groups)
             }
         })
     }
 }
 
-function load(){
+$(document).ready(function(){
     api.campaigns.get()
     .success(function(campaigns){
         if (campaigns.length > 0){
@@ -83,9 +57,15 @@ function load(){
             campaignTable = $("#campaignTable").DataTable();
             $.each(campaigns, function(i, campaign){
                 campaignTable.row.add([
-                    campaign.created_date,
+                    moment(campaign.created_date).format('MMMM Do YYYY, h:mm:ss a'),
                     campaign.name,
-                    campaign.status
+                    campaign.status,
+                    "<div class='pull-right'><button class='btn btn-success' onclick='alert(\"test\")'>\
+                    <i class='fa fa-bar-chart'></i>\
+                    </button>\
+                    <button class='btn btn-danger' onclick='alert(\"test\")'>\
+                    <i class='fa fa-trash-o'></i>\
+                    </button></div>"
                 ]).draw()
             })
         }
@@ -93,8 +73,41 @@ function load(){
     .error(function(){
         errorFlash("Error fetching campaigns")
     })
-}
-
-$(document).ready(function(){
-    load()
+    $("#groupForm").submit(function(){
+        groupTable.row.add([
+            $("#groupSelect").val(),
+            '<span style="cursor:pointer;"><i class="fa fa-trash-o"></i></span>'
+        ]).draw()
+        $("#groupTable").on("click", "span>i.fa-trash-o", function(){
+            groupTable.row( $(this).parents('tr') )
+            .remove()
+            .draw();
+        })
+        return false;
+    })
+    // Create the group typeahead objects
+    groupTable = $("#groupTable").DataTable()
+    suggestion_template = Hogan.compile('<div>{{name}}</div>')
+    bh = new Bloodhound({
+        datumTokenizer: function(g) { return Bloodhound.tokenizers.whitespace(g.name) },
+        queryTokenizer: Bloodhound.tokenizers.whitespace,
+        local: []
+    })
+    bh.initialize()
+    $("#groupSelect.typeahead.form-control").typeahead({
+        hint: true,
+        highlight: true,
+        minLength: 1
+    },
+    {
+        name: "groups",
+        source: bh,
+        templates: {
+            empty: function(data) {return '<div class="tt-suggestion">No groups matched that query</div>' },
+            suggestion: function(data){ return '<div>' + data.name + '</div>' }
+        }
+    })
+    .bind('typeahead:select', function(ev, group){
+        $("#groupSelect").typeahead('val', group.name)
+    });
 })

@@ -107,7 +107,13 @@ function load(){
                 groupTable.row.add([
                     group.name,
                     targets,
-                    moment(group.modified_date).format('MMMM Do YYYY, h:mm:ss a')
+                    moment(group.modified_date).format('MMMM Do YYYY, h:mm:ss a'),
+                    "<div class='pull-right'><button class='btn btn-success' onclick='alert(\"test\")'>\
+                    <i class='fa fa-pencil'></i>\
+                    </button>\
+                    <button class='btn btn-danger' onclick='alert(\"test\")'>\
+                    <i class='fa fa-trash-o'></i>\
+                    </button></div>"
                 ]).draw()
             })
         }
