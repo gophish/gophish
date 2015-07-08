@@ -57,10 +57,10 @@ $(document).ready(function(){
             campaignTable = $("#campaignTable").DataTable();
             $.each(campaigns, function(i, campaign){
                 campaignTable.row.add([
-                    moment(campaign.created_date).format('MMMM Do YYYY, h:mm:ss a'),
                     campaign.name,
-                    campaign.status,
-                    "<div class='pull-right'><button class='btn btn-success' onclick='alert(\"test\")'>\
+                    moment(campaign.created_date).format('MMMM Do YYYY, h:mm:ss a'),
+                    "<span class=\"label label-primary\">" + campaign.status + "</span>",
+                    "<div class='pull-right'><button class='btn btn-primary' onclick='alert(\"test\")'>\
                     <i class='fa fa-bar-chart'></i>\
                     </button>\
                     <button class='btn btn-danger' onclick='alert(\"test\")'>\

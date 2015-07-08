@@ -68,7 +68,7 @@ table.dataTable th {
 table.dataTable {
 	clear: both;
 	margin-top: 6px !important;
-	margin-bottom: 6px !important;
+	margin-bottom: 12px !important;
 	max-width: none !important;
 }
 

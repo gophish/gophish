@@ -108,7 +108,7 @@ function load(){
                     group.name,
                     targets,
                     moment(group.modified_date).format('MMMM Do YYYY, h:mm:ss a'),
-                    "<div class='pull-right'><button class='btn btn-success' onclick='alert(\"test\")'>\
+                    "<div class='pull-right'><button class='btn btn-primary' onclick='alert(\"test\")'>\
                     <i class='fa fa-pencil'></i>\
                     </button>\
                     <button class='btn btn-danger' onclick='alert(\"test\")'>\
