@@ -17,7 +17,9 @@ $(document).ready(function(){
             }
             var average_opts = {
                 donut : true,
-                donutWidth: 30
+                donutWidth: 30,
+                chartPadding: 0,
+                showLabel: false
             }
             var average = 0
             $("#emptyMessage").hide()
@@ -45,12 +47,37 @@ $(document).ready(function(){
                 overview_data.series[0].push({meta : i, value: campaign.y})
             })
             average = Math.floor(average / campaigns.length);
-            average_data.series.push({meta: "Successful Phishes", value: average})
             average_data.series.push({meta: "Unsuccessful Phishes", value: 100 - average})
+            average_data.series.push({meta: "Successful Phishes", value: average})
+            // Build the charts
             var average_chart = new Chartist.Pie("#average_chart", average_data, average_opts)
             var overview_chart = new Chartist.Line('#overview_chart', overview_data, overview_opts)
+            // Setup the average chart listeners
+            $piechart = $("#average_chart")
+            var $pietoolTip = $piechart
+            .append('<div class="chartist-tooltip"></div>')
+            .find('.chartist-tooltip')
+            .hide();
+
+            $piechart.on('mouseenter', '.ct-slice-donut', function() {
+                var $point = $(this)
+                value = $point.attr('ct:value')
+                label = $point.attr('ct:meta')
+                $pietoolTip.html(label + ': ' + value.toString() + "%").show();
+            });
+
+            $piechart.on('mouseleave', '.ct-slice-donut', function() {
+                $pietoolTip.hide();
+            });
+            $piechart.on('mousemove', function(event) {
+                $pietoolTip.css({
+                    left: (event.offsetX || event.originalEvent.layerX) - $pietoolTip.width() / 2 - 10,
+                    top: (event.offsetY + 40 || event.originalEvent.layerY) - $pietoolTip.height() - 80
+                });
+            });
+
+            // Setup the overview chart listeners
             $chart = $("#overview_chart")
-            $chart.on("click", '.ct-point', function(d){console.log(d)});
             var $toolTip = $chart
             .append('<div class="chartist-tooltip"></div>')
             .find('.chartist-tooltip')
@@ -69,7 +96,7 @@ $(document).ready(function(){
             $chart.on('mousemove', function(event) {
                 $toolTip.css({
                     left: (event.offsetX || event.originalEvent.layerX) - $toolTip.width() / 2 - 10,
-                    top: (event.offsetY || event.originalEvent.layerY) - $toolTip.height() - 40
+                    top: (event.offsetY + 40 || event.originalEvent.layerY) - $toolTip.height() - 40
                 });
             });
             $("#overview_chart").on("click", ".ct-point", function(e) {

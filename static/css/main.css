@@ -214,6 +214,23 @@
     font-size: .75em;
     border-radius: 4px;
 }
+
+.chartist-pie-tooltip{
+    position:absolute;
+    display:inline-block;
+    min-width:5em;
+    padding:.5em;
+    background:#34495e;
+    color:#ffffff;
+    font-weight:700;
+    text-align:center;
+    pointer-events:none;
+    z-index:1;
+    margin-left:1.25em;
+    font-size: .75em;
+    border-radius: 4px;
+}
+
 .chartist-tooltip:after{
     content:"";
     position:absolute;
@@ -224,4 +241,35 @@
     margin-left:-15px;
     border:15px solid transparent;
     border-top-color:#34495e
+}
+
+
+.chartist-legend {
+  list-style: none;
+  position: absolute;
+  padding-left:0px;
+  top: 0;
+}
+.chartist-legend li {
+  display: block;
+  padding-left: 30px;
+  position: relative;
+  margin-bottom: 4px;
+  border-radius: 5px;
+  padding: 2px 8px 2px 28px;
+  font-size: 14px;
+  cursor: default;
+  -webkit-transition: background-color 200ms ease-in-out;
+  -moz-transition: background-color 200ms ease-in-out;
+  -o-transition: background-color 200ms ease-in-out;
+  transition: background-color 200ms ease-in-out;
+}
+.chartist-legend li span {
+  display: block;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 20px;
+  height: 100%;
+  border-radius: 5px;
 }
