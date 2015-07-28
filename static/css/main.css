@@ -243,6 +243,9 @@
     border-top-color:#34495e
 }
 
+.chartist-chart {
+    height:175px;
+}
 
 .chartist-legend {
   list-style: none;

@@ -17,7 +17,7 @@ $(document).ready(function(){
             }
             var average_opts = {
                 donut : true,
-                donutWidth: 30,
+                donutWidth: 40,
                 chartPadding: 0,
                 showLabel: false
             }

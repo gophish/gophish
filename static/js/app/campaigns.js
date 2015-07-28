@@ -1,3 +1,12 @@
+// labels is a map of campaign statuses to
+// CSS classes
+var labels = {
+    "In progress" : "label-primary",
+    "Queued" : "label-info",
+	"Completed" : "label-success",
+	"Error" : "label-danger"
+}
+
 // Save attempts to POST to /campaigns/
 function save(){
     var campaign = {
@@ -56,10 +65,11 @@ $(document).ready(function(){
             $("#campaignTable").show()
             campaignTable = $("#campaignTable").DataTable();
             $.each(campaigns, function(i, campaign){
+                label = labels[campaign.status] || "label-default";
                 campaignTable.row.add([
                     campaign.name,
                     moment(campaign.created_date).format('MMMM Do YYYY, h:mm:ss a'),
-                    "<span class=\"label label-primary\">" + campaign.status + "</span>",
+                    "<span class=\"label " + label + "\">" + campaign.status + "</span>",
                     "<div class='pull-right'><button class='btn btn-primary' onclick='alert(\"test\")'>\
                     <i class='fa fa-bar-chart'></i>\
                     </button>\
