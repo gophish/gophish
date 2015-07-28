@@ -21,6 +21,7 @@
     <link href="/css/flat-ui.css" rel="stylesheet">
     <link href="/css/dataTables.bootstrap.css" rel="stylesheet">
     <link href="/css/font-awesome.min.css" rel="stylesheet">
+    <link href="/css/chartist.min.css" rel="stylesheet">
     <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700' rel='stylesheet' type='text/css'>
     <script>
     {{if .User}}
@@ -67,18 +68,10 @@
                     <li>
                         {{if .User}}
                         <div class="btn-group" id="navbar-dropdown">
-                            <button type="button" class="btn btn-primary"><i class="fa fa-user"></i> {{.User.Username}}</button>
-                            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
-                                <span class="caret" style="border-top-color:#FFFFFF"></span>
-                                <span class="sr-only">Toggle Dropdown</span>
-                            </button>
-                            <ul class="dropdown-menu" role="menu">
-                                <li><a href="#/settings">Settings</a>
-                                </li>
-                                <li class="divider"></li>
-                                <li><a href="/logout">Logout</a>
-                                </li>
-                            </ul>
+                            <a class="btn btn-primary" href="/settings"><i class="fa fa-user"></i> {{.User.Username}}</a>
+                            <a class="btn btn-primary dropdown-toggle" href="/logout">
+                                    <i class="fa fa-sign-out"></i>
+                            </a>
                         </div>
                         {{else}}
                         <a href="/login">
@@ -96,7 +89,7 @@
     <script src="/js/bootstrap.min.js"></script>
     <script src="/js/jquery.dataTables.min.js"></script>
     <script src="/js/dataTables.bootstrap.js"></script>
-    <script src="/js/chartjs.min.js"></script>
+    <script src="/js/chartist.min.js"></script>
     <script src="/js/moment.min.js"></script>
     <script src="/js/ckeditor/ckeditor.js"></script>
     <script src="/js/ckeditor/adapters/jquery.js"></script>

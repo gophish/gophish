@@ -153,22 +153,18 @@
     cursor: inherit;
     display: block;
 }
-
 .typeahead {
     border-left-radius:6px !important;
     float:none !important;
 }
-
 .tt-query {
   -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
      -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
           box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
 }
-
 .tt-hint {
   color: #999
 }
-
 .tt-menu {    // used to be tt-dropdown-menu in older versions
   width: 422px;
   margin-top: 4px;
@@ -183,22 +179,49 @@
      -moz-box-shadow: 0 5px 10px rgba(0,0,0,.2);
           box-shadow: 0 5px 10px rgba(0,0,0,.2);
 }
-
 .tt-suggestion {
   padding: 3px 20px;
   line-height: 24px;
 }
-
 .tt-suggestion.tt-cursor {
   color: #fff;
   background-color: #0097cf;
 
 }
-
 .tt-suggestion p {
   margin: 0;
 }
-
 .typeahead-button {
     line-height:1.39 !important;
+}
+
+.ct-point {
+    cursor:pointer;
+}
+
+.chartist-tooltip{
+    position:absolute;
+    display:inline-block;
+    min-width:5em;
+    padding:.5em;
+    background:#34495e;
+    color:#ffffff;
+    font-weight:700;
+    text-align:center;
+    pointer-events:none;
+    z-index:1;
+    margin-left:1.25em;
+    font-size: .75em;
+    border-radius: 4px;
+}
+.chartist-tooltip:after{
+    content:"";
+    position:absolute;
+    top:100%;
+    left:50%;
+    width:0;
+    height:0;
+    margin-left:-15px;
+    border:15px solid transparent;
+    border-top-color:#34495e
 }
