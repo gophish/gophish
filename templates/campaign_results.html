@@ -24,7 +24,7 @@
 <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main" ng-controller="CampaignResultsCtrl">
     <div ng-show="campaign">
         <div class="row">
-            <h1 class="page-header">Results for campaign.name</h1>
+            <h1 class="page-header" id="page-title">Results for campaign.name</h1>
         </div>
         <div class="row">
             <div class="btn-group">
@@ -72,11 +72,9 @@
             </table>
         </div>
     </div>
-    <div ng-show="!campaign">
-        <div class="row">
-            <div class="alert alert-danger">
-                <i class="fa fa-exclamation-circle"></i> Campaign not found!
-            </div>
+    <div class="row">
+        <div class="alert alert-danger">
+            <i class="fa fa-exclamation-circle"></i> Campaign not found!
         </div>
     </div>
 </div>

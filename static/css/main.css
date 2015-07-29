@@ -276,3 +276,7 @@
   height: 100%;
   border-radius: 5px;
 }
+
+.ct-series-a .ct-slice-donut {
+    stroke:#1abc9c !important;
+}
