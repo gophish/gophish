@@ -1,90 +1,73 @@
 // labels is a map of campaign statuses to
 // CSS classes
 var labels = {
-    "In progress" : "label-primary",
-    "Queued" : "label-info",
-	"Completed" : "label-success",
+    "Email Sent" : "label-primary",
+    "Email Opened" : "label-info",
+	"Success" : "label-success",
+    "Clicked Link" : "label-success",
 	"Error" : "label-danger"
 }
 
 var campaign = {}
 
-// Save attempts to POST to /campaigns/
-function save(){
-    var campaign = {
-        name: $("#name").val(),
-        template:{
-            name: $("#template").val()
-        },
-        smtp: {
-            from_address: $("input[name=from]").val(),
-            host: $("input[name=host]").val(),
-            username: $("input[name=username]").val(),
-            password: $("input[name=password]").val(),
-        },
-        groups: [{name : "Test group"}]
-    }
-    // Submit the campaign
-    api.campaigns.post(campaign)
-    .success(function(data){
-        successFlash("Campaign successfully launched!")
-        load()
-    })
-    .error(function(data){
-        $("#modal\\.flashes").empty().append("<div style=\"text-align:center\" class=\"alert alert-danger\">\
-            <i class=\"fa fa-exclamation-circle\"></i> " + data.responseJSON.message + "</div>")
-    })
-}
-
 function dismiss(){
     $("#modal\\.flashes").empty()
     $("#modal").modal('hide')
-    $("#groupTable").dataTable().DataTable().clear().draw()
+    $("#resultsTable").dataTable().DataTable().clear().draw()
 }
 
-function edit(campaign){
-    // Clear the bloodhound instance
-    bh.clear();
-    if (campaign == "new") {
-        api.groups.get()
-        .success(function(groups){
-            if (groups.length == 0){
-                modalError("No groups found!")
-                return false;
-            }
-            else {
-                bh.add(groups)
-            }
+// Deletes a campaign after prompting the user
+function deleteCampaign(){
+    if (confirm("Are you sure you want to delete: " + campaign.name + "?")){
+        api.campaignId.delete(campaign.id)
+        .success(function(msg){
+            console.log(msg)
+        })
+        .error(function(e){
+            $("#modal\\.flashes").empty().append("<div style=\"text-align:center\" class=\"alert alert-danger\">\
+                <i class=\"fa fa-exclamation-circle\"></i> " + data.responseJSON.message + "</div>")
         })
     }
 }
 
 $(document).ready(function(){
-    var id = window.location.pathname.split('/').slice(-1)[0]
-    api.campaignId.get(id)
+    campaign.id = window.location.pathname.split('/').slice(-1)[0]
+    api.campaignId.get(campaign.id)
     .success(function(c){
         campaign = c
         if (campaign){
-            $("#emptyMessage").hide()
-            $("#campaignTable").show()
-            campaignTable = $("#campaignTable").DataTable();
-            $.each(campaigns, function(i, campaign){
-                label = labels[campaign.status] || "label-default";
-                campaignTable.row.add([
-                    campaign.name,
-                    moment(campaign.created_date).format('MMMM Do YYYY, h:mm:ss a'),
-                    "<span class=\"label " + label + "\">" + campaign.status + "</span>",
-                    "<div class='pull-right'><button class='btn btn-primary' onclick='alert(\"test\")'>\
-                    <i class='fa fa-bar-chart'></i>\
-                    </button>\
-                    <button class='btn btn-danger' onclick='alert(\"test\")'>\
-                    <i class='fa fa-trash-o'></i>\
-                    </button></div>"
+            // Setup our graphs
+            var timeline_chart = {labels:[],series:[[]]}
+            var email_chart = {series:[]}
+            var timeline_opts = {
+                axisX: {
+                    showGrid: false
+                },
+                showArea: true,
+                plugins: []
+            }
+            var email_opts = {
+                donut : true,
+                donutWidth: 40,
+                chartPadding: 0,
+                showLabel: false
+            }
+            $("#loading").hide()
+            $("#campaignResults").show()
+            resultsTable = $("#resultsTable").DataTable();
+            $.each(campaign.results, function(i, result){
+                label = labels[result.status] || "label-default";
+                resultsTable.row.add([
+                    result.first_name || "",
+                    result.last_name || "",
+                    result.email || "",
+                    result.position || "",
+                    "<span class=\"label " + label + "\">" + result.status + "</span>"
                 ]).draw()
             })
         }
     })
     .error(function(){
-        errorFlash("Error fetching campaign")
+        errorFlash(" Campaign not found!")
     })
 })

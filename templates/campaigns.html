@@ -32,7 +32,10 @@
         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal" onclick="edit('new')"><i class="fa fa-plus"></i> New Campaign</button>
     </div>
     &nbsp;
-    <div id="emptyMessage" class="row">
+    <div id="loading">
+        <i class="fa fa-spinner fa-spin fa-4x"></i>
+    </div>
+    <div id="emptyMessage" class="row" style="display:none;">
         <div class="alert alert-info">
             No campaigns created yet. Let's create one!
         </div>

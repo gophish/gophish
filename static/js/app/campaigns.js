@@ -60,8 +60,8 @@ function edit(campaign){
 $(document).ready(function(){
     api.campaigns.get()
     .success(function(campaigns){
+        $("#loading").hide()
         if (campaigns.length > 0){
-            $("#emptyMessage").hide()
             $("#campaignTable").show()
             campaignTable = $("#campaignTable").DataTable();
             $.each(campaigns, function(i, campaign){
@@ -78,9 +78,12 @@ $(document).ready(function(){
                     </button></div>"
                 ]).draw()
             })
+        } else {
+            $("#emptyMessage").show()
         }
     })
     .error(function(){
+        $("#loading").hide()
         errorFlash("Error fetching campaigns")
     })
     $("#groupForm").submit(function(){

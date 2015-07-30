@@ -21,8 +21,11 @@
         </div>
     </div>
 </div>
-<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main" ng-controller="CampaignResultsCtrl">
-    <div ng-show="campaign">
+<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+    <div id="loading">
+        <i class="fa fa-spinner fa-spin fa-4x"></i>
+    </div>
+    <div style="display:none;" id="campaignResults">
         <div class="row">
             <h1 class="page-header" id="page-title">Results for campaign.name</h1>
         </div>
@@ -39,7 +42,8 @@
                     </li>
                 </ul>
             </div>
-            <button type="button" class="btn btn-danger" tooltip="Delete Campaign" tooltip-placement="right" ng-click="delete(campaign)" ng-href="/dashboard"><i class="fa fa-times fa-lg"></i>
+            <button type="button" class="btn btn-danger" data-toggle="tooltip" data-placement="right" title="Delete Campaign" onclick="deleteCampaign()">
+                <i class="fa fa-times fa-lg"></i>
             </button>
         </div>
         <br />
@@ -49,10 +53,10 @@
                     <br/>
                     <div class="row">
                         <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
-                            <highchart config="timeline_chart"></highchart>
+                            <div id="timeline_chart"></div>
                         </div>
                         <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
-                            <highchart config="email_chart"></highchart>
+                            <div id="email_chart"></div>
                         </div>
                     </div>
                 </tab>
@@ -62,25 +66,25 @@
         </div>
         <div class="row">
             <h2>Details</h2>
-            <table ng-table="mainTableParams" class="table table-hover table-striped table-bordered">
-                <tbody>
-                    <tr ng-repeat="result in $data" class="editable-row">
-                        <td data-title="'Email'" class="col-sm-1">result.email</td>
-                        <td data-title="'Status'" class="col-sm-2">result.status</td>
+            <table id="resultsTable" class="table">
+                <thead>
+                    <tr>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Email</th>
+                        <th>Position</th>
+                        <th>Status</th>
                     </tr>
+                </thead>
+                <tbody>
                 </tbody>
             </table>
         </div>
     </div>
-    <div class="row">
-        <div class="alert alert-danger">
-            <i class="fa fa-exclamation-circle"></i> Campaign not found!
-        </div>
-    </div>
+    <div id="flashes" class="row"></div>
 </div>
 {{end}}
 {{define "scripts"}}
-<script src="/js/hogan.js"></script>
-<script src="/js/typeahead.min.js"></script>
+<script src="/js/jquery.ui.widget.js"></script>
 <script src="/js/app/campaign_results.js"></script>
 {{end}}
