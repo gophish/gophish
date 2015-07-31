@@ -37,11 +37,17 @@ $(document).ready(function(){
         campaign = c
         if (campaign){
             // Setup our graphs
-            var timeline_chart = {labels:[],series:[[]]}
-            var email_chart = {series:[]}
+            var timeline_data = {labels:[],series:[]}
+            var email_data = {series:[]}
             var timeline_opts = {
                 axisX: {
-                    showGrid: false
+                    showGrid: false,
+                },
+                axisY: {
+                    type: Chartist.FixedScaleAxis,
+                    ticks: [0, 1, 2],
+                    low: 0,
+                    showLabel: false
                 },
                 showArea: true,
                 plugins: []
@@ -52,8 +58,7 @@ $(document).ready(function(){
                 chartPadding: 0,
                 showLabel: false
             }
-            $("#loading").hide()
-            $("#campaignResults").show()
+            // Setup the results table
             resultsTable = $("#resultsTable").DataTable();
             $.each(campaign.results, function(i, result){
                 label = labels[result.status] || "label-default";
@@ -65,6 +70,42 @@ $(document).ready(function(){
                     "<span class=\"label " + label + "\">" + result.status + "</span>"
                 ]).draw()
             })
+            // Setup the graphs
+            $.each(campaign.timeline, function(i, event){
+                timeline_data.labels.push(moment(event.time).format('MMMM Do YYYY h:mm'))
+                timeline_data.series.push([{meta : i, value: 1}])
+            })
+            var timeline_chart = new Chartist.Line('#timeline_chart', timeline_data, timeline_opts)
+
+            // Setup the overview chart listeners
+            $chart = $("#timeline_chart")
+            var $toolTip = $chart
+            .append('<div class="chartist-tooltip"></div>')
+            .find('.chartist-tooltip')
+            .hide();
+
+            $chart.on('mouseenter', '.ct-point', function() {
+                var $point = $(this)
+                value = $point.attr('ct:value')
+                cidx = $point.attr('ct:meta')
+                html = "Event: " + campaign.timeline[cidx].message
+                if (campaign.timeline[cidx].email) {
+                    html += '<br>' + "Email: " + campaign.timeline[cidx].email
+                }
+                $toolTip.html(html).show()
+            });
+
+            $chart.on('mouseleave', '.ct-point', function() {
+                $toolTip.hide();
+            });
+            $chart.on('mousemove', function(event) {
+                $toolTip.css({
+                    left: (event.offsetX || event.originalEvent.layerX) - $toolTip.width() / 2 - 10,
+                    top: (event.offsetY + 0 || event.originalEvent.layerY) - $toolTip.height() - 40
+                });
+            });
+            $("#loading").hide()
+            $("#campaignResults").show()
         }
     })
     .error(function(){
