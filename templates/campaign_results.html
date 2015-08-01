@@ -48,21 +48,33 @@
         </div>
         <br />
         <div class="row">
-            <tabset>
-                <tab heading="Overview">
+            <ul class="nav nav-tabs" role="tablist">
+                <li class="active"><a href="#overview" aria-controls="home" role="tab" data-toggle="tab">Overview</a></li>
+                <li><a href="#plugins" aria-controls="profile" role="tab" data-toggle="tab">Plugins</a></li>
+                <li><a href="#demographics" aria-controls="settings" role="tab" data-toggle="tab">Demographics</a></li>
+            </ul>
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane active" id="overview">
                     <br/>
                     <div class="row">
                         <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                            <p style="text-align:center;">Campaign Timeline</p>
+                            <br/>
                             <div id="timeline_chart"></div>
                         </div>
                         <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                            <p style="text-align:center;">Email Status</p>
                             <div id="email_chart"></div>
                         </div>
                     </div>
-                </tab>
-                <tab heading="Plugins">Plugins here</tab>
-                <tab heading="Demographics">Demographics here</tab>
-            </tabset>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="plugins">
+                    Plugins here
+                </div>
+                <div role="tabpanel" class="tab-pane" id="demographics">
+                    Demographics here
+                </div>
+            </div>
         </div>
         <div class="row">
             <h2>Details</h2>

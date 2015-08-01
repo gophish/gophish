@@ -36,9 +36,12 @@ $(document).ready(function(){
     .success(function(c){
         campaign = c
         if (campaign){
+            // Set the title
+            $("#page-title").text("Results for " + c.name)
             // Setup our graphs
             var timeline_data = {labels:[],series:[]}
             var email_data = {series:[]}
+            var email_series_data = {}
             var timeline_opts = {
                 axisX: {
                     showGrid: false,
@@ -69,11 +72,19 @@ $(document).ready(function(){
                     result.position || "",
                     "<span class=\"label " + label + "\">" + result.status + "</span>"
                 ]).draw()
+                if (!email_series_data[result.status]){
+                    email_series_data[result.status] = 1
+                } else {
+                    email_series_data[result.status]++;
+                }
             })
             // Setup the graphs
             $.each(campaign.timeline, function(i, event){
                 timeline_data.labels.push(moment(event.time).format('MMMM Do YYYY h:mm'))
                 timeline_data.series.push([{meta : i, value: 1}])
+            })
+            $.each(email_series_data, function(status, count){
+                email_data.series.push({meta: status, value: count})
             })
             var timeline_chart = new Chartist.Line('#timeline_chart', timeline_data, timeline_opts)
 
@@ -83,7 +94,6 @@ $(document).ready(function(){
             .append('<div class="chartist-tooltip"></div>')
             .find('.chartist-tooltip')
             .hide();
-
             $chart.on('mouseenter', '.ct-point', function() {
                 var $point = $(this)
                 value = $point.attr('ct:value')
@@ -101,11 +111,35 @@ $(document).ready(function(){
             $chart.on('mousemove', function(event) {
                 $toolTip.css({
                     left: (event.offsetX || event.originalEvent.layerX) - $toolTip.width() / 2 - 10,
-                    top: (event.offsetY + 0 || event.originalEvent.layerY) - $toolTip.height() - 40
+                    top: (event.offsetY + 70 || event.originalEvent.layerY) - $toolTip.height() - 40
                 });
             });
             $("#loading").hide()
             $("#campaignResults").show()
+            var email_chart = new Chartist.Pie("#email_chart", email_data, email_opts)
+            // Setup the average chart listeners
+            $piechart = $("#email_chart")
+            var $pietoolTip = $piechart
+            .append('<div class="chartist-tooltip"></div>')
+            .find('.chartist-tooltip')
+            .hide();
+
+            $piechart.on('mouseenter', '.ct-slice-donut', function() {
+                var $point = $(this)
+                value = $point.attr('ct:value')
+                label = $point.attr('ct:meta')
+                $pietoolTip.html(label + ': ' + value.toString()).show();
+            });
+
+            $piechart.on('mouseleave', '.ct-slice-donut', function() {
+                $pietoolTip.hide();
+            });
+            $piechart.on('mousemove', function(event) {
+                $pietoolTip.css({
+                    left: (event.offsetX || event.originalEvent.layerX) - $pietoolTip.width() / 2 - 10,
+                    top: (event.offsetY + 80 || event.originalEvent.layerY) - $pietoolTip.height() - 80
+                });
+            });
         }
     })
     .error(function(){
