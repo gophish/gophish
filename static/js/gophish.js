@@ -1,10 +1,12 @@
 function errorFlash(message) {
+    $("#flashes").empty()
     $("#flashes").append("<div style=\"text-align:center\" class=\"alert alert-danger\">\
         <i class=\"fa fa-exclamation-circle\"></i>" + message + "</div>"
     )
 }
 
 function successFlash(message) {
+    $("#flashes").empty()
     $("#flashes").append("<div style=\"text-align:center\" class=\"alert alert-success\">\
         <i class=\"fa fa-check-circle\"></i> " + message + "</div>"
     )
@@ -47,14 +49,6 @@ var api = {
         get: function(id){
             return query("/campaigns/" + id, "GET", {})
         },
-        // post() - Posts a campaign to POST /campaigns/:id
-        post: function(campaign){
-            return query("/campaigns/" + campaign.id, "POST", data)
-        },
-        // put() - Puts a campaign to PUT /campaigns/:id
-        put: function (campaign){
-            return query("/campaigns/" + campaign.id, "PUT", data)
-        },
         // delete() - Deletes a campaign at DELETE /campaigns/:id
         delete: function(id){
             return query("/campaigns/" + id, "DELETE", data)
@@ -77,17 +71,13 @@ var api = {
         get: function(id){
             return query("/groups/" + id, "GET", {})
         },
-        // post() - Posts a campaign to POST /groups/:id
-        post: function(group){
-            return query("/groups/" + group.id, "POST", data)
-        },
         // put() - Puts a campaign to PUT /groups/:id
         put: function (group){
-            return query("/groups/" + group.id, "PUT", data)
+            return query("/groups/" + group.id, "PUT", group)
         },
         // delete() - Deletes a campaign at DELETE /groups/:id
         delete: function(id){
-            return query("/groups/" + id, "DELETE", data)
+            return query("/groups/" + id, "DELETE", {})
         }
     },
     // templates contains the endpoints for /templates
@@ -107,17 +97,13 @@ var api = {
         get: function(id){
             return query("/templates/" + id, "GET", {})
         },
-        // post() - Posts a campaign to POST /templates/:id
-        post: function(template){
-            return query("/templates/" + template.id, "POST", data)
-        },
         // put() - Puts a campaign to PUT /templates/:id
         put: function (template){
-            return query("/templates/" + template.id, "PUT", data)
+            return query("/templates/" + template.id, "PUT", template)
         },
         // delete() - Deletes a campaign at DELETE /templates/:id
         delete: function(id){
-            return query("/templates/" + id, "DELETE", data)
+            return query("/templates/" + id, "DELETE", {})
         }
     }
 

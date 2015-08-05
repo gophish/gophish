@@ -29,10 +29,13 @@
     </div>
     <div id="flashes" class="row"></div>
     <div class="row">
-        <button type="button" class="btn btn-primary" onclick="edit('new')" data-toggle="modal" data-target="#modal"><i class="fa fa-plus"></i> New Group</button>
+        <button type="button" class="btn btn-primary" onclick="edit(-1)" data-toggle="modal" data-target="#modal"><i class="fa fa-plus"></i> New Group</button>
     </div>
     &nbsp;
-    <div id="emptyMessage" class="row">
+    <div id="loading">
+        <i class="fa fa-spinner fa-spin fa-4x"></i>
+    </div>
+    <div id="emptyMessage" class="row" style="display:none;">
         <div class="alert alert-info">
             No groups created yet. Let's create one!
         </div>
@@ -133,7 +136,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" onclick="dismiss()">Close</button>
-        <button type="button" class="btn btn-primary" onclick="save()">Save changes</button>
+        <button type="button" class="btn btn-primary" id="modalSubmit">Save changes</button>
       </div>
     </div>
   </div>
