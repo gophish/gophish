@@ -280,3 +280,27 @@
 .ct-series-a .ct-slice-donut {
     stroke:#1abc9c !important;
 }
+
+.ct-slice-donut.ct-slice-donut-error {
+    stroke:#6c7a89 !important;
+}
+
+.ct-slice-donut.ct-slice-donut-success{
+    stroke:#f05b4f !important;
+}
+
+.ct-legend-sent {
+    background-color: #1abc9c !important;
+}
+
+.ct-legend-error {
+    background-color: #6c7a89 !important;
+}
+
+.ct-legend-success {
+    background-color: #f05b4f !important;
+}
+
+.ct-legend-clicked {
+    background-color: #eb9532 !important;
+}

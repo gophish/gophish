@@ -70,9 +70,9 @@ $(document).ready(function(){
                     campaign.name,
                     moment(campaign.created_date).format('MMMM Do YYYY, h:mm:ss a'),
                     "<span class=\"label " + label + "\">" + campaign.status + "</span>",
-                    "<div class='pull-right'><button class='btn btn-primary' onclick='alert(\"test\")'>\
+                    "<div class='pull-right'><a class='btn btn-primary' href='/campaigns/" + campaign.id + "'>\
                     <i class='fa fa-bar-chart'></i>\
-                    </button>\
+                    </a>\
                     <button class='btn btn-danger' onclick='alert(\"test\")'>\
                     <i class='fa fa-trash-o'></i>\
                     </button></div>"
