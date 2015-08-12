@@ -50,8 +50,8 @@
         <div class="row">
             <ul class="nav nav-tabs" role="tablist">
                 <li class="active"><a href="#overview" aria-controls="home" role="tab" data-toggle="tab">Overview</a></li>
-                <li><a href="#plugins" aria-controls="profile" role="tab" data-toggle="tab">Plugins</a></li>
-                <li><a href="#demographics" aria-controls="settings" role="tab" data-toggle="tab">Demographics</a></li>
+                <!-- <li><a href="#plugins" aria-controls="profile" role="tab" data-toggle="tab">Plugins</a></li>
+                <li><a href="#demographics" aria-controls="settings" role="tab" data-toggle="tab">Demographics</a></li> -->
             </ul>
             <div class="tab-content">
                 <div role="tabpanel" class="tab-pane active" id="overview">
@@ -72,12 +72,16 @@
                         </div>
                     </div>
                 </div>
-                <div role="tabpanel" class="tab-pane" id="plugins">
-                    Plugins here
+                <!-- <div role="tabpanel" class="tab-pane" id="plugins">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div id="resultsMap"></div>
+                        </div>
+                    </div>
                 </div>
                 <div role="tabpanel" class="tab-pane" id="demographics">
                     Demographics here
-                </div>
+                </div> -->
             </div>
         </div>
         <div class="row">
@@ -102,5 +106,9 @@
 {{end}}
 {{define "scripts"}}
 <script src="/js/jquery.ui.widget.js"></script>
+<!-- d3, topojson, and datamaps for mapping -->
+<script src="/js/d3.min.js"></script>
+<script src="/js/topojson.min.js"></script>
+<script src="/js/datamaps.min.js"></script>
 <script src="/js/app/campaign_results.js"></script>
 {{end}}

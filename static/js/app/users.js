@@ -109,10 +109,14 @@ function deleteGroup(idx){
 }
 
 function load(){
+    $("#groupTable").hide()
+    $("#emptyMessage").hide()
+    $("#loading").show()
     api.groups.get()
     .success(function(gs){
         if (gs.length > 0){
             groups = gs
+            $("#emptyMessage").hide()
             $("#loading").hide()
             $("#groupTable").show()
             groupTable = $("#groupTable").DataTable();
@@ -138,6 +142,9 @@ function load(){
                     </button></div>"
                 ]).draw()
             })
+        } else {
+            $("#loading").hide()
+            $("#emptyMessage").show()
         }
     })
     .error(function(){

@@ -1,3 +1,4 @@
+{{define "body"}}
 <div class="container-fluid">
     <div class="row">
         <div class="col-sm-3 col-md-2 sidebar">
@@ -20,48 +21,41 @@
         </div>
     </div>
 </div>
-<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main" ng-controller="LandingPageCtrl">
+<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
     <h1 class="page-header">
         Landing Pages
     </h1>
-    <div class="row">
-        <div ng-repeat="flash in flashes" style="text-align:center" class="alert alert-{{flash.type}}">
-            <i class="fa {{flash.icon}}"></i> {{flash.message}}
-        </div>
-    </div>
+    <div id="flashes" class="row"></div>
     <div class="row">
         <button type="button" class="btn btn-primary" ng-click="editPage('new')" data-toggle="modal" data-target="#newLandingPageModal"><i class="fa fa-plus"></i> New Page</button>
     </div>
     &nbsp;
-    <div ng-show="!pages.length">
+    <div id="loading">
+        <i class="fa fa-spinner fa-spin fa-4x"></i>
+    </div>
+    <div style="display:none;">
         <div class="row">
             <div class="alert alert-info">
                 No pages created yet. Let's create one!
             </div>
         </div>
     </div>
-    <div ng-show="pages.length" class="row">
-        <table ng-table="mainTableParams" class="table table-hover table-striped table-bordered">
-            <tbody>
-                <tr ng-repeat="page in $data | orderBy: '-modified_date'" class="editable-row">
-                    <td data-title="'Name'" sortable="'name'" class="col-sm-2">{{page.name}}
-                      <div class="btn-group" style="float: right;">
-                          <button type="button" class="btn btn-primary dropdown-toggle edit-button" data-toggle="dropdown">
-                              <span class="caret" style="border-top-color:#FFFFFF"></span>
-                              <span class="sr-only">Toggle Dropdown</span>
-                          </button>
-                          <ul class="dropdown-menu" style="left:auto; right:0;" role="menu">
-                              <li><a ng-click="editPage(page)">Edit</a>
-                              </li>
-                              <li class="divider"></li>
-                              <li><a ng-click="deletePage(page)" ng-href="#">Delete</a>
-                              </li>
-                          </ul>
-                      </div>
-                    </td>
-                    <td data-title="'Modified Date'" class="col-sm-1">{{page.modified_date | date:'medium'}}</td>
+    <div class="row">
+        <table id="pagesTable" class="table" style="display:none;">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Last Modified Date</th>
+                    <th class="col-md-2"></th>
                 </tr>
+            </thead>
+            <tbody>
             </tbody>
         </table>
     </div>
 </div>
+{{end}}
+{{define "scripts"}}
+<script src="/js/ckeditor/ckeditor.js"></script>
+<script src="/js/ckeditor/adapters/jquery.js"></script>
+{{end}}

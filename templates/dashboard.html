@@ -25,12 +25,15 @@
     <h1 class="page-header">
         Dashboard
     </h1>
-    <div id="emptyMessage" class="row">
+    <div id="loading">
+        <i class="fa fa-spinner fa-spin fa-4x"></i>
+    </div>
+    <div id="emptyMessage" class="row" style="display:none;">
         <div class="alert alert-info">
             No campaigns created yet. Let's create one!
         </div>
     </div>
-    <div>
+    <div id="dashboard" style="display:none;">
         <div class="row">
             <div id="overview_chart" class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
                 <p style="text-align:center;">Phishing Success Overview</p>
@@ -58,37 +61,13 @@
         </div>
         &nbsp;&nbsp;
         <div class="row">
-            <!-- <table ng-table="mainTableParams" class="table table-hover table-striped table-bordered">
-                <tbody>
-                    <tr ng-repeat="campaign in $data" class="editable-row">
-                        <td data-title="'Created Date'" class="col-sm-1">campaign.created_date | date:'medium'</td>
-                        <td data-title="'Name'" class="col-sm-2">campaign.name
-                            <div class="btn-group" style="float: right;">
-                                <button type="button" class="btn btn-primary dropdown-toggle edit-button" data-toggle="dropdown">
-                                    <span class="caret" style="border-top-color:#FFFFFF"></span>
-                                    <span class="sr-only">Toggle Dropdown</span>
-                                </button>
-                                <ul class="dropdown-menu" style="left:auto; right:0;" role="menu">
-                                    <li><a ng-href="#/campaigns/campaign.id">View</a>
-                                    </li>
-                                    <li><a href="/campaigns/campaign.id/relaunch">Relaunch</a>
-                                    </li>
-                                    <li class="divider"></li>
-                                    <li><a ng-click="deleteCampaign(campaign)" ng-href="#">Delete</a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </td>
-                        <td data-title="'Status'" class="col-sm-1">campaign.status</td>
-                    </tr>
-                </tbody>
-            </table> -->
-            <table id="campaignTable" class="table" style="display:none;">
+            <table id="campaignTable" class="table">
                 <thead>
                     <tr>
                         <th>Name</th>
                         <th>Created Date</th>
                         <th>Status</th>
+                        <th class="col-md-2 col-sm-2"></th>
                     </tr>
                 </thead>
                 <tbody>

@@ -3,8 +3,10 @@ var campaigns = []
 $(document).ready(function(){
     api.campaigns.get()
     .success(function(cs){
+        $("#loading").hide()
         campaigns = cs
         if (campaigns.length > 0){
+            $("#dashboard").show()
             // Create the overview chart data
             var overview_data = {labels:[],series:[[]]}
             var average_data = {series:[]}
@@ -22,8 +24,6 @@ $(document).ready(function(){
                 showLabel: false
             }
             var average = 0
-            $("#emptyMessage").hide()
-            $("#campaignTable").show()
             campaignTable = $("#campaignTable").DataTable();
             $.each(campaigns, function(i, campaign){
                 var campaign_date = moment(campaign.created_date).format('MMMM Do YYYY h:mm')
@@ -31,7 +31,13 @@ $(document).ready(function(){
                 campaignTable.row.add([
                     campaign.name,
                     campaign_date,
-                    campaign.status
+                    campaign.status,
+                    "<div class='pull-right'><a class='btn btn-primary' href='/campaigns/" + campaign.id + "'>\
+                    <i class='fa fa-bar-chart'></i>\
+                    </a>\
+                    <button class='btn btn-danger' onclick='deleteCampaign(" + i + ")'>\
+                    <i class='fa fa-trash-o'></i>\
+                    </button></div>"
                 ]).draw()
                 // Add it to the chart data
                 campaign.y = 0
@@ -103,6 +109,8 @@ $(document).ready(function(){
                 var $cidx = $(this).attr('ct:meta');
                 window.location.href = "/campaigns/" + campaigns[cidx].id
             });
+        } else {
+            $("#emptyMessage").show()
         }
     })
     .error(function(){

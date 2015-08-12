@@ -1,29 +1,31 @@
-// labels is a map of campaign statuses to
-// CSS classes
-var labels = {
-    "Email Sent" : "label-primary",
-    "Email Opened" : "label-info",
-    "Clicked Link" : "label-success",
-	"Error" : "label-danger"
-}
+var map = null
 
-//
-var classes = {
+// statuses is a helper map to point result statuses to ui classes
+var statuses = {
     "Email Sent" : {
         slice: "ct-slice-donut-sent",
-        legend: "ct-legend-sent"
+        legend: "ct-legend-sent",
+        label: "label-success"
     },
     "Email Opened" : {
         slice: "ct-slice-donut-opened",
-        legend: "ct-legend-opened"
+        legend: "ct-legend-opened",
+        label: "label-warning"
     },
     "Clicked Link" : {
         slice: "ct-slice-donut-clicked",
-        legend: "ct-legend-clicked"
+        legend: "ct-legend-clicked",
+        label: "label-danger"
+    },
+    "Success" : {
+        slice: "ct-slice-donut-clicked",
+        legend: "ct-legend-clicked",
+        label: "label-danger"
     },
     "Error" : {
         slice: "ct-slice-donut-error",
-        legend: "ct-legend-error"
+        legend: "ct-legend-error",
+        label: "label-default"
     }
 }
 
@@ -57,6 +59,8 @@ $(document).ready(function(){
         if (campaign){
             // Set the title
             $("#page-title").text("Results for " + c.name)
+            // Setup tooltips
+            $('[data-toggle="tooltip"]').tooltip()
             // Setup our graphs
             var timeline_data = {series:[{
                 name: "Events",
@@ -92,7 +96,7 @@ $(document).ready(function(){
             // Setup the results table
             resultsTable = $("#resultsTable").DataTable();
             $.each(campaign.results, function(i, result){
-                label = labels[result.status] || "label-default";
+                label = statuses[result.status].label || "label-default";
                 resultsTable.row.add([
                     result.first_name || "",
                     result.last_name || "",
@@ -108,10 +112,8 @@ $(document).ready(function(){
             })
             // Setup the graphs
             $.each(campaign.timeline, function(i, event){
-                console.log(moment(event.time).format('MMMM Do YYYY h:mm'))
                 timeline_data.series[0].data.push({meta : i, x: new Date(event.time), y:1})
             })
-            console.log(timeline_data)
             $.each(email_series_data, function(status, count){
                 email_data.series.push({meta: status, value: count})
             })
@@ -146,10 +148,10 @@ $(document).ready(function(){
                 // We don't want to create the legend twice
                 if (!email_legend[data.meta]) {
                     console.log(data.meta)
-                    $("#email_chart_legend").append('<li><span class="' + classes[data.meta].legend + '"></span>' + data.meta + '</li>')
+                    $("#email_chart_legend").append('<li><span class="' + statuses[data.meta].legend + '"></span>' + data.meta + '</li>')
                     email_legend[data.meta] = true
                 }
-                data.element.addClass(classes[data.meta].slice)
+                data.element.addClass(statuses[data.meta].slice)
             })
             // Setup the average chart listeners
             $piechart = $("#email_chart")
@@ -177,6 +179,24 @@ $(document).ready(function(){
             $("#loading").hide()
             $("#campaignResults").show()
         }
+        // Load up the map data (only once!)
+        // Slated for 0.2 release - coming soon! :)
+        // $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+        //     if ($(e.target).attr('href') == "#plugins"){
+        //         if (!map){
+        //             map = new Datamap({
+        //                 element: document.getElementById("resultsMap"),
+        //                 responsive: true,
+        //                 fills: {
+        //                     defaultFill: "#34495e"
+        //                 },
+        //                 geographyConfig: {
+        //                     highlightFillColor : "#1abc9c"
+        //                 }
+        //             });
+        //         }
+        //     }
+        // })
     })
     .error(function(){
         errorFlash(" Campaign not found!")
