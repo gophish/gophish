@@ -59,6 +59,16 @@ function dismiss(){
     $("#html_editor").val("")
 }
 
+function deleteTemplate(idx){
+    if (confirm("Delete " + templates[idx].name + "?")){
+        api.templateId.delete(templates[idx].id)
+        .success(function(data){
+            successFlash(data.message)
+            load()
+        })
+    }
+}
+
 function attach(files){
     attachmentsTable = $("#attachmentsTable").DataTable();
     $.each(files, function(i, file){
@@ -144,7 +154,7 @@ function load(){
                     "<div class='pull-right'><button class='btn btn-primary' data-toggle='modal' data-target='#modal' onclick='edit(" + i + ")'>\
                     <i class='fa fa-pencil'></i>\
                     </button>\
-                    <button class='btn btn-danger' onclick='alert(\"test\")'>\
+                    <button class='btn btn-danger' onclick='deleteTemplate(" + i + ")'>\
                     <i class='fa fa-trash-o'></i>\
                     </button></div>"
                 ]).draw()
