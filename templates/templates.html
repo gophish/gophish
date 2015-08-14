@@ -9,7 +9,7 @@
                 </li>
                 <li><a href="/users">Users &amp; Groups</a>
                 </li>
-                <li class="active"><a href="#/templates">Email Templates</a>
+                <li class="active"><a href="/templates">Email Templates</a>
                 </li>
                 <li><a href="/landing_pages">Landing Pages</a>
                 </li>
@@ -29,12 +29,15 @@
     </div>
     <div id="flashes" class="row"></div>
     <div class="row">
-        <button type="button" class="btn btn-primary" onclick="edit('new')" data-toggle="modal" data-target="#modal"><i class="fa fa-plus"></i> New Template</button>
+        <button type="button" class="btn btn-primary" onclick="edit(-1)" data-toggle="modal" data-target="#modal"><i class="fa fa-plus"></i> New Template</button>
     </div>
     &nbsp;
-    <div id="emptyMessage" class="row">
+    <div id="loading">
+        <i class="fa fa-spinner fa-spin fa-4x"></i>
+    </div>
+    <div id="emptyMessage" class="row" style="display:none;">
         <div class="alert alert-info">
-            No templates created yet. Let's create one!
+            No templates yet. Let's create one!
         </div>
     </div>
     <div class="row">
@@ -50,30 +53,6 @@
             </tbody>
         </table>
     </div>
-    <!-- <div ng-show="templates.length" class="row">
-        <table ng-table="mainTableParams" class="table table-hover table-striped table-bordered">
-            <tbody>
-                <tr ng-repeat="template in $data | orderBy: '-modified_date'" class="editable-row">
-                    <td data-title="'Name'" sortable="'name'" class="col-sm-2">template.name
-                        <div class="btn-group" style="float: right;">
-                            <button type="button" class="btn btn-primary dropdown-toggle edit-button" data-toggle="dropdown">
-                                <span class="caret" style="border-top-color:#FFFFFF"></span>
-                                <span class="sr-only">Toggle Dropdown</span>
-                            </button>
-                            <ul class="dropdown-menu" style="left:auto; right:0;" role="menu">
-                                <li><a ng-click="editTemplate(template)">Edit</a>
-                                </li>
-                                <li class="divider"></li>
-                                <li><a ng-click="deleteTemplate(template)">Delete</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </td>
-                    <td data-title="'Modified Date'" class="col-sm-1">template.modified_date | date:'medium'</td>
-                </tr>
-            </tbody>
-        </table>
-    </div> -->
 </div>
 <!-- Modal -->
 <div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel">
@@ -113,7 +92,7 @@
             </div>
             <br />
             <span class="btn btn-danger btn-file"><i class="fa fa-plus"></i> Add Files
-                <input type="file" onchange="attach(this.files)" multiple>
+                <input id="attachmentUpload" type="file" onchange="attach(this.files)" multiple>
             </span>
             <br />
             <br />
@@ -133,7 +112,7 @@
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-default" onclick="dismiss()">Cancel</button>
-            <button type="button" class="btn btn-primary" onclick="save()">Save Template</button>
+            <button type="button" class="btn btn-primary" id="modalSubmit">Save Template</button>
         </div>
     </div>
 </div>
