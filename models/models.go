@@ -79,6 +79,8 @@ func Setup() error {
 		if err != nil {
 			Logger.Println(err)
 		}
+	} else {
+		Logger.Printf("Database found, no need to recreate (TESTING)")
 	}
 	return nil
 }
