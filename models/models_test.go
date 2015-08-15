@@ -16,7 +16,7 @@ type ModelsSuite struct{}
 var _ = check.Suite(&ModelsSuite{})
 
 func (s *ModelsSuite) SetUpSuite(c *check.C) {
-	config.Conf.DBPath = "../gophish_test.db"
+	config.Conf.DBPath = ":memory:"
 	err := Setup()
 	if err != nil {
 		c.Fatalf("Failed creating database: %v", err)
