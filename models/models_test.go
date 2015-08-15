@@ -1,7 +1,6 @@
 package models
 
 import (
-	"os"
 	"testing"
 
 	"github.com/jordan-wright/gophish/config"
@@ -62,12 +61,4 @@ func (s *ModelsSuite) TestPutUser(c *check.C) {
 	c.Assert(err, check.Equals, nil)
 	u, err = GetUser(1)
 	c.Assert(u.Username, check.Equals, "admin_changed")
-}
-
-func (s *ModelsSuite) TearDownSuite(c *check.C) {
-	db.DB().Close()
-	err := os.Remove(config.Conf.DBPath)
-	if err != nil {
-		c.Fatalf("Failed deleting test database: %v", err)
-	}
 }
