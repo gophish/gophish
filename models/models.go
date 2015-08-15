@@ -55,7 +55,6 @@ func Setup() error {
 		return err
 	}
 	//If the file already exists, delete it and recreate it
-	Logger.Printf("Checking to see if %s exists...\n", config.Conf.DBPath)
 	_, err = os.Stat(config.Conf.DBPath)
 	if err != nil {
 		Logger.Printf("Database not found... creating db at %s\n", config.Conf.DBPath)
@@ -80,8 +79,6 @@ func Setup() error {
 		if err != nil {
 			Logger.Println(err)
 		}
-	} else {
-		Logger.Printf("Database found, no need to recreate (TESTING)")
 	}
 	return nil
 }
