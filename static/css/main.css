@@ -1,6 +1,9 @@
 .nav-tabs {
   cursor:pointer;
-}  
+}
+.datatable_hidden {
+    display:none;
+}
   .navbar-logo {
       margin: 4px 0px;
       float: left;
@@ -149,4 +152,169 @@
     background: white;
     cursor: inherit;
     display: block;
+}
+.typeahead {
+    border-left-radius:6px !important;
+    float:none !important;
+}
+.tt-query {
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+     -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+          box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+}
+.tt-hint {
+  color: #999
+}
+.tt-menu {    // used to be tt-dropdown-menu in older versions
+  width: 422px;
+  margin-top: 4px;
+  padding: 4px 0;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  -webkit-border-radius: 4px;
+     -moz-border-radius: 4px;
+          border-radius: 4px;
+  -webkit-box-shadow: 0 5px 10px rgba(0,0,0,.2);
+     -moz-box-shadow: 0 5px 10px rgba(0,0,0,.2);
+          box-shadow: 0 5px 10px rgba(0,0,0,.2);
+}
+.tt-suggestion {
+  padding: 3px 20px;
+  line-height: 24px;
+}
+.tt-suggestion.tt-cursor {
+  color: #fff;
+  background-color: #0097cf;
+
+}
+.tt-suggestion p {
+  margin: 0;
+}
+.typeahead-button {
+    line-height:1.39 !important;
+}
+
+.ct-point {
+    cursor:pointer;
+}
+
+.chartist-tooltip{
+    position:absolute;
+    display:inline-block;
+    min-width:5em;
+    padding:.5em;
+    background:#34495e;
+    color:#ffffff;
+    font-weight:700;
+    text-align:center;
+    pointer-events:none;
+    z-index:1;
+    margin-left:1.25em;
+    font-size: .75em;
+    border-radius: 4px;
+}
+
+.chartist-pie-tooltip{
+    position:absolute;
+    display:inline-block;
+    min-width:5em;
+    padding:.5em;
+    background:#34495e;
+    color:#ffffff;
+    font-weight:700;
+    text-align:center;
+    pointer-events:none;
+    z-index:1;
+    margin-left:1.25em;
+    font-size: .75em;
+    border-radius: 4px;
+}
+
+.chartist-tooltip:after{
+    content:"";
+    position:absolute;
+    top:100%;
+    left:50%;
+    width:0;
+    height:0;
+    margin-left:-15px;
+    border:15px solid transparent;
+    border-top-color:#34495e
+}
+
+.chartist-chart {
+    height:175px;
+}
+
+.chartist-legend {
+  list-style: none;
+  position: absolute;
+  padding-left:0px;
+  top: 0;
+}
+.chartist-legend li {
+  display: block;
+  position: relative;
+  margin-bottom: 4px;
+  border-radius: 5px;
+  padding: 2px 8px 2px 8px;
+  font-size: 14px;
+  cursor: default;
+  -webkit-transition: background-color 200ms ease-in-out;
+  -moz-transition: background-color 200ms ease-in-out;
+  -o-transition: background-color 200ms ease-in-out;
+  transition: background-color 200ms ease-in-out;
+}
+.chartist-legend li span {
+  display: inline-block;
+  vertical-align:middle;
+  width: 20px;
+  height: 20px;
+  margin-right:10px;
+  border-radius: 50%;
+}
+
+.ct-series-a .ct-slice-donut {
+    stroke:#1abc9c !important;
+}
+
+.ct-slice-donut.ct-slice-donut-error {
+    stroke:#6c7a89 !important;
+}
+
+.ct-slice-donut.ct-slice-donut-sent{
+    stroke:#1abc9c !important
+}
+
+.ct-slice-donut.ct-slice-donut-opened{
+    stroke:#eb9532 !important;
+}
+
+.ct-slice-donut.ct-slice-donut-success{
+    stroke:#f05b4f !important;
+}
+
+.ct-slice-donut.ct-slice-donut-clicked{
+    stroke:#f05b4f !important;
+}
+
+.ct-legend-error {
+    background-color: #6c7a89 !important;
+}
+
+.ct-legend-sent {
+    background-color: #1abc9c !important;
+}
+
+.ct-legend-opened {
+    background-color: #eb9532 !important;
+}
+
+.ct-legend-success {
+    background-color: #f05b4f !important;
+}
+
+.ct-legend-clicked {
+    background-color: #f05b4f !important;
 }

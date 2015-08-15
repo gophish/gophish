@@ -1,0 +1,124 @@
+{{define "body"}}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-3 col-md-2 sidebar">
+            <ul class="nav nav-sidebar">
+                <li><a href="/">Dashboard</a>
+                </li>
+                <li><a href="/campaigns">Campaigns</a>
+                </li>
+                <li><a href="/users">Users &amp; Groups</a>
+                </li>
+                <li class="active"><a href="/templates">Email Templates</a>
+                </li>
+                <li><a href="/landing_pages">Landing Pages</a>
+                </li>
+                <li><a href="/settings">Settings</a>
+                </li>
+                <li><a href="/api/">API Documentation</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+    <div class="row">
+        <h1 class="page-header">
+            Email Templates
+        </h1>
+    </div>
+    <div id="flashes" class="row"></div>
+    <div class="row">
+        <button type="button" class="btn btn-primary" onclick="edit(-1)" data-toggle="modal" data-target="#modal"><i class="fa fa-plus"></i> New Template</button>
+    </div>
+    &nbsp;
+    <div id="loading">
+        <i class="fa fa-spinner fa-spin fa-4x"></i>
+    </div>
+    <div id="emptyMessage" class="row" style="display:none;">
+        <div class="alert alert-info">
+            No templates yet. Let's create one!
+        </div>
+    </div>
+    <div class="row">
+        <table id="templateTable" class="table" style="display:none;">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Modified Date</th>
+                    <th class="col-md-2"></th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+        <!-- New Template Modal -->
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="templateModalLabel">New Template</h4>
+        </div>
+        <div class="modal-body">
+            <div class="row" id="modal.flashes"></div>
+            <label class="control-label" for="name">Name:</label>
+            <div class="form-group">
+                <input type="text" class="form-control" ng-model="template.name" placeholder="Template name" id="name" autofocus/>
+            </div>
+            <div class="form-group">
+                <button class="btn btn-danger btn-disabled" ng-click="importEmail()"><i class="fa fa-envelope"></i> Import Email (Coming Soon!)</button>
+            </div>
+            <label class="control-label" for="subject">Subject:</label>
+            <div class="form-group">
+                <input type="text" class="form-control" placeholder="Email Subject" id="subject" />
+            </div>
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs" role="tablist">
+                <li class="active" role="text"><a href="#text" aria-controls="text" role="tab" data-toggle="tab">Text</a></li>
+                <li role="html"><a href="#html" aria-controls="html" role="tab" data-toggle="tab">HTML</a></li>
+            </ul>
+            <!-- Tab panes -->
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane active" id="text">
+                    <textarea rows="10" id="text_editor" class="form-control" placeholder="Plaintext"></textarea>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="html">
+                    <textarea id="html_editor"></textarea>
+                </div>
+            </div>
+            <br />
+            <span class="btn btn-danger btn-file"><i class="fa fa-plus"></i> Add Files
+                <input id="attachmentUpload" type="file" onchange="attach(this.files)" multiple>
+            </span>
+            <br />
+            <br />
+            <table id="attachmentsTable" class="table">
+                <thead>
+                    <tr>
+                        <th class="col-md-1"></th>
+                        <th class="col-md-10">Name</th>
+                        <th class="col-md-1"></th>
+                        <th class="datatable_hidden">Content</th>
+                        <th class="datatable_hidden">Type</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" onclick="dismiss()">Cancel</button>
+            <button type="button" class="btn btn-primary" id="modalSubmit">Save Template</button>
+        </div>
+    </div>
+</div>
+{{end}}
+{{define "scripts"}}
+<script src="/js/ckeditor/ckeditor.js"></script>
+<script src="/js/ckeditor/adapters/jquery.js"></script>
+<script src="/js/app/templates.js"></script>
+{{end}}

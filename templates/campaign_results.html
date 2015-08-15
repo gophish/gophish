@@ -1,0 +1,114 @@
+{{define "body"}}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-3 col-md-2 sidebar">
+            <ul class="nav nav-sidebar">
+                <li><a href="/">Dashboard</a>
+                </li>
+                <li class="active"><a href="/campaigns">Campaigns</a>
+                </li>
+                <li><a href="/users">Users &amp; Groups</a>
+                </li>
+                <li><a href="/templates">Email Templates</a>
+                </li>
+                <li><a href="/landing_pages">Landing Pages</a>
+                </li>
+                <li><a href="/settings">Settings</a>
+                </li>
+                <li><a href="/api/">API Documentation</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+    <div id="loading">
+        <i class="fa fa-spinner fa-spin fa-4x"></i>
+    </div>
+    <div style="display:none;" id="campaignResults">
+        <div class="row">
+            <h1 class="page-header" id="page-title">Results for campaign.name</h1>
+        </div>
+        <div class="row">
+            <div class="btn-group">
+                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                    <i class="fa fa-cogs fa-lg"></i>
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a href="#">Export</a>
+                    </li>
+                    <li><a href="#">Relaunch</a>
+                    </li>
+                </ul>
+            </div>
+            <button type="button" class="btn btn-danger" data-toggle="tooltip" data-placement="right" title="Delete Campaign" onclick="deleteCampaign()">
+                <i class="fa fa-times fa-lg"></i>
+            </button>
+        </div>
+        <br />
+        <div class="row">
+            <ul class="nav nav-tabs" role="tablist">
+                <li class="active"><a href="#overview" aria-controls="home" role="tab" data-toggle="tab">Overview</a></li>
+                <!-- <li><a href="#plugins" aria-controls="profile" role="tab" data-toggle="tab">Plugins</a></li>
+                <li><a href="#demographics" aria-controls="settings" role="tab" data-toggle="tab">Demographics</a></li> -->
+            </ul>
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane active" id="overview">
+                    <br/>
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                            <p style="text-align:center;">Campaign Timeline</p>
+                            <br/>
+                            <div id="timeline_chart"></div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                            <p style="text-align:center;">Email Status</p>
+                            <div id="email_chart" class="col-lg-7 col-md-7"></div>
+                            <div class="col-lg-5 col-md-5">
+                                <ul id="email_chart_legend" class="chartist-legend">
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- <div role="tabpanel" class="tab-pane" id="plugins">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div id="resultsMap"></div>
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="demographics">
+                    Demographics here
+                </div> -->
+            </div>
+        </div>
+        <div class="row">
+            <h2>Details</h2>
+            <table id="resultsTable" class="table">
+                <thead>
+                    <tr>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Email</th>
+                        <th>Position</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div id="flashes" class="row"></div>
+</div>
+{{end}}
+{{define "scripts"}}
+<script src="/js/jquery.ui.widget.js"></script>
+<!-- d3, topojson, and datamaps for mapping -->
+<script src="/js/d3.min.js"></script>
+<script src="/js/topojson.min.js"></script>
+<script src="/js/datamaps.min.js"></script>
+<script src="/js/app/campaign_results.js"></script>
+{{end}}

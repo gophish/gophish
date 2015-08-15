@@ -16,8 +16,6 @@ import (
 	"github.com/justinas/nosurf"
 )
 
-var templateDelims = []string{"{{%", "%}}"}
-
 // Logger is used to send logging messages to stdout.
 var Logger = log.New(os.Stdout, " ", log.Ldate|log.Ltime|log.Lshortfile)
 
@@ -29,6 +27,11 @@ func CreateAdminRouter() http.Handler {
 	router.HandleFunc("/", Use(Base, mid.RequireLogin))
 	router.HandleFunc("/login", Login)
 	router.HandleFunc("/logout", Use(Logout, mid.RequireLogin))
+	router.HandleFunc("/campaigns", Use(Campaigns, mid.RequireLogin))
+	router.HandleFunc("/campaigns/{id:[0-9]+}", Use(CampaignID, mid.RequireLogin))
+	router.HandleFunc("/templates", Use(Templates, mid.RequireLogin))
+	router.HandleFunc("/users", Use(Users, mid.RequireLogin))
+	router.HandleFunc("/landing_pages", Use(LandingPages, mid.RequireLogin))
 	router.HandleFunc("/register", Register)
 	router.HandleFunc("/settings", Use(Settings, mid.RequireLogin))
 	// Create the API routes
@@ -141,7 +144,6 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		params.Flashes = session.Flashes()
 		session.Save(r, w)
 		templates := template.New("template")
-		templates.Delims(templateDelims[0], templateDelims[1])
 		_, err := templates.ParseFiles("templates/register.html", "templates/flashes.html")
 		if err != nil {
 			Logger.Println(err)
@@ -180,7 +182,6 @@ func Register(w http.ResponseWriter, r *http.Request) {
 
 // Base handles the default path and template execution
 func Base(w http.ResponseWriter, r *http.Request) {
-	// Example of using session - will be removed.
 	params := struct {
 		User    models.User
 		Title   string
@@ -190,18 +191,90 @@ func Base(w http.ResponseWriter, r *http.Request) {
 	getTemplate(w, "dashboard").ExecuteTemplate(w, "base", params)
 }
 
+// Campaigns handles the default path and template execution
+func Campaigns(w http.ResponseWriter, r *http.Request) {
+	// Example of using session - will be removed.
+	params := struct {
+		User    models.User
+		Title   string
+		Flashes []interface{}
+		Token   string
+	}{Title: "Campaigns", User: ctx.Get(r, "user").(models.User), Token: nosurf.Token(r)}
+	getTemplate(w, "campaigns").ExecuteTemplate(w, "base", params)
+}
+
+// CampaignID handles the default path and template execution
+func CampaignID(w http.ResponseWriter, r *http.Request) {
+	// Example of using session - will be removed.
+	params := struct {
+		User    models.User
+		Title   string
+		Flashes []interface{}
+		Token   string
+	}{Title: "Dashboard", User: ctx.Get(r, "user").(models.User), Token: nosurf.Token(r)}
+	getTemplate(w, "campaign_results").ExecuteTemplate(w, "base", params)
+}
+
+// Templates handles the default path and template execution
+func Templates(w http.ResponseWriter, r *http.Request) {
+	// Example of using session - will be removed.
+	params := struct {
+		User    models.User
+		Title   string
+		Flashes []interface{}
+		Token   string
+	}{Title: "Dashboard", User: ctx.Get(r, "user").(models.User), Token: nosurf.Token(r)}
+	getTemplate(w, "templates").ExecuteTemplate(w, "base", params)
+}
+
+// Users handles the default path and template execution
+func Users(w http.ResponseWriter, r *http.Request) {
+	// Example of using session - will be removed.
+	params := struct {
+		User    models.User
+		Title   string
+		Flashes []interface{}
+		Token   string
+	}{Title: "Dashboard", User: ctx.Get(r, "user").(models.User), Token: nosurf.Token(r)}
+	getTemplate(w, "users").ExecuteTemplate(w, "base", params)
+}
+
+// LandingPages handles the default path and template execution
+func LandingPages(w http.ResponseWriter, r *http.Request) {
+	// Example of using session - will be removed.
+	params := struct {
+		User    models.User
+		Title   string
+		Flashes []interface{}
+		Token   string
+	}{Title: "Dashboard", User: ctx.Get(r, "user").(models.User), Token: nosurf.Token(r)}
+	getTemplate(w, "landing_pages").ExecuteTemplate(w, "base", params)
+}
+
 // Settings handles the changing of settings
 func Settings(w http.ResponseWriter, r *http.Request) {
 	switch {
+	case r.Method == "GET":
+		params := struct {
+			User    models.User
+			Title   string
+			Flashes []interface{}
+			Token   string
+		}{Title: "Dashboard", User: ctx.Get(r, "user").(models.User), Token: nosurf.Token(r)}
+		getTemplate(w, "settings").ExecuteTemplate(w, "base", params)
 	case r.Method == "POST":
 		err := auth.ChangePassword(r)
 		msg := models.Response{Success: true, Message: "Settings Updated Successfully"}
 		if err == auth.ErrInvalidPassword {
 			msg.Message = "Invalid Password"
 			msg.Success = false
+			JSONResponse(w, msg, http.StatusBadRequest)
+			return
 		} else if err != nil {
 			msg.Message = "Unknown Error Occured"
 			msg.Success = false
+			JSONResponse(w, msg, http.StatusBadRequest)
+			return
 		}
 		JSONResponse(w, msg, http.StatusOK)
 	}
@@ -222,7 +295,6 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		params.Flashes = session.Flashes()
 		session.Save(r, w)
 		templates := template.New("template")
-		templates.Delims(templateDelims[0], templateDelims[1])
 		_, err := templates.ParseFiles("templates/login.html", "templates/flashes.html")
 		if err != nil {
 			Logger.Println(err)
@@ -277,7 +349,6 @@ func Clone(w http.ResponseWriter, r *http.Request) {
 
 func getTemplate(w http.ResponseWriter, tmpl string) *template.Template {
 	templates := template.New("template")
-	templates.Delims(templateDelims[0], templateDelims[1])
 	_, err := templates.ParseFiles("templates/base.html", "templates/"+tmpl+".html", "templates/flashes.html")
 	if err != nil {
 		Logger.Println(err)

@@ -1,0 +1,155 @@
+{{define "body"}}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-3 col-md-2 sidebar">
+            <ul class="nav nav-sidebar">
+                <li><a href="/">Dashboard</a>
+                </li>
+                <li class="active"><a href="/campaigns">Campaigns</a>
+                </li>
+                <li><a href="/users">Users &amp; Groups</a>
+                </li>
+                <li><a href="/templates">Email Templates</a>
+                </li>
+                <li><a href="/landing_pages">Landing Pages</a>
+                </li>
+                <li><a href="/settings">Settings</a>
+                </li>
+                <li><a href="/api/">API Documentation</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+    <div class="row">
+        <h1 class="page-header">
+            Campaigns
+        </h1>
+    </div>
+    <div id="flashes" class="row"></div>
+    <div class="row">
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal" onclick="edit('new')"><i class="fa fa-plus"></i> New Campaign</button>
+    </div>
+    &nbsp;
+    <div id="loading">
+        <i class="fa fa-spinner fa-spin fa-4x"></i>
+    </div>
+    <div id="emptyMessage" class="row" style="display:none;">
+        <div class="alert alert-info">
+            No campaigns created yet. Let's create one!
+        </div>
+    </div>
+    <div class="row">
+        <table id="campaignTable" class="table" style="display:none;">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Created Date</th>
+                    <th>Status</th>
+                    <th class="col-md-2"></th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+        <!-- <table ng-table="mainTableParams" class="table table-hover table-striped table-bordered">
+            <tbody>
+                <tr ng-repeat="campaign in $data | orderBy:modified_date:true" class="editable-row">
+                    <td data-title="'Created Date'" class="col-sm-1">campaign.created_date | date:'medium'</td>
+                    <td data-title="'Name'" class="col-sm-2">campaign.name
+                        <div class="btn-group" style="float: right;">
+                            <button type="button" class="btn btn-primary dropdown-toggle edit-button" data-toggle="dropdown">
+                                <span class="caret" style="border-top-color:#FFFFFF"></span>
+                                <span class="sr-only">Toggle Dropdown</span>
+                            </button>
+                            <ul class="dropdown-menu" style="left:auto; right:0;" role="menu">
+                                <li><a ng-href="#/campaigns/campaign.id">View</a>
+                                </li>
+                                <li><a href="/campaigns/campaign.id/relaunch">Relaunch</a>
+                                </li>
+                                <li class="divider"></li>
+                                <li><a ng-click="deleteCampaign(campaign)">Delete</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </td>
+                    <td data-title="'Status'" class="col-sm-1">campaign.status</td>
+                </tr>
+            </tbody>
+        </table> -->
+    </div>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="campaignModalLabel">New Campaign</h4>
+      </div>
+      <div class="modal-body">
+          <div class="row" id="modal.flashes"></div>
+          <div class="form-group">
+              <label for="name">Name:</label>
+              <input type="text" class="form-control" id="name" placeholder="Campaign name" autofocus>
+              <br />
+              <label class="control-label" for="template">Template:</label>
+              <input type="text" class="form-control" placeholder="Template Name" id="template"/>
+              <br />
+              <div class="panel panel-default">
+                  <div class="panel-heading" role="tab">
+                      <a role="button" class="collapsed" data-toggle="collapse" href="#smtpPanel" aria-expanded="false" aria-controls="#smtpPanel">
+                          SMTP Options <i class="pull-right glyphicon"></i>
+                      </a>
+                  </div>
+                  <div class="panel-collapse collapse" id="smtpPanel" role="tabpanel">
+                      <div class="panel-body">
+                          <label class="control-label" for="from">From:</label>
+                          <input type="text" class="form-control" placeholder="First Last <test@example.com>" value="" name="from">
+                          <br />
+                          <label class="control-label" for="smtp_server">Host:</label>
+                          <input type="text" class="form-control" placeholder="smtp.example.com:25" value="" name="host">
+                          <br />
+                          <label class="control-label" for="smtp_server">Username:</label>
+                          <input type="text" class="form-control" placeholder="Username" value="" name="username">
+                          <br />
+                          <label class="control-label" for="smtp_server">Password:</label>
+                          <input type="password" class="form-control" placeholder="Password" value="" name="password">
+                          <br />
+                      </div>
+                 </div>
+              </div>
+              <label class="control-label" for="users">Groups:</label>
+              <form id="groupForm">
+                  <div class="input-group">
+                      <input type="text" class="typeahead form-control" placeholder="Group Name" id="groupSelect" />
+                      <span class="input-group-btn">
+                          <button class="btn btn-primary typeahead-button"><i class="fa fa-plus"></i> Add</button>
+                      </span>
+                  </div>
+              </form>
+              <br />
+              <table id="groupTable" class="table table-hover table-striped table-condensed">
+                  <thead>
+                      <th>Group Name</th>
+                      <th></th>
+                  <tbody>
+                  </tbody>
+              </table>
+          </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" onclick="save()">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+{{end}}
+{{define "scripts"}}
+<script src="/js/hogan.js"></script>
+<script src="/js/typeahead.min.js"></script>
+<script src="/js/app/campaigns.js"></script>
+{{end}}

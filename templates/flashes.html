@@ -1,15 +1,15 @@
-{{%define "flashes"%}}
-	{{%range .%}}
-		<div style="text-align:center" class="alert alert-{{%.Type%}}">
-		<i class="fa 
-			{{%if eq .Type "danger"%}}
+{{define "flashes"}}
+	{{range .}}
+		<div style="text-align:center" class="alert alert-{{.Type}}">
+		<i class="fa
+			{{if eq .Type "danger"}}
 				fa-exclamation-circle
-			{{%else if eq .Type "warning"%}}
+			{{else if eq .Type "warning"}}
 				fa-exclamation-triangle
-			{{%else if eq .Type "success"%}}
+			{{else if eq .Type "success"}}
 				fa-check-circle
-			{{%end%}}"></i>
-			{{%.Message%}}
+			{{end}}"></i>
+			{{.Message}}
 		</div>
-	{{%end%}}
-{{%end%}}
+	{{end}}
+{{end}}

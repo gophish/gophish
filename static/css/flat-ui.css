@@ -1149,7 +1149,7 @@ label {
   color: #b2bcc5;
 }
 .form-control {
-  border: 2px solid #bdc3c7;
+  border: 1px solid #bdc3c7;
   color: #34495e;
   font-family: "Lato", Helvetica, Arial, sans-serif;
   font-size: 15px;
@@ -1198,7 +1198,6 @@ fieldset[disabled] .form-control {
 }
 select.input-sm {
   height: 35px;
-  line-height: 35px;
 }
 textarea.input-sm,
 select[multiple].input-sm {
@@ -1616,7 +1615,7 @@ fieldset[disabled] .input-group.focus .input-group-btn .btn-default.active {
 }
 .input-group-btn .btn {
   background-color: #ffffff;
-  border: 2px solid #bdc3c7;
+  border: 1px solid #bdc3c7;
   color: #bdc3c7;
   line-height: 18px;
 }

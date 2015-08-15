@@ -117,6 +117,9 @@ func PostGroup(g *Group) error {
 
 // PutGroup updates the given group if found in the database.
 func PutGroup(g *Group) error {
+	if err := g.Validate(); err != nil {
+		return err
+	}
 	ts := []Target{}
 	ts, err = GetTargets(g.Id)
 	if err != nil {

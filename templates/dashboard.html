@@ -1,114 +1,82 @@
-<!-- {{% define "content" %}} {{% template "nav" .User %}} -->
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-sm-3 col-md-2 sidebar">
-                <ul class="nav nav-sidebar">
-                    <li class="active"><a href="#">Dashboard</a>
-                    </li>
-                    <li><a href="#/users">Users &amp; Groups</a>
-                    </li>
-                    <li><a href="#/templates">Templates</a>
-                    </li>
-                    <li><a href="#/landing_pages">Landing Pages</a>
-                    </li>
-                    <li><a href="#/settings">Settings</a>
-                    </li>
-                    <li><a href="/api/">API Documentation</a>
-                    </li>
-                </ul>
-            </div>
+{{define "body"}}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-3 col-md-2 sidebar">
+            <ul class="nav nav-sidebar">
+                <li class="active"><a href="#">Dashboard</a>
+                </li>
+                <li><a href="/campaigns">Campaigns</a>
+                </li>
+                <li><a href="/users">Users &amp; Groups</a>
+                </li>
+                <li><a href="/templates">Email Templates</a>
+                </li>
+                <li><a href="/landing_pages">Landing Pages</a>
+                </li>
+                <li><a href="/settings">Settings</a>
+                </li>
+                <li><a href="/api/">API Documentation</a>
+                </li>
+            </ul>
         </div>
     </div>
-    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main" ng-controller="CampaignCtrl">
-        <h1 class="page-header">
-            Dashboard
-        </h1>
+</div>
+<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main" ng-controller="DashboardCtrl">
+    <h1 class="page-header">
+        Dashboard
+    </h1>
+    <div id="loading">
+        <i class="fa fa-spinner fa-spin fa-4x"></i>
+    </div>
+    <div id="emptyMessage" class="row" style="display:none;">
+        <div class="alert alert-info">
+            No campaigns created yet. Let's create one!
+        </div>
+    </div>
+    <div id="dashboard" style="display:none;">
         <div class="row">
-            <div ng-repeat="flash in flashes" style="text-align:center" class="alert alert-{{flash.type}}">
-                <i class="fa {{flash.icon}}"></i> {{flash.message}}
+            <div id="overview_chart" class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                <p style="text-align:center;">Phishing Success Overview</p>
             </div>
-        </div>
-        <div class="row">
-            <button type="button" class="btn btn-primary" ng-click="newCampaign()" data-toggle="modal" data-target="#newCampaignModal"><i class="fa fa-plus"></i> New Campaign</button>
-        </div>
-        &nbsp;
-        <div class="row">
-            <table ng-table="mainTableParams" class="table table-hover table-striped table-bordered">
-                <tbody>
-                    <tr ng-repeat="campaign in $data" class="editable-row">
-                        <td data-title="'Created Date'" class="col-sm-1">{{campaign.created_date | date:'medium'}}</td>
-                        <td data-title="'Name'" class="col-sm-2">{{campaign.name}}
-                            <div class="btn-group" style="float: right;">
-                                <button type="button" class="btn btn-primary dropdown-toggle edit-button" data-toggle="dropdown">
-                                    <span class="caret" style="border-top-color:#FFFFFF"></span>
-                                    <span class="sr-only">Toggle Dropdown</span>
-                                </button>
-                                <ul class="dropdown-menu" style="left:auto; right:0;" role="menu">
-                                    <li><a ng-href="/campaigns/{{campaign.id}}">View</a>
-                                    </li>
-                                    <li><a href="/campaigns/{{campaign.id}}/relaunch">Relaunch</a>
-                                    </li>
-                                    <li class="divider"></li>
-                                    <li><a ng-click="deleteCampaign(campaign)" ng-href="#">Delete</a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </td>
-                        <td data-title="'Status'" class="col-sm-1">{{campaign.status}}</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <!-- New Campaign Modal -->
-        <div class="modal" id="newCampaignModal" role="dialog" aria-labelledby="campaignModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title" id="campaignModalLabel">New Campaign</h4>
-                    </div>
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <label for="name">Name:</label>
-                            <input type="text" class="form-control" ng-model="campaign.name" id="name" placeholder="Campaign name" autofocus>
-                            <br />
-                            <label class="control-label" for="template">Template:</label>
-                            <input type="text" class="form-control" placeholder="Template Name" id="template" typeahead="template.name for template in templates | filter:{name:$viewValue}" typeahead-editable="false" ng-model="template.name" />
-                            <br />
-                            <label class="control-label" for="from">From:</label>
-                            <input type="text" class="form-control" placeholder="First Last <test@example.com>" id="form">
-                            <br />
-                            <label class="control-label" for="smtp_server">SMTP Server:</label>
-                            <input type="text" class="form-control" placeholder="host:port" id="smtp_server">
-                            <br />
-                            <label class="control-label" for="users">Groups:</label>
-                            <form ng:submit="addGroup()">
-                                <div class="input-group">
-                                    <input type="text" class="form-control" placeholder="Group Name" id="users" typeahead="group.name for group in groups | filter:{name:$viewValue}" typeahead-editable="false" ng-model="group.name" />
-                                    <span class="input-group-btn">
-                                        <button class="btn btn-primary"><i class="fa fa-plus"></i> Add</button>
-                                    </span>
-                                </div>
-                            </form>
-                            <br />
-                            <table ng-table="editGroupTableParams" class="table table-hover table-striped table-condensed">
-                                <tbody>
-                                    <tr ng-repeat="group in $data" class="editable-row">
-                                        <td>{{group.name}}
-                                            <span ng-click="removeGroup(group)" class="remove-row"><i class="fa fa-trash-o"></i>
-                                            </span>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="saveCampaign(campaign)" type="submit">Launch Campaign</button>
-                    </div>
+            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                <p style="text-align:center;">Average Phishing Results</p>
+                <div id="average_chart" class="col-lg-7 col-md-7"></div>
+                <div id="average_chart_legend" class="col-lg-5 col-md-5">
+                    <ul class="chartist-legend">
+                        <li>
+                            <span style="background-color:#f05b4f;"></span> Successful Phishes
+                        </li>
+                        <li>
+                            <span style="background-color:#1abc9c;"></span> Unsuccessful Phishes
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
+        <div class="row">
+            <h2>Recent Campaigns</h2>
+        </div>
+        <div class="row">
+            <a href="/campaigns"><button type="button" class="btn btn-primary">View All</button></a>
+        </div>
+        &nbsp;&nbsp;
+        <div class="row">
+            <table id="campaignTable" class="table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Created Date</th>
+                        <th>Status</th>
+                        <th class="col-md-2 col-sm-2"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
     </div>
-<!-- {{% end %}} -->
+</div>
+{{end}}
+{{define "scripts"}}
+<script src="/js/app/dashboard.js"></script>
+{{end}}

@@ -1,16 +1,16 @@
-{{% define "base" %}}
+{{ define "base" }}
 <!DOCTYPE html>
-<html lang="en" ng-app="gophish">
+<html lang="en">
 
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Gophish - Open-Source Phishing Toolkit">
+    <meta name="description" content="Gophish - Phishing Toolkit">
     <meta name="author" content="Jordan Wright (http://github.com/jordan-wright)">
     <link rel="shortcut icon" href="../../docs-assets/ico/favicon.png">
 
-    <title>Gophish - {{% .Title %}}</title>
+    <title>Gophish - {{ .Title }}</title>
 
     <!-- Bootstrap core CSS -->
     <!-- <link href="/css/bootstrap.css" rel="stylesheet"> -->
@@ -19,18 +19,20 @@
     <link href="/css/main.css" rel="stylesheet">
     <link href="/css/dashboard.css" rel="stylesheet">
     <link href="/css/flat-ui.css" rel="stylesheet">
+    <link href="/css/dataTables.bootstrap.css" rel="stylesheet">
     <link href="/css/font-awesome.min.css" rel="stylesheet">
+    <link href="/css/chartist.min.css" rel="stylesheet">
     <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700' rel='stylesheet' type='text/css'>
     <script>
-    {{%if .User%}}
+    {{if .User}}
     var user = {
-        api_key : {{% .User.ApiKey %}},
-        username : {{% .User.Username %}}
+        api_key : {{ .User.ApiKey }},
+        username : {{ .User.Username }}
     }
-    {{%end%}}
-    {{%if .Token%}}
-        var csrf_token = {{%.Token%}}
-    {{%end%}}
+    {{end}}
+    {{if .Token}}
+        var csrf_token = {{.Token}}
+    {{end}}
     </script>
 </head>
 
@@ -49,72 +51,49 @@
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav navbar-right">
-                    <li><a href="#/">Dashboard</a>
+                    <li><a href="/">Dashboard</a>
                     </li>
-                    <li><a href="#/campaigns">Campaigns</a>
+                    <li><a href="/campaigns">Campaigns</a>
                     </li>
-                    <li><a href="#/users">Users &amp; Groups</a>
+                    <li><a href="/users">Users &amp; Groups</a>
                     </li>
-                    <li><a href="#/templates">Email Templates</a>
+                    <li><a href="/templates">Email Templates</a>
                     </li>
-                    <li><a href="#/landing_pages">Landing Pages</a>
+                    <li><a href="/landing_pages">Landing Pages</a>
                     </li>
-                    <li><a href="#/settings">Settings</a>
+                    <li><a href="/settings">Settings</a>
                     </li>
                     <li><a href="/api/">API Documentation</a>
                     </li>
                     <li>
-                        {{%if .User%}}
+                        {{if .User}}
                         <div class="btn-group" id="navbar-dropdown">
-                            <button type="button" class="btn btn-primary"><i class="fa fa-user"></i> {{%.User.Username%}}</button>
-                            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
-                                <span class="caret" style="border-top-color:#FFFFFF"></span>
-                                <span class="sr-only">Toggle Dropdown</span>
-                            </button>
-                            <ul class="dropdown-menu" role="menu">
-                                <li><a href="#/settings">Settings</a>
-                                </li>
-                                <li class="divider"></li>
-                                <li><a href="/logout">Logout</a>
-                                </li>
-                            </ul>
+                            <a class="btn btn-primary" href="/settings"><i class="fa fa-user"></i> {{.User.Username}}</a>
+                            <a class="btn btn-primary dropdown-toggle" href="/logout">
+                                    <i class="fa fa-sign-out"></i>
+                            </a>
                         </div>
-                        {{%else%}}
+                        {{else}}
                         <a href="/login">
                             <button type="button" class="btn btn-primary">Login</button>
                         </a>
-                        {{%end%}}
+                        {{end}}
                     </li>
                 </ul>
             </div>
         </div>
     </div>
-    <div ng-view></div>
+    {{template "body" .}}
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="/js/jquery.js"></script>
     <script src="/js/bootstrap.min.js"></script>
-    <script src="/js/angular-file-upload-shim.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.10/angular.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular-route.js"></script>
-    <script src="/js/angular-file-upload.min.js"></script>
-    <script src="/js/ui-bootstrap-0.10.0.min.js"></script>
-    <script src="/js/ng-resource.min.js"></script>
-    <script src="/js/ng-table.min.js"></script>
-    <script src="/js/highcharts.min.js"></script>
-    <script src="/js/highcharts-ng.js"></script>
-    <script src="/js/app/app.js"></script>
-    <script src="/js/app/controllers.js"></script>
-    <script src="/js/app/factories.js"></script>
-    <script src="/js/ckeditor/ckeditor.js"></script>
-    <script src="/js/ng-ckeditor.js"></script>
-    <script>
-    Highcharts.setOptions({
-        global: {
-            timezoneOffset: 5 * 60
-        }
-    });
-    </script>
+    <script src="/js/jquery.dataTables.min.js"></script>
+    <script src="/js/dataTables.bootstrap.js"></script>
+    <script src="/js/chartist.min.js"></script>
+    <script src="/js/moment.min.js"></script>
+    <script src="/js/gophish.js"></script>
+    {{template "scripts" .}}
 </body>
 
 </html>
-{{% end %}}
+{{ end }}

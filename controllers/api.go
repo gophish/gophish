@@ -176,7 +176,7 @@ func API_Groups_Id(w http.ResponseWriter, r *http.Request) {
 		g.UserId = ctx.Get(r, "user_id").(int64)
 		err = models.PutGroup(&g)
 		if err != nil {
-			JSONResponse(w, models.Response{Success: false, Message: "Error updating group"}, http.StatusInternalServerError)
+			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
 			return
 		}
 		JSONResponse(w, g, http.StatusOK)

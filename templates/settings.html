@@ -1,66 +1,70 @@
-{{%define "content"%}} {{%template "nav" .User%}}
-<div class="jumbotron">
-    <div class="container" style="text-align:center;">
-        <h1 class="sans header">
-            Settings
-        </h1>
+{{define "body"}}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-3 col-md-2 sidebar">
+            <ul class="nav nav-sidebar">
+                <li><a href="/">Dashboard</a>
+                </li>
+                <li><a href="/campaigns">Campaigns</a>
+                </li>
+                <li><a href="/users">Users &amp; Groups</a>
+                </li>
+                <li><a href="/templates">Email Templates</a>
+                </li>
+                <li><a href="/landing_pages">Landing Pages</a>
+                </li>
+                <li class="active"><a href="/settings">Settings</a>
+                </li>
+                <li><a href="/api/">API Documentation</a>
+                </li>
+            </ul>
+        </div>
     </div>
 </div>
-<div class="container">
-    <div class="col-md-3 sidebar">
-        <ul class="nav nav-pills nav-stacked">
-            <li><a href="/">Dashboard</a>
-            </li>
-            <li><a href="/users">Users &amp; Groups</a>
-            </li>
-            <li><a href="/templates">Templates</a>
-            </li>
-            <li class="active"><a href="/settings">Settings</a>
-            </li>
-            <li><a href="/api/">API Documentation</a>
-            </li>
-        </ul>
+<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+    <div class="row">
+        <h1 class="page-header">Settings</h1>
     </div>
-    <div class="col-md-9 sans">
-        {{%template "flashes" .Flashes%}}
-        <h1 style="margin:0px 0px 15px 0px;">User Settings</h1>
+    <div id="flashes" class="row"></div>
+    <div class="row">
+        <label for="api_key" class="col-sm-2 control-label form-label">API Key:</label>
+        <div class="col-md-6">
+            <input type="text" id="api_key" onclick="this.select();" value="{{.User.ApiKey}}" class="form-control" readonly/>
+        </div>
+        <form id="apiResetForm">
+            <button class="btn btn-primary"><i class="fa fa-refresh" type="submit"></i> Reset</button>
+            <input type="hidden" name="csrf_token" value="{{.Token}}"/>
+        </form>
+    </div>
+    <br />
+    <form id="settingsForm">
         <div class="row">
-            <label for="api_key" class="col-sm-2 control-label form-label">API Key:</label>
+            <label for="username" class="col-sm-2 control-label form-label">Username:</label>
             <div class="col-md-6">
-                <input type="text" id="api_key" onclick="this.select();" value="{{%.User.ApiKey%}}" class="form-control" readonly/>
+                <input type="text" id="username" name="username" value="{{.User.Username}}" class="form-control" />
             </div>
-            <form action="/api/reset" method="POST">
-                <button class="btn btn-primary"><i class="fa fa-refresh" type="submit"></i> Reset</button>
-                <input type="hidden" name="csrf_token" value={{%.Token%}}/>
-            </form>
         </div>
         <br />
-        <form action="/settings" method="POST">
-            <div class="row">
-                <label for="username" class="col-sm-2 control-label form-label">Username:</label>
-                <div class="col-md-6">
-                    <input type="text" id="username" value="{{%.User.Username%}}" class="form-control" />
-                </div>
+        <div class="row">
+            <label for="current_password" class="col-sm-2 control-label form-label">Old Password:</label>
+            <div class="col-md-6">
+                <input type="password" id="current_password" name="current_password" class="form-control"/>
             </div>
-            <br />
-            <div class="row">
-                <label for="current_password" class="col-sm-2 control-label form-label">Old Password:</label>
-                <div class="col-md-6">
-                    <input type="password" id="current_password" name="current_password" class="form-control" />
-                </div>
+        </div>
+        <br />
+        <div class="row">
+            <label for="new_password" class="col-sm-2 control-label form-label">New Password:</label>
+            <div class="col-md-6">
+                <input type="password" id="new_password" name="new_password" class="form-control" />
             </div>
-            <br />
-            <div class="row">
-                <label for="new_password" class="col-sm-2 control-label form-label">New Password:</label>
-                <div class="col-md-6">
-                    <input type="password" id="new_password" name="new_password" class="form-control" />
-                </div>
-            </div>
-            <input type="hidden" name="csrf_token" value={{%.Token%}}/>
-            <br />
-            <button class="btn btn-primary" type="submit">Save</button>
-        </form>
-        <br/>
-    </div>
+        </div>
+        <input type="hidden" name="csrf_token" value="{{.Token}}"/>
+        <br />
+        <button class="btn btn-primary" type="submit">Save</button>
+    </form>
+    <br/>
 </div>
-{{%end%}}
+{{end}}
+{{define "scripts"}}
+<script src="/js/app/settings.js"></script>
+{{end}}
