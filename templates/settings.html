@@ -31,17 +31,17 @@
         <div class="col-md-6">
             <input type="text" id="api_key" onclick="this.select();" value="{{.User.ApiKey}}" class="form-control" readonly/>
         </div>
-        <form ng-submit="api_reset()">
+        <form id="apiResetForm">
             <button class="btn btn-primary"><i class="fa fa-refresh" type="submit"></i> Reset</button>
             <input type="hidden" name="csrf_token" value="{{.Token}}"/>
         </form>
     </div>
     <br />
-    <form ngsubmit="save_settings()" method="POST">
+    <form id="settingsForm">
         <div class="row">
             <label for="username" class="col-sm-2 control-label form-label">Username:</label>
             <div class="col-md-6">
-                <input type="text" id="username" class="form-control" value="{{.User.Username}}" />
+                <input type="text" id="username" name="username" value="{{.User.Username}}" class="form-control" />
             </div>
         </div>
         <br />

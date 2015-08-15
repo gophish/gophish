@@ -268,9 +268,13 @@ func Settings(w http.ResponseWriter, r *http.Request) {
 		if err == auth.ErrInvalidPassword {
 			msg.Message = "Invalid Password"
 			msg.Success = false
+			JSONResponse(w, msg, http.StatusBadRequest)
+			return
 		} else if err != nil {
 			msg.Message = "Unknown Error Occured"
 			msg.Success = false
+			JSONResponse(w, msg, http.StatusBadRequest)
+			return
 		}
 		JSONResponse(w, msg, http.StatusOK)
 	}
