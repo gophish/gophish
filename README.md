@@ -3,6 +3,8 @@
 gophish
 =======
 
+[![Build Status](https://travis-ci.org/jordan-wright/gophish.svg?branch=master)](https://travis-ci.org/jordan-wright/gophish)
+
 Open-Source Phishing Toolkit
 
 Gophish is an open-source phishing toolkit designed for businesses and penetration testers. It provides the ability to quickly and easily setup and execute phishing engagements.
