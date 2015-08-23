@@ -105,5 +105,31 @@ var api = {
         delete: function(id){
             return query("/templates/" + id, "DELETE", {})
         }
+    },
+    // landing_pages contains the endpoints for /landing_pages
+    landing_pages : {
+        // get() - Queries the API for GET /landing_pages
+        get: function(){
+            return query("/landing_pages/", "GET", {})
+        },
+        // post() - Posts a campaign to POST /landing_pages
+        post: function(page){
+            return query("/landing_pages/", "POST", page)
+        }
+    },
+    // templateId contains the endpoints for /templates/:id
+    landing_pageId : {
+        // get() - Queries the API for GET /templates/:id
+        get: function(id){
+            return query("/landing_pages/" + id, "GET", {})
+        },
+        // put() - Puts a campaign to PUT /templates/:id
+        put: function (page){
+            return query("/landing_pages/" + page.id, "PUT", page)
+        },
+        // delete() - Deletes a campaign at DELETE /templates/:id
+        delete: function(id){
+            return query("/landing_pages/" + id, "DELETE", {})
+        }
     }
 }
