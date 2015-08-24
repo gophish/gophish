@@ -27,7 +27,7 @@
     </h1>
     <div id="flashes" class="row"></div>
     <div class="row">
-        <button type="button" class="btn btn-primary" onclick="edit(-1) "data-toggle="modal" data-target="#newLandingPageModal"><i class="fa fa-plus"></i> New Page</button>
+        <button type="button" class="btn btn-primary" onclick="edit(-1)" data-toggle="modal" data-target="#newLandingPageModal"><i class="fa fa-plus"></i> New Page</button>
     </div>
     &nbsp;
     <div id="loading">
@@ -70,7 +70,7 @@
                 <input type="text" class="form-control" placeholder="Page name" id="name" autofocus/>
             </div>
             <div class="form-group">
-                <button class="btn btn-danger btn-disabled"><i class="fa fa-envelope"></i> Import Site (Coming Soon!)</button>
+                <button class="btn btn-danger" data-toggle="modal" data-target="#importSiteModal"><i class="fa fa-envelope"></i> Import Site (Coming Soon!)</button>
             </div>
             <!-- Nav tabs -->
             <ul class="nav nav-tabs" role="tablist">
@@ -86,6 +86,28 @@
         <div class="modal-footer">
             <button type="button" class="btn btn-default" onclick="dismiss()">Cancel</button>
             <button type="button" class="btn btn-primary" id="modalSubmit">Save Page</button>
+        </div>
+    </div>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="importSiteModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+        <!-- New Template Modal -->
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="importSiteModalLabel">Import Site</h4>
+        </div>
+        <div class="modal-body">
+            <div class="row" id="modal.flashes"></div>
+            <label class="control-label" for="url">URL:</label>
+            <div class="form-group">
+                <input type="text" class="form-control" placeholder="http://google.com" id="url" autofocus/>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" onclick="dismiss()">Cancel</button>
+            <button type="button" class="btn btn-primary" id="modalSubmit">Import</button>
         </div>
     </div>
 </div>
