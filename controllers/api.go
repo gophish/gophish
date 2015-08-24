@@ -10,6 +10,7 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/PuerkitoBio/goquery"
 	ctx "github.com/gorilla/context"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
@@ -393,12 +394,22 @@ func API_Import_Site(w http.ResponseWriter, r *http.Request) {
 		JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
 		return
 	}
-	body, err := ioutil.ReadAll(resp.Body)
+	// Insert the base href tag to better handle relative resources
+	d, err := goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {
 		JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
 		return
 	}
-	cs := cloneResponse{HTML: string(body)}
+	// Assuming we don't want to include resources, we'll need a base href
+	if d.Find("head base").Length() == 0 {
+		d.Find("head").AppendHtml(fmt.Sprintf("<base href=\"%s\">", cr.URL))
+	}
+	h, err := d.Html()
+	if err != nil {
+		JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
+		return
+	}
+	cs := cloneResponse{HTML: h}
 	JSONResponse(w, cs, http.StatusOK)
 	return
 }
