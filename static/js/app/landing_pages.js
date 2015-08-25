@@ -33,7 +33,6 @@ function save(idx){
 
 function dismiss(){
     $("#modal\\.flashes").empty()
-    $("#modal").modal('hide')
     $("#name").val("")
     $("#html_editor").val("")
 }
@@ -45,6 +44,26 @@ function deleteTemplate(idx){
             successFlash(data.message)
             load()
         })
+    }
+}
+
+function importSite(){
+    url = $("#url").val()
+    if (!url){
+        modalError("No URL Specified!")
+    } else {
+        api.clone_site({
+	    url: url,
+            include_resources: false
+	})
+	.success(function(data){
+	    console.log($("#html_editor"))
+	    $("#html_editor").val(data.html)
+            $("#importSiteModal").modal("hide")
+	})
+	.error(function(data){
+            modalError(data.responseJSON.message)	
+	})
     }
 }
 
@@ -91,8 +110,33 @@ function load(){
         $("#loading").hide()
         errorFlash("Error fetching pages")
     })
+    // Setup multiple modals
+    // Code based on http://miles-by-motorcycle.com/static/bootstrap-modal/index.html
+    $('.modal').on('hidden.bs.modal', function( event ) {
+        $(this).removeClass( 'fv-modal-stack' );
+            $('body').data( 'fv_open_modals', $('body').data( 'fv_open_modals' ) - 1 );
+    });
+    $( '.modal' ).on( 'shown.bs.modal', function ( event ) {
+        // Keep track of the number of open modals
+        if ( typeof( $('body').data( 'fv_open_modals' ) ) == 'undefined' )
+        {
+            $('body').data( 'fv_open_modals', 0 );
+        }
+        // if the z-index of this modal has been set, ignore.
+        if ( $(this).hasClass( 'fv-modal-stack' ) )
+        {
+            return;
+        }
+        $(this).addClass( 'fv-modal-stack' );
+	// Increment the number of open modals
+        $('body').data( 'fv_open_modals', $('body').data( 'fv_open_modals' ) + 1 );
+	// Setup the appropriate z-index
+        $(this).css('z-index', 1040 + (10 * $('body').data( 'fv_open_modals' )));
+        $( '.modal-backdrop' ).not( '.fv-modal-stack' ).css( 'z-index', 1039 + (10 * $('body').data( 'fv_open_modals' )));
+        $( '.modal-backdrop' ).not( 'fv-modal-stack' ).addClass( 'fv-modal-stack' ); 
+    });
 }
 
-$(document).ready(function(){
-    load()
+$(document).ready(function(){    
+	load()
 })

@@ -131,5 +131,8 @@ var api = {
         delete: function(id){
             return query("/landing_pages/" + id, "DELETE", {})
         }
+    },
+    clone_site : function(req){
+	return query("/import/site", "POST", req)
     }
 }
