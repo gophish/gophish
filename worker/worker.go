@@ -64,9 +64,11 @@ func processCampaign(c *models.Campaign) {
 			models.Result
 			URL     string
 			Tracker string
+			TrackingURL
 		}{
 			t,
 			"http://" + ips[0].String() + "?rid=" + t.RId,
+			"<img src='http://" + ips[0].String() + "/track?rid=" + t.RId + "'/>",
 			"http://" + ips[0].String() + "/track?rid=" + t.RId,
 		}
 		// Parse the templates
