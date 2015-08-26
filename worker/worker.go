@@ -62,9 +62,9 @@ func processCampaign(c *models.Campaign) {
 	for _, t := range c.Results {
 		td := struct {
 			models.Result
-			URL     string
-			Tracker string
-			TrackingURL
+			URL         string
+			Tracker     string
+			TrackingURL string
 		}{
 			t,
 			"http://" + ips[0].String() + "?rid=" + t.RId,
