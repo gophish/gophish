@@ -114,10 +114,10 @@ function load(){
     $("#loading").show()
     api.groups.get()
     .success(function(gs){
+        $("#loading").hide()
         if (gs.length > 0){
             groups = gs
             $("#emptyMessage").hide()
-            $("#loading").hide()
             $("#groupTable").show()
             groupTable = $("#groupTable").DataTable();
             groupTable.clear();
@@ -143,7 +143,6 @@ function load(){
                 ]).draw()
             })
         } else {
-            $("#loading").hide()
             $("#emptyMessage").show()
         }
     })

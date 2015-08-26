@@ -19,7 +19,7 @@ function save(idx){
         })
     } else {
         // Submit the page
-        api.landing_pages.post(page)
+        api.pages.post(page)
         .success(function(data){
             successFlash("Page added successfully!")
             load()
@@ -37,9 +37,9 @@ function dismiss(){
     $("#html_editor").val("")
 }
 
-function deleteTemplate(idx){
+function deletePage(idx){
     if (confirm("Delete " + pages[idx].name + "?")){
-        api.landing_pageId.delete(pages[idx].id)
+        api.pageId.delete(pages[idx].id)
         .success(function(data){
             successFlash(data.message)
             load()
@@ -79,22 +79,25 @@ function edit(idx){
 }
 
 function load(){
+/*
+    load() - Loads the current pages using the API
+*/
     $("#pagesTable").hide()
     $("#emptyMessage").hide()
     $("#loading").show()
-    api.landing_pages.get()
+    api.pages.get()
     .success(function(ps){
         pages = ps
         $("#loading").hide()
         if (pages.length > 0){
             $("#pagesTable").show()
-            pagesTable = $("#templateTable").DataTable();
+            pagesTable = $("#pagesTable").DataTable();
             pagesTable.clear()
             $.each(pages, function(i, page){
                 pagesTable.row.add([
                     page.name,
                     moment(page.modified_date).format('MMMM Do YYYY, h:mm:ss a'),
-                    "<div class='pull-right'><button class='btn btn-primary' data-toggle='modal' data-target='#modal' onclick='edit(" + i + ")'>\
+                    "<div class='pull-right'><button class='btn btn-primary' data-toggle='modal' data-target='#newLandingPageModal' onclick='edit(" + i + ")'>\
                     <i class='fa fa-pencil'></i>\
                     </button>\
                     <button class='btn btn-danger' onclick='deletePage(" + i + ")'>\
@@ -110,6 +113,9 @@ function load(){
         $("#loading").hide()
         errorFlash("Error fetching pages")
     })
+}
+
+$(document).ready(function(){    
     // Setup multiple modals
     // Code based on http://miles-by-motorcycle.com/static/bootstrap-modal/index.html
     $('.modal').on('hidden.bs.modal', function( event ) {
@@ -135,8 +141,5 @@ function load(){
         $( '.modal-backdrop' ).not( '.fv-modal-stack' ).css( 'z-index', 1039 + (10 * $('body').data( 'fv_open_modals' )));
         $( '.modal-backdrop' ).not( 'fv-modal-stack' ).addClass( 'fv-modal-stack' ); 
     });
-}
-
-$(document).ready(function(){    
-	load()
+    load()
 })

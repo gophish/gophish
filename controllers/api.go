@@ -283,6 +283,7 @@ func API_Pages(w http.ResponseWriter, r *http.Request) {
 			JSONResponse(w, models.Response{Success: false, Message: "Invalid request"}, http.StatusBadRequest)
 			return
 		}
+		// Check to make sure the name is unique
 		_, err = models.GetPageByName(p.Name, ctx.Get(r, "user_id").(int64))
 		if err != gorm.RecordNotFound {
 			JSONResponse(w, models.Response{Success: false, Message: "Page name already in use"}, http.StatusConflict)
@@ -293,7 +294,7 @@ func API_Pages(w http.ResponseWriter, r *http.Request) {
 		p.UserId = ctx.Get(r, "user_id").(int64)
 		err = models.PostPage(&p)
 		if err != nil {
-			JSONResponse(w, models.Response{Success: false, Message: "Error inserting page"}, http.StatusInternalServerError)
+			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
 			return
 		}
 		JSONResponse(w, p, http.StatusCreated)

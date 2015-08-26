@@ -2,8 +2,8 @@ package controllers
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -45,6 +45,7 @@ func (s *ControllersSuite) TestSiteImportBaseHref() {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, h)
 	}))
+	hr := fmt.Sprintf("<html><head><base href=\"%s\"/></head><body><img src=\"/test.png\"/>\n</body></html>", ts.URL)
 	defer ts.Close()
 	resp, err := http.Post(fmt.Sprintf("%s/api/import/site?api_key=%s", as.URL, s.ApiKey), "application/json",
 		bytes.NewBuffer([]byte(fmt.Sprintf(`
@@ -55,9 +56,10 @@ func (s *ControllersSuite) TestSiteImportBaseHref() {
 		`, ts.URL))))
 	s.Nil(err)
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	cs := cloneResponse{}
+	err = json.NewDecoder(resp.Body).Decode(&cs)
 	s.Nil(err)
-	fmt.Printf("%s", body)
+	s.Equal(cs.HTML, hr)
 }
 
 func (s *ControllersSuite) TearDownSuite() {

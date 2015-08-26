@@ -106,30 +106,30 @@ var api = {
             return query("/templates/" + id, "DELETE", {})
         }
     },
-    // landing_pages contains the endpoints for /landing_pages
-    landing_pages : {
-        // get() - Queries the API for GET /landing_pages
+    // pages contains the endpoints for /pages
+    pages : {
+        // get() - Queries the API for GET /pages
         get: function(){
-            return query("/landing_pages/", "GET", {})
+            return query("/pages/", "GET", {})
         },
-        // post() - Posts a campaign to POST /landing_pages
+        // post() - Posts a campaign to POST /pages
         post: function(page){
-            return query("/landing_pages/", "POST", page)
+            return query("/pages/", "POST", page)
         }
     },
     // templateId contains the endpoints for /templates/:id
-    landing_pageId : {
+    pageId : {
         // get() - Queries the API for GET /templates/:id
         get: function(id){
-            return query("/landing_pages/" + id, "GET", {})
+            return query("/pages/" + id, "GET", {})
         },
         // put() - Puts a campaign to PUT /templates/:id
         put: function (page){
-            return query("/landing_pages/" + page.id, "PUT", page)
+            return query("/pages/" + page.id, "PUT", page)
         },
         // delete() - Deletes a campaign at DELETE /templates/:id
         delete: function(id){
-            return query("/landing_pages/" + id, "DELETE", {})
+            return query("/pages/" + id, "DELETE", {})
         }
     },
     clone_site : function(req){
