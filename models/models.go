@@ -47,6 +47,10 @@ type Response struct {
 // Setup initializes the Conn object
 // It also populates the Gophish Config object
 func Setup() error {
+	create_db := false
+	if _, err = os.Stat(config.Conf.DBPath); err != nil || config.Conf.DBPath == ":memory:" {
+		create_db = true
+	}
 	db, err = gorm.Open("sqlite3", config.Conf.DBPath)
 	db.LogMode(false)
 	db.SetLogger(Logger)
@@ -55,8 +59,7 @@ func Setup() error {
 		return err
 	}
 	//If the file already exists, delete it and recreate it
-	_, err = os.Stat(config.Conf.DBPath)
-	if err != nil {
+	if create_db {
 		Logger.Printf("Database not found... creating db at %s\n", config.Conf.DBPath)
 		db.CreateTable(User{})
 		db.CreateTable(Target{})
