@@ -132,6 +132,10 @@ var api = {
             return query("/pages/" + id, "DELETE", {})
         }
     },
+    // import handles all of the "import" functions in the api
+    import_email : function(raw) {
+	return query("/import/email", "POST", {}) 
+    },
     clone_site : function(req){
 	return query("/import/site", "POST", req)
     }

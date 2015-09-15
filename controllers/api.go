@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"strconv"
 	"text/template"
@@ -14,6 +13,7 @@ import (
 	ctx "github.com/gorilla/context"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
+	"github.com/jordan-wright/email"
 	"github.com/jordan-wright/gophish/auth"
 	"github.com/jordan-wright/gophish/models"
 	"github.com/jordan-wright/gophish/util"
@@ -363,12 +363,17 @@ func API_Import_Email(w http.ResponseWriter, r *http.Request) {
 		JSONResponse(w, models.Response{Success: false, Message: "Method not allowed"}, http.StatusBadRequest)
 		return
 	}
-	body, err := ioutil.ReadAll(r.Body)
+	defer r.Body.Close()
+	e, err := email.NewEmailFromReader(r.Body)
 	if err != nil {
 		Logger.Println(err)
 	}
-	w.Header().Set("Content-Type", "text/plain")
-	fmt.Fprintf(w, "%s", body)
+	er := emailResponse{
+		Subject: e.Subject,
+		Text:    string(e.Text),
+		HTML:    string(e.HTML),
+	}
+	JSONResponse(w, er, http.StatusOK)
 	return
 }
 
@@ -442,4 +447,10 @@ func (cr *cloneRequest) validate() error {
 
 type cloneResponse struct {
 	HTML string `json:"html"`
+}
+
+type emailResponse struct {
+	Text    string `json:"text"`
+	HTML    string `json:"html"`
+	Subject string `json:"subject"`
 }
