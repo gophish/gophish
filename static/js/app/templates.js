@@ -56,6 +56,7 @@ function dismiss(){
     $("#name").val("")
     $("#text_editor").val("")
     $("#html_editor").val("")
+    $("#modal").modal('hide')
 }
 
 function deleteTemplate(idx){

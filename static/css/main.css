@@ -318,3 +318,8 @@
 .ct-legend-clicked {
     background-color: #f05b4f !important;
 }
+
+.gophish-editor {
+    font-family: 'Courier New',Monospace !important;
+    font-size: small !important;
+}

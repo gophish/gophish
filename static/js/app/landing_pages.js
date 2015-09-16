@@ -35,6 +35,7 @@ function dismiss(){
     $("#modal\\.flashes").empty()
     $("#name").val("")
     $("#html_editor").val("")
+    $("#newLandingPageModal").modal('hide')
 }
 
 function deletePage(idx){
