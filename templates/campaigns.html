@@ -54,32 +54,6 @@
             </tbody>
         </table>
     </div>
-        <!-- <table ng-table="mainTableParams" class="table table-hover table-striped table-bordered">
-            <tbody>
-                <tr ng-repeat="campaign in $data | orderBy:modified_date:true" class="editable-row">
-                    <td data-title="'Created Date'" class="col-sm-1">campaign.created_date | date:'medium'</td>
-                    <td data-title="'Name'" class="col-sm-2">campaign.name
-                        <div class="btn-group" style="float: right;">
-                            <button type="button" class="btn btn-primary dropdown-toggle edit-button" data-toggle="dropdown">
-                                <span class="caret" style="border-top-color:#FFFFFF"></span>
-                                <span class="sr-only">Toggle Dropdown</span>
-                            </button>
-                            <ul class="dropdown-menu" style="left:auto; right:0;" role="menu">
-                                <li><a ng-href="#/campaigns/campaign.id">View</a>
-                                </li>
-                                <li><a href="/campaigns/campaign.id/relaunch">Relaunch</a>
-                                </li>
-                                <li class="divider"></li>
-                                <li><a ng-click="deleteCampaign(campaign)">Delete</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </td>
-                    <td data-title="'Status'" class="col-sm-1">campaign.status</td>
-                </tr>
-            </tbody>
-        </table> -->
-    </div>
 </div>
 <!-- Modal -->
 <div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
@@ -96,8 +70,9 @@
               <input type="text" class="form-control" id="name" placeholder="Campaign name" autofocus>
               <br />
               <label class="control-label" for="template">Template:</label>
-              <input type="text" class="form-control" placeholder="Template Name" id="template"/>
-              <br />
+              <input type="text" class="typeahead form-control" placeholder="Template Name" id="template"/>
+              <br>
+	      <br>
               <div class="panel panel-default">
                   <div class="panel-heading" role="tab">
                       <a role="button" class="collapsed" data-toggle="collapse" href="#smtpPanel" aria-expanded="false" aria-controls="#smtpPanel">

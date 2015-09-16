@@ -9,6 +9,11 @@ var labels = {
 
 // Save attempts to POST to /campaigns/
 function save(){
+    groups = []
+    $.each($("#groupTable").DataTable().rows().data(), function(i, group){
+        groups.push({name: group[0]})
+    }) 
+    console.log(groups)
     var campaign = {
         name: $("#name").val(),
         template:{
@@ -20,13 +25,13 @@ function save(){
             username: $("input[name=username]").val(),
             password: $("input[name=password]").val(),
         },
-        groups: [{name : "Test group"}]
+        groups: groups
     }
     // Submit the campaign
     api.campaigns.post(campaign)
     .success(function(data){
         successFlash("Campaign successfully launched!")
-        load()
+	window.location = "/campaigns/" + campaign.id.toString()
     })
     .error(function(data){
         $("#modal\\.flashes").empty().append("<div style=\"text-align:center\" class=\"alert alert-danger\">\
@@ -42,7 +47,8 @@ function dismiss(){
 
 function edit(campaign){
     // Clear the bloodhound instance
-    bh.clear();
+    group_bh.clear();
+    template_bh.clear();
     if (campaign == "new") {
         api.groups.get()
         .success(function(groups){
@@ -51,9 +57,19 @@ function edit(campaign){
                 return false;
             }
             else {
-                bh.add(groups)
+                group_bh.add(groups)
             }
         })
+	api.templates.get()
+	.success(function(templates){
+	    if (templates.length == 0){
+	    	modalError("No templates found!")
+		return false
+	    }
+	    else {
+	    	template_bh.add(templates)
+	    }
+	})
     }
 }
 
@@ -101,12 +117,12 @@ $(document).ready(function(){
     // Create the group typeahead objects
     groupTable = $("#groupTable").DataTable()
     suggestion_template = Hogan.compile('<div>{{name}}</div>')
-    bh = new Bloodhound({
+    group_bh = new Bloodhound({
         datumTokenizer: function(g) { return Bloodhound.tokenizers.whitespace(g.name) },
         queryTokenizer: Bloodhound.tokenizers.whitespace,
         local: []
     })
-    bh.initialize()
+    group_bh.initialize()
     $("#groupSelect.typeahead.form-control").typeahead({
         hint: true,
         highlight: true,
@@ -114,7 +130,7 @@ $(document).ready(function(){
     },
     {
         name: "groups",
-        source: bh,
+        source: group_bh,
         templates: {
             empty: function(data) {return '<div class="tt-suggestion">No groups matched that query</div>' },
             suggestion: function(data){ return '<div>' + data.name + '</div>' }
@@ -123,4 +139,27 @@ $(document).ready(function(){
     .bind('typeahead:select', function(ev, group){
         $("#groupSelect").typeahead('val', group.name)
     });
+    // Create the template typeahead objects
+    template_bh = new Bloodhound({
+        datumTokenizer: function(t) { return Bloodhound.tokenizers.whitespace(t.name) },
+        queryTokenizer: Bloodhound.tokenizers.whitespace,
+        local: []
+    })
+    template_bh.initialize()
+    $("#template.typeahead.form-control").typeahead({
+    	hint: true,
+	highlight: true,
+	minLength: 1
+    },
+    {
+    	name: "templates",
+	source: template_bh,
+	templates: {
+            empty: function(data) {return '<div class="tt-suggestion">No templates matched that query</div>' },
+            suggestion: function(data){ return '<div>' + data.name + '</div>' }
+        }
+    })
+    .bind('typeahead:select', function(ev, template){
+    	$("#template").typeahead('val', template.name)
+    })
 })
