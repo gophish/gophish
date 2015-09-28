@@ -22,6 +22,7 @@ var Logger = log.New(os.Stdout, " ", log.Ldate|log.Ltime|log.Lshortfile)
 const (
 	CAMPAIGN_IN_PROGRESS string = "In progress"
 	CAMPAIGN_QUEUED      string = "Queued"
+	CAMPAIGN_EMAILS_SENT string = "Emails Sent"
 	CAMPAIGN_COMPLETE    string = "Completed"
 	EVENT_SENT           string = "Email Sent"
 	EVENT_OPENED         string = "Email Opened"

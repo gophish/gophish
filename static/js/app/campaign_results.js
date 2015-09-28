@@ -26,6 +26,11 @@ var statuses = {
         slice: "ct-slice-donut-error",
         legend: "ct-legend-error",
         label: "label-default"
+    },
+    "Unknown" : {
+    	slice: "ct-slice-donut-error",
+	legend: "ct-legend-error",
+	label: "label-default"
     }
 }
 

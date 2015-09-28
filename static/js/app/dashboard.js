@@ -1,4 +1,13 @@
 var campaigns = []
+// labels is a map of campaign statuses to
+// CSS classes
+var labels = {
+    "In progress" : "label-primary",
+    "Queued" : "label-info",
+    "Completed" : "label-success",
+    "Emails Sent" : "label-success",
+    "Error" : "label-danger"
+}
 
 $(document).ready(function(){
     api.campaigns.get()
@@ -27,11 +36,12 @@ $(document).ready(function(){
             campaignTable = $("#campaignTable").DataTable();
             $.each(campaigns, function(i, campaign){
                 var campaign_date = moment(campaign.created_date).format('MMMM Do YYYY h:mm')
+                var label = labels[campaign.status] || "label-default";
                 // Add it to the table
                 campaignTable.row.add([
                     campaign.name,
                     campaign_date,
-                    campaign.status,
+                    "<span class=\"label " + label + "\">" + campaign.status + "</span>",
                     "<div class='pull-right'><a class='btn btn-primary' href='/campaigns/" + campaign.id + "'>\
                     <i class='fa fa-bar-chart'></i>\
                     </a>\
@@ -91,7 +101,7 @@ $(document).ready(function(){
 
             $chart.on('mouseenter', '.ct-point', function() {
                 var $point = $(this)
-                value = $point.attr('ct:value')
+                value = $point.attr('ct:value') || 0
                 cidx = $point.attr('ct:meta')
                 $toolTip.html(campaigns[cidx].name + '<br>' + "Successes: " + value.toString() + "%").show();
             });

@@ -3,8 +3,9 @@
 var labels = {
     "In progress" : "label-primary",
     "Queued" : "label-info",
-	"Completed" : "label-success",
-	"Error" : "label-danger"
+    "Completed" : "label-success",
+    "Emails Sent" : "label-success",
+    "Error" : "label-danger"
 }
 
 // Save attempts to POST to /campaigns/
