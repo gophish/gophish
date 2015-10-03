@@ -57,11 +57,15 @@ func CreateAdminRouter() http.Handler {
 	// Setup CSRF Protection
 	csrfHandler := nosurf.New(router)
 	// Exempt API routes and Static files
-	csrfHandler.ExemptGlob("/api/campaigns*")
-	csrfHandler.ExemptGlob("/api/groups*")
-	csrfHandler.ExemptGlob("/api/templates*")
-	csrfHandler.ExemptGlob("/api/pages*")
-	csrfHandler.ExemptGlob("/api/import*")
+	csrfHandler.ExemptGlob("/api/campaigns")
+	csrfHandler.ExemptGlob("/api/campaigns/*")
+	csrfHandler.ExemptGlob("/api/groups")
+	csrfHandler.ExemptGlob("/api/groups/*")
+	csrfHandler.ExemptGlob("/api/templates")
+	csrfHandler.ExemptGlob("/api/templates/*")
+	csrfHandler.ExemptGlob("/api/pages")
+	csrfHandler.ExemptGlob("/api/pages/*")
+	csrfHandler.ExemptGlob("/api/import/*")
 	csrfHandler.ExemptGlob("/static/*")
 	return Use(csrfHandler.ServeHTTP, mid.GetContext)
 }
