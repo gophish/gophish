@@ -140,3 +140,8 @@ var api = {
 	return query("/import/site", "POST", req)
     }
 }
+
+// Register our moment.js datatables listeners
+$(document).ready(function(){
+	$.fn.dataTable.moment('MMMM Do YYYY, h:mm:ss a');
+});
