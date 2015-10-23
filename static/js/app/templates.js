@@ -19,6 +19,8 @@ function save(idx){
     template.name = $("#name").val()
     template.subject = $("#subject").val()
     template.html = CKEDITOR.instances["html_editor"].getData();
+    // Fix the URL Scheme added by CKEditor (until we can remove it from the plugin)
+    template.html = template.html.replace(/https?:\/\/{{\.URL}}/gi, "{{.URL}}")
     template.text = $("#text_editor").val()
     // Add the attachments
     $.each($("#attachmentsTable").DataTable().rows().data(), function(i, target){

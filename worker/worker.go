@@ -3,12 +3,11 @@ package worker
 import (
 	"bytes"
 	"log"
-	"net"
+	"net/mail"
 	"net/smtp"
 	"os"
 	"strings"
 	"text/template"
-	"time"
 
 	"github.com/jordan-wright/email"
 	"github.com/jordan-wright/gophish/models"
@@ -52,24 +51,27 @@ func processCampaign(c *models.Campaign) {
 	if c.SMTP.Username != "" && c.SMTP.Password != "" {
 		auth = smtp.PlainAuth("", c.SMTP.Username, c.SMTP.Password, strings.Split(c.SMTP.Host, ":")[0])
 	}
-	ips, err := net.InterfaceAddrs()
+	f, err := mail.ParseAddress(c.SMTP.FromAddress)
 	if err != nil {
 		Logger.Println(err)
 	}
-	for _, i := range ips {
-		Logger.Println(i.String())
+	ft := f.Name
+	if ft == "" {
+		ft = f.Address
 	}
 	for _, t := range c.Results {
 		td := struct {
 			models.Result
 			URL         string
-			Tracker     string
 			TrackingURL string
+			Tracker     string
+			From        string
 		}{
 			t,
-			"http://" + ips[0].String() + "?rid=" + t.RId,
-			"<img src='http://" + ips[0].String() + "/track?rid=" + t.RId + "'/>",
-			"http://" + ips[0].String() + "/track?rid=" + t.RId,
+			c.URL + "?rid=" + t.RId,
+			c.URL + "/track?rid=" + t.RId,
+			"<img src='" + c.URL + "/track?rid=" + t.RId + "'/>",
+			ft,
 		}
 		// Parse the templates
 		var subjBuff bytes.Buffer
@@ -118,6 +120,9 @@ func processCampaign(c *models.Campaign) {
 				Logger.Println(err)
 			}
 		}
-		time.Sleep(1)
+	}
+	err = c.UpdateStatus(models.CAMPAIGN_EMAILS_SENT)
+	if err != nil {
+		Logger.Println(err)
 	}
 }

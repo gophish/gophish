@@ -144,4 +144,6 @@ var api = {
 // Register our moment.js datatables listeners
 $(document).ready(function(){
 	$.fn.dataTable.moment('MMMM Do YYYY, h:mm:ss a');
+        // Setup tooltips
+	$('[data-toggle="tooltip"]').tooltip()
 });

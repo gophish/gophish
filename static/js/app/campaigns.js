@@ -20,6 +20,7 @@ function save(){
         template:{
             name: $("#template").val()
         },
+	url: $("#url").val(),
         smtp: {
             from_address: $("input[name=from]").val(),
             host: $("input[name=host]").val(),
