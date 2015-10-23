@@ -97,7 +97,11 @@ func PhishTracker(w http.ResponseWriter, r *http.Request) {
 		Logger.Println(err)
 	}
 	c.AddEvent(models.Event{Email: rs.Email, Message: models.EVENT_OPENED})
-	w.Write([]byte("It Works!"))
+	err = rs.UpdateStatus(models.EVENT_OPENED)
+	if err != nil {
+		Logger.Println(err)
+	}
+	w.Write([]byte(""))
 }
 
 // PhishHandler handles incoming client connections and registers the associated actions performed
@@ -119,8 +123,12 @@ func PhishHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		Logger.Println(err)
 	}
+	p, err := models.GetPage(c.PageId, c.UserId)
+	if err != nil {
+		Logger.Println(err)
+	}
 	c.AddEvent(models.Event{Email: rs.Email, Message: models.EVENT_CLICKED})
-	w.Write([]byte("It Works!"))
+	w.Write([]byte(p.HTML))
 }
 
 // Use allows us to stack middleware to process the request

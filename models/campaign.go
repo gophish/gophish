@@ -20,12 +20,12 @@ type Campaign struct {
 	PageId        int64     `json:"-"`
 	Page          Page      `json:"page"`
 	Status        string    `json:"status"`
-	EmailsSent    string    `json:"emails_sent"`
 	Results       []Result  `json:"results,omitempty"`
 	Groups        []Group   `json:"groups,omitempty"`
 	Events        []Event   `json:"timeline,omitemtpy"`
 	SMTP          SMTP      `json:"smtp"`
 	URL           string    `json:"url"`
+	Errors        []string  `json:"errors,omitempty"`
 }
 
 // ErrCampaignNameNotSpecified indicates there was no template given by the user
@@ -37,11 +37,17 @@ var ErrGroupNotSpecified = errors.New("No groups specified")
 // ErrTemplateNotSpecified indicates there was no template given by the user
 var ErrTemplateNotSpecified = errors.New("No email template specified")
 
+// ErrPageNotSpecified indicates a landing page was not provided for the campaign
+var ErrPageNotSpecified = errors.New("No landing page specified")
+
 // ErrTemplateNotFound indicates the template specified does not exist in the database
 var ErrTemplateNotFound = errors.New("Template not found")
 
 // ErrGroupnNotFound indicates a group specified by the user does not exist in the database
 var ErrGroupNotFound = errors.New("Group not found")
+
+// ErrPageNotFound indicates a page specified by the user does not exist in the database
+var ErrPageNotFound = errors.New("Page not found")
 
 // Validate checks to make sure there are no invalid fields in a submitted campaign
 func (c *Campaign) Validate() error {
@@ -52,6 +58,8 @@ func (c *Campaign) Validate() error {
 		return ErrGroupNotSpecified
 	case c.Template.Name == "":
 		return ErrTemplateNotSpecified
+	case c.Page.Name == "":
+		return ErrPageNotSpecified
 	}
 	return nil
 }
@@ -97,6 +105,10 @@ func GetCampaigns(uid int64) ([]Campaign, error) {
 		if err != nil {
 			Logger.Println(err)
 		}
+		err = db.Table("pages").Where("id=?", cs[i].PageId).Find(&cs[i].Page).Error
+		if err != nil {
+			Logger.Println(err)
+		}
 	}
 	return cs, err
 }
@@ -117,6 +129,10 @@ func GetCampaign(id int64, uid int64) (Campaign, error) {
 		return c, err
 	}
 	err = db.Table("templates").Where("id=?", c.TemplateId).Find(&c.Template).Error
+	if err != nil {
+		return c, err
+	}
+	err = db.Table("pages").Where("id=?", c.PageId).Find(&c.Page).Error
 	return c, err
 }
 
@@ -152,6 +168,17 @@ func PostCampaign(c *Campaign, uid int64) error {
 	}
 	c.Template = t
 	c.TemplateId = t.Id
+	// Check to make sure the page exists
+	p, err := GetPageByName(c.Page.Name, uid)
+	if err == gorm.RecordNotFound {
+		Logger.Printf("Error - Page %s does not exist", p.Name)
+		return ErrPageNotFound
+	} else if err != nil {
+		Logger.Println(err)
+		return err
+	}
+	c.Page = p
+	c.PageId = p.Id
 	// Insert into the DB
 	err = db.Save(c).Error
 	if err != nil {

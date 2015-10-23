@@ -110,7 +110,7 @@ func processCampaign(c *models.Campaign) {
 		err = e.Send(c.SMTP.Host, auth)
 		if err != nil {
 			Logger.Println(err)
-			err = t.UpdateStatus("Error")
+			err = t.UpdateStatus(models.ERROR)
 			if err != nil {
 				Logger.Println(err)
 			}

@@ -21,6 +21,9 @@ function save(){
             name: $("#template").val()
         },
 	url: $("#url").val(),
+	page: {
+	    name: $("#page").val()
+	},
         smtp: {
             from_address: $("input[name=from]").val(),
             host: $("input[name=host]").val(),
@@ -51,6 +54,7 @@ function edit(campaign){
     // Clear the bloodhound instance
     group_bh.clear();
     template_bh.clear();
+    page_bh.clear();
     if (campaign == "new") {
         api.groups.get()
         .success(function(groups){
@@ -70,6 +74,16 @@ function edit(campaign){
 	    }
 	    else {
 	    	template_bh.add(templates)
+	    }
+	})
+	api.pages.get()
+	.success(function(pages){
+	    if (pages.length == 0){
+	    	modalError("No pages found!")
+		return false
+	    }
+	    else {
+	    	page_bh.add(pages)
 	    }
 	})
     }
@@ -118,7 +132,6 @@ $(document).ready(function(){
     })
     // Create the group typeahead objects
     groupTable = $("#groupTable").DataTable()
-    suggestion_template = Hogan.compile('<div>{{name}}</div>')
     group_bh = new Bloodhound({
         datumTokenizer: function(g) { return Bloodhound.tokenizers.whitespace(g.name) },
         queryTokenizer: Bloodhound.tokenizers.whitespace,
@@ -139,6 +152,9 @@ $(document).ready(function(){
         }
     })
     .bind('typeahead:select', function(ev, group){
+        $("#groupSelect").typeahead('val', group.name)
+    })
+    .bind('typeahead:autocomplete', function(ev, group){
         $("#groupSelect").typeahead('val', group.name)
     });
     // Create the template typeahead objects
@@ -164,4 +180,33 @@ $(document).ready(function(){
     .bind('typeahead:select', function(ev, template){
     	$("#template").typeahead('val', template.name)
     })
+    .bind('typeahead:autocomplete', function(ev, template){
+    	$("#template").typeahead('val', template.name)
+    });
+    // Create the landing page typeahead objects
+    page_bh = new Bloodhound({
+        datumTokenizer: function(p) { return Bloodhound.tokenizers.whitespace(p.name) },
+        queryTokenizer: Bloodhound.tokenizers.whitespace,
+        local: []
+    })
+    page_bh.initialize()
+    $("#page.typeahead.form-control").typeahead({
+    	hint: true,
+	highlight: true,
+	minLength: 1
+    },
+    {
+    	name: "pages",
+	source: page_bh,
+	templates: {
+            empty: function(data) {return '<div class="tt-suggestion">No pages matched that query</div>' },
+            suggestion: function(data){ return '<div>' + data.name + '</div>' }
+        }
+    })
+    .bind('typeahead:select', function(ev, page){
+    	$("#page").typeahead('val', page.name)
+    })
+    .bind('typeahead:autocomplete', function(ev, page){
+    	$("#page").typeahead('val', page.name)
+    });
 })
