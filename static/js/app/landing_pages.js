@@ -10,8 +10,8 @@ function save(idx){
     page.name = $("#name").val()
     page.html = CKEDITOR.instances["html_editor"].getData();
     if (idx != -1){
-        page.id = page[idx].id
-        api.landing_pageId.put(page)
+        page.id = pages[idx].id
+        api.pageId.put(page)
         .success(function(data){
             successFlash("Page edited successfully!")
             load()

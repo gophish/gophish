@@ -74,7 +74,7 @@ func PostPage(p *Page) error {
 // PutPage edits an existing Page in the database.
 // Per the PUT Method RFC, it presumes all data for a page is provided.
 func PutPage(p *Page) error {
-	err := db.Debug().Where("id=?", p.Id).Save(p).Error
+	err := db.Where("id=?", p.Id).Save(p).Error
 	if err != nil {
 		Logger.Println(err)
 	}
