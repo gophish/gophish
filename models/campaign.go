@@ -25,7 +25,6 @@ type Campaign struct {
 	Events        []Event   `json:"timeline,omitemtpy"`
 	SMTP          SMTP      `json:"smtp"`
 	URL           string    `json:"url"`
-	Errors        []string  `json:"errors,omitempty"`
 }
 
 // ErrCampaignNameNotSpecified indicates there was no template given by the user
