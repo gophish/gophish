@@ -408,7 +408,7 @@ func API_Import_Site(w http.ResponseWriter, r *http.Request) {
 	}
 	// Assuming we don't want to include resources, we'll need a base href
 	if d.Find("head base").Length() == 0 {
-		d.Find("head").AppendHtml(fmt.Sprintf("<base href=\"%s\">", cr.URL))
+		d.Find("head").PrependHtml(fmt.Sprintf("<base href=\"%s\">", cr.URL))
 	}
 	h, err := d.Html()
 	if err != nil {
