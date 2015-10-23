@@ -10,11 +10,11 @@ Open-Source Phishing Toolkit
 Gophish is an open-source phishing toolkit designed for businesses and penetration testers. It provides the ability to quickly and easily setup and execute phishing engagements.
 
 ###Current Status
-**Update 08/15/2015 - Finishing up a rewrite of the frontend to jQuery. Should be fairly stable, but bear with me as things are finished up**
+**Update 10/22/2015**
 
-Development of gophish is currently ongoing. It is not anywhere close to being functional yet, but should get there soon.
+Gophish is almost ready for its alpha release! Just fixing some last minute bugs to make it as clean of a release as possible, then I'll tidy up docs and ship it out.
 
-Until then, you can keep up-to-date with development news and articles on [my blog](http://jordan-wright.github.io/blog/categories/gophish/).
+Until that happens, you can keep up-to-date with development news and articles on [my blog](http://jordan-wright.github.io/blog/categories/gophish/).
 
 ###Install
 
