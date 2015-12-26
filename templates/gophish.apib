@@ -184,11 +184,6 @@ Get a campaign by its ID.
 ### Delete a Campaign [DELETE] 
 Delete a campaign by its ID.
 
-::: warning
-#### <i class="fa fa-warning"></i> Caution
-If the value for `title` or `body` is `null` or `undefined`, then the corresponding value is not modified on the server. However, if you send an empty string instead then it will **permanently overwrite** the original value.
-:::
-
 + Parameters
 
     + id: `1` (required, number) - The Campaign ID
@@ -275,11 +270,6 @@ Get a template by its ID.
 ### Delete a Template [DELETE] 
 Delete a template by its ID.
 
-::: warning
-#### <i class="fa fa-warning"></i> Caution
-If the value for `title` or `body` is `null` or `undefined`, then the corresponding value is not modified on the server. However, if you send an empty string instead then it will **permanently overwrite** the original value.
-:::
-
 + Parameters
 
     + id: `1` (required, number) - The Template ID
@@ -362,11 +352,6 @@ Get a group by its ID.
 
 ### Delete a Group [DELETE] 
 Delete a Group by its ID.
-
-::: warning
-#### <i class="fa fa-warning"></i> Caution
-If the value for `title` or `body` is `null` or `undefined`, then the corresponding value is not modified on the server. However, if you send an empty string instead then it will **permanently overwrite** the original value.
-:::
 
 + Parameters
 
@@ -465,11 +450,6 @@ Modify a page by its ID.
 ### Delete a Page [DELETE] 
 Delete a page by its ID.
 
-::: warning
-#### <i class="fa fa-warning"></i> Caution
-If the value for `title` or `body` is `null` or `undefined`, then the corresponding value is not modified on the server. However, if you send an empty string instead then it will **permanently overwrite** the original value.
-:::
-
 + Parameters
 
     + id: `1` (required, number) - The Page ID
@@ -501,16 +481,26 @@ This endpoint allows you to import a group from a CSV.
 
 The fields expected in the CSV are as follows:
 
-+ Test
-+ two 
++ First Name
++ Last Name
++ Position
++ Email
++ Company
 
-+ Request (application/json)
++ Request (multipart/form-data; boundary=----BOUNDARY)
 
-    + Attributes (Template)
+    + Body
+
+            ------BOUNDARY
+            Content-Disposition: form-data; name="files[]"; filename="filename.csv"
+            Content-Type: application/vnd.ms-excel
+            
+            [File Content]
+            ------BOUNDARY
 
 + Response 201 (application/json)
 
-    + Attributes (Template)
+    + Attributes (TargetList)
 
 + Response 400 (application/json)
 
