@@ -1,0 +1,574 @@
+FORMAT: 1A
+HOST: http://localhost:3333/api/
+
+# Gophish API
+Gophish was built from the ground-up with a JSON API that makes it easy for developers and sysadmins to automate simulated phishing campaigns.
+
+These docs describe how to use the [gophish](https://github.com/jordan-wright/gophish) API.
+
+::: note
+## Authorization
+All API requests require the use of a generated API key. You can find your API key, or generate a new one, by navigating to the /settings endpoint, or clicking the "Settings" sidebar item.
+
+When making requests, simply append the ```api_key=[API_KEY]``` as a GET parameter to authorize yourself to the API.
+
+```http
+GET /api/campaigns/?api_key=12345678901234567890123456789012
+```
+
+If no API key is provided, you'll receive the following response when attempting to make requests to API endpoints:
+
+```json
+{
+  "message": "API Key not set",
+  "success": false,
+  "data": null
+}
+```
+:::
+
+# Data Structures
+
+## Target
++ id: 1 (required, number) - Unique identifier
++ first_name: John - First name of Target
++ last_name: Doe - Last name of Target
++ email: john.doe@example.com - Email address of Target
++ position: System Administrator - Company position of the Target
+
+## TargetList (array[Target])
+
+## Group
++ id: 1 (required, number) - Unique identifier
++ name: Example Group (required) - Name of the Group
++ modified_date: `2015-01-01T01:02:03.000000Z` (string) - Date the Group was last modified
++ targets: Attributes (TargetList) (required) - The targets in the group
+
+## GroupList (array[Group])
+
+## Attachment
++ id: 1 (required, number) - Unique identifier
++ name: Example Attachment (required) - Filename of Attachment
++ content: Base64 encoded attachment content
++ type: `text/plain` - MIME type of the Attachment
+
+## AttachmentList (array[Attachment])
+
+## Template
++ id: 1 (required, number) - Unique identifier
++ name: Example Template (required) - Name of template
++ subject: Example email template subject - Subject of email sent to users
++ text: `This is a test message!` - Raw text of email sent to users
++ html: `<html><head></head><body>This is a test message!</body></html>` - HTML of email sent to users
++ attachments: Attributes (AttachmentList) - The attachments sent with the email template
++ modified_date: `2015-01-01T01:02:03.000000Z` (string) - Date the Template was last modified
+
+## TemplateList (array[Template])
+
+## Page
++ id: 1 (required, number) - Unique identifier
++ name: Example Page (required, string) - Name of Page
++ html: `<html><head></head><body>This is a test message!</body></html>` (required, string) - HTML of the landing page users hit when clicking links in the email template
++ modified_date: `2015-01-01T01:02:03.000000Z` (string) - Date the Page was last modified
+
+## PageList (array[Page])
+
+## Result
++ id: 1 (required, number) - Unique identifier
+
+## ResultList (array[Result])
+
+## Event
++ id: 1 (required, number) - Unique identifier
+
+## EventList (array[Event])
+
+## SMTP
++ id: 1 (required, number) - Unique identifier
+
+## Campaign
++ id: 1 (required, number) - Unique identifier
++ name: Example Campaign (required) - Title of Campaign
++ created_date: `2015-01-01T01:02:03.000000Z` (string) - Date the Campaign was created
++ completed_date: `2015-01-01T01:02:03.000000Z` (string) - Date the Campaign was completed
++ template: Attributes (Template) (required) - Email template to use in Campaign
++ page: Attributes (Page) (required) - Landing page for users who click the phishing link
++ status: Emails Sent (required, string) - The current status of the campaign
++ results: Attributes (ResultList)
++ timeline: Attributes (EventList)
++ smtp: Attributes (SMTP)
++ url: http://foo.bar (required, string) - The URL used in the Template sent to users
+
+## CampaignList (array[Campaign])
+
+## ImportSiteRequest
++ url: http://foo.bar (required, string) - The URL to be retrieved 
+
+## ImportSiteResponse
++ html: `<html><head></head><body>This is a test message!</body></html>` (required, string) - HTML of the requested URL.
+
+## ImportEmailResponse
++ text: Foo bar (string) - The email text part
++ html: "\u003cdiv\u003eFoo bar\u003c/div\u003e" - The email HTML part
++ subject: Foo Bar - The email subject
+
+## BadRequestResponse
++ message: "Error message" - The detailed error message
++ success: false - The success status of the request
++ data: Any associated data
+
+# Group Campaigns
+Campaigns object contain the resources needed for gophish to launch and track a simulated phishing campaign.
+
+Campaigns have the following attributes:
+
++ ```id``` : 1 (required, number) - Unique identifier
++ ```name``` : Example Campaign (required) - Title of Campaign
++ ```created_date``` : 2015-1-1T01:02:03.000000Z (datetime) - Date the Campaign was created
++ ```completed_date``` : 2015-1-1T01:02:03.000000Z (datetime) - Date the Campaign was completed
++ ```template``` : [Template](#users)
++ ```page``` : Attributes (Page) (required) - Landing page for users who click the phishing link
++ ```status``` : Emails Sent (required, string) - The current status of the campaign
++ ```results``` : Attributes (ResultsList)
++ ```timeline``` : Attributes (EventList)
++ ```smtp``` : Attributes (SMTP)
++ ```url``` : http://foo.bar (required, string) - The URL used in the Template sent to us
+ers
+
+## Campaigns [/campaigns/]
+
+### Get Campaigns [GET]
+Get a list of campaigns.
+
++ Response 200 (application/json)
+
+    + Attributes (CampaignList)
+
+### Create New Campaign [POST]
+Create a new campaign
+
++ Attributes (Campaign)
+
++ Request (application/json)
+
++ Response 201 (application/json)
+
+    + Attributes (Campaign)
+
++ Response 400 (application/json)
+
+    + Attributes (BadRequestResponse)
+
+## Campaign [/campaigns/{id}]
+### Get Campaign [GET]
+Get a campaign by its ID.
+
++ Parameters
+
+    + id: `1` (required, number) - The Campaign ID
+
++ Response 200 (application/json)
+
+    + Attributes (Campaign)
+
++ Response 404 (application/json)
+
+    + Body
+
+            {
+                "message": "Campaign not found",
+                "success": false,
+                "data": null
+            }
+
+### Delete a Campaign [DELETE] 
+Delete a campaign by its ID.
+
+::: warning
+#### <i class="fa fa-warning"></i> Caution
+If the value for `title` or `body` is `null` or `undefined`, then the corresponding value is not modified on the server. However, if you send an empty string instead then it will **permanently overwrite** the original value.
+:::
+
++ Parameters
+
+    + id: `1` (required, number) - The Campaign ID
+
++ Response 200 (application/json)
+
+    + Attributes (Campaign)
+
++ Response 404 (application/json)
+
+    + Body
+
+            {
+                "message": "Campaign not found",
+                "success": false,
+                "data": null
+            }
+
+# Group Templates
+Templates define what email content is sent to targets during campaigns. It contains the subject of the email as well as the HTML and text content of the email.
+
++ ```id```: 1 (required, number) - Unique identifier
++ ```name```: Example Template (required) - Name of template
++ ```subject```: Example email template subject - Subject of email sent to users
++ ```text```: `This is a test message!` - Raw text of email sent to users
++ ```html```: `<html><head></head><body>This is a test message!</body></html>` - HTML of email sent to users
++ ```attachments```: Attributes (AttachmentList) - The attachments sent with the email template
++ ```modified_date```: `2015-01-01T01:02:03.000000Z` (string) - Date the Template was last modified
+
+You can also attach files or payloads to the emails that you send. These are attached as a list of Attachment objects.
+
+Attachments have the following attributes:
+
++ ```id```: 1 (required, number) - Unique identifier
++ ```name```: Example Attachment (required) - Filename of Attachment
++ ```content```: Base64 encoded attachment content
++ ```type```: `text/plain` - MIME type of the Attachment
+
+## Templates [/templates/]
+### Get Templates [GET]
+Get a list of templates.
+
++ Response 200 (application/json)
+
+    + Attributes (TemplateList)
+
+### Create New Template [POST]
+Create a new template 
+
++ Request (application/json)
+
+    + Attributes (Template)
+
++ Response 201 (application/json)
+
+    + Attributes (Template)
+
++ Response 400 (application/json)
+
+    + Attributes (BadRequestResponse)
+
+## Template [/templates/{id}]
+### Get Template [GET]
+Get a template by its ID.
+
++ Parameters
+
+    + id: `1` (required, number) - The Template ID
+
++ Response 200 (application/json)
+
+    + Attributes (Template)
+
++ Response 404 (application/json)
+
+    + Body
+
+            {
+                "message": "Template not found",
+                "success": false,
+                "data": null
+            }
+
+### Delete a Template [DELETE] 
+Delete a template by its ID.
+
+::: warning
+#### <i class="fa fa-warning"></i> Caution
+If the value for `title` or `body` is `null` or `undefined`, then the corresponding value is not modified on the server. However, if you send an empty string instead then it will **permanently overwrite** the original value.
+:::
+
++ Parameters
+
+    + id: `1` (required, number) - The Template ID
+
++ Response 200 (application/json)
+
+    + Attributes (Template)
+
++ Response 404 (application/json)
+
+    + Body
+
+            {
+                "message": "Template not found",
+                "success": false,
+                "data": null
+            }
+
+# Group Groups 
+Groups contain the details for one or more users targeted in the simulated phishing campaign. Groups contain the following attributes:
+
++ ```id```: 1 (required, number) - Unique identifier
++ ```name```: Example Group (required) - Name of the Group
++ ```modified_date```: `2015-01-01T01:02:03.000000Z` (string) - Date the Group was last modified
++ ```targets```: Attributes (TargetList) (required) - The targets in the group
+
+Each target contains the following attributes:
+
++ ```id```: 1 (required, number) - Unique identifier
++ ```first_name```: John - First name of Target
++ ```last_name```: Doe - Last name of Target
++ ```email```: john.doe@example.com - Email address of Target
++ ```position```: System Administrator - Company position of the Target
+
+## Groups [/groups/]
+
+### Get Groups [GET]
+Get a list of groups.
+
++ Response 200 (application/json)
+
+    + Attributes (GroupList)
+
+### Create New Group [POST]
+Create a new group 
+
++ Request (application/json)
+
+    + Attributes (Group)
+
++ Response 201 (application/json)
+
+    + Attributes (Group)
+
++ Response 400 (application/json)
+
+    + Attributes (BadRequestResponse)
+
+## Group [/groups/{id}]
+### Get Group [GET]
+Get a group by its ID.
+
++ Parameters
+
+    + id: `1` (required, number) - The Group ID
+
++ Response 200 (application/json)
+
+    + Attributes (Group)
+
++ Response 404 (application/json)
+
+    + Body
+
+            {
+                "message": "Group not found",
+                "success": false,
+                "data": null
+            }
+
+### Delete a Group [DELETE] 
+Delete a Group by its ID.
+
+::: warning
+#### <i class="fa fa-warning"></i> Caution
+If the value for `title` or `body` is `null` or `undefined`, then the corresponding value is not modified on the server. However, if you send an empty string instead then it will **permanently overwrite** the original value.
+:::
+
++ Parameters
+
+    + id: `1` (required, number) - The Template ID
+
++ Response 200 (application/json)
+
+    + Attributes (Template)
+
++ Response 404 (application/json)
+
+    + Body
+
+            {
+                "message": "Group not found",
+                "success": false,
+                "data": null
+            }
+
+# Group Pages 
+Campaigns object contain the resources needed for gophish to launch and track a simulated phishing campaign.
+
+## Pages [/pages/]
+Pages are the HTML page that a user lands on after clicking on a phishing link.
+
++ ```id```: 1 (required, number) - Unique identifier
++ ```name```: Example Page (required, string) - Name of Page
++ ```html```: `<html><head></head><body>This is a test message!</body></html>` (required, string) - HTML of the landing page users hit when clicking links in the email template
++ ```modified_date```: `2015-01-01T01:02:03.000000Z` (string) - Date the Page was last modified
+
+### Get Pages [GET]
+Get a list of templates.
+
++ Response 200 (application/json)
+
+    + Attributes (PageList)
+
+### Create New Page [POST]
+Create a new page 
+
++ Request (application/json)
+
+    + Attributes (Page)
+
++ Response 201 (application/json)
+
+    + Attributes (Page)
+
++ Response 400 (application/json)
+
+    + Attributes (BadRequestResponse)
+
+## Page [/pages/{id}]
+### Get Page [GET]
+Get a page by its ID.
+
++ Parameters
+
+    + id: `1` (required, number) - The Page ID
+
++ Response 200 (application/json)
+
+    + Attributes (Page)
+
++ Response 404 (application/json)
+
+    + Body
+
+            {
+                "message": "Page not found",
+                "success": false,
+                "data": null
+            }
+
+### Put Page [PUT]
+Modify a page by its ID.
+
++ Request
+
+    + Attributes (Page)
+
++ Response 200 (application/json)
+
+    + Attributes (Page)
+
++ Response 404 (application/json)
+
+    + Body
+
+            {
+                "message": "Group not found",
+                "success": false,
+                "data": null
+            }
+
+### Delete a Page [DELETE] 
+Delete a page by its ID.
+
+::: warning
+#### <i class="fa fa-warning"></i> Caution
+If the value for `title` or `body` is `null` or `undefined`, then the corresponding value is not modified on the server. However, if you send an empty string instead then it will **permanently overwrite** the original value.
+:::
+
++ Parameters
+
+    + id: `1` (required, number) - The Page ID
+
++ Response 200 (application/json)
+
+    + Attributes (Page)
+
++ Response 404 (application/json)
+
+    + Body
+
+            {
+                "message": "Group not found",
+                "success": false,
+                "data": null
+            }
+            {
+                "error": "Template not found"
+            }
+
+# Group Import 
+Import functions facilitate the ability to import emails, groups and more using simple interfaces.
+
+## Group [/import/group]
+
+### Import a Group [POST]
+This endpoint allows you to import a group from a CSV.
+
+The fields expected in the CSV are as follows:
+
++ Test
++ two 
+
++ Request (application/json)
+
+    + Attributes (Template)
+
++ Response 201 (application/json)
+
+    + Attributes (Template)
+
++ Response 400 (application/json)
+
+    + Attributes (BadRequestResponse)
+
+## Email [/import/email]
+
+### Import an Email [POST]
+This endpoint allows you to parse and import an email in RFC 5322 format. 
+
+You can use this endpoint to easily import an email that you have received legitimately to re-use it for simulated phishing.
+
++ Request (text/plain)
+
+    + Body
+
+            MIME-Version: 1.0
+            Date: Fri, 25 Dec 2015 21:22:28 -0600
+            Subject: Foo Bar
+            From: John Doe <john.doe@example.com>
+            To: Jane Doe <jane.doe@example.com>
+            Content-Type: multipart/alternative; boundary=14dae9473639dc6b2a0527c4945f
+            
+            --14dae9473639dc6b2a0527c4945f
+            Content-Type: text/plain; charset=UTF-8
+            
+            Foo bar
+            
+            --14dae9473639dc6b2a0527c4945f
+            Content-Type: text/html; charset=UTF-8
+
+            <div dir="ltr">Foo bar</div>
+            
+            --14dae9473639dc6b2a0527c4945f--
+            
++ Response 201 (application/json)
+
+    + Attributes (ImportEmailResponse)
+
++ Response 400 (application/json)
+
+    + Attributes (BadRequestResponse)
+
+## Site [/import/site]
+
+### Import a Site [POST]
+Imports a site via the URL. This causes gophish to reach out to the site and pull down the HTML of the URL given.
+
+To keep styles, images, and Javascript setup and working, gophish adds a ```base``` tag to the returned HTML pointing to the original site. 
+
++ Request (application/json)
+
+    + Attributes (ImportSiteRequest) 
+
++ Response 201 (application/json)
+
+    + Attributes (ImportSiteResponse)
+
++ Response 400 (application/json)
+
+    + Attributes (BadRequestResponse)

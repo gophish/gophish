@@ -33,7 +33,7 @@ func API(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "GET":
 		templates := template.New("template")
-		_, err := templates.ParseFiles("templates/api-docs.html")
+		_, err := templates.ParseFiles("templates/docs.html")
 		if err != nil {
 			fmt.Println(err)
 		}
