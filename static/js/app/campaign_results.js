@@ -204,6 +204,7 @@ $(document).ready(function(){
         // })
     })
     .error(function(){
+	$("#loading").hide()
         errorFlash(" Campaign not found!")
     })
 })
