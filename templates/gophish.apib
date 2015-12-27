@@ -126,8 +126,8 @@ Campaigns have the following attributes:
 + ```name``` : Example Campaign (required) - Title of Campaign
 + ```created_date``` : 2015-1-1T01:02:03.000000Z (datetime) - Date the Campaign was created
 + ```completed_date``` : 2015-1-1T01:02:03.000000Z (datetime) - Date the Campaign was completed
-+ ```template``` : [Template](#users)
-+ ```page``` : Attributes (Page) (required) - Landing page for users who click the phishing link
++ ```template``` : [Template](#templates)
++ ```page``` : [Page](#pages) (required) - Landing page for users who click the phishing link
 + ```status``` : Emails Sent (required, string) - The current status of the campaign
 + ```results``` : Attributes (ResultsList)
 + ```timeline``` : Attributes (EventList)
@@ -190,7 +190,13 @@ Delete a campaign by its ID.
 
 + Response 200 (application/json)
 
-    + Attributes (Campaign)
+    + Body
+
+            {
+                "message": "Page deleted successfully!",
+                "success": true,
+                "data": null
+            }
 
 + Response 404 (application/json)
 
@@ -232,6 +238,14 @@ Get a list of templates.
 
 ### Create New Template [POST]
 Create a new template 
+
+::: note
+## Importing an Existing Email
+
+What better way to make pixel-perfect emails than by importing an existing email you already have sitting in your inbox?
+
+Using the [Import Email](#import-email) endpoint, you can take a raw email and import it as a template into gophish.
+:::
 
 + Request (application/json)
 
@@ -276,7 +290,13 @@ Delete a template by its ID.
 
 + Response 200 (application/json)
 
-    + Attributes (Template)
+    + Body
+
+            {
+                "message": "Template deleted successfully!",
+                "success": true,
+                "data": null
+            }
 
 + Response 404 (application/json)
 
@@ -304,6 +324,13 @@ Each target contains the following attributes:
 + ```email```: john.doe@example.com - Email address of Target
 + ```position```: System Administrator - Company position of the Target
 
+::: note
+## Have A Lot of Users to Import?
+
+If you have all your targets in a CSV file, you can bulk import them into a group using the [Import CSV](#import-group) endpoint.
+
+In the future, we plan to add other importation methods to make setting up groups a breeze.
+:::
 ## Groups [/groups/]
 
 ### Get Groups [GET]
@@ -359,7 +386,13 @@ Delete a Group by its ID.
 
 + Response 200 (application/json)
 
-    + Attributes (Template)
+    + Body
+
+            {
+                "message": "Group deleted successfully!",
+                "success": true,
+                "data": null
+            }
 
 + Response 404 (application/json)
 
@@ -372,9 +405,6 @@ Delete a Group by its ID.
             }
 
 # Group Pages 
-Campaigns object contain the resources needed for gophish to launch and track a simulated phishing campaign.
-
-## Pages [/pages/]
 Pages are the HTML page that a user lands on after clicking on a phishing link.
 
 + ```id```: 1 (required, number) - Unique identifier
@@ -382,8 +412,14 @@ Pages are the HTML page that a user lands on after clicking on a phishing link.
 + ```html```: `<html><head></head><body>This is a test message!</body></html>` (required, string) - HTML of the landing page users hit when clicking links in the email template
 + ```modified_date```: `2015-01-01T01:02:03.000000Z` (string) - Date the Page was last modified
 
+::: note
+## Importing a Site
+
+Let gophish do the hard work for you in importing a site. By using the [Import Site](#import-site) endpoint, you can simply give gophish a URL and have the site imported for you.
+:::
+## Pages [/pages/]
 ### Get Pages [GET]
-Get a list of templates.
+Get a list of pages.
 
 + Response 200 (application/json)
 
@@ -442,7 +478,7 @@ Modify a page by its ID.
     + Body
 
             {
-                "message": "Group not found",
+                "message": "Page not found",
                 "success": false,
                 "data": null
             }
@@ -456,19 +492,22 @@ Delete a page by its ID.
 
 + Response 200 (application/json)
 
-    + Attributes (Page)
+    + Body
+
+            {
+                "message": "Page deleted successfully!",
+                "success": true,
+                "data": null
+            }
 
 + Response 404 (application/json)
 
     + Body
 
             {
-                "message": "Group not found",
+                "message": "Page not found",
                 "success": false,
                 "data": null
-            }
-            {
-                "error": "Template not found"
             }
 
 # Group Import 
