@@ -35,7 +35,7 @@ $(document).ready(function(){
             var average = 0
             campaignTable = $("#campaignTable").DataTable();
             $.each(campaigns, function(i, campaign){
-                var campaign_date = moment(campaign.created_date).format('MMMM Do YYYY h:mm')
+                var campaign_date = moment(campaign.created_date).format('MMMM Do YYYY h:mm:ss a')
                 var label = labels[campaign.status] || "label-default";
                 // Add it to the table
                 campaignTable.row.add([
