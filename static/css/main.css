@@ -323,3 +323,6 @@
     font-family: 'Courier New',Monospace !important;
     font-size: small !important;
 }
+#resultsMap {
+    margin-top:-30px;
+}

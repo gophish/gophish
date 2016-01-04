@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"html/template"
 	"log"
+	"net"
 	"net/http"
 	"os"
 
@@ -99,6 +100,16 @@ func PhishTracker(w http.ResponseWriter, r *http.Request) {
 	c.AddEvent(models.Event{Email: rs.Email, Message: models.EVENT_OPENED})
 	err = rs.UpdateStatus(models.EVENT_OPENED)
 	if err != nil {
+		Logger.Println(err)
+	}
+	// Update the GeoIP information
+	ip, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err == nil {
+		err = rs.UpdateGeo(ip)
+		if err != nil {
+			Logger.Println(err)
+		}
+	} else {
 		Logger.Println(err)
 	}
 	w.Write([]byte(""))

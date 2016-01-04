@@ -4,23 +4,60 @@ import (
 	"crypto/rand"
 	"fmt"
 	"io"
+	"log"
+	"net"
 
 	"github.com/jinzhu/gorm"
+	"github.com/oschwald/maxminddb-golang"
 )
 
+type mmCity struct {
+	GeoPoint mmGeoPoint `maxminddb:"location"`
+}
+
+type mmGeoPoint struct {
+	Latitude  float64 `maxminddb:"latitude"`
+	Longitude float64 `maxminddb:"longitude"`
+}
+
 type Result struct {
-	Id         int64  `json:"-"`
-	CampaignId int64  `json:"-"`
-	UserId     int64  `json:"-"`
-	RId        string `json:"id"`
-	Email      string `json:"email"`
-	FirstName  string `json:"first_name"`
-	LastName   string `json:"last_name"`
-	Status     string `json:"status" sql:"not null"`
+	Id         int64   `json:"-"`
+	CampaignId int64   `json:"-"`
+	UserId     int64   `json:"-"`
+	RId        string  `json:"id"`
+	Email      string  `json:"email"`
+	FirstName  string  `json:"first_name"`
+	LastName   string  `json:"last_name"`
+	Status     string  `json:"status" sql:"not null"`
+	IP         string  `json:"ip"`
+	Latitude   float64 `json:"latitude"`
+	Longitude  float64 `json:"longitude"`
 }
 
 func (r *Result) UpdateStatus(s string) error {
 	return db.Table("results").Where("id=?", r.Id).Update("status", s).Error
+}
+
+func (r *Result) UpdateGeo(addr string) error {
+	// Open a connection to the maxmind db
+	mmdb, err := maxminddb.Open("static/db/geolite2-city.mmdb")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer mmdb.Close()
+	ip := net.ParseIP(addr)
+	var city mmCity
+	// Get the record
+	err = mmdb.Lookup(ip, &city)
+	if err != nil {
+		return err
+	}
+	// Update the database with the record information
+	return db.Table("results").Where("id=?", r.Id).Updates(map[string]interface{}{
+		"ip":        addr,
+		"latitude":  city.GeoPoint.Latitude,
+		"longitude": city.GeoPoint.Longitude,
+	}).Error
 }
 
 func (r *Result) GenerateId() {

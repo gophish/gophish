@@ -183,25 +183,70 @@ $(document).ready(function(){
             });
             $("#loading").hide()
             $("#campaignResults").show()
+            map = new Datamap({
+                element: document.getElementById("resultsMap"),
+                responsive: true,
+                fills: {
+                    defaultFill: "#ffffff",
+		    point: "#34495e"
+                },
+                geographyConfig: {
+                    highlightFillColor : "#1abc9c",
+	            borderColor:"#34495e"
+                },
+		bubblesConfig: {
+		    borderColor: "#34495e"
+		}
+            });
+	    bubbles = []
+	    $.each(campaign.results, function(i, result){
+	    	// Check that it wasn't an internal IP
+		if (result.latitude == 0 && result.longitude == 0) { return true; }
+		newIP = true
+		$.each(bubbles, function(i, bubble){
+			if (bubble.ip == result.ip){
+				bubbles[i].radius += 1
+				newIP = false
+				return false
+			}
+		})
+	    	if (newIP){
+			console.log("Adding bubble at: ")
+		        console.log({
+				latitude : result.latitude,
+				longitude: result.longitude,
+				name : result.ip,
+				fillKey: "point"
+			})
+			bubbles.push({
+				latitude : result.latitude,
+				longitude: result.longitude,
+				name : result.ip,
+				fillKey: "point",
+				radius: 2
+			})
+		}
+	    })
+	    map.bubbles(bubbles)
         }
         // Load up the map data (only once!)
-        // Slated for 0.2 release - coming soon! :)
-        // $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-        //     if ($(e.target).attr('href') == "#plugins"){
-        //         if (!map){
-        //             map = new Datamap({
-        //                 element: document.getElementById("resultsMap"),
-        //                 responsive: true,
-        //                 fills: {
-        //                     defaultFill: "#34495e"
-        //                 },
-        //                 geographyConfig: {
-        //                     highlightFillColor : "#1abc9c"
-        //                 }
-        //             });
-        //         }
-        //     }
-        // })
+        $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+            if ($(e.target).attr('href') == "#overview"){
+                if (!map){
+                    map = new Datamap({
+                        element: document.getElementById("resultsMap"),
+                        responsive: true,
+                        fills: {
+                            defaultFill: "#ffffff"
+                        },
+                        geographyConfig: {
+                            highlightFillColor : "#1abc9c",
+			    borderColor:"#34495e"
+                        }
+                    });
+                }
+            }
+        })
     })
     .error(function(){
 	$("#loading").hide()
