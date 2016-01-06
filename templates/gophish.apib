@@ -27,109 +27,19 @@ If no API key is provided, you'll receive the following response when attempting
 ```
 :::
 
-# Data Structures
-
-## Target
-+ id: 1 (required, number) - Unique identifier
-+ first_name: John - First name of Target
-+ last_name: Doe - Last name of Target
-+ email: john.doe@example.com - Email address of Target
-+ position: System Administrator - Company position of the Target
-
-## TargetList (array[Target])
-
-## Group
-+ id: 1 (required, number) - Unique identifier
-+ name: Example Group (required) - Name of the Group
-+ modified_date: `2015-01-01T01:02:03.000000Z` (string) - Date the Group was last modified
-+ targets: Attributes (TargetList) (required) - The targets in the group
-
-## GroupList (array[Group])
-
-## Attachment
-+ id: 1 (required, number) - Unique identifier
-+ name: Example Attachment (required) - Filename of Attachment
-+ content: Base64 encoded attachment content
-+ type: `text/plain` - MIME type of the Attachment
-
-## AttachmentList (array[Attachment])
-
-## Template
-+ id: 1 (required, number) - Unique identifier
-+ name: Example Template (required) - Name of template
-+ subject: Example email template subject - Subject of email sent to users
-+ text: `This is a test message!` - Raw text of email sent to users
-+ html: `<html><head></head><body>This is a test message!</body></html>` - HTML of email sent to users
-+ attachments: Attributes (AttachmentList) - The attachments sent with the email template
-+ modified_date: `2015-01-01T01:02:03.000000Z` (string) - Date the Template was last modified
-
-## TemplateList (array[Template])
-
-## Page
-+ id: 1 (required, number) - Unique identifier
-+ name: Example Page (required, string) - Name of Page
-+ html: `<html><head></head><body>This is a test message!</body></html>` (required, string) - HTML of the landing page users hit when clicking links in the email template
-+ modified_date: `2015-01-01T01:02:03.000000Z` (string) - Date the Page was last modified
-
-## PageList (array[Page])
-
-## Result
-+ id: 1 (required, number) - Unique identifier
-
-## ResultList (array[Result])
-
-## Event
-+ id: 1 (required, number) - Unique identifier
-
-## EventList (array[Event])
-
-## SMTP
-+ id: 1 (required, number) - Unique identifier
-
-## Campaign
-+ id: 1 (required, number) - Unique identifier
-+ name: Example Campaign (required) - Title of Campaign
-+ created_date: `2015-01-01T01:02:03.000000Z` (string) - Date the Campaign was created
-+ completed_date: `2015-01-01T01:02:03.000000Z` (string) - Date the Campaign was completed
-+ template: Attributes (Template) (required) - Email template to use in Campaign
-+ page: Attributes (Page) (required) - Landing page for users who click the phishing link
-+ status: Emails Sent (required, string) - The current status of the campaign
-+ results: Attributes (ResultList)
-+ timeline: Attributes (EventList)
-+ smtp: Attributes (SMTP)
-+ url: http://foo.bar (required, string) - The URL used in the Template sent to users
-
-## CampaignList (array[Campaign])
-
-## ImportSiteRequest
-+ url: http://foo.bar (required, string) - The URL to be retrieved 
-
-## ImportSiteResponse
-+ html: `<html><head></head><body>This is a test message!</body></html>` (required, string) - HTML of the requested URL.
-
-## ImportEmailResponse
-+ text: Foo bar (string) - The email text part
-+ html: "\u003cdiv\u003eFoo bar\u003c/div\u003e" - The email HTML part
-+ subject: Foo Bar - The email subject
-
-## BadRequestResponse
-+ message: "Error message" - The detailed error message
-+ success: false - The success status of the request
-+ data: Any associated data
-
 # Group Campaigns
 Campaigns object contain the resources needed for gophish to launch and track a simulated phishing campaign.
 
 Campaigns have the following attributes:
 
-+ ```id``` : 1 (required, number) - Unique identifier
-+ ```name``` : Example Campaign (required) - Title of Campaign
++ ```id``` : 1 (number, required) - Unique identifier
++ ```name``` : Example Campaign (string, required) - Title of Campaign
 + ```created_date``` : 2015-1-1T01:02:03.000000Z (datetime) - Date the Campaign was created
 + ```completed_date``` : 2015-1-1T01:02:03.000000Z (datetime) - Date the Campaign was completed
 + ```template``` : [Template](#templates)
 + ```page``` : [Page](#pages) (required) - Landing page for users who click the phishing link
 + ```status``` : Emails Sent (required, string) - The current status of the campaign
-+ ```results``` : Attributes (ResultsList)
++ ```results``` : Attributes (ResultList)
 + ```timeline``` : Attributes (EventList)
 + ```smtp``` : Attributes (SMTP)
 + ```url``` : http://foo.bar (required, string) - The URL used in the Template sent to us
@@ -165,7 +75,7 @@ Get a campaign by its ID.
 
 + Parameters
 
-    + id: `1` (required, number) - The Campaign ID
+    + id: `1` (number, required) - The Campaign ID
 
 + Response 200 (application/json)
 
@@ -186,7 +96,7 @@ Delete a campaign by its ID.
 
 + Parameters
 
-    + id: `1` (required, number) - The Campaign ID
+    + id: `1` (number, required) - The Campaign ID
 
 + Response 200 (application/json)
 
@@ -211,11 +121,11 @@ Delete a campaign by its ID.
 # Group Templates
 Templates define what email content is sent to targets during campaigns. It contains the subject of the email as well as the HTML and text content of the email.
 
-+ ```id```: 1 (required, number) - Unique identifier
-+ ```name```: Example Template (required) - Name of template
-+ ```subject```: Example email template subject - Subject of email sent to users
-+ ```text```: `This is a test message!` - Raw text of email sent to users
-+ ```html```: `<html><head></head><body>This is a test message!</body></html>` - HTML of email sent to users
++ ```id```: 1 (number, required) - Unique identifier
++ ```name```: Example Template (string, required) - Name of template
++ ```subject```: Example email template subject (string) - Subject of email sent to users
++ ```text```: `This is a test message!` (string) - Raw text of email sent to users
++ ```html```: `<html><head></head><body>This is a test message!</body></html>` (string) - HTML of email sent to users
 + ```attachments```: Attributes (AttachmentList) - The attachments sent with the email template
 + ```modified_date```: `2015-01-01T01:02:03.000000Z` (string) - Date the Template was last modified
 
@@ -240,7 +150,7 @@ Get a list of templates.
 Create a new template 
 
 ::: note
-## Importing an Existing Email
+**Importing an Existing Email**
 
 What better way to make pixel-perfect emails than by importing an existing email you already have sitting in your inbox?
 
@@ -265,7 +175,7 @@ Get a template by its ID.
 
 + Parameters
 
-    + id: `1` (required, number) - The Template ID
+    + id: `1` (number, required) - The Template ID
 
 + Response 200 (application/json)
 
@@ -286,7 +196,7 @@ Delete a template by its ID.
 
 + Parameters
 
-    + id: `1` (required, number) - The Template ID
+    + id: `1` (number, required) - The Template ID
 
 + Response 200 (application/json)
 
@@ -325,7 +235,7 @@ Each target contains the following attributes:
 + ```position```: System Administrator - Company position of the Target
 
 ::: note
-## Have A Lot of Users to Import?
+**Have A Lot of Users to Import?**
 
 If you have all your targets in a CSV file, you can bulk import them into a group using the [Import CSV](#import-group) endpoint.
 
@@ -361,7 +271,7 @@ Get a group by its ID.
 
 + Parameters
 
-    + id: `1` (required, number) - The Group ID
+    + id: `1` (number, required) - The Group ID
 
 + Response 200 (application/json)
 
@@ -382,7 +292,7 @@ Delete a Group by its ID.
 
 + Parameters
 
-    + id: `1` (required, number) - The Template ID
+    + id: `1` (number, required) - The Template ID
 
 + Response 200 (application/json)
 
@@ -413,7 +323,7 @@ Pages are the HTML page that a user lands on after clicking on a phishing link.
 + ```modified_date```: `2015-01-01T01:02:03.000000Z` (string) - Date the Page was last modified
 
 ::: note
-## Importing a Site
+**Importing a Site**
 
 Let gophish do the hard work for you in importing a site. By using the [Import Site](#import-site) endpoint, you can simply give gophish a URL and have the site imported for you.
 :::
@@ -446,7 +356,7 @@ Get a page by its ID.
 
 + Parameters
 
-    + id: `1` (required, number) - The Page ID
+    + id: `1` (number, required) - The Page ID
 
 + Response 200 (application/json)
 
@@ -488,7 +398,7 @@ Delete a page by its ID.
 
 + Parameters
 
-    + id: `1` (required, number) - The Page ID
+    + id: `1` (number, required) - The Page ID
 
 + Response 200 (application/json)
 
@@ -601,3 +511,96 @@ To keep styles, images, and Javascript setup and working, gophish adds a ```base
 + Response 400 (application/json)
 
     + Attributes (BadRequestResponse)
+
+# Data Structures
+
+## Target (object)
++ id: 1 (number, required) - Unique identifier
++ first_name: John - First name of Target
++ last_name: Doe - Last name of Target
++ email: john.doe@example.com - Email address of Target
++ position: System Administrator - Company position of the Target
+
+## TargetList (array[Target])
+
+## Group (object)
++ id: 1 (number, required) - Unique identifier
++ name: Example Group (required) - Name of the Group
++ modified_date: `2015-01-01T01:02:03.000000Z` (string) - Date the Group was last modified
++ targets: (TargetList, required) - The targets in the group
+
+## GroupList (array[Group])
+
+## Attachment (object)
++ id: 1 (number, required) - Unique identifier
++ name: Example Attachment (string, required) - Filename of Attachment
++ content: (string, required) - Base64 encoded attachment content
++ type: `text/plain` (string, required) - MIME type of the Attachment
+
+## AttachmentList (array[Attachment])
+
+## Template (object)
++ id: 1 (number, required) - Unique identifier
++ name: Example Template (string, required) - Name of template
++ subject: Example email template subject (string) - Subject of email sent to users
++ text: `This is a test message!` (string) - Raw text of email sent to users
++ html: `<html><head></head><body>This is a test message!</body></html>`(string) - HTML of email sent to users
++ attachments: (AttachmentList) - The attachments sent with the email template
++ modified_date: `2015-01-01T01:02:03.000000Z` (string) - Date the Template was last modified
+
+## TemplateList (array[Template])
+
+## Page (object)
++ id: 1 (number, required) - Unique identifier
++ name: Example Page (string, required) - Name of Page
++ html: `<html><head></head><body>This is a test message!</body></html>` (required, string) - HTML of the landing page users hit when clicking links in the email template
++ modified_date: `2015-01-01T01:02:03.000000Z` (string) - Date the Page was last modified
+
+## PageList (array[Page])
+
+## Result (object)
++ id: 1 (number, required) - Unique identifier
++ something: Something (string, required) - Something
+
+## ResultList (array[Result])
+
+## Event (object)
++ id: 1 (number, required) - Unique identifier
++ Else: Else (string) - Else
+
+## EventList (array[Event])
+
+## SMTP (object)
++ id: 1 (number, required) - Unique identifier
+
+## Campaign (object)
++ id: 1 (number, required) - Unique identifier
++ name: Example Campaign (required) - Title of Campaign
++ created_date: `2015-01-01T01:02:03.000000Z` (string) - Date the Campaign was created
++ completed_date: `2015-01-01T01:02:03.000000Z` (string) - Date the Campaign was completed
++ template: (Template) (required) - Email template to use in Campaign
++ page: Attributes (Page) (required) - Landing page for users who click the phishing link
++ status: Emails Sent (required, string) - The current status of the campaign
++ results: (ResultList) - The results of the campaign
++ timeline: (EventList) - The event timeline
++ smtp: (SMTP) - The SMTP settings used in the campaign
++ url: http://foo.bar (string, required) - The URL used in the Template sent to users
+
+## CampaignList (array[Campaign])
+
+## ImportSiteRequest (object)
++ url: http://foo.bar (string, required) - The URL to be retrieved 
+
+## ImportSiteResponse (object)
++ html: `<html><head></head><body>This is a test message!</body></html>` (string, required) - HTML of the requested URL.
+
+## ImportEmailResponse (object)
++ text: Foo bar (string) - The email text part
++ html: "\u003cdiv\u003eFoo bar\u003c/div\u003e" (string) - The email HTML part
++ subject: Foo Bar (string) - The email subject
+
+## BadRequestResponse (object)
++ message: "Error message" (string) - The detailed error message
++ success: false (boolean) - The success status of the request
++ data: Any associated data
+
