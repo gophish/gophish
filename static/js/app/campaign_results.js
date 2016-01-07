@@ -188,14 +188,14 @@ $(document).ready(function(){
                 responsive: true,
                 fills: {
                     defaultFill: "#ffffff",
-		    point: "#34495e"
+		    point: "#283F50"
                 },
                 geographyConfig: {
                     highlightFillColor : "#1abc9c",
-	            borderColor:"#34495e"
+	            borderColor:"#283F50"
                 },
 		bubblesConfig: {
-		    borderColor: "#34495e"
+		    borderColor: "#283F50"
 		}
             });
 	    bubbles = []
@@ -241,7 +241,7 @@ $(document).ready(function(){
                         },
                         geographyConfig: {
                             highlightFillColor : "#1abc9c",
-			    borderColor:"#34495e"
+			    borderColor:"#283F50"
                         }
                     });
                 }

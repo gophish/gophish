@@ -4178,8 +4178,8 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
   z-index: 2;
   color: #fff;
   cursor: default;
-  background-color: #34495e;
-  border-color: #34495e;
+  background-color: #283F50;
+  border-color: #283F50;
 }
 .pagination > .disabled > span,
 .pagination > .disabled > span:hover,

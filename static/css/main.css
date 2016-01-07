@@ -204,7 +204,7 @@
     display:inline-block;
     min-width:5em;
     padding:.5em;
-    background:#34495e;
+    background:#283F50;
     color:#ffffff;
     font-weight:700;
     text-align:center;
@@ -220,7 +220,7 @@
     display:inline-block;
     min-width:5em;
     padding:.5em;
-    background:#34495e;
+    background:#283F50;
     color:#ffffff;
     font-weight:700;
     text-align:center;
@@ -240,7 +240,7 @@
     height:0;
     margin-left:-15px;
     border:15px solid transparent;
-    border-top-color:#34495e
+    border-top-color:#283F50
 }
 
 .chartist-chart {
