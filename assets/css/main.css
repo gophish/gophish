@@ -84,7 +84,6 @@ p, h3, h4, h2, h1 {
   width: 100%;
   height: 100%; /* For at least Firefox */
   min-height: 600px;
-  background-color:#283F50;
 }
 
 .cover-container {
