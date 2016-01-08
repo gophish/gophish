@@ -1,109 +1,290 @@
-<!doctype html>
-<html>
-  <head>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>Gophish by jordan-wright</title>
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-    <script src="javascripts/respond.js"></script>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Gophish - An Open-Source Phishing Framework">
+    <meta name="author" content="Jordan Wright">
+    <link rel="shortcut icon" href="assets/ico/favicon.ico">
+
+    <title>Gophish</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400,300,600,700' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+    <link href="assets/css/font-awesome.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="assets/css/main.css" rel="stylesheet">
+    <script src="assets/js/holder.js"></script>
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
-      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
-    <!--[if lt IE 8]>
-    <link rel="stylesheet" href="stylesheets/ie.css">
-    <![endif]-->
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+</head>
 
-  </head>
-  <body>
-      <div id="header">
-        <nav>
-          <li class="fork"><a href="https://github.com/jordan-wright/gophish">View On GitHub</a></li>
-          <li class="downloads"><a href="https://github.com/jordan-wright/gophish/zipball/master">ZIP</a></li>
-          <li class="downloads"><a href="https://github.com/jordan-wright/gophish/tarball/master">TAR</a></li>
-          <li class="title">DOWNLOADS</li>
-        </nav>
-      </div><!-- end header -->
+<body>
 
-    <div class="wrapper">
-
-      <section>
-        <div id="title">
-          <h1>Gophish</h1>
-          <p>Open-Source Phishing Toolkit</p>
-          <hr>
-          <span class="credits left">Project maintained by <a href="https://github.com/jordan-wright">jordan-wright</a></span>
-          <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></span>
+    <div class="jumbo-wrapper">
+        <!-- Fixed navbar -->
+        <div class="navbar navbar-dark navbar-fixed-top" role="navigation">
+            <div class="container">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="#">
+                        <img src="assets/images/logo_inv_small.png">&nbsp;gophish
+                    </a>
+                </div>
+                <div class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav">
+                        <li><a href="/documentation"><b>Documentation</b></a>
+                        </li>
+                        <li><a href="https://github.com/jordan-wright/gophish"><b>Code</b></a>
+                        </li>
+                    </ul>
+                    <ul class="nav navbar-nav navbar-right">
+                        <li><a href="#" class="btn btn btn-primary download-button" disabled><i class="fa fa-download"></i> Download</a>
+                        </li>
+                    </ul>
+                </div>
+                <!--/.nav-collapse -->
+            </div>
+        </div>
+        <div style="margin-top:100px;">
+            <div class="col-lg-6">
+                <img src="assets/images/logo_white.png">
+                <h1>gophish</h1>
+                <h2>Open-Source Phishing Framework</h2>
+                <p class="lead">
+                    <a onclick="$('body').animate({ scrollTop: $('#about').offset().top - 60 }, 1000);" class="btn btn-lg btn-default">Learn more <i class="fa fa-chevron-circle-down "></i></a>&nbsp;
+                    <a href="/download" class="btn btn-lg btn-primary" disabled><i class="fa fa-download"></i> Download (coming soon!)</a>
+                </p>
+            </div>
+            <div class="col-md-5">
+		<div id="carousel" class="carousel slide" data-ride="carousel">
+			<ol class="carousel-indicators">
+				<li data-target="#carousel" data-slide-to="0" class="active"></li>
+				<li data-target="#carousel" data-slide-to="1"></li>
+				<li data-target="#carousel" data-slide-to="2"></li>
+			</ol>
+			<div class="carousel-inner" role="listbox">
+				<div class="item active">
+                			<img class="img-responsive" src="screenshots/dashboard.png" alt="Generic placeholder image">
+				</div>
+				<div class="item">
+                			<img class="img-responsive" src="screenshots/campaign_results.png" alt="Generic placeholder image">
+				</div>
+				<div class="item">
+                			<img class="img-responsive" src="screenshots/templateModal.png" alt="Generic placeholder image">
+				</div>
+			</div>
+		</div>
+            </div>
+	    <div id="particles-js" style="background-image: url(&quot;&quot;); background-color: #283F50;background-size: cover;background-position: 50% 50%; background-repeat: no-repeat;"></div>
         </div>
 
-        <p><img src="https://raw.github.com/jordan-wright/gophish/master/static/images/logo.png" alt="gophish logo"></p>
-
-<h1>
-<a name="gophish" class="anchor" href="#gophish"><span class="octicon octicon-link"></span></a>gophish</h1>
-
-<p>Open-Source Phishing Toolkit</p>
-
-<p>Gophish is an open-source phishing toolkits designed for businesses and penetration testers. It provides the ability to quickly and easily setup and execute phishing engagements.</p>
-
-<h3>
-<a name="current-status" class="anchor" href="#current-status"><span class="octicon octicon-link"></span></a>Current Status</h3>
-
-<p>Development of gophish is currently ongoing. It is not anywhere close to being functional yet, but should get there soon.</p>
-
-<p>Until then, you can keep up-to-date with development news and articles on <a href="http://jordan-wright.github.io/blog/categories/gophish/">my blog</a>.</p>
-
-<h3>
-<a name="install" class="anchor" href="#install"><span class="octicon octicon-link"></span></a>Install</h3>
-
-<p>Installation of gophish is dead-simple - download and extract the zip, and run the binary. Gophish has binary releases for all platforms.</p>
-
-<h3>
-<a name="setup" class="anchor" href="#setup"><span class="octicon octicon-link"></span></a>Setup</h3>
-
-<p>After running the gophish binary, open an Internet browser to http://localhost:3333 and follow the setup instructions.</p>
-
-<h3>
-<a name="license" class="anchor" href="#license"><span class="octicon octicon-link"></span></a>License</h3>
-
-<p>gophish - Open-Source Phishing Framework</p>
-
-<p>The MIT License (MIT)</p>
-
-<p>Copyright (c) 2013 Jordan Wright</p>
-
-<p>Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:</p>
-
-<p>The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.</p>
-
-<p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.</p>
-      </section>
+    </div>
 
     </div>
-    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
-              <script type="text/javascript">
-            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-          </script>
-          <script type="text/javascript">
-            try {
-              var pageTracker = _gat._getTracker("UA-47018345-1");
-            pageTracker._trackPageview();
-            } catch(err) {}
-          </script>
+    <div class="container marketing-panel" id="about">
+        <!-- Three columns of text below the carousel -->
+        <div class="row">
+            <div class="col-lg-4">
+                <span class="fa-stack fa-4x">
+                    <i style="color:#283F50" class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-envelope fa-stack-1x fa-inverse"></i>
+                </span>
+                <h2>1. Set Template &amp; Targets</h2>
+                <!-- <p>Gophish makes it easy to create or import <b>pixel-perfect</b> phishing templates.</p> -->
+            </div>
+            <!-- /.col-lg-4 -->
+            <div class="col-lg-4">
+                <span class="fa-stack fa-4x">
+                    <i style="color:#283F50" class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-rocket fa-stack-1x fa-inverse"></i>
+                </span>
+                <h2>2. Launch Campaign</h2>
+                <!-- <p>Launch a campaign and phishing emails are sent in the background.</p> -->
+            </div>
+            <!-- /.col-lg-4 -->
+            <div class="col-lg-4">
+                <span class="fa-stack fa-4x">
+                    <i style="color:#283F50" class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-bar-chart-o fa-stack-1x fa-inverse"></i>
+                </span>
+                <h2>3. Track Results</h2>
+               <!--  <p>Gophish provides analytics to gain key insight into where further phishing training is needed.</p> -->
 
-  </body>
+            </div>
+            <!-- /.col-lg-4 -->
+        </div>
+        <!-- /.row -->
+
+
+        <!-- START THE FEATURETTES -->
+
+        <hr class="featurette-divider">
+
+        <div class="row featurette">
+            <div class="col-md-7">
+                <h2 class="featurette-heading">
+                    <span class="fa-stack fa-2x">
+                        <i style="color:#283F50" class="fa fa-circle fa-stack-2x"></i>
+                        <i class="fa fa-wrench fa-stack-1x fa-inverse"></i>
+                    </span>
+                    <br/>One-Click Installation
+                </h2>
+		<br/>
+                <ul style="text-align:left">
+                    <li>
+                        <h4>
+                            <span class="text-muted"><b>Download and Extract the ZIP - </b>
+                            </span>Gophish binaries are provided for most platforms.
+                        </h4>
+                    </li>
+                    <li>
+                        <h4>
+                            <span class="text-muted"><b>Run the Binary</b>
+                            </span>Gophish is a standalone, portable binary with static assets.
+                        </h4>
+                    </li>
+                    <li>
+                        <h4>
+                            <span class="text-muted"><b>That's It. -</b>
+			    </span>Gophish is now available on http://localhost:3333. Login with <span class="label label-primary">admin:gophish</span>
+                        </h4>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-md-5">
+                <img class="img-responsive" style="margin-top:20px;" src="screenshots/releases.png" alt="Generic placeholder image">
+            </div>
+        </div>
+
+        <hr class="featurette-divider">
+
+        <div class="row featurette">
+            <div class="col-md-5">
+                <img class="featurette-image img-responsive" src="screenshots/templateModal.png" alt="Generic placeholder image">
+            </div>
+            <div class="col-md-7">
+                <h2 class="featurette-heading">
+                    <span class="fa-stack fa-2x">
+                        <i style="color:#283F50" class="fa fa-circle fa-stack-2x"></i>
+                        <i class="fa fa-desktop fa-stack-1x fa-inverse"></i>
+                    </span>
+                    <br />Point-and-Click Phishing
+                </h2>
+		<br/>
+                <ul style="text-align:left">
+                    <li>
+                        <h4>
+                            <span class="text-muted"><b>Beautiful Web UI</b>
+                            </span>A full web UI makes creating simulated phishing campaigns easy.
+                        </h4>
+                    </li>
+                    <li>
+                        <h4>
+                            <span class="text-muted"><b>Pixel-Perfect Phishing</b>
+                            </span>Create pixel-perfect emails and landing pages from scratch or by importing them directly into gophish.
+                        </h4>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <hr class="featurette-divider">
+
+        <div class="row featurette">
+            <div class="col-md-7">
+                <h2 class="featurette-heading">
+                    <span class="fa-stack fa-2x">
+                        <i style="color:#283F50" class="fa fa-circle fa-stack-2x"></i>
+                        <i class="fa fa-code fa-stack-1x fa-inverse"></i>
+                    </span>
+                    <br />Automate Phishing Campaigns
+                </h2>
+		<br/>
+                <ul style="text-align:left">
+                    <li>
+                        <h4>
+                            <span class="text-muted"><b>RESTful API - </b>
+                            </span>Gophish is built from the ground-up with a fully-featured JSON API.
+                        </h4>
+                    </li>
+                    <li>
+                        <h4>
+                            <span class="text-muted"><b>Automated Training</b>
+                            </span>Use your favorite language or API utility to manage every aspect of your phishing training automatically.
+                        </h4>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-md-5">
+                <img class="featurette-image img-responsive" src="screenshots/postman.png" alt="Generic placeholder image">
+            </div>
+        </div>
+
+        <hr class="featurette-divider">
+
+        <div class="row featurette">
+            <div class="col-md-5">
+                <img class="featurette-image img-responsive" src="screenshots/open_source.png" alt="Generic placeholder image">
+            </div>
+            <div class="col-md-7">
+                <h2 class="featurette-heading">
+                    <i class="fa fa-github fa-4x" style="color:#283F50"></i>
+                    <br />Open-Source
+                </h2>
+		<br/>
+                <ul style="text-align:left">
+                    <li>
+                        <h4>
+                            <span class="text-muted"><b>Hosted on Github. </b>
+                            </span>View and download the code <a href="/code">on Github</a>.
+                        </h4>
+                    </li>
+                    <li>
+                        <h4>
+                            <span class="text-muted"><b>Hacking Welcome!</b>
+                            </span>Got a feature idea? Want to contribute? Pull-requests are <i>always</i> welcome.
+                        </h4>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- /END THE FEATURETTES -->
+    </div>
+    <div class="footer">
+        <div class="container">
+            <p class="pull-right"><a href="#">Back to top</a>
+            </p>
+            <p style="text-align:left;">&copy; Jordan (<a href="https://github.com/jordan-wright">jordan-wright</a>) 2015-2016</p>
+	    <p style="text-align:left;">Icons made by <a href="http://www.freepik.com" title="Freepik">Freepik</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a> is licensed under <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0">CC BY 3.0</a></p>
+        </div>
+    </div>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <script src="assets/js/bootstrap.min.js"></script>
+    <script src="assets/js/particles.min.js"></script>
+    <script>
+	/* particlesJS.load(@dom-id, @path-json, @callback (optional)); */
+	particlesJS.load('particles-js', 'assets/js/particlesjs-config.json', function() {});
+    </script>
+</body>
+
 </html>
