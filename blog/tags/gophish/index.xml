@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Gophish on Gophish - Blog</title>
+    <link>http://getgophish.com/blog/tags/gophish/</link>
+    <description>Recent content in Gophish on Gophish - Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 07 Jan 2016 22:05:58 -0600</lastBuildDate>
+    <atom:link href="http://getgophish.com/blog/tags/gophish/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Introducing gophish</title>
+      <link>http://getgophish.com/blog/post/hello-world/</link>
+      <pubDate>Thu, 07 Jan 2016 22:05:58 -0600</pubDate>
+      
+      <guid>http://getgophish.com/blog/post/hello-world/</guid>
+      <description>
+
+&lt;h3 id=&#34;hello-world:aa77bbfd89a7b0ff10def205b9c08d51&#34;&gt;Hello World!&lt;/h3&gt;
+
+&lt;p&gt;This is the official blog for &lt;a href=&#34;http://getgophish.com&#34;&gt;gophish&lt;/a&gt;, a phishing toolkit designed to make rock-solid security awareness training accessible to &lt;em&gt;everyone&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;Check back here often to find information on gophish updates, how to leverage gophish in interesting ways to test the security of your organization, as well as general tips and tricks on securing your email infrastructure.&lt;/p&gt;
+
+&lt;p&gt;The gophish team is excited to release the alpha version of gophish soon! In the meantime:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;package main
+
+import &amp;quot;fmt&amp;quot;
+
+func main() {
+	fmt.Println(&amp;quot;Hello world!&amp;quot;)
+}
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
