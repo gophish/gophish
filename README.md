@@ -7,27 +7,30 @@ gophish
 
 Open-Source Phishing Toolkit
 
-Gophish is an open-source phishing toolkit designed for businesses and penetration testers. It provides the ability to quickly and easily setup and execute phishing engagements.
+Gophish is an open-source phishing toolkit designed for businesses and penetration testers. It provides the ability to quickly and easily setup and execute phishing engagements and security awareness training.
 
 ###Current Status
-**Update 10/22/2015**
+**Update 01/07/2016**
+
+The website is live! This website will contain all the documentation and updates for gophish activity.
 
 Gophish is almost ready for its alpha release! Just fixing some last minute bugs to make it as clean of a release as possible, then I'll tidy up docs and ship it out.
-
-Until that happens, you can keep up-to-date with development news and articles on [my blog](http://jordan-wright.github.io/blog/categories/gophish/).
 
 ###Install
 
 Installation of gophish is dead-simple - once the binaries are released (coming soon!), just download and extract the zip, and run the binary. Gophish will have binary releases for all platforms.
 
+### Building From Source
 **If you are building from source, please note that Gophish requires Go v1.5 or above!**
+
+To build gophish from source, simply run ```go get github.com/gophish/gophish``` followed by ```go build```. You should have a binary called ```gophish``` in the current directory.
 
 ###Setup
 After running the gophish binary, open an Internet browser to http://localhost:3333 and login with the default username (admin) and password (gophish).
 
 ###Documentation
 
-Documentation is a work in progress. Existing documentation can be found in the [wiki](https://github.com/jordan-wright/gophish/wiki). Find something missing? Let us know by filing an issue!
+Documentation is a work in progress. Existing documentation can be found on our [site](http://getgophish.com/documentation). Find something missing? Let us know by filing an issue!
 
 ###Issues
 
