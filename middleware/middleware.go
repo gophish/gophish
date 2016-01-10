@@ -6,8 +6,8 @@ import (
 	"net/http"
 
 	ctx "github.com/gorilla/context"
-	"github.com/jordan-wright/gophish/auth"
-	"github.com/jordan-wright/gophish/models"
+	"github.com/gophish/gophish/auth"
+	"github.com/gophish/gophish/models"
 )
 
 // GetContext wraps each request in a function which fills in the context for a given request.

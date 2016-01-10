@@ -14,10 +14,10 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	"github.com/jordan-wright/email"
-	"github.com/jordan-wright/gophish/auth"
-	"github.com/jordan-wright/gophish/models"
-	"github.com/jordan-wright/gophish/util"
-	"github.com/jordan-wright/gophish/worker"
+	"github.com/gophish/gophish/auth"
+	"github.com/gophish/gophish/models"
+	"github.com/gophish/gophish/util"
+	"github.com/gophish/gophish/worker"
 )
 
 // Worker is the worker that processes phishing events and updates campaigns.
