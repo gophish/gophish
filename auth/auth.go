@@ -9,11 +9,11 @@ import (
 
 	"crypto/rand"
 
-	"code.google.com/p/go.crypto/bcrypt"
 	ctx "github.com/gorilla/context"
 	"github.com/gorilla/securecookie"
 	"github.com/gorilla/sessions"
 	"github.com/jordan-wright/gophish/models"
+	"golang.org/x/crypto/bcrypt"
 )
 
 //init registers the necessary models to be saved in the session later
