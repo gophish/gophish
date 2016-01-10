@@ -2,19 +2,19 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Gophish - Blog</title>
-    <link>http://getgophish.com/blog/</link>
+    <link>https://getgophish.com/blog/</link>
     <description>Recent content on Gophish - Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Thu, 07 Jan 2016 22:05:58 -0600</lastBuildDate>
-    <atom:link href="http://getgophish.com/blog/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://getgophish.com/blog/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Introducing gophish</title>
-      <link>http://getgophish.com/blog/post/hello-world/</link>
+      <link>https://getgophish.com/blog/post/hello-world/</link>
       <pubDate>Thu, 07 Jan 2016 22:05:58 -0600</pubDate>
       
-      <guid>http://getgophish.com/blog/post/hello-world/</guid>
+      <guid>https://getgophish.com/blog/post/hello-world/</guid>
       <description>
 
 &lt;h3 id=&#34;hello-world:aa77bbfd89a7b0ff10def205b9c08d51&#34;&gt;Hello World!&lt;/h3&gt;
