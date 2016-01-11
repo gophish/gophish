@@ -3,7 +3,7 @@ package models
 import (
 	"testing"
 
-	"github.com/jordan-wright/gophish/config"
+	"github.com/gophish/gophish/config"
 	"gopkg.in/check.v1"
 )
 

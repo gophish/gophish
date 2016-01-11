@@ -10,8 +10,8 @@ import (
 	"testing"
 
 	"github.com/gorilla/handlers"
-	"github.com/jordan-wright/gophish/config"
-	"github.com/jordan-wright/gophish/models"
+	"github.com/gophish/gophish/config"
+	"github.com/gophish/gophish/models"
 	"github.com/stretchr/testify/suite"
 )
 

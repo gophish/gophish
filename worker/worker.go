@@ -10,7 +10,7 @@ import (
 	"text/template"
 
 	"github.com/jordan-wright/email"
-	"github.com/jordan-wright/gophish/models"
+	"github.com/gophish/gophish/models"
 )
 
 // Logger is the logger for the worker
