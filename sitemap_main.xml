@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  
+  <url>
+    <loc>https://getgophish.com/documentation/</loc>
+    <lastmod>2016-01-11T22:05:58-06:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://getgophish.com/documentation/api/</loc>
+    <lastmod>2016-01-11T22:05:58-06:00</lastmod>
+    <priority>0</priority>
+  </url>
+
+  <url>
+    <loc>https://getgophish.com/contact/</loc>
+    <lastmod>2016-01-11T22:05:58-06:00</lastmod>
+    <priority>0</priority>
+  </url>
+
+  <url>
+    <loc>https://getgophish.com/contact/</loc>
+    <lastmod>2016-01-11T22:05:58-06:00</lastmod>
+    <priority>0</priority>
+  </url>
+
+  <url>
+    <loc>https://getgophish.com/blog/post/hello-world/</loc>
+    <lastmod>2016-01-07T22:05:58-06:00</lastmod>
+  </url>
+  
+</urlset>
