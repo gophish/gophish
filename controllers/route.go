@@ -11,9 +11,9 @@ import (
 	ctx "github.com/gorilla/context"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
-	"github.com/jordan-wright/gophish/auth"
-	mid "github.com/jordan-wright/gophish/middleware"
-	"github.com/jordan-wright/gophish/models"
+	"github.com/gophish/gophish/auth"
+	mid "github.com/gophish/gophish/middleware"
+	"github.com/gophish/gophish/models"
 	"github.com/justinas/nosurf"
 )
 

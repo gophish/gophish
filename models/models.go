@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"github.com/jinzhu/gorm"
-	"github.com/jordan-wright/gophish/config"
+	"github.com/gophish/gophish/config"
 	_ "github.com/mattn/go-sqlite3" // Blank import needed to import sqlite3
 )
 

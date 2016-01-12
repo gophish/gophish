@@ -9,7 +9,7 @@ import (
 	"net/mail"
 
 	"github.com/jordan-wright/email"
-	"github.com/jordan-wright/gophish/models"
+	"github.com/gophish/gophish/models"
 )
 
 // ParseMail takes in an HTTP Request and returns an Email object

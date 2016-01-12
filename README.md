@@ -1,4 +1,4 @@
-![gophish logo](https://raw.github.com/jordan-wright/gophish/master/static/images/gophish_purple.png)
+![gophish logo](https://raw.github.com/gophish/gophish/master/static/images/gophish_purple.png)
 
 gophish
 =======
@@ -34,7 +34,7 @@ Documentation is a work in progress. Existing documentation can be found on our 
 
 ###Issues
 
-Find a bug? Want more features? Find something missing in the documentation? Let us know! Please don't hesitate to [file an issue](https://github.com/jordan-wright/gophish/issues/new) and we'll get right on it.
+Find a bug? Want more features? Find something missing in the documentation? Let us know! Please don't hesitate to [file an issue](https://github.com/gophish/gophish/issues/new) and we'll get right on it.
 
 ###License
 ```
