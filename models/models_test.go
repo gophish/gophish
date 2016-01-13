@@ -28,6 +28,12 @@ func (s *ModelsSuite) TestGetUser(c *check.C) {
 	c.Assert(u.Username, check.Equals, "admin")
 }
 
+func (s *ModelsSuite) TestGeneratedAPIKey(c *check.C) {
+	u, err := GetUser(1)
+	c.Assert(err, check.Equals, nil)
+	c.Assert(u.ApiKey, check.Not(check.Equals), "12345678901234567890123456789012")
+}
+
 func (s *ModelsSuite) TestPostGroup(c *check.C) {
 	g := Group{Name: "Test Group"}
 	g.Targets = []Target{Target{Email: "test@example.com"}}
