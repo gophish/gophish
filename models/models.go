@@ -1,12 +1,15 @@
 package models
 
 import (
+	"crypto/rand"
 	"errors"
+	"fmt"
+	"io"
 	"log"
 	"os"
 
-	"github.com/jinzhu/gorm"
 	"github.com/gophish/gophish/config"
+	"github.com/jinzhu/gorm"
 	_ "github.com/mattn/go-sqlite3" // Blank import needed to import sqlite3
 )
 
@@ -45,6 +48,13 @@ type Response struct {
 	Data    interface{} `json:"data"`
 }
 
+// Copy of auth.GenerateSecureKey to prevent cyclic import with auth library
+func generateSecureKey() string {
+	k := make([]byte, 32)
+	io.ReadFull(rand.Reader, k)
+	return fmt.Sprintf("%x", k)
+}
+
 // Setup initializes the Conn object
 // It also populates the Gophish Config object
 func Setup() error {
@@ -77,8 +87,8 @@ func Setup() error {
 		initUser := User{
 			Username: "admin",
 			Hash:     "$2a$10$IYkPp0.QsM81lYYPrQx6W.U6oQGw7wMpozrKhKAHUBVL4mkm/EvAS", //gophish
-			ApiKey:   "12345678901234567890123456789012",
 		}
+		initUser.ApiKey = generateSecureKey()
 		err = db.Save(&initUser).Error
 		if err != nil {
 			Logger.Println(err)

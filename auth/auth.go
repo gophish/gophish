@@ -57,7 +57,6 @@ func Register(r *http.Request) (bool, error) {
 		fmt.Println(err)
 		return false, err
 	}
-	fmt.Println("Made it here!")
 	u = models.User{}
 	//If we've made it here, we should have a valid username given
 	//Let's create the password hash
