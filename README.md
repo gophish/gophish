@@ -3,18 +3,18 @@
 gophish
 =======
 
-[![Build Status](https://travis-ci.org/jordan-wright/gophish.svg?branch=master)](https://travis-ci.org/jordan-wright/gophish)
+[![Build Status](https://travis-ci.org/gophish/gophish.svg?branch=master)](https://travis-ci.org/gophish/gophish)
 
 Open-Source Phishing Toolkit
 
 Gophish is an open-source phishing toolkit designed for businesses and penetration testers. It provides the ability to quickly and easily setup and execute phishing engagements and security awareness training.
 
 ###Current Status
-**Update 01/07/2016**
+**Update 01/12/2016**
 
-The website is live! This website will contain all the documentation and updates for gophish activity.
+The [website is live](https://getgophish.com)! This website will contain all the documentation and updates for gophish activity.
 
-Gophish is almost ready for its alpha release! Just fixing some last minute bugs to make it as clean of a release as possible, then I'll tidy up docs and ship it out.
+Gophish is almost ready for its alpha release, and release 0.1 has been tagged! Just cleaning up some documentation and building the binary releases now. Expect a release announcement next week.
 
 ###Install
 
@@ -30,7 +30,7 @@ After running the gophish binary, open an Internet browser to http://localhost:3
 
 ###Documentation
 
-Documentation is a work in progress. Existing documentation can be found on our [site](http://getgophish.com/documentation). Find something missing? Let us know by filing an issue!
+Documentation can be found on our [site](http://getgophish.com/documentation). Find something missing? Let us know by filing an issue!
 
 ###Issues
 
