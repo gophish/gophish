@@ -21,6 +21,12 @@ function save(idx){
     template.html = CKEDITOR.instances["html_editor"].getData();
     // Fix the URL Scheme added by CKEditor (until we can remove it from the plugin)
     template.html = template.html.replace(/https?:\/\/{{\.URL}}/gi, "{{.URL}}")
+    // If the "Add Tracker Image" checkbox is checked, add the tracker
+    if ($("#use_tracker_checkbox").prop("checked") && 
+	template.html.indexOf("{{.Tracker}}") == -1 &&
+	template.html.indexOf("{{.TrackingUrl}}") == -1){
+    	template.html = template.html.replace("</body>", "{{.Tracker}}</body>")
+    }
     template.text = $("#text_editor").val()
     // Add the attachments
     $.each($("#attachmentsTable").DataTable().rows().data(), function(i, target){
