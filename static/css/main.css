@@ -326,3 +326,18 @@
 #resultsMap {
     margin-top:-30px;
 }
+/* Handle the navbar collapse at < 1300px */
+@media (min-width: 768px) and (max-width: 1300px) {
+    .navbar-collapse.collapse {
+        display: none !important;
+    }
+    .navbar-collapse.collapse.in {
+        display: block !important;
+    }
+    .navbar-header .collapse, .navbar-toggle {
+        display:block !important;
+    }
+    .navbar-header {
+        float:none !important;
+    }
+}
