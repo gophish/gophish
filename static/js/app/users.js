@@ -153,7 +153,6 @@ function load(){
 
 $(document).ready(function(){
     load()
-    $("#fileUpload").hover(function(){$("#fileUpload").tooltip('toggle')})
     // Setup the event listeners
     // Handle manual additions
     $("#targetForm").submit(function(){
