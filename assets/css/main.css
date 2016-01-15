@@ -191,3 +191,7 @@ hr {
 	margin-top:60px;
 	margin-bottom:60px;
 }
+/* Navbar icon color */
+.icon-bar {
+  background-color: #ffffff;
+}
