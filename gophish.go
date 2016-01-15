@@ -30,11 +30,12 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"sync"
 
-	"github.com/gorilla/handlers"
 	"github.com/gophish/gophish/config"
 	"github.com/gophish/gophish/controllers"
 	"github.com/gophish/gophish/models"
+	"github.com/gorilla/handlers"
 )
 
 var Logger = log.New(os.Stdout, " ", log.Ldate|log.Ltime|log.Lshortfile)
@@ -45,9 +46,19 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
+	wg := &sync.WaitGroup{}
+	wg.Add(1)
 	// Start the web servers
-	Logger.Printf("Admin server started at http://%s\n", config.Conf.AdminURL)
-	go http.ListenAndServe(config.Conf.AdminURL, handlers.CombinedLoggingHandler(os.Stdout, controllers.CreateAdminRouter()))
-	Logger.Printf("Phishing server started at http://%s\n", config.Conf.PhishURL)
-	http.ListenAndServe(config.Conf.PhishURL, handlers.CombinedLoggingHandler(os.Stdout, controllers.CreatePhishingRouter()))
+	go func() {
+		defer wg.Done()
+		Logger.Printf("Starting admin server at http://%s\n", config.Conf.AdminURL)
+		Logger.Fatal(http.ListenAndServe(config.Conf.AdminURL, handlers.CombinedLoggingHandler(os.Stdout, controllers.CreateAdminRouter())))
+	}()
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		Logger.Printf("Starting phishing server at http://%s\n", config.Conf.PhishURL)
+		Logger.Fatal(http.ListenAndServe(config.Conf.PhishURL, handlers.CombinedLoggingHandler(os.Stdout, controllers.CreatePhishingRouter())))
+	}()
+	wg.Wait()
 }
