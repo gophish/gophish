@@ -362,6 +362,7 @@ table.dataTable thead .sorting:after, table.dataTable thead .sorting_asc:after, 
 }
 table.dataTable thead .sorting:after{
   content: "\f0dc" !important;
+  color: initial;
 }
 table.dataTable thead .sorting_asc:after {
   content: "\f0de" !important;
