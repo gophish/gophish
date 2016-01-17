@@ -14,8 +14,7 @@ function deleteCampaign(idx) {
         api.campaignId.delete(campaigns[idx].id)
             .success(function(data) {
                 successFlash(data.message)
-		load()
-		//location.reload()
+		location.reload()
             })
     }
 }

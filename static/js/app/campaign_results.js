@@ -47,7 +47,7 @@ function deleteCampaign() {
     if (confirm("Are you sure you want to delete: " + campaign.name + "?")) {
         api.campaignId.delete(campaign.id)
             .success(function(msg) {
-                document.location.href = '/campaigns'
+                location.href = '/campaigns'
             })
             .error(function(e) {
                 $("#modal\\.flashes").empty().append("<div style=\"text-align:center\" class=\"alert alert-danger\">\
