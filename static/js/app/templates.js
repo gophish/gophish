@@ -178,7 +178,11 @@ function load(){
         $("#loading").hide()
         if (templates.length > 0){
             $("#templateTable").show()
-            templateTable = $("#templateTable").DataTable();
+            templateTable = $("#templateTable").DataTable({
+                columnDefs: [
+                    { orderable: false, targets: "no-sort" }
+                ]
+            });
             templateTable.clear()
             $.each(templates, function(i, template){
                 templateTable.row.add([

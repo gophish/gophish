@@ -33,7 +33,11 @@ $(document).ready(function(){
                 showLabel: false
             }
             var average = 0
-            campaignTable = $("#campaignTable").DataTable();
+            campaignTable = $("#campaignTable").DataTable({
+                columnDefs: [
+                    { orderable: false, targets: "no-sort" }
+                ]
+            });
             $.each(campaigns, function(i, campaign){
                 var campaign_date = moment(campaign.created_date).format('MMMM Do YYYY h:mm:ss a')
                 var label = labels[campaign.status] || "label-default";

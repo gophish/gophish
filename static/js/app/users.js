@@ -53,8 +53,9 @@ function dismiss(){
 
 function edit(idx){
     targets = $("#targetsTable").dataTable({
+        destroy: true,// Destroy any other instantiated table - http://datatables.net/manual/tech-notes/3#destroy
         columnDefs: [
-            { orderable: false, targets: -1 }
+            { orderable: false, targets: "no-sort" }
         ]
     })
     $("#modalSubmit").unbind('click').click(function(){save(idx)})
@@ -123,7 +124,11 @@ function load(){
             groups = gs
             $("#emptyMessage").hide()
             $("#groupTable").show()
-            groupTable = $("#groupTable").DataTable();
+            groupTable = $("#groupTable").DataTable({
+                columnDefs: [
+                    { orderable: false, targets: "no-sort" }
+                ]
+            });
             groupTable.clear();
             $.each(groups, function(i, group){
                 var targets = ""

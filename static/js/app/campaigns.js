@@ -95,7 +95,11 @@ $(document).ready(function(){
         $("#loading").hide()
         if (campaigns.length > 0){
             $("#campaignTable").show()
-            campaignTable = $("#campaignTable").DataTable();
+            campaignTable = $("#campaignTable").DataTable({
+                columnDefs: [
+                    { orderable: false, targets: "no-sort" }
+                ]
+            });
             $.each(campaigns, function(i, campaign){
                 label = labels[campaign.status] || "label-default";
                 campaignTable.row.add([
@@ -131,7 +135,11 @@ $(document).ready(function(){
         return false;
     })
     // Create the group typeahead objects
-    groupTable = $("#groupTable").DataTable()
+    groupTable = $("#groupTable").DataTable({
+        columnDefs: [
+            { orderable: false, targets: "no-sort" }
+        ]
+    })
     group_bh = new Bloodhound({
         datumTokenizer: function(g) { return Bloodhound.tokenizers.whitespace(g.name) },
         queryTokenizer: Bloodhound.tokenizers.whitespace,

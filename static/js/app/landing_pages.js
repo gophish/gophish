@@ -92,7 +92,11 @@ function load(){
         $("#loading").hide()
         if (pages.length > 0){
             $("#pagesTable").show()
-            pagesTable = $("#pagesTable").DataTable();
+            pagesTable = $("#pagesTable").DataTable({
+                columnDefs: [
+                    { orderable: false, targets: "no-sort" }
+                ]
+            });
             pagesTable.clear()
             $.each(pages, function(i, page){
                 pagesTable.row.add([
