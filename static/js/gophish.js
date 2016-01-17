@@ -49,7 +49,7 @@ var api = {
         },
         // delete() - Deletes a campaign at DELETE /campaigns/:id
         delete: function(id) {
-            return query("/campaigns/" + id, "DELETE", data)
+            return query("/campaigns/" + id, "DELETE", {})
         }
     },
     // groups contains the endpoints for /groups
