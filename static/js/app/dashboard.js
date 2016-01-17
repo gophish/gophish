@@ -14,6 +14,8 @@ function deleteCampaign(idx) {
         api.campaignId.delete(campaigns[idx].id)
             .success(function(data) {
                 successFlash(data.message)
+		load()
+		//location.reload()
             })
     }
 }
@@ -58,10 +60,10 @@ $(document).ready(function() {
                             campaign.name,
                             campaign_date,
                             "<span class=\"label " + label + "\">" + campaign.status + "</span>",
-                            "<div class='pull-right'><a class='btn btn-primary' href='/campaigns/" + campaign.id + "'>\
+                            "<div class='pull-right'><a class='btn btn-primary' href='/campaigns/" + campaign.id + "' data-toggle='tooltip' data-placement='right' title='View Results'>\
                     <i class='fa fa-bar-chart'></i>\
                     </a>\
-                    <button class='btn btn-danger' onclick='deleteCampaign(" + i + ")'>\
+                    <button class='btn btn-danger' onclick='deleteCampaign(" + i + ")' data-toggle='tooltip' data-placement='right' title='Delete Campaign'>\
                     <i class='fa fa-trash-o'></i>\
                     </button></div>"
                         ]).draw()
