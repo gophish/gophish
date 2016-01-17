@@ -25,6 +25,7 @@ function save(idx){
             successFlash("Group updated successfully!")
             load()
             dismiss()
+            $("#modal").modal('hide')
         })
         .error(function(data){
             modalError(data.responseJSON.message)
@@ -37,6 +38,7 @@ function save(idx){
             successFlash("Group added successfully!")
             load()
             dismiss()
+            $("#modal").modal('hide')
         })
         .error(function(data){
             modalError(data.responseJSON.message)
@@ -48,7 +50,6 @@ function dismiss(){
     $("#targetsTable").dataTable().DataTable().clear().draw()
     $("#name").val("")
     $("#modal\\.flashes").empty()
-    $("#modal").modal('hide')
 }
 
 function edit(idx){
@@ -175,5 +176,8 @@ $(document).ready(function(){
         .row( $(this).parents('tr') )
         .remove()
         .draw();
+    })
+    $("#modal").on("hide.bs.modal", function(){
+	    dismiss()
     })
 })
