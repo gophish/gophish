@@ -52,7 +52,11 @@ function dismiss(){
 }
 
 function edit(idx){
-    targets = $("#targetsTable").dataTable()
+    targets = $("#targetsTable").dataTable({
+        columnDefs: [
+            { orderable: false, targets: -1 }
+        ]
+    })
     $("#modalSubmit").unbind('click').click(function(){save(idx)})
     if (idx == -1) {
         group = {}
