@@ -9,6 +9,15 @@ var labels = {
     "Error": "label-danger"
 }
 
+function deleteCampaign(idx) {
+    if (confirm("Delete " + campaigns[idx].name + "?")) {
+        api.campaignId.delete(campaigns[idx].id)
+            .success(function(data) {
+                successFlash(data.message)
+            })
+    }
+}
+
 $(document).ready(function() {
     api.campaigns.get()
         .success(function(cs) {

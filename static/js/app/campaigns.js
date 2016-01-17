@@ -8,6 +8,8 @@ var labels = {
     "Error": "label-danger"
 }
 
+var campaigns = []
+
 // Save attempts to POST to /campaigns/
 function save() {
     groups = []
@@ -16,7 +18,6 @@ function save() {
             name: group[0]
         })
     })
-    console.log(groups)
     var campaign = {
             name: $("#name").val(),
             template: {
@@ -50,6 +51,16 @@ function dismiss() {
     $("#modal\\.flashes").empty()
     $("#modal").modal('hide')
     $("#groupTable").dataTable().DataTable().clear().draw()
+}
+
+function deleteCampaign(idx) {
+    if (confirm("Delete " + campaigns[idx].name + "?")) {
+        api.campaignId.delete(campaigns[idx].id)
+            .success(function(data) {
+                successFlash(data.message)
+                load()
+            })
+    }
 }
 
 function edit(campaign) {
@@ -90,7 +101,8 @@ function edit(campaign) {
 
 $(document).ready(function() {
     api.campaigns.get()
-        .success(function(campaigns) {
+        .success(function(cs) {
+	    campaigns = cs
             $("#loading").hide()
             if (campaigns.length > 0) {
                 $("#campaignTable").show()
@@ -104,7 +116,7 @@ $(document).ready(function() {
                         "<div class='pull-right'><a class='btn btn-primary' href='/campaigns/" + campaign.id + "'>\
                     <i class='fa fa-bar-chart'></i>\
                     </a>\
-                    <button class='btn btn-danger' onclick='alert(\"test\")'>\
+                    <button class='btn btn-danger' onclick='deleteCampaign(" + i + ")'>\
                     <i class='fa fa-trash-o'></i>\
                     </button></div>"
                     ]).draw()
