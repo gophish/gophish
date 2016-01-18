@@ -39,7 +39,7 @@ function save() {
     api.campaigns.post(campaign)
         .success(function(data) {
             successFlash("Campaign successfully launched!")
-            window.location = "/campaigns/" + campaign.id.toString()
+            window.location = "/campaigns/" + data.id.toString()
         })
         .error(function(data) {
             $("#modal\\.flashes").empty().append("<div style=\"text-align:center\" class=\"alert alert-danger\">\
