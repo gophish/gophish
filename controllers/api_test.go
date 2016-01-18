@@ -32,7 +32,7 @@ func (s *ControllersSuite) SetupSuite() {
 	}
 	s.Nil(err)
 	// Setup the admin server for use in testing
-	as.Config.Addr = config.Conf.AdminURL
+	as.Config.Addr = config.Conf.AdminConf.ListenURL
 	as.Start()
 	// Get the API key to use for these tests
 	u, err := models.GetUser(1)

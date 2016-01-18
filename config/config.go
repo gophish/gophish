@@ -13,12 +13,28 @@ type SMTPServer struct {
 	Password string `json:"password"`
 }
 
+// AdminServer represents the Admin server configuration details
+type AdminServer struct {
+	ListenURL string `json:"listen_url"`
+	UseTLS    bool   `json:"use_tls"`
+	CertPath  string `json:"cert_path"`
+	KeyPath   string `json:"key_path"`
+}
+
+// PhishServer represents the Phish server configuration details
+type PhishServer struct {
+	ListenURL string `json:"listen_url"`
+	UseTLS    bool   `json:"use_tls"`
+	CertPath  string `json:"cert_path"`
+	KeyPath   string `json:"key_path"`
+}
+
 // Config represents the configuration information.
 type Config struct {
-	AdminURL string     `json:"admin_url"`
-	PhishURL string     `json:"phish_url"`
-	SMTP     SMTPServer `json:"smtp"`
-	DBPath   string     `json:"dbpath"`
+	AdminConf AdminServer `json:"admin_server"`
+	PhishConf PhishServer `json:"phish_server"`
+	SMTPConf  SMTPServer  `json:"smtp"`
+	DBPath    string      `json:"db_path"`
 }
 
 var Conf Config

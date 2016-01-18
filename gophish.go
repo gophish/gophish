@@ -51,14 +51,26 @@ func main() {
 	// Start the web servers
 	go func() {
 		defer wg.Done()
-		Logger.Printf("Starting admin server at http://%s\n", config.Conf.AdminURL)
-		Logger.Fatal(http.ListenAndServe(config.Conf.AdminURL, handlers.CombinedLoggingHandler(os.Stdout, controllers.CreateAdminRouter())))
+		if config.Conf.AdminConf.UseTLS { // use TLS for Admin web server if available
+			Logger.Printf("Starting admin server at https://%s\n", config.Conf.AdminConf.ListenURL)
+			Logger.Fatal(http.ListenAndServeTLS(config.Conf.AdminConf.ListenURL, config.Conf.AdminConf.CertPath, config.Conf.AdminConf.KeyPath,
+				handlers.CombinedLoggingHandler(os.Stdout, controllers.CreateAdminRouter())))
+		} else {
+			Logger.Printf("Starting admin server at http://%s\n", config.Conf.AdminConf.ListenURL)
+			Logger.Fatal(http.ListenAndServe(config.Conf.AdminConf.ListenURL, handlers.CombinedLoggingHandler(os.Stdout, controllers.CreateAdminRouter())))
+		}
 	}()
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		Logger.Printf("Starting phishing server at http://%s\n", config.Conf.PhishURL)
-		Logger.Fatal(http.ListenAndServe(config.Conf.PhishURL, handlers.CombinedLoggingHandler(os.Stdout, controllers.CreatePhishingRouter())))
+		if config.Conf.PhishConf.UseTLS { // use TLS for Phish web server if available
+			Logger.Printf("Starting phishing server at https://%s\n", config.Conf.PhishConf.ListenURL)
+			Logger.Fatal(http.ListenAndServeTLS(config.Conf.PhishConf.ListenURL, config.Conf.PhishConf.CertPath, config.Conf.PhishConf.KeyPath,
+				handlers.CombinedLoggingHandler(os.Stdout, controllers.CreatePhishingRouter())))
+		} else {
+			Logger.Printf("Starting phishing server at http://%s\n", config.Conf.PhishConf.ListenURL)
+			Logger.Fatal(http.ListenAndServe(config.Conf.PhishConf.ListenURL, handlers.CombinedLoggingHandler(os.Stdout, controllers.CreatePhishingRouter())))
+		}
 	}()
 	wg.Wait()
 }

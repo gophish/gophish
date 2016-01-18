@@ -1,10 +1,20 @@
 {
-	"admin_url" : "127.0.0.1:3333",
-	"phish_url" : "0.0.0.0:80",
+	"admin_server" : {
+		"listen_url" : "127.0.0.1:3333",
+		"use_tls" : false,
+		"cert_path" : "example.crt",
+		"key_path" : "example.key"
+	},
+	"phish_server" : {
+		"listen_url" : "0.0.0.0:80",
+		"use_tls" : false,
+		"cert_path" : "example.crt",
+		"key_path": "example.key"
+	},
 	"smtp" : {
 		"host" : "smtp.example.com:25",
 		"user" : "username",
 		"pass" : "password"
 	},
-	"dbpath" : "gophish.db"
+	"db_path" : "gophish.db"
 }
