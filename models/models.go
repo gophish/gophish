@@ -8,6 +8,8 @@ import (
 	"log"
 	"os"
 
+	"bitbucket.org/liamstask/goose/lib/goose"
+
 	"github.com/gophish/gophish/config"
 	"github.com/jinzhu/gorm"
 	_ "github.com/mattn/go-sqlite3" // Blank import needed to import sqlite3
@@ -62,6 +64,24 @@ func Setup() error {
 	if _, err = os.Stat(config.Conf.DBPath); err != nil || config.Conf.DBPath == ":memory:" {
 		create_db = true
 	}
+	// Setup the goose configuration
+	migrateConf := &goose.DBConf{
+		MigrationsDir: config.Conf.MigrationsPath,
+		Env:           "production",
+		Driver: goose.DBDriver{
+			Name:    "sqlite3",
+			OpenStr: config.Conf.DBPath,
+			Import:  "github.com/mattn/go-sqlite3",
+			Dialect: &goose.Sqlite3Dialect{},
+		},
+	}
+	// Get the latest possible migration
+	latest, err := goose.GetMostRecentDBVersion(migrateConf.MigrationsDir)
+	if err != nil {
+		Logger.Println(err)
+		return err
+	}
+	// Open our database connection
 	db, err = gorm.Open("sqlite3", config.Conf.DBPath)
 	db.LogMode(false)
 	db.SetLogger(Logger)
@@ -69,20 +89,14 @@ func Setup() error {
 		Logger.Println(err)
 		return err
 	}
-	//If the file already exists, delete it and recreate it
+	// Migrate up to the latest version
+	err = goose.RunMigrationsOnDb(migrateConf, migrateConf.MigrationsDir, latest, db.DB())
+	if err != nil {
+		Logger.Println(err)
+		return err
+	}
+	//If the database didn't exist, we need to create the admin user
 	if create_db {
-		Logger.Printf("Database not found... creating db at %s\n", config.Conf.DBPath)
-		db.CreateTable(User{})
-		db.CreateTable(Target{})
-		db.CreateTable(Result{})
-		db.CreateTable(Group{})
-		db.CreateTable(GroupTarget{})
-		db.CreateTable(Template{})
-		db.CreateTable(Attachment{})
-		db.CreateTable(Page{})
-		db.CreateTable(SMTP{})
-		db.CreateTable(Event{})
-		db.CreateTable(Campaign{})
 		//Create the default user
 		initUser := User{
 			Username: "admin",
@@ -92,6 +106,7 @@ func Setup() error {
 		err = db.Save(&initUser).Error
 		if err != nil {
 			Logger.Println(err)
+			return err
 		}
 	}
 	return nil

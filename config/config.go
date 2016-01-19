@@ -31,10 +31,11 @@ type PhishServer struct {
 
 // Config represents the configuration information.
 type Config struct {
-	AdminConf AdminServer `json:"admin_server"`
-	PhishConf PhishServer `json:"phish_server"`
-	SMTPConf  SMTPServer  `json:"smtp"`
-	DBPath    string      `json:"db_path"`
+	AdminConf      AdminServer `json:"admin_server"`
+	PhishConf      PhishServer `json:"phish_server"`
+	SMTPConf       SMTPServer  `json:"smtp"`
+	DBPath         string      `json:"db_path"`
+	MigrationsPath string      `json:"migrations_path"`
 }
 
 var Conf Config

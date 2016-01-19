@@ -16,5 +16,6 @@
 		"user" : "username",
 		"pass" : "password"
 	},
-	"db_path" : "gophish.db"
+	"db_path" : "gophish.db",
+	"migrations_path" : "db/migrations/"
 }
