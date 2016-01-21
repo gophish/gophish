@@ -341,3 +341,33 @@
         float:none !important;
     }
 }
+/* Table Styling */
+.modal-content .dataTable tbody td {
+  font-size: 16px;/* Smaller font on modal tables */
+}
+.dataTables_info{
+  font-size: 15px;
+}
+
+/* Sort Icons */
+table.dataTable thead .sorting:after, table.dataTable thead .sorting_asc:after, table.dataTable thead .sorting_desc:after {
+  font-family: 'FontAwesome' !important;
+  position: relative !important;
+  display: initial !important;
+  top: initial!important;
+  right: initial!important;
+  left: 6px;
+  color: #1abc9c;
+}
+table.dataTable thead .sorting:after{
+  content: "\f0dc" !important;
+  color: initial;
+}
+table.dataTable thead .sorting_asc:after {
+  content: "\f0de" !important;
+  opacity: .8 !important;
+}
+table.dataTable thead .sorting_desc:after {
+  content: "\f0dd" !important;
+  opacity: .8 !important;
+}

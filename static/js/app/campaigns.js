@@ -106,6 +106,12 @@ $(document).ready(function() {
     api.campaigns.get()
         .success(function(cs) {
             campaigns = cs
+            campaignTable = $("#campaignTable").DataTable({
+                columnDefs: [{
+                    orderable: false,
+                    targets: "no-sort"
+                }]
+            });
             $("#loading").hide()
             if (campaigns.length > 0) {
                 $("#campaignTable").show()
@@ -146,7 +152,12 @@ $(document).ready(function() {
             return false;
         })
         // Create the group typeahead objects
-    groupTable = $("#groupTable").DataTable()
+    groupTable = $("#groupTable").DataTable({
+        columnDefs: [{
+            orderable: false,
+            targets: "no-sort"
+        }]
+    })
     group_bh = new Bloodhound({
         datumTokenizer: function(g) {
             return Bloodhound.tokenizers.whitespace(g.name)

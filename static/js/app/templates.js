@@ -80,7 +80,19 @@ function deleteTemplate(idx) {
 }
 
 function attach(files) {
-    attachmentsTable = $("#attachmentsTable").DataTable();
+    attachmentsTable = $("#attachmentsTable").DataTable({
+        destroy: true,
+        "order": [
+            [1, "asc"]
+        ],
+        columnDefs: [{
+            orderable: false,
+            targets: "no-sort"
+        }, {
+            sClass: "datatable_hidden",
+            targets: [3, 4]
+        }]
+    });
     $.each(files, function(i, file) {
         var reader = new FileReader();
         /* Make this a datatable */
@@ -111,17 +123,19 @@ function edit(idx) {
     })
     $("#html_editor").ckeditor()
     $("#attachmentsTable").show()
-    attachmentsTable = null
-    if ($.fn.dataTable.isDataTable('#attachmentsTable')) {
-        attachmentsTable = $('#attachmentsTable').DataTable();
-    } else {
-        attachmentsTable = $("#attachmentsTable").DataTable({
-            "aoColumnDefs": [{
-                "targets": [3, 4],
-                "sClass": "datatable_hidden"
-            }]
-        });
-    }
+    attachmentsTable = $('#attachmentsTable').DataTable({
+        destroy: true,
+        "order": [
+            [1, "asc"]
+        ],
+        columnDefs: [{
+            orderable: false,
+            targets: "no-sort"
+        }, {
+            sClass: "datatable_hidden",
+            targets: [3, 4]
+        }]
+    });
     var template = {
         attachments: []
     }
@@ -185,7 +199,13 @@ function load() {
             $("#loading").hide()
             if (templates.length > 0) {
                 $("#templateTable").show()
-                templateTable = $("#templateTable").DataTable();
+                templateTable = $("#templateTable").DataTable({
+                    destroy: true,
+                    columnDefs: [{
+                        orderable: false,
+                        targets: "no-sort"
+                    }]
+                });
                 templateTable.clear()
                 $.each(templates, function(i, template) {
                     templateTable.row.add([
