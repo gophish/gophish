@@ -56,6 +56,26 @@ function deleteCampaign() {
     }
 }
 
+// Exports campaign results as a CSV file
+function exportAsCSV() {
+    exportHTML = $("#exportButton").html()
+    $("#exportButton").html('<i class="fa fa-spinner fa-spin"></i>')
+    var csvString = Papa.unparse(campaign.results, {})
+    var csvData = new Blob([csvString], {
+        type: 'text/csv;charset=utf-8;'
+    });
+    if (navigator.msSaveBlob) {
+        navigator.msSaveBlob(csvData, 'results.csv');
+    } else {
+        var csvURL = window.URL.createObjectURL(csvData);
+	var dlLink = document.createElement('a');
+    	dlLink.href = csvURL;
+    	dlLink.setAttribute('download', 'results.csv');
+    	dlLink.click();
+    }
+    $("#exportButton").html(exportHTML)
+}
+
 $(document).ready(function() {
     campaign.id = window.location.pathname.split('/').slice(-1)[0]
     api.campaignId.get(campaign.id)
