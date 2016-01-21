@@ -112,27 +112,14 @@ function edit(idx){
     $("#attachmentUpload").unbind('click').click(function(){this.value=null})
     $("#html_editor").ckeditor()
     $("#attachmentsTable").show()
-    attachmentsTable = null
-    if ( $.fn.dataTable.isDataTable('#attachmentsTable') ) {
-        attachmentsTable = $('#attachmentsTable').DataTable({
-            destroy: true,
-            "order": [[ 1, "asc" ]],
-            columnDefs: [
-                { orderable: false, targets: "no-sort" },
-                { sClass: "datatable_hidden", targets:[3,4]}
-            ]
-        });
-    }
-    else {
-        attachmentsTable = $("#attachmentsTable").DataTable({
-            destroy: true,
-            "order": [[ 1, "asc" ]],
-            columnDefs: [
-                { orderable: false, targets: "no-sort" },
-                { sClass: "datatable_hidden", targets:[3,4]}
-            ]
-        });
-    }
+    attachmentsTable = $('#attachmentsTable').DataTable({
+        destroy: true,
+        "order": [[ 1, "asc" ]],
+        columnDefs: [
+            { orderable: false, targets: "no-sort" },
+            { sClass: "datatable_hidden", targets:[3,4]}
+        ]
+    });
     var template = {attachments:[]}
     if (idx != -1) {
         template = templates[idx]
