@@ -19,6 +19,9 @@
   .sans {
       font-family:'Open Sans', sans-serif !important;
   }
+  .label {
+      font-family:'Roboto', sans-serif !important;
+  }
   .form-signin {
       max-width: 400px;
       padding: 15px;
