@@ -117,21 +117,28 @@ func GetCampaign(id int64, uid int64) (Campaign, error) {
 	c := Campaign{}
 	err := db.Where("id = ?", id).Where("user_id = ?", uid).Find(&c).Error
 	if err != nil {
+		Logger.Printf("%s: campaign not found\n", err)
 		return c, err
 	}
 	err = db.Model(&c).Related(&c.Results).Error
 	if err != nil {
+		Logger.Printf("%s: results not found for campaign\n", err)
 		return c, err
 	}
 	err = db.Model(&c).Related(&c.Events).Error
 	if err != nil {
+		Logger.Printf("%s: events not found for campaign\n", err)
 		return c, err
 	}
 	err = db.Table("templates").Where("id=?", c.TemplateId).Find(&c.Template).Error
 	if err != nil {
+		Logger.Printf("%s: template not found for campaign\n", err)
 		return c, err
 	}
 	err = db.Table("pages").Where("id=?", c.PageId).Find(&c.Page).Error
+	if err != nil {
+		Logger.Printf("%s: page not found for campaign\n", err)
+	}
 	return c, err
 }
 
@@ -207,6 +214,7 @@ func PostCampaign(c *Campaign, uid int64) error {
 
 //DeleteCampaign deletes the specified campaign
 func DeleteCampaign(id int64) error {
+	Logger.Printf("Deleting campaign %d\n", id)
 	// Delete all the campaign results
 	err := db.Where("campaign_id=?", id).Delete(&Result{}).Error
 	if err != nil {

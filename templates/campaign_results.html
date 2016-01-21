@@ -30,22 +30,11 @@
             <h1 class="page-header" id="page-title">Results for campaign.name</h1>
         </div>
         <div class="row">
-	<!--
-            <div class="btn-group">
-                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
-                    <i class="fa fa-cogs fa-lg"></i>
-                    <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu">
-                    <li><a href="#">Export</a>
-                    </li>
-                    <li><a href="#">Relaunch</a>
-                    </li>
-                </ul>
-            </div>
-	-->
-            <button type="button" class="btn btn-danger" data-toggle="tooltip" data-placement="right" title="Delete Campaign" onclick="deleteCampaign()">
-                <i class="fa fa-times fa-lg"></i>
+            <button type="button" id="exportButton" class="btn btn-primary" onclick="exportAsCSV()">
+		    <i class="fa fa-file-excel-o"></i> Export CSV
+            </button>
+            <button type="button" class="btn btn-danger" data-toggle="tooltip" onclick="deleteCampaign()">
+                <i class="fa fa-trash-o fa-lg"></i> Delete
             </button>
         </div>
         <br />
@@ -114,5 +103,6 @@
 <script src="/js/d3.min.js"></script>
 <script src="/js/topojson.min.js"></script>
 <script src="/js/datamaps.min.js"></script>
+<script src="/js/papaparse.min.js"></script>
 <script src="/js/app/campaign_results.js"></script>
 {{end}}

@@ -30,11 +30,12 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"sync"
 
-	"github.com/gorilla/handlers"
 	"github.com/gophish/gophish/config"
 	"github.com/gophish/gophish/controllers"
 	"github.com/gophish/gophish/models"
+	"github.com/gorilla/handlers"
 )
 
 var Logger = log.New(os.Stdout, " ", log.Ldate|log.Ltime|log.Lshortfile)
@@ -45,9 +46,31 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
+	wg := &sync.WaitGroup{}
+	wg.Add(1)
 	// Start the web servers
-	Logger.Printf("Admin server started at http://%s\n", config.Conf.AdminURL)
-	go http.ListenAndServe(config.Conf.AdminURL, handlers.CombinedLoggingHandler(os.Stdout, controllers.CreateAdminRouter()))
-	Logger.Printf("Phishing server started at http://%s\n", config.Conf.PhishURL)
-	http.ListenAndServe(config.Conf.PhishURL, handlers.CombinedLoggingHandler(os.Stdout, controllers.CreatePhishingRouter()))
+	go func() {
+		defer wg.Done()
+		if config.Conf.AdminConf.UseTLS { // use TLS for Admin web server if available
+			Logger.Printf("Starting admin server at https://%s\n", config.Conf.AdminConf.ListenURL)
+			Logger.Fatal(http.ListenAndServeTLS(config.Conf.AdminConf.ListenURL, config.Conf.AdminConf.CertPath, config.Conf.AdminConf.KeyPath,
+				handlers.CombinedLoggingHandler(os.Stdout, controllers.CreateAdminRouter())))
+		} else {
+			Logger.Printf("Starting admin server at http://%s\n", config.Conf.AdminConf.ListenURL)
+			Logger.Fatal(http.ListenAndServe(config.Conf.AdminConf.ListenURL, handlers.CombinedLoggingHandler(os.Stdout, controllers.CreateAdminRouter())))
+		}
+	}()
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		if config.Conf.PhishConf.UseTLS { // use TLS for Phish web server if available
+			Logger.Printf("Starting phishing server at https://%s\n", config.Conf.PhishConf.ListenURL)
+			Logger.Fatal(http.ListenAndServeTLS(config.Conf.PhishConf.ListenURL, config.Conf.PhishConf.CertPath, config.Conf.PhishConf.KeyPath,
+				handlers.CombinedLoggingHandler(os.Stdout, controllers.CreatePhishingRouter())))
+		} else {
+			Logger.Printf("Starting phishing server at http://%s\n", config.Conf.PhishConf.ListenURL)
+			Logger.Fatal(http.ListenAndServe(config.Conf.PhishConf.ListenURL, handlers.CombinedLoggingHandler(os.Stdout, controllers.CreatePhishingRouter())))
+		}
+	}()
+	wg.Wait()
 }

@@ -1,18 +1,16 @@
 function errorFlash(message) {
     $("#flashes").empty()
     $("#flashes").append("<div style=\"text-align:center\" class=\"alert alert-danger\">\
-        <i class=\"fa fa-exclamation-circle\"></i> " + message + "</div>"
-    )
+        <i class=\"fa fa-exclamation-circle\"></i> " + message + "</div>")
 }
 
 function successFlash(message) {
     $("#flashes").empty()
     $("#flashes").append("<div style=\"text-align:center\" class=\"alert alert-success\">\
-        <i class=\"fa fa-check-circle\"></i> " + message + "</div>"
-    )
+        <i class=\"fa fa-check-circle\"></i> " + message + "</div>")
 }
 
-function modalError(message){
+function modalError(message) {
     $("#modal\\.flashes").empty().append("<div style=\"text-align:center\" class=\"alert alert-danger\">\
         <i class=\"fa fa-exclamation-circle\"></i> " + message + "</div>")
 }
@@ -23,7 +21,7 @@ function query(endpoint, method, data) {
         async: false,
         method: method,
         data: JSON.stringify(data),
-        dataType:"json",
+        dataType: "json",
         contentType: "application/json"
     })
 }
@@ -33,117 +31,117 @@ Define our API Endpoints
 */
 var api = {
     // campaigns contains the endpoints for /campaigns
-    campaigns : {
+    campaigns: {
         // get() - Queries the API for GET /campaigns
-        get: function(){
+        get: function() {
             return query("/campaigns/", "GET", {})
         },
         // post() - Posts a campaign to POST /campaigns
-        post: function(data){
+        post: function(data) {
             return query("/campaigns/", "POST", data)
         }
     },
     // campaignId contains the endpoints for /campaigns/:id
-    campaignId : {
+    campaignId: {
         // get() - Queries the API for GET /campaigns/:id
-        get: function(id){
+        get: function(id) {
             return query("/campaigns/" + id, "GET", {})
         },
         // delete() - Deletes a campaign at DELETE /campaigns/:id
-        delete: function(id){
-            return query("/campaigns/" + id, "DELETE", data)
+        delete: function(id) {
+            return query("/campaigns/" + id, "DELETE", {})
         }
     },
     // groups contains the endpoints for /groups
-    groups : {
+    groups: {
         // get() - Queries the API for GET /groups
-        get: function(){
+        get: function() {
             return query("/groups/", "GET", {})
         },
         // post() - Posts a campaign to POST /groups
-        post: function(group){
+        post: function(group) {
             return query("/groups/", "POST", group)
         }
     },
     // groupId contains the endpoints for /groups/:id
-    groupId : {
+    groupId: {
         // get() - Queries the API for GET /groups/:id
-        get: function(id){
+        get: function(id) {
             return query("/groups/" + id, "GET", {})
         },
         // put() - Puts a campaign to PUT /groups/:id
-        put: function (group){
+        put: function(group) {
             return query("/groups/" + group.id, "PUT", group)
         },
         // delete() - Deletes a campaign at DELETE /groups/:id
-        delete: function(id){
+        delete: function(id) {
             return query("/groups/" + id, "DELETE", {})
         }
     },
     // templates contains the endpoints for /templates
-    templates : {
+    templates: {
         // get() - Queries the API for GET /templates
-        get: function(){
+        get: function() {
             return query("/templates/", "GET", {})
         },
         // post() - Posts a campaign to POST /templates
-        post: function(template){
+        post: function(template) {
             return query("/templates/", "POST", template)
         }
     },
     // templateId contains the endpoints for /templates/:id
-    templateId : {
+    templateId: {
         // get() - Queries the API for GET /templates/:id
-        get: function(id){
+        get: function(id) {
             return query("/templates/" + id, "GET", {})
         },
         // put() - Puts a campaign to PUT /templates/:id
-        put: function (template){
+        put: function(template) {
             return query("/templates/" + template.id, "PUT", template)
         },
         // delete() - Deletes a campaign at DELETE /templates/:id
-        delete: function(id){
+        delete: function(id) {
             return query("/templates/" + id, "DELETE", {})
         }
     },
     // pages contains the endpoints for /pages
-    pages : {
+    pages: {
         // get() - Queries the API for GET /pages
-        get: function(){
+        get: function() {
             return query("/pages/", "GET", {})
         },
         // post() - Posts a campaign to POST /pages
-        post: function(page){
+        post: function(page) {
             return query("/pages/", "POST", page)
         }
     },
     // templateId contains the endpoints for /templates/:id
-    pageId : {
+    pageId: {
         // get() - Queries the API for GET /templates/:id
-        get: function(id){
+        get: function(id) {
             return query("/pages/" + id, "GET", {})
         },
         // put() - Puts a campaign to PUT /templates/:id
-        put: function (page){
+        put: function(page) {
             return query("/pages/" + page.id, "PUT", page)
         },
         // delete() - Deletes a campaign at DELETE /templates/:id
-        delete: function(id){
+        delete: function(id) {
             return query("/pages/" + id, "DELETE", {})
         }
     },
     // import handles all of the "import" functions in the api
-    import_email : function(raw) {
-	return query("/import/email", "POST", {}) 
+    import_email: function(raw) {
+        return query("/import/email", "POST", {})
     },
-    clone_site : function(req){
-	return query("/import/site", "POST", req)
+    clone_site: function(req) {
+        return query("/import/site", "POST", req)
     }
 }
 
 // Register our moment.js datatables listeners
-$(document).ready(function(){
-	$.fn.dataTable.moment('MMMM Do YYYY, h:mm:ss a');
-        // Setup tooltips
-	$('[data-toggle="tooltip"]').tooltip()
+$(document).ready(function() {
+    $.fn.dataTable.moment('MMMM Do YYYY, h:mm:ss a');
+    // Setup tooltips
+    $('[data-toggle="tooltip"]').tooltip()
 });

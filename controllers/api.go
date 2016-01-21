@@ -10,14 +10,14 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
-	ctx "github.com/gorilla/context"
-	"github.com/gorilla/mux"
-	"github.com/jinzhu/gorm"
-	"github.com/jordan-wright/email"
 	"github.com/gophish/gophish/auth"
 	"github.com/gophish/gophish/models"
 	"github.com/gophish/gophish/util"
 	"github.com/gophish/gophish/worker"
+	ctx "github.com/gorilla/context"
+	"github.com/gorilla/mux"
+	"github.com/jinzhu/gorm"
+	"github.com/jordan-wright/email"
 )
 
 // Worker is the worker that processes phishing events and updates campaigns.
@@ -92,6 +92,7 @@ func API_Campaigns_Id(w http.ResponseWriter, r *http.Request) {
 	id, _ := strconv.ParseInt(vars["id"], 0, 64)
 	c, err := models.GetCampaign(id, ctx.Get(r, "user_id").(int64))
 	if err != nil {
+		Logger.Println(err)
 		JSONResponse(w, models.Response{Success: false, Message: "Campaign not found"}, http.StatusNotFound)
 		return
 	}

@@ -9,9 +9,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/gorilla/handlers"
 	"github.com/gophish/gophish/config"
 	"github.com/gophish/gophish/models"
+	"github.com/gorilla/handlers"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -26,13 +26,14 @@ var as *httptest.Server = httptest.NewUnstartedServer(handlers.CombinedLoggingHa
 
 func (s *ControllersSuite) SetupSuite() {
 	config.Conf.DBPath = ":memory:"
+	config.Conf.MigrationsPath = "../db/migrations/"
 	err := models.Setup()
 	if err != nil {
 		s.T().Fatalf("Failed creating database: %v", err)
 	}
 	s.Nil(err)
 	// Setup the admin server for use in testing
-	as.Config.Addr = config.Conf.AdminURL
+	as.Config.Addr = config.Conf.AdminConf.ListenURL
 	as.Start()
 	// Get the API key to use for these tests
 	u, err := models.GetUser(1)

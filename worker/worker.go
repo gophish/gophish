@@ -9,8 +9,8 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/jordan-wright/email"
 	"github.com/gophish/gophish/models"
+	"github.com/jordan-wright/email"
 )
 
 // Logger is the logger for the worker
@@ -116,6 +116,10 @@ func processCampaign(c *models.Campaign) {
 			}
 		} else {
 			err = t.UpdateStatus(models.EVENT_SENT)
+			if err != nil {
+				Logger.Println(err)
+			}
+			err = c.AddEvent(models.Event{Email: t.Email, Message: models.EVENT_SENT})
 			if err != nil {
 				Logger.Println(err)
 			}

@@ -47,7 +47,7 @@
                     <th>Name</th>
                     <th>Members</th>
                     <th>Modified Date</th>
-                    <th class="col-md-2"></th>
+                    <th class="col-md-2 no-sort"></th>
                 </tr>
             </thead>
             <tbody>
@@ -94,20 +94,20 @@
               </form>
           </div>
           <br />
-          <table id="targetsTable" class="table table-hover table-striped">
+          <table id="targetsTable" class="table table-hover table-striped table-condensed">
               <thead>
                   <tr>
                       <th>First Name</th>
                       <th>Last Name</th>
                       <th>Email</th>
                       <th>Position</th>
-                      <th></th>
+                      <th class="no-sort"></th>
               <tbody>
               </tbody>
           </table>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-default" onclick="dismiss()">Close</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
         <button type="button" class="btn btn-primary" id="modalSubmit">Save changes</button>
       </div>
     </div>
