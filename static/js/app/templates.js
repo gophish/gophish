@@ -182,6 +182,7 @@ function load(){
         if (templates.length > 0){
             $("#templateTable").show()
             templateTable = $("#templateTable").DataTable({
+                destroy: true,
                 columnDefs: [
                     { orderable: false, targets: "no-sort" }
                 ]

@@ -93,6 +93,7 @@ function load(){
         if (pages.length > 0){
             $("#pagesTable").show()
             pagesTable = $("#pagesTable").DataTable({
+                destroy: true,
                 columnDefs: [
                     { orderable: false, targets: "no-sort" }
                 ]

@@ -125,6 +125,7 @@ function load(){
             $("#emptyMessage").hide()
             $("#groupTable").show()
             groupTable = $("#groupTable").DataTable({
+                destroy: true,
                 columnDefs: [
                     { orderable: false, targets: "no-sort" }
                 ]
