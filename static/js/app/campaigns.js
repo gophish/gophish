@@ -11,7 +11,10 @@ var labels = {
 var campaigns = []
 
 // Save attempts to POST to /campaigns/
-function save() {
+function launch() {
+    if (!confirm("This will launch the campaign. Are you sure?")) {
+        return false;
+    }
     groups = []
     $.each($("#groupTable").DataTable().rows().data(), function(i, group) {
         groups.push({
@@ -58,7 +61,7 @@ function deleteCampaign(idx) {
         api.campaignId.delete(campaigns[idx].id)
             .success(function(data) {
                 successFlash(data.message)
-		location.reload()
+                location.reload()
             })
     }
 }
@@ -102,7 +105,7 @@ function edit(campaign) {
 $(document).ready(function() {
     api.campaigns.get()
         .success(function(cs) {
-	    campaigns = cs
+            campaigns = cs
             $("#loading").hide()
             if (campaigns.length > 0) {
                 $("#campaignTable").show()
