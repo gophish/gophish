@@ -2,6 +2,7 @@ package worker
 
 import (
 	"bytes"
+	"errors"
 	"log"
 	"net/mail"
 	"net/smtp"
@@ -129,4 +130,67 @@ func processCampaign(c *models.Campaign) {
 	if err != nil {
 		Logger.Println(err)
 	}
+}
+
+func SendTestEmail(s *models.SendTestEmailRequest) error {
+	e := email.Email{
+		Subject: s.Template.Subject,
+		From:    s.SMTP.FromAddress,
+	}
+	var auth smtp.Auth
+	if s.SMTP.Username != "" && s.SMTP.Password != "" {
+		auth = smtp.PlainAuth("", s.SMTP.Username, s.SMTP.Password, strings.Split(s.SMTP.Host, ":")[0])
+	}
+	f, err := mail.ParseAddress(s.SMTP.FromAddress)
+	if err != nil {
+		Logger.Println(err)
+		return err
+	}
+	ft := f.Name
+	if ft == "" {
+		ft = f.Address
+	}
+	Logger.Println("Creating email using template")
+	// Parse the templates
+	var subjBuff bytes.Buffer
+	var htmlBuff bytes.Buffer
+	var textBuff bytes.Buffer
+	tmpl, err := template.New("html_template").Parse(s.Template.HTML)
+	if err != nil {
+		Logger.Println(err)
+	}
+	err = tmpl.Execute(&htmlBuff, s)
+	if err != nil {
+		Logger.Println(err)
+	}
+	e.HTML = htmlBuff.Bytes()
+	tmpl, err = template.New("text_template").Parse(s.Template.Text)
+	if err != nil {
+		Logger.Println(err)
+	}
+	err = tmpl.Execute(&textBuff, s)
+	if err != nil {
+		Logger.Println(err)
+	}
+	e.Text = textBuff.Bytes()
+	tmpl, err = template.New("text_template").Parse(s.Template.Subject)
+	if err != nil {
+		Logger.Println(err)
+	}
+	err = tmpl.Execute(&subjBuff, s)
+	if err != nil {
+		Logger.Println(err)
+	}
+	e.Subject = string(subjBuff.Bytes())
+	e.To = []string{s.Email}
+	Logger.Printf("Sending Email to %s\n", s.Email)
+	err = e.Send(s.SMTP.Host, auth)
+	if err != nil {
+		Logger.Println(err)
+		// For now, let's split the error and return
+		// the last element (the most descriptive error message)
+		serr := strings.Split(err.Error(), ":")
+		return errors.New(serr[len(serr)-1])
+	}
+	return err
 }

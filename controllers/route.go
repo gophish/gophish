@@ -8,12 +8,12 @@ import (
 	"net/http"
 	"os"
 
-	ctx "github.com/gorilla/context"
-	"github.com/gorilla/mux"
-	"github.com/gorilla/sessions"
 	"github.com/gophish/gophish/auth"
 	mid "github.com/gophish/gophish/middleware"
 	"github.com/gophish/gophish/models"
+	ctx "github.com/gorilla/context"
+	"github.com/gorilla/mux"
+	"github.com/gorilla/sessions"
 	"github.com/justinas/nosurf"
 )
 
@@ -48,6 +48,7 @@ func CreateAdminRouter() http.Handler {
 	api.HandleFunc("/templates/{id:[0-9]+}", Use(API_Templates_Id, mid.RequireAPIKey))
 	api.HandleFunc("/pages/", Use(API_Pages, mid.RequireAPIKey))
 	api.HandleFunc("/pages/{id:[0-9]+}", Use(API_Pages_Id, mid.RequireAPIKey))
+	api.HandleFunc("/util/send_test_email", Use(API_Send_Test_Email, mid.RequireAPIKey))
 	api.HandleFunc("/import/group", API_Import_Group)
 	api.HandleFunc("/import/email", API_Import_Email)
 	api.HandleFunc("/import/site", API_Import_Site)
@@ -67,6 +68,7 @@ func CreateAdminRouter() http.Handler {
 	csrfHandler.ExemptGlob("/api/pages")
 	csrfHandler.ExemptGlob("/api/pages/*")
 	csrfHandler.ExemptGlob("/api/import/*")
+	csrfHandler.ExemptGlob("/api/util/*")
 	csrfHandler.ExemptGlob("/static/*")
 	return Use(csrfHandler.ServeHTTP, mid.GetContext)
 }
