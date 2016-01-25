@@ -34,6 +34,9 @@ type Target struct {
 	Position  string `json:"position"`
 }
 
+// ErrNoEmailSpecified is thrown when no email is specified for the Target
+var ErrEmailNotSpecified = errors.New("No email address specified")
+
 // ErrGroupNameNotSpecified is thrown when a group name is not specified
 var ErrGroupNameNotSpecified = errors.New("Group name not specified")
 

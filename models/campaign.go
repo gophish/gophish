@@ -63,6 +63,30 @@ func (c *Campaign) Validate() error {
 	return nil
 }
 
+// SendTestEmailRequest is the structure of a request
+// to send a test email to test an SMTP connection
+type SendTestEmailRequest struct {
+	Template    Template `json:"template"`
+	Page        Page     `json:"page"`
+	SMTP        SMTP     `json:"smtp"`
+	URL         string   `json:"url"`
+	Tracker     string   `json:"tracker"`
+	TrackingURL string   `json:"tracking_url"`
+	Target
+}
+
+// Validate ensures the SendTestEmailRequest structure
+// is valid.
+func (s *SendTestEmailRequest) Validate() error {
+	switch {
+	case s.Template.Name == "":
+		return ErrTemplateNotSpecified
+	case s.Email == "":
+		return ErrEmailNotSpecified
+	}
+	return nil
+}
+
 // UpdateStatus changes the campaign status appropriately
 func (c *Campaign) UpdateStatus(s string) error {
 	// This could be made simpler, but I think there's a bug in gorm

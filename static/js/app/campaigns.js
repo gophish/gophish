@@ -50,6 +50,43 @@ function launch() {
         })
 }
 
+// Attempts to send a test email by POSTing to /campaigns/
+function sendTestEmail() {
+    var test_email_request = {
+        template: {
+            name: $("#template").val()
+        },
+        first_name: $("input[name=to_first_name]").val(),
+        last_name: $("input[name=to_last_name]").val(),
+        email: $("input[name=to_email]").val(),
+        position: $("input[name=to_position]").val(),
+        url: $("#url").val(),
+        page: {
+            name: $("#page").val()
+        },
+        smtp: {
+            from_address: $("input[name=from]").val(),
+            host: $("input[name=host]").val(),
+            username: $("input[name=username]").val(),
+            password: $("input[name=password]").val(),
+        }
+    }
+    btnHtml = $("#sendTestModalSubmit").html()
+    $("#sendTestModalSubmit").html('<i class="fa fa-spinner fa-spin"></i> Sending')
+        // Send the test email
+    api.send_test_email(test_email_request)
+        .success(function(data) {
+            $("#sendTestEmailModal\\.flashes").empty().append("<div style=\"text-align:center\" class=\"alert alert-success\">\
+            <i class=\"fa fa-check-circle\"></i> Email Sent!</div>")
+            $("#sendTestModalSubmit").html(btnHtml)
+        })
+        .error(function(data) {
+            $("#sendTestEmailModal\\.flashes").empty().append("<div style=\"text-align:center\" class=\"alert alert-danger\">\
+            <i class=\"fa fa-exclamation-circle\"></i> " + data.responseJSON.message + "</div>")
+            $("#sendTestModalSubmit").html(btnHtml)
+        })
+}
+
 function dismiss() {
     $("#modal\\.flashes").empty()
     $("#modal").modal('hide')
@@ -103,6 +140,43 @@ function edit(campaign) {
 }
 
 $(document).ready(function() {
+    // Setup multiple modals
+    // Code based on http://miles-by-motorcycle.com/static/bootstrap-modal/index.html
+    $('.modal').on('hidden.bs.modal', function(event) {
+        $(this).removeClass('fv-modal-stack');
+        $('body').data('fv_open_modals', $('body').data('fv_open_modals') - 1);
+    });
+    $('.modal').on('shown.bs.modal', function(event) {
+        // Keep track of the number of open modals
+        if (typeof($('body').data('fv_open_modals')) == 'undefined') {
+            $('body').data('fv_open_modals', 0);
+        }
+        // if the z-index of this modal has been set, ignore.
+        if ($(this).hasClass('fv-modal-stack')) {
+            return;
+        }
+        $(this).addClass('fv-modal-stack');
+        // Increment the number of open modals
+        $('body').data('fv_open_modals', $('body').data('fv_open_modals') + 1);
+        // Setup the appropriate z-index
+        $(this).css('z-index', 1040 + (10 * $('body').data('fv_open_modals')));
+        $('.modal-backdrop').not('.fv-modal-stack').css('z-index', 1039 + (10 * $('body').data('fv_open_modals')));
+        $('.modal-backdrop').not('fv-modal-stack').addClass('fv-modal-stack');
+    });
+    $.fn.modal.Constructor.prototype.enforceFocus = function() {
+        $(document)
+            .off('focusin.bs.modal') // guard against infinite focus loop
+            .on('focusin.bs.modal', $.proxy(function(e) {
+                if (
+                    this.$element[0] !== e.target && !this.$element.has(e.target).length
+                    // CKEditor compatibility fix start.
+                    && !$(e.target).closest('.cke_dialog, .cke').length
+                    // CKEditor compatibility fix end.
+                ) {
+                    this.$element.trigger('focus');
+                }
+            }, this));
+    };
     api.campaigns.get()
         .success(function(cs) {
             campaigns = cs

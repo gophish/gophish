@@ -421,6 +421,44 @@ func API_Import_Site(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
+// API_Send_Test_Email sends a test email using the template name
+// and Target given.
+func API_Send_Test_Email(w http.ResponseWriter, r *http.Request) {
+	s := &models.SendTestEmailRequest{}
+	if r.Method != "POST" {
+		JSONResponse(w, models.Response{Success: false, Message: "Method not allowed"}, http.StatusBadRequest)
+		return
+	}
+	err := json.NewDecoder(r.Body).Decode(s)
+	if err != nil {
+		JSONResponse(w, models.Response{Success: false, Message: "Error decoding JSON Request"}, http.StatusBadRequest)
+		return
+	}
+	// Validate the given request
+	if err = s.Validate(); err != nil {
+		JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
+		return
+	}
+	// Get the template requested by name
+	s.Template, err = models.GetTemplateByName(s.Template.Name, ctx.Get(r, "user_id").(int64))
+	if err == gorm.RecordNotFound {
+		Logger.Printf("Error - Template %s does not exist", s.Template.Name)
+		JSONResponse(w, models.Response{Success: false, Message: models.ErrTemplateNotFound.Error()}, http.StatusBadRequest)
+	} else if err != nil {
+		Logger.Println(err)
+		JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
+		return
+	}
+	// Send the test email
+	err = worker.SendTestEmail(s)
+	if err != nil {
+		JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
+		return
+	}
+	JSONResponse(w, models.Response{Success: true, Message: "Email Sent"}, http.StatusOK)
+	return
+}
+
 // JSONResponse attempts to set the status code, c, and marshal the given interface, d, into a response that
 // is written to the given ResponseWriter.
 func JSONResponse(w http.ResponseWriter, d interface{}, c int) {
