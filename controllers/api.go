@@ -185,6 +185,7 @@ func API_Groups_Id(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// API_Templates handles the functionality for the /api/templates endpoint
 func API_Templates(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "GET":
@@ -227,6 +228,7 @@ func API_Templates(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// API_Templates_Id handles the functions for the /api/templates/:id endpoint
 func API_Templates_Id(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.ParseInt(vars["id"], 0, 64)
@@ -302,6 +304,8 @@ func API_Pages(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// API_Pages_Id contains functions to handle the GET'ing, DELETE'ing, and PUT'ing
+// of a Page object
 func API_Pages_Id(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.ParseInt(vars["id"], 0, 64)

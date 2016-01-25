@@ -38,6 +38,7 @@ type Config struct {
 	MigrationsPath string      `json:"migrations_path"`
 }
 
+// Conf contains the initialized configuration struct
 var Conf Config
 
 func init() {

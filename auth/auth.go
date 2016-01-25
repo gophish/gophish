@@ -22,10 +22,12 @@ func init() {
 	gob.Register(&models.Flash{})
 }
 
+// Store contains the session information for the request
 var Store = sessions.NewCookieStore(
 	[]byte(securecookie.GenerateRandomKey(64)), //Signing key
 	[]byte(securecookie.GenerateRandomKey(32)))
 
+// ErrInvalidPassword is thrown when a user provides an incorrect password.
 var ErrInvalidPassword = errors.New("Invalid Password")
 
 // Login attempts to login the user given a request.
@@ -71,6 +73,8 @@ func Register(r *http.Request) (bool, error) {
 	return true, nil
 }
 
+// GenerateSecureKey creates a secure key to use
+// as an API key
 func GenerateSecureKey() string {
 	// Inspired from gorilla/securecookie
 	k := make([]byte, 32)

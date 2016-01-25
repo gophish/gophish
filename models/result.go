@@ -20,6 +20,8 @@ type mmGeoPoint struct {
 	Longitude float64 `maxminddb:"longitude"`
 }
 
+// Result contains the fields for a result object,
+// which is a representation of a target in a campaign.
 type Result struct {
 	Id         int64   `json:"-"`
 	CampaignId int64   `json:"-"`
@@ -34,10 +36,13 @@ type Result struct {
 	Longitude  float64 `json:"longitude"`
 }
 
+// UpdateStatus updates the status of the result in the database
 func (r *Result) UpdateStatus(s string) error {
 	return db.Table("results").Where("id=?", r.Id).Update("status", s).Error
 }
 
+// UpdateGeo updates the latitude and longitude of the result in
+// the database given an IP address
 func (r *Result) UpdateGeo(addr string) error {
 	// Open a connection to the maxmind db
 	mmdb, err := maxminddb.Open("static/db/geolite2-city.mmdb")
@@ -60,6 +65,8 @@ func (r *Result) UpdateGeo(addr string) error {
 	}).Error
 }
 
+// GenerateId generates a unique key to represent the result
+// in the database
 func (r *Result) GenerateId() {
 	// Keep trying until we generate a unique key (shouldn't take more than one or two iterations)
 	k := make([]byte, 32)
@@ -73,6 +80,8 @@ func (r *Result) GenerateId() {
 	}
 }
 
+// GetResult returns the Result object from the database
+// given the ResultId
 func GetResult(rid string) (Result, error) {
 	r := Result{}
 	err := db.Where("r_id=?", rid).First(&r).Error

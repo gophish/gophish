@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"net/http"
 
-	ctx "github.com/gorilla/context"
 	"github.com/gophish/gophish/auth"
 	"github.com/gophish/gophish/models"
+	ctx "github.com/gorilla/context"
 )
 
 // GetContext wraps each request in a function which fills in the context for a given request.
@@ -79,6 +79,8 @@ func RequireLogin(handler http.Handler) http.HandlerFunc {
 	}
 }
 
+// JSONError returns an error in JSON format with the given
+// status code and message
 func JSONError(w http.ResponseWriter, c int, m string) {
 	w.WriteHeader(c)
 	w.Header().Set("Content-Type", "application/json")

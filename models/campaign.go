@@ -100,6 +100,8 @@ func (c *Campaign) AddEvent(e Event) error {
 	return db.Debug().Save(&e).Error
 }
 
+// Event contains the fields for an event
+// that occurs during the campaign
 type Event struct {
 	Id         int64     `json:"-"`
 	CampaignId int64     `json:"-"`
