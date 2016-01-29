@@ -374,3 +374,58 @@ table.dataTable thead .sorting_desc:after {
   content: "\f0dd" !important;
   opacity: .8 !important;
 }
+.timeline{
+	text-align:left;
+	background-color:#ffffff;
+}
+.timeline-graph{
+	margin-left:30px;
+}
+.timeline>h6{
+	margin-top:0px;
+	margin-bottom:5px;
+}
+.timeline>.subtitle{
+	color: #999999;
+	font-style: italic;
+	margin-bottom:15px;
+	display:block;
+}
+.timeline-entry{
+	position:relative;
+	padding-bottom:36px;
+}
+.timeline-bar {
+	display:block;
+	content:"";
+	position:absolute;
+	top:5px;
+	bottom:0;
+	width:1px;
+	left:-6px;
+	background:#aaaaaa;
+}
+.timeline-entry:last-child .timeline-bar{
+	display:none;
+}
+.timeline-entry:last-child {
+	padding-bottom:0px;
+}
+.timeline-icon{
+	position:relative;
+	float:left;
+	margin-left:-24px;
+	width:36px;
+	top:-5px;
+	height:36px;
+	text-align:center;
+	border-radius:50%;
+	background-color:#f05b4f;
+}
+.timeline-icon>i{
+	margin-top:8px;
+	color:#ffffff;
+}
+.timeline-message {
+	padding-left:30px;
+}

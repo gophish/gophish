@@ -68,14 +68,45 @@ function exportAsCSV() {
         navigator.msSaveBlob(csvData, 'results.csv');
     } else {
         var csvURL = window.URL.createObjectURL(csvData);
-	var dlLink = document.createElement('a');
-    	dlLink.href = csvURL;
-    	dlLink.setAttribute('download', 'results.csv');
-    	dlLink.click();
+        var dlLink = document.createElement('a');
+        dlLink.href = csvURL;
+        dlLink.setAttribute('download', 'results.csv');
+        dlLink.click();
     }
     $("#exportButton").html(exportHTML)
 }
 
+/*function eventToHtml(e, r) {
+    if !(event.email) {
+
+    }
+}*/
+
+function renderTimeline(data) {
+    record = {
+            "first_name": data[1],
+            "last_name": data[2],
+            "email": data[3],
+            "position": data[4]
+        }
+        //the Email is index 3
+    results = '<div class="timeline well well-lg">' +
+        '<h6>Timeline for ' + record.first_name + ' ' + record.last_name +
+        '</h6><span class="subtitle">Email: ' + record.email + '</span>' +
+        '<div class="timeline-graph">'
+    $.each(campaign.timeline, function(i, event) {
+        if (!event.email || event.email == record.email) {
+            results += '<div class="timeline-entry">' +
+                '    <div class="timeline-bar"></div>' +
+                '    <div class="timeline-icon"><i class="fa fa-envelope"></i></div>' +
+                '    <div class="timeline-message">' + event.message + '</div>'
+	    results += '</div>'
+                //results += eventToHtml(event, record)
+        }
+    })
+    results += '</div></div>'
+    return results
+}
 $(document).ready(function() {
     campaign.id = window.location.pathname.split('/').slice(-1)[0]
     api.campaignId.get(campaign.id)
@@ -123,10 +154,24 @@ $(document).ready(function() {
                         showLabel: false
                     }
                     // Setup the results table
-                resultsTable = $("#resultsTable").DataTable();
+                resultsTable = $("#resultsTable").DataTable({
+                    destroy: true,
+                    destroy: true,
+                    "order": [
+                        [1, "asc"]
+                    ],
+                    columnDefs: [{
+                        orderable: false,
+                        targets: "no-sort"
+                    }, {
+                        className: "details-control",
+                        "targets": [0]
+                    }]
+                });
                 $.each(campaign.results, function(i, result) {
                         label = statuses[result.status].label || "label-default";
                         resultsTable.row.add([
+                            "<i class=\"fa fa-caret-right\"></i>",
                             result.first_name || "",
                             result.last_name || "",
                             result.email || "",
@@ -139,7 +184,22 @@ $(document).ready(function() {
                             email_series_data[result.status]++;
                         }
                     })
-                    // Setup the graphs
+                    // Setup the individual timelines
+                $('#resultsTable tbody').on('click', 'td.details-control', function() {
+                    var tr = $(this).closest('tr');
+                    var row = resultsTable.row(tr);
+
+                    if (row.child.isShown()) {
+                        // This row is already open - close it
+                        row.child.hide();
+                        tr.removeClass('shown');
+                    } else {
+                        // Open this row
+                        row.child(renderTimeline(row.data())).show();
+                        tr.addClass('shown');
+                    }
+                });
+                // Setup the graphs
                 $.each(campaign.timeline, function(i, event) {
                     timeline_data.series[0].data.push({
                         meta: i,
