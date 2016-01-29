@@ -115,6 +115,10 @@ func processCampaign(c *models.Campaign) {
 			if err != nil {
 				Logger.Println(err)
 			}
+			err = c.AddEvent(models.Event{Email: t.Email, Message: models.EVENT_SENDING_ERROR})
+			if err != nil {
+				Logger.Println(err)
+			}
 		} else {
 			err = t.UpdateStatus(models.EVENT_SENT)
 			if err != nil {

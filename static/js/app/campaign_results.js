@@ -32,6 +32,12 @@ var statuses = {
         label: "label-default",
         icon: "fa-times"
     },
+    "Error Sending Email": {
+        slice: "ct-slice-donut-error",
+        legend: "ct-legend-error",
+        label: "label-default",
+        icon: "fa-times"
+    },
     "Unknown": {
         slice: "ct-slice-donut-error",
         legend: "ct-legend-error",

@@ -30,6 +30,7 @@ const (
 	CAMPAIGN_EMAILS_SENT string = "Emails Sent"
 	CAMPAIGN_COMPLETE    string = "Completed"
 	EVENT_SENT           string = "Email Sent"
+	EVENT_SENDING_ERROR  string = "Error Sending Email"
 	EVENT_OPENED         string = "Email Opened"
 	EVENT_CLICKED        string = "Clicked Link"
 	STATUS_SUCCESS       string = "Success"
