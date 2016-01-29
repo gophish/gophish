@@ -73,20 +73,30 @@ function deleteCampaign() {
 }
 
 // Exports campaign results as a CSV file
-function exportAsCSV() {
+function exportAsCSV(scope) {
     exportHTML = $("#exportButton").html()
+    var csvScope = null
+    switch (scope) {
+    	case "results":
+		csvScope = campaign.results
+		break;
+	case "events":
+		csvScope = campaign.timeline
+		break;
+    }
+    if (!csvScope){return}
     $("#exportButton").html('<i class="fa fa-spinner fa-spin"></i>')
-    var csvString = Papa.unparse(campaign.results, {})
+    var csvString = Papa.unparse(csvScope, {})
     var csvData = new Blob([csvString], {
         type: 'text/csv;charset=utf-8;'
     });
     if (navigator.msSaveBlob) {
-        navigator.msSaveBlob(csvData, 'results.csv');
+        navigator.msSaveBlob(csvData, scope + '.csv');
     } else {
         var csvURL = window.URL.createObjectURL(csvData);
         var dlLink = document.createElement('a');
         dlLink.href = csvURL;
-        dlLink.setAttribute('download', 'results.csv');
+        dlLink.setAttribute('download', scope + '.csv');
         dlLink.click();
     }
     $("#exportButton").html(exportHTML)
