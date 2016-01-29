@@ -5,32 +5,42 @@ var statuses = {
     "Email Sent": {
         slice: "ct-slice-donut-sent",
         legend: "ct-legend-sent",
-        label: "label-success"
+        label: "label-success",
+        icon: "fa-envelope"
     },
     "Email Opened": {
         slice: "ct-slice-donut-opened",
         legend: "ct-legend-opened",
-        label: "label-warning"
+        label: "label-warning",
+        icon: "fa-envelope"
     },
     "Clicked Link": {
         slice: "ct-slice-donut-clicked",
         legend: "ct-legend-clicked",
-        label: "label-danger"
+        label: "label-danger",
+        icon: "fa-mouse-pointer"
     },
     "Success": {
         slice: "ct-slice-donut-clicked",
         legend: "ct-legend-clicked",
-        label: "label-danger"
+        label: "label-danger",
+        icon: "fa-exclamation"
     },
     "Error": {
         slice: "ct-slice-donut-error",
         legend: "ct-legend-error",
-        label: "label-default"
+        label: "label-default",
+        icon: "fa-times"
     },
     "Unknown": {
         slice: "ct-slice-donut-error",
         legend: "ct-legend-error",
-        label: "label-default"
+        label: "label-default",
+        icon: "fa-question"
+    },
+    "Campaign Created": {
+        label: "label-success",
+        icon: "fa-rocket"
     }
 }
 
@@ -76,32 +86,28 @@ function exportAsCSV() {
     $("#exportButton").html(exportHTML)
 }
 
-/*function eventToHtml(e, r) {
-    if !(event.email) {
-
-    }
-}*/
-
 function renderTimeline(data) {
     record = {
-            "first_name": data[1],
-            "last_name": data[2],
-            "email": data[3],
-            "position": data[4]
-        }
-        //the Email is index 3
-    results = '<div class="timeline well well-lg">' +
+        "first_name": data[1],
+        "last_name": data[2],
+        "email": data[3],
+        "position": data[4]
+    }
+    results = '<div class="timeline col-sm-12 well well-lg">' +
         '<h6>Timeline for ' + record.first_name + ' ' + record.last_name +
         '</h6><span class="subtitle">Email: ' + record.email + '</span>' +
-        '<div class="timeline-graph">'
+        '<div class="timeline-graph col-sm-6">'
     $.each(campaign.timeline, function(i, event) {
         if (!event.email || event.email == record.email) {
+            // Add the event
             results += '<div class="timeline-entry">' +
-                '    <div class="timeline-bar"></div>' +
-                '    <div class="timeline-icon"><i class="fa fa-envelope"></i></div>' +
-                '    <div class="timeline-message">' + event.message + '</div>'
-	    results += '</div>'
-                //results += eventToHtml(event, record)
+                '    <div class="timeline-bar"></div>'
+            results +=
+                '    <div class="timeline-icon ' + statuses[event.message].label + '">' +
+                '    <i class="fa ' + statuses[event.message].icon + '"></i></div>' +
+                '    <div class="timeline-message">' + event.message +
+                '    <span class="timeline-date">' + moment(event.time).format('MMMM Do YYYY h:mm') + '</span></div>'
+            results += '</div>'
         }
     })
     results += '</div></div>'
@@ -193,8 +199,12 @@ $(document).ready(function() {
                         // This row is already open - close it
                         row.child.hide();
                         tr.removeClass('shown');
+                        $(this).find("i").removeClass("fa-caret-down")
+                        $(this).find("i").addClass("fa-caret-right")
                     } else {
                         // Open this row
+                        $(this).find("i").removeClass("fa-caret-right")
+                        $(this).find("i").addClass("fa-caret-down")
                         row.child(renderTimeline(row.data())).show();
                         tr.addClass('shown');
                     }

@@ -420,12 +420,16 @@ table.dataTable thead .sorting_desc:after {
 	height:36px;
 	text-align:center;
 	border-radius:50%;
-	background-color:#f05b4f;
 }
 .timeline-icon>i{
-	margin-top:8px;
+	margin-top:10px;
 	color:#ffffff;
 }
 .timeline-message {
 	padding-left:30px;
+}
+.timeline-date {
+	float:right;
+	color:#999999;
+	font-style:italic;
 }
