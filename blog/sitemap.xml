@@ -3,8 +3,18 @@
   
   <url>
     <loc>https://getgophish.com/blog/</loc>
-    <lastmod>2016-01-07T22:05:58-06:00</lastmod>
+    <lastmod>2016-02-01T07:00:00-06:00</lastmod>
     <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://getgophish.com/blog/post/database-migrations-in-go/</loc>
+    <lastmod>2016-02-01T07:00:00-06:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://getgophish.com/blog/post/release-0.1.1/</loc>
+    <lastmod>2016-02-01T06:00:00-06:00</lastmod>
   </url>
   
   <url>

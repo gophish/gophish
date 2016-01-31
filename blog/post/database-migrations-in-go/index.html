@@ -3,18 +3,18 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gophish - Blog &middot; Gophish - Blog</title>
+    <title>Handling Database Migrations in Go &middot; Gophish - Blog</title>
 
     <meta name="description" content="">
 
     <meta name="generator" content="Hugo 0.15" />
     <meta name="twitter:card" content="summary">
     
-    <meta name="twitter:title" content="Gophish - Blog &middot; Gophish - Blog">
+    <meta name="twitter:title" content="Handling Database Migrations in Go &middot; Gophish - Blog">
     <meta name="twitter:description" content="">
 
     <meta property="og:type" content="article">
-    <meta property="og:title" content="Gophish - Blog &middot; Gophish - Blog">
+    <meta property="og:title" content="Handling Database Migrations in Go &middot; Gophish - Blog">
     <meta property="og:description" content="">
 
     <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Oxygen:400,700' rel='stylesheet' type='text/css'>
@@ -62,7 +62,6 @@
         <div>
             
             <div class="posts">
-                
                 <h1 class="content-subhead">01 Feb 2016, 07:00</h1>
                 <section class="post">
                     <header class="post-header">
@@ -197,157 +196,9 @@ if err != nil {
 
 
                     </div>
+                    
                 </section>
-                
-                <h1 class="content-subhead">01 Feb 2016, 06:00</h1>
-                <section class="post">
-                    <header class="post-header">
-
-                        <a href="https://getgophish.com/blog/post/release-0.1.1/" class="post-title">Announcing gophish v0.1.1</a>
-
-                        <p class="post-meta">
-                            
-                            
-                        </p>
-                    </header>
-
-                    <div class="post-description">
-                        
-
-<img src="/blog/images/gophish_purple.png" alt="" class="pure-img" >
-
-<p><em>Tl;dr - Download the release <a href="https://github.com/gophish/gophish/releases">here</a></em></p>
-
-<h3 id="the-wait-is-over:1cea0120cd31cba0f7863bc47631176f"><strong>The wait is over!</strong></h3>
-
-<p>The gophish team is excited to announce our first public beta version of gophish - version 0.1.1! This blog post will be a short introduction into what gophish is, as well as some of the insanely awesome features we&rsquo;ve created.</p>
-
-<h3 id="what-is-gophish:1cea0120cd31cba0f7863bc47631176f">What is Gophish?</h3>
-
-<p>Gophish is a phishing framework that makes the simulation of real-world phishing attacks dead-simple. The idea behind gophish is simple – make industry-grade phishing training available to <em>everyone</em>.</p>
-
-<p>&ldquo;Available&rdquo; in this case means two things –</p>
-
-<ul>
-<li><strong>Affordable</strong> – Gophish is currently open-source software that is completely free for anyone to use.</li>
-<li><strong>Accessible</strong> – Gophish is written in the Go programming language. This has the benefit that gophish releases are compiled binaries with no dependencies. In a nutshell, this makes installation as simple as “download and run”!</li>
-</ul>
-
-<h3 id="time-for-features:1cea0120cd31cba0f7863bc47631176f">Time For Features</h3>
-
-<p>Ok, ok, enough with the intro. The idea of a phishing simulation platform isn&rsquo;t new. Let&rsquo;s take a look at some of the features that really set gophish apart and make it awesome.</p>
-
-<h4 id="hosted-on-prem:1cea0120cd31cba0f7863bc47631176f">Hosted On-Prem</h4>
-
-<p>There are many commercial offerings that provide phishing simulation/training. Unfortunately, these are SaaS solutions that require you to hand over your data to someone else.</p>
-
-<p>Gophish is different in that it is meant to be hosted in-house. This keeps you data where it belongs - with you.</p>
-
-<h4 id="download-run:1cea0120cd31cba0f7863bc47631176f">Download -&gt; Run</h4>
-
-<p>For the few existing in-house solutions that exist, setup can be a <em>huge pain</em> (looking at you, Ruby gems). Your time is too valuable to be spent wrestling with dependencies trying to create the perfect setup that somehow magically allows the program to run.</p>
-
-<p>Gophish was written in the Go programming language for this exact reason. To install gophish, all you have to do is download the zip file, extract the contents, and run the binary.</p>
-
-<p>By doing this, you just started two webservers, populated a database, and setup a background worker to handle sending the mails. Now, your time can be spent making campaigns. Easy peasy.</p>
-
-<h4 id="api-s-for-everything:1cea0120cd31cba0f7863bc47631176f">API&rsquo;s for <em>Everything</em>.</h4>
-
-<p>Gophish was built with automation first. This means that you can create scripts and clients that automate all the hard work for you. In addition to this, we keep up-to-date <a href="/documentation/api/">API docs</a> that describe each API endpoint in detail.</p>
-
-<h4 id="rock-solid-documentation:1cea0120cd31cba0f7863bc47631176f">Rock-Solid Documentation</h4>
-
-<p>Speaking of API docs, we take documentation very seriously. We take documentation seriously because we take our user experience seriously. If you can&rsquo;t find what you need to use and troubleshoot gophish, we&rsquo;ve failed. Just take a look at our comprehensive <a href="/documentation/Gophish%20User%20Guide.pdf">user guide</a>, <a href="/documentation/api/">API documentation</a>, and even <a href="http://godoc.org/github.com/gophish/gophish">fully documented code</a>.</p>
-
-<p>If you ever find something missing in our documentation, <a href="/support">we want to know!</a></p>
-
-<h4 id="beautiful-ui:1cea0120cd31cba0f7863bc47631176f">Beautiful UI</h4>
-
-<p>While the API is the core of gophish&rsquo;s functionality, we also provide a gorgeous admin UI. This UI is simply a wrapper on top of the underlying API. Nothing says more than screenshots:</p>
-
-<p><figure>
-    <img src="/blog/images/screenshots/login.png" alt="" class="blog-image" >
-    <figcap>Login Screen</figcap>
-</figure>
-
-<figure>
-    <img src="/blog/images/screenshots/new_group.png" alt="" class="blog-image" >
-    <figcap>Creating a New Group</figcap>
-</figure>
-
-<figure>
-    <img src="/blog/images/screenshots/new_template.png" alt="" class="blog-image" >
-    <figcap>Creating an Email Template</figcap>
-</figure>
-
-<figure>
-    <img src="/blog/images/screenshots/import_site.png" alt="" class="blog-image" >
-    <figcap>Importing a Site</figcap>
-</figure>
-
-<figure>
-    <img src="/blog/images/screenshots/campaign_results.png" alt="" class="blog-image" >
-    <figcap>Viewing Campaign Results</figcap>
-</figure>
-
-<figure>
-    <img src="/blog/images/screenshots/timeline.png" alt="" class="blog-image" >
-    <figcap>Viewing the Timeline for a Target</figcap>
-</figure>
-</p>
-
-<h3 id="take-gophish-for-a-spin:1cea0120cd31cba0f7863bc47631176f">Take Gophish for a Spin!</h3>
-
-<p>These features only scratch the surface when it comes to what makes gophish great, and we aren&rsquo;t anywhere near done yet. To explore these features for yourself, take gophish for a spin!</p>
-
-<p>We hope you enjoy gophish and are excited for all the new features that will be released soon! In the meantime, if you ever have any questions, comments, or issues, <a href="/support">we want to hear from you</a>!</p>
-
-<p>-The Gophish Team</p>
-
-<p><a href="https://github.com/gophish/gophish/releases" class="btn">Download gophish</a>
-</p>
-
-                    </div>
-                </section>
-                
-                <h1 class="content-subhead">07 Jan 2016, 22:05</h1>
-                <section class="post">
-                    <header class="post-header">
-
-                        <a href="https://getgophish.com/blog/post/hello-world/" class="post-title">Introducing gophish</a>
-
-                        <p class="post-meta">
-                            
-                            
-                        </p>
-                    </header>
-
-                    <div class="post-description">
-                        
-
-<h3 id="hello-world:aa77bbfd89a7b0ff10def205b9c08d51">Hello World!</h3>
-
-<p>This is the official blog for <a href="http://getgophish.com">gophish</a>, a phishing toolkit designed to make rock-solid security awareness training accessible to <em>everyone</em>.</p>
-
-<p>Check back here often to find information on gophish updates, how to leverage gophish in interesting ways to test the security of your organization, as well as general tips and tricks on securing your email infrastructure.</p>
-
-<p>The gophish team is excited to release the alpha version of gophish soon! In the meantime:</p>
-
-<pre><code>package main
-
-import &quot;fmt&quot;
-
-func main() {
-	fmt.Println(&quot;Hello world!&quot;)
-}
-</code></pre>
-
-                    </div>
-                </section>
-                
             </div>
-            
-
             <div class="footer">
     <div class="pure-menu pure-menu-horizontal pure-menu-open">
         <ul>

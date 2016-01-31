@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Posts on Gophish - Blog</title>
-    <link>https://getgophish.com/blog/post/</link>
-    <description>Recent content in Posts on Gophish - Blog</description>
+    <title>Go on Gophish - Blog</title>
+    <link>https://getgophish.com/blog/tags/go/</link>
+    <description>Recent content in Go on Gophish - Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Mon, 01 Feb 2016 07:00:00 -0600</lastBuildDate>
-    <atom:link href="https://getgophish.com/blog/post/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://getgophish.com/blog/tags/go/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Handling Database Migrations in Go</title>
@@ -134,136 +134,6 @@ if err != nil {
 
 &lt;a href=&#34;https://github.com/gophish/gophish&#34; class=&#34;btn&#34;&gt;Download gophish&lt;/a&gt;
 
-</description>
-    </item>
-    
-    <item>
-      <title>Announcing gophish v0.1.1</title>
-      <link>https://getgophish.com/blog/post/release-0.1.1/</link>
-      <pubDate>Mon, 01 Feb 2016 06:00:00 -0600</pubDate>
-      
-      <guid>https://getgophish.com/blog/post/release-0.1.1/</guid>
-      <description>
-
-&lt;img src=&#34;https://getgophish.com/blog/blog/images/gophish_purple.png&#34; alt=&#34;&#34; class=&#34;pure-img&#34; &gt;
-
-&lt;p&gt;&lt;em&gt;Tl;dr - Download the release &lt;a href=&#34;https://github.com/gophish/gophish/releases&#34;&gt;here&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
-
-&lt;h3 id=&#34;the-wait-is-over:1cea0120cd31cba0f7863bc47631176f&#34;&gt;&lt;strong&gt;The wait is over!&lt;/strong&gt;&lt;/h3&gt;
-
-&lt;p&gt;The gophish team is excited to announce our first public beta version of gophish - version 0.1.1! This blog post will be a short introduction into what gophish is, as well as some of the insanely awesome features we&amp;rsquo;ve created.&lt;/p&gt;
-
-&lt;h3 id=&#34;what-is-gophish:1cea0120cd31cba0f7863bc47631176f&#34;&gt;What is Gophish?&lt;/h3&gt;
-
-&lt;p&gt;Gophish is a phishing framework that makes the simulation of real-world phishing attacks dead-simple. The idea behind gophish is simple – make industry-grade phishing training available to &lt;em&gt;everyone&lt;/em&gt;.&lt;/p&gt;
-
-&lt;p&gt;&amp;ldquo;Available&amp;rdquo; in this case means two things –&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;Affordable&lt;/strong&gt; – Gophish is currently open-source software that is completely free for anyone to use.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Accessible&lt;/strong&gt; – Gophish is written in the Go programming language. This has the benefit that gophish releases are compiled binaries with no dependencies. In a nutshell, this makes installation as simple as “download and run”!&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;time-for-features:1cea0120cd31cba0f7863bc47631176f&#34;&gt;Time For Features&lt;/h3&gt;
-
-&lt;p&gt;Ok, ok, enough with the intro. The idea of a phishing simulation platform isn&amp;rsquo;t new. Let&amp;rsquo;s take a look at some of the features that really set gophish apart and make it awesome.&lt;/p&gt;
-
-&lt;h4 id=&#34;hosted-on-prem:1cea0120cd31cba0f7863bc47631176f&#34;&gt;Hosted On-Prem&lt;/h4&gt;
-
-&lt;p&gt;There are many commercial offerings that provide phishing simulation/training. Unfortunately, these are SaaS solutions that require you to hand over your data to someone else.&lt;/p&gt;
-
-&lt;p&gt;Gophish is different in that it is meant to be hosted in-house. This keeps you data where it belongs - with you.&lt;/p&gt;
-
-&lt;h4 id=&#34;download-run:1cea0120cd31cba0f7863bc47631176f&#34;&gt;Download -&amp;gt; Run&lt;/h4&gt;
-
-&lt;p&gt;For the few existing in-house solutions that exist, setup can be a &lt;em&gt;huge pain&lt;/em&gt; (looking at you, Ruby gems). Your time is too valuable to be spent wrestling with dependencies trying to create the perfect setup that somehow magically allows the program to run.&lt;/p&gt;
-
-&lt;p&gt;Gophish was written in the Go programming language for this exact reason. To install gophish, all you have to do is download the zip file, extract the contents, and run the binary.&lt;/p&gt;
-
-&lt;p&gt;By doing this, you just started two webservers, populated a database, and setup a background worker to handle sending the mails. Now, your time can be spent making campaigns. Easy peasy.&lt;/p&gt;
-
-&lt;h4 id=&#34;api-s-for-everything:1cea0120cd31cba0f7863bc47631176f&#34;&gt;API&amp;rsquo;s for &lt;em&gt;Everything&lt;/em&gt;.&lt;/h4&gt;
-
-&lt;p&gt;Gophish was built with automation first. This means that you can create scripts and clients that automate all the hard work for you. In addition to this, we keep up-to-date &lt;a href=&#34;https://getgophish.com/blog/documentation/api/&#34;&gt;API docs&lt;/a&gt; that describe each API endpoint in detail.&lt;/p&gt;
-
-&lt;h4 id=&#34;rock-solid-documentation:1cea0120cd31cba0f7863bc47631176f&#34;&gt;Rock-Solid Documentation&lt;/h4&gt;
-
-&lt;p&gt;Speaking of API docs, we take documentation very seriously. We take documentation seriously because we take our user experience seriously. If you can&amp;rsquo;t find what you need to use and troubleshoot gophish, we&amp;rsquo;ve failed. Just take a look at our comprehensive &lt;a href=&#34;https://getgophish.com/blog/documentation/Gophish%20User%20Guide.pdf&#34;&gt;user guide&lt;/a&gt;, &lt;a href=&#34;https://getgophish.com/blog/documentation/api/&#34;&gt;API documentation&lt;/a&gt;, and even &lt;a href=&#34;http://godoc.org/github.com/gophish/gophish&#34;&gt;fully documented code&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;If you ever find something missing in our documentation, &lt;a href=&#34;https://getgophish.com/blog/support&#34;&gt;we want to know!&lt;/a&gt;&lt;/p&gt;
-
-&lt;h4 id=&#34;beautiful-ui:1cea0120cd31cba0f7863bc47631176f&#34;&gt;Beautiful UI&lt;/h4&gt;
-
-&lt;p&gt;While the API is the core of gophish&amp;rsquo;s functionality, we also provide a gorgeous admin UI. This UI is simply a wrapper on top of the underlying API. Nothing says more than screenshots:&lt;/p&gt;
-
-&lt;p&gt;&lt;figure&gt;
-    &lt;img src=&#34;https://getgophish.com/blog/blog/images/screenshots/login.png&#34; alt=&#34;&#34; class=&#34;blog-image&#34; &gt;
-    &lt;figcap&gt;Login Screen&lt;/figcap&gt;
-&lt;/figure&gt;
-
-&lt;figure&gt;
-    &lt;img src=&#34;https://getgophish.com/blog/blog/images/screenshots/new_group.png&#34; alt=&#34;&#34; class=&#34;blog-image&#34; &gt;
-    &lt;figcap&gt;Creating a New Group&lt;/figcap&gt;
-&lt;/figure&gt;
-
-&lt;figure&gt;
-    &lt;img src=&#34;https://getgophish.com/blog/blog/images/screenshots/new_template.png&#34; alt=&#34;&#34; class=&#34;blog-image&#34; &gt;
-    &lt;figcap&gt;Creating an Email Template&lt;/figcap&gt;
-&lt;/figure&gt;
-
-&lt;figure&gt;
-    &lt;img src=&#34;https://getgophish.com/blog/blog/images/screenshots/import_site.png&#34; alt=&#34;&#34; class=&#34;blog-image&#34; &gt;
-    &lt;figcap&gt;Importing a Site&lt;/figcap&gt;
-&lt;/figure&gt;
-
-&lt;figure&gt;
-    &lt;img src=&#34;https://getgophish.com/blog/blog/images/screenshots/campaign_results.png&#34; alt=&#34;&#34; class=&#34;blog-image&#34; &gt;
-    &lt;figcap&gt;Viewing Campaign Results&lt;/figcap&gt;
-&lt;/figure&gt;
-
-&lt;figure&gt;
-    &lt;img src=&#34;https://getgophish.com/blog/blog/images/screenshots/timeline.png&#34; alt=&#34;&#34; class=&#34;blog-image&#34; &gt;
-    &lt;figcap&gt;Viewing the Timeline for a Target&lt;/figcap&gt;
-&lt;/figure&gt;
-&lt;/p&gt;
-
-&lt;h3 id=&#34;take-gophish-for-a-spin:1cea0120cd31cba0f7863bc47631176f&#34;&gt;Take Gophish for a Spin!&lt;/h3&gt;
-
-&lt;p&gt;These features only scratch the surface when it comes to what makes gophish great, and we aren&amp;rsquo;t anywhere near done yet. To explore these features for yourself, take gophish for a spin!&lt;/p&gt;
-
-&lt;p&gt;We hope you enjoy gophish and are excited for all the new features that will be released soon! In the meantime, if you ever have any questions, comments, or issues, &lt;a href=&#34;https://getgophish.com/blog/support&#34;&gt;we want to hear from you&lt;/a&gt;!&lt;/p&gt;
-
-&lt;p&gt;-The Gophish Team&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&#34;https://github.com/gophish/gophish/releases&#34; class=&#34;btn&#34;&gt;Download gophish&lt;/a&gt;
-&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Introducing gophish</title>
-      <link>https://getgophish.com/blog/post/hello-world/</link>
-      <pubDate>Thu, 07 Jan 2016 22:05:58 -0600</pubDate>
-      
-      <guid>https://getgophish.com/blog/post/hello-world/</guid>
-      <description>
-
-&lt;h3 id=&#34;hello-world:aa77bbfd89a7b0ff10def205b9c08d51&#34;&gt;Hello World!&lt;/h3&gt;
-
-&lt;p&gt;This is the official blog for &lt;a href=&#34;http://getgophish.com&#34;&gt;gophish&lt;/a&gt;, a phishing toolkit designed to make rock-solid security awareness training accessible to &lt;em&gt;everyone&lt;/em&gt;.&lt;/p&gt;
-
-&lt;p&gt;Check back here often to find information on gophish updates, how to leverage gophish in interesting ways to test the security of your organization, as well as general tips and tricks on securing your email infrastructure.&lt;/p&gt;
-
-&lt;p&gt;The gophish team is excited to release the alpha version of gophish soon! In the meantime:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;package main
-
-import &amp;quot;fmt&amp;quot;
-
-func main() {
-	fmt.Println(&amp;quot;Hello world!&amp;quot;)
-}
-&lt;/code&gt;&lt;/pre&gt;
 </description>
     </item>
     
