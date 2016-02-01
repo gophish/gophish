@@ -38,6 +38,12 @@ var statuses = {
         label: "label-default",
         icon: "fa-times"
     },
+    "Submitted Data":{
+        slice: "ct-slice-donut-clicked",
+        legend: "ct-legend-clicked",
+        label: "label-danger",
+        icon: "fa-exclamation"
+    },
     "Unknown": {
         slice: "ct-slice-donut-error",
         legend: "ct-legend-error",
@@ -122,8 +128,11 @@ function renderTimeline(data) {
                 '    <div class="timeline-icon ' + statuses[event.message].label + '">' +
                 '    <i class="fa ' + statuses[event.message].icon + '"></i></div>' +
                 '    <div class="timeline-message">' + event.message +
-                '    <span class="timeline-date">' + moment(event.time).format('MMMM Do YYYY h:mm') + '</span></div>'
-            results += '</div>'
+                '    <span class="timeline-date">' + moment(event.time).format('MMMM Do YYYY h:mm') + '</span>'
+	    if (event.details) {
+	    	results += '<div class="timeline-event-details"><i class="fa fa-caret-right"></i> View Details</div>'
+	    }
+            results += '</div></div>'
         }
     })
     results += '</div></div>'
