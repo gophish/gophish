@@ -44,6 +44,12 @@ var statuses = {
         label: "label-default",
         icon: "fa-question"
     },
+    "Sending": {
+        slice: "ct-slice-donut-error",
+        legend: "ct-legend-error",
+        label: "label-primary",
+        icon: "fa-spinner"
+    },
     "Campaign Created": {
         label: "label-success",
         icon: "fa-rocket"

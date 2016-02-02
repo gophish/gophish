@@ -10,7 +10,7 @@ var labels = {
 
 var campaigns = []
 
-// Save attempts to POST to /campaigns/
+// Launch attempts to POST to /campaigns/
 function launch() {
     if (!confirm("This will launch the campaign. Are you sure?")) {
         return false;
@@ -22,31 +22,35 @@ function launch() {
         })
     })
     var campaign = {
-            name: $("#name").val(),
-            template: {
-                name: $("#template").val()
-            },
-            url: $("#url").val(),
-            page: {
-                name: $("#page").val()
-            },
-            smtp: {
-                from_address: $("input[name=from]").val(),
-                host: $("input[name=host]").val(),
-                username: $("input[name=username]").val(),
-                password: $("input[name=password]").val(),
-            },
-            groups: groups
-        }
+        name: $("#name").val(),
+        template: {
+            name: $("#template").val()
+        },
+        url: $("#url").val(),
+        page: {
+            name: $("#page").val()
+        },
+        smtp: {
+            from_address: $("input[name=from]").val(),
+            host: $("input[name=host]").val(),
+            username: $("input[name=username]").val(),
+            password: $("input[name=password]").val(),
+        },
+        groups: groups
+    }
+    launchHtml = $("launchButton").html()
+    $("launchButton").html('<i class="fa fa-spinner fa-spin"></i> Launching Campaign')
         // Submit the campaign
     api.campaigns.post(campaign)
         .success(function(data) {
             successFlash("Campaign successfully launched!")
+            $("launchButton").html('<i class="fa fa-spinner fa-spin"></i> Redirecting')
             window.location = "/campaigns/" + data.id.toString()
         })
         .error(function(data) {
             $("#modal\\.flashes").empty().append("<div style=\"text-align:center\" class=\"alert alert-danger\">\
             <i class=\"fa fa-exclamation-circle\"></i> " + data.responseJSON.message + "</div>")
+            $("#launchButton").html(launchHtml)
         })
 }
 
