@@ -441,3 +441,7 @@ table.dataTable thead .sorting_desc:after {
 .timeline-event-details>.table-responsive{
 	display:none;
 }
+.timeline-event-details{
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
