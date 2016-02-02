@@ -60,7 +60,7 @@ func (c *Campaign) Validate() error {
 	case c.Page.Name == "":
 		return ErrPageNotSpecified
 	}
-	return nil
+	return c.SMTP.Validate()
 }
 
 // SendTestEmailRequest is the structure of a request
@@ -84,7 +84,8 @@ func (s *SendTestEmailRequest) Validate() error {
 	case s.Email == "":
 		return ErrEmailNotSpecified
 	}
-	return nil
+	// Finally, check the SMTP settings
+	return s.SMTP.Validate()
 }
 
 // UpdateStatus changes the campaign status appropriately
