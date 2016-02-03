@@ -1,0 +1,5 @@
+production:
+    driver: sqlite3 
+    open: gophish.db
+    dialect: sqlite3
+    import: github.com/mattn/go-sqlite3

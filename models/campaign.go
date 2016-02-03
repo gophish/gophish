@@ -109,6 +109,7 @@ type Event struct {
 	Email      string    `json:"email"`
 	Time       time.Time `json:"time"`
 	Message    string    `json:"message"`
+	Details    string    `json:"details"`
 }
 
 // GetCampaigns returns the campaigns owned by the given user.

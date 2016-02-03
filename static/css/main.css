@@ -433,3 +433,18 @@ table.dataTable thead .sorting_desc:after {
 	color:#999999;
 	font-style:italic;
 }
+.timeline-event-details {
+	font-size:16px;
+	margin-top:5px;
+	cursor:pointer;
+}
+.timeline-event-details>.table-responsive{
+	display:none;
+}
+.timeline-event-details{
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+.timeline-event-table{
+	display:none;
+}

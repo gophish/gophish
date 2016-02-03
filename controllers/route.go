@@ -1,11 +1,13 @@
 package controllers
 
 import (
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"log"
 	"net"
 	"net/http"
+	"net/url"
 	"os"
 
 	"github.com/gophish/gophish/auth"
@@ -120,7 +122,12 @@ func PhishTracker(w http.ResponseWriter, r *http.Request) {
 // PhishHandler handles incoming client connections and registers the associated actions performed
 // (such as clicked link, etc.)
 func PhishHandler(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
+	err := r.ParseForm()
+	if err != nil {
+		Logger.Println(err)
+		http.NotFound(w, r)
+		return
+	}
 	id := r.Form.Get("rid")
 	if id == "" {
 		http.NotFound(w, r)
@@ -140,7 +147,32 @@ func PhishHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		Logger.Println(err)
 	}
-	c.AddEvent(models.Event{Email: rs.Email, Message: models.EVENT_CLICKED})
+	switch {
+	case r.Method == "GET":
+		err = c.AddEvent(models.Event{Email: rs.Email, Message: models.EVENT_CLICKED})
+		if err != nil {
+			Logger.Println(err)
+		}
+	case r.Method == "POST":
+		// If data was POST'ed, let's record it
+		// Store the data in an event
+		d := struct {
+			Payload url.Values        `json:"payload"`
+			Browser map[string]string `json:"browser"`
+		}{
+			Payload: r.Form,
+		}
+		rj, err := json.Marshal(d)
+		if err != nil {
+			Logger.Println(err)
+			http.NotFound(w, r)
+			return
+		}
+		c.AddEvent(models.Event{Email: rs.Email, Message: models.EVENT_DATA_SUBMIT, Details: string(rj)})
+		if err != nil {
+			Logger.Println(err)
+		}
+	}
 	w.Write([]byte(p.HTML))
 }
 
