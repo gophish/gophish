@@ -38,7 +38,7 @@ var statuses = {
         label: "label-default",
         icon: "fa-times"
     },
-    "Submitted Data":{
+    "Submitted Data": {
         slice: "ct-slice-donut-clicked",
         legend: "ct-legend-clicked",
         label: "label-danger",
@@ -83,14 +83,16 @@ function exportAsCSV(scope) {
     exportHTML = $("#exportButton").html()
     var csvScope = null
     switch (scope) {
-    	case "results":
-		csvScope = campaign.results
-		break;
-	case "events":
-		csvScope = campaign.timeline
-		break;
+        case "results":
+            csvScope = campaign.results
+            break;
+        case "events":
+            csvScope = campaign.timeline
+            break;
     }
-    if (!csvScope){return}
+    if (!csvScope) {
+        return
+    }
     $("#exportButton").html('<i class="fa fa-spinner fa-spin"></i>')
     var csvString = Papa.unparse(csvScope, {})
     var csvData = new Blob([csvString], {
@@ -129,22 +131,24 @@ function renderTimeline(data) {
                 '    <i class="fa ' + statuses[event.message].icon + '"></i></div>' +
                 '    <div class="timeline-message">' + event.message +
                 '    <span class="timeline-date">' + moment(event.time).format('MMMM Do YYYY h:mm') + '</span>'
-	    if (event.details) {
-	    	results += '<div class="timeline-event-details"><i class="fa fa-caret-right"></i> View Details</div>'
-	    	results += '<div class="timeline-event-table">'
-	    	results += '    <table class="table table-condensed table-bordered table-striped">'
-	    	results += '        <thead><tr><th>Parameter</th><th>Value(s)</tr></thead><tbody>'
-	        details = JSON.parse(event.details)
-	        $.each(Object.keys(details.payload), function(i, param){
-			if (param == "rid") { return true; }
-			results += '    <tr>'
-			results += '        <td>' + param + '</td>'
-			results += '        <td>' + details.payload[param] + '</td>'
-			results += '    </tr>'
-		})
-    		results += '       </tbody></table>'
-		results += '</div>'
-	    }
+            if (event.details) {
+                results += '<div class="timeline-event-details"><i class="fa fa-caret-right"></i> View Details</div>'
+                results += '<div class="timeline-event-table">'
+                results += '    <table class="table table-condensed table-bordered table-striped">'
+                results += '        <thead><tr><th>Parameter</th><th>Value(s)</tr></thead><tbody>'
+                details = JSON.parse(event.details)
+                $.each(Object.keys(details.payload), function(i, param) {
+                    if (param == "rid") {
+                        return true;
+                    }
+                    results += '    <tr>'
+                    results += '        <td>' + param + '</td>'
+                    results += '        <td>' + details.payload[param] + '</td>'
+                    results += '    </tr>'
+                })
+                results += '       </tbody></table>'
+                results += '</div>'
+            }
             results += '</div></div>'
         }
     })
@@ -161,6 +165,20 @@ $(document).ready(function() {
                 $("#page-title").text("Results for " + c.name)
                     // Setup tooltips
                 $('[data-toggle="tooltip"]').tooltip()
+                    // Setup viewing the details of a result
+                $("#resultsTable").on("click", ".timeline-event-details", function() {
+                        // Show the parameters
+                        payloadTable = $(this).parent().find(".timeline-event-table")
+                        if (payloadTable.is(":visible")) {
+                            $(this).find("i").removeClass("fa-caret-down")
+                            $(this).find("i").addClass("fa-caret-right")
+                            payloadTable.hide()
+                        } else {
+                            $(this).find("i").removeClass("fa-caret-right")
+                            $(this).find("i").addClass("fa-caret-down")
+                            payloadTable.show()
+                        }
+                    })
                     // Setup our graphs
                 var timeline_data = {
                     series: [{
