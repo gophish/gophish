@@ -102,6 +102,12 @@ func PhishTracker(w http.ResponseWriter, r *http.Request) {
 		Logger.Println(err)
 	}
 	c.AddEvent(models.Event{Email: rs.Email, Message: models.EVENT_OPENED})
+	// Don't update the status if the user already clicked the link
+	// or submitted data to the campaign
+	if rs.Status == models.STATUS_SUCCESS {
+		w.Write([]byte(""))
+		return
+	}
 	err = rs.UpdateStatus(models.EVENT_OPENED)
 	if err != nil {
 		Logger.Println(err)
