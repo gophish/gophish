@@ -448,3 +448,6 @@ table.dataTable thead .sorting_desc:after {
 .timeline-event-table{
 	display:none;
 }
+.tooltip-inner {
+	width:300px !important;
+}

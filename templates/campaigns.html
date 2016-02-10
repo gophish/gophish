@@ -96,7 +96,10 @@
                           <br />
                           <label class="control-label" for="smtp_server">Password:</label>
                           <input type="password" class="form-control" placeholder="Password" value="" name="password">
-                          <br />
+			  <div class="checkbox checkbox-primary">
+                		<input id="ignore_cert_errors" type="checkbox" checked>
+				<label for="ignore_cert_errors">Ignore Certificate Errors <i class="fa fa-question-circle" data-toggle="tooltip" data-placement="right" title="Ignore common certificate errors such as self-signed certs (exposes you to MiTM attacks - use carefully!)"></i></label>
+            		  </div>
 			  <button type="button" data-toggle="modal" data-target="#sendTestEmailModal" class="btn btn-primary"><i class="fa fa-envelope"></i> Send Test Email</button>
                       </div>
                  </div>

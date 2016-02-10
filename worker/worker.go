@@ -2,8 +2,10 @@ package worker
 
 import (
 	"bytes"
+	"crypto/tls"
 	"errors"
 	"log"
+	"net"
 	"net/mail"
 	"net/smtp"
 	"os"
@@ -197,4 +199,88 @@ func SendTestEmail(s *models.SendTestEmailRequest) error {
 		return errors.New(serr[len(serr)-1])
 	}
 	return err
+}
+
+// sendEmail is a copy of the net/smtp#SendMail function
+// that has the option to ignore TLS errors
+// TODO: Find a more elegant way (maybe in the email lib?) to do this
+func sendMail(e email.Email, s models.SMTP, tlsConfig *tls.Config) error {
+	var auth smtp.Auth
+	if s.Username != "" && s.Password != "" {
+		auth = smtp.PlainAuth("", s.Username, s.Password, strings.Split(s.Host, ":")[0])
+	}
+	// Taken from the email library
+	// Merge the To, Cc, and Bcc fields
+	to := make([]string, 0, len(e.To)+len(e.Cc)+len(e.Bcc))
+	to = append(append(append(to, e.To...), e.Cc...), e.Bcc...)
+	for i := 0; i < len(to); i++ {
+		addr, err := mail.ParseAddress(to[i])
+		if err != nil {
+			return err
+		}
+		to[i] = addr.Address
+	}
+	// Check to make sure there is at least one recipient and one "From" address
+	if e.From == "" || len(to) == 0 {
+		return errors.New("Must specify at least one From address and one To address")
+	}
+	from, err := mail.ParseAddress(e.From)
+	if err != nil {
+		return err
+	}
+	msg, err := e.Bytes()
+	if err != nil {
+		return err
+	}
+	// Taken from the standard library
+	// https://github.com/golang/go/blob/master/src/net/smtp/smtp.go#L300
+	c, err := smtp.Dial(s.Host)
+	if err != nil {
+		return err
+	}
+	defer c.Close()
+	if err = c.Hello(); err != nil {
+		return err
+	}
+	// Use TLS if available
+	if ok, _ := c.Extension("STARTTLS"); ok {
+		host, _, _ := net.SplitHostPort(s.Host)
+		/*
+			config := &tls.Config{
+				ServerName:         host,
+				InsecureSkipVerify: s.IgnoreCertErrors,
+			}*/
+		if err = c.StartTLS(tlsConfig); err != nil {
+			return err
+		}
+	}
+
+	if auth != nil {
+		if ok, _ := c.Extension("AUTH"); ok {
+			if err = c.Auth(auth); err != nil {
+				return err
+			}
+		}
+	}
+	if err = c.Mail(from); err != nil {
+		return err
+	}
+	for _, addr := range to {
+		if err = c.Rcpt(addr); err != nil {
+			return err
+		}
+	}
+	w, err := c.Data()
+	if err != nil {
+		return err
+	}
+	_, err = w.Write(msg)
+	if err != nil {
+		return err
+	}
+	err = w.Close()
+	if err != nil {
+		return err
+	}
+	return c.Quit()
 }
