@@ -35,7 +35,7 @@ func CreateAdminRouter() http.Handler {
 	router.HandleFunc("/templates", Use(Templates, mid.RequireLogin))
 	router.HandleFunc("/users", Use(Users, mid.RequireLogin))
 	router.HandleFunc("/landing_pages", Use(LandingPages, mid.RequireLogin))
-	router.HandleFunc("/register", Register)
+	router.HandleFunc("/register", Use(Register, mid.RequireLogin))
 	router.HandleFunc("/settings", Use(Settings, mid.RequireLogin))
 	// Create the API routes
 	api := router.PathPrefix("/api").Subrouter()
