@@ -12,20 +12,20 @@ Open-Source Phishing Toolkit
 [Gophish](https://getgophish.com) is an open-source phishing toolkit designed for businesses and penetration testers. It provides the ability to quickly and easily setup and execute phishing engagements and security awareness training.
 
 ###Current Status
-**Update 01/12/2016**
+**Update 02/9/2016**
 
-The [website is live](https://getgophish.com)! This website will contain all the documentation and updates for gophish activity.
+The [website is live](https://getgophish.com)! This website contains all the documentation and updates for gophish activity.
 
-Gophish is almost ready for its alpha release, and release 0.1 has been tagged! Just cleaning up some documentation and building the binary releases now. Expect a release announcement next week.
+Gophish version 0.1.1 [has been released!](https://github.com/gophish/gophish/releases/tag/v0.1.1). Just download and run the binary to take gophish for a spin.
 
 ###Install
 
-Installation of gophish is dead-simple - once the binaries are released (coming soon!), just download and extract the zip, and run the binary. Gophish will have binary releases for all platforms.
+Installation of gophish is dead-simple - just download and extract the zip containing the [release for your system](https://github.com/gophish/gophish/releases/), and run the binary. Gophish has binary releases for Windows, Mac, and Linux platforms.
 
 ### Building From Source
 **If you are building from source, please note that Gophish requires Go v1.5 or above!**
 
-To build gophish from source, simply run ```go get github.com/gophish/gophish``` followed by ```go build```. You should have a binary called ```gophish``` in the current directory.
+To build gophish from source, simply run ```go get github.com/gophish/gophish``` and ```cd``` into the project source directory. Then, run ```go build```. After this, you should have a binary called ```gophish``` in the current directory.
 
 ###Setup
 After running the gophish binary, open an Internet browser to http://localhost:3333 and login with the default username (admin) and password (gophish).
