@@ -27,6 +27,13 @@
     </div>
     <div id="flashes" class="row"></div>
     <div class="row">
+	    <label class="col-sm-2 control-label form-label">Register a New User</label>
+	    <div class="col-md-6">
+	        <a href="/register" class="btn btn-primary"><i class="fa fa-plus"></i> Add User</a>
+            </div>
+    </div>
+    <br/>
+    <div class="row">
         <label for="api_key" class="col-sm-2 control-label form-label">API Key:</label>
         <div class="col-md-6">
             <input type="text" id="api_key" onclick="this.select();" value="{{.User.ApiKey}}" class="form-control" readonly/>
@@ -60,7 +67,7 @@
         </div>
         <input type="hidden" name="csrf_token" value="{{.Token}}"/>
         <br />
-        <button class="btn btn-primary" type="submit">Save</button>
+	<button class="btn btn-primary" type="submit"><i class="fa fa-save"></i> Save</button>
     </form>
     <br/>
 </div>
