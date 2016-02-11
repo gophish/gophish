@@ -4,12 +4,13 @@ import "errors"
 
 // SMTP contains the attributes needed to handle the sending of campaign emails
 type SMTP struct {
-	SMTPId      int64  `json:"-" gorm:"column:smtp_id; primary_key:yes"`
-	CampaignId  int64  `json:"-" gorm:"column:campaign_id"`
-	Host        string `json:"host"`
-	Username    string `json:"username,omitempty"`
-	Password    string `json:"password,omitempty" sql:"-"`
-	FromAddress string `json:"from_address"`
+	SMTPId           int64  `json:"-" gorm:"column:smtp_id; primary_key:yes"`
+	CampaignId       int64  `json:"-" gorm:"column:campaign_id"`
+	Host             string `json:"host"`
+	Username         string `json:"username,omitempty"`
+	Password         string `json:"password,omitempty" sql:"-"`
+	FromAddress      string `json:"from_address"`
+	IgnoreCertErrors bool   `json:"ignore_cert_errors"`
 }
 
 // ErrFromAddressNotSpecified is thrown when there is no "From" address

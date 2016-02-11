@@ -143,10 +143,6 @@ func SendTestEmail(s *models.SendTestEmailRequest) error {
 		Subject: s.Template.Subject,
 		From:    s.SMTP.FromAddress,
 	}
-	var auth smtp.Auth
-	if s.SMTP.Username != "" && s.SMTP.Password != "" {
-		auth = smtp.PlainAuth("", s.SMTP.Username, s.SMTP.Password, strings.Split(s.SMTP.Host, ":")[0])
-	}
 	f, err := mail.ParseAddress(s.SMTP.FromAddress)
 	if err != nil {
 		Logger.Println(err)
@@ -190,7 +186,7 @@ func SendTestEmail(s *models.SendTestEmailRequest) error {
 	e.Subject = string(subjBuff.Bytes())
 	e.To = []string{s.Email}
 	Logger.Printf("Sending Email to %s\n", s.Email)
-	err = e.Send(s.SMTP.Host, auth)
+	err = sendMail(e, s.SMTP)
 	if err != nil {
 		Logger.Println(err)
 		// For now, let's split the error and return
@@ -204,7 +200,7 @@ func SendTestEmail(s *models.SendTestEmailRequest) error {
 // sendEmail is a copy of the net/smtp#SendMail function
 // that has the option to ignore TLS errors
 // TODO: Find a more elegant way (maybe in the email lib?) to do this
-func sendMail(e email.Email, s models.SMTP, tlsConfig *tls.Config) error {
+func sendMail(e email.Email, s models.SMTP) error {
 	var auth smtp.Auth
 	if s.Username != "" && s.Password != "" {
 		auth = smtp.PlainAuth("", s.Username, s.Password, strings.Split(s.Host, ":")[0])
@@ -239,18 +235,17 @@ func sendMail(e email.Email, s models.SMTP, tlsConfig *tls.Config) error {
 		return err
 	}
 	defer c.Close()
-	if err = c.Hello(); err != nil {
+	if err = c.Hello("localhost"); err != nil {
 		return err
 	}
 	// Use TLS if available
 	if ok, _ := c.Extension("STARTTLS"); ok {
 		host, _, _ := net.SplitHostPort(s.Host)
-		/*
-			config := &tls.Config{
-				ServerName:         host,
-				InsecureSkipVerify: s.IgnoreCertErrors,
-			}*/
-		if err = c.StartTLS(tlsConfig); err != nil {
+		config := &tls.Config{
+			ServerName:         host,
+			InsecureSkipVerify: s.IgnoreCertErrors,
+		}
+		if err = c.StartTLS(config); err != nil {
 			return err
 		}
 	}
@@ -262,7 +257,7 @@ func sendMail(e email.Email, s models.SMTP, tlsConfig *tls.Config) error {
 			}
 		}
 	}
-	if err = c.Mail(from); err != nil {
+	if err = c.Mail(from.Address); err != nil {
 		return err
 	}
 	for _, addr := range to {
