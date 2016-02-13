@@ -223,23 +223,18 @@ func Register(w http.ResponseWriter, r *http.Request) {
 			})
 			session.Save(r, w)
 			http.Redirect(w, r, "/login", 302)
-		} else {
-			// Check the error
-			m := ""
-			if err == models.ErrUsernameTaken {
-				m = "Username already taken"
-			} else {
-				m = "Unknown error - please try again"
-				Logger.Println(err)
-			}
-			session.AddFlash(models.Flash{
-				Type:    "danger",
-				Message: m,
-			})
-			session.Save(r, w)
-			http.Redirect(w, r, "/register", 302)
+			return
 		}
-
+		// Check the error
+		m := err.Error()
+		Logger.Println(err)
+		session.AddFlash(models.Flash{
+			Type:    "danger",
+			Message: m,
+		})
+		session.Save(r, w)
+		http.Redirect(w, r, "/register", 302)
+		return
 	}
 }
 
@@ -333,8 +328,9 @@ func Settings(w http.ResponseWriter, r *http.Request) {
 			msg.Success = false
 			JSONResponse(w, msg, http.StatusBadRequest)
 			return
-		} else if err != nil {
-			msg.Message = "Unknown Error Occured"
+		}
+		if err != nil {
+			msg.Message = err.Error()
 			msg.Success = false
 			JSONResponse(w, msg, http.StatusBadRequest)
 			return
