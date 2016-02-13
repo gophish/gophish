@@ -27,6 +27,9 @@ Installation of gophish is dead-simple - just download and extract the zip conta
 
 To build gophish from source, simply run ```go get github.com/gophish/gophish``` and ```cd``` into the project source directory. Then, run ```go build```. After this, you should have a binary called ```gophish``` in the current directory.
 
+### Docker
+You can also use gophish via an unofficial Docker container [here](https://hub.docker.com/r/matteoggl/gophish/).
+
 ###Setup
 After running the gophish binary, open an Internet browser to http://localhost:3333 and login with the default username (admin) and password (gophish).
 
