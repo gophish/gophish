@@ -217,7 +217,6 @@ func SendTestEmail(s *models.SendTestEmailRequest) error {
 	e.To = []string{s.Email}
 	// Attach the files
 	for _, a := range s.Template.Attachments {
-		Logger.Printf("Attaching %s\n", a.Name)
 		decoder := base64.NewDecoder(base64.StdEncoding, strings.NewReader(a.Content))
 		_, err = e.Attach(decoder, a.Name, a.Type)
 		if err != nil {
