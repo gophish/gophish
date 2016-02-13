@@ -374,6 +374,9 @@ table.dataTable thead .sorting_desc:after {
   content: "\f0dd" !important;
   opacity: .8 !important;
 }
+td.details-control{
+	cursor:pointer;	
+}
 .timeline{
 	text-align:left;
 	background-color:#ffffff;
@@ -445,6 +448,10 @@ table.dataTable thead .sorting_desc:after {
 	margin-top: 10px;
 	margin-bottom: 10px;
 }
-.timeline-event-table{
+.timeline-event-results{
+	font-size:16px;
 	display:none;
+}
+.tooltip-inner {
+	width:300px !important;
 }

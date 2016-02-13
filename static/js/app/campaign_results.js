@@ -139,21 +139,28 @@ function renderTimeline(data) {
                 '    <span class="timeline-date">' + moment(event.time).format('MMMM Do YYYY h:mm') + '</span>'
             if (event.details) {
                 results += '<div class="timeline-event-details"><i class="fa fa-caret-right"></i> View Details</div>'
-                results += '<div class="timeline-event-table">'
-                results += '    <table class="table table-condensed table-bordered table-striped">'
-                results += '        <thead><tr><th>Parameter</th><th>Value(s)</tr></thead><tbody>'
                 details = JSON.parse(event.details)
-                $.each(Object.keys(details.payload), function(i, param) {
-                    if (param == "rid") {
-                        return true;
-                    }
-                    results += '    <tr>'
-                    results += '        <td>' + param + '</td>'
-                    results += '        <td>' + details.payload[param] + '</td>'
-                    results += '    </tr>'
-                })
-                results += '       </tbody></table>'
-                results += '</div>'
+                if (details.payload) {
+                    results += '<div class="timeline-event-results">'
+                    results += '    <table class="table table-condensed table-bordered table-striped">'
+                    results += '        <thead><tr><th>Parameter</th><th>Value(s)</tr></thead><tbody>'
+                    $.each(Object.keys(details.payload), function(i, param) {
+                        if (param == "rid") {
+                            return true;
+                        }
+                        results += '    <tr>'
+                        results += '        <td>' + param + '</td>'
+                        results += '        <td>' + details.payload[param] + '</td>'
+                        results += '    </tr>'
+                    })
+                    results += '       </tbody></table>'
+                    results += '</div>'
+                }
+                if (details.error) {
+                    results += '<div class="timeline-event-results">'
+                    results += '<span class="label label-default">Error</span> ' + details.error
+                    results += '</div>'
+                }
             }
             results += '</div></div>'
         }
@@ -174,15 +181,15 @@ $(document).ready(function() {
                     // Setup viewing the details of a result
                 $("#resultsTable").on("click", ".timeline-event-details", function() {
                         // Show the parameters
-                        payloadTable = $(this).parent().find(".timeline-event-table")
-                        if (payloadTable.is(":visible")) {
+                        payloadResults = $(this).parent().find(".timeline-event-results")
+                        if (payloadResults.is(":visible")) {
                             $(this).find("i").removeClass("fa-caret-down")
                             $(this).find("i").addClass("fa-caret-right")
-                            payloadTable.hide()
+                            payloadResults.hide()
                         } else {
                             $(this).find("i").removeClass("fa-caret-right")
                             $(this).find("i").addClass("fa-caret-down")
-                            payloadTable.show()
+                            payloadResults.show()
                         }
                     })
                     // Setup our graphs

@@ -35,6 +35,7 @@ function launch() {
             host: $("input[name=host]").val(),
             username: $("input[name=username]").val(),
             password: $("input[name=password]").val(),
+            ignore_cert_errors: $("#ignore_cert_errors").prop("checked")
         },
         groups: groups
     }
@@ -73,6 +74,7 @@ function sendTestEmail() {
             host: $("input[name=host]").val(),
             username: $("input[name=username]").val(),
             password: $("input[name=password]").val(),
+            ignore_cert_errors: $("#ignore_cert_errors").prop("checked")
         }
     }
     btnHtml = $("#sendTestModalSubmit").html()

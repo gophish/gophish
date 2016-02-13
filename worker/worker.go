@@ -2,6 +2,8 @@ package worker
 
 import (
 	"bytes"
+	"crypto/tls"
+	"encoding/json"
 	"errors"
 	"log"
 	"net/mail"
@@ -51,6 +53,10 @@ func processCampaign(c *models.Campaign) {
 	var auth smtp.Auth
 	if c.SMTP.Username != "" && c.SMTP.Password != "" {
 		auth = smtp.PlainAuth("", c.SMTP.Username, c.SMTP.Password, strings.Split(c.SMTP.Host, ":")[0])
+	}
+	tc := &tls.Config{
+		ServerName:         c.SMTP.Host,
+		InsecureSkipVerify: c.SMTP.IgnoreCertErrors,
 	}
 	f, err := mail.ParseAddress(c.SMTP.FromAddress)
 	if err != nil {
@@ -108,14 +114,23 @@ func processCampaign(c *models.Campaign) {
 		Logger.Println("Creating email using template")
 		e.To = []string{t.Email}
 		Logger.Printf("Sending Email to %s\n", t.Email)
-		err = e.Send(c.SMTP.Host, auth)
+		err = e.SendWithTLS(c.SMTP.Host, auth, tc)
 		if err != nil {
 			Logger.Println(err)
+			es := struct {
+				Error string `json:"error"`
+			}{
+				Error: err.Error(),
+			}
+			ej, err := json.Marshal(es)
+			if err != nil {
+				Logger.Println(err)
+			}
 			err = t.UpdateStatus(models.ERROR)
 			if err != nil {
 				Logger.Println(err)
 			}
-			err = c.AddEvent(models.Event{Email: t.Email, Message: models.EVENT_SENDING_ERROR})
+			err = c.AddEvent(models.Event{Email: t.Email, Message: models.EVENT_SENDING_ERROR, Details: string(ej)})
 			if err != nil {
 				Logger.Println(err)
 			}
@@ -144,6 +159,10 @@ func SendTestEmail(s *models.SendTestEmailRequest) error {
 	var auth smtp.Auth
 	if s.SMTP.Username != "" && s.SMTP.Password != "" {
 		auth = smtp.PlainAuth("", s.SMTP.Username, s.SMTP.Password, strings.Split(s.SMTP.Host, ":")[0])
+	}
+	t := &tls.Config{
+		ServerName:         s.SMTP.Host,
+		InsecureSkipVerify: s.SMTP.IgnoreCertErrors,
 	}
 	f, err := mail.ParseAddress(s.SMTP.FromAddress)
 	if err != nil {
@@ -188,7 +207,7 @@ func SendTestEmail(s *models.SendTestEmailRequest) error {
 	e.Subject = string(subjBuff.Bytes())
 	e.To = []string{s.Email}
 	Logger.Printf("Sending Email to %s\n", s.Email)
-	err = e.Send(s.SMTP.Host, auth)
+	err = e.SendWithTLS(s.SMTP.Host, auth, t)
 	if err != nil {
 		Logger.Println(err)
 		// For now, let's split the error and return
