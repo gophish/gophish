@@ -9,7 +9,20 @@ var pages = []
 function save(idx) {
     var page = {}
     page.name = $("#name").val()
-    page.html = CKEDITOR.instances["html_editor"].getData();
+    editor = CKEDITOR.instances["html_editor"]
+    html = editor.getData();
+    ck_dom = $(html)
+        // Handle capturing credentials
+    if ($("#capture_credentials_checkbox").prop("checked")) {
+        ck_dom.find("form").attr("action", "")
+        if (!$("#capture_passwords_checkbox").prop("checked")) {
+            // Remove the name so the credential isn't submitted
+            ck_dom.find("input[type='password']").removeAttr("name")
+        }
+    } else {
+        ck_dom.find("form").attr("action", "#")
+    }
+    page.html = editor.getData();
     if (idx != -1) {
         page.id = pages[idx].id
         api.pageId.put(page)
@@ -163,5 +176,8 @@ $(document).ready(function() {
                 }
             }, this));
     };
+    $("#capture_credentials_checkbox").change(function(){
+    	$("#capture_passwords").toggle()
+    })
     load()
 })

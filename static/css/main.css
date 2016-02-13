@@ -455,3 +455,6 @@ td.details-control{
 .tooltip-inner {
 	width:300px !important;
 }
+#capture_passwords {
+	display:none;
+}
