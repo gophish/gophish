@@ -3,6 +3,7 @@ package worker
 import (
 	"bytes"
 	"crypto/tls"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"log"
@@ -113,6 +114,14 @@ func processCampaign(c *models.Campaign) {
 		e.Subject = string(subjBuff.Bytes())
 		Logger.Println("Creating email using template")
 		e.To = []string{t.Email}
+		// Attach the files
+		for _, a := range c.Template.Attachments {
+			decoder := base64.NewDecoder(base64.StdEncoding, strings.NewReader(a.Content))
+			_, err = e.Attach(decoder, a.Name, a.Type)
+			if err != nil {
+				Logger.Println(err)
+			}
+		}
 		Logger.Printf("Sending Email to %s\n", t.Email)
 		err = e.SendWithTLS(c.SMTP.Host, auth, tc)
 		if err != nil {
@@ -206,6 +215,15 @@ func SendTestEmail(s *models.SendTestEmailRequest) error {
 	}
 	e.Subject = string(subjBuff.Bytes())
 	e.To = []string{s.Email}
+	// Attach the files
+	for _, a := range s.Template.Attachments {
+		Logger.Printf("Attaching %s\n", a.Name)
+		decoder := base64.NewDecoder(base64.StdEncoding, strings.NewReader(a.Content))
+		_, err = e.Attach(decoder, a.Name, a.Type)
+		if err != nil {
+			Logger.Println(err)
+		}
+	}
 	Logger.Printf("Sending Email to %s\n", s.Email)
 	err = e.SendWithTLS(s.SMTP.Host, auth, t)
 	if err != nil {

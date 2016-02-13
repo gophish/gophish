@@ -83,6 +83,14 @@ func GetTemplateByName(n string, uid int64) (Template, error) {
 	if err != nil {
 		Logger.Println(err)
 	}
+	err = db.Where("template_id=?", t.Id).Find(&t.Attachments).Error
+	if err != nil && err != gorm.RecordNotFound {
+		Logger.Println(err)
+		return t, err
+	}
+	if err == nil && len(t.Attachments) == 0 {
+		t.Attachments = make([]Attachment, 0)
+	}
 	return t, err
 }
 
