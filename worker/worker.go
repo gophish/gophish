@@ -178,9 +178,9 @@ func SendTestEmail(s *models.SendTestEmailRequest) error {
 		Logger.Println(err)
 		return err
 	}
-	ft := f.Name
-	if ft == "" {
-		ft = f.Address
+	s.From = f.Name
+	if s.From == "" {
+		s.From = f.Address
 	}
 	Logger.Println("Creating email using template")
 	// Parse the templates
