@@ -72,6 +72,7 @@ type SendTestEmailRequest struct {
 	URL         string   `json:"url"`
 	Tracker     string   `json:"tracker"`
 	TrackingURL string   `json:"tracking_url"`
+	From        string   `json:"from"`
 	Target
 }
 
