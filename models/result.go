@@ -30,6 +30,7 @@ type Result struct {
 	Email      string  `json:"email"`
 	FirstName  string  `json:"first_name"`
 	LastName   string  `json:"last_name"`
+	Position   string  `json:"position"`
 	Status     string  `json:"status" sql:"not null"`
 	IP         string  `json:"ip"`
 	Latitude   float64 `json:"latitude"`
