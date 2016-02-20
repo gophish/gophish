@@ -274,7 +274,7 @@ func CampaignID(w http.ResponseWriter, r *http.Request) {
 		Title   string
 		Flashes []interface{}
 		Token   string
-	}{Title: "Dashboard", User: ctx.Get(r, "user").(models.User), Token: nosurf.Token(r)}
+	}{Title: "Campaign Results", User: ctx.Get(r, "user").(models.User), Token: nosurf.Token(r)}
 	getTemplate(w, "campaign_results").ExecuteTemplate(w, "base", params)
 }
 
@@ -286,7 +286,7 @@ func Templates(w http.ResponseWriter, r *http.Request) {
 		Title   string
 		Flashes []interface{}
 		Token   string
-	}{Title: "Dashboard", User: ctx.Get(r, "user").(models.User), Token: nosurf.Token(r)}
+	}{Title: "Email Templates", User: ctx.Get(r, "user").(models.User), Token: nosurf.Token(r)}
 	getTemplate(w, "templates").ExecuteTemplate(w, "base", params)
 }
 
@@ -298,7 +298,7 @@ func Users(w http.ResponseWriter, r *http.Request) {
 		Title   string
 		Flashes []interface{}
 		Token   string
-	}{Title: "Dashboard", User: ctx.Get(r, "user").(models.User), Token: nosurf.Token(r)}
+	}{Title: "Users & Groups", User: ctx.Get(r, "user").(models.User), Token: nosurf.Token(r)}
 	getTemplate(w, "users").ExecuteTemplate(w, "base", params)
 }
 
@@ -310,7 +310,7 @@ func LandingPages(w http.ResponseWriter, r *http.Request) {
 		Title   string
 		Flashes []interface{}
 		Token   string
-	}{Title: "Dashboard", User: ctx.Get(r, "user").(models.User), Token: nosurf.Token(r)}
+	}{Title: "Landing Pages", User: ctx.Get(r, "user").(models.User), Token: nosurf.Token(r)}
 	getTemplate(w, "landing_pages").ExecuteTemplate(w, "base", params)
 }
 
@@ -322,7 +322,7 @@ func SendingProfiles(w http.ResponseWriter, r *http.Request) {
                 Title   string
                 Flashes []interface{}
                 Token   string
-        }{Title: "Dashboard", User: ctx.Get(r, "user").(models.User), Token: nosurf.Token(r)}
+        }{Title: "Sending Profiles", User: ctx.Get(r, "user").(models.User), Token: nosurf.Token(r)}
         getTemplate(w, "sending_profiles").ExecuteTemplate(w, "base", params)
 }
 
@@ -335,7 +335,7 @@ func Settings(w http.ResponseWriter, r *http.Request) {
 			Title   string
 			Flashes []interface{}
 			Token   string
-		}{Title: "Dashboard", User: ctx.Get(r, "user").(models.User), Token: nosurf.Token(r)}
+		}{Title: "Settings", User: ctx.Get(r, "user").(models.User), Token: nosurf.Token(r)}
 		getTemplate(w, "settings").ExecuteTemplate(w, "base", params)
 	case r.Method == "POST":
 		err := auth.ChangePassword(r)
