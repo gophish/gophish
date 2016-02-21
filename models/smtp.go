@@ -3,18 +3,17 @@ package models
 import 	(
 	"errors"
 	"time"
-
-//	"github.com/jinzhu/gorm"
 )
 
 // SMTP contains the attributes needed to handle the sending of campaign emails
 type SMTP struct {
-	Id			int64		`json:"-" gorm:"column:id; primary_key:yes"`
-	Name			string		`json:"-" gorm:"column:name"`
+	Id			int64		`json:"id" gorm:"column:id; primary_key:yes"`
 	UserId			int64		`json:"-" gorm:"column:user_id"`
+	Interface		string		`json:"interface_type" gorm:"column:interface_type"`
+	Name			string		`json:"name"`
 	Host			string		`json:"host"`
 	Username		string		`json:"username,omitempty"`
-	Password		string		`json:"password,omitempty" sql:"-"`
+	Password		string		`json:"password,omitempty"`
 	FromAddress		string		`json:"from_address"`
 	IgnoreCertErrors	bool		`json:"ignore_cert_errors"`
 	ModifiedDate		time.Time	`json:"modified_date"`
@@ -50,7 +49,6 @@ func GetSMTPs(uid int64) ([]SMTP, error) {
 	err := db.Where("user_id=?", uid).Find(&ss).Error
 	if err != nil {
 		Logger.Println(err)
-		return ss, err
 	}
 	return ss, err
 }
@@ -61,7 +59,6 @@ func GetSMTP(id int64, uid int64) (SMTP, error) {
 	err := db.Where("user_id=? and id=?", uid, id).Find(&s).Error
 	if err != nil {
 		Logger.Println(err)
-		return s, err
 	}
 	return s, err
 }
@@ -107,7 +104,6 @@ func DeleteSMTP(id int64, uid int64) error {
 	err = db.Where("user_id=?", uid).Delete(SMTP{Id: id}).Error
 	if err != nil {
 		Logger.Println(err)
-		return err
 	}
 	return err
 }
