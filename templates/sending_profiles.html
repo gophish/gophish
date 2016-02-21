@@ -32,7 +32,7 @@
     </h1>
     <div id="flashes" class="row"></div>
     <div class="row">
-        <button type="button" class="btn btn-primary" onclick="edit(-1)" data-toggle="modal" data-target="#newLandingPageModal"><i class="fa fa-plus"></i> New Page</button>
+        <button type="button" class="btn btn-primary" onclick="edit(-1)" data-toggle="modal" data-target="#newProfileModal"><i class="fa fa-plus"></i> New Profile</button>
     </div>
     &nbsp;
     <div id="loading">
@@ -40,14 +40,15 @@
     </div>
     <div id="emptyMessage" class="row" style="display:none;">
         <div class="alert alert-info">
-            No pages created yet. Let's create one!
+            No profiles created yet. Let's create one!
         </div>
     </div>
     <div class="row">
-        <table id="pagesTable" class="table" style="display:none;">
+        <table id="profileTable" class="table" style="display:none;">
             <thead>
                 <tr>
                     <th>Name</th>
+		    <th>Interface Type</th>
                     <th>Last Modified Date</th>
                     <th class="col-md-2 no-sort"></th>
                 </tr>
@@ -58,60 +59,48 @@
     </div>
 </div>
 <!-- Modal -->
-<div class="modal fade" id="newLandingPageModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel">
+<div class="modal fade" id="newProfileModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
         <!-- New Template Modal -->
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title" id="pageModalLabel">New Landing Page</h4>
+          <h4 class="modal-title" id="profileModalLabel">New Sending Profile</h4>
         </div>
         <div class="modal-body">
             <div class="row" id="modal.flashes"></div>
             <label class="control-label" for="name">Name:</label>
             <div class="form-group">
-                <input type="text" class="form-control" placeholder="Page name" id="name" autofocus/>
+                <input type="text" class="form-control" placeholder="Profile name" id="name" autofocus/>
             </div>
+	    <label class="control-label" for="name">Interface Type:</label>
             <div class="form-group">
-                <button class="btn btn-danger" data-toggle="modal" data-target="#importSiteModal"><i class="fa fa-globe"></i> Import Site</button>
+                <input type="text" class="form-control" value="SMTP" id="interface_type" disabled/>
             </div>
-            <!-- Nav tabs -->
-            <ul class="nav nav-tabs" role="tablist">
-                <li class="active" role="html"><a href="#html" aria-controls="html" role="tab" data-toggle="tab">HTML</a></li>
-            </ul>
-            <!-- Tab panes -->
-            <div class="tab-content">
-                <div role="tabpanel" class="tab-pane active" id="html">
-                    <textarea id="html_editor"></textarea>
-                </div>
+            <label class="control-label" for="name">From:</label>
+            <div class="form-group">
+                <input type="text" class="form-control" placeholder="First Last <test@example.com>" id="from" autofocus/>
+            </div>
+            <label class="control-label" for="name">Host:</label>
+            <div class="form-group">
+                <input type="text" class="form-control" placeholder="smtp.example.com:25" id="host" autofocus/>
+            </div>
+            <label class="control-label" for="name">Username:</label>
+            <div class="form-group">
+                <input type="text" class="form-control" placeholder="Username" id="username" autofocus/>
+            </div>
+            <label class="control-label" for="name">Password:</label>
+            <div class="form-group">
+                <input type="text" class="form-control" placeholder="Password" id="password" autofocus/>
+            </div>
+            <div class="checkbox checkbox-primary">
+               <input id="ignore_cert_errors" type="checkbox" checked>
+               <label for="ignore_cert_errors">Ignore Certificate Errors <i class="fa fa-question-circle" data-toggle="tooltip" data-placement="right" title="Ignore common certificate errors such as self-signed certs (exposes you to MiTM attacks - use carefully!)"></i></label>
             </div>
         </div>
         <div class="modal-footer">
             <button type="button" data-dismiss="modal" class="btn btn-default" onclick="dismiss()">Cancel</button>
-            <button type="button" class="btn btn-primary" id="modalSubmit">Save Page</button>
-        </div>
-    </div>
-  </div>
-</div>
-<!-- Modal -->
-<div class="modal fade" id="importSiteModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-        <!-- New Template Modal -->
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title" id="importSiteModalLabel">Import Site</h4>
-        </div>
-        <div class="modal-body">
-            <div class="row" id="modal.flashes"></div>
-            <label class="control-label" for="url">URL:</label>
-            <div class="form-group">
-                <input type="text" class="form-control" placeholder="http://google.com" id="url" autofocus/>
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button type="button" data-dismiss="modal" class="btn btn-default">Cancel</button>
-            <button type="button" class="btn btn-primary" id="modalSubmit" onclick="importSite()">Import</button>
+            <button type="button" class="btn btn-primary" id="modalSubmit">Save Profile</button>
         </div>
     </div>
   </div>
@@ -120,6 +109,5 @@
 {{define "scripts"}}
 <script src="/js/ckeditor/ckeditor.js"></script>
 <script src="/js/ckeditor/adapters/jquery.js"></script>
-<script src="/js/app/landing_pages.js"></script>
 <script src="/js/app/sending_profiles.js"></script>
 {{end}}
