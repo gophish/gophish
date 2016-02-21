@@ -58,7 +58,7 @@ var api = {
         get: function() {
             return query("/groups/", "GET", {}, false)
         },
-        // post() - Posts a campaign to POST /groups
+        // post() - Posts a group to POST /groups
         post: function(group) {
             return query("/groups/", "POST", group, false)
         }
@@ -69,11 +69,11 @@ var api = {
         get: function(id) {
             return query("/groups/" + id, "GET", {}, false)
         },
-        // put() - Puts a campaign to PUT /groups/:id
+        // put() - Puts a group to PUT /groups/:id
         put: function(group) {
             return query("/groups/" + group.id, "PUT", group, false)
         },
-        // delete() - Deletes a campaign at DELETE /groups/:id
+        // delete() - Deletes a group at DELETE /groups/:id
         delete: function(id) {
             return query("/groups/" + id, "DELETE", {}, false)
         }
@@ -84,7 +84,7 @@ var api = {
         get: function() {
             return query("/templates/", "GET", {}, false)
         },
-        // post() - Posts a campaign to POST /templates
+        // post() - Posts a template to POST /templates
         post: function(template) {
             return query("/templates/", "POST", template, false)
         }
@@ -95,11 +95,11 @@ var api = {
         get: function(id) {
             return query("/templates/" + id, "GET", {}, false)
         },
-        // put() - Puts a campaign to PUT /templates/:id
+        // put() - Puts a template to PUT /templates/:id
         put: function(template) {
             return query("/templates/" + template.id, "PUT", template, false)
         },
-        // delete() - Deletes a campaign at DELETE /templates/:id
+        // delete() - Deletes a template at DELETE /templates/:id
         delete: function(id) {
             return query("/templates/" + id, "DELETE", {}, false)
         }
@@ -110,24 +110,50 @@ var api = {
         get: function() {
             return query("/pages/", "GET", {}, false)
         },
-        // post() - Posts a campaign to POST /pages
+        // post() - Posts a page to POST /pages
         post: function(page) {
             return query("/pages/", "POST", page, false)
         }
     },
-    // templateId contains the endpoints for /templates/:id
+    // pageId contains the endpoints for /pages/:id
     pageId: {
-        // get() - Queries the API for GET /templates/:id
+        // get() - Queries the API for GET /pages/:id
         get: function(id) {
             return query("/pages/" + id, "GET", {}, false)
         },
-        // put() - Puts a campaign to PUT /templates/:id
+        // put() - Puts a page to PUT /pages/:id
         put: function(page) {
             return query("/pages/" + page.id, "PUT", page, false)
         },
-        // delete() - Deletes a campaign at DELETE /templates/:id
+        // delete() - Deletes a page at DELETE /pages/:id
         delete: function(id) {
             return query("/pages/" + id, "DELETE", {}, false)
+        }
+    },
+    // SMTP contains the endpoints for /smtp
+    SMTP: {
+        // get() - Queries the API for GET /smtp
+        get: function() {
+            return query("/smtp/", "GET", {}, false)
+        },
+        // post() - Posts a SMTP to POST /smtp
+        post: function(smtp) {
+            return query("/smtp/", "POST", smtp, false)
+        }
+    },
+    // SMTPId contains the endpoints for /smtp/:id
+    SMTPId: {
+        // get() - Queries the API for GET /smtp/:id
+        get: function(id) {
+            return query("/smtp/" + id, "GET", {}, false)
+        },
+        // put() - Puts a SMTP to PUT /smtp/:id
+        put: function(smtp) {
+            return query("/smtp/" + smtp.id, "PUT", smtp, false)
+        },
+        // delete() - Deletes a SMTP at DELETE /smtp/:id
+        delete: function(id) {
+            return query("/smtp/" + id, "DELETE", {}, false)
         }
     },
     // import handles all of the "import" functions in the api
