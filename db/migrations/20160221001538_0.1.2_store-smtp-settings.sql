@@ -14,8 +14,8 @@ ALTER TABLE smtp RENAME TO smtp_old;
 CREATE TABLE smtp(
 	id integer primary key autoincrement,
 	user_id bigint,
-	name varchar(255),
 	interface_type varchar(255),
+	name varchar(255),
 	host varchar(255),
 	username varchar(255),
 	password varchar(255),
@@ -23,8 +23,8 @@ CREATE TABLE smtp(
 	modified_date datetime default CURRENT_TIMESTAMP,
 	ignore_cert_errors BOOLEAN
 );
-INSERT INTO smtp 
-	SELECT smtp_id AS id,'','SMTP',smtp_id AS id,host,username,'',from_address,'',ignore_cert_errors 
+INSERT INTO smtp (id,interface_type,name,host,username,from_address,ignore_cert_errors)
+	SELECT smtp_id,'SMTP',smtp_id,host,username,from_address,ignore_cert_errors 
 	FROM smtp_old
 ;
 UPDATE smtp 
