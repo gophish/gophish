@@ -31,11 +31,7 @@ function launch() {
             name: $("#page").val()
         },
         smtp: {
-            from_address: $("input[name=from]").val(),
-            host: $("input[name=host]").val(),
-            username: $("input[name=username]").val(),
-            password: $("input[name=password]").val(),
-            ignore_cert_errors: $("#ignore_cert_errors").prop("checked")
+	    name: $("#profile").val()
         },
         groups: groups
     }
@@ -70,11 +66,7 @@ function sendTestEmail() {
             name: $("#page").val()
         },
         smtp: {
-            from_address: $("input[name=from]").val(),
-            host: $("input[name=host]").val(),
-            username: $("input[name=username]").val(),
-            password: $("input[name=password]").val(),
-            ignore_cert_errors: $("#ignore_cert_errors").prop("checked")
+	    name: $("#profile").val()
         }
     }
     btnHtml = $("#sendTestModalSubmit").html()
@@ -114,6 +106,7 @@ function edit(campaign) {
     group_bh.clear();
     template_bh.clear();
     page_bh.clear();
+    profile_bh.clear();
     if (campaign == "new") {
         api.groups.get()
             .success(function(groups) {
@@ -142,6 +135,15 @@ function edit(campaign) {
                     page_bh.add(pages)
                 }
             })
+	api.SMTP.get()
+	    .success(function(profiles) {
+		if (profiles.length == 0){
+		   modalError("No profiles found!")
+		   return false
+		} else {
+		   profile_bh.add(profiles)
+		}
+	    })
     }
 }
 
@@ -329,5 +331,36 @@ $(document).ready(function() {
         })
         .bind('typeahead:autocomplete', function(ev, page) {
             $("#page").typeahead('val', page.name)
+        });
+    // Create the sending profile typeahead objects
+    profile_bh = new Bloodhound({
+        datumTokenizer: function(s) {
+            return Bloodhound.tokenizers.whitespace(s.name)
+        },
+        queryTokenizer: Bloodhound.tokenizers.whitespace,
+        local: []
+    })
+    profile_bh.initialize()
+    $("#profile.typeahead.form-control").typeahead({
+            hint: true,
+            highlight: true,
+            minLength: 1
+        }, {
+            name: "profiles",
+            source: profile_bh,
+            templates: {
+                empty: function(data) {
+                    return '<div class="tt-suggestion">No profiles matched that query</div>'
+                },
+                suggestion: function(data) {
+                    return '<div>' + data.name + '</div>'
+                }
+            }
+        })
+        .bind('typeahead:select', function(ev, profile) {
+            $("#profile").typeahead('val', profile.name)
+        })
+        .bind('typeahead:autocomplete', function(ev, profile) {
+            $("#profile").typeahead('val', profile.name)
         });
 })

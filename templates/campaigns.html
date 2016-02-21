@@ -81,34 +81,13 @@
 	      <br>
 	      <label class="control-label" for="url">URL: <i class="fa fa-question-circle" data-toggle="tooltip" data-placement="right" title="Location of gophish listener (must be reachable by targets!)"></i></label>
               <input type="text" class="form-control" placeholder="http://192.168.1.1" id="url"/>
-	      <br/>
-              <div class="panel panel-default">
-                  <div class="panel-heading" role="tab">
-                      <a role="button" class="collapsed" data-toggle="collapse" href="#smtpPanel" aria-expanded="false" aria-controls="#smtpPanel">
-                          SMTP Options <i class="pull-right glyphicon"></i>
-                      </a>
-                  </div>
-                  <div class="panel-collapse collapse" id="smtpPanel" role="tabpanel">
-                      <div class="panel-body">
-                          <label class="control-label" for="from">From:</label>
-                          <input type="text" class="form-control" placeholder="First Last <test@example.com>" value="" name="from">
-                          <br />
-                          <label class="control-label" for="smtp_server">Host:</label>
-                          <input type="text" class="form-control" placeholder="smtp.example.com:25" value="" name="host">
-                          <br />
-                          <label class="control-label" for="smtp_server">Username:</label>
-                          <input type="text" class="form-control" placeholder="Username" value="" name="username">
-                          <br />
-                          <label class="control-label" for="smtp_server">Password:</label>
-                          <input type="password" class="form-control" placeholder="Password" value="" name="password">
-			  <div class="checkbox checkbox-primary">
-                		<input id="ignore_cert_errors" type="checkbox" checked>
-				<label for="ignore_cert_errors">Ignore Certificate Errors <i class="fa fa-question-circle" data-toggle="tooltip" data-placement="right" title="Ignore common certificate errors such as self-signed certs (exposes you to MiTM attacks - use carefully!)"></i></label>
-            		  </div>
-			  <button type="button" data-toggle="modal" data-target="#sendTestEmailModal" class="btn btn-primary"><i class="fa fa-envelope"></i> Send Test Email</button>
-                      </div>
-                 </div>
-              </div>
+	      <label class="control-label" for="profile">Sending Profile:</label>
+	      <div class="input-group">
+		<input type="text" class="typeahead form-control" placeholder="Sending Profile" id="profile"/>
+		<span class="input-group-btn">
+		    <button type="button" data-toggle="modal" data-target="#sendTestEmailModal" class="btn btn-primary typeahead-button"><i class="fa fa-envelope"></i> Send Test Email</button>
+		</span>
+	      </div>
               <label class="control-label" for="users">Groups:</label>
               <form id="groupForm">
                   <div class="input-group">
