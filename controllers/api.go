@@ -146,8 +146,8 @@ func API_Groups(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// API_Groups_Id returns details about the requested campaign. If the campaign is not
-// valid, API_Campaigns_Id returns null.
+// API_Groups_Id returns details about the requested campaign. If the group is not
+// valid, API_Groups_Id returns null.
 func API_Groups_Id(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.ParseInt(vars["id"], 0, 64)
@@ -354,35 +354,35 @@ func API_Pages_Id(w http.ResponseWriter, r *http.Request) {
 func API_SMTP(w http.ResponseWriter, r *http.Request) {
         switch {
         case r.Method == "GET":
-                ps, err := models.GetPages(ctx.Get(r, "user_id").(int64))
+                ss, err := models.GetSMTPs(ctx.Get(r, "user_id").(int64))
                 if err != nil {
                         fmt.Println(err)
                 }
-                JSONResponse(w, ps, http.StatusOK)
-        //POST: Create a new page and return it as JSON
+                JSONResponse(w, ss, http.StatusOK)
+        //POST: Create a new SMTP and return it as JSON
         case r.Method == "POST":
-                p := models.Page{}
+                s := models.SMTP{}
                 // Put the request into a page
-                err := json.NewDecoder(r.Body).Decode(&p)
+                err := json.NewDecoder(r.Body).Decode(&s)
                 if err != nil {
                         JSONResponse(w, models.Response{Success: false, Message: "Invalid request"}, http.StatusBadRequest)
                         return
                 }
                 // Check to make sure the name is unique
-                _, err = models.GetPageByName(p.Name, ctx.Get(r, "user_id").(int64))
+                _, err = models.GetSMTPByName(s.Name, ctx.Get(r, "user_id").(int64))
                 if err != gorm.RecordNotFound {
-                        JSONResponse(w, models.Response{Success: false, Message: "Page name already in use"}, http.StatusConflict)
+                        JSONResponse(w, models.Response{Success: false, Message: "SMTP name already in use"}, http.StatusConflict)
                         Logger.Println(err)
                         return
                 }
-                p.ModifiedDate = time.Now()
-                p.UserId = ctx.Get(r, "user_id").(int64)
-                err = models.PostPage(&p)
+                s.ModifiedDate = time.Now()
+                s.UserId = ctx.Get(r, "user_id").(int64)
+                err = models.PostSMTP(&s)
                 if err != nil {
                         JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
                         return
                 }
-                JSONResponse(w, p, http.StatusCreated)
+                JSONResponse(w, s, http.StatusCreated)
         }
 }
 
@@ -391,44 +391,44 @@ func API_SMTP(w http.ResponseWriter, r *http.Request) {
 func API_SMTP_Id(w http.ResponseWriter, r *http.Request) {
         vars := mux.Vars(r)
         id, _ := strconv.ParseInt(vars["id"], 0, 64)
-        p, err := models.GetPage(id, ctx.Get(r, "user_id").(int64))
+        s, err := models.GetSMTP(id, ctx.Get(r, "user_id").(int64))
         if err != nil {
-                JSONResponse(w, models.Response{Success: false, Message: "Page not found"}, http.StatusNotFound)
+                JSONResponse(w, models.Response{Success: false, Message: "SMTP not found"}, http.StatusNotFound)
                 return
         }
         switch {
         case r.Method == "GET":
-                JSONResponse(w, p, http.StatusOK)
+                JSONResponse(w, s, http.StatusOK)
         case r.Method == "DELETE":
-                err = models.DeletePage(id, ctx.Get(r, "user_id").(int64))
+                err = models.DeleteSMTP(id, ctx.Get(r, "user_id").(int64))
                 if err != nil {
-                        JSONResponse(w, models.Response{Success: false, Message: "Error deleting page"}, http.StatusInternalServerError)
+                        JSONResponse(w, models.Response{Success: false, Message: "Error deleting SMTP"}, http.StatusInternalServerError)
                         return
                 }
-                JSONResponse(w, models.Response{Success: true, Message: "Page Deleted Successfully"}, http.StatusOK)
+                JSONResponse(w, models.Response{Success: true, Message: "SMTP Deleted Successfully"}, http.StatusOK)
         case r.Method == "PUT":
-                p = models.Page{}
-                err = json.NewDecoder(r.Body).Decode(&p)
+                s = models.SMTP{}
+                err = json.NewDecoder(r.Body).Decode(&s)
                 if err != nil {
                         Logger.Println(err)
                 }
-                if p.Id != id {
-                        JSONResponse(w, models.Response{Success: false, Message: "/:id and /:page_id mismatch"}, http.StatusBadRequest)
+                if s.Id != id {
+                        JSONResponse(w, models.Response{Success: false, Message: "/:id and /:smtp_id mismatch"}, http.StatusBadRequest)
                         return
                 }
-                err = p.Validate()
+                err = s.Validate()
                 if err != nil {
                         JSONResponse(w, models.Response{Success: false, Message: "Invalid attributes given"}, http.StatusBadRequest)
                         return
                 }       
-                p.ModifiedDate = time.Now()
-                p.UserId = ctx.Get(r, "user_id").(int64)
-                err = models.PutPage(&p)
+                s.ModifiedDate = time.Now()
+                s.UserId = ctx.Get(r, "user_id").(int64)
+                err = models.PutSMTP(&s)
                 if err != nil {
                         JSONResponse(w, models.Response{Success: false, Message: "Error updating page"}, http.StatusInternalServerError)
                         return
                 }
-                JSONResponse(w, p, http.StatusOK)
+                JSONResponse(w, s, http.StatusOK)
         }
 }
 
