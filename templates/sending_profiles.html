@@ -32,7 +32,7 @@
     </h1>
     <div id="flashes" class="row"></div>
     <div class="row">
-        <button type="button" class="btn btn-primary" onclick="edit(-1)" data-toggle="modal" data-target="#newProfileModal"><i class="fa fa-plus"></i> New Profile</button>
+        <button type="button" class="btn btn-primary" onclick="edit(-1)" data-toggle="modal" data-target="#modal"><i class="fa fa-plus"></i> New Profile</button>
     </div>
     &nbsp;
     <div id="loading">
@@ -59,7 +59,7 @@
     </div>
 </div>
 <!-- Modal -->
-<div class="modal fade" id="newProfileModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel">
+<div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
         <!-- New Template Modal -->
@@ -69,36 +69,26 @@
         </div>
         <div class="modal-body">
             <div class="row" id="modal.flashes"></div>
-            <label class="control-label" for="name">Name:</label>
             <div class="form-group">
+		<label class="control-label" for="name">Name:</label>
                 <input type="text" class="form-control" placeholder="Profile name" id="name" autofocus/>
-            </div>
-	    <label class="control-label" for="name">Interface Type:</label>
-            <div class="form-group">
+		<label class="control-label" for="interface_type">Interface Type:</label>
                 <input type="text" class="form-control" value="SMTP" id="interface_type" disabled/>
-            </div>
-            <label class="control-label" for="name">From:</label>
-            <div class="form-group">
-                <input type="text" class="form-control" placeholder="First Last <test@example.com>" id="from" autofocus required/>
-            </div>
-            <label class="control-label" for="name">Host:</label>
-            <div class="form-group">
-                <input type="text" class="form-control" placeholder="smtp.example.com:25" id="host" autofocus required/>
-            </div>
-            <label class="control-label" for="name">Username:</label>
-            <div class="form-group">
-                <input type="text" class="form-control" placeholder="Username" id="username" autofocus/>
-            </div>
-            <label class="control-label" for="name">Password:</label>
-            <div class="form-group">
-                <input type="text" class="form-control" placeholder="Password" id="password" autofocus/>
-            </div>
-            <div class="checkbox checkbox-primary">
-               <input id="ignore_cert_errors" type="checkbox" checked>
-               <label for="ignore_cert_errors">Ignore Certificate Errors <i class="fa fa-question-circle" data-toggle="tooltip" data-placement="right" title="Ignore common certificate errors such as self-signed certs (exposes you to MiTM attacks - use carefully!)"></i></label>
-            </div>
-	    <!-- <button type="button" data-toggle="modal" data-target="#sendTestEmailModal" class="btn btn-primary"><i class="fa fa-envelope"></i> Send Test Email</button> -->
-	    <!-- disable sendTestEmail functionality on sending profile page until update handling of /util/send_test_email -->
+		<label class="control-label" for="from">From:</label>
+                <input type="text" class="form-control" placeholder="First Last <test@example.com>" id="from" required/>
+		<label class="control-label" for="host">Host:</label>
+                <input type="text" class="form-control" placeholder="smtp.example.com:25" id="host" required/>
+		<label class="control-label" for="username">Username:</label>
+                <input type="text" class="form-control" placeholder="Username" id="username"/>
+		<label class="control-label" for="password">Password:</label>
+                <input type="text" class="form-control" placeholder="Password" id="password"/>
+		<div class="checkbox checkbox-primary">
+			<input id="ignore_cert_errors" type="checkbox" checked>
+			<label for="ignore_cert_errors">Ignore Certificate Errors <i class="fa fa-question-circle" data-toggle="tooltip" data-placement="right" title="Ignore common certificate errors such as self-signed certs (exposes you to MiTM attacks - use carefully!)"></i></label>
+		</div>
+		<!-- <button type="button" data-toggle="modal" data-target="#sendTestEmailModal" class="btn btn-primary"><i class="fa fa-envelope"></i> Send Test Email</button> -->
+		<!-- disable sendTestEmail functionality on sending profile page until update handling of /util/send_test_email -->
+	    </div>
         </div>
         <div class="modal-footer">
             <button type="button" data-dismiss="modal" class="btn btn-default" onclick="dismiss()">Cancel</button>
