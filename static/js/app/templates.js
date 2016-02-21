@@ -64,6 +64,7 @@ function dismiss() {
     $("#modal\\.flashes").empty()
     $("#attachmentsTable").dataTable().DataTable().clear().draw()
     $("#name").val("")
+    $("#subject").val("")
     $("#text_editor").val("")
     $("#html_editor").val("")
     $("#modal").modal('hide')

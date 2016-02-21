@@ -69,10 +69,12 @@ function save(idx) {
 function dismiss() {
     $("#modal\\.flashes").empty()
     $("#name").val("")
+    $("#interface_type").val("SMTP")
     $("#from").val("")
     $("#host").val("")
     $("#username").val("")
     $("#password").val("")
+    $("#ignore_cert_errors").prop("checked", true)
     $("#modal").modal('hide')
 }
 

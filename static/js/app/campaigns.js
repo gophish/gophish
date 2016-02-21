@@ -87,6 +87,12 @@ function sendTestEmail() {
 
 function dismiss() {
     $("#modal\\.flashes").empty()
+    $("#name").val("")
+    $("#template").val("")
+    $("#page").val("")
+    $("#url").val("")
+    $("#profile").val("")
+    $("#groupSelect").val("")
     $("#modal").modal('hide')
     $("#groupTable").dataTable().DataTable().clear().draw()
 }
