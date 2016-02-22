@@ -35,7 +35,7 @@ func API(w http.ResponseWriter, r *http.Request) {
 		templates := template.New("template")
 		_, err := templates.ParseFiles("templates/docs.html")
 		if err != nil {
-			fmt.Println(err)
+			Logger.Println(err)
 		}
 		template.Must(templates, err).ExecuteTemplate(w, "base", nil)
 	}
@@ -63,7 +63,7 @@ func API_Campaigns(w http.ResponseWriter, r *http.Request) {
 	case r.Method == "GET":
 		cs, err := models.GetCampaigns(ctx.Get(r, "user_id").(int64))
 		if err != nil {
-			fmt.Println(err)
+			Logger.Println(err)
 		}
 		JSONResponse(w, cs, http.StatusOK)
 	//POST: Create a new campaign and return it as JSON
@@ -191,7 +191,7 @@ func API_Templates(w http.ResponseWriter, r *http.Request) {
 	case r.Method == "GET":
 		ts, err := models.GetTemplates(ctx.Get(r, "user_id").(int64))
 		if err != nil {
-			fmt.Println(err)
+			Logger.Println(err)
 		}
 		JSONResponse(w, ts, http.StatusOK)
 	//POST: Create a new template and return it as JSON
@@ -274,7 +274,7 @@ func API_Pages(w http.ResponseWriter, r *http.Request) {
 	case r.Method == "GET":
 		ps, err := models.GetPages(ctx.Get(r, "user_id").(int64))
 		if err != nil {
-			fmt.Println(err)
+			Logger.Println(err)
 		}
 		JSONResponse(w, ps, http.StatusOK)
 	//POST: Create a new page and return it as JSON
@@ -356,7 +356,7 @@ func API_SMTP(w http.ResponseWriter, r *http.Request) {
 	case r.Method == "GET":
 		ss, err := models.GetSMTPs(ctx.Get(r, "user_id").(int64))
 		if err != nil {
-			fmt.Println(err)
+			Logger.Println(err)
 		}
 		JSONResponse(w, ss, http.StatusOK)
 	//POST: Create a new SMTP and return it as JSON
