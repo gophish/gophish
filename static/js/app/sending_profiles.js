@@ -1,38 +1,38 @@
 var profiles = []
 
 // Attempts to send a test email by POSTing to /campaigns/
-/*function sendTestEmail() {
+function sendTestEmail() {
     var test_email_request = {
-        template: { name: '' },
-        first_name: $("input[name=to_first_name]").val(),
-        last_name: $("input[name=to_last_name]").val(),
-        email: $("input[name=to_email]").val(),
-        position: $("input[name=to_position]").val(),
-        url: '',
-        page: { name: '' },
-        smtp: {
-            from_address: $("#from").val(),
-            host: $("#host").val(),
-            username: $("#username").val(),
-            password: $("#password").val(),
-            ignore_cert_errors: $("#ignore_cert_errors").prop("checked")
-        }
+	template: { name: '' },
+	first_name: $("input[name=to_first_name]").val(),
+	last_name: $("input[name=to_last_name]").val(),
+	email: $("input[name=to_email]").val(),
+	position: $("input[name=to_position]").val(),
+	url: '',
+	page: { name: '' },
+	smtp: {
+	    from_address: $("#from").val(),
+	    host: $("#host").val(),
+	    username: $("#username").val(),
+	    password: $("#password").val(),
+	    ignore_cert_errors: $("#ignore_cert_errors").prop("checked")
+	}
     }
     btnHtml = $("#sendTestModalSubmit").html()
     $("#sendTestModalSubmit").html('<i class="fa fa-spinner fa-spin"></i> Sending')
-        // Send the test email
+	// Send the test email
     api.send_test_email(test_email_request)
-        .success(function(data) {
-            $("#sendTestEmailModal\\.flashes").empty().append("<div style=\"text-align:center\" class=\"alert alert-success\">\
-            <i class=\"fa fa-check-circle\"></i> Email Sent!</div>")
-            $("#sendTestModalSubmit").html(btnHtml)
-        })
-        .error(function(data) {
-            $("#sendTestEmailModal\\.flashes").empty().append("<div style=\"text-align:center\" class=\"alert alert-danger\">\
-            <i class=\"fa fa-exclamation-circle\"></i> " + data.responseJSON.message + "</div>")
-            $("#sendTestModalSubmit").html(btnHtml)
-        })
-}*/ //disable sendTestEmail functionality on sending profile page until update handling of /util/send_test_email
+	.success(function(data) {
+	    $("#sendTestEmailModal\\.flashes").empty().append("<div style=\"text-align:center\" class=\"alert alert-success\">\
+	    <i class=\"fa fa-check-circle\"></i> Email Sent!</div>")
+	    $("#sendTestModalSubmit").html(btnHtml)
+	})
+	.error(function(data) {
+	    $("#sendTestEmailModal\\.flashes").empty().append("<div style=\"text-align:center\" class=\"alert alert-danger\">\
+	    <i class=\"fa fa-exclamation-circle\"></i> " + data.responseJSON.message + "</div>")
+	    $("#sendTestModalSubmit").html(btnHtml)
+	})
+}
 
 // Save attempts to POST to /smtp/
 function save(idx) {
