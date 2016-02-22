@@ -316,14 +316,14 @@ func LandingPages(w http.ResponseWriter, r *http.Request) {
 
 // SendingProfiles handles the default path and template execution
 func SendingProfiles(w http.ResponseWriter, r *http.Request) {
-        // Example of using session - will be removed.
-        params := struct {
-                User    models.User
-                Title   string
-                Flashes []interface{}
-                Token   string
-        }{Title: "Sending Profiles", User: ctx.Get(r, "user").(models.User), Token: nosurf.Token(r)}
-        getTemplate(w, "sending_profiles").ExecuteTemplate(w, "base", params)
+	// Example of using session - will be removed.
+	params := struct {
+		User    models.User
+		Title   string
+		Flashes []interface{}
+		Token   string
+	}{Title: "Sending Profiles", User: ctx.Get(r, "user").(models.User), Token: nosurf.Token(r)}
+	getTemplate(w, "sending_profiles").ExecuteTemplate(w, "base", params)
 }
 
 // Settings handles the changing of settings

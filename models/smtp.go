@@ -1,22 +1,22 @@
 package models
 
-import 	(
+import (
 	"errors"
 	"time"
 )
 
 // SMTP contains the attributes needed to handle the sending of campaign emails
 type SMTP struct {
-	Id			int64		`json:"id" gorm:"column:id; primary_key:yes"`
-	UserId			int64		`json:"-" gorm:"column:user_id"`
-	Interface		string		`json:"interface_type" gorm:"column:interface_type"`
-	Name			string		`json:"name"`
-	Host			string		`json:"host"`
-	Username		string		`json:"username,omitempty"`
-	Password		string		`json:"password,omitempty"`
-	FromAddress		string		`json:"from_address"`
-	IgnoreCertErrors	bool		`json:"ignore_cert_errors"`
-	ModifiedDate		time.Time	`json:"modified_date"`
+	Id               int64     `json:"id" gorm:"column:id; primary_key:yes"`
+	UserId           int64     `json:"-" gorm:"column:user_id"`
+	Interface        string    `json:"interface_type" gorm:"column:interface_type"`
+	Name             string    `json:"name"`
+	Host             string    `json:"host"`
+	Username         string    `json:"username,omitempty"`
+	Password         string    `json:"password,omitempty"`
+	FromAddress      string    `json:"from_address"`
+	IgnoreCertErrors bool      `json:"ignore_cert_errors"`
+	ModifiedDate     time.Time `json:"modified_date"`
 }
 
 // ErrFromAddressNotSpecified is thrown when there is no "From" address

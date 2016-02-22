@@ -10,22 +10,22 @@ import (
 
 //Campaign is a struct representing a created campaign
 type Campaign struct {
-	Id		int64		`json:"id"`
-	UserId		int64		`json:"-"`
-	Name		string		`json:"name" sql:"not null"`
-	CreatedDate	time.Time	`json:"created_date"`
-	CompletedDate	time.Time	`json:"completed_date"`
-	TemplateId	int64		`json:"-"`
-	Template	Template	`json:"template"`
-	PageId		int64		`json:"-"`
-	Page		Page		`json:"page"`
-	Status		string		`json:"status"`
-	Results		[]Result	`json:"results,omitempty"`
-	Groups		[]Group		`json:"groups,omitempty"`
-	Events		[]Event		`json:"timeline,omitemtpy"`
-	SMTPId		int64		`json:"-"`
-	SMTP		SMTP		`json:"smtp"`
-	URL		string		`json:"url"`
+	Id            int64     `json:"id"`
+	UserId        int64     `json:"-"`
+	Name          string    `json:"name" sql:"not null"`
+	CreatedDate   time.Time `json:"created_date"`
+	CompletedDate time.Time `json:"completed_date"`
+	TemplateId    int64     `json:"-"`
+	Template      Template  `json:"template"`
+	PageId        int64     `json:"-"`
+	Page          Page      `json:"page"`
+	Status        string    `json:"status"`
+	Results       []Result  `json:"results,omitempty"`
+	Groups        []Group   `json:"groups,omitempty"`
+	Events        []Event   `json:"timeline,omitemtpy"`
+	SMTPId        int64     `json:"-"`
+	SMTP          SMTP      `json:"smtp"`
+	URL           string    `json:"url"`
 }
 
 // ErrCampaignNameNotSpecified indicates there was no template given by the user
@@ -95,7 +95,7 @@ func (s *SendTestEmailRequest) Validate() error {
 		return ErrEmailNotSpecified
 	case s.SMTP.Name == "":
 		return ErrSMTPNotSpecified
-	} 
+	}
 	return nil
 }
 
@@ -179,9 +179,9 @@ func GetCampaign(id int64, uid int64) (Campaign, error) {
 		Logger.Printf("%s: page not found for campaign\n", err)
 	}
 	err = db.Table("SMTP").Where("id=?", c.SMTPId).Find(&c.SMTP).Error
-        if err != nil {
-                Logger.Printf("%s: sending profile not found for campaign\n", err)
-        }
+	if err != nil {
+		Logger.Printf("%s: sending profile not found for campaign\n", err)
+	}
 	return c, err
 }
 
@@ -229,16 +229,16 @@ func PostCampaign(c *Campaign, uid int64) error {
 	c.Page = p
 	c.PageId = p.Id
 	// Check to make sure the sending profile exists
-        s, err := GetSMTPByName(c.SMTP.Name, uid)
-        if err == gorm.RecordNotFound {
-                Logger.Printf("Error - Sending profile %s does not exist", s.Name)
-                return ErrPageNotFound 
-        } else if err != nil {
-                Logger.Println(err)
-                return err
-        }       
-        c.SMTP = s
-        c.SMTPId = s.Id
+	s, err := GetSMTPByName(c.SMTP.Name, uid)
+	if err == gorm.RecordNotFound {
+		Logger.Printf("Error - Sending profile %s does not exist", s.Name)
+		return ErrPageNotFound
+	} else if err != nil {
+		Logger.Println(err)
+		return err
+	}
+	c.SMTP = s
+	c.SMTPId = s.Id
 	// Insert into the DB
 	err = db.Save(c).Error
 	if err != nil {
