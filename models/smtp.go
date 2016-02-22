@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"net/mail"
 	"time"
 )
 
@@ -40,7 +41,8 @@ func (s *SMTP) Validate() error {
 	case s.Host == "":
 		return ErrHostNotSpecified
 	}
-	return nil
+	_, err := mail.ParseAddress(s.FromAddress)
+	return err
 }
 
 // GetSMTPs returns the SMTPs owned by the given user.
@@ -91,7 +93,12 @@ func PostSMTP(s *SMTP) error {
 // PutSMTP edits an existing SMTP in the database.
 // Per the PUT Method RFC, it presumes all data for a SMTP is provided.
 func PutSMTP(s *SMTP) error {
-	err := db.Where("id=?", s.Id).Save(s).Error
+	err := s.Validate()
+	if err != nil {
+		Logger.Println(err)
+		return err
+	}
+	err = db.Where("id=?", s.Id).Save(s).Error
 	if err != nil {
 		Logger.Println(err)
 	}
