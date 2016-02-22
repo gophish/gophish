@@ -45,7 +45,7 @@ var api = {
     campaignId: {
         // get() - Queries the API for GET /campaigns/:id
         get: function(id) {
-            return query("/campaigns/" + id, "GET", {}, false)
+            return query("/campaigns/" + id, "GET", {}, true)
         },
         // delete() - Deletes a campaign at DELETE /campaigns/:id
         delete: function(id) {

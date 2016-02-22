@@ -63,6 +63,7 @@ var statuses = {
 }
 
 var campaign = {}
+var email_legend = []
 
 function dismiss() {
     $("#modal\\.flashes").empty()
@@ -118,10 +119,10 @@ function exportAsCSV(scope) {
 
 function renderTimeline(data) {
     record = {
-        "first_name": data[1],
-        "last_name": data[2],
-        "email": data[3],
-        "position": data[4]
+        "first_name": data[2],
+        "last_name": data[3],
+        "email": data[4],
+        "position": data[5]
     }
     results = '<div class="timeline col-sm-12 well well-lg">' +
         '<h6>Timeline for ' + record.first_name + ' ' + record.last_name +
@@ -168,7 +169,82 @@ function renderTimeline(data) {
     results += '</div></div>'
     return results
 }
-$(document).ready(function() {
+
+function poll() {
+    api.campaignId.get(campaign.id)
+        .success(function(c) {
+            campaign = c
+                /* Update the timeline */
+            var timeline_data = {
+                series: [{
+                    name: "Events",
+                    data: []
+                }]
+            }
+            $.each(campaign.timeline, function(i, event) {
+                timeline_data.series[0].data.push({
+                    meta: i,
+                    x: new Date(event.time),
+                    y: 1
+                })
+            })
+            var timeline_chart = $("#timeline_chart")
+            if (timeline_chart.get(0).__chartist__) {
+                timeline_chart.get(0).__chartist__.update(timeline_data)
+            }
+            /* Update the results donut chart */
+            var email_data = {
+                series: []
+            }
+            var email_series_data = {}
+            $.each(campaign.results, function(i, result) {
+                if (!email_series_data[result.status]) {
+                    email_series_data[result.status] = 1
+                } else {
+                    email_series_data[result.status]++;
+                }
+            })
+            $.each(email_series_data, function(status, count) {
+                email_data.series.push({
+                    meta: status,
+                    value: count
+                })
+            })
+            var email_chart = $("#email_chart")
+            if (email_chart.get(0).__chartist__) {
+		    
+            $("#email_chart_legend").html("")
+	    email_legend = []
+                email_chart.get(0).__chartist__.on('draw', function(data) {
+                    // We don't want to create the legend twice
+                    if (!email_legend[data.meta]) {
+                        $("#email_chart_legend").append('<li><span class="' + statuses[data.meta].legend + '"></span>' + data.meta + '</li>')
+                        email_legend[data.meta] = true
+                    }
+                    data.element.addClass(statuses[data.meta].slice)
+                })
+                email_chart.get(0).__chartist__.update(email_data)
+            }
+            /* Update the datatable */
+            resultsTable = $("#resultsTable").DataTable()
+            resultsTable.rows().every(function(i, tableLoop, rowLoop) {
+		var rowData = this.data()
+		var rid = rowData[0]
+		$.each(campaign.results, function(j, result){
+			if (result.id == rid) {
+                                var label = statuses[result.status].label || "label-default";
+				rowData[6] = "<span class=\"label " + label + "\">" + result.status + "</span>"
+			        resultsTable.row(i).data(rowData).draw()
+			        return false
+			}
+		})
+            })
+
+
+        })
+}
+
+function load() {
     campaign.id = window.location.pathname.split('/').slice(-1)[0]
     api.campaignId.get(campaign.id)
         .success(function(c) {
@@ -231,21 +307,25 @@ $(document).ready(function() {
                     // Setup the results table
                 resultsTable = $("#resultsTable").DataTable({
                     destroy: true,
-                    destroy: true,
                     "order": [
-                        [1, "asc"]
+                        [2, "asc"]
                     ],
                     columnDefs: [{
                         orderable: false,
                         targets: "no-sort"
                     }, {
                         className: "details-control",
+                        "targets": [1]
+                    }, {
+                        "visible": false,
                         "targets": [0]
                     }]
                 });
+                resultsTable.clear();
                 $.each(campaign.results, function(i, result) {
                         label = statuses[result.status].label || "label-default";
                         resultsTable.row.add([
+                            result.id,
                             "<i class=\"fa fa-caret-right\"></i>",
                             result.first_name || "",
                             result.last_name || "",
@@ -319,13 +399,8 @@ $(document).ready(function() {
                     });
                 });
                 var email_chart = new Chartist.Pie("#email_chart", email_data, email_opts)
+                $("#email_chart_legend").html("")
                 email_chart.on('draw', function(data) {
-                        // We don't want to create the legend twice
-                        if (!email_legend[data.meta]) {
-                            console.log(data.meta)
-                            $("#email_chart_legend").append('<li><span class="' + statuses[data.meta].legend + '"></span>' + data.meta + '</li>')
-                            email_legend[data.meta] = true
-                        }
                         data.element.addClass(statuses[data.meta].slice)
                     })
                     // Setup the average chart listeners
@@ -353,21 +428,23 @@ $(document).ready(function() {
                 });
                 $("#loading").hide()
                 $("#campaignResults").show()
-                map = new Datamap({
-                    element: document.getElementById("resultsMap"),
-                    responsive: true,
-                    fills: {
-                        defaultFill: "#ffffff",
-                        point: "#283F50"
-                    },
-                    geographyConfig: {
-                        highlightFillColor: "#1abc9c",
-                        borderColor: "#283F50"
-                    },
-                    bubblesConfig: {
-                        borderColor: "#283F50"
-                    }
-                });
+                if (!map) {
+                    map = new Datamap({
+                        element: document.getElementById("resultsMap"),
+                        responsive: true,
+                        fills: {
+                            defaultFill: "#ffffff",
+                            point: "#283F50"
+                        },
+                        geographyConfig: {
+                            highlightFillColor: "#1abc9c",
+                            borderColor: "#283F50"
+                        },
+                        bubblesConfig: {
+                            borderColor: "#283F50"
+                        }
+                    });
+                }
                 bubbles = []
                 $.each(campaign.results, function(i, result) {
                     // Check that it wasn't an internal IP
@@ -383,13 +460,6 @@ $(document).ready(function() {
                         }
                     })
                     if (newIP) {
-                        console.log("Adding bubble at: ")
-                        console.log({
-                            latitude: result.latitude,
-                            longitude: result.longitude,
-                            name: result.ip,
-                            fillKey: "point"
-                        })
                         bubbles.push({
                             latitude: result.latitude,
                             longitude: result.longitude,
@@ -424,4 +494,15 @@ $(document).ready(function() {
             $("#loading").hide()
             errorFlash(" Campaign not found!")
         })
+}
+
+$(document).ready(function() {
+    load();
+    // Start the polling loop
+    (function refresh() {
+        $("#refresh_message").show()
+        poll()
+        $("#refresh_message").hide()
+        setTimeout(refresh, 10000)
+    })();
 })

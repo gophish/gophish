@@ -14,7 +14,7 @@ function deleteCampaign(idx) {
         api.campaignId.delete(campaigns[idx].id)
             .success(function(data) {
                 successFlash(data.message)
-		location.reload()
+                location.reload()
             })
     }
 }
@@ -51,10 +51,11 @@ $(document).ready(function() {
                 }
                 var average = 0
                 campaignTable = $("#campaignTable").DataTable({
-                columnDefs: [
-                    { orderable: false, targets: "no-sort" }
-                ]
-            });
+                    columnDefs: [{
+                        orderable: false,
+                        targets: "no-sort"
+                    }]
+                });
                 $.each(campaigns, function(i, campaign) {
                     var campaign_date = moment(campaign.created_date).format('MMMM Do YYYY h:mm:ss a')
                     var label = labels[campaign.status] || "label-default";
