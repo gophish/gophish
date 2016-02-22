@@ -191,6 +191,9 @@ $(document).ready(function() {
                 }
             }, this));
     };
+    $('#modal').on('hidden.bs.modal', function(event) {
+	dismiss()
+    });
     api.campaigns.get()
         .success(function(cs) {
             campaigns = cs

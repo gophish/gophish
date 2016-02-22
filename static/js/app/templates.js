@@ -321,5 +321,8 @@ $(document).ready(function() {
                 }
             }, this));
     };
+    $('#modal').on('hidden.bs.modal', function(event) {
+	dismiss()
+    });
     load()
 })
