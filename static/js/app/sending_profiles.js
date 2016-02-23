@@ -3,14 +3,22 @@ var profiles = []
 // Attempts to send a test email by POSTing to /campaigns/
 function sendTestEmail() {
     var test_email_request = {
-	template: { name: '' },
+	template: { 
+	    name: '_send_test_email_',
+	    subject: 'test email from gophish',
+	    html: 'test email from gophish'
+	},
 	first_name: $("input[name=to_first_name]").val(),
 	last_name: $("input[name=to_last_name]").val(),
 	email: $("input[name=to_email]").val(),
 	position: $("input[name=to_position]").val(),
 	url: '',
-	page: { name: '' },
+	page: { 
+	    name: '_send_test_email_',
+	    html: 'test email from gophish'
+	},
 	smtp: {
+	    name: '_send_test_email_',
 	    from_address: $("#from").val(),
 	    host: $("#host").val(),
 	    username: $("#username").val(),
