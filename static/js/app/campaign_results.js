@@ -63,7 +63,6 @@ var statuses = {
 }
 
 var campaign = {}
-var email_legend = []
 
 function dismiss() {
     $("#modal\\.flashes").empty()
@@ -204,41 +203,31 @@ function poll() {
                     email_series_data[result.status]++;
                 }
             })
+            $("#email_chart_legend").html("")
             $.each(email_series_data, function(status, count) {
                 email_data.series.push({
                     meta: status,
                     value: count
                 })
+                $("#email_chart_legend").append('<li><span class="' + statuses[status].legend + '"></span>' + status + '</li>')
             })
             var email_chart = $("#email_chart")
             if (email_chart.get(0).__chartist__) {
-
-                $("#email_chart_legend").html("")
-                email_legend = []
                 email_chart.get(0).__chartist__.on('draw', function(data) {
-                    // We don't want to create the legend twice
-                    if (!email_legend[data.meta]) {
-                        $("#email_chart_legend").append('<li><span class="' + statuses[data.meta].legend + '"></span>' + data.meta + '</li>')
-                        email_legend[data.meta] = true
-                    }
-                    data.element.addClass(statuses[data.meta].slice)
-                })
+                        data.element.addClass(statuses[data.meta].slice)
+                    })
+                    // Update with the latest data
                 email_chart.get(0).__chartist__.update(email_data)
             }
             /* Update the datatable */
             resultsTable = $("#resultsTable").DataTable()
-            resultsTable.rows().each(function(i) {
+            resultsTable.rows().every(function(i, tableLoop, rowLoop) {
                 var rowData = this.row(i).data()
                 var rid = rowData[0]
-		console.log("Updating information for " + rid)
                 $.each(campaign.results, function(j, result) {
                     if (result.id == rid) {
-			console.log("Found entry for " + rid + " " + result.first_name)
-			console.log(rowData)
                         var label = statuses[result.status].label || "label-default";
                         rowData[6] = "<span class=\"label " + label + "\">" + result.status + "</span>"
-			console.log("Updating row " + i)
-			console.log(resultsTable.row(i).data())
                         resultsTable.row(i).data(rowData).draw()
                         return false
                     }
@@ -257,7 +246,7 @@ function load() {
             if (campaign) {
                 $("#loading").hide()
                 $("#campaignResults").show()
-                // Set the title
+                    // Set the title
                 $("#page-title").text("Results for " + c.name)
                     // Setup tooltips
                 $('[data-toggle="tooltip"]').tooltip()
@@ -373,11 +362,13 @@ function load() {
                         y: 1
                     })
                 })
+                $("#email_chart_legend").html("")
                 $.each(email_series_data, function(status, count) {
                     email_data.series.push({
                         meta: status,
                         value: count
                     })
+                    $("#email_chart_legend").append('<li><span class="' + statuses[status].legend + '"></span>' + status + '</li>')
                 })
                 var timeline_chart = new Chartist.Line('#timeline_chart', timeline_data, timeline_opts)
                     // Setup the overview chart listeners
@@ -406,12 +397,7 @@ function load() {
                     });
                 });
                 var email_chart = new Chartist.Pie("#email_chart", email_data, email_opts)
-                $("#email_chart_legend").html("")
                 email_chart.on('draw', function(data) {
-                        if (!email_legend[data.meta]) {
-                            $("#email_chart_legend").append('<li><span class="' + statuses[data.meta].legend + '"></span>' + data.meta + '</li>')
-                            email_legend[data.meta] = true
-                        }
                         data.element.addClass(statuses[data.meta].slice)
                     })
                     // Setup the average chart listeners
