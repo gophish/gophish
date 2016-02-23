@@ -212,9 +212,9 @@ function poll() {
             })
             var email_chart = $("#email_chart")
             if (email_chart.get(0).__chartist__) {
-		    
-            $("#email_chart_legend").html("")
-	    email_legend = []
+
+                $("#email_chart_legend").html("")
+                email_legend = []
                 email_chart.get(0).__chartist__.on('draw', function(data) {
                     // We don't want to create the legend twice
                     if (!email_legend[data.meta]) {
@@ -227,17 +227,22 @@ function poll() {
             }
             /* Update the datatable */
             resultsTable = $("#resultsTable").DataTable()
-            resultsTable.rows().every(function(i, tableLoop, rowLoop) {
-		var rowData = this.data()
-		var rid = rowData[0]
-		$.each(campaign.results, function(j, result){
-			if (result.id == rid) {
-                                var label = statuses[result.status].label || "label-default";
-				rowData[6] = "<span class=\"label " + label + "\">" + result.status + "</span>"
-			        resultsTable.row(i).data(rowData).draw()
-			        return false
-			}
-		})
+            resultsTable.rows().each(function(i) {
+                var rowData = this.row(i).data()
+                var rid = rowData[0]
+		console.log("Updating information for " + rid)
+                $.each(campaign.results, function(j, result) {
+                    if (result.id == rid) {
+			console.log("Found entry for " + rid + " " + result.first_name)
+			console.log(rowData)
+                        var label = statuses[result.status].label || "label-default";
+                        rowData[6] = "<span class=\"label " + label + "\">" + result.status + "</span>"
+			console.log("Updating row " + i)
+			console.log(resultsTable.row(i).data())
+                        resultsTable.row(i).data(rowData).draw()
+                        return false
+                    }
+                })
             })
 
 
@@ -250,6 +255,8 @@ function load() {
         .success(function(c) {
             campaign = c
             if (campaign) {
+                $("#loading").hide()
+                $("#campaignResults").show()
                 // Set the title
                 $("#page-title").text("Results for " + c.name)
                     // Setup tooltips
@@ -401,6 +408,10 @@ function load() {
                 var email_chart = new Chartist.Pie("#email_chart", email_data, email_opts)
                 $("#email_chart_legend").html("")
                 email_chart.on('draw', function(data) {
+                        if (!email_legend[data.meta]) {
+                            $("#email_chart_legend").append('<li><span class="' + statuses[data.meta].legend + '"></span>' + data.meta + '</li>')
+                            email_legend[data.meta] = true
+                        }
                         data.element.addClass(statuses[data.meta].slice)
                     })
                     // Setup the average chart listeners
@@ -426,8 +437,6 @@ function load() {
                         top: (event.offsetY + 40 || event.originalEvent.layerY) - $pietoolTip.height() - 80
                     });
                 });
-                $("#loading").hide()
-                $("#campaignResults").show()
                 if (!map) {
                     map = new Datamap({
                         element: document.getElementById("resultsMap"),
@@ -499,10 +508,12 @@ function load() {
 $(document).ready(function() {
     load();
     // Start the polling loop
-    (function refresh() {
+    function refresh() {
         $("#refresh_message").show()
         poll()
         $("#refresh_message").hide()
         setTimeout(refresh, 10000)
-    })();
+    };
+    // Start the polling loop
+    setTimeout(refresh, 10000)
 })
