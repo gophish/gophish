@@ -5,7 +5,7 @@ ALTER TABLE campaigns ADD COLUMN smtp_id bigint;
 UPDATE campaigns 
 	SET smtp_id = (SELECT smtp.smtp_id FROM smtp) 
 	WHERE campaigns.id = (
-		SELECT smtp.smtp_id 
+		SELECT campaigns.id
 		FROM smtp,campaigns 
 		WHERE smtp.campaign_id=campaigns.id
 	)
