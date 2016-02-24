@@ -63,6 +63,7 @@ var statuses = {
 }
 
 var campaign = {}
+var bubbles = []
 
 function dismiss() {
     $("#modal\\.flashes").empty()
@@ -169,6 +170,15 @@ function renderTimeline(data) {
     return results
 }
 
+
+/* poll - Queries the API and updates the UI with the results
+ *
+ * Updates:
+ * * Timeline Chart
+ * * Email (Donut) Chart
+ * * Map Bubbles
+ * * Datatables
+ */
 function poll() {
     api.campaignId.get(campaign.id)
         .success(function(c) {
@@ -222,19 +232,42 @@ function poll() {
             /* Update the datatable */
             resultsTable = $("#resultsTable").DataTable()
             resultsTable.rows().every(function(i, tableLoop, rowLoop) {
-                var rowData = this.row(i).data()
-                var rid = rowData[0]
-                $.each(campaign.results, function(j, result) {
-                    if (result.id == rid) {
-                        var label = statuses[result.status].label || "label-default";
-                        rowData[6] = "<span class=\"label " + label + "\">" + result.status + "</span>"
-                        resultsTable.row(i).data(rowData).draw()
+                    var rowData = this.row(i).data()
+                    var rid = rowData[0]
+                    $.each(campaign.results, function(j, result) {
+                        if (result.id == rid) {
+                            var label = statuses[result.status].label || "label-default";
+                            rowData[6] = "<span class=\"label " + label + "\">" + result.status + "</span>"
+                            resultsTable.row(i).data(rowData).draw()
+                            return false
+                        }
+                    })
+                })
+                /* Update the map information */
+            $.each(campaign.results, function(i, result) {
+                // Check that it wasn't an internal IP
+                if (result.latitude == 0 && result.longitude == 0) {
+                    return true;
+                }
+                newIP = true
+                $.each(bubbles, function(i, bubble) {
+                    if (bubble.ip == result.ip) {
+                        bubbles[i].radius += 1
+                        newIP = false
                         return false
                     }
                 })
+                if (newIP) {
+                    bubbles.push({
+                        latitude: result.latitude,
+                        longitude: result.longitude,
+                        name: result.ip,
+                        fillKey: "point",
+                        radius: 2
+                    })
+                }
             })
-
-
+            map.bubbles(bubbles)
         })
 }
 
@@ -440,7 +473,6 @@ function load() {
                         }
                     });
                 }
-                bubbles = []
                 $.each(campaign.results, function(i, result) {
                     // Check that it wasn't an internal IP
                     if (result.latitude == 0 && result.longitude == 0) {
