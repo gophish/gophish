@@ -232,18 +232,23 @@ function poll() {
             /* Update the datatable */
             resultsTable = $("#resultsTable").DataTable()
             resultsTable.rows().every(function(i, tableLoop, rowLoop) {
-                    var rowData = this.row(i).data()
+                    var row = this.row(i)
+                    var rowData = row.data()
                     var rid = rowData[0]
                     $.each(campaign.results, function(j, result) {
                         if (result.id == rid) {
                             var label = statuses[result.status].label || "label-default";
                             rowData[6] = "<span class=\"label " + label + "\">" + result.status + "</span>"
                             resultsTable.row(i).data(rowData).draw()
+                            if (row.child.isShown()) {
+                                row.child(renderTimeline(row.data()))
+                            }
                             return false
                         }
                     })
                 })
                 /* Update the map information */
+            bubbles = []
             $.each(campaign.results, function(i, result) {
                 // Check that it wasn't an internal IP
                 if (result.latitude == 0 && result.longitude == 0) {
@@ -372,19 +377,20 @@ function load() {
                 $('#resultsTable tbody').on('click', 'td.details-control', function() {
                     var tr = $(this).closest('tr');
                     var row = resultsTable.row(tr);
-
                     if (row.child.isShown()) {
                         // This row is already open - close it
                         row.child.hide();
                         tr.removeClass('shown');
                         $(this).find("i").removeClass("fa-caret-down")
                         $(this).find("i").addClass("fa-caret-right")
+                        row.invalidate('dom').draw()
                     } else {
                         // Open this row
                         $(this).find("i").removeClass("fa-caret-right")
                         $(this).find("i").addClass("fa-caret-down")
                         row.child(renderTimeline(row.data())).show();
                         tr.addClass('shown');
+                        row.invalidate('dom').draw()
                     }
                 });
                 // Setup the graphs
