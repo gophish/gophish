@@ -2,27 +2,71 @@ package models
 
 import (
 	"errors"
+	"strings"
 	"time"
+
+	"github.com/PuerkitoBio/goquery"
 )
 
 // Page contains the fields used for a Page model
 type Page struct {
-	Id           int64     `json:"id" gorm:"column:id; primary_key:yes"`
-	UserId       int64     `json:"-" gorm:"column:user_id"`
-	Name         string    `json:"name"`
-	HTML         string    `json:"html" gorm:"column:html"`
-	ModifiedDate time.Time `json:"modified_date"`
+	Id                 int64     `json:"id" gorm:"column:id; primary_key:yes"`
+	UserId             int64     `json:"-" gorm:"column:user_id"`
+	Name               string    `json:"name"`
+	HTML               string    `json:"html" gorm:"column:html"`
+	CaptureCredentials bool      `json:"capture_credentials" gorm:"column:capture_credentials"`
+	CapturePasswords   bool      `json:"capture_passwords" gorm:"column:capture_passwords"`
+	ModifiedDate       time.Time `json:"modified_date"`
 }
 
 // ErrPageNameNotSpecified is thrown if the name of the landing page is blank.
 var ErrPageNameNotSpecified = errors.New("Page Name not specified")
+
+// parseHTML parses the page HTML on save to handle the
+// capturing (or lack thereof!) of credentials and passwords
+func (p *Page) parseHTML() error {
+	d, err := goquery.NewDocumentFromReader(strings.NewReader(p.HTML))
+	if err != nil {
+		return err
+	}
+	forms := d.Find("form")
+	forms.Each(func(i int, f *goquery.Selection) {
+		// We always want the submitted events to be
+		// sent to our server
+		f.SetAttr("action", "")
+		if p.CaptureCredentials {
+			// If we don't want to capture passwords,
+			// find all the password fields and remove the "name" attribute.
+			if !p.CapturePasswords {
+				passwordFields := f.Find("input[type=\"password\"]")
+				passwordFields.Each(func(j int, pass *goquery.Selection) {
+					pass.RemoveAttr("name")
+				})
+			}
+		} else {
+			// Otherwise, remove the name from all
+			// inputs.
+			inputFields := f.Find("input")
+			inputFields.Each(func(j int, input *goquery.Selection) {
+				input.RemoveAttr("name")
+			})
+		}
+	})
+	p.HTML, err = d.Html()
+	return err
+}
 
 // Validate ensures that a page contains the appropriate details
 func (p *Page) Validate() error {
 	if p.Name == "" {
 		return ErrPageNameNotSpecified
 	}
-	return nil
+	// If the user specifies to capture passwords,
+	// we automatically capture credentials
+	if p.CapturePasswords && !p.CaptureCredentials {
+		p.CaptureCredentials = true
+	}
+	return p.parseHTML()
 }
 
 // GetPages returns the pages owned by the given user.
@@ -74,7 +118,8 @@ func PostPage(p *Page) error {
 // PutPage edits an existing Page in the database.
 // Per the PUT Method RFC, it presumes all data for a page is provided.
 func PutPage(p *Page) error {
-	err := db.Where("id=?", p.Id).Save(p).Error
+	err := p.Validate()
+	err = db.Where("id=?", p.Id).Save(p).Error
 	if err != nil {
 		Logger.Println(err)
 	}

@@ -458,3 +458,6 @@ td.details-control{
 #refresh_message{
 	display:none;
 }
+#capture_passwords {
+	display:none;
+}
