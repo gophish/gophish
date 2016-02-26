@@ -10,19 +10,9 @@ function save(idx) {
     var page = {}
     page.name = $("#name").val()
     editor = CKEDITOR.instances["html_editor"]
-    html = editor.getData();
-    ck_dom = $(html)
-        // Handle capturing credentials
-    if ($("#capture_credentials_checkbox").prop("checked")) {
-        ck_dom.find("form").attr("action", "")
-        if (!$("#capture_passwords_checkbox").prop("checked")) {
-            // Remove the name so the credential isn't submitted
-            ck_dom.find("input[type='password']").removeAttr("name")
-        }
-    } else {
-        ck_dom.find("form").attr("action", "#")
-    }
-    page.html = editor.getData();
+    page.html = editor.getData()
+    page.capture_credentials = $("#capture_credentials_checkbox").prop("checked")
+    page.capture_passwords = $("#capture_passwords_checkbox").prop("checked")
     if (idx != -1) {
         page.id = pages[idx].id
         api.pageId.put(page)
@@ -49,6 +39,8 @@ function dismiss() {
     $("#modal\\.flashes").empty()
     $("#name").val("")
     $("#html_editor").val("")
+    $("#newLandingPageModal").find("input[type='checkbox']").prop("checked", false)
+    $("#capture_passwords").hide()
     $("#newLandingPageModal").modal('hide')
 }
 
@@ -92,6 +84,11 @@ function edit(idx) {
         page = pages[idx]
         $("#name").val(page.name)
         $("#html_editor").val(page.html)
+	$("#capture_credentials_checkbox").prop("checked", page.capture_credentials)
+	$("#capture_passwords_checkbox").prop("checked", page.capture_passwords)
+	if (page.capture_credentials){
+		$("#capture_passwords").show()
+	}
     }
 }
 
