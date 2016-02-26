@@ -111,7 +111,9 @@ function exportAsCSV(scope) {
         var dlLink = document.createElement('a');
         dlLink.href = csvURL;
         dlLink.setAttribute('download', scope + '.csv');
+        document.body.appendChild(dlLink)
         dlLink.click();
+        document.body.removeChild(dlLink)
     }
     $("#exportButton").html(exportHTML)
 }

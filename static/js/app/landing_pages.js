@@ -92,6 +92,16 @@ function edit(idx) {
     }
 }
 
+function copy(idx) {
+    $("#modalSubmit").unbind('click').click(function() {
+        save(-1)
+    })
+    $("#html_editor").ckeditor()
+    var page = pages[idx]
+    $("#name").val("Copy of " + page.name)
+    $("#html_editor").val(page.html)
+}
+
 function load() {
     /*
         load() - Loads the current pages using the API
@@ -117,14 +127,18 @@ function load() {
                     pagesTable.row.add([
                         page.name,
                         moment(page.modified_date).format('MMMM Do YYYY, h:mm:ss a'),
-                        "<div class='pull-right'><button class='btn btn-primary' data-toggle='modal' data-target='#newLandingPageModal' onclick='edit(" + i + ")'>\
+                        "<div class='pull-right'><span data-toggle='modal' data-target='#newLandingPageModal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Edit Page' onclick='edit(" + i + ")'>\
                     <i class='fa fa-pencil'></i>\
-                    </button>\
-                    <button class='btn btn-danger' onclick='deletePage(" + i + ")'>\
+                    </button></span>\
+		    <span data-toggle='modal' data-target='#newLandingPageModal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Copy Page' onclick='copy(" + i + ")'>\
+                    <i class='fa fa-copy'></i>\
+                    </button></span>\
+                    <button class='btn btn-danger' data-toggle='tooltip' data-placement='left' title='Delete Page' onclick='deletePage(" + i + ")'>\
                     <i class='fa fa-trash-o'></i>\
                     </button></div>"
                     ]).draw()
                 })
+                $('[data-toggle="tooltip"]').tooltip()
             } else {
                 $("#emptyMessage").show()
             }

@@ -165,6 +165,55 @@ function edit(idx) {
     })
 }
 
+function copy(idx) {
+    $("#modalSubmit").unbind('click').click(function() {
+        save(-1)
+    })
+    $("#attachmentUpload").unbind('click').click(function() {
+        this.value = null
+    })
+    $("#html_editor").ckeditor()
+    $("#attachmentsTable").show()
+    attachmentsTable = $('#attachmentsTable').DataTable({
+        destroy: true,
+        "order": [
+            [1, "asc"]
+        ],
+        columnDefs: [{
+            orderable: false,
+            targets: "no-sort"
+        }, {
+            sClass: "datatable_hidden",
+            targets: [3, 4]
+        }]
+    });
+    var template = {
+        attachments: []
+    }
+    template = templates[idx]
+    $("#name").val("Copy of " + template.name)
+    $("#subject").val(template.subject)
+    $("#html_editor").val(template.html)
+    $("#text_editor").val(template.text)
+    $.each(template.attachments, function(i, file) {
+            var icon = icons[file.type] || "fa-file-o"
+                // Add the record to the modal
+            attachmentsTable.row.add([
+                '<i class="fa ' + icon + '"></i>',
+                file.name,
+                '<span class="remove-row"><i class="fa fa-trash-o"></i></span>',
+                file.content,
+                file.type || "application/octet-stream"
+            ]).draw()
+        })
+        // Handle Deletion
+    $("#attachmentsTable").unbind('click').on("click", "span>i.fa-trash-o", function() {
+        attachmentsTable.row($(this).parents('tr'))
+            .remove()
+            .draw();
+    })
+}
+
 function importEmail() {
     raw = $("#email_content").val()
     if (!raw) {
@@ -211,14 +260,18 @@ function load() {
                     templateTable.row.add([
                         template.name,
                         moment(template.modified_date).format('MMMM Do YYYY, h:mm:ss a'),
-                        "<div class='pull-right'><button class='btn btn-primary' data-toggle='modal' data-target='#modal' onclick='edit(" + i + ")'>\
+                        "<div class='pull-right'><span data-toggle='modal' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Edit Template' onclick='edit(" + i + ")'>\
                     <i class='fa fa-pencil'></i>\
-                    </button>\
-                    <button class='btn btn-danger' onclick='deleteTemplate(" + i + ")'>\
+                    </button></span>\
+		    <span data-toggle='modal' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Copy Template' onclick='copy(" + i + ")'>\
+                    <i class='fa fa-copy'></i>\
+                    </button></span>\
+                    <button class='btn btn-danger' data-toggle='tooltip' data-placement='left' title='Delete Template' onclick='deleteTemplate(" + i + ")'>\
                     <i class='fa fa-trash-o'></i>\
                     </button></div>"
                     ]).draw()
                 })
+                $('[data-toggle="tooltip"]').tooltip()
             } else {
                 $("#emptyMessage").show()
             }

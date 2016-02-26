@@ -30,6 +30,10 @@ var Store = sessions.NewCookieStore(
 // ErrInvalidPassword is thrown when a user provides an incorrect password.
 var ErrInvalidPassword = errors.New("Invalid Password")
 
+// ErrEmptyPassword is thrown when a user provides a blank password to the register
+// or change password functions
+var ErrEmptyPassword = errors.New("Password cannot be blank")
+
 // Login attempts to login the user given a request.
 func Login(r *http.Request) (bool, error) {
 	username, password := r.FormValue("username"), r.FormValue("password")
@@ -61,6 +65,10 @@ func Register(r *http.Request) (bool, error) {
 	}
 	u = models.User{}
 	//If we've made it here, we should have a valid username given
+	// Check that the passsword isn't blank
+	if password == "" {
+		return false, ErrEmptyPassword
+	}
 	//Let's create the password hash
 	h, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
@@ -89,16 +97,19 @@ func ChangePassword(r *http.Request) error {
 	err := bcrypt.CompareHashAndPassword([]byte(u.Hash), []byte(c))
 	if err != nil {
 		return ErrInvalidPassword
-	} else {
-		// Generate the new hash
-		h, err := bcrypt.GenerateFromPassword([]byte(n), bcrypt.DefaultCost)
-		if err != nil {
-			return err
-		}
-		u.Hash = string(h)
-		if err = models.PutUser(&u); err != nil {
-			return err
-		}
-		return nil
 	}
+	// Check that the new password isn't blank
+	if n == "" {
+		return ErrEmptyPassword
+	}
+	// Generate the new hash
+	h, err := bcrypt.GenerateFromPassword([]byte(n), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+	u.Hash = string(h)
+	if err = models.PutUser(&u); err != nil {
+		return err
+	}
+	return nil
 }
