@@ -89,12 +89,8 @@ type SendTestEmailRequest struct {
 // is valid.
 func (s *SendTestEmailRequest) Validate() error {
 	switch {
-	case s.Template.Name == "":
-		return ErrTemplateNotSpecified
 	case s.Email == "":
 		return ErrEmailNotSpecified
-	case s.SMTP.Name == "":
-		return ErrSMTPNotSpecified
 	}
 	return nil
 }

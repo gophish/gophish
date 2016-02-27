@@ -525,26 +525,50 @@ func API_Send_Test_Email(w http.ResponseWriter, r *http.Request) {
 		JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
 		return
 	}
-	// Get the template requested by name
-	s.Template, err = models.GetTemplateByName(s.Template.Name, ctx.Get(r, "user_id").(int64))
-	if err == gorm.RecordNotFound {
-		Logger.Printf("Error - Template %s does not exist", s.Template.Name)
-		JSONResponse(w, models.Response{Success: false, Message: models.ErrTemplateNotFound.Error()}, http.StatusBadRequest)
-	} else if err != nil {
-		Logger.Println(err)
-		JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
-		return
+
+	// If a Template is not specified use a default
+	if s.Template.Name == "" {
+		//default message body
+		text := "It works!\n\nThis is an email letting you know that your gophish\nconfiguration was successful.\n" +
+                       "Here are the details:\n\nWho you sent from: {{.From}}\n\nWho you sent to: \n" +
+                       "{{if .FirstName}} First Name: {{.FirstName}}\n{{end}}" +
+                       "{{if .LastName}} Last Name: {{.LastName}}\n{{end}}" +
+                       "{{if .Position}} Position: {{.Position}}\n{{end}}" +
+                       "{{if .TrackingURL}} Tracking URL: {{.TrackingURL}}\n{{end}}" +
+                       "\nNow go send some phish!"
+		t := models.Template{
+			Subject: "Default Email from Gophish",
+			Text: text,
+		}
+		s.Template = t
+	// Try to lookup the Template by name
+	} else {
+		// Get the Template requested by name
+		s.Template, err = models.GetTemplateByName(s.Template.Name, ctx.Get(r, "user_id").(int64))
+		if err == gorm.RecordNotFound {
+			Logger.Printf("Error - Template %s does not exist", s.Template.Name)
+			JSONResponse(w, models.Response{Success: false, Message: models.ErrTemplateNotFound.Error()}, http.StatusBadRequest)
+		} else if err != nil {
+			Logger.Println(err)
+			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
+			return
+		}
 	}
-	// Get the sending profile requested by name
-	s.SMTP, err = models.GetSMTPByName(s.SMTP.Name, ctx.Get(r, "user_id").(int64))
-	if err == gorm.RecordNotFound {
-		Logger.Printf("Error - Sending profile %s does not exist", s.SMTP.Name)
-		JSONResponse(w, models.Response{Success: false, Message: models.ErrSMTPNotFound.Error()}, http.StatusBadRequest)
-	} else if err != nil {
-		Logger.Println(err)
-		JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
-		return
+
+	// If a complete sending profile is provided use it
+	if err := s.SMTP.Validate(); err != nil {
+		// Otherwise get the SMTP requested by name
+		s.SMTP, err = models.GetSMTPByName(s.SMTP.Name, ctx.Get(r, "user_id").(int64))
+		if err == gorm.RecordNotFound {
+			Logger.Printf("Error - Sending profile %s does not exist", s.SMTP.Name)
+			JSONResponse(w, models.Response{Success: false, Message: models.ErrSMTPNotFound.Error()}, http.StatusBadRequest)
+		} else if err != nil {
+			Logger.Println(err)
+			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
+			return
+		}
 	}
+
 	// Send the test email
 	err = worker.SendTestEmail(s)
 	if err != nil {
