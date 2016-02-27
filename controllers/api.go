@@ -530,18 +530,18 @@ func API_Send_Test_Email(w http.ResponseWriter, r *http.Request) {
 	if s.Template.Name == "" {
 		//default message body
 		text := "It works!\n\nThis is an email letting you know that your gophish\nconfiguration was successful.\n" +
-                       "Here are the details:\n\nWho you sent from: {{.From}}\n\nWho you sent to: \n" +
-                       "{{if .FirstName}} First Name: {{.FirstName}}\n{{end}}" +
-                       "{{if .LastName}} Last Name: {{.LastName}}\n{{end}}" +
-                       "{{if .Position}} Position: {{.Position}}\n{{end}}" +
-                       "{{if .TrackingURL}} Tracking URL: {{.TrackingURL}}\n{{end}}" +
-                       "\nNow go send some phish!"
+			"Here are the details:\n\nWho you sent from: {{.From}}\n\nWho you sent to: \n" +
+			"{{if .FirstName}} First Name: {{.FirstName}}\n{{end}}" +
+			"{{if .LastName}} Last Name: {{.LastName}}\n{{end}}" +
+			"{{if .Position}} Position: {{.Position}}\n{{end}}" +
+			"{{if .TrackingURL}} Tracking URL: {{.TrackingURL}}\n{{end}}" +
+			"\nNow go send some phish!"
 		t := models.Template{
 			Subject: "Default Email from Gophish",
-			Text: text,
+			Text:    text,
 		}
 		s.Template = t
-	// Try to lookup the Template by name
+		// Try to lookup the Template by name
 	} else {
 		// Get the Template requested by name
 		s.Template, err = models.GetTemplateByName(s.Template.Name, ctx.Get(r, "user_id").(int64))
