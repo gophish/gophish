@@ -143,6 +143,10 @@ func GetCampaigns(uid int64) ([]Campaign, error) {
 		if err != nil {
 			Logger.Println(err)
 		}
+		err = db.Table("SMTP").Where("id=?", cs[i].SMTPId).Find(&cs[i].SMTP).Error
+                if err != nil {
+                        Logger.Println(err)
+                }
 	}
 	return cs, err
 }
