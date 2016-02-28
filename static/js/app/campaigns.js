@@ -153,6 +153,62 @@ function edit(campaign) {
     }
 }
 
+function copy(idx) {
+    group_bh.clear();
+    template_bh.clear();
+    page_bh.clear();
+    api.groups.get()
+        .success(function(groups) {
+            if (groups.length == 0) {
+                modalError("No groups found!")
+                return false;
+            } else {
+                group_bh.add(groups)
+            }
+        })
+    api.templates.get()
+        .success(function(templates) {
+            if (templates.length == 0) {
+                modalError("No templates found!")
+                return false
+            } else {
+                template_bh.add(templates)
+            }
+        })
+    api.pages.get()
+        .success(function(pages) {
+            if (pages.length == 0) {
+                modalError("No pages found!")
+                return false
+            } else {
+                page_bh.add(pages)
+            }
+        })
+        // Set our initial values
+    var campaign = campaigns[idx]
+    $("#name").val("Copy of " + campaign.name)
+    $("#template").val(campaign.template.name)
+    $("#page").val(campaign.page.name)
+    $("#url").val(campaign.url)
+    $("input[name=from]").val(campaign.smtp.from_address)
+    $("input[name=host]").val(campaign.smtp.host)
+    $("input[name=username]").val(campaign.smtp.username)
+    $("input[name=password]").val(campaign.smtp.password)
+    $("input[name=ignore_cert_errors]").val(campaign.smtp.ignore_cert_errors)
+    console.log(campaign)
+    $.each(campaign.groups, function(i, group){
+    	groupTable.row.add([
+                group.name,
+                '<span style="cursor:pointer;"><i class="fa fa-trash-o"></i></span>'
+            ]).draw()
+            $("#groupTable").on("click", "span>i.fa-trash-o", function() {
+                groupTable.row($(this).parents('tr'))
+                    .remove()
+                    .draw();
+            })
+    })
+}
+
 $(document).ready(function() {
     // Setup multiple modals
     // Code based on http://miles-by-motorcycle.com/static/bootstrap-modal/index.html
@@ -216,6 +272,9 @@ $(document).ready(function() {
                         "<div class='pull-right'><a class='btn btn-primary' href='/campaigns/" + campaign.id + "' data-toggle='tooltip' data-placement='left' title='View Results'>\
                     <i class='fa fa-bar-chart'></i>\
                     </a>\
+		    <span data-toggle='modal' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Copy Campaign' onclick='copy(" + i + ")'>\
+                    <i class='fa fa-copy'></i>\
+                    </button></span>\
                     <button class='btn btn-danger' onclick='deleteCampaign(" + i + ")' data-toggle='tooltip' data-placement='left' title='Delete Campaign'>\
                     <i class='fa fa-trash-o'></i>\
                     </button></div>"
