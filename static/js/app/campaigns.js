@@ -157,6 +157,7 @@ function copy(idx) {
     group_bh.clear();
     template_bh.clear();
     page_bh.clear();
+    profile_bh.clear();
     api.groups.get()
         .success(function(groups) {
             if (groups.length == 0) {
@@ -184,18 +185,22 @@ function copy(idx) {
                 page_bh.add(pages)
             }
         })
+    api.SMTP.get()
+        .success(function(profiles) {
+            if (profiles.length == 0) {
+                modalError("No profiles found!")
+                return false
+            } else {
+                profile_bh.add(profiles)
+            }
+        })
         // Set our initial values
     var campaign = campaigns[idx]
     $("#name").val("Copy of " + campaign.name)
     $("#template").val(campaign.template.name)
     $("#page").val(campaign.page.name)
+    $("#profile").val(campaign.smtp.name)
     $("#url").val(campaign.url)
-    $("input[name=from]").val(campaign.smtp.from_address)
-    $("input[name=host]").val(campaign.smtp.host)
-    $("input[name=username]").val(campaign.smtp.username)
-    $("input[name=password]").val(campaign.smtp.password)
-    $("input[name=ignore_cert_errors]").val(campaign.smtp.ignore_cert_errors)
-    console.log(campaign)
     $.each(campaign.groups, function(i, group){
     	groupTable.row.add([
                 group.name,
