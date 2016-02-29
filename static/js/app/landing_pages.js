@@ -39,9 +39,10 @@ function dismiss() {
     $("#modal\\.flashes").empty()
     $("#name").val("")
     $("#html_editor").val("")
-    $("#newLandingPageModal").find("input[type='checkbox']").prop("checked", false)
+    $("#url").val("")
+    $("#modal").find("input[type='checkbox']").prop("checked", false)
     $("#capture_passwords").hide()
-    $("#newLandingPageModal").modal('hide')
+    $("#modal").modal('hide')
 }
 
 function deletePage(idx) {
@@ -127,10 +128,10 @@ function load() {
                     pagesTable.row.add([
                         page.name,
                         moment(page.modified_date).format('MMMM Do YYYY, h:mm:ss a'),
-                        "<div class='pull-right'><span data-toggle='modal' data-target='#newLandingPageModal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Edit Page' onclick='edit(" + i + ")'>\
+                        "<div class='pull-right'><span data-toggle='modal' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Edit Page' onclick='edit(" + i + ")'>\
                     <i class='fa fa-pencil'></i>\
                     </button></span>\
-		    <span data-toggle='modal' data-target='#newLandingPageModal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Copy Page' onclick='copy(" + i + ")'>\
+		    <span data-toggle='modal' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Copy Page' onclick='copy(" + i + ")'>\
                     <i class='fa fa-copy'></i>\
                     </button></span>\
                     <button class='btn btn-danger' data-toggle='tooltip' data-placement='left' title='Delete Page' onclick='deletePage(" + i + ")'>\
@@ -187,6 +188,9 @@ $(document).ready(function() {
                 }
             }, this));
     };
+    $('#modal').on('hidden.bs.modal', function(event) {
+	dismiss()
+    });
     $("#capture_credentials_checkbox").change(function(){
     	$("#capture_passwords").toggle()
     })

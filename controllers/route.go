@@ -35,6 +35,7 @@ func CreateAdminRouter() http.Handler {
 	router.HandleFunc("/templates", Use(Templates, mid.RequireLogin))
 	router.HandleFunc("/users", Use(Users, mid.RequireLogin))
 	router.HandleFunc("/landing_pages", Use(LandingPages, mid.RequireLogin))
+	router.HandleFunc("/sending_profiles", Use(SendingProfiles, mid.RequireLogin))
 	router.HandleFunc("/register", Use(Register, mid.RequireLogin))
 	router.HandleFunc("/settings", Use(Settings, mid.RequireLogin))
 	// Create the API routes
@@ -50,6 +51,8 @@ func CreateAdminRouter() http.Handler {
 	api.HandleFunc("/templates/{id:[0-9]+}", Use(API_Templates_Id, mid.RequireAPIKey))
 	api.HandleFunc("/pages/", Use(API_Pages, mid.RequireAPIKey))
 	api.HandleFunc("/pages/{id:[0-9]+}", Use(API_Pages_Id, mid.RequireAPIKey))
+	api.HandleFunc("/smtp/", Use(API_SMTP, mid.RequireAPIKey))
+	api.HandleFunc("/smtp/{id:[0-9]+}", Use(API_SMTP_Id, mid.RequireAPIKey))
 	api.HandleFunc("/util/send_test_email", Use(API_Send_Test_Email, mid.RequireAPIKey))
 	api.HandleFunc("/import/group", API_Import_Group)
 	api.HandleFunc("/import/email", API_Import_Email)
@@ -69,6 +72,8 @@ func CreateAdminRouter() http.Handler {
 	csrfHandler.ExemptGlob("/api/templates/*")
 	csrfHandler.ExemptGlob("/api/pages")
 	csrfHandler.ExemptGlob("/api/pages/*")
+	csrfHandler.ExemptGlob("/api/smtp")
+	csrfHandler.ExemptGlob("/api/smtp/*")
 	csrfHandler.ExemptGlob("/api/import/*")
 	csrfHandler.ExemptGlob("/api/util/*")
 	csrfHandler.ExemptGlob("/static/*")
@@ -269,7 +274,7 @@ func CampaignID(w http.ResponseWriter, r *http.Request) {
 		Title   string
 		Flashes []interface{}
 		Token   string
-	}{Title: "Dashboard", User: ctx.Get(r, "user").(models.User), Token: nosurf.Token(r)}
+	}{Title: "Campaign Results", User: ctx.Get(r, "user").(models.User), Token: nosurf.Token(r)}
 	getTemplate(w, "campaign_results").ExecuteTemplate(w, "base", params)
 }
 
@@ -281,7 +286,7 @@ func Templates(w http.ResponseWriter, r *http.Request) {
 		Title   string
 		Flashes []interface{}
 		Token   string
-	}{Title: "Dashboard", User: ctx.Get(r, "user").(models.User), Token: nosurf.Token(r)}
+	}{Title: "Email Templates", User: ctx.Get(r, "user").(models.User), Token: nosurf.Token(r)}
 	getTemplate(w, "templates").ExecuteTemplate(w, "base", params)
 }
 
@@ -293,7 +298,7 @@ func Users(w http.ResponseWriter, r *http.Request) {
 		Title   string
 		Flashes []interface{}
 		Token   string
-	}{Title: "Dashboard", User: ctx.Get(r, "user").(models.User), Token: nosurf.Token(r)}
+	}{Title: "Users & Groups", User: ctx.Get(r, "user").(models.User), Token: nosurf.Token(r)}
 	getTemplate(w, "users").ExecuteTemplate(w, "base", params)
 }
 
@@ -305,8 +310,20 @@ func LandingPages(w http.ResponseWriter, r *http.Request) {
 		Title   string
 		Flashes []interface{}
 		Token   string
-	}{Title: "Dashboard", User: ctx.Get(r, "user").(models.User), Token: nosurf.Token(r)}
+	}{Title: "Landing Pages", User: ctx.Get(r, "user").(models.User), Token: nosurf.Token(r)}
 	getTemplate(w, "landing_pages").ExecuteTemplate(w, "base", params)
+}
+
+// SendingProfiles handles the default path and template execution
+func SendingProfiles(w http.ResponseWriter, r *http.Request) {
+	// Example of using session - will be removed.
+	params := struct {
+		User    models.User
+		Title   string
+		Flashes []interface{}
+		Token   string
+	}{Title: "Sending Profiles", User: ctx.Get(r, "user").(models.User), Token: nosurf.Token(r)}
+	getTemplate(w, "sending_profiles").ExecuteTemplate(w, "base", params)
 }
 
 // Settings handles the changing of settings
@@ -318,7 +335,7 @@ func Settings(w http.ResponseWriter, r *http.Request) {
 			Title   string
 			Flashes []interface{}
 			Token   string
-		}{Title: "Dashboard", User: ctx.Get(r, "user").(models.User), Token: nosurf.Token(r)}
+		}{Title: "Settings", User: ctx.Get(r, "user").(models.User), Token: nosurf.Token(r)}
 		getTemplate(w, "settings").ExecuteTemplate(w, "base", params)
 	case r.Method == "POST":
 		err := auth.ChangePassword(r)

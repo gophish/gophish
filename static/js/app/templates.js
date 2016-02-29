@@ -64,6 +64,7 @@ function dismiss() {
     $("#modal\\.flashes").empty()
     $("#attachmentsTable").dataTable().DataTable().clear().draw()
     $("#name").val("")
+    $("#subject").val("")
     $("#text_editor").val("")
     $("#html_editor").val("")
     $("#modal").modal('hide')
@@ -320,5 +321,8 @@ $(document).ready(function() {
                 }
             }, this));
     };
+    $('#modal').on('hidden.bs.modal', function(event) {
+	dismiss()
+    });
     load()
 })

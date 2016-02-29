@@ -13,7 +13,12 @@
                 </li>
                 <li class="active"><a href="/landing_pages">Landing Pages</a>
                 </li>
+                <li><a href="/sending_profiles">Sending Profiles</a>
+                </li>
                 <li><a href="/settings">Settings</a>
+                </li>
+                <li><hr></li>
+                <li><a href="/gophish_user_guide.pdf">User Guide</a>
                 </li>
                 <li><a href="/api/">API Documentation</a>
                 </li>
@@ -27,7 +32,7 @@
     </h1>
     <div id="flashes" class="row"></div>
     <div class="row">
-        <button type="button" class="btn btn-primary" onclick="edit(-1)" data-toggle="modal" data-target="#newLandingPageModal"><i class="fa fa-plus"></i> New Page</button>
+        <button type="button" class="btn btn-primary" onclick="edit(-1)" data-toggle="modal" data-target="#modal"><i class="fa fa-plus"></i> New Page</button>
     </div>
     &nbsp;
     <div id="loading">
@@ -53,13 +58,13 @@
     </div>
 </div>
 <!-- Modal -->
-<div class="modal fade" id="newLandingPageModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel">
+<div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
         <!-- New Template Modal -->
         <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title" id="pageModalLabel">New Landing Page</h4>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="dismiss()"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="modalLabel">New Landing Page</h4>
         </div>
         <div class="modal-body">
             <div class="row" id="modal.flashes"></div>
@@ -100,7 +105,7 @@
   </div>
 </div>
 <!-- Modal -->
-<div class="modal fade" id="importSiteModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel">
+<div class="modal fade" id="importSiteModal" tabindex="-1" role="dialog" aria-labelledby="importSiteModalLabel">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
         <!-- New Template Modal -->

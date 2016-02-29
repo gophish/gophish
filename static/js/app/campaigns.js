@@ -31,11 +31,7 @@ function launch() {
             name: $("#page").val()
         },
         smtp: {
-            from_address: $("input[name=from]").val(),
-            host: $("input[name=host]").val(),
-            username: $("input[name=username]").val(),
-            password: $("input[name=password]").val(),
-            ignore_cert_errors: $("#ignore_cert_errors").prop("checked")
+	    name: $("#profile").val()
         },
         groups: groups
     }
@@ -70,11 +66,7 @@ function sendTestEmail() {
             name: $("#page").val()
         },
         smtp: {
-            from_address: $("input[name=from]").val(),
-            host: $("input[name=host]").val(),
-            username: $("input[name=username]").val(),
-            password: $("input[name=password]").val(),
-            ignore_cert_errors: $("#ignore_cert_errors").prop("checked")
+	    name: $("#profile").val()
         }
     }
     btnHtml = $("#sendTestModalSubmit").html()
@@ -95,6 +87,12 @@ function sendTestEmail() {
 
 function dismiss() {
     $("#modal\\.flashes").empty()
+    $("#name").val("")
+    $("#template").val("")
+    $("#page").val("")
+    $("#url").val("")
+    $("#profile").val("")
+    $("#groupSelect").val("")
     $("#modal").modal('hide')
     $("#groupTable").dataTable().DataTable().clear().draw()
 }
@@ -114,6 +112,7 @@ function edit(campaign) {
     group_bh.clear();
     template_bh.clear();
     page_bh.clear();
+    profile_bh.clear();
     if (campaign == "new") {
         api.groups.get()
             .success(function(groups) {
@@ -142,7 +141,77 @@ function edit(campaign) {
                     page_bh.add(pages)
                 }
             })
+	api.SMTP.get()
+	    .success(function(profiles) {
+		if (profiles.length == 0){
+		   modalError("No profiles found!")
+		   return false
+		} else {
+		   profile_bh.add(profiles)
+		}
+	    })
     }
+}
+
+function copy(idx) {
+    group_bh.clear();
+    template_bh.clear();
+    page_bh.clear();
+    profile_bh.clear();
+    api.groups.get()
+        .success(function(groups) {
+            if (groups.length == 0) {
+                modalError("No groups found!")
+                return false;
+            } else {
+                group_bh.add(groups)
+            }
+        })
+    api.templates.get()
+        .success(function(templates) {
+            if (templates.length == 0) {
+                modalError("No templates found!")
+                return false
+            } else {
+                template_bh.add(templates)
+            }
+        })
+    api.pages.get()
+        .success(function(pages) {
+            if (pages.length == 0) {
+                modalError("No pages found!")
+                return false
+            } else {
+                page_bh.add(pages)
+            }
+        })
+    api.SMTP.get()
+        .success(function(profiles) {
+            if (profiles.length == 0) {
+                modalError("No profiles found!")
+                return false
+            } else {
+                profile_bh.add(profiles)
+            }
+        })
+        // Set our initial values
+    var campaign = campaigns[idx]
+    $("#name").val("Copy of " + campaign.name)
+    $("#template").val(campaign.template.name)
+    $("#page").val(campaign.page.name)
+    $("#profile").val(campaign.smtp.name)
+    $("#url").val(campaign.url)
+    $.each(campaign.groups, function(i, group){
+    	groupTable.row.add([
+                group.name,
+                '<span style="cursor:pointer;"><i class="fa fa-trash-o"></i></span>'
+            ]).draw()
+            $("#groupTable").on("click", "span>i.fa-trash-o", function() {
+                groupTable.row($(this).parents('tr'))
+                    .remove()
+                    .draw();
+            })
+    })
 }
 
 $(document).ready(function() {
@@ -183,6 +252,9 @@ $(document).ready(function() {
                 }
             }, this));
     };
+    $('#modal').on('hidden.bs.modal', function(event) {
+	dismiss()
+    });
     api.campaigns.get()
         .success(function(cs) {
             campaigns = cs
@@ -204,6 +276,9 @@ $(document).ready(function() {
                         "<div class='pull-right'><a class='btn btn-primary' href='/campaigns/" + campaign.id + "' data-toggle='tooltip' data-placement='left' title='View Results'>\
                     <i class='fa fa-bar-chart'></i>\
                     </a>\
+		    <span data-toggle='modal' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Copy Campaign' onclick='copy(" + i + ")'>\
+                    <i class='fa fa-copy'></i>\
+                    </button></span>\
                     <button class='btn btn-danger' onclick='deleteCampaign(" + i + ")' data-toggle='tooltip' data-placement='left' title='Delete Campaign'>\
                     <i class='fa fa-trash-o'></i>\
                     </button></div>"
@@ -328,5 +403,36 @@ $(document).ready(function() {
         })
         .bind('typeahead:autocomplete', function(ev, page) {
             $("#page").typeahead('val', page.name)
+        });
+    // Create the sending profile typeahead objects
+    profile_bh = new Bloodhound({
+        datumTokenizer: function(s) {
+            return Bloodhound.tokenizers.whitespace(s.name)
+        },
+        queryTokenizer: Bloodhound.tokenizers.whitespace,
+        local: []
+    })
+    profile_bh.initialize()
+    $("#profile.typeahead.form-control").typeahead({
+            hint: true,
+            highlight: true,
+            minLength: 1
+        }, {
+            name: "profiles",
+            source: profile_bh,
+            templates: {
+                empty: function(data) {
+                    return '<div class="tt-suggestion">No profiles matched that query</div>'
+                },
+                suggestion: function(data) {
+                    return '<div>' + data.name + '</div>'
+                }
+            }
+        })
+        .bind('typeahead:select', function(ev, profile) {
+            $("#profile").typeahead('val', profile.name)
+        })
+        .bind('typeahead:autocomplete', function(ev, profile) {
+            $("#profile").typeahead('val', profile.name)
         });
 })

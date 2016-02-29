@@ -35,7 +35,7 @@ func API(w http.ResponseWriter, r *http.Request) {
 		templates := template.New("template")
 		_, err := templates.ParseFiles("templates/docs.html")
 		if err != nil {
-			fmt.Println(err)
+			Logger.Println(err)
 		}
 		template.Must(templates, err).ExecuteTemplate(w, "base", nil)
 	}
@@ -63,7 +63,7 @@ func API_Campaigns(w http.ResponseWriter, r *http.Request) {
 	case r.Method == "GET":
 		cs, err := models.GetCampaigns(ctx.Get(r, "user_id").(int64))
 		if err != nil {
-			fmt.Println(err)
+			Logger.Println(err)
 		}
 		JSONResponse(w, cs, http.StatusOK)
 	//POST: Create a new campaign and return it as JSON
@@ -146,8 +146,8 @@ func API_Groups(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// API_Groups_Id returns details about the requested campaign. If the campaign is not
-// valid, API_Campaigns_Id returns null.
+// API_Groups_Id returns details about the requested campaign. If the group is not
+// valid, API_Groups_Id returns null.
 func API_Groups_Id(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.ParseInt(vars["id"], 0, 64)
@@ -191,7 +191,7 @@ func API_Templates(w http.ResponseWriter, r *http.Request) {
 	case r.Method == "GET":
 		ts, err := models.GetTemplates(ctx.Get(r, "user_id").(int64))
 		if err != nil {
-			fmt.Println(err)
+			Logger.Println(err)
 		}
 		JSONResponse(w, ts, http.StatusOK)
 	//POST: Create a new template and return it as JSON
@@ -274,7 +274,7 @@ func API_Pages(w http.ResponseWriter, r *http.Request) {
 	case r.Method == "GET":
 		ps, err := models.GetPages(ctx.Get(r, "user_id").(int64))
 		if err != nil {
-			fmt.Println(err)
+			Logger.Println(err)
 		}
 		JSONResponse(w, ps, http.StatusOK)
 	//POST: Create a new page and return it as JSON
@@ -342,6 +342,88 @@ func API_Pages_Id(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		JSONResponse(w, p, http.StatusOK)
+	}
+}
+
+// API_SMTP handles requests for the /api/smtp/ endpoint
+func API_SMTP(w http.ResponseWriter, r *http.Request) {
+	switch {
+	case r.Method == "GET":
+		ss, err := models.GetSMTPs(ctx.Get(r, "user_id").(int64))
+		if err != nil {
+			Logger.Println(err)
+		}
+		JSONResponse(w, ss, http.StatusOK)
+	//POST: Create a new SMTP and return it as JSON
+	case r.Method == "POST":
+		s := models.SMTP{}
+		// Put the request into a page
+		err := json.NewDecoder(r.Body).Decode(&s)
+		if err != nil {
+			JSONResponse(w, models.Response{Success: false, Message: "Invalid request"}, http.StatusBadRequest)
+			return
+		}
+		// Check to make sure the name is unique
+		_, err = models.GetSMTPByName(s.Name, ctx.Get(r, "user_id").(int64))
+		if err != gorm.RecordNotFound {
+			JSONResponse(w, models.Response{Success: false, Message: "SMTP name already in use"}, http.StatusConflict)
+			Logger.Println(err)
+			return
+		}
+		s.ModifiedDate = time.Now()
+		s.UserId = ctx.Get(r, "user_id").(int64)
+		err = models.PostSMTP(&s)
+		if err != nil {
+			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
+			return
+		}
+		JSONResponse(w, s, http.StatusCreated)
+	}
+}
+
+// API_SMTP_Id contains functions to handle the GET'ing, DELETE'ing, and PUT'ing
+// of a SMTP object
+func API_SMTP_Id(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, _ := strconv.ParseInt(vars["id"], 0, 64)
+	s, err := models.GetSMTP(id, ctx.Get(r, "user_id").(int64))
+	if err != nil {
+		JSONResponse(w, models.Response{Success: false, Message: "SMTP not found"}, http.StatusNotFound)
+		return
+	}
+	switch {
+	case r.Method == "GET":
+		JSONResponse(w, s, http.StatusOK)
+	case r.Method == "DELETE":
+		err = models.DeleteSMTP(id, ctx.Get(r, "user_id").(int64))
+		if err != nil {
+			JSONResponse(w, models.Response{Success: false, Message: "Error deleting SMTP"}, http.StatusInternalServerError)
+			return
+		}
+		JSONResponse(w, models.Response{Success: true, Message: "SMTP Deleted Successfully"}, http.StatusOK)
+	case r.Method == "PUT":
+		s = models.SMTP{}
+		err = json.NewDecoder(r.Body).Decode(&s)
+		if err != nil {
+			Logger.Println(err)
+		}
+		if s.Id != id {
+			JSONResponse(w, models.Response{Success: false, Message: "/:id and /:smtp_id mismatch"}, http.StatusBadRequest)
+			return
+		}
+		err = s.Validate()
+		if err != nil {
+			JSONResponse(w, models.Response{Success: false, Message: "Invalid attributes given"}, http.StatusBadRequest)
+			return
+		}
+		s.ModifiedDate = time.Now()
+		s.UserId = ctx.Get(r, "user_id").(int64)
+		err = models.PutSMTP(&s)
+		if err != nil {
+			JSONResponse(w, models.Response{Success: false, Message: "Error updating page"}, http.StatusInternalServerError)
+			return
+		}
+		JSONResponse(w, s, http.StatusOK)
 	}
 }
 
@@ -438,16 +520,50 @@ func API_Send_Test_Email(w http.ResponseWriter, r *http.Request) {
 		JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
 		return
 	}
-	// Get the template requested by name
-	s.Template, err = models.GetTemplateByName(s.Template.Name, ctx.Get(r, "user_id").(int64))
-	if err == gorm.RecordNotFound {
-		Logger.Printf("Error - Template %s does not exist", s.Template.Name)
-		JSONResponse(w, models.Response{Success: false, Message: models.ErrTemplateNotFound.Error()}, http.StatusBadRequest)
-	} else if err != nil {
-		Logger.Println(err)
-		JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
-		return
+
+	// If a Template is not specified use a default
+	if s.Template.Name == "" {
+		//default message body
+		text := "It works!\n\nThis is an email letting you know that your gophish\nconfiguration was successful.\n" +
+			"Here are the details:\n\nWho you sent from: {{.From}}\n\nWho you sent to: \n" +
+			"{{if .FirstName}} First Name: {{.FirstName}}\n{{end}}" +
+			"{{if .LastName}} Last Name: {{.LastName}}\n{{end}}" +
+			"{{if .Position}} Position: {{.Position}}\n{{end}}" +
+			"{{if .TrackingURL}} Tracking URL: {{.TrackingURL}}\n{{end}}" +
+			"\nNow go send some phish!"
+		t := models.Template{
+			Subject: "Default Email from Gophish",
+			Text:    text,
+		}
+		s.Template = t
+		// Try to lookup the Template by name
+	} else {
+		// Get the Template requested by name
+		s.Template, err = models.GetTemplateByName(s.Template.Name, ctx.Get(r, "user_id").(int64))
+		if err == gorm.RecordNotFound {
+			Logger.Printf("Error - Template %s does not exist", s.Template.Name)
+			JSONResponse(w, models.Response{Success: false, Message: models.ErrTemplateNotFound.Error()}, http.StatusBadRequest)
+		} else if err != nil {
+			Logger.Println(err)
+			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
+			return
+		}
 	}
+
+	// If a complete sending profile is provided use it
+	if err := s.SMTP.Validate(); err != nil {
+		// Otherwise get the SMTP requested by name
+		s.SMTP, err = models.GetSMTPByName(s.SMTP.Name, ctx.Get(r, "user_id").(int64))
+		if err == gorm.RecordNotFound {
+			Logger.Printf("Error - Sending profile %s does not exist", s.SMTP.Name)
+			JSONResponse(w, models.Response{Success: false, Message: models.ErrSMTPNotFound.Error()}, http.StatusBadRequest)
+		} else if err != nil {
+			Logger.Println(err)
+			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
+			return
+		}
+	}
+
 	// Send the test email
 	err = worker.SendTestEmail(s)
 	if err != nil {
