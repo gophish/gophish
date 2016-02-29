@@ -63,6 +63,7 @@ var statuses = {
 }
 
 var campaign = {}
+var bubbles = []
 
 function dismiss() {
     $("#modal\\.flashes").empty()
@@ -120,10 +121,10 @@ function exportAsCSV(scope) {
 
 function renderTimeline(data) {
     record = {
-        "first_name": data[1],
-        "last_name": data[2],
-        "email": data[3],
-        "position": data[4]
+        "first_name": data[2],
+        "last_name": data[3],
+        "email": data[4],
+        "position": data[5]
     }
     results = '<div class="timeline col-sm-12 well well-lg">' +
         '<h6>Timeline for ' + record.first_name + ' ' + record.last_name +
@@ -170,13 +171,122 @@ function renderTimeline(data) {
     results += '</div></div>'
     return results
 }
-$(document).ready(function() {
+
+
+/* poll - Queries the API and updates the UI with the results
+ *
+ * Updates:
+ * * Timeline Chart
+ * * Email (Donut) Chart
+ * * Map Bubbles
+ * * Datatables
+ */
+function poll() {
+    api.campaignId.get(campaign.id)
+        .success(function(c) {
+            campaign = c
+                /* Update the timeline */
+            var timeline_data = {
+                series: [{
+                    name: "Events",
+                    data: []
+                }]
+            }
+            $.each(campaign.timeline, function(i, event) {
+                timeline_data.series[0].data.push({
+                    meta: i,
+                    x: new Date(event.time),
+                    y: 1
+                })
+            })
+            var timeline_chart = $("#timeline_chart")
+            if (timeline_chart.get(0).__chartist__) {
+                timeline_chart.get(0).__chartist__.update(timeline_data)
+            }
+            /* Update the results donut chart */
+            var email_data = {
+                series: []
+            }
+            var email_series_data = {}
+            $.each(campaign.results, function(i, result) {
+                if (!email_series_data[result.status]) {
+                    email_series_data[result.status] = 1
+                } else {
+                    email_series_data[result.status]++;
+                }
+            })
+            $("#email_chart_legend").html("")
+            $.each(email_series_data, function(status, count) {
+                email_data.series.push({
+                    meta: status,
+                    value: count
+                })
+                $("#email_chart_legend").append('<li><span class="' + statuses[status].legend + '"></span>' + status + '</li>')
+            })
+            var email_chart = $("#email_chart")
+            if (email_chart.get(0).__chartist__) {
+                email_chart.get(0).__chartist__.on('draw', function(data) {
+                        data.element.addClass(statuses[data.meta].slice)
+                    })
+                    // Update with the latest data
+                email_chart.get(0).__chartist__.update(email_data)
+            }
+            /* Update the datatable */
+            resultsTable = $("#resultsTable").DataTable()
+            resultsTable.rows().every(function(i, tableLoop, rowLoop) {
+                    var row = this.row(i)
+                    var rowData = row.data()
+                    var rid = rowData[0]
+                    $.each(campaign.results, function(j, result) {
+                        if (result.id == rid) {
+                            var label = statuses[result.status].label || "label-default";
+                            rowData[6] = "<span class=\"label " + label + "\">" + result.status + "</span>"
+                            resultsTable.row(i).data(rowData).draw()
+                            if (row.child.isShown()) {
+                                row.child(renderTimeline(row.data()))
+                            }
+                            return false
+                        }
+                    })
+                })
+                /* Update the map information */
+            bubbles = []
+            $.each(campaign.results, function(i, result) {
+                // Check that it wasn't an internal IP
+                if (result.latitude == 0 && result.longitude == 0) {
+                    return true;
+                }
+                newIP = true
+                $.each(bubbles, function(i, bubble) {
+                    if (bubble.ip == result.ip) {
+                        bubbles[i].radius += 1
+                        newIP = false
+                        return false
+                    }
+                })
+                if (newIP) {
+                    bubbles.push({
+                        latitude: result.latitude,
+                        longitude: result.longitude,
+                        name: result.ip,
+                        fillKey: "point",
+                        radius: 2
+                    })
+                }
+            })
+            map.bubbles(bubbles)
+        })
+}
+
+function load() {
     campaign.id = window.location.pathname.split('/').slice(-1)[0]
     api.campaignId.get(campaign.id)
         .success(function(c) {
             campaign = c
             if (campaign) {
-                // Set the title
+                $("#loading").hide()
+                $("#campaignResults").show()
+                    // Set the title
                 $("#page-title").text("Results for " + c.name)
                     // Setup tooltips
                 $('[data-toggle="tooltip"]').tooltip()
@@ -233,21 +343,25 @@ $(document).ready(function() {
                     // Setup the results table
                 resultsTable = $("#resultsTable").DataTable({
                     destroy: true,
-                    destroy: true,
                     "order": [
-                        [1, "asc"]
+                        [2, "asc"]
                     ],
                     columnDefs: [{
                         orderable: false,
                         targets: "no-sort"
                     }, {
                         className: "details-control",
+                        "targets": [1]
+                    }, {
+                        "visible": false,
                         "targets": [0]
                     }]
                 });
+                resultsTable.clear();
                 $.each(campaign.results, function(i, result) {
                         label = statuses[result.status].label || "label-default";
                         resultsTable.row.add([
+                            result.id,
                             "<i class=\"fa fa-caret-right\"></i>",
                             result.first_name || "",
                             result.last_name || "",
@@ -265,19 +379,20 @@ $(document).ready(function() {
                 $('#resultsTable tbody').on('click', 'td.details-control', function() {
                     var tr = $(this).closest('tr');
                     var row = resultsTable.row(tr);
-
                     if (row.child.isShown()) {
                         // This row is already open - close it
                         row.child.hide();
                         tr.removeClass('shown');
                         $(this).find("i").removeClass("fa-caret-down")
                         $(this).find("i").addClass("fa-caret-right")
+                        row.invalidate('dom').draw()
                     } else {
                         // Open this row
                         $(this).find("i").removeClass("fa-caret-right")
                         $(this).find("i").addClass("fa-caret-down")
                         row.child(renderTimeline(row.data())).show();
                         tr.addClass('shown');
+                        row.invalidate('dom').draw()
                     }
                 });
                 // Setup the graphs
@@ -288,11 +403,13 @@ $(document).ready(function() {
                         y: 1
                     })
                 })
+                $("#email_chart_legend").html("")
                 $.each(email_series_data, function(status, count) {
                     email_data.series.push({
                         meta: status,
                         value: count
                     })
+                    $("#email_chart_legend").append('<li><span class="' + statuses[status].legend + '"></span>' + status + '</li>')
                 })
                 var timeline_chart = new Chartist.Line('#timeline_chart', timeline_data, timeline_opts)
                     // Setup the overview chart listeners
@@ -322,12 +439,6 @@ $(document).ready(function() {
                 });
                 var email_chart = new Chartist.Pie("#email_chart", email_data, email_opts)
                 email_chart.on('draw', function(data) {
-                        // We don't want to create the legend twice
-                        if (!email_legend[data.meta]) {
-                            console.log(data.meta)
-                            $("#email_chart_legend").append('<li><span class="' + statuses[data.meta].legend + '"></span>' + data.meta + '</li>')
-                            email_legend[data.meta] = true
-                        }
                         data.element.addClass(statuses[data.meta].slice)
                     })
                     // Setup the average chart listeners
@@ -353,24 +464,23 @@ $(document).ready(function() {
                         top: (event.offsetY + 40 || event.originalEvent.layerY) - $pietoolTip.height() - 80
                     });
                 });
-                $("#loading").hide()
-                $("#campaignResults").show()
-                map = new Datamap({
-                    element: document.getElementById("resultsMap"),
-                    responsive: true,
-                    fills: {
-                        defaultFill: "#ffffff",
-                        point: "#283F50"
-                    },
-                    geographyConfig: {
-                        highlightFillColor: "#1abc9c",
-                        borderColor: "#283F50"
-                    },
-                    bubblesConfig: {
-                        borderColor: "#283F50"
-                    }
-                });
-                bubbles = []
+                if (!map) {
+                    map = new Datamap({
+                        element: document.getElementById("resultsMap"),
+                        responsive: true,
+                        fills: {
+                            defaultFill: "#ffffff",
+                            point: "#283F50"
+                        },
+                        geographyConfig: {
+                            highlightFillColor: "#1abc9c",
+                            borderColor: "#283F50"
+                        },
+                        bubblesConfig: {
+                            borderColor: "#283F50"
+                        }
+                    });
+                }
                 $.each(campaign.results, function(i, result) {
                     // Check that it wasn't an internal IP
                     if (result.latitude == 0 && result.longitude == 0) {
@@ -385,13 +495,6 @@ $(document).ready(function() {
                         }
                     })
                     if (newIP) {
-                        console.log("Adding bubble at: ")
-                        console.log({
-                            latitude: result.latitude,
-                            longitude: result.longitude,
-                            name: result.ip,
-                            fillKey: "point"
-                        })
                         bubbles.push({
                             latitude: result.latitude,
                             longitude: result.longitude,
@@ -426,4 +529,17 @@ $(document).ready(function() {
             $("#loading").hide()
             errorFlash(" Campaign not found!")
         })
+}
+
+$(document).ready(function() {
+    load();
+    // Start the polling loop
+    function refresh() {
+        $("#refresh_message").show()
+        poll()
+        $("#refresh_message").hide()
+        setTimeout(refresh, 10000)
+    };
+    // Start the polling loop
+    setTimeout(refresh, 10000)
 })

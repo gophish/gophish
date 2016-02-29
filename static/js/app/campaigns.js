@@ -258,16 +258,15 @@ $(document).ready(function() {
     api.campaigns.get()
         .success(function(cs) {
             campaigns = cs
-            campaignTable = $("#campaignTable").DataTable({
-                columnDefs: [{
-                    orderable: false,
-                    targets: "no-sort"
-                }]
-            });
             $("#loading").hide()
             if (campaigns.length > 0) {
                 $("#campaignTable").show()
-                campaignTable = $("#campaignTable").DataTable();
+                campaignTable = $("#campaignTable").DataTable({
+                    columnDefs: [{
+                        orderable: false,
+                        targets: "no-sort"
+                    }]
+                });
                 $.each(campaigns, function(i, campaign) {
                     label = labels[campaign.status] || "label-default";
                     campaignTable.row.add([
