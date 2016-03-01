@@ -28,6 +28,9 @@ function save(idx) {
         template.html.indexOf("{{.Tracker}}") == -1 &&
         template.html.indexOf("{{.TrackingUrl}}") == -1) {
         template.html = template.html.replace("</body>", "{{.Tracker}}</body>")
+    } else {
+        // Otherwise, remove the tracker
+        template.html = template.html.replace("{{.Tracker}}</body>", "</body>")
     }
     template.text = $("#text_editor").val()
         // Add the attachments
@@ -157,6 +160,11 @@ function edit(idx) {
                 file.type || "application/octet-stream"
             ]).draw()
         })
+        if (template.html.indexOf("{{.Tracker}}</body>") != -1) {
+            $("#use_tracker_checkbox").prop("checked", true)
+        } else {
+            $("#use_tracker_checkbox").prop("checked", false)
+        }
     }
     // Handle Deletion
     $("#attachmentsTable").unbind('click').on("click", "span>i.fa-trash-o", function() {
@@ -322,7 +330,7 @@ $(document).ready(function() {
             }, this));
     };
     $('#modal').on('hidden.bs.modal', function(event) {
-	dismiss()
+        dismiss()
     });
     load()
 })
