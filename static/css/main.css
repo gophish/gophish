@@ -461,3 +461,8 @@ td.details-control{
 #capture_passwords {
 	display:none;
 }
+@media (max-width: 767px) {
+	.navbar-header {
+		margin-left:10px !important;
+	}
+}
