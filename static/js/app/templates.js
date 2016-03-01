@@ -221,6 +221,11 @@ function copy(idx) {
             .remove()
             .draw();
     })
+    if (template.html.indexOf("{{.Tracker}}</body>") != -1) {
+        $("#use_tracker_checkbox").prop("checked", true)
+    } else {
+        $("#use_tracker_checkbox").prop("checked", false)
+    }
 }
 
 function importEmail() {
