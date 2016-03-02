@@ -114,6 +114,7 @@ func processCampaign(c *models.Campaign) {
 		e.Subject = string(subjBuff.Bytes())
 		Logger.Println("Creating email using template")
 		e.To = []string{t.Email}
+		e.Attachments = []*email.Attachment{}
 		// Attach the files
 		for _, a := range c.Template.Attachments {
 			decoder := base64.NewDecoder(base64.StdEncoding, strings.NewReader(a.Content))
