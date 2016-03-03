@@ -34,6 +34,9 @@ var ErrInvalidPassword = errors.New("Invalid Password")
 // or change password functions
 var ErrEmptyPassword = errors.New("Password cannot be blank")
 
+// ErrPasswordMismatch is thrown when a user provides passwords that do not match
+var ErrPasswordMismatch = errors.New("Passwords must match")
+
 // Login attempts to login the user given a request.
 func Login(r *http.Request) (bool, error) {
 	username, password := r.FormValue("username"), r.FormValue("password")
@@ -56,7 +59,9 @@ func Login(r *http.Request) (bool, error) {
 
 // Register attempts to register the user given a request.
 func Register(r *http.Request) (bool, error) {
-	username, password := r.FormValue("username"), r.FormValue("password")
+	username := r.FormValue("username")
+	newPassword := r.FormValue("password")
+	confirmPassword := r.FormValue("confirm_password")
 	u, err := models.GetUserByUsername(username)
 	// If we have an error which is not simply indicating that no user was found, report it
 	if err != nil {
@@ -64,13 +69,17 @@ func Register(r *http.Request) (bool, error) {
 		return false, err
 	}
 	u = models.User{}
-	//If we've made it here, we should have a valid username given
+	// If we've made it here, we should have a valid username given
 	// Check that the passsword isn't blank
-	if password == "" {
+	if newPassword == "" {
 		return false, ErrEmptyPassword
 	}
-	//Let's create the password hash
-	h, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	// Make sure passwords match
+	if newPassword != confirmPassword {
+		return false, ErrPasswordMismatch
+	}
+	// Let's create the password hash
+	h, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
 	if err != nil {
 		return false, err
 	}
@@ -92,18 +101,24 @@ func GenerateSecureKey() string {
 
 func ChangePassword(r *http.Request) error {
 	u := ctx.Get(r, "user").(models.User)
-	c, n := r.FormValue("current_password"), r.FormValue("new_password")
+	currentPw := r.FormValue("current_password")
+	newPassword := r.FormValue("new_password")
+	confirmPassword := r.FormValue("confirm_new_password")
 	// Check the current password
-	err := bcrypt.CompareHashAndPassword([]byte(u.Hash), []byte(c))
+	err := bcrypt.CompareHashAndPassword([]byte(u.Hash), []byte(currentPw))
 	if err != nil {
 		return ErrInvalidPassword
 	}
 	// Check that the new password isn't blank
-	if n == "" {
+	if newPassword == "" {
 		return ErrEmptyPassword
 	}
+	// Check that new passwords match
+	if newPassword != confirmPassword {
+		return ErrPasswordMismatch
+	}
 	// Generate the new hash
-	h, err := bcrypt.GenerateFromPassword([]byte(n), bcrypt.DefaultCost)
+	h, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
 	if err != nil {
 		return err
 	}
