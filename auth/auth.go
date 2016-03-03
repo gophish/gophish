@@ -60,8 +60,8 @@ func Login(r *http.Request) (bool, error) {
 // Register attempts to register the user given a request.
 func Register(r *http.Request) (bool, error) {
 	username := r.FormValue("username")
-	password1 := r.FormValue("password")
-	password2 := r.FormValue("confirm_password")
+	newPassword := r.FormValue("password")
+	confirmPassword := r.FormValue("confirm_password")
 	u, err := models.GetUserByUsername(username)
 	// If we have an error which is not simply indicating that no user was found, report it
 	if err != nil {
@@ -71,15 +71,15 @@ func Register(r *http.Request) (bool, error) {
 	u = models.User{}
 	// If we've made it here, we should have a valid username given
 	// Check that the passsword isn't blank
-	if password1 == "" {
+	if newPassword == "" {
 		return false, ErrEmptyPassword
 	}
 	// Make sure passwords match
-	if password1 != password2 {
+	if newPassword != confirmPassword {
 		return false, ErrPasswordMismatch
 	}
 	// Let's create the password hash
-	h, err := bcrypt.GenerateFromPassword([]byte(password1), bcrypt.DefaultCost)
+	h, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
 	if err != nil {
 		return false, err
 	}
@@ -102,23 +102,23 @@ func GenerateSecureKey() string {
 func ChangePassword(r *http.Request) error {
 	u := ctx.Get(r, "user").(models.User)
 	currentPw := r.FormValue("current_password")
-	pw1 := r.FormValue("new_password")
-	pw2 := r.FormValue("confirm_new_password")
+	newPassword := r.FormValue("new_password")
+	confirmPassword := r.FormValue("confirm_new_password")
 	// Check the current password
 	err := bcrypt.CompareHashAndPassword([]byte(u.Hash), []byte(currentPw))
 	if err != nil {
 		return ErrInvalidPassword
 	}
 	// Check that the new password isn't blank
-	if pw1 == "" {
+	if newPassword == "" {
 		return ErrEmptyPassword
 	}
 	// Check that new passwords match
-	if pw1 != pw2 {
+	if newPassword != confirmPassword {
 		return ErrPasswordMismatch
 	}
 	// Generate the new hash
-	h, err := bcrypt.GenerateFromPassword([]byte(pw1), bcrypt.DefaultCost)
+	h, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
 	if err != nil {
 		return err
 	}
