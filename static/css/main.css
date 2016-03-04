@@ -473,3 +473,7 @@ td.details-control{
 		margin-left:10px !important;
 	}
 }
+
+table.dataTable{
+  width:100% !important;
+}
