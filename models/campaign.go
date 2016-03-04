@@ -144,9 +144,9 @@ func GetCampaigns(uid int64) ([]Campaign, error) {
 			Logger.Println(err)
 		}
 		err = db.Table("SMTP").Where("id=?", cs[i].SMTPId).Find(&cs[i].SMTP).Error
-                if err != nil {
-                        Logger.Println(err)
-                }
+		if err != nil {
+			Logger.Println(err)
+		}
 	}
 	return cs, err
 }
@@ -180,7 +180,10 @@ func GetCampaign(id int64, uid int64) (Campaign, error) {
 	}
 	err = db.Table("SMTP").Where("id=?", c.SMTPId).Find(&c.SMTP).Error
 	if err != nil {
+		// For now, since we just introduced the new sending profiles
+		// we'll return nil for the error
 		Logger.Printf("%s: sending profile not found for campaign\n", err)
+		err = nil
 	}
 	return c, err
 }
