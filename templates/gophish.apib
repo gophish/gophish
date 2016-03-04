@@ -28,6 +28,11 @@ If no API key is provided, you'll receive the following response when attempting
 :::
 
 # Group Campaigns
+## Campaigns [/campaigns/]
+
+### Get Campaigns [GET]
+Get a list of campaigns.
+
 Campaigns object contain the resources needed for gophish to launch and track a simulated phishing campaign.
 
 Campaigns have the following attributes:
@@ -41,7 +46,7 @@ Campaigns have the following attributes:
 + ```status``` : Emails Sent (string) - The current status of the campaign
 + ```results``` : array[Result] - List of Results for the campaign
 + ```timeline``` : array[Event] - List of Events for the campaign
-+ ```smtp``` : [SMTP](#smtp)
++ ```smtp``` : [SendingProfile](#sending-profiles)
 + ```url``` : http://foo.bar (required, string) - The URL used in the Template sent to us
 ers
 
@@ -61,11 +66,6 @@ Each campaign also keeps a timeline of events that occur, such as clicking a lin
 + ```email``` : foo@example.com - Email address of the target
 + ```time``` : 2015-1-1T01:02:03.000000Z (datetime) - The timestamp the event was created
 + ```message``` : Campaign Created (string) - The event message
-
-## Campaigns [/campaigns/]
-
-### Get Campaigns [GET]
-Get a list of campaigns.
 
 + Response 200 (application/json)
 
@@ -142,6 +142,10 @@ Delete a campaign by its ID.
             }
 
 # Group Templates
+## Templates [/templates/]
+### Get Templates [GET]
+Get a list of templates.
+
 Templates define what email content is sent to targets during campaigns. It contains the subject of the email as well as the HTML and text content of the email.
 
 + ```id```: 1 (number, required) - Unique identifier
@@ -160,10 +164,6 @@ Attachments have the following attributes:
 + ```name```: Example Attachment (required) - Filename of Attachment
 + ```content```: Base64 encoded attachment content
 + ```type```: `text/plain` - MIME type of the Attachment
-
-## Templates [/templates/]
-### Get Templates [GET]
-Get a list of templates.
 
 + Response 200 (application/json)
 
@@ -248,6 +248,11 @@ Delete a template by its ID.
             }
 
 # Group Groups 
+## Groups [/groups/]
+
+### Get Groups [GET]
+Get a list of groups.
+
 Groups contain the details for one or more users targeted in the simulated phishing campaign. Groups contain the following attributes:
 
 + ```id```: 1 (required, number) - Unique identifier
@@ -270,10 +275,6 @@ If you have all your targets in a CSV file, you can bulk import them into a grou
 
 In the future, we plan to add other importation methods to make setting up groups a breeze.
 :::
-## Groups [/groups/]
-
-### Get Groups [GET]
-Get a list of groups.
 
 + Response 200 (application/json)
 
@@ -349,7 +350,108 @@ Delete a Group by its ID.
                 "data": null
             }
 
+# Group Sending Profiles 
+## Sending Profiles [/smtp/]
+
+### Get Sending Profiles [GET]
+Get a list of sending profiles.
+
+Sending profiles contain the details for SMTP or other settings used to control how emails are sent in campaigns. Sending profiles contain the following attributes:
+
++ ```id```: 1 (required, number) - Unique identifier
++ ```name```: Example Profile (string, required) - Name of the Sending Profile
++ ```interface```: SMTP (string) - Interface type of the sending profile. By default, this is "SMTP"
++ ```host```: 1.1.1.1:25 (string, required) - The hostname:port for the SMTP configuration
++ ```username```: foo (string) - The username to authenticate to the SMTP server (optional)
++ ```password```: bar (string) - The password to authenticate to the SMTP server (optional)
++ ```from_address```: Foo Bar <foo.bar@example.com> (string) - The email address to use in the "From" header. This is typically used to spoof email addresses
++ ```ignore_cert_errors```: false (boolean) - Whether or not to disable certificate validation when connecting to the SMTP server via TLS
++ ```modified_date```: `2015-01-01T01:02:03.000000Z` (string) - Date the Group was last modified
+
+::: note
+**Receiving Certificate Errors?**
+
+It's common to have an SMTP server that is configured using a self-signed or otherwise untrusted SSL certficate. To avoid errors when connecting to the server, set ```ignore_cert_errors``` to "true".
+:::
+
++ Response 200 (application/json)
+
+    + Attributes (array[SendingProfile])
+
++ Response 404 (application/json)
+
+    + Body
+
+            []
+
+### Create New Sending Profile [POST]
+Create a new sending profile 
+
++ Request (application/json)
+
+    + Attributes (SendingProfile)
+
++ Response 201 (application/json)
+
+    + Attributes (SendingProfile)
+
++ Response 400 (application/json)
+
+    + Attributes (BadRequestResponse)
+
+## Sending Profile [/smtp/{id}]
+### Get Sending Profile [GET]
+Get a sending profile by its ID.
+
++ Parameters
+
+    + id: `1` (number, required) - The sending profile ID
+
++ Response 200 (application/json)
+
+    + Attributes (SendingProfile)
+
++ Response 404 (application/json)
+
+    + Body
+
+            {
+                "message": "SMTP not found",
+                "success": false,
+                "data": null
+            }
+
+### Delete a Sending Profile [DELETE] 
+Delete a Sending Profile by its ID.
+
++ Parameters
+
+    + id: `1` (number, required) - The Sending Profile ID
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+                "message": "SMTP deleted successfully!",
+                "success": true,
+                "data": null
+            }
+
++ Response 404 (application/json)
+
+    + Body
+
+            {
+                "message": "SMTP not found",
+                "success": false,
+                "data": null
+            }
+
 # Group Pages 
+## Pages [/pages/]
+### Get Pages [GET]
+Get a list of pages.
 Pages are the HTML page that a user lands on after clicking on a phishing link.
 
 + ```id```: 1 (required, number) - Unique identifier
@@ -362,9 +464,6 @@ Pages are the HTML page that a user lands on after clicking on a phishing link.
 
 Let gophish do the hard work for you in importing a site. By using the [Import Site](#import-site) endpoint, you can simply give gophish a URL and have the site imported for you.
 :::
-## Pages [/pages/]
-### Get Pages [GET]
-Get a list of pages.
 
 + Response 200 (application/json)
 
@@ -609,12 +708,13 @@ To keep styles, images, and Javascript setup and working, gophish adds a ```base
 + time: `2015-01-01T01:02:03.000000Z` (string) - Date the event was generated
 + message: Campaign Created (string) - The description of the event
 
-## SMTP (object)
+## SendingProfile (object)
 + id: 1 (number, required) - Unique identifier
 + host: smtp.example.com:25 (required) - The hostname and port for the SMTP server
 + username: foo (string, required) - The username used for SMTP authentication
 + password: bar (string, required) - The password used for SMTP authentication
 + from_address: John Doe <foo@example.com> (string, required) - The "From" address to spoof
++ ignore_cert_errors: false (boolean) - Whether or not to ignore certificate errors
 
 ## Campaign (object)
 + id: 1 (number, required) - Unique identifier
@@ -626,7 +726,7 @@ To keep styles, images, and Javascript setup and working, gophish adds a ```base
 + status: Emails Sent (required, string) - The current status of the campaign
 + results: (array[Result]) - The results of the campaign
 + timeline: (array[Event]) - The event timeline
-+ smtp: (SMTP) - The SMTP settings used in the campaign
++ smtp: (SendingProfile) - The Sending Profile settings used in the campaign
 + url: http://foo.bar (string, required) - The URL used in the Template sent to users
 
 ## ImportSiteRequest (object)
