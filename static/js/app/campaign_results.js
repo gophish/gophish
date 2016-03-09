@@ -6,55 +6,64 @@ var statuses = {
         slice: "ct-slice-donut-sent",
         legend: "ct-legend-sent",
         label: "label-success",
-        icon: "fa-envelope"
+        icon: "fa-envelope",
+        point: "ct-point-sent"
     },
     "Email Opened": {
         slice: "ct-slice-donut-opened",
         legend: "ct-legend-opened",
         label: "label-warning",
-        icon: "fa-envelope"
+        icon: "fa-envelope",
+        point: "ct-point-opened"
     },
     "Clicked Link": {
         slice: "ct-slice-donut-clicked",
         legend: "ct-legend-clicked",
         label: "label-danger",
-        icon: "fa-mouse-pointer"
+        icon: "fa-mouse-pointer",
+        point: "ct-point-clicked"
     },
     "Success": {
         slice: "ct-slice-donut-clicked",
         legend: "ct-legend-clicked",
         label: "label-danger",
-        icon: "fa-exclamation"
+        icon: "fa-exclamation",
+        point: "ct-point-clicked"
     },
     "Error": {
         slice: "ct-slice-donut-error",
         legend: "ct-legend-error",
         label: "label-default",
-        icon: "fa-times"
+        icon: "fa-times",
+        point: "ct-point-error"
     },
     "Error Sending Email": {
         slice: "ct-slice-donut-error",
         legend: "ct-legend-error",
         label: "label-default",
-        icon: "fa-times"
+        icon: "fa-times",
+        point: "ct-point-error"
     },
     "Submitted Data": {
         slice: "ct-slice-donut-clicked",
         legend: "ct-legend-clicked",
         label: "label-danger",
-        icon: "fa-exclamation"
+        icon: "fa-exclamation",
+        point: "ct-point-clicked"
     },
     "Unknown": {
         slice: "ct-slice-donut-error",
         legend: "ct-legend-error",
         label: "label-default",
-        icon: "fa-question"
+        icon: "fa-question",
+        point: "ct-point-error"
     },
     "Sending": {
-        slice: "ct-slice-donut-error",
-        legend: "ct-legend-error",
+        slice: "ct-slice-donut-sending",
+        legend: "ct-legend-sending",
         label: "label-primary",
-        icon: "fa-spinner"
+        icon: "fa-spinner",
+        point: "ct-point-sending"
     },
     "Campaign Created": {
         label: "label-success",
@@ -412,23 +421,36 @@ function load() {
                     $("#email_chart_legend").append('<li><span class="' + statuses[status].legend + '"></span>' + status + '</li>')
                 })
                 var timeline_chart = new Chartist.Line('#timeline_chart', timeline_data, timeline_opts)
+                timeline_chart.on('draw', function(data) {
+                        if (data.type === "point") {
+                            var point_style = statuses[campaign.timeline[data.meta].message].point
+                            var circle = new Chartist.Svg("circle", {
+                                cx: [data.x],
+                                cy: [data.y],
+                                r: 5,
+                                fill: "#283F50",
+                                meta: data.meta,
+                                value: 1,
+                            }, point_style + ' ct-timeline-point')
+                            data.element.replace(circle)
+                        }
+                    })
                     // Setup the overview chart listeners
                 $chart = $("#timeline_chart")
                 var $toolTip = $chart
                     .append('<div class="chartist-tooltip"></div>')
                     .find('.chartist-tooltip')
                     .hide();
-                $chart.on('mouseenter', '.ct-point', function() {
+                $chart.on('mouseenter', '.ct-timeline-point', function() {
                     var $point = $(this)
-                    value = $point.attr('ct:value')
-                    cidx = $point.attr('ct:meta')
+                    cidx = $point.attr('meta')
                     html = "Event: " + campaign.timeline[cidx].message
                     if (campaign.timeline[cidx].email) {
                         html += '<br>' + "Email: " + campaign.timeline[cidx].email
                     }
                     $toolTip.html(html).show()
                 });
-                $chart.on('mouseleave', '.ct-point', function() {
+                $chart.on('mouseleave', '.ct-timeline-point', function() {
                     $toolTip.hide();
                 });
                 $chart.on('mousemove', function(event) {
@@ -437,6 +459,7 @@ function load() {
                         top: (event.offsetY + 70 || event.originalEvent.layerY) - $toolTip.height() - 40
                     });
                 });
+
                 var email_chart = new Chartist.Pie("#email_chart", email_data, email_opts)
                 email_chart.on('draw', function(data) {
                         data.element.addClass(statuses[data.meta].slice)

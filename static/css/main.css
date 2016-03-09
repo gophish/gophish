@@ -209,6 +209,36 @@
     cursor:pointer;
 }
 
+.ct-timeline-point{
+    cursor:pointer;
+    stroke:#ffffff;
+    stroke-width:1px;
+}
+
+.ct-point-sending {
+	fill:#428bca !important;
+}
+
+.ct-point-error {
+	fill:#6c7a89 !important;
+}
+
+.ct-point-clicked {
+	fill:#f05b4f !important;
+}
+
+.ct-point-opened {
+	fill:#eb9532 !important;
+}
+
+.ct-point-sent {
+	fill:#1abc9c !important;
+}
+
+.ct-point-success {
+	fill:#f05b4f !important;
+}
+
 .chartist-tooltip{
     position:absolute;
     display:inline-block;
@@ -309,6 +339,10 @@
     stroke:#f05b4f !important;
 }
 
+.ct-slice-donut.ct-slice-donut-sending{
+    stroke:#428bca !important;
+}
+
 .ct-legend-error {
     background-color: #6c7a89 !important;
 }
@@ -327,6 +361,10 @@
 
 .ct-legend-clicked {
     background-color: #f05b4f !important;
+}
+
+.ct-legend-sending {
+    background-color: #428bca !important;
 }
 
 .gophish-editor {
