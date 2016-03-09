@@ -203,7 +203,7 @@ func insertTargetIntoGroup(t Target, gid int64) error {
 		return err
 	}
 	err = trans.Where("group_id=? and target_id=?", gid, t.Id).Find(&GroupTarget{}).Error
-	if err == gorm.RecordNotFound {
+	if err == gorm.ErrRecordNotFound {
 		err = trans.Save(&GroupTarget{GroupId: gid, TargetId: t.Id}).Error
 		if err != nil {
 			Logger.Println(err)

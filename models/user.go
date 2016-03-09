@@ -38,7 +38,7 @@ func GetUserByUsername(username string) (User, error) {
 	u := User{}
 	err := db.Where("username = ?", username).First(&u).Error
 	// No issue if we don't find a record
-	if err == gorm.RecordNotFound {
+	if err == gorm.ErrRecordNotFound {
 		return u, nil
 	} else if err == nil {
 		return u, ErrUsernameTaken

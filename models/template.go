@@ -49,7 +49,7 @@ func GetTemplates(uid int64) ([]Template, error) {
 		if err == nil && len(ts[i].Attachments) == 0 {
 			ts[i].Attachments = make([]Attachment, 0)
 		}
-		if err != nil && err != gorm.RecordNotFound {
+		if err != nil && err != gorm.ErrRecordNotFound {
 			Logger.Println(err)
 			return ts, err
 		}
@@ -66,7 +66,7 @@ func GetTemplate(id int64, uid int64) (Template, error) {
 		return t, err
 	}
 	err = db.Where("template_id=?", t.Id).Find(&t.Attachments).Error
-	if err != nil && err != gorm.RecordNotFound {
+	if err != nil && err != gorm.ErrRecordNotFound {
 		Logger.Println(err)
 		return t, err
 	}
@@ -85,7 +85,7 @@ func GetTemplateByName(n string, uid int64) (Template, error) {
 		return t, err
 	}
 	err = db.Where("template_id=?", t.Id).Find(&t.Attachments).Error
-	if err != nil && err != gorm.RecordNotFound {
+	if err != nil && err != gorm.ErrRecordNotFound {
 		Logger.Println(err)
 		return t, err
 	}
@@ -126,11 +126,11 @@ func PutTemplate(t *Template) error {
 	}
 	// Delete all attachments, and replace with new ones
 	err = db.Where("template_id=?", t.Id).Delete(&Attachment{}).Error
-	if err != nil && err != gorm.RecordNotFound {
+	if err != nil && err != gorm.ErrRecordNotFound {
 		Logger.Println(err)
 		return err
 	}
-	if err == gorm.RecordNotFound {
+	if err == gorm.ErrRecordNotFound {
 		err = nil
 	}
 	for i, _ := range t.Attachments {

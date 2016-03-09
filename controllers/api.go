@@ -130,7 +130,7 @@ func API_Groups(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		_, err = models.GetGroupByName(g.Name, ctx.Get(r, "user_id").(int64))
-		if err != gorm.RecordNotFound {
+		if err != gorm.ErrRecordNotFound {
 			JSONResponse(w, models.Response{Success: false, Message: "Group name already in use"}, http.StatusConflict)
 			return
 		}
@@ -204,7 +204,7 @@ func API_Templates(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		_, err = models.GetTemplateByName(t.Name, ctx.Get(r, "user_id").(int64))
-		if err != gorm.RecordNotFound {
+		if err != gorm.ErrRecordNotFound {
 			JSONResponse(w, models.Response{Success: false, Message: "Template name already in use"}, http.StatusConflict)
 			return
 		}
@@ -288,7 +288,7 @@ func API_Pages(w http.ResponseWriter, r *http.Request) {
 		}
 		// Check to make sure the name is unique
 		_, err = models.GetPageByName(p.Name, ctx.Get(r, "user_id").(int64))
-		if err != gorm.RecordNotFound {
+		if err != gorm.ErrRecordNotFound {
 			JSONResponse(w, models.Response{Success: false, Message: "Page name already in use"}, http.StatusConflict)
 			Logger.Println(err)
 			return
@@ -365,7 +365,7 @@ func API_SMTP(w http.ResponseWriter, r *http.Request) {
 		}
 		// Check to make sure the name is unique
 		_, err = models.GetSMTPByName(s.Name, ctx.Get(r, "user_id").(int64))
-		if err != gorm.RecordNotFound {
+		if err != gorm.ErrRecordNotFound {
 			JSONResponse(w, models.Response{Success: false, Message: "SMTP name already in use"}, http.StatusConflict)
 			Logger.Println(err)
 			return
@@ -540,7 +540,7 @@ func API_Send_Test_Email(w http.ResponseWriter, r *http.Request) {
 	} else {
 		// Get the Template requested by name
 		s.Template, err = models.GetTemplateByName(s.Template.Name, ctx.Get(r, "user_id").(int64))
-		if err == gorm.RecordNotFound {
+		if err == gorm.ErrRecordNotFound {
 			Logger.Printf("Error - Template %s does not exist", s.Template.Name)
 			JSONResponse(w, models.Response{Success: false, Message: models.ErrTemplateNotFound.Error()}, http.StatusBadRequest)
 		} else if err != nil {
@@ -554,7 +554,7 @@ func API_Send_Test_Email(w http.ResponseWriter, r *http.Request) {
 	if err := s.SMTP.Validate(); err != nil {
 		// Otherwise get the SMTP requested by name
 		s.SMTP, err = models.GetSMTPByName(s.SMTP.Name, ctx.Get(r, "user_id").(int64))
-		if err == gorm.RecordNotFound {
+		if err == gorm.ErrRecordNotFound {
 			Logger.Printf("Error - Sending profile %s does not exist", s.SMTP.Name)
 			JSONResponse(w, models.Response{Success: false, Message: models.ErrSMTPNotFound.Error()}, http.StatusBadRequest)
 		} else if err != nil {

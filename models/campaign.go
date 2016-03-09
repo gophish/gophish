@@ -201,7 +201,7 @@ func PostCampaign(c *Campaign, uid int64) error {
 	// Check to make sure all the groups already exist
 	for i, g := range c.Groups {
 		c.Groups[i], err = GetGroupByName(g.Name, uid)
-		if err == gorm.RecordNotFound {
+		if err == gorm.ErrRecordNotFound {
 			Logger.Printf("Error - Group %s does not exist", g.Name)
 			return ErrGroupNotFound
 		} else if err != nil {
@@ -211,7 +211,7 @@ func PostCampaign(c *Campaign, uid int64) error {
 	}
 	// Check to make sure the template exists
 	t, err := GetTemplateByName(c.Template.Name, uid)
-	if err == gorm.RecordNotFound {
+	if err == gorm.ErrRecordNotFound {
 		Logger.Printf("Error - Template %s does not exist", t.Name)
 		return ErrTemplateNotFound
 	} else if err != nil {
@@ -222,7 +222,7 @@ func PostCampaign(c *Campaign, uid int64) error {
 	c.TemplateId = t.Id
 	// Check to make sure the page exists
 	p, err := GetPageByName(c.Page.Name, uid)
-	if err == gorm.RecordNotFound {
+	if err == gorm.ErrRecordNotFound {
 		Logger.Printf("Error - Page %s does not exist", p.Name)
 		return ErrPageNotFound
 	} else if err != nil {
@@ -233,7 +233,7 @@ func PostCampaign(c *Campaign, uid int64) error {
 	c.PageId = p.Id
 	// Check to make sure the sending profile exists
 	s, err := GetSMTPByName(c.SMTP.Name, uid)
-	if err == gorm.RecordNotFound {
+	if err == gorm.ErrRecordNotFound {
 		Logger.Printf("Error - Sending profile %s does not exist", s.Name)
 		return ErrPageNotFound
 	} else if err != nil {

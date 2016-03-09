@@ -15,7 +15,7 @@ import (
 	_ "github.com/mattn/go-sqlite3" // Blank import needed to import sqlite3
 )
 
-var db gorm.DB
+var db *gorm.DB
 var err error
 
 // ErrUsernameTaken is thrown when a user attempts to register a username that is taken.
