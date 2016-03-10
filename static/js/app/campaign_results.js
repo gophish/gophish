@@ -293,6 +293,7 @@ function load() {
         .success(function(c) {
             campaign = c
             if (campaign) {
+                $("title").text(c.name + " - Gophish")
                 $("#loading").hide()
                 $("#campaignResults").show()
                     // Set the title
