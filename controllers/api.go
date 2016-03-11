@@ -1,12 +1,14 @@
 package controllers
 
 import (
+	"bytes"
 	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 	"text/template"
 	"time"
 
@@ -446,10 +448,37 @@ func API_Import_Email(w http.ResponseWriter, r *http.Request) {
 		JSONResponse(w, models.Response{Success: false, Message: "Method not allowed"}, http.StatusBadRequest)
 		return
 	}
-	defer r.Body.Close()
-	e, err := email.NewEmailFromReader(r.Body)
+	ir := struct {
+		Content      string `json:"content"`
+		ConvertLinks bool   `json:"convert_links"`
+	}{}
+	err := json.NewDecoder(r.Body).Decode(&ir)
+	if err != nil {
+		JSONResponse(w, models.Response{Success: false, Message: "Error decoding JSON Request"}, http.StatusBadRequest)
+		return
+	}
+	e, err := email.NewEmailFromReader(strings.NewReader(ir.Content))
 	if err != nil {
 		Logger.Println(err)
+	}
+	// If the user wants to convert links to point to
+	// the landing page, let's make it happen by changing up
+	// e.HTML
+	if ir.ConvertLinks {
+		d, err := goquery.NewDocumentFromReader(bytes.NewReader(e.HTML))
+		if err != nil {
+			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
+			return
+		}
+		d.Find("a").Each(func(i int, a *goquery.Selection) {
+			a.SetAttr("href", "{{.URL}}")
+		})
+		h, err := d.Html()
+		if err != nil {
+			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
+			return
+		}
+		e.HTML = []byte(h)
 	}
 	er := emailResponse{
 		Subject: e.Subject,

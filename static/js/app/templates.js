@@ -230,15 +230,19 @@ function copy(idx) {
 
 function importEmail() {
     raw = $("#email_content").val()
+    convert_links = $("#convert_links_checkbox").prop("checked")
     if (!raw) {
         modalError("No Content Specified!")
     } else {
         $.ajax({
-                type: "POST",
+                method: "POST",
                 url: "/api/import/email",
-                data: raw,
+                data: JSON.stringify({
+                    content: raw,
+                    convert_links: convert_links
+                }),
                 dataType: "json",
-                contentType: "text/plain"
+                contentType: "application/json"
             })
             .success(function(data) {
                 $("#text_editor").val(data.text)
