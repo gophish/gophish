@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 
 	"github.com/gophish/gophish/auth"
 	mid "github.com/gophish/gophish/middleware"
@@ -94,11 +95,13 @@ func PhishTracker(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	id := r.Form.Get("rid")
 	if id == "" {
+		Logger.Println("Missing Result ID")
 		http.NotFound(w, r)
 		return
 	}
 	rs, err := models.GetResult(id)
 	if err != nil {
+		Logger.Println("No Results found")
 		http.NotFound(w, r)
 		return
 	}
@@ -117,14 +120,18 @@ func PhishTracker(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		Logger.Println(err)
 	}
-	// Update the GeoIP information
 	ip, _, err := net.SplitHostPort(r.RemoteAddr)
-	if err == nil {
-		err = rs.UpdateGeo(ip)
-		if err != nil {
-			Logger.Println(err)
-		}
-	} else {
+	if err != nil {
+		Logger.Println(err)
+		return
+	}
+	// Respect X-Forwarded headers
+	if fips := r.Header.Get("X-Forwarded-For"); fips != "" {
+		ip = strings.Split(fips, ", ")[0]
+	}
+	// Handle post processing such as GeoIP
+	err = rs.UpdateGeo(ip)
+	if err != nil {
 		Logger.Println(err)
 	}
 	w.Write([]byte(""))
@@ -407,6 +414,7 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 func Preview(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		http.Error(w, "Method not allowed", http.StatusBadRequest)
+		return
 	}
 	fmt.Fprintf(w, "%s", r.FormValue("html"))
 }
@@ -416,6 +424,7 @@ func Clone(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	if r.Method != "POST" {
 		http.Error(w, "Method not allowed", http.StatusBadRequest)
+		return
 	}
 	if url, ok := vars["url"]; ok {
 		Logger.Println(url)
