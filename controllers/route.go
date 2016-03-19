@@ -190,6 +190,11 @@ func PhishHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			Logger.Println(err)
 		}
+		// Redirect to the desired page
+		if p.RedirectURL != "" {
+			http.Redirect(w, r, p.RedirectURL, 302)
+			return
+		}
 	}
 	w.Write([]byte(p.HTML))
 }

@@ -16,6 +16,7 @@ type Page struct {
 	HTML               string    `json:"html" gorm:"column:html"`
 	CaptureCredentials bool      `json:"capture_credentials" gorm:"column:capture_credentials"`
 	CapturePasswords   bool      `json:"capture_passwords" gorm:"column:capture_passwords"`
+	RedirectURL        string    `json:"redirect_url" gorm:"column:redirect_url"`
 	ModifiedDate       time.Time `json:"modified_date"`
 }
 

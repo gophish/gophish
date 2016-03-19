@@ -13,6 +13,7 @@ function save(idx) {
     page.html = editor.getData()
     page.capture_credentials = $("#capture_credentials_checkbox").prop("checked")
     page.capture_passwords = $("#capture_passwords_checkbox").prop("checked")
+    page.redirect_url = $("#redirect_url_input").val()
     if (idx != -1) {
         page.id = pages[idx].id
         api.pageId.put(page)
@@ -40,8 +41,10 @@ function dismiss() {
     $("#name").val("")
     $("#html_editor").val("")
     $("#url").val("")
+    $("#redirect_url_input").val("")
     $("#modal").find("input[type='checkbox']").prop("checked", false)
     $("#capture_passwords").hide()
+    $("#redirect_url").hide()
     $("#modal").modal('hide')
 }
 
@@ -85,11 +88,13 @@ function edit(idx) {
         page = pages[idx]
         $("#name").val(page.name)
         $("#html_editor").val(page.html)
-	$("#capture_credentials_checkbox").prop("checked", page.capture_credentials)
-	$("#capture_passwords_checkbox").prop("checked", page.capture_passwords)
-	if (page.capture_credentials){
-		$("#capture_passwords").show()
-	}
+        $("#capture_credentials_checkbox").prop("checked", page.capture_credentials)
+        $("#capture_passwords_checkbox").prop("checked", page.capture_passwords)
+        $("#redirect_url_input").val(page.redirect_url)
+        if (page.capture_credentials) {
+            $("#capture_passwords").show()
+            $("#redirect_url").show()
+        }
     }
 }
 
@@ -189,10 +194,11 @@ $(document).ready(function() {
             }, this));
     };
     $('#modal').on('hidden.bs.modal', function(event) {
-	dismiss()
+        dismiss()
     });
-    $("#capture_credentials_checkbox").change(function(){
-    	$("#capture_passwords").toggle()
+    $("#capture_credentials_checkbox").change(function() {
+        $("#capture_passwords").toggle()
+        $("#redirect_url").toggle()
     })
     load()
 })

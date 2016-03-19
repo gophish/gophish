@@ -505,6 +505,9 @@ td.details-control{
 #capture_passwords {
 	display:none;
 }
+#redirect_url {
+	display:none;
+}
 @media (max-width: 767px) {
 	.navbar-header {
 		margin-left:10px !important;

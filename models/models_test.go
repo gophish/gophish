@@ -106,14 +106,16 @@ func (s *ModelsSuite) TestPostPage(c *check.C) {
 			</form></body>
 		  </html>`
 	p := Page{
-		Name: "Test Page",
-		HTML: html,
+		Name:        "Test Page",
+		HTML:        html,
+		RedirectURL: "http://example.com",
 	}
 	// Check the capturing credentials and passwords
 	p.CaptureCredentials = true
 	p.CapturePasswords = true
 	err := PostPage(&p)
 	c.Assert(err, check.Equals, nil)
+	c.Assert(p.RedirectURL, check.Equals, "http://example.com")
 	d, err := goquery.NewDocumentFromReader(strings.NewReader(p.HTML))
 	c.Assert(err, check.Equals, nil)
 	forms := d.Find("form")
@@ -132,8 +134,10 @@ func (s *ModelsSuite) TestPostPage(c *check.C) {
 	// Check what happens when we don't capture passwords
 	p.CapturePasswords = false
 	p.HTML = html
+	p.RedirectURL = ""
 	err = PutPage(&p)
 	c.Assert(err, check.Equals, nil)
+	c.Assert(p.RedirectURL, check.Equals, "")
 	d, err = goquery.NewDocumentFromReader(strings.NewReader(p.HTML))
 	c.Assert(err, check.Equals, nil)
 	forms = d.Find("form")
