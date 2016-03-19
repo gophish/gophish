@@ -113,7 +113,7 @@ func PhishTracker(w http.ResponseWriter, r *http.Request) {
 	// Don't update the status if the user already clicked the link
 	// or submitted data to the campaign
 	if rs.Status == models.STATUS_SUCCESS {
-		w.Write([]byte(""))
+		http.ServeFile(w, r, "static/images/pixel.png")
 		return
 	}
 	err = rs.UpdateStatus(models.EVENT_OPENED)
@@ -134,7 +134,7 @@ func PhishTracker(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		Logger.Println(err)
 	}
-	w.Write([]byte(""))
+	http.ServeFile(w, r, "static/images/pixel.png")
 }
 
 // PhishHandler handles incoming client connections and registers the associated actions performed
