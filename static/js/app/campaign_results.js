@@ -250,7 +250,7 @@ function poll() {
                         if (result.id == rid) {
                             var label = statuses[result.status].label || "label-default";
                             rowData[6] = "<span class=\"label " + label + "\">" + result.status + "</span>"
-                            resultsTable.row(i).data(rowData).draw()
+                            resultsTable.row(i).data(rowData).draw(false)
                             if (row.child.isShown()) {
                                 row.child(renderTimeline(row.data()))
                             }
@@ -395,14 +395,14 @@ function load() {
                         tr.removeClass('shown');
                         $(this).find("i").removeClass("fa-caret-down")
                         $(this).find("i").addClass("fa-caret-right")
-                        row.invalidate('dom').draw()
+                        row.invalidate('dom').draw(false)
                     } else {
                         // Open this row
                         $(this).find("i").removeClass("fa-caret-right")
                         $(this).find("i").addClass("fa-caret-down")
                         row.child(renderTimeline(row.data())).show();
                         tr.addClass('shown');
-                        row.invalidate('dom').draw()
+                        row.invalidate('dom').draw(false)
                     }
                 });
                 // Setup the graphs
