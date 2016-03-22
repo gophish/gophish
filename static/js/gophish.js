@@ -26,6 +26,14 @@ function query(endpoint, method, data, async) {
     })
 }
 
+function escapeHtml(text){
+	return $("<div/>").text(text).html()
+}
+
+function unescapeHtml(html){
+	return $("<div/>").html(html).text()
+}
+
 /*
 Define our API Endpoints
 */

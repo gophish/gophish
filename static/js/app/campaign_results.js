@@ -136,8 +136,8 @@ function renderTimeline(data) {
         "position": data[5]
     }
     results = '<div class="timeline col-sm-12 well well-lg">' +
-        '<h6>Timeline for ' + record.first_name + ' ' + record.last_name +
-        '</h6><span class="subtitle">Email: ' + record.email + '</span>' +
+        '<h6>Timeline for ' + escapeHtml(record.first_name) + ' ' + escapeHtml(record.last_name) +
+        '</h6><span class="subtitle">Email: ' + escapeHtml(record.email) + '</span>' +
         '<div class="timeline-graph col-sm-6">'
     $.each(campaign.timeline, function(i, event) {
         if (!event.email || event.email == record.email) {
@@ -147,7 +147,7 @@ function renderTimeline(data) {
             results +=
                 '    <div class="timeline-icon ' + statuses[event.message].label + '">' +
                 '    <i class="fa ' + statuses[event.message].icon + '"></i></div>' +
-                '    <div class="timeline-message">' + event.message +
+                '    <div class="timeline-message">' + escapeHtml(event.message) +
                 '    <span class="timeline-date">' + moment(event.time).format('MMMM Do YYYY h:mm') + '</span>'
             if (event.details) {
                 results += '<div class="timeline-event-details"><i class="fa fa-caret-right"></i> View Details</div>'
@@ -161,8 +161,8 @@ function renderTimeline(data) {
                             return true;
                         }
                         results += '    <tr>'
-                        results += '        <td>' + param + '</td>'
-                        results += '        <td>' + details.payload[param] + '</td>'
+                        results += '        <td>' + escapeHtml(param) + '</td>'
+                        results += '        <td>' + escapeHtml(details.payload[param]) + '</td>'
                         results += '    </tr>'
                     })
                     results += '       </tbody></table>'
@@ -373,10 +373,10 @@ function load() {
                         resultsTable.row.add([
                             result.id,
                             "<i class=\"fa fa-caret-right\"></i>",
-                            result.first_name || "",
-                            result.last_name || "",
-                            result.email || "",
-                            result.position || "",
+                            escapeHtml(result.first_name) || "",
+                            escapeHtml(result.last_name) || "",
+                            escapeHtml(result.email) || "",
+                            escapeHtml(result.position) || "",
                             "<span class=\"label " + label + "\">" + result.status + "</span>"
                         ]).draw()
                         if (!email_series_data[result.status]) {
@@ -447,7 +447,7 @@ function load() {
                     cidx = $point.attr('meta')
                     html = "Event: " + campaign.timeline[cidx].message
                     if (campaign.timeline[cidx].email) {
-                        html += '<br>' + "Email: " + campaign.timeline[cidx].email
+                        html += '<br>' + "Email: " + escapeHtml(campaign.timeline[cidx].email)
                     }
                     $toolTip.html(html).show()
                 });
