@@ -108,6 +108,49 @@ func (c *Campaign) AddEvent(e Event) error {
 	return db.Debug().Save(&e).Error
 }
 
+// getDetails retrieves the related attributes of the campaign
+// from the database. If the Events and the Results are not available,
+// an error is returned. Otherwise, the attribute name is set to [Deleted],
+// indicating the user deleted the attribute (template, smtp, etc.)
+func (c *Campaign) getDetails() error {
+	err = db.Model(c).Related(&c.Results).Error
+	if err != nil {
+		Logger.Printf("%s: results not found for campaign\n", err)
+		return err
+	}
+	err = db.Model(c).Related(&c.Events).Error
+	if err != nil {
+		Logger.Printf("%s: events not found for campaign\n", err)
+		return err
+	}
+	err = db.Table("templates").Where("id=?", c.TemplateId).Find(&c.Template).Error
+	if err != nil {
+		if err != gorm.ErrRecordNotFound {
+			return err
+		}
+		c.Template = Template{Name: "[Deleted]"}
+		Logger.Printf("%s: template not found for campaign\n", err)
+	}
+	err = db.Table("pages").Where("id=?", c.PageId).Find(&c.Page).Error
+	if err != nil {
+		if err != gorm.ErrRecordNotFound {
+			return err
+		}
+		c.Page = Page{Name: "[Deleted]"}
+		Logger.Printf("%s: page not found for campaign\n", err)
+	}
+	err = db.Table("SMTP").Where("id=?", c.SMTPId).Find(&c.SMTP).Error
+	if err != nil {
+		// Check if the SMTP was deleted
+		if err != gorm.ErrRecordNotFound {
+			return err
+		}
+		c.SMTP = SMTP{Name: "[Deleted]"}
+		Logger.Printf("%s: sending profile not found for campaign\n", err)
+	}
+	return nil
+}
+
 // Event contains the fields for an event
 // that occurs during the campaign
 type Event struct {
@@ -127,23 +170,7 @@ func GetCampaigns(uid int64) ([]Campaign, error) {
 		fmt.Println(err)
 	}
 	for i, _ := range cs {
-		err := db.Model(&cs[i]).Related(&cs[i].Results).Error
-		if err != nil {
-			Logger.Println(err)
-		}
-		err = db.Model(&cs[i]).Related(&cs[i].Events).Error
-		if err != nil {
-			Logger.Println(err)
-		}
-		err = db.Table("templates").Where("id=?", cs[i].TemplateId).Find(&cs[i].Template).Error
-		if err != nil {
-			Logger.Println(err)
-		}
-		err = db.Table("pages").Where("id=?", cs[i].PageId).Find(&cs[i].Page).Error
-		if err != nil {
-			Logger.Println(err)
-		}
-		err = db.Table("SMTP").Where("id=?", cs[i].SMTPId).Find(&cs[i].SMTP).Error
+		err = cs[i].getDetails()
 		if err != nil {
 			Logger.Println(err)
 		}
@@ -159,32 +186,7 @@ func GetCampaign(id int64, uid int64) (Campaign, error) {
 		Logger.Printf("%s: campaign not found\n", err)
 		return c, err
 	}
-	err = db.Model(&c).Related(&c.Results).Error
-	if err != nil {
-		Logger.Printf("%s: results not found for campaign\n", err)
-		return c, err
-	}
-	err = db.Model(&c).Related(&c.Events).Error
-	if err != nil {
-		Logger.Printf("%s: events not found for campaign\n", err)
-		return c, err
-	}
-	err = db.Table("templates").Where("id=?", c.TemplateId).Find(&c.Template).Error
-	if err != nil {
-		Logger.Printf("%s: template not found for campaign\n", err)
-		return c, err
-	}
-	err = db.Table("pages").Where("id=?", c.PageId).Find(&c.Page).Error
-	if err != nil {
-		Logger.Printf("%s: page not found for campaign\n", err)
-	}
-	err = db.Table("SMTP").Where("id=?", c.SMTPId).Find(&c.SMTP).Error
-	if err != nil {
-		// For now, since we just introduced the new sending profiles
-		// we'll return nil for the error
-		Logger.Printf("%s: sending profile not found for campaign\n", err)
-		err = nil
-	}
+	err = c.getDetails()
 	return c, err
 }
 
