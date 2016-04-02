@@ -1,7 +1,9 @@
 package models
 
 import (
+	"bytes"
 	"errors"
+	"html/template"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -33,7 +35,41 @@ func (t *Template) Validate() error {
 	case t.Text == "" && t.HTML == "":
 		return ErrTemplateMissingParameter
 	}
-	return nil
+	var buff bytes.Buffer
+	// Test that the variables used in the template
+	// validate with no issues
+	td := struct {
+		Result
+		URL         string
+		TrackingURL string
+		Tracker     string
+		From        string
+	}{
+		Result{
+			Email:     "foo@bar.com",
+			FirstName: "Foo",
+			LastName:  "Bar",
+			Position:  "Test",
+		},
+		"http://foo.bar",
+		"http://foo.bar/track",
+		"<img src='http://foo.bar/track",
+		"John Doe <foo@bar.com>",
+	}
+	tmpl, err := template.New("html_template").Parse(t.HTML)
+	if err != nil {
+		return err
+	}
+	err = tmpl.Execute(&buff, td)
+	if err != nil {
+		return err
+	}
+	tmpl, err = template.New("text_template").Parse(t.Text)
+	if err != nil {
+		return err
+	}
+	err = tmpl.Execute(&buff, td)
+	return err
 }
 
 // GetTemplates returns the templates owned by the given user.

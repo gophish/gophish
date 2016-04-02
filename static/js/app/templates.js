@@ -49,6 +49,9 @@ function save(idx) {
                 load()
                 dismiss()
             })
+            .error(function(data) {
+                modalError(data.responseJSON.message)
+            })
     } else {
         // Submit the template
         api.templates.post(template)
