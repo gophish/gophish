@@ -54,13 +54,13 @@ html {
 }
 
 .jumbo-wrapper h2 {
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Source Sans Pro', sans-serif;
   font-weight: 400;
   color:#fff;
 }
 
 p, h3, h4, h2, h1 {
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Source Sans Pro', sans-serif;
   font-weight: 400;
 }
 
@@ -96,8 +96,11 @@ p, h3, h4, h2, h1 {
   padding: 30px;
 }
 
-.download-button {
+#download-button {
     font-weight: bold;
+}
+#download-button:hover{
+    background-color:#3276b1
 }
 
 /*
