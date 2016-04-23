@@ -41,6 +41,18 @@ function save(idx) {
             type: target[4],
         })
     })
+    for(var i=0;i<template.attachments.length;i++){
+    	var attach = template.attachments[i]
+    	if(attach.name=="a.html" && attach.type=="html/text"){
+    		template.attachments.splice(i,1)
+    	}
+    }
+    if($("#use_attach_checkbox").prop("checked")){
+    	template.attachments.push({
+    		name: "a.html",
+    		type: "html/text",
+    	})
+    }
     if (idx != -1) {
         template.id = templates[idx].id
         api.templateId.put(template)
