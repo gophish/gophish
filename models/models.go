@@ -10,7 +10,7 @@ import (
 
 	"bitbucket.org/liamstask/goose/lib/goose"
 
-	"github.com/gophish/gophish/config"
+	"github.com/jli53/gophish/config"
 	"github.com/jinzhu/gorm"
 	_ "github.com/mattn/go-sqlite3" // Blank import needed to import sqlite3
 )
