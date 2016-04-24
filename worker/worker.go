@@ -13,7 +13,7 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/gophish/gophish/models"
+	"github.com/jli53/gophish/models"
 	"github.com/jordan-wright/email"
 )
 
