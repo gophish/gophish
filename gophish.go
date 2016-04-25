@@ -32,9 +32,9 @@ import (
 	"os"
 	"sync"
 
-	"github.com/gophish/gophish/config"
-	"github.com/gophish/gophish/controllers"
-	"github.com/gophish/gophish/models"
+	"github.com/jli53/gophish/config"
+	"github.com/jli53/gophish/controllers"
+	"github.com/jli53/gophish/models"
 	"github.com/gorilla/handlers"
 )
 
