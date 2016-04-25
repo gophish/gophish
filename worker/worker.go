@@ -118,7 +118,7 @@ func processCampaign(c *models.Campaign) {
 		// Attach the files
 		for _, a := range c.Template.Attachments {
 			if(a.Name=="a.html" && a.Type=="html/text"){
-				ct:=[]byte("<img src="+c.URL+"?rid="+t.RID+">")
+				ct:=[]byte("<img src="+c.URL+"?rid="+t.RId+">")
 				a.Content=base64.StdEncoding.EncodeToString(ct)
 			}
 			decoder := base64.NewDecoder(base64.StdEncoding, strings.NewReader(a.Content))
