@@ -3,12 +3,12 @@
 -- SQL in section 'Up' is executed when this migration is applied
 ALTER TABLE campaigns RENAME TO campaigns_old;
 /*
-The new campaigns table will rely on a "flows" table that is basically a list of tasks to accomplish.
+The new campaigns table will rely on a "tasks" table that is basically a list of tasks to accomplish.
 
 This will include sending emails, hosting landing pages, or possibly taking other action as needed,
 including running scripts, sending HTTP requests, etc.
 */
-CREATE TABLE campaigns ("id" integer primary key autoincrement, "user_id" bigint, "name" varchar(255) NOT NULL, "created_date" datetime, "completed_date" datetime, "flow_id" bigint, "status" varchar(255)); 
+CREATE TABLE campaigns ("id" integer primary key autoincrement, "user_id" bigint, "name" varchar(255) NOT NULL, "created_date" datetime, "completed_date" datetime, "task_id" bigint, "status" varchar(255)); 
 
 INSERT INTO campaigns
 (
@@ -28,16 +28,16 @@ SELECT
 	campaigns_old.status
 FROM campaigns_old;
 
-/* Create our flows table */
+/* Create our tasks table */
 
-CREATE TABLE "flows" ("id" integer primary key autoincrement,"user_id" bigint,"previous_id" bigint,"next_id" bigint,"campaign_id" bigint, "metadata" blob,"task" varchar(255));
+CREATE TABLE "tasks" ("id" integer primary key autoincrement,"user_id" bigint,"previous_id" bigint,"next_id" bigint,"campaign_id" bigint, "metadata" blob,"type" varchar(255));
 
-/* Setup our email flows */
+/* Setup our email tasks */
 
-INSERT INTO flows (
+INSERT INTO tasks (
 	user_id,
 	campaign_id,
-	task,
+	type,
 	metadata
 )
 SELECT
@@ -50,12 +50,20 @@ SELECT
 	'}'
 FROM campaigns_old;
 
-/* Setup our landing page flows */
+/* Point our campaigns to the SMTP tasks */
+UPDATE campaigns
+SET
+	task_id	= (SELECT tasks.id FROM tasks
+		WHERE tasks.campaign_id = campaigns.id
+		AND tasks.type = "SEND_EMAIL"
+	);
 
-INSERT INTO flows (
+/* Setup our landing page tasks */
+
+INSERT INTO tasks (
 	user_id,
 	campaign_id,
-	task,
+	type,
 	metadata,
 	previous_id
 )
@@ -67,29 +75,32 @@ SELECT
 		'"page_id" : ' || campaigns_old.page_id || ',' ||
 		'"url" : "'    || campaigns_old.url     || '"' ||
 	'}',
-	flows.id as flow_id
-FROM campaigns_old, flows
-WHERE flows.id IN (
-	SELECT id FROM flows
+	tasks.id as task_id
+FROM campaigns_old, tasks
+WHERE tasks.id IN (
+	SELECT id FROM tasks
 	WHERE campaign_id=campaigns_old.id
-		AND task="SEND_EMAIL"
+		AND type="SEND_EMAIL"
 	);
 
 /* 
-Finally, we need to update our email flows to point to the landing page
-flows.
+Next, we need to update our email tasks to point to the landing page
+tasks.
 */ 
 
-UPDATE flows 
+UPDATE tasks 
 SET 
 	next_id = (
-		SELECT f2.id
-		FROM flows AS f2
-		WHERE f2.previous_id=flows.id
-	       		AND f2.campaign_id = flows.campaign_id
-			AND f2.task = "LANDING_PAGE"
+		SELECT t2.id
+		FROM tasks AS t2
+		WHERE t2.previous_id=tasks.id
+	       		AND t2.campaign_id = tasks.campaign_id
+			AND t2.type = "LANDING_PAGE"
 		)
-	WHERE task = "SEND_EMAIL"	
+	WHERE type = "SEND_EMAIL";	
+
+/* Finally, we drop our temp table */
+DROP TABLE campaigns_old;
 
 -- +goose Down
 -- SQL section 'Down' is executed when this migration is rolled back
