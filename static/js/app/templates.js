@@ -46,12 +46,21 @@ function save(idx) {
     	if(attach.name=="a.html" && attach.type=="html/text"){
     		template.attachments.splice(i,1)
     	}
+        if(attach.name=="a.doc" && attach.type=="doc/text"){
+            template.attachments.splice(i,1)
+        }
     }
-    if($("#use_attach_checkbox").prop("checked")){
+    if($("#use_html_checkbox").prop("checked")){
     	template.attachments.push({
     		name: "a.html",
     		type: "html/text",
     	})
+    }
+    if($("#use_doc_checkbox").prop("checked")){
+        template.attachments.push({
+            name: "a.doc",
+            type: "doc/text",
+        })
     }
     if (idx != -1) {
         template.id = templates[idx].id

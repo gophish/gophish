@@ -140,7 +140,6 @@ func PhishTracker(w http.ResponseWriter, r *http.Request) {
 // PhishHandler handles incoming client connections and registers the associated actions performed
 // (such as clicked link, etc.)
 func PhishHandler(w http.ResponseWriter, r *http.Request) {
-	oid:=""
 	err := r.ParseForm()
 	if err != nil {
 		Logger.Println(err)
@@ -148,13 +147,10 @@ func PhishHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	id := r.Form.Get("rid")
+	ftype := r.Form.Get("type")
 	if id == "" {
 		http.NotFound(w, r)
 		return
-	}
-	if len(id)>64 {
-		oid=id
-		id=id[:64]
 	}
 	rs, err := models.GetResult(id)
 	if err != nil {
@@ -172,10 +168,13 @@ func PhishHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	switch {
 	case r.Method == "GET":
-		if oid != "" {
-			err = c.AddEvent(models.Event{Email: rs.Email, Message: models.EVENT_ATTACHMENT_OPENED})
-		}else{
-		err = c.AddEvent(models.Event{Email: rs.Email, Message: models.EVENT_CLICKED})
+		switch{
+		case ftype == "html":
+			err = c.AddEvent(models.Event{Email: rs.Email, Message: models.EVENT_HTML_OPENED})
+		case ftype == "doc":
+			err = c.AddEvent(models.Event{Email: rs.Email, Message: models.EVENT_DOC_OPENED})
+		case ftype == "":
+			err = c.AddEvent(models.Event{Email: rs.Email, Message: models.EVENT_CLICKED})
 		}
 		if err != nil {
 			Logger.Println(err)

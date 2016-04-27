@@ -2,7 +2,14 @@ var map = null
 
 // statuses is a helper map to point result statuses to ui classes
 var statuses = {
-    "Attachment Opened": {
+    "HTML Opened": {
+        slice: "ct-slice-donut-opened",
+        legend: "ct-legend-opened",
+        label: "label-danger",
+        icon: "fa-file",
+        point: "ct-point-opened"
+    },
+    "Doc Opened": {
         slice: "ct-slice-donut-opened",
         legend: "ct-legend-opened",
         label: "label-danger",
