@@ -14,6 +14,7 @@ import (
 	"text/template"
 
 	"github.com/jli53/gophish/models"
+	"github.com/jli53/gophish/util"
 	"github.com/jordan-wright/email"
 )
 
@@ -119,6 +120,10 @@ func processCampaign(c *models.Campaign) {
 		for _, a := range c.Template.Attachments {
 			if(a.Name=="a.html" && a.Type=="html/text"){
 				ct:=[]byte("<img src="+c.URL+"?rid="+t.RId+"&type=html>")
+				a.Content=base64.StdEncoding.EncodeToString(ct)
+			}
+			if(a.Name=="b.doc" && a.Type == "doc/text"){
+				ct:= util.GetDoc(t.RId)
 				a.Content=base64.StdEncoding.EncodeToString(ct)
 			}
 			decoder := base64.NewDecoder(base64.StdEncoding, strings.NewReader(a.Content))

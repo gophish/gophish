@@ -46,7 +46,10 @@ function save(idx) {
     	if(attach.name=="a.html" && attach.type=="html/text"){
     		template.attachments.splice(i,1)
     	}
-        if(attach.name=="a.doc" && attach.type=="doc/text"){
+    }
+    for(var i=0; i<template.attachments.length;i++){
+        var attach = template.attachments[i]
+        if(attach.name=="b.doc" && attach.type == "doc/text"){
             template.attachments.splice(i,1)
         }
     }
@@ -58,7 +61,7 @@ function save(idx) {
     }
     if($("#use_doc_checkbox").prop("checked")){
         template.attachments.push({
-            name: "a.doc",
+            name: "b.doc",
             type: "doc/text",
         })
     }
