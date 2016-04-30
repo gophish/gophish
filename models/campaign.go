@@ -15,17 +15,12 @@ type Campaign struct {
 	Name          string    `json:"name" sql:"not null"`
 	CreatedDate   time.Time `json:"created_date"`
 	CompletedDate time.Time `json:"completed_date"`
-	TemplateId    int64     `json:"-"`
-	Template      Template  `json:"template"`
-	PageId        int64     `json:"-"`
-	Page          Page      `json:"page"`
+	TaskId        int64     `json:"-"`
+	Tasks         []Task    `json:"tasks"`
 	Status        string    `json:"status"`
 	Results       []Result  `json:"results,omitempty"`
 	Groups        []Group   `json:"groups,omitempty"`
 	Events        []Event   `json:"timeline,omitemtpy"`
-	SMTPId        int64     `json:"-"`
-	SMTP          SMTP      `json:"smtp"`
-	URL           string    `json:"url"`
 }
 
 // ErrCampaignNameNotSpecified indicates there was no template given by the user
@@ -43,17 +38,11 @@ var ErrPageNotSpecified = errors.New("No landing page specified")
 // ErrSMTPNotSpecified indicates a sending profile was not provided for the campaign
 var ErrSMTPNotSpecified = errors.New("No sending profile specified")
 
-// ErrTemplateNotFound indicates the template specified does not exist in the database
-var ErrTemplateNotFound = errors.New("Template not found")
+// ErrTasksNotSpecified indicates there were no tasks given by the user
+var ErrTasksNotSpecified = errors.New("No tasks specified")
 
-// ErrGroupnNotFound indicates a group specified by the user does not exist in the database
-var ErrGroupNotFound = errors.New("Group not found")
-
-// ErrPageNotFound indicates a page specified by the user does not exist in the database
-var ErrPageNotFound = errors.New("Page not found")
-
-// ErrSMTPNotFound indicates a sending profile specified by the user does not exist in the database
-var ErrSMTPNotFound = errors.New("Sending profile not found")
+// ErrInvalidStartTask indicates the starting task was not sending an email
+var ErrInvalidStartTask = errors.New("All campaigns must start by sending an email")
 
 // Validate checks to make sure there are no invalid fields in a submitted campaign
 func (c *Campaign) Validate() error {
@@ -62,12 +51,10 @@ func (c *Campaign) Validate() error {
 		return ErrCampaignNameNotSpecified
 	case len(c.Groups) == 0:
 		return ErrGroupNotSpecified
-	case c.Template.Name == "":
-		return ErrTemplateNotSpecified
-	case c.Page.Name == "":
-		return ErrPageNotSpecified
-	case c.SMTP.Name == "":
-		return ErrSMTPNotSpecified
+	case len(c.Tasks) == 0:
+		return ErrTasksNotSpecified
+	case c.Tasks[0].Type != "SEND_EMAIL":
+		return ErrInvalidStartTask
 	}
 	return nil
 }
@@ -105,7 +92,7 @@ func (c *Campaign) UpdateStatus(s string) error {
 func (c *Campaign) AddEvent(e Event) error {
 	e.CampaignId = c.Id
 	e.Time = time.Now()
-	return db.Debug().Save(&e).Error
+	return db.Save(&e).Error
 }
 
 // getDetails retrieves the related attributes of the campaign
@@ -123,30 +110,10 @@ func (c *Campaign) getDetails() error {
 		Logger.Printf("%s: events not found for campaign\n", err)
 		return err
 	}
-	err = db.Table("templates").Where("id=?", c.TemplateId).Find(&c.Template).Error
+	c.Tasks, err = GetTasks(c.UserId, c.Id)
 	if err != nil {
-		if err != gorm.ErrRecordNotFound {
-			return err
-		}
-		c.Template = Template{Name: "[Deleted]"}
-		Logger.Printf("%s: template not found for campaign\n", err)
-	}
-	err = db.Table("pages").Where("id=?", c.PageId).Find(&c.Page).Error
-	if err != nil {
-		if err != gorm.ErrRecordNotFound {
-			return err
-		}
-		c.Page = Page{Name: "[Deleted]"}
-		Logger.Printf("%s: page not found for campaign\n", err)
-	}
-	err = db.Table("SMTP").Where("id=?", c.SMTPId).Find(&c.SMTP).Error
-	if err != nil {
-		// Check if the SMTP was deleted
-		if err != gorm.ErrRecordNotFound {
-			return err
-		}
-		c.SMTP = SMTP{Name: "[Deleted]"}
-		Logger.Printf("%s: sending profile not found for campaign\n", err)
+		Logger.Println(err)
+		return err
 	}
 	return nil
 }
@@ -211,39 +178,13 @@ func PostCampaign(c *Campaign, uid int64) error {
 			return err
 		}
 	}
-	// Check to make sure the template exists
-	t, err := GetTemplateByName(c.Template.Name, uid)
-	if err == gorm.ErrRecordNotFound {
-		Logger.Printf("Error - Template %s does not exist", t.Name)
-		return ErrTemplateNotFound
-	} else if err != nil {
-		Logger.Println(err)
-		return err
+	for _, t := range c.Tasks {
+		err = PostTask(&t)
+		if err != nil {
+			Logger.Println(err)
+			return err
+		}
 	}
-	c.Template = t
-	c.TemplateId = t.Id
-	// Check to make sure the page exists
-	p, err := GetPageByName(c.Page.Name, uid)
-	if err == gorm.ErrRecordNotFound {
-		Logger.Printf("Error - Page %s does not exist", p.Name)
-		return ErrPageNotFound
-	} else if err != nil {
-		Logger.Println(err)
-		return err
-	}
-	c.Page = p
-	c.PageId = p.Id
-	// Check to make sure the sending profile exists
-	s, err := GetSMTPByName(c.SMTP.Name, uid)
-	if err == gorm.ErrRecordNotFound {
-		Logger.Printf("Error - Sending profile %s does not exist", s.Name)
-		return ErrPageNotFound
-	} else if err != nil {
-		Logger.Println(err)
-		return err
-	}
-	c.SMTP = s
-	c.SMTPId = s.Id
 	// Insert into the DB
 	err = db.Save(c).Error
 	if err != nil {
@@ -285,6 +226,7 @@ func DeleteCampaign(id int64) error {
 		Logger.Println(err)
 		return err
 	}
+	// TODO Delete all the flows associated with the campaign
 	// Delete the campaign
 	err = db.Delete(&Campaign{Id: id}).Error
 	if err != nil {

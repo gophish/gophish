@@ -28,6 +28,9 @@ var ErrFromAddressNotSpecified = errors.New("No From Address specified")
 // in the SMTP configuration
 var ErrHostNotSpecified = errors.New("No SMTP Host specified")
 
+// ErrSMTPNotFound indicates a sending profile specified by the user does not exist in the database
+var ErrSMTPNotFound = errors.New("Sending profile not found")
+
 // TableName specifies the database tablename for Gorm to use
 func (s SMTP) TableName() string {
 	return "smtp"

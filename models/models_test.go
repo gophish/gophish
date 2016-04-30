@@ -174,6 +174,78 @@ func (s *ModelsSuite) TestPostPage(c *check.C) {
 	})
 }
 
+func (s *ModelsSuite) TestPostTaskMissingValues(c *check.C) {
+	// Missing template_id
+	t := Task{
+		UserId:     1,
+		CampaignId: 1,
+		Type:       "SEND_EMAIL",
+		Metadata: `{
+			"smtp_id" : 1
+		}`,
+	}
+	err = PostTask(&t)
+	c.Assert(err, check.Equals, ErrTemplateIdNotSpecified)
+	// Missing smtp_id
+	t.Metadata = `{
+		"template_id" : 1
+	}`
+	err = PostTask(&t)
+	c.Assert(err, check.Equals, ErrSMTPIdNotSpecified)
+}
+
+func (s *ModelsSuite) TestPostTasks(c *check.C) {
+	temp := Template{
+		Name:   "Test Template",
+		Text:   "Testing",
+		HTML:   "Testing",
+		UserId: 1,
+	}
+	err := PostTemplate(&temp)
+	c.Assert(err, check.Equals, nil)
+	c.Assert(temp.Id, check.Equals, int64(1))
+	smtp := SMTP{
+		Name:        "Test SMTP",
+		Host:        "1.1.1.1:25",
+		FromAddress: "Foo Bar <foo@example.com>",
+		UserId:      1,
+	}
+	err = PostSMTP(&smtp)
+	c.Assert(err, check.Equals, nil)
+	c.Assert(smtp.Id, check.Equals, int64(2))
+	t := Task{
+		UserId:     1,
+		CampaignId: 1,
+		Type:       "SEND_EMAIL",
+		Metadata: `{
+			"smtp_id" : 2,
+			"template_id" : 1
+		}`,
+	}
+	st := Task{
+		UserId:     1,
+		CampaignId: 1,
+		Type:       "SEND_EMAIL",
+		Metadata: `{
+			"smtp_id" : 2,
+			"template_id" : 1
+		}`,
+	}
+	err = PostTasks([]*Task{&t, &st})
+	c.Assert(err, check.Equals, nil)
+	c.Assert(t.Id, check.Equals, int64(1))
+	c.Assert(t.NextId, check.Equals, int64(2))
+	c.Assert(t.PreviousId, check.Equals, int64(0))
+	c.Assert(st.NextId, check.Equals, int64(0))
+	c.Assert(st.PreviousId, check.Equals, int64(1))
+	c.Assert(st.Id, check.Equals, int64(2))
+	// Check retrieving a value from the database
+	t, err = GetTask(t.Id, t.UserId)
+	c.Assert(err, check.Equals, nil)
+	c.Assert(t.NextId, check.Equals, int64(2))
+	c.Assert(t.PreviousId, check.Equals, int64(0))
+}
+
 func (s *ModelsSuite) TestPutUser(c *check.C) {
 	u, err := GetUser(1)
 	u.Username = "admin_changed"

@@ -25,6 +25,9 @@ var ErrTemplateNameNotSpecified = errors.New("Template name not specified")
 // ErrTemplateMissingParameter is thrown when a needed parameter is not provided
 var ErrTemplateMissingParameter = errors.New("Need to specify at least plaintext or HTML content")
 
+// ErrTemplateNotFound indicates the template specified does not exist in the database
+var ErrTemplateNotFound = errors.New("Template not found")
+
 // Validate checks the given template to make sure values are appropriate and complete
 func (t *Template) Validate() error {
 	switch {

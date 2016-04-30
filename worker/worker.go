@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"crypto/tls"
 	"encoding/base64"
-	"encoding/json"
 	"errors"
 	"log"
 	"net/mail"
@@ -37,10 +36,12 @@ func New() *Worker {
 func (w *Worker) Start() {
 	Logger.Println("Background Worker Started Successfully - Waiting for Campaigns")
 	for {
-		processCampaign(<-w.Queue)
+		<-w.Queue
+		//processCampaign(<-w.Queue)
 	}
 }
 
+/*
 func processCampaign(c *models.Campaign) {
 	Logger.Printf("Worker received: %s", c.Name)
 	err := c.UpdateStatus(models.CAMPAIGN_IN_PROGRESS)
@@ -124,7 +125,7 @@ func processCampaign(c *models.Campaign) {
 			}
 		}
 		Logger.Printf("Sending Email to %s\n", t.Email)
-		err = e.SendWithTLS(c.SMTP.Host, auth, tc)
+		//err = e.SendWithTLS(c.SMTP.Host, auth, tc)
 		if err != nil {
 			Logger.Println(err)
 			es := struct {
@@ -160,7 +161,7 @@ func processCampaign(c *models.Campaign) {
 		Logger.Println(err)
 	}
 }
-
+*/
 func SendTestEmail(s *models.SendTestEmailRequest) error {
 	e := email.Email{
 		Subject: s.Template.Subject,

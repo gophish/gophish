@@ -43,6 +43,9 @@ var ErrGroupNameNotSpecified = errors.New("Group name not specified")
 // ErrNoTargetsSpecified is thrown when no targets are specified by the user
 var ErrNoTargetsSpecified = errors.New("No targets specified")
 
+// ErrGroupnNotFound indicates a group specified by the user does not exist in the database
+var ErrGroupNotFound = errors.New("Group not found")
+
 // Validate performs validation on a group given by the user
 func (g *Group) Validate() error {
 	switch {

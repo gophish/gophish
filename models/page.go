@@ -23,6 +23,9 @@ type Page struct {
 // ErrPageNameNotSpecified is thrown if the name of the landing page is blank.
 var ErrPageNameNotSpecified = errors.New("Page Name not specified")
 
+// ErrPageNotFound indicates a page specified by the user does not exist in the database
+var ErrPageNotFound = errors.New("Page not found")
+
 // parseHTML parses the page HTML on save to handle the
 // capturing (or lack thereof!) of credentials and passwords
 func (p *Page) parseHTML() error {

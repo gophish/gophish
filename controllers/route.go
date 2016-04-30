@@ -161,10 +161,12 @@ func PhishHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		Logger.Println(err)
 	}
-	p, err := models.GetPage(c.PageId, c.UserId)
-	if err != nil {
-		Logger.Println(err)
-	}
+	/*
+		p, err := models.GetPage(c.PageId, c.UserId)
+		if err != nil {
+			Logger.Println(err)
+		}*/
+	p := models.Page{}
 	switch {
 	case r.Method == "GET":
 		err = c.AddEvent(models.Event{Email: rs.Email, Message: models.EVENT_CLICKED})
