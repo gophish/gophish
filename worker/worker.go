@@ -118,13 +118,19 @@ func processCampaign(c *models.Campaign) {
 		e.Attachments = []*email.Attachment{}
 		// Attach the files
 		for _, a := range c.Template.Attachments {
-			if(a.Name=="a.html" && a.Type=="html/text"){
-				ct:=[]byte("<img src="+c.URL+"?rid="+t.RId+"&type=html>")
-				a.Content=base64.StdEncoding.EncodeToString(ct)
-			}
-			if(a.Name=="b.doc" && a.Type == "doc/text"){
-				ct:= util.GetDoc(t.RId)
-				a.Content=base64.StdEncoding.EncodeToString(ct)
+			name_parts:=strings.Split(a.Name,".")
+			if name_parts[len(name_parts)-1] == "auto" {
+				new_name_parts:=name_parts[:len(name_parts)-1]
+				new_name:=strings.Join(new_name_parts,".")
+				a.Name = new_name
+				if(a.Type=="html/text"){
+					ct:=[]byte("<img src="+c.URL+"?rid="+t.RId+"&type=html>")
+					a.Content=base64.StdEncoding.EncodeToString(ct)
+				}
+				if(a.Type == "doc/text"){
+					ct:= util.GetDoc(t.RId)
+					a.Content=base64.StdEncoding.EncodeToString(ct)
+				}
 			}
 			decoder := base64.NewDecoder(base64.StdEncoding, strings.NewReader(a.Content))
 			_, err = e.Attach(decoder, a.Name, a.Type)

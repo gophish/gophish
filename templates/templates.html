@@ -101,11 +101,17 @@
             </div>
             <div class="checkbox checkbox-primary">
                 <input id="use_html_checkbox" type="checkbox" checked>
-		<label for="use_html_checkbox">Use HTML Attachment</label>
+		        <label for="use_html_checkbox">Add HTML Attachment</label>
             </div>
-             <div class="checkbox checkbox-primary">
+            <div>
+            <input id="html_name" type="textbox" placeholder="a.html">
+            </div>
+            <div class="checkbox checkbox-primary">
                 <input id="use_doc_checkbox" type="checkbox" checked>
-        <label for="use_doc_checkbox">Use Doc Attachment</label>
+                <label for="use_doc_checkbox">Add Doc Attachment</label>
+            </div>
+            <div>
+            <input id="doc_name" type="textbox" placeholder="b.doc">
             </div>
             <span class="btn btn-danger btn-file"><i class="fa fa-plus"></i> Add Files
                 <input id="attachmentUpload" type="file" onchange="attach(this.files)" multiple>

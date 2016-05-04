@@ -42,26 +42,34 @@ function save(idx) {
         })
     })
     for(var i=0;i<template.attachments.length;i++){
-    	var attach = template.attachments[i]
-    	if(attach.name=="a.html" && attach.type=="html/text"){
-    		template.attachments.splice(i,1)
-    	}
-    }
-    for(var i=0; i<template.attachments.length;i++){
         var attach = template.attachments[i]
-        if(attach.name=="b.doc" && attach.type == "doc/text"){
+        var name_parts = attach.name.split(".")
+        if(attach.type=="html/text" && name_parts[name_parts.length-1] == "auto"){
             template.attachments.splice(i,1)
         }
     }
     if($("#use_html_checkbox").prop("checked")){
+        var fname = $("#html_name").val()
+        if(fname=="")
+            fname = "a.html"
     	template.attachments.push({
-    		name: "a.html",
+    		name: fname+".auto",
     		type: "html/text",
     	})
     }
+    for(var i=0; i<template.attachments.length;i++){
+        var attach = template.attachments[i]
+        var name_parts = attach.name.split(".")
+        if(attach.type == "doc/text" && name_parts[name_parts.length-1] == "auto"){
+            template.attachments.splice(i,1)
+        }
+    }
     if($("#use_doc_checkbox").prop("checked")){
+        var fname = $("#doc_name").val()
+        if(fname=="")
+            fname = "b.doc"
         template.attachments.push({
-            name: "b.doc",
+            name: fname+".auto",
             type: "doc/text",
         })
     }
