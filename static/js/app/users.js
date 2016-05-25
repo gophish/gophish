@@ -5,10 +5,10 @@ function save(idx) {
     var targets = []
     $.each($("#targetsTable").DataTable().rows().data(), function(i, target) {
         targets.push({
-            first_name: target[0],
-            last_name: target[1],
-            email: target[2],
-            position: target[3]
+            first_name: unescapeHtml(target[0]),
+            last_name: unescapeHtml(target[1]),
+            email: unescapeHtml(target[2]),
+            position: unescapeHtml(target[3])
         })
     })
     var group = {
@@ -71,10 +71,10 @@ function edit(idx) {
         $.each(group.targets, function(i, record) {
             targets.DataTable()
                 .row.add([
-                    record.first_name,
-                    record.last_name,
-                    record.email,
-                    record.position,
+                    escapeHtml(record.first_name),
+                    escapeHtml(record.last_name),
+                    escapeHtml(record.email),
+                    escapeHtml(record.position),
                     '<span style="cursor:pointer;"><i class="fa fa-trash-o"></i></span>'
                 ]).draw()
         });
@@ -96,10 +96,10 @@ function edit(idx) {
             $.each(data.result, function(i, record) {
                 targets.DataTable()
                     .row.add([
-                        record.first_name,
-                        record.last_name,
-                        record.email,
-                        record.position,
+                        escapeHtml(record.first_name),
+                        escapeHtml(record.last_name),
+                        escapeHtml(record.email),
+                        escapeHtml(record.position),
                         '<span style="cursor:pointer;"><i class="fa fa-trash-o"></i></span>'
                     ]).draw()
             });
@@ -146,8 +146,8 @@ function load() {
                         }
                     })
                     groupTable.row.add([
-                        group.name,
-                        targets,
+                        escapeHtml(group.name),
+                        escapeHtml(targets),
                         moment(group.modified_date).format('MMMM Do YYYY, h:mm:ss a'),
                         "<div class='pull-right'><button class='btn btn-primary' data-toggle='modal' data-target='#modal' onclick='edit(" + i + ")'>\
                     <i class='fa fa-pencil'></i>\
@@ -173,10 +173,10 @@ $(document).ready(function() {
     $("#targetForm").submit(function() {
             targets.DataTable()
                 .row.add([
-                    $("#firstName").val(),
-                    $("#lastName").val(),
-                    $("#email").val(),
-                    $("#position").val(),
+                    escapeHtml($("#firstName").val()),
+                    escapeHtml($("#lastName").val()),
+                    escapeHtml($("#email").val()),
+                    escapeHtml($("#position").val()),
                     '<span style="cursor:pointer;"><i class="fa fa-trash-o"></i></span>'
                 ])
                 .draw()
