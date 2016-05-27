@@ -36,7 +36,7 @@ function save(idx) {
         // Add the attachments
     $.each($("#attachmentsTable").DataTable().rows().data(), function(i, target) {
         template.attachments.push({
-            name: target[1],
+            name: unescapeHtml(target[1]),
             content: target[3],
             type: target[4],
         })
@@ -140,7 +140,7 @@ function attach(files) {
                 // Add the record to the modal
             attachmentsTable.row.add([
                 '<i class="fa ' + icon + '"></i>',
-                file.name,
+                escapeHtml(file.name),
                 '<span class="remove-row"><i class="fa fa-trash-o"></i></span>',
                 reader.result.split(",")[1],
                 file.type || "application/octet-stream"
@@ -189,7 +189,7 @@ function edit(idx) {
                 // Add the record to the modal
             attachmentsTable.row.add([
                 '<i class="fa ' + icon + '"></i>',
-                file.name,
+                escapeHtml(file.name),
                 '<span class="remove-row"><i class="fa fa-trash-o"></i></span>',
                 file.content,
                 file.type || "application/octet-stream"
@@ -244,7 +244,7 @@ function copy(idx) {
                 // Add the record to the modal
             attachmentsTable.row.add([
                 '<i class="fa ' + icon + '"></i>',
-                file.name,
+                escapeHtml(file.name),
                 '<span class="remove-row"><i class="fa fa-trash-o"></i></span>',
                 file.content,
                 file.type || "application/octet-stream"
@@ -311,7 +311,7 @@ function load() {
                 templateTable.clear()
                 $.each(templates, function(i, template) {
                     templateTable.row.add([
-                        template.name,
+                        escapeHtml(template.name),
                         moment(template.modified_date).format('MMMM Do YYYY, h:mm:ss a'),
                         "<div class='pull-right'><span data-toggle='modal' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Edit Template' onclick='edit(" + i + ")'>\
                     <i class='fa fa-pencil'></i>\
