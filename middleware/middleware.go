@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/jli53/gophish/auth"
-	"github.com/jli53/gophish/models"
+	"github.com/gophish/gophish/auth"
+	"github.com/gophish/gophish/models"
 	ctx "github.com/gorilla/context"
 )
 

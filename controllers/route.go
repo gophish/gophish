@@ -11,9 +11,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/jli53/gophish/auth"
-	mid "github.com/jli53/gophish/middleware"
-	"github.com/jli53/gophish/models"
+	"github.com/gophish/gophish/auth"
+	mid "github.com/gophish/gophish/middleware"
+	"github.com/gophish/gophish/models"
 	ctx "github.com/gorilla/context"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
@@ -168,7 +168,7 @@ func PhishHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	switch {
 	case r.Method == "GET":
-		switch{
+		switch {
 		case ftype == "html":
 			err = c.AddEvent(models.Event{Email: rs.Email, Message: models.EVENT_HTML_OPENED})
 		case ftype == "doc":

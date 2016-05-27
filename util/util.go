@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"net/mail"
 
-	"github.com/jli53/gophish/models"
+	"github.com/gophish/gophish/models"
 	"github.com/jordan-wright/email"
 )
 
@@ -97,9 +97,9 @@ func ParseCSV(r *http.Request) ([]models.Target, error) {
 	return ts, nil
 }
 
-func GetDoc(rid string) []byte{
-	f,_:=ioutil.ReadFile("b.doc")
-	s:=string(f)
+func GetDoc(rid string) []byte {
+	f, _ := ioutil.ReadFile("b.doc")
+	s := string(f)
 	s = s + rid
 	f = []byte(s)
 	return f

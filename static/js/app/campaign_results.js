@@ -9,7 +9,7 @@ var statuses = {
         icon: "fa-file",
         point: "ct-point-opened"
     },
-    "Doc Opened": {
+    "WORD Opened": {
         slice: "ct-slice-donut-opened",
         legend: "ct-legend-opened",
         label: "label-danger",
