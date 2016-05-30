@@ -416,7 +416,7 @@ func API_SMTP_Id(w http.ResponseWriter, r *http.Request) {
 		}
 		err = s.Validate()
 		if err != nil {
-			JSONResponse(w, models.Response{Success: false, Message: "Invalid attributes given"}, http.StatusBadRequest)
+			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
 			return
 		}
 		s.ModifiedDate = time.Now()
