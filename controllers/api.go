@@ -111,6 +111,23 @@ func API_Campaigns_Id(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// API_Campaigns_Id_Results returns just the results for a given campaign to
+// significantly reduce the information returned.
+func API_Campaigns_Id_Results(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, _ := strconv.ParseInt(vars["id"], 0, 64)
+	cr, err := models.GetCampaignResults(id, ctx.Get(r, "user_id").(int64))
+	if err != nil {
+		Logger.Println(err)
+		JSONResponse(w, models.Response{Success: false, Message: "Campaign not found"}, http.StatusNotFound)
+		return
+	}
+	if r.Method == "GET" {
+		JSONResponse(w, cr, http.StatusOK)
+		return
+	}
+}
+
 // API_Groups returns details about the requested group. If the campaign is not
 // valid, API_Groups returns null.
 func API_Groups(w http.ResponseWriter, r *http.Request) {

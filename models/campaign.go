@@ -7,7 +7,7 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-//Campaign is a struct representing a created campaign
+// Campaign is a struct representing a created campaign
 type Campaign struct {
 	Id            int64     `json:"id"`
 	UserId        int64     `json:"-"`
@@ -26,6 +26,15 @@ type Campaign struct {
 	SMTPId        int64     `json:"-"`
 	SMTP          SMTP      `json:"smtp"`
 	URL           string    `json:"url"`
+}
+
+// CampaignResults is a struct representing the results from a campaign
+type CampaignResults struct {
+	Id      int64    `json:"id"`
+	Name    string   `json:"name"`
+	Status  string   `json:"status"`
+	Results []Result `json:"results, omitempty"`
+	Events  []Event  `json:"timeline,omitempty"`
 }
 
 // ErrCampaignNameNotSpecified indicates there was no template given by the user
@@ -188,6 +197,26 @@ func GetCampaign(id int64, uid int64) (Campaign, error) {
 	}
 	err = c.getDetails()
 	return c, err
+}
+
+func GetCampaignResults(id int64, uid int64) (CampaignResults, error) {
+	cr := CampaignResults{}
+	err := db.Table("campaigns").Where("id=? and user_id=?", id, uid).Find(&cr).Error
+	if err != nil {
+		Logger.Printf("%s: campaign not found\n", err)
+		return cr, err
+	}
+	err = db.Table("results").Where("campaign_id=? and user_id=?", cr.Id, uid).Find(&cr.Results).Error
+	if err != nil {
+		Logger.Printf("%s: results not found for campaign\n", err)
+		return cr, err
+	}
+	err = db.Table("events").Where("campaign_id=?", cr.Id).Find(&cr.Events).Error
+	if err != nil {
+		Logger.Printf("%s: events not found for campaign\n", err)
+		return cr, err
+	}
+	return cr, err
 }
 
 // GetQueuedCampaigns returns the campaigns that are queued up for this given minute

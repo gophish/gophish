@@ -191,7 +191,7 @@ function renderTimeline(data) {
  * * Datatables
  */
 function poll() {
-    api.campaignId.get(campaign.id)
+    api.campaignId.results(campaign.id)
         .success(function(c) {
             campaign = c
                 /* Update the timeline */
@@ -289,7 +289,7 @@ function poll() {
 
 function load() {
     campaign.id = window.location.pathname.split('/').slice(-1)[0]
-    api.campaignId.get(campaign.id)
+    api.campaignId.results(campaign.id)
         .success(function(c) {
             campaign = c
             if (campaign) {
