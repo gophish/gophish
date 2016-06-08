@@ -83,7 +83,6 @@ func API_Campaigns(w http.ResponseWriter, r *http.Request) {
 			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
 			return
 		}
-		Worker.Queue <- &c
 		JSONResponse(w, c, http.StatusCreated)
 	}
 }

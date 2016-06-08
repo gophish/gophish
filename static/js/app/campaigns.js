@@ -31,8 +31,9 @@ function launch() {
             name: $("#page").val()
         },
         smtp: {
-	    name: $("#profile").val()
+            name: $("#profile").val()
         },
+        launch_date: moment($("#launch_date").val(), "MM/DD/YYYY HH:mm").format(),
         groups: groups
     }
     launchHtml = $("launchButton").html()
@@ -66,7 +67,7 @@ function sendTestEmail() {
             name: $("#page").val()
         },
         smtp: {
-	    name: $("#profile").val()
+            name: $("#profile").val()
         }
     }
     btnHtml = $("#sendTestModalSubmit").html()
@@ -141,15 +142,15 @@ function edit(campaign) {
                     page_bh.add(pages)
                 }
             })
-	api.SMTP.get()
-	    .success(function(profiles) {
-		if (profiles.length == 0){
-		   modalError("No profiles found!")
-		   return false
-		} else {
-		   profile_bh.add(profiles)
-		}
-	    })
+        api.SMTP.get()
+            .success(function(profiles) {
+                if (profiles.length == 0) {
+                    modalError("No profiles found!")
+                    return false
+                } else {
+                    profile_bh.add(profiles)
+                }
+            })
     }
 }
 
@@ -201,22 +202,29 @@ function copy(idx) {
     $("#page").val(campaign.page.name)
     $("#profile").val(campaign.smtp.name)
     $("#url").val(campaign.url)
-    $.each(campaign.groups, function(i, group){
-    	groupTable.row.add([
-                group.name,
-                '<span style="cursor:pointer;"><i class="fa fa-trash-o"></i></span>'
-            ]).draw()
-            $("#groupTable").on("click", "span>i.fa-trash-o", function() {
-                groupTable.row($(this).parents('tr'))
-                    .remove()
-                    .draw();
-            })
+    $.each(campaign.groups, function(i, group) {
+        groupTable.row.add([
+            group.name,
+            '<span style="cursor:pointer;"><i class="fa fa-trash-o"></i></span>'
+        ]).draw()
+        $("#groupTable").on("click", "span>i.fa-trash-o", function() {
+            groupTable.row($(this).parents('tr'))
+                .remove()
+                .draw();
+        })
     })
 }
 
 $(document).ready(function() {
-    // Setup multiple modals
-    // Code based on http://miles-by-motorcycle.com/static/bootstrap-modal/index.html
+    $("#launch_date").datetimepicker({
+            "widgetPositioning": {
+                "vertical": "bottom"
+            },
+            "showTodayButton": true,
+            "defaultDate": moment()
+        })
+        // Setup multiple modals
+        // Code based on http://miles-by-motorcycle.com/static/bootstrap-modal/index.html
     $('.modal').on('hidden.bs.modal', function(event) {
         $(this).removeClass('fv-modal-stack');
         $('body').data('fv_open_modals', $('body').data('fv_open_modals') - 1);
@@ -253,7 +261,7 @@ $(document).ready(function() {
             }, this));
     };
     $('#modal').on('hidden.bs.modal', function(event) {
-	dismiss()
+        dismiss()
     });
     api.campaigns.get()
         .success(function(cs) {

@@ -13,6 +13,7 @@ import (
 	"strconv"
 	"strings"
 	"text/template"
+	"time"
 
 	"github.com/gophish/gophish/models"
 	"gopkg.in/gomail.v2"
@@ -22,23 +23,29 @@ import (
 var Logger = log.New(os.Stdout, " ", log.Ldate|log.Ltime|log.Lshortfile)
 
 // Worker is the background worker that handles watching for new campaigns and sending emails appropriately.
-type Worker struct {
-	Queue chan *models.Campaign
-}
+type Worker struct{}
 
 // New creates a new worker object to handle the creation of campaigns
 func New() *Worker {
-	return &Worker{
-		Queue: make(chan *models.Campaign),
-	}
+	return &Worker{}
 }
 
-// Start launches the worker to monitor the database for any jobs.
+// Start launches the worker to poll the database every minute for any jobs.
 // If a job is found, it launches the job
 func (w *Worker) Start() {
 	Logger.Println("Background Worker Started Successfully - Waiting for Campaigns")
-	for {
-		processCampaign(<-w.Queue)
+	for t := range time.Tick(1 * time.Minute) {
+		cs, err := models.GetQueuedCampaigns(t)
+		// Not really sure of a clean way to catch errors per campaign...
+		if err != nil {
+			Logger.Println(err)
+			continue
+		}
+		for _, c := range cs {
+			go func(c models.Campaign) {
+				processCampaign(&c)
+			}(c)
+		}
 	}
 }
 

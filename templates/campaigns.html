@@ -81,6 +81,8 @@
 	      <br>
 	      <label class="control-label" for="url">URL: <i class="fa fa-question-circle" data-toggle="tooltip" data-placement="right" title="Location of gophish listener (must be reachable by targets!)"></i></label>
               <input type="text" class="form-control" placeholder="http://192.168.1.1" id="url"/>
+	      <label class="control-label" for="url">Schedule: </label>
+              <input type="text" class="form-control" id="launch_date"/>
 	      <label class="control-label" for="profile">Sending Profile:</label>
 	      <div class="input-group">
 		<input type="text" class="typeahead form-control" placeholder="Sending Profile" id="profile"/>
@@ -153,6 +155,7 @@
 </div>
 {{end}}
 {{define "scripts"}}
+<script src="/js/bootstrap-datetime.js"></script>
 <script src="/js/hogan.js"></script>
 <script src="/js/typeahead.min.js"></script>
 <script src="/js/app/campaigns.js"></script>
