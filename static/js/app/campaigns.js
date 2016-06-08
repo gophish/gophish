@@ -311,6 +311,7 @@ $(document).ready(function() {
                     .remove()
                     .draw();
             })
+            $("#groupSelect").val("");
             return false;
         })
         // Create the group typeahead objects
