@@ -302,19 +302,24 @@ $(document).ready(function() {
             errorFlash("Error fetching campaigns")
         })
     $("#groupForm").submit(function() {
-            groupTable.row.add([
-                $("#groupSelect").val(),
-                '<span style="cursor:pointer;"><i class="fa fa-trash-o"></i></span>'
-            ]).draw()
-            $("#groupTable").on("click", "span>i.fa-trash-o", function() {
-                groupTable.row($(this).parents('tr'))
-                    .remove()
-                    .draw();
-            })
-            $("#groupSelect").val("");
-            return false;
-        })
-        // Create the group typeahead objects
+        // Add row to group table.
+        var newRow = groupTable.row.add([
+            $("#groupSelect").val(),
+            '<span style="cursor:pointer;"><i class="fa fa-trash-o"></i></span>'
+        ]).draw().node();
+
+        // Set event handler for removing row from group table.
+        $(newRow).on("click", "span>i.fa-trash-o", function() {
+            groupTable.row($(this).parents('tr'))
+                .remove()
+                .draw();
+        });
+
+        // Clear user input.
+        $("#groupSelect").val("");
+        return false;
+    });
+    // Create the group typeahead objects
     groupTable = $("#groupTable").DataTable({
         columnDefs: [{
             orderable: false,
