@@ -316,7 +316,7 @@ $(document).ready(function() {
         });
 
         // Clear user input.
-        $("#groupSelect").val("");
+        $("#groupSelect").typeahead('val', "");
         return false;
     });
     // Create the group typeahead objects
@@ -351,7 +351,9 @@ $(document).ready(function() {
             }
         })
         .bind('typeahead:select', function(ev, group) {
-            $("#groupSelect").typeahead('val', group.name)
+            // Add selected group.
+            $("#groupSelect").typeahead('val', group.name);
+            $("#groupForm").submit();
         })
         .bind('typeahead:autocomplete', function(ev, group) {
             $("#groupSelect").typeahead('val', group.name)
