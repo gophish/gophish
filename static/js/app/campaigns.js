@@ -202,17 +202,6 @@ function copy(idx) {
     $("#page").val(campaign.page.name)
     $("#profile").val(campaign.smtp.name)
     $("#url").val(campaign.url)
-    $.each(campaign.groups, function(i, group) {
-        groupTable.row.add([
-            group.name,
-            '<span style="cursor:pointer;"><i class="fa fa-trash-o"></i></span>'
-        ]).draw()
-        $("#groupTable").on("click", "span>i.fa-trash-o", function() {
-            groupTable.row($(this).parents('tr'))
-                .remove()
-                .draw();
-        })
-    })
 }
 
 $(document).ready(function() {
