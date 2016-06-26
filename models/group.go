@@ -123,14 +123,14 @@ func PutGroup(g *Group) error {
 	if err := g.Validate(); err != nil {
 		return err
 	}
+	// Fetch group's existing targets from database.
 	ts := []Target{}
 	ts, err = GetTargets(g.Id)
 	if err != nil {
 		Logger.Printf("Error getting targets from group ID: %d", g.Id)
 		return err
 	}
-	// Enumerate through, removing any entries that are no longer in the group
-	// For every target in the database
+	// Check existing targets, removing any that are no longer in the group.
 	tExists := false
 	for _, t := range ts {
 		tExists = false
@@ -149,8 +149,7 @@ func PutGroup(g *Group) error {
 			}
 		}
 	}
-	// Insert any entries that are not in the database
-	// For every target in the new group
+	// Add any targets that are not in the database yet.
 	for _, nt := range g.Targets {
 		// Check and see if the target already exists in the db
 		tExists = false
@@ -166,7 +165,6 @@ func PutGroup(g *Group) error {
 		}
 	}
 	err = db.Save(g).Error
-	/*_, err = Conn.Update(g)*/
 	if err != nil {
 		Logger.Println(err)
 		return err
