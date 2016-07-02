@@ -156,12 +156,15 @@ func PutGroup(g *Group) error {
 		for _, t := range ts {
 			if t.Email == nt.Email {
 				tExists = true
+				nt.Id = t.Id
 				break
 			}
 		}
-		// If the target is not in the db, we add it
+		// Add target if not in database, otherwise update target information.
 		if !tExists {
 			insertTargetIntoGroup(nt, g.Id)
+		} else {
+			UpdateTarget(nt)
 		}
 	}
 	err = db.Save(g).Error
@@ -218,6 +221,20 @@ func insertTargetIntoGroup(t Target, gid int64) error {
 		return err
 	}
 	return nil
+}
+
+// UpdateTarget updates the given target information in the database.
+func UpdateTarget(target Target) error {
+	targetInfo := map[string]interface{}{
+		"first_name": target.FirstName,
+		"last_name":  target.LastName,
+		"position":   target.Position,
+	}
+	err := db.Model(&target).Where("id = ?", target.Id).Updates(targetInfo).Error
+	if err != nil {
+		Logger.Printf("Error updating target information for %s\n", target.Email)
+	}
+	return err
 }
 
 // GetTargets performs a many-to-many select to get all the Targets for a Group
