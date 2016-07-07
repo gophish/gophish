@@ -78,6 +78,12 @@ func processCampaign(c *models.Campaign) {
 		ServerName:         c.SMTP.Host,
 		InsecureSkipVerify: c.SMTP.IgnoreCertErrors,
 	}
+	hostname, err := os.Hostname()
+	if err != nil {
+		Logger.Println(err)
+		hostname = "localhost"
+	}
+	d.LocalName = hostname
 	s, err := d.Dial()
 	// Short circuit if we have an err
 	// However, we still need to update each target
@@ -218,6 +224,12 @@ func SendTestEmail(s *models.SendTestEmailRequest) error {
 		ServerName:         s.SMTP.Host,
 		InsecureSkipVerify: s.SMTP.IgnoreCertErrors,
 	}
+	hostname, err := os.Hostname()
+	if err != nil {
+		Logger.Println(err)
+		hostname = "localhost"
+	}
+	d.LocalName = hostname
 	dc, err := d.Dial()
 	if err != nil {
 		Logger.Println(err)
