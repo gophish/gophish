@@ -63,6 +63,56 @@ func (s *ModelsSuite) TestPostGroupNoTargets(c *check.C) {
 	c.Assert(err, check.Equals, ErrNoTargetsSpecified)
 }
 
+func (s *ModelsSuite) TestPutGroup(c *check.C) {
+	// Add test group.
+	group := Group{Name: "Put Test Group"}
+	group.Targets = []Target{
+		Target{Email: "test1@example.com", FirstName: "First", LastName: "Example"},
+		Target{Email: "test2@example.com", FirstName: "Second", LastName: "Example"},
+	}
+	group.UserId = 1
+	PostGroup(&group)
+
+	// Update one of group's targets.
+	group.Targets[0].FirstName = "New"
+	err := PutGroup(&group)
+	c.Assert(err, check.Equals, nil)
+
+	// Verify updated target information.
+	targets, _ := GetTargets(group.Id)
+	c.Assert(targets[0].Email, check.Equals, "test1@example.com")
+	c.Assert(targets[0].FirstName, check.Equals, "New")
+	c.Assert(targets[0].LastName, check.Equals, "Example")
+	c.Assert(targets[1].Email, check.Equals, "test2@example.com")
+	c.Assert(targets[1].FirstName, check.Equals, "Second")
+	c.Assert(targets[1].LastName, check.Equals, "Example")
+}
+
+func (s *ModelsSuite) TestPutGroupEmptyAttribute(c *check.C) {
+	// Add test group.
+	group := Group{Name: "Put Empty Attribute Test Group"}
+	group.Targets = []Target{
+		Target{Email: "test3@example.com", FirstName: "Third", LastName: "Example"},
+		Target{Email: "test4@example.com", FirstName: "Fourth", LastName: "Example"},
+	}
+	group.UserId = 1
+	PostGroup(&group)
+
+	// Update one of group's targets.
+	group.Targets[0].FirstName = ""
+	err := PutGroup(&group)
+	c.Assert(err, check.Equals, nil)
+
+	// Verify updated empty attribute was saved.
+	targets, _ := GetTargets(group.Id)
+	c.Assert(targets[0].Email, check.Equals, "test3@example.com")
+	c.Assert(targets[0].FirstName, check.Equals, "")
+	c.Assert(targets[0].LastName, check.Equals, "Example")
+	c.Assert(targets[1].Email, check.Equals, "test4@example.com")
+	c.Assert(targets[1].FirstName, check.Equals, "Fourth")
+	c.Assert(targets[1].LastName, check.Equals, "Example")
+}
+
 func (s *ModelsSuite) TestPostSMTP(c *check.C) {
 	smtp := SMTP{
 		Name:        "Test SMTP",

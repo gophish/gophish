@@ -128,8 +128,8 @@ func API_Campaigns_Id_Results(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// API_Groups returns details about the requested group. If the campaign is not
-// valid, API_Groups returns null.
+// API_Groups returns a list of groups if requested via GET.
+// If requested via POST, API_Groups creates a new group and returns a reference to it.
 func API_Groups(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "GET":
@@ -165,8 +165,8 @@ func API_Groups(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// API_Groups_Id returns details about the requested campaign. If the group is not
-// valid, API_Groups_Id returns null.
+// API_Groups_Id returns details about the requested group.
+// If the group is not valid, API_Groups_Id returns null.
 func API_Groups_Id(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.ParseInt(vars["id"], 0, 64)
