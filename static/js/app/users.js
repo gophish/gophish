@@ -171,15 +171,34 @@ $(document).ready(function() {
     // Setup the event listeners
     // Handle manual additions
     $("#targetForm").submit(function() {
-        targets.DataTable()
-            .row.add([
-                escapeHtml($("#firstName").val()),
-                escapeHtml($("#lastName").val()),
-                escapeHtml($("#email").val()),
-                escapeHtml($("#position").val()),
-                '<span style="cursor:pointer;"><i class="fa fa-trash-o"></i></span>'
-            ])
-            .draw();
+        // Create new data row.
+        var emailInput = escapeHtml($("#email").val()).toLowerCase();
+        var newRow = [
+            escapeHtml($("#firstName").val()),
+            escapeHtml($("#lastName").val()),
+            emailInput,
+            escapeHtml($("#position").val()),
+            '<span style="cursor:pointer;"><i class="fa fa-trash-o"></i></span>'
+        ];
+
+        // Check table to see if email already exists.
+        var targetsTable = targets.DataTable();
+        var existingRowIndex = targetsTable
+            .column(2, {order: "index"}) // Email column
+            .data()
+            .indexOf(emailInput);
+
+        // Update or add new row as necessary.
+        if (existingRowIndex >= 0) {
+            targetsTable
+                .row(existingRowIndex, {order: "index"})
+                .data(newRow);
+        } else {
+            targetsTable.row.add(newRow);
+        }
+        targetsTable.draw();
+
+        // Reset user input.
         $("#targetForm>div>input").val('');
         $("#firstName").focus();
         return false;
