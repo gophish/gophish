@@ -168,30 +168,30 @@ function load() {
 
 $(document).ready(function() {
     load()
-        // Setup the event listeners
-        // Handle manual additions
+    // Setup the event listeners
+    // Handle manual additions
     $("#targetForm").submit(function() {
-            targets.DataTable()
-                .row.add([
-                    escapeHtml($("#firstName").val()),
-                    escapeHtml($("#lastName").val()),
-                    escapeHtml($("#email").val()),
-                    escapeHtml($("#position").val()),
-                    '<span style="cursor:pointer;"><i class="fa fa-trash-o"></i></span>'
-                ])
-                .draw()
-            $("#targetForm>div>input").val('')
-            $("#firstName").focus()
-            return false
-        })
-        // Handle Deletion
+        targets.DataTable()
+            .row.add([
+                escapeHtml($("#firstName").val()),
+                escapeHtml($("#lastName").val()),
+                escapeHtml($("#email").val()),
+                escapeHtml($("#position").val()),
+                '<span style="cursor:pointer;"><i class="fa fa-trash-o"></i></span>'
+            ])
+            .draw();
+        $("#targetForm>div>input").val('');
+        $("#firstName").focus();
+        return false;
+    });
+    // Handle Deletion
     $("#targetsTable").on("click", "span>i.fa-trash-o", function() {
         targets.DataTable()
             .row($(this).parents('tr'))
             .remove()
             .draw();
-    })
+    });
     $("#modal").on("hide.bs.modal", function() {
-        dismiss()
-    })
-})
+        dismiss();
+    });
+});
