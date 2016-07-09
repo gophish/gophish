@@ -94,14 +94,11 @@ function edit(idx) {
         },
         done: function(e, data) {
             $.each(data.result, function(i, record) {
-                targets.DataTable()
-                    .row.add([
-                        escapeHtml(record.first_name),
-                        escapeHtml(record.last_name),
-                        escapeHtml(record.email),
-                        escapeHtml(record.position),
-                        '<span style="cursor:pointer;"><i class="fa fa-trash-o"></i></span>'
-                    ]).draw()
+                addTarget(
+                    record.first_name,
+                    record.last_name,
+                    record.email,
+                    record.position);
             });
         }
     })
@@ -115,6 +112,35 @@ function deleteGroup(idx) {
                 load()
             })
     }
+}
+
+function addTarget(firstNameInput, lastNameInput, emailInput, positionInput) {
+    // Create new data row.
+    var email = escapeHtml(emailInput).toLowerCase();
+    var newRow = [
+        escapeHtml(firstNameInput),
+        escapeHtml(lastNameInput),
+        email,
+        escapeHtml(positionInput),
+        '<span style="cursor:pointer;"><i class="fa fa-trash-o"></i></span>'
+    ];
+
+    // Check table to see if email already exists.
+    var targetsTable = targets.DataTable();
+    var existingRowIndex = targetsTable
+        .column(2, {order: "index"}) // Email column has index of 2
+        .data()
+        .indexOf(email);
+
+    // Update or add new row as necessary.
+    if (existingRowIndex >= 0) {
+        targetsTable
+            .row(existingRowIndex, {order: "index"})
+            .data(newRow);
+    } else {
+        targetsTable.row.add(newRow);
+    }
+    targetsTable.draw();
 }
 
 function load() {
@@ -171,32 +197,11 @@ $(document).ready(function() {
     // Setup the event listeners
     // Handle manual additions
     $("#targetForm").submit(function() {
-        // Create new data row.
-        var emailInput = escapeHtml($("#email").val()).toLowerCase();
-        var newRow = [
-            escapeHtml($("#firstName").val()),
-            escapeHtml($("#lastName").val()),
-            emailInput,
-            escapeHtml($("#position").val()),
-            '<span style="cursor:pointer;"><i class="fa fa-trash-o"></i></span>'
-        ];
-
-        // Check table to see if email already exists.
-        var targetsTable = targets.DataTable();
-        var existingRowIndex = targetsTable
-            .column(2, {order: "index"}) // Email column
-            .data()
-            .indexOf(emailInput);
-
-        // Update or add new row as necessary.
-        if (existingRowIndex >= 0) {
-            targetsTable
-                .row(existingRowIndex, {order: "index"})
-                .data(newRow);
-        } else {
-            targetsTable.row.add(newRow);
-        }
-        targetsTable.draw();
+        addTarget(
+            $("#firstName").val(),
+            $("#lastName").val(),
+            $("#email").val(),
+            $("#position").val());
 
         // Reset user input.
         $("#targetForm>div>input").val('');
