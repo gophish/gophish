@@ -9,47 +9,67 @@ var labels = {
 }
 
 var campaigns = []
+var campaign = {}
 
 // Launch attempts to POST to /campaigns/
 function launch() {
-    if (!confirm("This will launch the campaign. Are you sure?")) {
-        return false;
-    }
-    groups = []
-    $.each($("#groupTable").DataTable().rows().data(), function(i, group) {
-        groups.push({
-            name: group[0]
+    swal({
+        title: "Are you sure?",
+        text: "This will schedule the campaign to be launched.",
+        type: "question",
+        animation: false,
+        showCancelButton: true,
+        confirmButtonText: "Launch",
+        confirmButtonColor: "#428bca",
+        reverseButtons: true,
+        allowOutsideClick: false,
+        showLoaderOnConfirm: true,
+        preConfirm: function() {
+            return new Promise(function(resolve, reject) {
+                groups = []
+                $.each($("#groupTable").DataTable().rows().data(), function(i, group) {
+                    groups.push({
+                        name: group[0]
+                    })
+                })
+                campaign = {
+                        name: $("#name").val(),
+                        template: {
+                            name: $("#template").val()
+                        },
+                        url: $("#url").val(),
+                        page: {
+                            name: $("#page").val()
+                        },
+                        smtp: {
+                            name: $("#profile").val()
+                        },
+                        launch_date: moment($("#launch_date").val(), "MM/DD/YYYY HH:mm").format(),
+                        groups: groups
+                    }
+                    // Submit the campaign
+                api.campaigns.post(campaign)
+                    .success(function(data) {
+                        resolve()
+                        campaign = data
+                    })
+                    .error(function(data) {
+                        $("#modal\\.flashes").empty().append("<div style=\"text-align:center\" class=\"alert alert-danger\">\
+            <i class=\"fa fa-exclamation-circle\"></i> " + data.responseJSON.message + "</div>")
+                        swal.close()
+                    })
+            })
+        }
+    }).then(function() {
+        swal(
+            'Campaign Scheduled!',
+            'This campaign has been scheduled for launch!',
+            'success'
+        );
+        $('button:contains("OK")').on('click', function() {
+            window.location = "/campaigns/" + campaign.id.toString()
         })
     })
-    var campaign = {
-        name: $("#name").val(),
-        template: {
-            name: $("#template").val()
-        },
-        url: $("#url").val(),
-        page: {
-            name: $("#page").val()
-        },
-        smtp: {
-            name: $("#profile").val()
-        },
-        launch_date: moment($("#launch_date").val(), "MM/DD/YYYY HH:mm").format(),
-        groups: groups
-    }
-    launchHtml = $("launchButton").html()
-    $("launchButton").html('<i class="fa fa-spinner fa-spin"></i> Launching Campaign')
-        // Submit the campaign
-    api.campaigns.post(campaign)
-        .success(function(data) {
-            successFlash("Campaign successfully launched!")
-            $("launchButton").html('<i class="fa fa-spinner fa-spin"></i> Redirecting')
-            window.location = "/campaigns/" + data.id.toString()
-        })
-        .error(function(data) {
-            $("#modal\\.flashes").empty().append("<div style=\"text-align:center\" class=\"alert alert-danger\">\
-            <i class=\"fa fa-exclamation-circle\"></i> " + data.responseJSON.message + "</div>")
-            $("#launchButton").html(launchHtml)
-        })
 }
 
 // Attempts to send a test email by POSTing to /campaigns/
@@ -99,13 +119,37 @@ function dismiss() {
 }
 
 function deleteCampaign(idx) {
-    if (confirm("Delete " + campaigns[idx].name + "?")) {
-        api.campaignId.delete(campaigns[idx].id)
-            .success(function(data) {
-                successFlash(data.message)
-                location.reload()
+    swal({
+        title: "Are you sure?",
+        text: "This will delete the campaign. This can't be undone!",
+        type: "warning",
+        animation: false,
+        showCancelButton: true,
+        confirmButtonText: "Delete " + campaigns[idx].name,
+        confirmButtonColor: "#428bca",
+        reverseButtons: true,
+        allowOutsideClick: false,
+        preConfirm: function() {
+            return new Promise(function(resolve, reject) {
+                api.campaignId.delete(campaigns[idx].id)
+                    .success(function(msg) {
+                        resolve()
+                    })
+                    .error(function(data) {
+                        reject(data.responseJSON.message)
+                    })
             })
-    }
+        }
+    }).then(function() {
+        swal(
+            'Campaign Deleted!',
+            'This campaign has been deleted!',
+            'success'
+        );
+        $('button:contains("OK")').on('click', function() {
+            location.reload()
+        })
+    })
 }
 
 function edit(campaign) {

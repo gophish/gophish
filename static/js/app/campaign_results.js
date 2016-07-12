@@ -83,62 +83,72 @@ function dismiss() {
 
 // Deletes a campaign after prompting the user
 function deleteCampaign() {
-    if (confirm("Are you sure you want to delete: " + campaign.name + "?")) {
-        api.campaignId.delete(campaign.id)
-            .success(function(msg) {
-                location.href = '/campaigns'
+    swal({
+        title: "Are you sure?",
+        text: "This will delete the campaign. This can't be undone!",
+        type: "warning",
+        animation: false,
+        showCancelButton: true,
+        confirmButtonText: "Delete Campaign",
+        confirmButtonColor: "#428bca",
+        reverseButtons: true,
+        allowOutsideClick: false,
+        preConfirm: function() {
+            return new Promise(function(resolve, reject) {
+                api.campaignId.delete(campaign.id)
+                    .success(function(msg) {
+                        resolve()
+                    })
+                    .error(function(data) {
+                        reject(data.responseJSON.message)
+                    })
             })
-            .error(function(e) {
-                $("#modal\\.flashes").empty().append("<div style=\"text-align:center\" class=\"alert alert-danger\">\
-                <i class=\"fa fa-exclamation-circle\"></i> " + data.responseJSON.message + "</div>")
-            })
-    }
+        }
+    }).then(function() {
+        swal(
+            'Campaign Deleted!',
+            'This campaign has been deleted!',
+            'success'
+        );
+        $('button:contains("OK")').on('click', function() {
+            location.href = '/campaigns'
+        })
+    })
 }
 
 // Completes a campaign after prompting the user
 function completeCampaign() {
     swal({
-            title: "Are you sure?",
-            text: "Gophish will stop processing events for this campaign",
-            type: "warning",
-            animation: false,
-            showCancelButton: true,
-            confirmButtonText: "Complete Campaign",
-            confirmButtonColor: "#428bca",
-            reverseButtons: true,
-            allowOutsideClick: false,
-            preConfirm: function() {
-                return new Promise(function(resolve, reject) {
-                    api.campaignId.complete(campaign.id)
-                        .success(function(msg) {
-                            resolve()
-                        })
-                        .error(function(data) {
-                            reject(data.responseJSON.message)
-                        })
-                })
-            }
-        }).then(function() {
-            swal(
-                'Campaign Completed!',
-                'This campaign has been completed!',
-                'success'
-            );
-            $('#complete_button')[0].disabled = true;
-            $('#complete_button').text('Completed!')
-            doPoll = false;
-        })
-        /*
-        if (confirm("Are you sure you want to delete: " + campaign.name + "?")) {
-            api.campaignId.delete(campaign.id)
-                .success(function(msg) {
-                    location.href = '/campaigns'
-                })
-                .error(function(e) {
-                    $("#modal\\.flashes").empty().append("<div style=\"text-align:center\" class=\"alert alert-danger\">\
-                    <i class=\"fa fa-exclamation-circle\"></i> " + data.responseJSON.message + "</div>")
-                })
-        }*/
+        title: "Are you sure?",
+        text: "Gophish will stop processing events for this campaign",
+        type: "warning",
+        animation: false,
+        showCancelButton: true,
+        confirmButtonText: "Complete Campaign",
+        confirmButtonColor: "#428bca",
+        reverseButtons: true,
+        allowOutsideClick: false,
+        preConfirm: function() {
+            return new Promise(function(resolve, reject) {
+                api.campaignId.complete(campaign.id)
+                    .success(function(msg) {
+                        resolve()
+                    })
+                    .error(function(data) {
+                        reject(data.responseJSON.message)
+                    })
+            })
+        }
+    }).then(function() {
+        swal(
+            'Campaign Completed!',
+            'This campaign has been completed!',
+            'success'
+        );
+        $('#complete_button')[0].disabled = true;
+        $('#complete_button').text('Completed!')
+        doPoll = false;
+    })
 }
 
 // Exports campaign results as a CSV file
