@@ -12,3 +12,4 @@ static/js/moment.min.js linguist-vendored
 static/js/jquery* linguist-vendored
 static/js/ui-bootstrap-* linguist-vendored
 static/js/datatables* linguist-vendored
+static/js/sweetalert2.min.js linguist-vendored
