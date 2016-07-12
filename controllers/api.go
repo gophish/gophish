@@ -128,6 +128,22 @@ func API_Campaigns_Id_Results(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// API_Campaigns_Id_Complete effectively "ends" a campaign.
+// Future phishing emails clicked will return a simple "404" page.
+func API_Campaigns_Id_Complete(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, _ := strconv.ParseInt(vars["id"], 0, 64)
+	switch {
+	case r.Method == "GET":
+		err := models.CompleteCampaign(id, ctx.Get(r, "user_id").(int64))
+		if err != nil {
+			JSONResponse(w, models.Response{Success: false, Message: "Error completing campaign"}, http.StatusInternalServerError)
+			return
+		}
+		JSONResponse(w, models.Response{Success: true, Message: "Campaign completed successfully!"}, http.StatusOK)
+	}
+}
+
 // API_Groups returns a list of groups if requested via GET.
 // If requested via POST, API_Groups creates a new group and returns a reference to it.
 func API_Groups(w http.ResponseWriter, r *http.Request) {

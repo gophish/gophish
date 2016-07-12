@@ -48,6 +48,9 @@
 		    <li><a href="#" onclick="exportAsCSV('events')">Raw Events</a></li>
 	    </ul>
     	    </div>
+            <button id="complete_button" type="button" class="btn btn-blue" data-toggle="tooltip" onclick="completeCampaign()">
+                <i class="fa fa-flag-checkered"></i> Complete
+            </button>
             <button type="button" class="btn btn-danger" data-toggle="tooltip" onclick="deleteCampaign()">
                 <i class="fa fa-trash-o fa-lg"></i> Delete
             </button>
@@ -100,7 +103,7 @@
             <table id="resultsTable" class="table">
                 <thead>
                     <tr>
-			<th>Result ID</th>
+			            <th>Result ID</th>
                         <th class="no-sort"></th>
                         <th>First Name</th>
                         <th>Last Name</th>
@@ -124,5 +127,6 @@
 <script src="/js/topojson.min.js"></script>
 <script src="/js/datamaps.min.js"></script>
 <script src="/js/papaparse.min.js"></script>
+<script src="/js/sweetalert2.min.js"></script>
 <script src="/js/app/campaign_results.js"></script>
 {{end}}

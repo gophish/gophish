@@ -338,8 +338,29 @@ func DeleteCampaign(id int64) error {
 	// Delete the campaign
 	err = db.Delete(&Campaign{Id: id}).Error
 	if err != nil {
-		Logger.Panicln(err)
+		Logger.Println(err)
+	}
+	return err
+}
+
+// CompleteCampaign effectively "ends" a campaign.
+// Any future emails clicked will return a simple "404" page.
+func CompleteCampaign(id int64, uid int64) error {
+	Logger.Printf("Marking campaign %d as complete\n", id)
+	c, err := GetCampaign(id, uid)
+	if err != nil {
 		return err
+	}
+	// Don't overwrite original completed time
+	if c.Status == CAMPAIGN_COMPLETE {
+		return nil
+	}
+	// Mark the campaign as complete
+	c.CompletedDate = time.Now()
+	c.Status = CAMPAIGN_COMPLETE
+	err = db.Where("id=? and user_id=?", id, uid).Save(&c).Error
+	if err != nil {
+		Logger.Println(err)
 	}
 	return err
 }
