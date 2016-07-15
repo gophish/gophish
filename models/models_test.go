@@ -25,6 +25,20 @@ func (s *ModelsSuite) SetUpSuite(c *check.C) {
 	}
 }
 
+func (s *ModelsSuite) TearDownTest(c *check.C) {
+	// Clear database tables between each test. If new tables are
+	// used in this test suite they will need to be cleaned up here.
+	db.Delete(Group{})
+	db.Delete(Target{})
+	db.Delete(GroupTarget{})
+	db.Delete(SMTP{})
+	db.Delete(Page{})
+
+	// Reset users table to default state.
+	db.Not("id", 1).Delete(User{})
+	db.Model(User{}).Update("username", "admin")
+}
+
 func (s *ModelsSuite) TestGetUser(c *check.C) {
 	u, err := GetUser(1)
 	c.Assert(err, check.Equals, nil)
