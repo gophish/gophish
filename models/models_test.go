@@ -45,6 +45,15 @@ func (s *ModelsSuite) TestGetUser(c *check.C) {
 	c.Assert(u.Username, check.Equals, "admin")
 }
 
+func (s *ModelsSuite) TestPutUser(c *check.C) {
+	u, err := GetUser(1)
+	u.Username = "admin_changed"
+	err = PutUser(&u)
+	c.Assert(err, check.Equals, nil)
+	u, err = GetUser(1)
+	c.Assert(u.Username, check.Equals, "admin_changed")
+}
+
 func (s *ModelsSuite) TestGeneratedAPIKey(c *check.C) {
 	u, err := GetUser(1)
 	c.Assert(err, check.Equals, nil)
@@ -236,13 +245,4 @@ func (s *ModelsSuite) TestPostPage(c *check.C) {
 		_, ok = f.Find("input").Attr("name")
 		c.Assert(ok, check.Equals, false)
 	})
-}
-
-func (s *ModelsSuite) TestPutUser(c *check.C) {
-	u, err := GetUser(1)
-	u.Username = "admin_changed"
-	err = PutUser(&u)
-	c.Assert(err, check.Equals, nil)
-	u, err = GetUser(1)
-	c.Assert(u.Username, check.Equals, "admin_changed")
 }
