@@ -111,6 +111,12 @@ func (s *ModelsSuite) TestGetGroups(c *check.C) {
 	c.Assert(groups[1].Targets[0].Email, check.Equals, "test2@example.com")
 }
 
+func (s *ModelsSuite) TestGetGroupsNoGroups(c *check.C) {
+	groups, err := GetGroups(1)
+	c.Assert(err, check.Equals, nil)
+	c.Assert(len(groups), check.Equals, 0)
+}
+
 func (s *ModelsSuite) TestGetGroup(c *check.C) {
 	// Add group.
 	PostGroup(&Group{
@@ -127,6 +133,12 @@ func (s *ModelsSuite) TestGetGroup(c *check.C) {
 	c.Assert(group.Targets[0].Email, check.Equals, "test@example.com")
 }
 
+func (s *ModelsSuite) TestGetGroupNoGroups(c *check.C) {
+	group, err := GetGroup(1, 1)
+	c.Assert(err, check.Not(check.Equals), nil)
+	c.Assert(group.Name, check.Not(check.Equals), "Test Group")
+}
+
 func (s *ModelsSuite) TestGetGroupByName(c *check.C) {
 	// Add group.
 	PostGroup(&Group{
@@ -141,6 +153,12 @@ func (s *ModelsSuite) TestGetGroupByName(c *check.C) {
 	c.Assert(len(group.Targets), check.Equals, 1)
 	c.Assert(group.Name, check.Equals, "Test Group")
 	c.Assert(group.Targets[0].Email, check.Equals, "test@example.com")
+}
+
+func (s *ModelsSuite) TestGetGroupByNameNoGroups(c *check.C) {
+	group, err := GetGroupByName("Test Group", 1)
+	c.Assert(err, check.Not(check.Equals), nil)
+	c.Assert(group.Name, check.Not(check.Equals), "Test Group")
 }
 
 func (s *ModelsSuite) TestPutGroup(c *check.C) {
