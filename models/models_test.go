@@ -6,6 +6,7 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gophish/gophish/config"
+	"github.com/jinzhu/gorm"
 	"gopkg.in/check.v1"
 )
 
@@ -134,9 +135,8 @@ func (s *ModelsSuite) TestGetGroup(c *check.C) {
 }
 
 func (s *ModelsSuite) TestGetGroupNoGroups(c *check.C) {
-	group, err := GetGroup(1, 1)
-	c.Assert(err, check.Not(check.Equals), nil)
-	c.Assert(group.Name, check.Not(check.Equals), "Test Group")
+	_, err := GetGroup(1, 1)
+	c.Assert(err, check.Equals, gorm.ErrRecordNotFound)
 }
 
 func (s *ModelsSuite) TestGetGroupByName(c *check.C) {
@@ -156,9 +156,8 @@ func (s *ModelsSuite) TestGetGroupByName(c *check.C) {
 }
 
 func (s *ModelsSuite) TestGetGroupByNameNoGroups(c *check.C) {
-	group, err := GetGroupByName("Test Group", 1)
-	c.Assert(err, check.Not(check.Equals), nil)
-	c.Assert(group.Name, check.Not(check.Equals), "Test Group")
+	_, err := GetGroupByName("Test Group", 1)
+	c.Assert(err, check.Equals, gorm.ErrRecordNotFound)
 }
 
 func (s *ModelsSuite) TestPutGroup(c *check.C) {
