@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -208,7 +209,18 @@ func PhishHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	w.Write([]byte(p.HTML))
+	var htmlBuff bytes.Buffer
+	tmpl, err := template.New("html_template").Parse(p.HTML)
+	if err != nil {
+		Logger.Println(err)
+		http.NotFound(w, r)
+	}
+	err = tmpl.Execute(&htmlBuff, rs)
+	if err != nil {
+		Logger.Println(err)
+		http.NotFound(w, r)
+	}
+	w.Write(htmlBuff.Bytes())
 }
 
 // Use allows us to stack middleware to process the request
