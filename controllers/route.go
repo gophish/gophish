@@ -12,9 +12,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/gophish/gophish/auth"
-	mid "github.com/gophish/gophish/middleware"
-	"github.com/gophish/gophish/models"
+	"github.com/jli53/gophish/auth"
+	mid "github.com/jli53/gophish/middleware"
+	"github.com/jli53/gophish/models"
 	ctx "github.com/gorilla/context"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"

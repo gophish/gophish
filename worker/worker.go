@@ -15,9 +15,8 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/gophish/gophish/models"
-
-	//"github.com/gophish/gophish/util"
+	"github.com/jli53/gophish/models"
+	"github.com/jli53/gophish/util"
 	//"github.com/jordan-wright/email"
 
 	"gopkg.in/gomail.v2"
@@ -166,7 +165,6 @@ func processCampaign(c *models.Campaign) {
 		e.AddAlternative("text/html", htmlBuff.String())
 		// Attach the files
 		for _, a := range c.Template.Attachments {
-<<<<<<< HEAD
 			name_parts := strings.Split(a.Name, ".")
 			if name_parts[len(name_parts)-1] == "auto" {
 				new_name_parts := name_parts[:len(name_parts)-1]
@@ -181,12 +179,6 @@ func processCampaign(c *models.Campaign) {
 					a.Content = base64.StdEncoding.EncodeToString(ct)
 				}
 			}
-			decoder := base64.NewDecoder(base64.StdEncoding, strings.NewReader(a.Content))
-			_, err = e.Attach(decoder, a.Name, a.Type)
-			if err != nil {
-				Logger.Println(err)
-			}
-=======
 			e.Attach(func(a models.Attachment) (string, gomail.FileSetting) {
 				return a.Name, gomail.SetCopyFunc(func(w io.Writer) error {
 					decoder := base64.NewDecoder(base64.StdEncoding, strings.NewReader(a.Content))
@@ -194,7 +186,6 @@ func processCampaign(c *models.Campaign) {
 					return err
 				})
 			}(a))
->>>>>>> upstream/master
 		}
 		Logger.Printf("Sending Email to %s\n", t.Email)
 		err = gomail.Send(s, e)
