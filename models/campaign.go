@@ -2,18 +2,18 @@ package models
 
 import (
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/jinzhu/gorm"
 )
 
-//Campaign is a struct representing a created campaign
+// Campaign is a struct representing a created campaign
 type Campaign struct {
 	Id            int64     `json:"id"`
 	UserId        int64     `json:"-"`
 	Name          string    `json:"name" sql:"not null"`
 	CreatedDate   time.Time `json:"created_date"`
+	LaunchDate    time.Time `json:"launch_date"`
 	CompletedDate time.Time `json:"completed_date"`
 	TemplateId    int64     `json:"-"`
 	Template      Template  `json:"template"`
@@ -26,6 +26,15 @@ type Campaign struct {
 	SMTPId        int64     `json:"-"`
 	SMTP          SMTP      `json:"smtp"`
 	URL           string    `json:"url"`
+}
+
+// CampaignResults is a struct representing the results from a campaign
+type CampaignResults struct {
+	Id      int64    `json:"id"`
+	Name    string   `json:"name"`
+	Status  string   `json:"status"`
+	Results []Result `json:"results, omitempty"`
+	Events  []Event  `json:"timeline,omitempty"`
 }
 
 // ErrCampaignNameNotSpecified indicates there was no template given by the user
@@ -139,7 +148,7 @@ func (c *Campaign) getDetails() error {
 		c.Page = Page{Name: "[Deleted]"}
 		Logger.Printf("%s: page not found for campaign\n", err)
 	}
-	err = db.Table("SMTP").Where("id=?", c.SMTPId).Find(&c.SMTP).Error
+	err = db.Table("smtp").Where("id=?", c.SMTPId).Find(&c.SMTP).Error
 	if err != nil {
 		// Check if the SMTP was deleted
 		if err != gorm.ErrRecordNotFound {
@@ -167,7 +176,7 @@ func GetCampaigns(uid int64) ([]Campaign, error) {
 	cs := []Campaign{}
 	err := db.Model(&User{Id: uid}).Related(&cs).Error
 	if err != nil {
-		fmt.Println(err)
+		Logger.Println(err)
 	}
 	for i, _ := range cs {
 		err = cs[i].getDetails()
@@ -190,6 +199,44 @@ func GetCampaign(id int64, uid int64) (Campaign, error) {
 	return c, err
 }
 
+func GetCampaignResults(id int64, uid int64) (CampaignResults, error) {
+	cr := CampaignResults{}
+	err := db.Table("campaigns").Where("id=? and user_id=?", id, uid).Find(&cr).Error
+	if err != nil {
+		Logger.Printf("%s: campaign not found\n", err)
+		return cr, err
+	}
+	err = db.Table("results").Where("campaign_id=? and user_id=?", cr.Id, uid).Find(&cr.Results).Error
+	if err != nil {
+		Logger.Printf("%s: results not found for campaign\n", err)
+		return cr, err
+	}
+	err = db.Table("events").Where("campaign_id=?", cr.Id).Find(&cr.Events).Error
+	if err != nil {
+		Logger.Printf("%s: events not found for campaign\n", err)
+		return cr, err
+	}
+	return cr, err
+}
+
+// GetQueuedCampaigns returns the campaigns that are queued up for this given minute
+func GetQueuedCampaigns(t time.Time) ([]Campaign, error) {
+	cs := []Campaign{}
+	err := db.Where("launch_date <= ?", t).
+		Where("status = ?", CAMPAIGN_QUEUED).Find(&cs).Error
+	if err != nil {
+		Logger.Println(err)
+	}
+	Logger.Printf("Found %d Campaigns to run\n", len(cs))
+	for i, _ := range cs {
+		err = cs[i].getDetails()
+		if err != nil {
+			Logger.Println(err)
+		}
+	}
+	return cs, err
+}
+
 // PostCampaign inserts a campaign and all associated records into the database.
 func PostCampaign(c *Campaign, uid int64) error {
 	if err := c.Validate(); err != nil {
@@ -200,6 +247,9 @@ func PostCampaign(c *Campaign, uid int64) error {
 	c.CreatedDate = time.Now()
 	c.CompletedDate = time.Time{}
 	c.Status = CAMPAIGN_QUEUED
+	if c.LaunchDate.IsZero() {
+		c.LaunchDate = time.Now()
+	}
 	// Check to make sure all the groups already exist
 	for i, g := range c.Groups {
 		c.Groups[i], err = GetGroupByName(g.Name, uid)
@@ -288,8 +338,29 @@ func DeleteCampaign(id int64) error {
 	// Delete the campaign
 	err = db.Delete(&Campaign{Id: id}).Error
 	if err != nil {
-		Logger.Panicln(err)
+		Logger.Println(err)
+	}
+	return err
+}
+
+// CompleteCampaign effectively "ends" a campaign.
+// Any future emails clicked will return a simple "404" page.
+func CompleteCampaign(id int64, uid int64) error {
+	Logger.Printf("Marking campaign %d as complete\n", id)
+	c, err := GetCampaign(id, uid)
+	if err != nil {
 		return err
+	}
+	// Don't overwrite original completed time
+	if c.Status == CAMPAIGN_COMPLETE {
+		return nil
+	}
+	// Mark the campaign as complete
+	c.CompletedDate = time.Now()
+	c.Status = CAMPAIGN_COMPLETE
+	err = db.Where("id=? and user_id=?", id, uid).Save(&c).Error
+	if err != nil {
+		Logger.Println(err)
 	}
 	return err
 }

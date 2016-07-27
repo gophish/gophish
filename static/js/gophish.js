@@ -26,12 +26,12 @@ function query(endpoint, method, data, async) {
     })
 }
 
-function escapeHtml(text){
-	return $("<div/>").text(text).html()
+function escapeHtml(text) {
+    return $("<div/>").text(text).html()
 }
 
-function unescapeHtml(html){
-	return $("<div/>").html(html).text()
+function unescapeHtml(html) {
+    return $("<div/>").html(html).text()
 }
 
 /*
@@ -58,6 +58,14 @@ var api = {
         // delete() - Deletes a campaign at DELETE /campaigns/:id
         delete: function(id) {
             return query("/campaigns/" + id, "DELETE", {}, false)
+        },
+        // results() - Queries the API for GET /campaigns/:id/results
+        results: function(id) {
+            return query("/campaigns/" + id + "/results", "GET", {}, true)
+        },
+        // complete() - Completes a campaign at POST /campaigns/:id/complete
+        complete: function(id) {
+            return query("/campaigns/" + id + "/complete", "GET", {}, true)
         }
     },
     // groups contains the endpoints for /groups
@@ -173,8 +181,8 @@ var api = {
         return query("/import/site", "POST", req, false)
     },
     // send_test_email sends an email to the specified email address
-    send_test_email: function(req){
-    	return query("/util/send_test_email", "POST", req, true)
+    send_test_email: function(req) {
+        return query("/util/send_test_email", "POST", req, true)
     }
 }
 

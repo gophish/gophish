@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -46,6 +47,8 @@ func CreateAdminRouter() http.Handler {
 	api.HandleFunc("/reset", Use(API_Reset, mid.RequireLogin))
 	api.HandleFunc("/campaigns/", Use(API_Campaigns, mid.RequireAPIKey))
 	api.HandleFunc("/campaigns/{id:[0-9]+}", Use(API_Campaigns_Id, mid.RequireAPIKey))
+	api.HandleFunc("/campaigns/{id:[0-9]+}/results", Use(API_Campaigns_Id_Results, mid.RequireAPIKey))
+	api.HandleFunc("/campaigns/{id:[0-9]+}/complete", Use(API_Campaigns_Id_Complete, mid.RequireAPIKey))
 	api.HandleFunc("/groups/", Use(API_Groups, mid.RequireAPIKey))
 	api.HandleFunc("/groups/{id:[0-9]+}", Use(API_Groups_Id, mid.RequireAPIKey))
 	api.HandleFunc("/templates/", Use(API_Templates, mid.RequireAPIKey))
@@ -109,6 +112,11 @@ func PhishTracker(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		Logger.Println(err)
 	}
+	// Don't process events for completed campaigns
+	if c.Status == models.CAMPAIGN_COMPLETE {
+		http.NotFound(w, r)
+		return
+	}
 	c.AddEvent(models.Event{Email: rs.Email, Message: models.EVENT_OPENED})
 	// Don't update the status if the user already clicked the link
 	// or submitted data to the campaign
@@ -157,11 +165,16 @@ func PhishHandler(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	rs.UpdateStatus(models.STATUS_SUCCESS)
 	c, err := models.GetCampaign(rs.CampaignId, rs.UserId)
 	if err != nil {
 		Logger.Println(err)
 	}
+	// Don't process events for completed campaigns
+	if c.Status == models.CAMPAIGN_COMPLETE {
+		http.NotFound(w, r)
+		return
+	}
+	rs.UpdateStatus(models.STATUS_SUCCESS)
 	p, err := models.GetPage(c.PageId, c.UserId)
 	if err != nil {
 		Logger.Println(err)
@@ -204,7 +217,18 @@ func PhishHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	w.Write([]byte(p.HTML))
+	var htmlBuff bytes.Buffer
+	tmpl, err := template.New("html_template").Parse(p.HTML)
+	if err != nil {
+		Logger.Println(err)
+		http.NotFound(w, r)
+	}
+	err = tmpl.Execute(&htmlBuff, rs)
+	if err != nil {
+		Logger.Println(err)
+		http.NotFound(w, r)
+	}
+	w.Write(htmlBuff.Bytes())
 }
 
 // Use allows us to stack middleware to process the request

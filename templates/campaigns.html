@@ -49,10 +49,10 @@
         <table id="campaignTable" class="table" style="display:none;">
             <thead>
                 <tr>
-                    <th>Name</th>
-                    <th>Created Date</th>
-                    <th>Status</th>
-                    <th class="col-md-2 no-sort"></th>
+                    <th class="col-md-3">Name</th>
+                    <th class="col-md-4">Created Date</th>
+                    <th class="col-md-2">Status</th>
+                    <th class="col-md-3 no-sort"></th>
                 </tr>
             </thead>
             <tbody>
@@ -81,6 +81,8 @@
 	      <br>
 	      <label class="control-label" for="url">URL: <i class="fa fa-question-circle" data-toggle="tooltip" data-placement="right" title="Location of gophish listener (must be reachable by targets!)"></i></label>
               <input type="text" class="form-control" placeholder="http://192.168.1.1" id="url"/>
+	      <label class="control-label" for="url">Schedule: </label>
+              <input type="text" class="form-control" id="launch_date"/>
 	      <label class="control-label" for="profile">Sending Profile:</label>
 	      <div class="input-group">
 		<input type="text" class="typeahead form-control" placeholder="Sending Profile" id="profile"/>
@@ -153,7 +155,9 @@
 </div>
 {{end}}
 {{define "scripts"}}
+<script src="/js/bootstrap-datetime.js"></script>
 <script src="/js/hogan.js"></script>
 <script src="/js/typeahead.min.js"></script>
+<script src="/js/sweetalert2.min.js"></script>
 <script src="/js/app/campaigns.js"></script>
 {{end}}

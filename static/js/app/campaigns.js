@@ -9,46 +9,67 @@ var labels = {
 }
 
 var campaigns = []
+var campaign = {}
 
 // Launch attempts to POST to /campaigns/
 function launch() {
-    if (!confirm("This will launch the campaign. Are you sure?")) {
-        return false;
-    }
-    groups = []
-    $.each($("#groupTable").DataTable().rows().data(), function(i, group) {
-        groups.push({
-            name: group[0]
+    swal({
+        title: "Are you sure?",
+        text: "This will schedule the campaign to be launched.",
+        type: "question",
+        animation: false,
+        showCancelButton: true,
+        confirmButtonText: "Launch",
+        confirmButtonColor: "#428bca",
+        reverseButtons: true,
+        allowOutsideClick: false,
+        showLoaderOnConfirm: true,
+        preConfirm: function() {
+            return new Promise(function(resolve, reject) {
+                groups = []
+                $.each($("#groupTable").DataTable().rows().data(), function(i, group) {
+                    groups.push({
+                        name: group[0]
+                    })
+                })
+                campaign = {
+                        name: $("#name").val(),
+                        template: {
+                            name: $("#template").val()
+                        },
+                        url: $("#url").val(),
+                        page: {
+                            name: $("#page").val()
+                        },
+                        smtp: {
+                            name: $("#profile").val()
+                        },
+                        launch_date: moment($("#launch_date").val(), "MM/DD/YYYY HH:mm").format(),
+                        groups: groups
+                    }
+                    // Submit the campaign
+                api.campaigns.post(campaign)
+                    .success(function(data) {
+                        resolve()
+                        campaign = data
+                    })
+                    .error(function(data) {
+                        $("#modal\\.flashes").empty().append("<div style=\"text-align:center\" class=\"alert alert-danger\">\
+            <i class=\"fa fa-exclamation-circle\"></i> " + data.responseJSON.message + "</div>")
+                        swal.close()
+                    })
+            })
+        }
+    }).then(function() {
+        swal(
+            'Campaign Scheduled!',
+            'This campaign has been scheduled for launch!',
+            'success'
+        );
+        $('button:contains("OK")').on('click', function() {
+            window.location = "/campaigns/" + campaign.id.toString()
         })
     })
-    var campaign = {
-        name: $("#name").val(),
-        template: {
-            name: $("#template").val()
-        },
-        url: $("#url").val(),
-        page: {
-            name: $("#page").val()
-        },
-        smtp: {
-	    name: $("#profile").val()
-        },
-        groups: groups
-    }
-    launchHtml = $("launchButton").html()
-    $("launchButton").html('<i class="fa fa-spinner fa-spin"></i> Launching Campaign')
-        // Submit the campaign
-    api.campaigns.post(campaign)
-        .success(function(data) {
-            successFlash("Campaign successfully launched!")
-            $("launchButton").html('<i class="fa fa-spinner fa-spin"></i> Redirecting')
-            window.location = "/campaigns/" + data.id.toString()
-        })
-        .error(function(data) {
-            $("#modal\\.flashes").empty().append("<div style=\"text-align:center\" class=\"alert alert-danger\">\
-            <i class=\"fa fa-exclamation-circle\"></i> " + data.responseJSON.message + "</div>")
-            $("#launchButton").html(launchHtml)
-        })
 }
 
 // Attempts to send a test email by POSTing to /campaigns/
@@ -66,7 +87,7 @@ function sendTestEmail() {
             name: $("#page").val()
         },
         smtp: {
-	    name: $("#profile").val()
+            name: $("#profile").val()
         }
     }
     btnHtml = $("#sendTestModalSubmit").html()
@@ -98,13 +119,37 @@ function dismiss() {
 }
 
 function deleteCampaign(idx) {
-    if (confirm("Delete " + campaigns[idx].name + "?")) {
-        api.campaignId.delete(campaigns[idx].id)
-            .success(function(data) {
-                successFlash(data.message)
-                location.reload()
+    swal({
+        title: "Are you sure?",
+        text: "This will delete the campaign. This can't be undone!",
+        type: "warning",
+        animation: false,
+        showCancelButton: true,
+        confirmButtonText: "Delete " + campaigns[idx].name,
+        confirmButtonColor: "#428bca",
+        reverseButtons: true,
+        allowOutsideClick: false,
+        preConfirm: function() {
+            return new Promise(function(resolve, reject) {
+                api.campaignId.delete(campaigns[idx].id)
+                    .success(function(msg) {
+                        resolve()
+                    })
+                    .error(function(data) {
+                        reject(data.responseJSON.message)
+                    })
             })
-    }
+        }
+    }).then(function() {
+        swal(
+            'Campaign Deleted!',
+            'This campaign has been deleted!',
+            'success'
+        );
+        $('button:contains("OK")').on('click', function() {
+            location.reload()
+        })
+    })
 }
 
 function edit(campaign) {
@@ -141,15 +186,15 @@ function edit(campaign) {
                     page_bh.add(pages)
                 }
             })
-	api.SMTP.get()
-	    .success(function(profiles) {
-		if (profiles.length == 0){
-		   modalError("No profiles found!")
-		   return false
-		} else {
-		   profile_bh.add(profiles)
-		}
-	    })
+        api.SMTP.get()
+            .success(function(profiles) {
+                if (profiles.length == 0) {
+                    modalError("No profiles found!")
+                    return false
+                } else {
+                    profile_bh.add(profiles)
+                }
+            })
     }
 }
 
@@ -201,22 +246,18 @@ function copy(idx) {
     $("#page").val(campaign.page.name)
     $("#profile").val(campaign.smtp.name)
     $("#url").val(campaign.url)
-    $.each(campaign.groups, function(i, group){
-    	groupTable.row.add([
-                group.name,
-                '<span style="cursor:pointer;"><i class="fa fa-trash-o"></i></span>'
-            ]).draw()
-            $("#groupTable").on("click", "span>i.fa-trash-o", function() {
-                groupTable.row($(this).parents('tr'))
-                    .remove()
-                    .draw();
-            })
-    })
 }
 
 $(document).ready(function() {
-    // Setup multiple modals
-    // Code based on http://miles-by-motorcycle.com/static/bootstrap-modal/index.html
+    $("#launch_date").datetimepicker({
+            "widgetPositioning": {
+                "vertical": "bottom"
+            },
+            "showTodayButton": true,
+            "defaultDate": moment()
+        })
+        // Setup multiple modals
+        // Code based on http://miles-by-motorcycle.com/static/bootstrap-modal/index.html
     $('.modal').on('hidden.bs.modal', function(event) {
         $(this).removeClass('fv-modal-stack');
         $('body').data('fv_open_modals', $('body').data('fv_open_modals') - 1);
@@ -253,7 +294,7 @@ $(document).ready(function() {
             }, this));
     };
     $('#modal').on('hidden.bs.modal', function(event) {
-	dismiss()
+        dismiss()
     });
     api.campaigns.get()
         .success(function(cs) {
@@ -294,18 +335,24 @@ $(document).ready(function() {
             errorFlash("Error fetching campaigns")
         })
     $("#groupForm").submit(function() {
-            groupTable.row.add([
-                $("#groupSelect").val(),
-                '<span style="cursor:pointer;"><i class="fa fa-trash-o"></i></span>'
-            ]).draw()
-            $("#groupTable").on("click", "span>i.fa-trash-o", function() {
-                groupTable.row($(this).parents('tr'))
-                    .remove()
-                    .draw();
-            })
-            return false;
-        })
-        // Create the group typeahead objects
+        // Add row to group table.
+        var newRow = groupTable.row.add([
+            $("#groupSelect").val(),
+            '<span style="cursor:pointer;"><i class="fa fa-trash-o"></i></span>'
+        ]).draw().node();
+
+        // Set event handler for removing row from group table.
+        $(newRow).on("click", "span>i.fa-trash-o", function() {
+            groupTable.row($(this).parents('tr'))
+                .remove()
+                .draw();
+        });
+
+        // Clear user input.
+        $("#groupSelect").typeahead('val', "");
+        return false;
+    });
+    // Create the group typeahead objects
     groupTable = $("#groupTable").DataTable({
         columnDefs: [{
             orderable: false,
@@ -337,7 +384,9 @@ $(document).ready(function() {
             }
         })
         .bind('typeahead:select', function(ev, group) {
-            $("#groupSelect").typeahead('val', group.name)
+            // Add selected group.
+            $("#groupSelect").typeahead('val', group.name);
+            $("#groupForm").submit();
         })
         .bind('typeahead:autocomplete', function(ev, group) {
             $("#groupSelect").typeahead('val', group.name)

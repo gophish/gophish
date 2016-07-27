@@ -3,6 +3,8 @@ package models
 import (
 	"errors"
 	"net/mail"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -28,6 +30,9 @@ var ErrFromAddressNotSpecified = errors.New("No From Address specified")
 // in the SMTP configuration
 var ErrHostNotSpecified = errors.New("No SMTP Host specified")
 
+// ErrInvalidHost indicates that the SMTP server string is invalid
+var ErrInvalidHost = errors.New("Invalid SMTP server address")
+
 // TableName specifies the database tablename for Gorm to use
 func (s SMTP) TableName() string {
 	return "smtp"
@@ -42,6 +47,20 @@ func (s *SMTP) Validate() error {
 		return ErrHostNotSpecified
 	}
 	_, err := mail.ParseAddress(s.FromAddress)
+	if err != nil {
+		return err
+	}
+	// Make sure addr is in host:port format
+	hp := strings.Split(s.Host, ":")
+	if len(hp) > 2 {
+		return ErrInvalidHost
+	} else if len(hp) < 2 {
+		hp = append(hp, "25")
+	}
+	_, err = strconv.Atoi(hp[1])
+	if err != nil {
+		return ErrInvalidHost
+	}
 	return err
 }
 

@@ -123,14 +123,14 @@ func PutGroup(g *Group) error {
 	if err := g.Validate(); err != nil {
 		return err
 	}
+	// Fetch group's existing targets from database.
 	ts := []Target{}
 	ts, err = GetTargets(g.Id)
 	if err != nil {
 		Logger.Printf("Error getting targets from group ID: %d", g.Id)
 		return err
 	}
-	// Enumerate through, removing any entries that are no longer in the group
-	// For every target in the database
+	// Check existing targets, removing any that are no longer in the group.
 	tExists := false
 	for _, t := range ts {
 		tExists = false
@@ -149,24 +149,25 @@ func PutGroup(g *Group) error {
 			}
 		}
 	}
-	// Insert any entries that are not in the database
-	// For every target in the new group
+	// Add any targets that are not in the database yet.
 	for _, nt := range g.Targets {
 		// Check and see if the target already exists in the db
 		tExists = false
 		for _, t := range ts {
 			if t.Email == nt.Email {
 				tExists = true
+				nt.Id = t.Id
 				break
 			}
 		}
-		// If the target is not in the db, we add it
+		// Add target if not in database, otherwise update target information.
 		if !tExists {
 			insertTargetIntoGroup(nt, g.Id)
+		} else {
+			UpdateTarget(nt)
 		}
 	}
 	err = db.Save(g).Error
-	/*_, err = Conn.Update(g)*/
 	if err != nil {
 		Logger.Println(err)
 		return err
@@ -220,6 +221,20 @@ func insertTargetIntoGroup(t Target, gid int64) error {
 		return err
 	}
 	return nil
+}
+
+// UpdateTarget updates the given target information in the database.
+func UpdateTarget(target Target) error {
+	targetInfo := map[string]interface{}{
+		"first_name": target.FirstName,
+		"last_name":  target.LastName,
+		"position":   target.Position,
+	}
+	err := db.Model(&target).Where("id = ?", target.Id).Updates(targetInfo).Error
+	if err != nil {
+		Logger.Printf("Error updating target information for %s\n", target.Email)
+	}
+	return err
 }
 
 // GetTargets performs a many-to-many select to get all the Targets for a Group

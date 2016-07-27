@@ -3,34 +3,34 @@ var profiles = []
 // Attempts to send a test email by POSTing to /campaigns/
 function sendTestEmail() {
     var test_email_request = {
-	template: {},
-	first_name: $("input[name=to_first_name]").val(),
-	last_name: $("input[name=to_last_name]").val(),
-	email: $("input[name=to_email]").val(),
-	position: $("input[name=to_position]").val(),
-	url: '',
-	smtp: {
-	    from_address: $("#from").val(),
-	    host: $("#host").val(),
-	    username: $("#username").val(),
-	    password: $("#password").val(),
-	    ignore_cert_errors: $("#ignore_cert_errors").prop("checked")
-	}
+        template: {},
+        first_name: $("input[name=to_first_name]").val(),
+        last_name: $("input[name=to_last_name]").val(),
+        email: $("input[name=to_email]").val(),
+        position: $("input[name=to_position]").val(),
+        url: '',
+        smtp: {
+            from_address: $("#from").val(),
+            host: $("#host").val(),
+            username: $("#username").val(),
+            password: $("#password").val(),
+            ignore_cert_errors: $("#ignore_cert_errors").prop("checked")
+        }
     }
     btnHtml = $("#sendTestModalSubmit").html()
     $("#sendTestModalSubmit").html('<i class="fa fa-spinner fa-spin"></i> Sending')
-	// Send the test email
+        // Send the test email
     api.send_test_email(test_email_request)
-	.success(function(data) {
-	    $("#sendTestEmailModal\\.flashes").empty().append("<div style=\"text-align:center\" class=\"alert alert-success\">\
+        .success(function(data) {
+            $("#sendTestEmailModal\\.flashes").empty().append("<div style=\"text-align:center\" class=\"alert alert-success\">\
 	    <i class=\"fa fa-check-circle\"></i> Email Sent!</div>")
-	    $("#sendTestModalSubmit").html(btnHtml)
-	})
-	.error(function(data) {
-	    $("#sendTestEmailModal\\.flashes").empty().append("<div style=\"text-align:center\" class=\"alert alert-danger\">\
+            $("#sendTestModalSubmit").html(btnHtml)
+        })
+        .error(function(data) {
+            $("#sendTestEmailModal\\.flashes").empty().append("<div style=\"text-align:center\" class=\"alert alert-danger\">\
 	    <i class=\"fa fa-exclamation-circle\"></i> " + data.responseJSON.message + "</div>")
-	    $("#sendTestModalSubmit").html(btnHtml)
-	})
+            $("#sendTestModalSubmit").html(btnHtml)
+        })
 }
 
 // Save attempts to POST to /smtp/
@@ -50,6 +50,9 @@ function save(idx) {
                 successFlash("Profile edited successfully!")
                 load()
                 dismiss()
+            })
+            .error(function(data) {
+                modalError(data.responseJSON.message)
             })
     } else {
         // Submit the profile
@@ -95,12 +98,12 @@ function edit(idx) {
     if (idx != -1) {
         profile = profiles[idx]
         $("#name").val(profile.name)
-	$("#interface_type").val(profile.interface_type)
-	$("#from").val(profile.from_address)
-	$("#host").val(profile.host)
-	$("#username").val(profile.username)
-	$("#password").val(profile.password)
-	$("#ignore_cert_errors").prop("checked", profile.ignore_cert_errors)
+        $("#interface_type").val(profile.interface_type)
+        $("#from").val(profile.from_address)
+        $("#host").val(profile.host)
+        $("#username").val(profile.username)
+        $("#password").val(profile.password)
+        $("#ignore_cert_errors").prop("checked", profile.ignore_cert_errors)
     }
 }
 
@@ -140,7 +143,7 @@ function load() {
                 $.each(profiles, function(i, profile) {
                     profileTable.row.add([
                         profile.name,
-			profile.interface_type,
+                        profile.interface_type,
                         moment(profile.modified_date).format('MMMM Do YYYY, h:mm:ss a'),
                         "<div class='pull-right'><span data-toggle='modal' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Edit Profile' onclick='edit(" + i + ")'>\
                     <i class='fa fa-pencil'></i>\
@@ -203,7 +206,7 @@ $(document).ready(function() {
             }, this));
     };
     $('#modal').on('hidden.bs.modal', function(event) {
-	dismiss()
+        dismiss()
     });
     load()
 })

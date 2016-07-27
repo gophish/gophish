@@ -83,7 +83,6 @@ func API_Campaigns(w http.ResponseWriter, r *http.Request) {
 			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
 			return
 		}
-		Worker.Queue <- &c
 		JSONResponse(w, c, http.StatusCreated)
 	}
 }
@@ -112,8 +111,41 @@ func API_Campaigns_Id(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// API_Groups returns details about the requested group. If the campaign is not
-// valid, API_Groups returns null.
+// API_Campaigns_Id_Results returns just the results for a given campaign to
+// significantly reduce the information returned.
+func API_Campaigns_Id_Results(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, _ := strconv.ParseInt(vars["id"], 0, 64)
+	cr, err := models.GetCampaignResults(id, ctx.Get(r, "user_id").(int64))
+	if err != nil {
+		Logger.Println(err)
+		JSONResponse(w, models.Response{Success: false, Message: "Campaign not found"}, http.StatusNotFound)
+		return
+	}
+	if r.Method == "GET" {
+		JSONResponse(w, cr, http.StatusOK)
+		return
+	}
+}
+
+// API_Campaigns_Id_Complete effectively "ends" a campaign.
+// Future phishing emails clicked will return a simple "404" page.
+func API_Campaigns_Id_Complete(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, _ := strconv.ParseInt(vars["id"], 0, 64)
+	switch {
+	case r.Method == "GET":
+		err := models.CompleteCampaign(id, ctx.Get(r, "user_id").(int64))
+		if err != nil {
+			JSONResponse(w, models.Response{Success: false, Message: "Error completing campaign"}, http.StatusInternalServerError)
+			return
+		}
+		JSONResponse(w, models.Response{Success: true, Message: "Campaign completed successfully!"}, http.StatusOK)
+	}
+}
+
+// API_Groups returns a list of groups if requested via GET.
+// If requested via POST, API_Groups creates a new group and returns a reference to it.
 func API_Groups(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "GET":
@@ -149,8 +181,8 @@ func API_Groups(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// API_Groups_Id returns details about the requested campaign. If the group is not
-// valid, API_Groups_Id returns null.
+// API_Groups_Id returns details about the requested group.
+// If the group is not valid, API_Groups_Id returns null.
 func API_Groups_Id(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.ParseInt(vars["id"], 0, 64)
@@ -416,7 +448,7 @@ func API_SMTP_Id(w http.ResponseWriter, r *http.Request) {
 		}
 		err = s.Validate()
 		if err != nil {
-			JSONResponse(w, models.Response{Success: false, Message: "Invalid attributes given"}, http.StatusBadRequest)
+			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
 			return
 		}
 		s.ModifiedDate = time.Now()

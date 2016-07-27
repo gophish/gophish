@@ -1,4 +1,5 @@
 var map = null
+var doPoll = true;
 
 // statuses is a helper map to point result statuses to ui classes
 var statuses = {
@@ -96,16 +97,72 @@ function dismiss() {
 
 // Deletes a campaign after prompting the user
 function deleteCampaign() {
-    if (confirm("Are you sure you want to delete: " + campaign.name + "?")) {
-        api.campaignId.delete(campaign.id)
-            .success(function(msg) {
-                location.href = '/campaigns'
+    swal({
+        title: "Are you sure?",
+        text: "This will delete the campaign. This can't be undone!",
+        type: "warning",
+        animation: false,
+        showCancelButton: true,
+        confirmButtonText: "Delete Campaign",
+        confirmButtonColor: "#428bca",
+        reverseButtons: true,
+        allowOutsideClick: false,
+        preConfirm: function() {
+            return new Promise(function(resolve, reject) {
+                api.campaignId.delete(campaign.id)
+                    .success(function(msg) {
+                        resolve()
+                    })
+                    .error(function(data) {
+                        reject(data.responseJSON.message)
+                    })
             })
-            .error(function(e) {
-                $("#modal\\.flashes").empty().append("<div style=\"text-align:center\" class=\"alert alert-danger\">\
-                <i class=\"fa fa-exclamation-circle\"></i> " + data.responseJSON.message + "</div>")
+        }
+    }).then(function() {
+        swal(
+            'Campaign Deleted!',
+            'This campaign has been deleted!',
+            'success'
+        );
+        $('button:contains("OK")').on('click', function() {
+            location.href = '/campaigns'
+        })
+    })
+}
+
+// Completes a campaign after prompting the user
+function completeCampaign() {
+    swal({
+        title: "Are you sure?",
+        text: "Gophish will stop processing events for this campaign",
+        type: "warning",
+        animation: false,
+        showCancelButton: true,
+        confirmButtonText: "Complete Campaign",
+        confirmButtonColor: "#428bca",
+        reverseButtons: true,
+        allowOutsideClick: false,
+        preConfirm: function() {
+            return new Promise(function(resolve, reject) {
+                api.campaignId.complete(campaign.id)
+                    .success(function(msg) {
+                        resolve()
+                    })
+                    .error(function(data) {
+                        reject(data.responseJSON.message)
+                    })
             })
-    }
+        }
+    }).then(function() {
+        swal(
+            'Campaign Completed!',
+            'This campaign has been completed!',
+            'success'
+        );
+        $('#complete_button')[0].disabled = true;
+        $('#complete_button').text('Completed!')
+        doPoll = false;
+    })
 }
 
 // Exports campaign results as a CSV file
@@ -205,7 +262,7 @@ function renderTimeline(data) {
  * * Datatables
  */
 function poll() {
-    api.campaignId.get(campaign.id)
+    api.campaignId.results(campaign.id)
         .success(function(c) {
             campaign = c
                 /* Update the timeline */
@@ -303,7 +360,7 @@ function poll() {
 
 function load() {
     campaign.id = window.location.pathname.split('/').slice(-1)[0]
-    api.campaignId.get(campaign.id)
+    api.campaignId.results(campaign.id)
         .success(function(c) {
             campaign = c
             if (campaign) {
@@ -312,7 +369,12 @@ function load() {
                 $("#campaignResults").show()
                     // Set the title
                 $("#page-title").text("Results for " + c.name)
-                    // Setup tooltips
+                if (c.status == "Completed") {
+                    $('#complete_button')[0].disabled = true;
+                    $('#complete_button').text('Completed!');
+                    doPoll = false;
+                }
+                // Setup tooltips
                 $('[data-toggle="tooltip"]').tooltip()
                     // Setup viewing the details of a result
                 $("#resultsTable").on("click", ".timeline-event-details", function() {
@@ -568,11 +630,13 @@ function load() {
             errorFlash(" Campaign not found!")
         })
 }
-
 $(document).ready(function() {
     load();
     // Start the polling loop
     function refresh() {
+        if (!doPoll) {
+            return;
+        }
         $("#refresh_message").show()
         poll()
         $("#refresh_message").hide()
