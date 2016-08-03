@@ -88,6 +88,7 @@ func Setup() error {
 	db, err = gorm.Open("sqlite3", config.Conf.DBPath)
 	db.LogMode(false)
 	db.SetLogger(Logger)
+	db.DB().SetMaxOpenConns(1)
 	if err != nil {
 		Logger.Println(err)
 		return err
