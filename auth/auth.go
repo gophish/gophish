@@ -20,6 +20,7 @@ import (
 func init() {
 	gob.Register(&models.User{})
 	gob.Register(&models.Flash{})
+	Store.Options.HttpOnly = true
 }
 
 // Store contains the session information for the request
