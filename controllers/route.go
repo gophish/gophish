@@ -13,6 +13,7 @@ import (
 	"strings"
 
 	"github.com/gophish/gophish/auth"
+	"github.com/gophish/gophish/config"
 	mid "github.com/gophish/gophish/middleware"
 	"github.com/gophish/gophish/models"
 	ctx "github.com/gorilla/context"
@@ -371,7 +372,8 @@ func Settings(w http.ResponseWriter, r *http.Request) {
 			Title   string
 			Flashes []interface{}
 			Token   string
-		}{Title: "Settings", User: ctx.Get(r, "user").(models.User), Token: nosurf.Token(r)}
+			Version string
+		}{Title: "Settings", Version: config.Version, User: ctx.Get(r, "user").(models.User), Token: nosurf.Token(r)}
 		getTemplate(w, "settings").ExecuteTemplate(w, "base", params)
 	case r.Method == "POST":
 		err := auth.ChangePassword(r)
