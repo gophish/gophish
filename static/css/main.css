@@ -485,6 +485,9 @@ td.details-control{
 	margin-top:5px;
 	cursor:pointer;
 }
+.timeline-replay-button {
+    margin-top:10px;
+}
 .timeline-event-details>.table-responsive{
 	display:none;
 }
