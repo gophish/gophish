@@ -179,27 +179,44 @@ func PhishHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		Logger.Println(err)
 	}
+	d := struct {
+		Payload url.Values        `json:"payload"`
+		Browser map[string]string `json:"browser"`
+	}{
+		Payload: r.Form,
+		Browser: make(map[string]string),
+	}
+	ip, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err != nil {
+		Logger.Println(err)
+		return
+	}
+	// Respect X-Forwarded headers
+	if fips := r.Header.Get("X-Forwarded-For"); fips != "" {
+		ip = strings.Split(fips, ", ")[0]
+	}
+	// Handle post processing such as GeoIP
+	err = rs.UpdateGeo(ip)
+	if err != nil {
+		Logger.Println(err)
+	}
+	d.Browser["address"] = ip
+	d.Browser["user-agent"] = r.Header.Get("User-Agent")
+	rj, err := json.Marshal(d)
+	if err != nil {
+		Logger.Println(err)
+		http.NotFound(w, r)
+		return
+	}
 	switch {
 	case r.Method == "GET":
-		err = c.AddEvent(models.Event{Email: rs.Email, Message: models.EVENT_CLICKED})
+		err = c.AddEvent(models.Event{Email: rs.Email, Message: models.EVENT_CLICKED, Details: string(rj)})
 		if err != nil {
 			Logger.Println(err)
 		}
 	case r.Method == "POST":
 		// If data was POST'ed, let's record it
 		// Store the data in an event
-		d := struct {
-			Payload url.Values        `json:"payload"`
-			Browser map[string]string `json:"browser"`
-		}{
-			Payload: r.Form,
-		}
-		rj, err := json.Marshal(d)
-		if err != nil {
-			Logger.Println(err)
-			http.NotFound(w, r)
-			return
-		}
 		c.AddEvent(models.Event{Email: rs.Email, Message: models.EVENT_DATA_SUBMIT, Details: string(rj)})
 		if err != nil {
 			Logger.Println(err)
