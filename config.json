@@ -16,7 +16,7 @@
 		"user" : "username",
 		"pass" : "password"
 	},
-	"db_name" : "mysql",
-	"db_path" : "root:@(:3307)/gophish?charset=utf8&parseTime=True&loc=Local",
-	"migrations_path" : "db/migrations/"
+	"db_name" : "sqlite3",
+	"db_path" : "gophish.db",
+	"migrations_prefix" : "db/db_"
 }

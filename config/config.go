@@ -36,7 +36,7 @@ type Config struct {
 	SMTPConf       SMTPServer  `json:"smtp"`
 	DBName         string      `json:"db_name"`
 	DBPath         string      `json:"db_path"`
-	MigrationsPath string      `json:"migrations_path"`
+	MigrationsPath string      `json:"migrations_prefix"`
 }
 
 // Conf contains the initialized configuration struct
@@ -49,4 +49,6 @@ func init() {
 		fmt.Printf("File error: %v\n", err)
 	}
 	json.Unmarshal(config_file, &Conf)
+	// Choosing the migrations directory based on the database used.
+	Conf.MigrationsPath = Conf.MigrationsPath + Conf.DBName
 }
