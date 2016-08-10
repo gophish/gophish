@@ -25,8 +25,9 @@ type ControllersSuite struct {
 var as *httptest.Server = httptest.NewUnstartedServer(handlers.CombinedLoggingHandler(os.Stdout, CreateAdminRouter()))
 
 func (s *ControllersSuite) SetupSuite() {
+	config.Conf.DBName = "sqlite3"
 	config.Conf.DBPath = ":memory:"
-	config.Conf.MigrationsPath = "../db/migrations/"
+	config.Conf.MigrationsPath = "../db/db_sqlite3/migrations/"
 	err := models.Setup()
 	if err != nil {
 		s.T().Fatalf("Failed creating database: %v", err)
