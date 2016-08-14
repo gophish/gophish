@@ -199,6 +199,59 @@ function exportAsCSV(scope) {
     $("#exportButton").html(exportHTML)
 }
 
+function replay(event_idx) {
+    request = campaign.timeline[event_idx]
+    details = JSON.parse(request.details)
+    url = null
+    form = $('<form>').attr({
+            method: 'POST',
+            target: '_blank',
+        })
+        /* Create a form object and submit it */
+    $.each(Object.keys(details.payload), function(i, param) {
+            if (param == "rid") {
+                return true;
+            }
+            if (param == "__original_url") {
+                url = details.payload[param];
+                return true;
+            }
+            $('<input>').attr({
+                name: param,
+            }).val(details.payload[param]).appendTo(form);
+        })
+        /* Ensure we know where to send the user */
+        // Prompt for the URL
+    swal({
+        title: 'Where do you want the credentials submitted to?',
+        input: 'text',
+        showCancelButton: true,
+        inputPlaceholder: "http://example.com/login",
+        inputValue: url || "",
+        inputValidator: function(value) {
+            return new Promise(function(resolve, reject) {
+                if (value) {
+                    resolve();
+                } else {
+                    reject('Invalid URL.');
+                }
+            });
+        }
+    }).then(function(result) {
+        url = result
+        submitForm()
+    })
+    return
+    submitForm()
+
+    function submitForm() {
+        form.attr({
+            action: url
+        })
+        form.appendTo('body').submit().remove()
+    }
+}
+
 function renderTimeline(data) {
     record = {
         "first_name": data[2],
@@ -220,7 +273,9 @@ function renderTimeline(data) {
                 '    <i class="fa ' + statuses[event.message].icon + '"></i></div>' +
                 '    <div class="timeline-message">' + escapeHtml(event.message) +
                 '    <span class="timeline-date">' + moment(event.time).format('MMMM Do YYYY h:mm') + '</span>'
-            if (event.details) {
+            if (event.details && event.message == "Submitted Data") {
+                results += '<div class="timeline-replay-button"><button onclick="replay(' + i + ')" class="btn btn-success">'
+                results += '<i class="fa fa-refresh"></i> Replay Credentials</button></div>'
                 results += '<div class="timeline-event-details"><i class="fa fa-caret-right"></i> View Details</div>'
                 details = JSON.parse(event.details)
                 if (details.payload) {

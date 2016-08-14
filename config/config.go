@@ -41,6 +41,9 @@ type Config struct {
 // Conf contains the initialized configuration struct
 var Conf Config
 
+// Version contains the current gophish version
+var Version = "0.2alpha"
+
 func init() {
 	// Get the config file
 	config_file, err := ioutil.ReadFile("./config.json")

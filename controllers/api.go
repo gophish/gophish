@@ -560,6 +560,16 @@ func API_Import_Site(w http.ResponseWriter, r *http.Request) {
 	if d.Find("head base").Length() == 0 {
 		d.Find("head").PrependHtml(fmt.Sprintf("<base href=\"%s\">", cr.URL))
 	}
+	forms := d.Find("form")
+	forms.Each(func(i int, f *goquery.Selection) {
+		// We'll want to store where we got the form from
+		// (the current URL)
+		url := f.AttrOr("action", cr.URL)
+		if !strings.HasPrefix(url, "http") {
+			url = fmt.Sprintf("%s%s", cr.URL, url)
+		}
+		f.PrependHtml(fmt.Sprintf("<input type=\"hidden\" name=\"__original_url\" value=\"%s\"/>", url))
+	})
 	h, err := d.Html()
 	if err != nil {
 		JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)

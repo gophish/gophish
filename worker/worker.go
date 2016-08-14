@@ -132,8 +132,6 @@ func processCampaign(c *models.Campaign) {
 		}
 		// Parse the templates
 		var subjBuff bytes.Buffer
-		var htmlBuff bytes.Buffer
-		var textBuff bytes.Buffer
 		tmpl, err := template.New("text_template").Parse(c.Template.Subject)
 		if err != nil {
 			Logger.Println(err)
@@ -145,24 +143,34 @@ func processCampaign(c *models.Campaign) {
 		e.SetHeader("Subject", subjBuff.String())
 		Logger.Println("Creating email using template")
 		e.SetHeader("To", t.Email)
-		tmpl, err = template.New("text_template").Parse(c.Template.Text)
-		if err != nil {
-			Logger.Println(err)
+		if c.Template.Text != "" {
+			var textBuff bytes.Buffer
+			tmpl, err = template.New("text_template").Parse(c.Template.Text)
+			if err != nil {
+				Logger.Println(err)
+			}
+			err = tmpl.Execute(&textBuff, td)
+			if err != nil {
+				Logger.Println(err)
+			}
+			e.SetBody("text/plain", textBuff.String())
 		}
-		err = tmpl.Execute(&textBuff, td)
-		if err != nil {
-			Logger.Println(err)
+		if c.Template.HTML != "" {
+			var htmlBuff bytes.Buffer
+			tmpl, err = template.New("html_template").Parse(c.Template.HTML)
+			if err != nil {
+				Logger.Println(err)
+			}
+			err = tmpl.Execute(&htmlBuff, td)
+			if err != nil {
+				Logger.Println(err)
+			}
+			if c.Template.Text == "" {
+				e.SetBody("text/html", htmlBuff.String())
+			} else {
+				e.AddAlternative("text/html", htmlBuff.String())
+			}
 		}
-		e.SetBody("text/plain", textBuff.String())
-		tmpl, err = template.New("html_template").Parse(c.Template.HTML)
-		if err != nil {
-			Logger.Println(err)
-		}
-		err = tmpl.Execute(&htmlBuff, td)
-		if err != nil {
-			Logger.Println(err)
-		}
-		e.AddAlternative("text/html", htmlBuff.String())
 		// Attach the files
 		for _, a := range c.Template.Attachments {
 			name_parts := strings.Split(a.Name, ".")

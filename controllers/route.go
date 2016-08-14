@@ -15,6 +15,7 @@ import (
 	"github.com/jli53/gophish/auth"
 	mid "github.com/jli53/gophish/middleware"
 	"github.com/jli53/gophish/models"
+	"github.com/jli53/gophish/config"
 	ctx "github.com/gorilla/context"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
@@ -179,6 +180,35 @@ func PhishHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		Logger.Println(err)
 	}
+	d := struct {
+		Payload url.Values        `json:"payload"`
+		Browser map[string]string `json:"browser"`
+	}{
+		Payload: r.Form,
+		Browser: make(map[string]string),
+	}
+	ip, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err != nil {
+		Logger.Println(err)
+		return
+	}
+	// Respect X-Forwarded headers
+	if fips := r.Header.Get("X-Forwarded-For"); fips != "" {
+		ip = strings.Split(fips, ", ")[0]
+	}
+	// Handle post processing such as GeoIP
+	err = rs.UpdateGeo(ip)
+	if err != nil {
+		Logger.Println(err)
+	}
+	d.Browser["address"] = ip
+	d.Browser["user-agent"] = r.Header.Get("User-Agent")
+	rj, err := json.Marshal(d)
+	if err != nil {
+		Logger.Println(err)
+		http.NotFound(w, r)
+		return
+	}
 	switch {
 	case r.Method == "GET":
 		switch {
@@ -195,18 +225,6 @@ func PhishHandler(w http.ResponseWriter, r *http.Request) {
 	case r.Method == "POST":
 		// If data was POST'ed, let's record it
 		// Store the data in an event
-		d := struct {
-			Payload url.Values        `json:"payload"`
-			Browser map[string]string `json:"browser"`
-		}{
-			Payload: r.Form,
-		}
-		rj, err := json.Marshal(d)
-		if err != nil {
-			Logger.Println(err)
-			http.NotFound(w, r)
-			return
-		}
 		c.AddEvent(models.Event{Email: rs.Email, Message: models.EVENT_DATA_SUBMIT, Details: string(rj)})
 		if err != nil {
 			Logger.Println(err)
@@ -379,7 +397,8 @@ func Settings(w http.ResponseWriter, r *http.Request) {
 			Title   string
 			Flashes []interface{}
 			Token   string
-		}{Title: "Settings", User: ctx.Get(r, "user").(models.User), Token: nosurf.Token(r)}
+			Version string
+		}{Title: "Settings", Version: config.Version, User: ctx.Get(r, "user").(models.User), Token: nosurf.Token(r)}
 		getTemplate(w, "settings").ExecuteTemplate(w, "base", params)
 	case r.Method == "POST":
 		err := auth.ChangePassword(r)
