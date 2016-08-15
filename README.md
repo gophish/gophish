@@ -1,11 +1,11 @@
-![gophish logo](https://raw.github.com/jli53/gophish/master/static/images/gophish_purple.png)
+![gophish logo](https://raw.github.com/gophish/gophish/master/static/images/gophish_purple.png)
 
 Gophish
 =======
 
-[![Join the chat at https://gitter.im/jli53/gophish](https://badges.gitter.im/jli53/gophish.svg)](https://gitter.im/jli53/gophish?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Join the chat at https://gitter.im/gophish/gophish](https://badges.gitter.im/gophish/gophish.svg)](https://gitter.im/gophish/gophish?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-[![Build Status](https://travis-ci.org/jli53/gophish.svg?branch=master)](https://travis-ci.org/jli53/gophish) [![GoDoc](https://godoc.org/github.com/jli53/gophish?status.svg)](https://godoc.org/github.com/jli53/gophish)
+[![Build Status](https://travis-ci.org/gophish/gophish.svg?branch=master)](https://travis-ci.org/gophish/gophish) [![GoDoc](https://godoc.org/github.com/gophish/gophish?status.svg)](https://godoc.org/github.com/gophish/gophish)
 
 Gophish: Open-Source Phishing Toolkit
 
@@ -20,12 +20,12 @@ _Get hyped!_
 
 ###Install
 
-Installation of Gophish is dead-simple - just download and extract the zip containing the [release for your system](https://github.com/jli53/gophish/releases/), and run the binary. Gophish has binary releases for Windows, Mac, and Linux platforms.
+Installation of Gophish is dead-simple - just download and extract the zip containing the [release for your system](https://github.com/gophish/gophish/releases/), and run the binary. Gophish has binary releases for Windows, Mac, and Linux platforms.
 
 ### Building From Source
 **If you are building from source, please note that Gophish requires Go v1.5 or above!**
 
-To build Gophish from source, simply run ```go get github.com/jli53/gophish``` and ```cd``` into the project source directory. Then, run ```go build```. After this, you should have a binary called ```gophish``` in the current directory.
+To build Gophish from source, simply run ```go get github.com/gophish/gophish``` and ```cd``` into the project source directory. Then, run ```go build```. After this, you should have a binary called ```gophish``` in the current directory.
 
 ### Docker
 You can also use Gophish via an unofficial Docker container [here](https://hub.docker.com/r/matteoggl/gophish/).
@@ -39,7 +39,7 @@ Documentation can be found on our [site](http://getgophish.com/documentation). F
 
 ###Issues
 
-Find a bug? Want more features? Find something missing in the documentation? Let us know! Please don't hesitate to [file an issue](https://github.com/jli53/gophish/issues/new) and we'll get right on it.
+Find a bug? Want more features? Find something missing in the documentation? Let us know! Please don't hesitate to [file an issue](https://github.com/gophish/gophish/issues/new) and we'll get right on it.
 
 ###License
 ```

@@ -9,7 +9,7 @@ import (
 
 	"crypto/rand"
 
-	"github.com/jli53/gophish/models"
+	"github.com/gophish/gophish/models"
 	ctx "github.com/gorilla/context"
 	"github.com/gorilla/securecookie"
 	"github.com/gorilla/sessions"

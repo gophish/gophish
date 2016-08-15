@@ -32,10 +32,10 @@ import (
 	"os"
 	"sync"
 
+	"github.com/gophish/gophish/config"
+	"github.com/gophish/gophish/controllers"
+	"github.com/gophish/gophish/models"
 	"github.com/gorilla/handlers"
-	"github.com/jli53/gophish/config"
-	"github.com/jli53/gophish/controllers"
-	"github.com/jli53/gophish/models"
 )
 
 var Logger = log.New(os.Stdout, " ", log.Ldate|log.Ltime|log.Lshortfile)

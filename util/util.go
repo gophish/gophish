@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"net/mail"
 
-	"github.com/jli53/gophish/models"
+	"github.com/gophish/gophish/models"
 	"github.com/jordan-wright/email"
 )
 
