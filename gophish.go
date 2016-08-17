@@ -32,6 +32,7 @@ import (
 	"os"
 	"sync"
 
+	"github.com/NYTimes/gziphandler"
 	"github.com/gophish/gophish/config"
 	"github.com/gophish/gophish/controllers"
 	"github.com/gophish/gophish/models"
@@ -51,25 +52,27 @@ func main() {
 	// Start the web servers
 	go func() {
 		defer wg.Done()
+		adminHandler := gziphandler.GzipHandler(controllers.CreateAdminRouter())
 		if config.Conf.AdminConf.UseTLS { // use TLS for Admin web server if available
 			Logger.Printf("Starting admin server at https://%s\n", config.Conf.AdminConf.ListenURL)
 			Logger.Fatal(http.ListenAndServeTLS(config.Conf.AdminConf.ListenURL, config.Conf.AdminConf.CertPath, config.Conf.AdminConf.KeyPath,
-				handlers.CombinedLoggingHandler(os.Stdout, controllers.CreateAdminRouter())))
+				handlers.CombinedLoggingHandler(os.Stdout, adminHandler)))
 		} else {
 			Logger.Printf("Starting admin server at http://%s\n", config.Conf.AdminConf.ListenURL)
-			Logger.Fatal(http.ListenAndServe(config.Conf.AdminConf.ListenURL, handlers.CombinedLoggingHandler(os.Stdout, controllers.CreateAdminRouter())))
+			Logger.Fatal(http.ListenAndServe(config.Conf.AdminConf.ListenURL, handlers.CombinedLoggingHandler(os.Stdout, adminHandler)))
 		}
 	}()
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
+		phishHandler := gziphandler.GzipHandler(controllers.CreatePhishingRouter())
 		if config.Conf.PhishConf.UseTLS { // use TLS for Phish web server if available
 			Logger.Printf("Starting phishing server at https://%s\n", config.Conf.PhishConf.ListenURL)
 			Logger.Fatal(http.ListenAndServeTLS(config.Conf.PhishConf.ListenURL, config.Conf.PhishConf.CertPath, config.Conf.PhishConf.KeyPath,
-				handlers.CombinedLoggingHandler(os.Stdout, controllers.CreatePhishingRouter())))
+				handlers.CombinedLoggingHandler(os.Stdout, phishHandler)))
 		} else {
 			Logger.Printf("Starting phishing server at http://%s\n", config.Conf.PhishConf.ListenURL)
-			Logger.Fatal(http.ListenAndServe(config.Conf.PhishConf.ListenURL, handlers.CombinedLoggingHandler(os.Stdout, controllers.CreatePhishingRouter())))
+			Logger.Fatal(http.ListenAndServe(config.Conf.PhishConf.ListenURL, handlers.CombinedLoggingHandler(os.Stdout, phishHandler)))
 		}
 	}()
 	wg.Wait()
