@@ -44,7 +44,7 @@ function launch() {
                         smtp: {
                             name: $("#profile").val()
                         },
-                        launch_date: moment($("#launch_date").val(), "MM/DD/YYYY HH:mm").format(),
+                        launch_date: moment($("#launch_date").val(), "MM/DD/YYYY hh:mm a").format(),
                         groups: groups
                     }
                     // Submit the campaign

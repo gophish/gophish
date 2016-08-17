@@ -258,7 +258,7 @@ function renderTimeline(data) {
                 '    <div class="timeline-icon ' + statuses[event.message].label + '">' +
                 '    <i class="fa ' + statuses[event.message].icon + '"></i></div>' +
                 '    <div class="timeline-message">' + escapeHtml(event.message) +
-                '    <span class="timeline-date">' + moment(event.time).format('MMMM Do YYYY h:mm') + '</span>'
+                '    <span class="timeline-date">' + moment(event.time).format('MMMM Do YYYY h:mm a') + '</span>'
             if (event.details && event.message == "Submitted Data") {
                 results += '<div class="timeline-replay-button"><button onclick="replay(' + i + ')" class="btn btn-success">'
                 results += '<i class="fa fa-refresh"></i> Replay Credentials</button></div>'
@@ -449,7 +449,7 @@ function load() {
                         type: Chartist.FixedScaleAxis,
                         divisor: 5,
                         labelInterpolationFnc: function(value) {
-                            return moment(value).format('MMMM Do YYYY h:mm')
+                            return moment(value).format('MMMM Do YYYY h:mm a')
                         }
                     },
                     axisY: {
