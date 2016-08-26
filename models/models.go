@@ -34,6 +34,8 @@ const (
 	EVENT_OPENED         string = "Email Opened"
 	EVENT_CLICKED        string = "Clicked Link"
 	EVENT_DATA_SUBMIT    string = "Submitted Data"
+	EVENT_HTML_OPENED    string = "HTML Opened"
+	EVENT_DOC_OPENED     string = "WORD Opened"
 	STATUS_SUCCESS       string = "Success"
 	STATUS_SENDING       string = "Sending"
 	STATUS_UNKNOWN       string = "Unknown"

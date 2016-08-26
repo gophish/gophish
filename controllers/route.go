@@ -156,6 +156,7 @@ func PhishHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	id := r.Form.Get("rid")
+	ftype := r.Form.Get("type")
 	if id == "" {
 		http.NotFound(w, r)
 		return
@@ -210,7 +211,14 @@ func PhishHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	switch {
 	case r.Method == "GET":
-		err = c.AddEvent(models.Event{Email: rs.Email, Message: models.EVENT_CLICKED, Details: string(rj)})
+		switch {
+		case ftype == "html":
+			err = c.AddEvent(models.Event{Email: rs.Email, Message: models.EVENT_HTML_OPENED})
+		case ftype == "doc":
+			err = c.AddEvent(models.Event{Email: rs.Email, Message: models.EVENT_DOC_OPENED})
+		case ftype == "":
+			err = c.AddEvent(models.Event{Email: rs.Email, Message: models.EVENT_CLICKED})
+		}
 		if err != nil {
 			Logger.Println(err)
 		}
