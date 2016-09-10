@@ -29,7 +29,7 @@ function launch() {
                 groups = []
                 $.each($("#groupTable").DataTable().rows().data(), function(i, group) {
                     groups.push({
-                        name: group[0]
+                        name: unescapeHtml(group[0])
                     })
                 })
                 campaign = {
@@ -311,13 +311,13 @@ $(document).ready(function() {
                 $.each(campaigns, function(i, campaign) {
                     label = labels[campaign.status] || "label-default";
                     campaignTable.row.add([
-                        campaign.name,
+                        escapeHtml(campaign.name),
                         moment(campaign.created_date).format('MMMM Do YYYY, h:mm:ss a'),
                         "<span class=\"label " + label + "\">" + campaign.status + "</span>",
                         "<div class='pull-right'><a class='btn btn-primary' href='/campaigns/" + campaign.id + "' data-toggle='tooltip' data-placement='left' title='View Results'>\
                     <i class='fa fa-bar-chart'></i>\
                     </a>\
-		    <span data-toggle='modal' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Copy Campaign' onclick='copy(" + i + ")'>\
+            <span data-toggle='modal' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Copy Campaign' onclick='copy(" + i + ")'>\
                     <i class='fa fa-copy'></i>\
                     </button></span>\
                     <button class='btn btn-danger' onclick='deleteCampaign(" + i + ")' data-toggle='tooltip' data-placement='left' title='Delete Campaign'>\
@@ -337,7 +337,7 @@ $(document).ready(function() {
     $("#groupForm").submit(function() {
         // Add row to group table.
         var newRow = groupTable.row.add([
-            $("#groupSelect").val(),
+            escapeHtml($("#groupSelect").val()),
             '<span style="cursor:pointer;"><i class="fa fa-trash-o"></i></span>'
         ]).draw().node();
 
@@ -379,7 +379,7 @@ $(document).ready(function() {
                     return '<div class="tt-suggestion">No groups matched that query</div>'
                 },
                 suggestion: function(data) {
-                    return '<div>' + data.name + '</div>'
+                    return '<div>' + escapeHtml(data.name) + '</div>'
                 }
             }
         })
@@ -412,7 +412,7 @@ $(document).ready(function() {
                     return '<div class="tt-suggestion">No templates matched that query</div>'
                 },
                 suggestion: function(data) {
-                    return '<div>' + data.name + '</div>'
+                    return '<div>' + escapeHtml(data.name) + '</div>'
                 }
             }
         })
@@ -443,7 +443,7 @@ $(document).ready(function() {
                     return '<div class="tt-suggestion">No pages matched that query</div>'
                 },
                 suggestion: function(data) {
-                    return '<div>' + data.name + '</div>'
+                    return '<div>' + escapeHtml(data.name) + '</div>'
                 }
             }
         })
@@ -474,7 +474,7 @@ $(document).ready(function() {
                     return '<div class="tt-suggestion">No profiles matched that query</div>'
                 },
                 suggestion: function(data) {
-                    return '<div>' + data.name + '</div>'
+                    return '<div>' + escapeHtml(data.name) + '</div>'
                 }
             }
         })
