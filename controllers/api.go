@@ -551,7 +551,7 @@ func API_Import_Site(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Insert the base href tag to better handle relative resources
-	d, err := goquery.NewDocumentFromReader(resp.Body)
+	d, err := goquery.NewDocumentFromResponse(resp)
 	if err != nil {
 		JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
 		return
