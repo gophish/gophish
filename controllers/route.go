@@ -8,6 +8,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"net/mail"
 	"net/url"
 	"os"
 	"strings"
@@ -222,7 +223,24 @@ func PhishHandler(w http.ResponseWriter, r *http.Request) {
 		Logger.Println(err)
 		http.NotFound(w, r)
 	}
-	err = tmpl.Execute(&htmlBuff, rs)
+	f, err := mail.ParseAddress(c.SMTP.FromAddress)
+	if err != nil {
+		Logger.Println(err)
+	}
+	fn := f.Name
+	if fn == "" {
+		fn = f.Address
+	}
+	rsf := struct {
+		models.Result
+		URL  string
+		From string
+	}{
+		rs,
+		c.URL + "?rid=" + rs.RId,
+		fn,
+	}
+	err = tmpl.Execute(&htmlBuff, rsf)
 	if err != nil {
 		Logger.Println(err)
 		http.NotFound(w, r)
