@@ -142,7 +142,7 @@ function load() {
                 profileTable.clear()
                 $.each(profiles, function(i, profile) {
                     profileTable.row.add([
-                        profile.name,
+                        escapeHtml(profile.name),
                         profile.interface_type,
                         moment(profile.modified_date).format('MMMM Do YYYY, h:mm:ss a'),
                         "<div class='pull-right'><span data-toggle='modal' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Edit Profile' onclick='edit(" + i + ")'>\

@@ -61,7 +61,7 @@ $(document).ready(function() {
                     var label = labels[campaign.status] || "label-default";
                     // Add it to the table
                     campaignTable.row.add([
-                            campaign.name,
+                            escapeHtml(campaign.name),
                             campaign_date,
                             "<span class=\"label " + label + "\">" + campaign.status + "</span>",
                             "<div class='pull-right'><a class='btn btn-primary' href='/campaigns/" + campaign.id + "' data-toggle='tooltip' data-placement='right' title='View Results'>\
