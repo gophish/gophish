@@ -14,12 +14,12 @@ import (
 
 	"github.com/gophish/gophish/auth"
 	"github.com/gophish/gophish/config"
+	ctx "github.com/gophish/gophish/context"
 	mid "github.com/gophish/gophish/middleware"
 	"github.com/gophish/gophish/models"
-	ctx "github.com/gorilla/context"
+	"github.com/gorilla/csrf"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
-	"github.com/justinas/nosurf"
 )
 
 // Logger is used to send logging messages to stdout.
@@ -67,22 +67,11 @@ func CreateAdminRouter() http.Handler {
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./static/")))
 
 	// Setup CSRF Protection
-	csrfHandler := nosurf.New(router)
-	// Exempt API routes and Static files
-	csrfHandler.ExemptGlob("/api/campaigns")
-	csrfHandler.ExemptGlob("/api/campaigns/*")
-	csrfHandler.ExemptGlob("/api/groups")
-	csrfHandler.ExemptGlob("/api/groups/*")
-	csrfHandler.ExemptGlob("/api/templates")
-	csrfHandler.ExemptGlob("/api/templates/*")
-	csrfHandler.ExemptGlob("/api/pages")
-	csrfHandler.ExemptGlob("/api/pages/*")
-	csrfHandler.ExemptGlob("/api/smtp")
-	csrfHandler.ExemptGlob("/api/smtp/*")
-	csrfHandler.ExemptGlob("/api/import/*")
-	csrfHandler.ExemptGlob("/api/util/*")
-	csrfHandler.ExemptGlob("/static/*")
-	return Use(csrfHandler.ServeHTTP, mid.GetContext)
+	csrfHandler := csrf.Protect([]byte(auth.GenerateSecureKey()),
+		csrf.FieldName("csrf_token"),
+		csrf.Secure(config.Conf.AdminConf.UseTLS))
+	csrfRouter := csrfHandler(router)
+	return Use(csrfRouter.ServeHTTP, mid.CSRFExceptions, mid.GetContext)
 }
 
 // CreatePhishingRouter creates the router that handles phishing connections.
@@ -259,7 +248,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		Flashes []interface{}
 		User    models.User
 		Token   string
-	}{Title: "Register", Token: nosurf.Token(r)}
+	}{Title: "Register", Token: csrf.Token(r)}
 	session := ctx.Get(r, "session").(*sessions.Session)
 	switch {
 	case r.Method == "GET":
@@ -304,7 +293,7 @@ func Base(w http.ResponseWriter, r *http.Request) {
 		Title   string
 		Flashes []interface{}
 		Token   string
-	}{Title: "Dashboard", User: ctx.Get(r, "user").(models.User), Token: nosurf.Token(r)}
+	}{Title: "Dashboard", User: ctx.Get(r, "user").(models.User), Token: csrf.Token(r)}
 	getTemplate(w, "dashboard").ExecuteTemplate(w, "base", params)
 }
 
@@ -316,7 +305,7 @@ func Campaigns(w http.ResponseWriter, r *http.Request) {
 		Title   string
 		Flashes []interface{}
 		Token   string
-	}{Title: "Campaigns", User: ctx.Get(r, "user").(models.User), Token: nosurf.Token(r)}
+	}{Title: "Campaigns", User: ctx.Get(r, "user").(models.User), Token: csrf.Token(r)}
 	getTemplate(w, "campaigns").ExecuteTemplate(w, "base", params)
 }
 
@@ -328,7 +317,7 @@ func CampaignID(w http.ResponseWriter, r *http.Request) {
 		Title   string
 		Flashes []interface{}
 		Token   string
-	}{Title: "Campaign Results", User: ctx.Get(r, "user").(models.User), Token: nosurf.Token(r)}
+	}{Title: "Campaign Results", User: ctx.Get(r, "user").(models.User), Token: csrf.Token(r)}
 	getTemplate(w, "campaign_results").ExecuteTemplate(w, "base", params)
 }
 
@@ -340,7 +329,7 @@ func Templates(w http.ResponseWriter, r *http.Request) {
 		Title   string
 		Flashes []interface{}
 		Token   string
-	}{Title: "Email Templates", User: ctx.Get(r, "user").(models.User), Token: nosurf.Token(r)}
+	}{Title: "Email Templates", User: ctx.Get(r, "user").(models.User), Token: csrf.Token(r)}
 	getTemplate(w, "templates").ExecuteTemplate(w, "base", params)
 }
 
@@ -352,7 +341,7 @@ func Users(w http.ResponseWriter, r *http.Request) {
 		Title   string
 		Flashes []interface{}
 		Token   string
-	}{Title: "Users & Groups", User: ctx.Get(r, "user").(models.User), Token: nosurf.Token(r)}
+	}{Title: "Users & Groups", User: ctx.Get(r, "user").(models.User), Token: csrf.Token(r)}
 	getTemplate(w, "users").ExecuteTemplate(w, "base", params)
 }
 
@@ -364,7 +353,7 @@ func LandingPages(w http.ResponseWriter, r *http.Request) {
 		Title   string
 		Flashes []interface{}
 		Token   string
-	}{Title: "Landing Pages", User: ctx.Get(r, "user").(models.User), Token: nosurf.Token(r)}
+	}{Title: "Landing Pages", User: ctx.Get(r, "user").(models.User), Token: csrf.Token(r)}
 	getTemplate(w, "landing_pages").ExecuteTemplate(w, "base", params)
 }
 
@@ -376,7 +365,7 @@ func SendingProfiles(w http.ResponseWriter, r *http.Request) {
 		Title   string
 		Flashes []interface{}
 		Token   string
-	}{Title: "Sending Profiles", User: ctx.Get(r, "user").(models.User), Token: nosurf.Token(r)}
+	}{Title: "Sending Profiles", User: ctx.Get(r, "user").(models.User), Token: csrf.Token(r)}
 	getTemplate(w, "sending_profiles").ExecuteTemplate(w, "base", params)
 }
 
@@ -390,7 +379,7 @@ func Settings(w http.ResponseWriter, r *http.Request) {
 			Flashes []interface{}
 			Token   string
 			Version string
-		}{Title: "Settings", Version: config.Version, User: ctx.Get(r, "user").(models.User), Token: nosurf.Token(r)}
+		}{Title: "Settings", Version: config.Version, User: ctx.Get(r, "user").(models.User), Token: csrf.Token(r)}
 		getTemplate(w, "settings").ExecuteTemplate(w, "base", params)
 	case r.Method == "POST":
 		err := auth.ChangePassword(r)
@@ -419,7 +408,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		Title   string
 		Flashes []interface{}
 		Token   string
-	}{Title: "Login", Token: nosurf.Token(r)}
+	}{Title: "Login", Token: csrf.Token(r)}
 	session := ctx.Get(r, "session").(*sessions.Session)
 	switch {
 	case r.Method == "GET":
@@ -433,12 +422,13 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		template.Must(templates, err).ExecuteTemplate(w, "base", params)
 	case r.Method == "POST":
 		//Attempt to login
-		succ, err := auth.Login(r)
+		succ, u, err := auth.Login(r)
 		if err != nil {
 			Logger.Println(err)
 		}
 		//If we've logged in, save the session and redirect to the dashboard
 		if succ {
+			session.Values["id"] = u.Id
 			session.Save(r, w)
 			http.Redirect(w, r, "/", 302)
 		} else {

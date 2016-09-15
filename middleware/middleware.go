@@ -4,11 +4,29 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/gophish/gophish/auth"
+	ctx "github.com/gophish/gophish/context"
 	"github.com/gophish/gophish/models"
-	ctx "github.com/gorilla/context"
+	"github.com/gorilla/csrf"
 )
+
+var CSRFExemptPrefixes = []string{
+	"/api",
+}
+
+func CSRFExceptions(handler http.Handler) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		for _, prefix := range CSRFExemptPrefixes {
+			if strings.HasPrefix(r.URL.Path, prefix) {
+				r = csrf.UnsafeSkipCheck(r)
+				break
+			}
+		}
+		handler.ServeHTTP(w, r)
+	}
+}
 
 // GetContext wraps each request in a function which fills in the context for a given request.
 // This includes setting the User and Session keys and values as necessary for use in later functions.
@@ -23,17 +41,18 @@ func GetContext(handler http.Handler) http.HandlerFunc {
 		// Set the context appropriately here.
 		// Set the session
 		session, _ := auth.Store.Get(r, "gophish")
-		// Put the session in the context so that
-		ctx.Set(r, "session", session)
+		// Put the session in the context so that we can
+		// reuse the values in different handlers
+		r = ctx.Set(r, "session", session)
 		if id, ok := session.Values["id"]; ok {
 			u, err := models.GetUser(id.(int64))
 			if err != nil {
-				ctx.Set(r, "user", nil)
+				r = ctx.Set(r, "user", nil)
 			} else {
-				ctx.Set(r, "user", u)
+				r = ctx.Set(r, "user", u)
 			}
 		} else {
-			ctx.Set(r, "user", nil)
+			r = ctx.Set(r, "user", nil)
 		}
 		handler.ServeHTTP(w, r)
 		// Remove context contents
@@ -60,8 +79,8 @@ func RequireAPIKey(handler http.Handler) http.HandlerFunc {
 				JSONError(w, 400, "Invalid API Key")
 				return
 			}
-			ctx.Set(r, "user_id", u.Id)
-			ctx.Set(r, "api_key", ak)
+			r = ctx.Set(r, "user_id", u.Id)
+			r = ctx.Set(r, "api_key", ak)
 			handler.ServeHTTP(w, r)
 		}
 	}

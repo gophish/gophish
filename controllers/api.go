@@ -14,10 +14,10 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gophish/gophish/auth"
+	ctx "github.com/gophish/gophish/context"
 	"github.com/gophish/gophish/models"
 	"github.com/gophish/gophish/util"
 	"github.com/gophish/gophish/worker"
-	ctx "github.com/gorilla/context"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	"github.com/jordan-wright/email"

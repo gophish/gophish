@@ -9,8 +9,8 @@ import (
 
 	"crypto/rand"
 
+	ctx "github.com/gophish/gophish/context"
 	"github.com/gophish/gophish/models"
-	ctx "github.com/gorilla/context"
 	"github.com/gorilla/securecookie"
 	"github.com/gorilla/sessions"
 	"golang.org/x/crypto/bcrypt"
@@ -39,23 +39,19 @@ var ErrEmptyPassword = errors.New("Password cannot be blank")
 var ErrPasswordMismatch = errors.New("Passwords must match")
 
 // Login attempts to login the user given a request.
-func Login(r *http.Request) (bool, error) {
+func Login(r *http.Request) (bool, models.User, error) {
 	username, password := r.FormValue("username"), r.FormValue("password")
-	session, _ := Store.Get(r, "gophish")
 	u, err := models.GetUserByUsername(username)
 	if err != nil && err != models.ErrUsernameTaken {
-		return false, err
+		return false, models.User{}, err
 	}
 	//If we've made it here, we should have a valid user stored in u
 	//Let's check the password
 	err = bcrypt.CompareHashAndPassword([]byte(u.Hash), []byte(password))
 	if err != nil {
-		ctx.Set(r, "user", nil)
-		return false, ErrInvalidPassword
+		return false, models.User{}, ErrInvalidPassword
 	}
-	ctx.Set(r, "user", u)
-	session.Values["id"] = u.Id
-	return true, nil
+	return true, u, nil
 }
 
 // Register attempts to register the user given a request.
