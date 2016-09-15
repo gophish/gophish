@@ -24,10 +24,11 @@ function save(idx) {
     // Fix the URL Scheme added by CKEditor (until we can remove it from the plugin)
     template.html = template.html.replace(/https?:\/\/{{\.URL}}/gi, "{{.URL}}")
         // If the "Add Tracker Image" checkbox is checked, add the tracker
-    if ($("#use_tracker_checkbox").prop("checked") &&
-        template.html.indexOf("{{.Tracker}}") == -1 &&
-        template.html.indexOf("{{.TrackingUrl}}") == -1) {
-        template.html = template.html.replace("</body>", "{{.Tracker}}</body>")
+    if ($("#use_tracker_checkbox").prop("checked")) {
+        if (template.html.indexOf("{{.Tracker}}") == -1 &&
+            template.html.indexOf("{{.TrackingUrl}}") == -1) {
+            template.html = template.html.replace("</body>", "{{.Tracker}}</body>")
+        }
     } else {
         // Otherwise, remove the tracker
         template.html = template.html.replace("{{.Tracker}}</body>", "</body>")
