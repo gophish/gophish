@@ -11,6 +11,7 @@ type SMTPServer struct {
 	Host     string `json:"host"`
 	User     string `json:"user"`
 	Password string `json:"password"`
+	PoolSize int    `json:"pool_size"`
 }
 
 // AdminServer represents the Admin server configuration details
