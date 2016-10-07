@@ -49,6 +49,8 @@ func (w *Worker) Start() {
 			}(c)
 		}
 	}
+	// Set seed here for SMTP send delay randomness
+	rand.Seed(time.Now().Unix())
 }
 
 func processCampaign(c *models.Campaign) {
@@ -228,7 +230,6 @@ func processCampaign(c *models.Campaign) {
 // max delay times and possibly other features.  Returns nothing for now just
 // delays the num seconds specified in the main config file.
 func SendingDelay() {
-	rand.Seed(time.Now().Unix())
 	strSendDelay := strconv.Itoa(RandWithinRange(config.Conf.SMTPConf.MinDelay, config.Conf.SMTPConf.MaxDelay))
 	Logger.Printf("Next email will be sent in %s seconds\n", strSendDelay)
 	tSendDelay, _ := time.ParseDuration(strSendDelay + "s")
