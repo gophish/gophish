@@ -8,9 +8,10 @@ import (
 
 // SMTPServer represents the SMTP configuration details
 type SMTPServer struct {
-	Host     string `json:"host"`
-	User     string `json:"user"`
-	Password string `json:"password"`
+	Host      string `json:"host"`
+	User      string `json:"user"`
+	Password  string `json:"password"`
+	SendDelay string `json:"senddelay"`
 }
 
 // AdminServer represents the Admin server configuration details
