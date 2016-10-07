@@ -8,6 +8,7 @@ import (
 	"errors"
 	"io"
 	"log"
+	"math/rand"
 	"net/mail"
 	"os"
 	"strconv"
@@ -15,6 +16,7 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/gophish/gophish/config"
 	"github.com/gophish/gophish/models"
 	"gopkg.in/gomail.v2"
 )
@@ -113,6 +115,10 @@ func processCampaign(c *models.Campaign) {
 	// Send each email
 	e := gomail.NewMessage()
 	for _, t := range c.Results {
+		if config.Conf.SMTPConf.UseDelay == true {
+			SendingDelay()
+		}
+
 		e.SetHeader("From", c.SMTP.FromAddress)
 		td := struct {
 			models.Result
@@ -215,6 +221,25 @@ func processCampaign(c *models.Campaign) {
 	if err != nil {
 		Logger.Println(err)
 	}
+}
+
+// Creates a simple constant delay between sending each email message.  Later
+// we can expand this function to include randomization of delay time, min and
+// max delay times and possibly other features.  Returns nothing for now just
+// delays the num seconds specified in the main config file.
+func SendingDelay() {
+	rand.Seed(time.Now().Unix())
+	strSendDelay := strconv.Itoa(RandWithinRange(config.Conf.SMTPConf.MinDelay, config.Conf.SMTPConf.MaxDelay))
+	Logger.Printf("Next email will be sent in %s seconds\n", strSendDelay)
+	tSendDelay, _ := time.ParseDuration(strSendDelay + "s")
+	time.Sleep(tSendDelay)
+}
+
+func RandWithinRange(min, max int) int {
+	if min >= max { // Avoids a panic with rand if min is same value as max
+		max = min + 1
+	}
+	return rand.Intn(max-min) + min
 }
 
 func SendTestEmail(s *models.SendTestEmailRequest) error {
