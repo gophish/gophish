@@ -36,6 +36,8 @@ func New() *Worker {
 // If a job is found, it launches the job
 func (w *Worker) Start() {
 	Logger.Println("Background Worker Started Successfully - Waiting for Campaigns")
+	// Set seed here for SMTP send delay randomness
+	rand.Seed(time.Now().Unix())
 	for t := range time.Tick(1 * time.Minute) {
 		cs, err := models.GetQueuedCampaigns(t)
 		// Not really sure of a clean way to catch errors per campaign...
@@ -49,8 +51,6 @@ func (w *Worker) Start() {
 			}(c)
 		}
 	}
-	// Set seed here for SMTP send delay randomness
-	rand.Seed(time.Now().Unix())
 }
 
 func processCampaign(c *models.Campaign) {
