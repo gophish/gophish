@@ -8,10 +8,12 @@ import (
 
 // SMTPServer represents the SMTP configuration details
 type SMTPServer struct {
-	Host      string `json:"host"`
-	User      string `json:"user"`
-	Password  string `json:"password"`
-	SendDelay string `json:"senddelay"`
+	Host     string `json:"host"`
+	User     string `json:"user"`
+	Password string `json:"password"`
+	UseDelay bool   `json:"use_delay"`
+	MinDelay int    `json:"min_delay"`
+	MaxDelay int    `json:"max_delay"`
 }
 
 // AdminServer represents the Admin server configuration details

@@ -8,6 +8,7 @@ import (
 	"errors"
 	"io"
 	"log"
+	"math/rand"
 	"net/mail"
 	"os"
 	"strconv"
@@ -114,7 +115,9 @@ func processCampaign(c *models.Campaign) {
 	// Send each email
 	e := gomail.NewMessage()
 	for _, t := range c.Results {
-		SendingDelay()
+		if config.Conf.SMTPConf.UseDelay == true {
+			SendingDelay()
+		}
 
 		e.SetHeader("From", c.SMTP.FromAddress)
 		td := struct {
@@ -225,10 +228,18 @@ func processCampaign(c *models.Campaign) {
 // max delay times and possibly other features.  Returns nothing for now just
 // delays the num seconds specified in the main config file.
 func SendingDelay() {
-	strSendDelay := config.Conf.SMTPConf.SendDelay
+	rand.Seed(time.Now().Unix())
+	strSendDelay := strconv.Itoa(RandWithinRange(config.Conf.SMTPConf.MinDelay, config.Conf.SMTPConf.MaxDelay))
 	Logger.Printf("Next email will be sent in %s seconds\n", strSendDelay)
 	tSendDelay, _ := time.ParseDuration(strSendDelay + "s")
 	time.Sleep(tSendDelay)
+}
+
+func RandWithinRange(min, max int) int {
+	if min >= max { // Avoids a panic with rand if min is same value as max
+		max = min + 1
+	}
+	return rand.Intn(max-min) + min
 }
 
 func SendTestEmail(s *models.SendTestEmailRequest) error {
