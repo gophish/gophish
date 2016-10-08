@@ -16,7 +16,6 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/gophish/gophish/config"
 	"github.com/gophish/gophish/models"
 	"gopkg.in/gomail.v2"
 )
