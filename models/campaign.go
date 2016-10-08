@@ -25,8 +25,8 @@ type Campaign struct {
 	Events        []Event   `json:"timeline,omitemtpy"`
 	SMTPId        int64     `json:"-"`
 	SMTP          SMTP      `json:"smtp"`
-	SMTPMinDelay  int64     `json:"smtpmindelay"`
-	SMTPMaxDelay  int64     `json:"smtpmaxdelay"`
+	SMTPMinDelay  int       `json:"smtpmindelay"`
+	SMTPMaxDelay  int       `json:"smtpmaxdelay"`
 	URL           string    `json:"url"`
 }
 

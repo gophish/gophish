@@ -227,13 +227,13 @@ func processCampaign(c *models.Campaign) {
 // max delay times and possibly other features.  Returns nothing for now just
 // delays the num seconds specified in the main config file.
 func SendingDelay(c *models.Campaign) {
-	strSendDelay := RandWithinRange(c.SMTPMinDelay, c.SMTPMaxDelay)
-	Logger.Printf("Next email will be sent in %s seconds\n", strSendDelay)
-	tSendDelay, _ := time.ParseDuration(strSendDelay + "s")
+	sSendDelay := strconv.Itoa(randWithinRange(c.SMTPMinDelay, c.SMTPMaxDelay))
+	Logger.Printf("Next email will be sent in %s seconds\n", sSendDelay)
+	tSendDelay, _ := time.ParseDuration(sSendDelay + "s")
 	time.Sleep(tSendDelay)
 }
 
-func RandWithinRange(min, max int64) int64 {
+func randWithinRange(min, max int) int {
 	if min >= max { // Avoids a panic with rand if min is same value as max
 		max = min + 1
 	}
