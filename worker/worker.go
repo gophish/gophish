@@ -117,9 +117,7 @@ func processCampaign(c *models.Campaign) {
 	// Send each email
 	e := gomail.NewMessage()
 	for _, t := range c.Results {
-		if config.Conf.SMTPConf.UseDelay == true {
-			SendingDelay()
-		}
+		SendingDelay(c)
 
 		e.SetHeader("From", c.SMTP.FromAddress)
 		td := struct {
@@ -229,14 +227,14 @@ func processCampaign(c *models.Campaign) {
 // we can expand this function to include randomization of delay time, min and
 // max delay times and possibly other features.  Returns nothing for now just
 // delays the num seconds specified in the main config file.
-func SendingDelay() {
-	strSendDelay := strconv.Itoa(RandWithinRange(config.Conf.SMTPConf.MinDelay, config.Conf.SMTPConf.MaxDelay))
+func SendingDelay(c *models.Campaign) {
+	strSendDelay := RandWithinRange(c.SMTPMinDelay, c.SMTPMaxDelay))
 	Logger.Printf("Next email will be sent in %s seconds\n", strSendDelay)
 	tSendDelay, _ := time.ParseDuration(strSendDelay + "s")
 	time.Sleep(tSendDelay)
 }
 
-func RandWithinRange(min, max int) int {
+func RandWithinRange(min, max int64) int64 {
 	if min >= max { // Avoids a panic with rand if min is same value as max
 		max = min + 1
 	}
