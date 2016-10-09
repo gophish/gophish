@@ -25,8 +25,8 @@ type Campaign struct {
 	Events        []Event   `json:"timeline,omitemtpy"`
 	SMTPId        int64     `json:"-"`
 	SMTP          SMTP      `json:"smtp"`
-	SMTPMinDelay  int       `json:"smtpmindelay"`
-	SMTPMaxDelay  int       `json:"smtpmaxdelay"`
+	SMTPMinDelay  int       `json:"smtp_min_delay"`
+	SMTPMaxDelay  int       `json:"smtp_max_delay"`
 	URL           string    `json:"url"`
 }
 
@@ -258,10 +258,10 @@ func PostCampaign(c *Campaign, uid int64) error {
 		c.LaunchDate = time.Now()
 	}
 	if c.SMTPMinDelay == 0 {
-		c.SMTPMinDelay = 1 // default to 1 second
+		c.SMTPMinDelay = 0 // default to none (send immediately)
 	}
 	if c.SMTPMaxDelay == 0 {
-		c.SMTPMaxDelay = 10 // default to 10 seconds (most wont want the delay feature anyway)
+		c.SMTPMaxDelay = 1 // default to 1 second (cant be same as min or causes rand() func panic)
 	}
 	// Check to make sure all the groups already exist
 	for i, g := range c.Groups {

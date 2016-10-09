@@ -222,10 +222,7 @@ func processCampaign(c *models.Campaign) {
 	}
 }
 
-// Creates a simple constant delay between sending each email message.  Later
-// we can expand this function to include randomization of delay time, min and
-// max delay times and possibly other features.  Returns nothing for now just
-// delays the num seconds specified in the main config file.
+// SendingDelay creates a simple constant delay between sending each email message
 func SendingDelay(c *models.Campaign) {
 	sSendDelay := strconv.Itoa(randWithinRange(c.SMTPMinDelay, c.SMTPMaxDelay))
 	Logger.Printf("Next email will be sent in %s seconds\n", sSendDelay)
