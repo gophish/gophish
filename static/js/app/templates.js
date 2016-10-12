@@ -15,6 +15,14 @@ var icons = {
 
 // Save attempts to POST to /templates/
 function save(idx) {
+    var customheaders = []
+    $.each($("#customHeadersTable").DataTable().rows().data(), function(i, header) {
+        customheaders.push({
+            key: unescapeHtml(header[0]),
+            value: unescapeHtml(header[1]),
+        })
+    })
+
     var template = {
         attachments: []
     }
@@ -42,6 +50,9 @@ function save(idx) {
             type: target[4],
         })
     })
+
+    template.custom_headers = customheaders
+
     if (idx != -1) {
         template.id = templates[idx].id
         api.templateId.put(template)
@@ -70,6 +81,7 @@ function save(idx) {
 function dismiss() {
     $("#modal\\.flashes").empty()
     $("#attachmentsTable").dataTable().DataTable().clear().draw()
+    $("#customHeadersTable").dataTable().DataTable().clear().draw()
     $("#name").val("")
     $("#subject").val("")
     $("#text_editor").val("")
@@ -123,6 +135,14 @@ function attach(files) {
 }
 
 function edit(idx) {
+     headers = $("#customHeadersTable").dataTable({
+        destroy: true, // Destroy any other instantiated table - http://datatables.net/manual/tech-notes/3#destroy
+        columnDefs: [{
+            orderable: false,
+            targets: "no-sort"
+        }]
+    })
+
     $("#modalSubmit").unbind('click').click(function() {
         save(idx)
     })
@@ -169,6 +189,15 @@ function edit(idx) {
         } else {
             $("#use_tracker_checkbox").prop("checked", false)
         }
+        $.each(template.custom_headers, function(i, record) {
+            headers.DataTable()
+                .row.add([
+                    escapeHtml(record.key),
+                    escapeHtml(record.value),
+                    '<span style="cursor:pointer;"><i class="fa fa-trash-o"></i></span>'
+                ]).draw()
+        });
+
     }
     // Handle Deletion
     $("#attachmentsTable").unbind('click').on("click", "span>i.fa-trash-o", function() {
@@ -304,6 +333,32 @@ function load() {
         })
 }
 
+function addCustomHeader(header, value) {
+    // Create new data row.
+    var newRow = [
+        escapeHtml(header),
+        escapeHtml(value),
+        '<span style="cursor:pointer;"><i class="fa fa-trash-o"></i></span>'
+    ];
+
+    // Check table to see if header already exists.
+    var headersTable = headers.DataTable();
+    var existingRowIndex = headersTable
+        .column(0) // Email column has index of 2
+        .data()
+        .indexOf(escapeHtml(header));
+
+    // Update or add new row as necessary.
+    if (existingRowIndex >= 0) {
+        headersTable
+            .row(existingRowIndex, {order: "index"})
+            .data(newRow);
+    } else {
+        headersTable.row.add(newRow);
+    }
+    headersTable.draw();
+}
+
 $(document).ready(function() {
     // Setup multiple modals
     // Code based on http://miles-by-motorcycle.com/static/bootstrap-modal/index.html
@@ -346,4 +401,23 @@ $(document).ready(function() {
         dismiss()
     });
     load()
+
+    // Code to deal with custom email headers
+    $("#customHeadersForm").submit(function() {
+        addCustomHeader(
+            $("#customHeaderKey").val(),
+            $("#customHeaderValue").val());
+
+        // Reset user input.
+        $("#customHeadersForm>div>input").val('');
+        $("#customHeaderKey").focus();
+        return false;
+    });
+    // Handle Deletion
+    $("#customHeadersTable").on("click", "span>i.fa-trash-o", function() {
+        headers.DataTable()
+            .row($(this).parents('tr'))
+            .remove()
+            .draw();
+    });
 })

@@ -145,6 +145,11 @@ func (c *Campaign) getDetails() error {
 		Logger.Println(err)
 		return err
 	}
+	err = db.Where("template_id=?", c.Template.Id).Find(&c.Template.CustomHeaders).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		Logger.Println(err)
+		return err
+	}
 	err = db.Table("pages").Where("id=?", c.PageId).Find(&c.Page).Error
 	if err != nil {
 		if err != gorm.ErrRecordNotFound {
