@@ -136,55 +136,10 @@ func PutGroup(g *Group) error {
 	if err := g.Validate(); err != nil {
 		return err
 	}
-	// Fetch group's existing targets from database.
-	ts := []Target{}
-	ts, err = GetTargets(g.Id)
-	if err != nil {
-		Logger.Printf("Error getting targets from group ID: %d", g.Id)
-		return err
-	}
-	// Check existing targets, removing any that are no longer in the group.
-	tExists := false
-	for _, t := range ts {
-		tExists = false
-		// Is the target still in the group?
-		for _, nt := range g.Targets {
-			if t.Email == nt.Email {
-				tExists = true
-				break
-			}
-		}
-		// If the target does not exist in the group any longer, we delete it
-		if !tExists {
-			err = db.Where("group_id=? and target_id=?", g.Id, t.Id).Delete(&GroupTarget{}).Error
-			if err != nil {
-				Logger.Printf("Error deleting email %s\n", t.Email)
-			}
-		}
-	}
-	// Add any targets that are not in the database yet.
-	for _, nt := range g.Targets {
-		// Check and see if the target already exists in the db
-		tExists = false
-		for _, t := range ts {
-			if t.Email == nt.Email {
-				tExists = true
-				nt.Id = t.Id
-				break
-			}
-		}
-		// Add target if not in database, otherwise update target information.
-		if !tExists {
-			insertTargetIntoGroup(nt, g.Id)
-		} else {
-			UpdateTarget(nt)
-		}
-	}
-	err = db.Save(g).Error
-	if err != nil {
-		Logger.Println(err)
-		return err
-	}
+	n, _ := GetGroupByName(g.Name, g.UserId)
+	DeleteGroup(&n)
+	g.Id = 0
+	PostGroup(g)
 	return nil
 }
 
