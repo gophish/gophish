@@ -35,6 +35,7 @@ type Config struct {
 	PhishConf      PhishServer `json:"phish_server"`
 	SMTPConf       SMTPServer  `json:"smtp"`
 	DBPath         string      `json:"db_path"`
+	DBPool         int         `json:"db_pool"`
 	MigrationsPath string      `json:"migrations_path"`
 }
 
