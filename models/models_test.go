@@ -20,6 +20,7 @@ var _ = check.Suite(&ModelsSuite{})
 func (s *ModelsSuite) SetUpSuite(c *check.C) {
 	config.Conf.DBPath = ":memory:"
 	config.Conf.MigrationsPath = "../db/migrations/"
+	config.Conf.DBPool = 1
 	err := Setup()
 	if err != nil {
 		c.Fatalf("Failed creating database: %v", err)
@@ -165,7 +166,6 @@ func (s *ModelsSuite) TestPutGroup(c *check.C) {
 	group := Group{Name: "Test Group"}
 	group.Targets = []Target{
 		Target{Email: "test1@example.com", FirstName: "First", LastName: "Example"},
-		Target{Email: "test2@example.com", FirstName: "Second", LastName: "Example"},
 	}
 	group.UserId = 1
 	PostGroup(&group)
@@ -180,9 +180,6 @@ func (s *ModelsSuite) TestPutGroup(c *check.C) {
 	c.Assert(targets[0].Email, check.Equals, "test1@example.com")
 	c.Assert(targets[0].FirstName, check.Equals, "Updated")
 	c.Assert(targets[0].LastName, check.Equals, "Example")
-	c.Assert(targets[1].Email, check.Equals, "test2@example.com")
-	c.Assert(targets[1].FirstName, check.Equals, "Second")
-	c.Assert(targets[1].LastName, check.Equals, "Example")
 }
 
 func (s *ModelsSuite) TestPutGroupEmptyAttribute(c *check.C) {
@@ -190,7 +187,6 @@ func (s *ModelsSuite) TestPutGroupEmptyAttribute(c *check.C) {
 	group := Group{Name: "Test Group"}
 	group.Targets = []Target{
 		Target{Email: "test1@example.com", FirstName: "First", LastName: "Example"},
-		Target{Email: "test2@example.com", FirstName: "Second", LastName: "Example"},
 	}
 	group.UserId = 1
 	PostGroup(&group)
@@ -202,12 +198,11 @@ func (s *ModelsSuite) TestPutGroupEmptyAttribute(c *check.C) {
 
 	// Verify updated empty attribute was saved.
 	targets, _ := GetTargets(group.Id)
+
 	c.Assert(targets[0].Email, check.Equals, "test1@example.com")
 	c.Assert(targets[0].FirstName, check.Equals, "")
 	c.Assert(targets[0].LastName, check.Equals, "Example")
-	c.Assert(targets[1].Email, check.Equals, "test2@example.com")
-	c.Assert(targets[1].FirstName, check.Equals, "Second")
-	c.Assert(targets[1].LastName, check.Equals, "Example")
+
 }
 
 func (s *ModelsSuite) TestPostSMTP(c *check.C) {

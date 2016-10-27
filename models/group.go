@@ -121,13 +121,15 @@ func PostGroup(g *Group) error {
 	sort.Sort(SortByEmail(g.Targets))
 
 	c := ""
+	ch := make(chan string, len(g.Targets))
 	for _, t := range g.Targets {
 		if c != t.Email {
 			c = t.Email
 			Logger.Println(c)
-			go insertTargetIntoGroup(t, g.Id)
+			go insertTargetIntoGroup(t, g.Id, ch)
 		}
 	}
+	wait(ch, len(g.Targets), func() {})
 	return nil
 }
 
@@ -136,10 +138,31 @@ func PutGroup(g *Group) error {
 	if err := g.Validate(); err != nil {
 		return err
 	}
-	n, _ := GetGroupByName(g.Name, g.UserId)
-	DeleteGroup(&n)
-	g.Id = 0
-	PostGroup(g)
+
+	err := db.Exec("DELETE FROM TARGETS WHERE ID IN (SELECT target_id FROM GROUP_TARGETS WHERE group_id=?)", g.Id).Error
+	if err != nil {
+		Logger.Println(err)
+		return err
+	}
+	// Delete all the group_targets entries for this group
+	err = db.Where("group_id=?", g.Id).Delete(&GroupTarget{}).Error
+	if err != nil {
+		Logger.Println(err)
+		return err
+	}
+
+	sort.Sort(SortByEmail(g.Targets))
+
+	c := ""
+	ch := make(chan string, len(g.Targets))
+	for _, t := range g.Targets {
+		if c != t.Email {
+			c = t.Email
+			Logger.Println(c)
+			go insertTargetIntoGroup(t, g.Id, ch)
+		}
+	}
+	wait(ch, len(g.Targets), func() {})
 	return nil
 }
 
@@ -166,7 +189,7 @@ func DeleteGroup(g *Group) error {
 	return err
 }
 
-func insertTargetIntoGroup(t Target, gid int64) error {
+func insertTargetIntoGroup(t Target, gid int64, ack chan string) error {
 	if _, err = mail.ParseAddress(t.Email); err != nil {
 		Logger.Printf("Invalid email %s\n", t.Email)
 		return err
@@ -180,6 +203,7 @@ func insertTargetIntoGroup(t Target, gid int64) error {
 	if err != nil {
 		Logger.Println(err)
 	}
+	ack <- "Complete"
 	return nil
 }
 
