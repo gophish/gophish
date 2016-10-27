@@ -3,9 +3,8 @@ package models
 import (
 	"errors"
 	"net/mail"
+	"sort"
 	"time"
-
-	"github.com/jinzhu/gorm"
 )
 
 // Group contains the fields needed for a user -> group mapping
@@ -33,6 +32,12 @@ type Target struct {
 	Email     string `json:"email"`
 	Position  string `json:"position"`
 }
+
+type SortByEmail []Target
+
+func (a SortByEmail) Len() int           { return len(a) }
+func (a SortByEmail) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a SortByEmail) Less(i, j int) bool { return a[i].Email < a[j].Email }
 
 // ErrNoEmailSpecified is thrown when no email is specified for the Target
 var ErrEmailNotSpecified = errors.New("No email address specified")
@@ -112,8 +117,16 @@ func PostGroup(g *Group) error {
 		Logger.Println(err)
 		return err
 	}
+
+	sort.Sort(SortByEmail(g.Targets))
+
+	c := ""
 	for _, t := range g.Targets {
-		insertTargetIntoGroup(t, g.Id)
+		if c != t.Email {
+			c = t.Email
+			Logger.Println(c)
+			go insertTargetIntoGroup(t, g.Id)
+		}
 	}
 	return nil
 }
@@ -197,28 +210,14 @@ func insertTargetIntoGroup(t Target, gid int64) error {
 		Logger.Printf("Invalid email %s\n", t.Email)
 		return err
 	}
-	trans := db.Begin()
-	trans.Where(t).FirstOrCreate(&t)
+
+	err = db.Save(&t).Error
 	if err != nil {
-		Logger.Printf("Error adding target: %s\n", t.Email)
-		return err
+		Logger.Println(err)
 	}
-	err = trans.Where("group_id=? and target_id=?", gid, t.Id).Find(&GroupTarget{}).Error
-	if err == gorm.ErrRecordNotFound {
-		err = trans.Save(&GroupTarget{GroupId: gid, TargetId: t.Id}).Error
-		if err != nil {
-			Logger.Println(err)
-			return err
-		}
-	}
+	err = db.Save(&GroupTarget{GroupId: gid, TargetId: t.Id}).Error
 	if err != nil {
-		Logger.Printf("Error adding many-many mapping for %s\n", t.Email)
-		return err
-	}
-	err = trans.Commit().Error
-	if err != nil {
-		Logger.Printf("Error committing db changes\n")
-		return err
+		Logger.Println(err)
 	}
 	return nil
 }
