@@ -141,7 +141,7 @@ func PutGroup(g *Group) error {
 		return err
 	}
 
-	err := db.Table("targets").Delete("targets.id, targets.email, targets.first_name, targets.last_name, targets.position").Joins("left join group_targets gt ON targets.id = gt.target_id").Where("gt.group_id=?", g.Id).Error
+	err := db.Exec("DELETE FROM TARGETS WHERE ID IN (SELECT target_id FROM GROUP_TARGETS WHERE group_id=?)", g.Id).Error
 	if err != nil {
 		Logger.Println(err)
 		return err
@@ -173,7 +173,7 @@ func PutGroup(g *Group) error {
 // DeleteGroup deletes a given group by group ID and user ID
 func DeleteGroup(g *Group) error {
 
-	err := db.Table("targets").Delete("targets.id, targets.email, targets.first_name, targets.last_name, targets.position").Joins("left join group_targets gt ON targets.id = gt.target_id").Where("gt.group_id=?", g.Id).Error
+	err := db.Exec("DELETE FROM TARGETS WHERE ID IN (SELECT target_id FROM GROUP_TARGETS WHERE group_id=?)", g.Id).Error
 	if err != nil {
 		Logger.Println(err)
 		return err
