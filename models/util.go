@@ -1,13 +1,17 @@
 package models
 
-func wait(ch chan string, l int, callback func()) {
-	n := 0
-	for {
-		<-ch
-		n++
-		if n == l {
-			callback()
-			break
+func Wait(ch chan interface{}, s int, process func(a interface{})) {
+	if s > 0 {
+		n := 0
+		for {
+			process(<-ch)
+			n++
+			Logger.Println("Size ", s)
+			Logger.Println("N ", n)
+			if n == s {
+				Logger.Println("Finished Waiting")
+				break
+			}
 		}
 	}
 }

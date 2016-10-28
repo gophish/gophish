@@ -121,15 +121,17 @@ func PostGroup(g *Group) error {
 	sort.Sort(SortByEmail(g.Targets))
 
 	c := ""
-	ch := make(chan string, len(g.Targets))
+	ch := make(chan interface{}, len(g.Targets))
+	size := 0
 	for _, t := range g.Targets {
 		if c != t.Email {
+			size++
 			c = t.Email
 			Logger.Println(c)
 			go insertTargetIntoGroup(t, g.Id, ch)
 		}
 	}
-	wait(ch, len(g.Targets), func() {})
+	Wait(ch, size, func(a interface{}) {})
 	return nil
 }
 
@@ -139,7 +141,7 @@ func PutGroup(g *Group) error {
 		return err
 	}
 
-	err := db.Exec("DELETE FROM TARGETS WHERE ID IN (SELECT target_id FROM GROUP_TARGETS WHERE group_id=?)", g.Id).Error
+	err := db.Table("targets").Delete("targets.id, targets.email, targets.first_name, targets.last_name, targets.position").Joins("left join group_targets gt ON targets.id = gt.target_id").Where("gt.group_id=?", g.Id).Error
 	if err != nil {
 		Logger.Println(err)
 		return err
@@ -154,22 +156,24 @@ func PutGroup(g *Group) error {
 	sort.Sort(SortByEmail(g.Targets))
 
 	c := ""
-	ch := make(chan string, len(g.Targets))
+	ch := make(chan interface{}, len(g.Targets))
+	size := 0
 	for _, t := range g.Targets {
 		if c != t.Email {
+			size++
 			c = t.Email
 			Logger.Println(c)
 			go insertTargetIntoGroup(t, g.Id, ch)
 		}
 	}
-	wait(ch, len(g.Targets), func() {})
+	Wait(ch, size, func(a interface{}) {})
 	return nil
 }
 
 // DeleteGroup deletes a given group by group ID and user ID
 func DeleteGroup(g *Group) error {
 
-	err := db.Exec("DELETE FROM TARGETS WHERE ID IN (SELECT target_id FROM GROUP_TARGETS WHERE group_id=?)", g.Id).Error
+	err := db.Table("targets").Delete("targets.id, targets.email, targets.first_name, targets.last_name, targets.position").Joins("left join group_targets gt ON targets.id = gt.target_id").Where("gt.group_id=?", g.Id).Error
 	if err != nil {
 		Logger.Println(err)
 		return err
@@ -189,7 +193,10 @@ func DeleteGroup(g *Group) error {
 	return err
 }
 
-func insertTargetIntoGroup(t Target, gid int64, ack chan string) error {
+func insertTargetIntoGroup(t Target, gid int64, ack chan interface{}) error {
+
+	defer func() { ack <- "Complete" }()
+
 	if _, err = mail.ParseAddress(t.Email); err != nil {
 		Logger.Printf("Invalid email %s\n", t.Email)
 		return err
@@ -203,7 +210,6 @@ func insertTargetIntoGroup(t Target, gid int64, ack chan string) error {
 	if err != nil {
 		Logger.Println(err)
 	}
-	ack <- "Complete"
 	return nil
 }
 
