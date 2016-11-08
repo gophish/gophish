@@ -1,16 +1,14 @@
 var groups = []
+var PostData = []
+var targetsTable ;
+var tableInfo = {};
+tableInfo.start=0;
+tableInfo.length=0;
 
 // Save attempts to POST or PUT to /groups/
 function save(idx) {
     var targets = []
-    $.each($("#targetsTable").DataTable().rows().data(), function(i, target) {
-        targets.push({
-            first_name: unescapeHtml(target[0]),
-            last_name: unescapeHtml(target[1]),
-            email: unescapeHtml(target[2]),
-            position: unescapeHtml(target[3])
-        })
-    })
+    targets = PostData;
     var group = {
             name: $("#name").val(),
             targets: targets
@@ -52,8 +50,66 @@ function dismiss() {
     $("#modal\\.flashes").empty()
 }
 
+function removeDuplicates() {
+    PostData = PostData.sort(
+        function(a,b){
+            return a.email>b.email?1:0;
+        }
+    );
+    var newPostData = [];
+    var prev = {"email":""};
+    $.each(PostData, function(i, target) {
+        if(prev.email != target.email){
+            prev = target;
+            newPostData.push(target);
+        }
+    });
+    PostData = newPostData;
+}
+
+function xssParsing(input) {
+    return [escapeHtml(input["first_name"]),escapeHtml(input["last_name"]),escapeHtml(input["email"]).toLowerCase(),escapeHtml(input["position"]),'<span style="cursor:pointer;"><i class="fa fa-trash-o"></i></span>']
+}
+
+
 function edit(idx) {
-    targets = $("#targetsTable").dataTable({
+
+    targetsTable = $("#targetsTable").dataTable({
+        processing: true,
+        serverSide: true,
+        ajax:{
+          url:"/api/datatables/dummy",
+          data:function(params){
+              tableInfo.start = params.start;
+              tableInfo.length = params.length;
+              delete params.draw;
+              delete params.columns;
+              delete params.order;
+              delete params.search;
+              delete params.length;
+              delete params.start;
+              return;
+          },
+          dataSrc:function(json){
+              var data = [];
+              for(var i=tableInfo.start;i<tableInfo.start+tableInfo.length && i<PostData.length;i++){
+                  data.push(xssParsing(PostData[i]));
+              }
+              return data;
+          }
+      },
+        infoCallback:   function( settings, start, end, max, total, pre ) {
+                            var info = "";
+                            if(PostData.length<=tableInfo.length){
+                                info += "Showing "+(PostData.length)+" to "+PostData.length;
+                            } else{
+                                info += "Showing "+(tableInfo.start+1)+" to "+(tableInfo.start+1+tableInfo.length);
+                            }
+                            info += " of "+PostData.length+" entries"
+                            return info;
+                        },
+        ordering: false,
+        deferRender:    true,
         destroy: true, // Destroy any other instantiated table - http://datatables.net/manual/tech-notes/3#destroy
         columnDefs: [{
             orderable: false,
@@ -65,19 +121,12 @@ function edit(idx) {
     })
     if (idx == -1) {
         group = {}
+        PostData = [];
     } else {
         group = groups[idx]
         $("#name").val(group.name)
-        $.each(group.targets, function(i, record) {
-            targets.DataTable()
-                .row.add([
-                    escapeHtml(record.first_name),
-                    escapeHtml(record.last_name),
-                    escapeHtml(record.email),
-                    escapeHtml(record.position),
-                    '<span style="cursor:pointer;"><i class="fa fa-trash-o"></i></span>'
-                ]).draw()
-        });
+        PostData = group.targets;
+        targetsTable.DataTable().draw();
     }
     // Handle file uploads
     $("#csvupload").fileupload({
@@ -93,13 +142,9 @@ function edit(idx) {
             data.submit();
         },
         done: function(e, data) {
-            $.each(data.result, function(i, record) {
-                addTarget(
-                    record.first_name,
-                    record.last_name,
-                    record.email,
-                    record.position);
-            });
+            PostData = PostData.concat(data.result);
+            removeDuplicates();
+            targetsTable.DataTable().draw();
         }
     })
 }
@@ -113,36 +158,6 @@ function deleteGroup(idx) {
             })
     }
 }
-
-function addTarget(firstNameInput, lastNameInput, emailInput, positionInput) {
-    // Create new data row.
-    var email = escapeHtml(emailInput).toLowerCase();
-    var newRow = [
-        escapeHtml(firstNameInput),
-        escapeHtml(lastNameInput),
-        email,
-        escapeHtml(positionInput),
-        '<span style="cursor:pointer;"><i class="fa fa-trash-o"></i></span>'
-    ];
-
-    // Check table to see if email already exists.
-    var targetsTable = targets.DataTable();
-    var existingRowIndex = targetsTable
-        .column(2, {order: "index"}) // Email column has index of 2
-        .data()
-        .indexOf(email);
-
-    // Update or add new row as necessary.
-    if (existingRowIndex >= 0) {
-        targetsTable
-            .row(existingRowIndex, {order: "index"})
-            .data(newRow);
-    } else {
-        targetsTable.row.add(newRow);
-    }
-    targetsTable.draw();
-}
-
 function load() {
     $("#groupTable").hide()
     $("#emptyMessage").hide()
@@ -197,12 +212,14 @@ $(document).ready(function() {
     // Setup the event listeners
     // Handle manual additions
     $("#targetForm").submit(function() {
-        addTarget(
-            $("#firstName").val(),
-            $("#lastName").val(),
-            $("#email").val(),
-            $("#position").val());
-
+        PostData.push({
+            first_name: $("#firstName").val(),
+            last_name: $("#lastName").val(),
+            email: $("#email").val().toLowerCase(),
+            position: $("#position").val()
+        })
+        removeDuplicates();
+        targetsTable.DataTable().draw();
         // Reset user input.
         $("#targetForm>div>input").val('');
         $("#firstName").focus();
@@ -210,10 +227,8 @@ $(document).ready(function() {
     });
     // Handle Deletion
     $("#targetsTable").on("click", "span>i.fa-trash-o", function() {
-        targets.DataTable()
-            .row($(this).parents('tr'))
-            .remove()
-            .draw();
+        PostData.splice($("#targetsTable tbody tr").index($(this).parents('tr')),1)
+        targetsTable.DataTable().draw();
     });
     $("#modal").on("hide.bs.modal", function() {
         dismiss();

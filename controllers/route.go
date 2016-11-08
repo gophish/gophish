@@ -63,6 +63,7 @@ func CreateAdminRouter() http.Handler {
 	api.HandleFunc("/import/group", API_Import_Group)
 	api.HandleFunc("/import/email", API_Import_Email)
 	api.HandleFunc("/import/site", API_Import_Site)
+	api.HandleFunc("/datatables/dummy", API_Datatable_Dummy)
 
 	// Setup static file serving
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./static/")))

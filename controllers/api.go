@@ -580,6 +580,10 @@ func API_Import_Site(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
+func API_Datatable_Dummy(w http.ResponseWriter, r *http.Request) {
+	JSONResponse(w, models.Response{Success: true, Message: "Empty Json"}, http.StatusOK)
+}
+
 // API_Send_Test_Email sends a test email using the template name
 // and Target given.
 func API_Send_Test_Email(w http.ResponseWriter, r *http.Request) {
