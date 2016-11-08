@@ -95,7 +95,10 @@ function edit(idx) {
               for(var i=tableInfo.start;i<tableInfo.start+tableInfo.length && i<PostData.length;i++){
                   data.push(xssParsing(PostData[i]));
               }
-              return data;
+              json.recordsFiltered = PostData.length;
+              json.recordsTotal = PostData.length;
+              json.data = data;
+              return json.data;
           }
       },
         infoCallback:   function( settings, start, end, max, total, pre ) {
