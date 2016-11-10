@@ -74,7 +74,7 @@ func (r *Result) GenerateId() {
 	for {
 		io.ReadFull(rand.Reader, k)
 		r.RId = fmt.Sprintf("%x", k)
-		err := db.Table("results").Where("id=?", r.RId).First(&Result{}).Error
+		err := db.Table("results").Where("r_id=?", r.RId).First(&Result{}).Error
 		if err == gorm.ErrRecordNotFound {
 			break
 		}
