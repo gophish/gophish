@@ -12,11 +12,11 @@ Gophish: Open-Source Phishing Toolkit
 [Gophish](https://getgophish.com) is an open-source phishing toolkit designed for businesses and penetration testers. It provides the ability to quickly and easily setup and execute phishing engagements and security awareness training.
 
 ###Current Status
-**Update 08/06/2016**
+**Update 11/13/2016**
 
-We're working to finalize the 0.2 release with minor bug fixes and docs cleanup. We will be releasing binaries for all platforms as soon as the code is ready to go.
+Gophish version 0.2 binaries have been released! Head on over to the [releases page](https://github.com/gophish/gophish/releases/tag/v0.2.0) to download the latest binaries.
 
-_Get hyped!_
+Enjoy!
 
 ###Install
 
