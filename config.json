@@ -14,7 +14,8 @@
 	"smtp" : {
 		"host" : "smtp.example.com:25",
 		"user" : "username",
-		"pass" : "password"
+		"pass" : "password",
+		"pool_size" : 5
 	},
 	"db_path" : "gophish.db",
 	"migrations_path" : "db/migrations/"

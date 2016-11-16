@@ -15,6 +15,7 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/gophish/gophish/config"
 	"github.com/gophish/gophish/models"
 	"gopkg.in/gomail.v2"
 )
@@ -84,136 +85,130 @@ func processCampaign(c *models.Campaign) {
 		hostname = "localhost"
 	}
 	d.LocalName = hostname
-	s, err := d.Dial()
-	// Short circuit if we have an err
-	// However, we still need to update each target
-	if err != nil {
-		Logger.Println(err)
-		for _, t := range c.Results {
-			es := struct {
-				Error string `json:"error"`
-			}{
-				Error: err.Error(),
-			}
-			ej, err := json.Marshal(es)
-			if err != nil {
-				Logger.Println(err)
-			}
-			err = t.UpdateStatus(models.ERROR)
-			if err != nil {
-				Logger.Println(err)
-			}
-			err = c.AddEvent(models.Event{Email: t.Email, Message: models.EVENT_SENDING_ERROR, Details: string(ej)})
-			if err != nil {
-				Logger.Println(err)
-			}
-		}
-		return
-	}
-	// Send each email
-	e := gomail.NewMessage()
+
+	pool := createPool(d, config.Conf.SMTPConf.PoolSize, len(c.Results))
+
+	ack := make(chan string, len(c.Results))
+
 	for _, t := range c.Results {
-		e.SetHeader("From", c.SMTP.FromAddress)
-		td := struct {
-			models.Result
-			URL         string
-			TrackingURL string
-			Tracker     string
-			From        string
-		}{
-			t,
-			c.URL + "?rid=" + t.RId,
-			c.URL + "/track?rid=" + t.RId,
-			"<img style='display: none' src='" + c.URL + "/track?rid=" + t.RId + "'/>",
-			fn,
-		}
-		// Parse the templates
-		var subjBuff bytes.Buffer
-		tmpl, err := template.New("text_template").Parse(c.Template.Subject)
-		if err != nil {
-			Logger.Println(err)
-		}
-		err = tmpl.Execute(&subjBuff, td)
-		if err != nil {
-			Logger.Println(err)
-		}
-		e.SetHeader("Subject", subjBuff.String())
-		Logger.Println("Creating email using template")
-		e.SetHeader("To", t.Email)
-		if c.Template.Text != "" {
-			var textBuff bytes.Buffer
-			tmpl, err = template.New("text_template").Parse(c.Template.Text)
-			if err != nil {
-				Logger.Println(err)
-			}
-			err = tmpl.Execute(&textBuff, td)
-			if err != nil {
-				Logger.Println(err)
-			}
-			e.SetBody("text/plain", textBuff.String())
-		}
-		if c.Template.HTML != "" {
-			var htmlBuff bytes.Buffer
-			tmpl, err = template.New("html_template").Parse(c.Template.HTML)
-			if err != nil {
-				Logger.Println(err)
-			}
-			err = tmpl.Execute(&htmlBuff, td)
-			if err != nil {
-				Logger.Println(err)
-			}
-			if c.Template.Text == "" {
-				e.SetBody("text/html", htmlBuff.String())
-			} else {
-				e.AddAlternative("text/html", htmlBuff.String())
-			}
-		}
-		// Attach the files
-		for _, a := range c.Template.Attachments {
-			e.Attach(func(a models.Attachment) (string, gomail.FileSetting) {
-				return a.Name, gomail.SetCopyFunc(func(w io.Writer) error {
-					decoder := base64.NewDecoder(base64.StdEncoding, strings.NewReader(a.Content))
-					_, err = io.Copy(w, decoder)
-					return err
-				})
-			}(a))
-		}
-		Logger.Printf("Sending Email to %s\n", t.Email)
-		err = gomail.Send(s, e)
-		if err != nil {
-			Logger.Println(err)
-			es := struct {
-				Error string `json:"error"`
+		go func(t models.Result) {
+			e := gomail.NewMessage()
+			e.SetHeader("From", c.SMTP.FromAddress)
+			td := struct {
+				models.Result
+				URL         string
+				TrackingURL string
+				Tracker     string
+				From        string
 			}{
-				Error: err.Error(),
+				t,
+				c.URL + "?rid=" + t.RId,
+				c.URL + "/track?rid=" + t.RId,
+				"<img style='display: none' src='" + c.URL + "/track?rid=" + t.RId + "'/>",
+				fn,
 			}
-			ej, err := json.Marshal(es)
+			// Parse the templates
+			var subjBuff bytes.Buffer
+			tmpl, err := template.New("text_template").Parse(c.Template.Subject)
 			if err != nil {
 				Logger.Println(err)
 			}
-			err = t.UpdateStatus(models.ERROR)
+			err = tmpl.Execute(&subjBuff, td)
 			if err != nil {
 				Logger.Println(err)
 			}
-			err = c.AddEvent(models.Event{Email: t.Email, Message: models.EVENT_SENDING_ERROR, Details: string(ej)})
-			if err != nil {
-				Logger.Println(err)
+			e.SetHeader("Subject", subjBuff.String())
+			Logger.Println("Creating email using template")
+			e.SetHeader("To", t.Email)
+			if c.Template.Text != "" {
+				var textBuff bytes.Buffer
+				tmpl, err = template.New("text_template").Parse(c.Template.Text)
+				if err != nil {
+					Logger.Println(err)
+				}
+				err = tmpl.Execute(&textBuff, td)
+				if err != nil {
+					Logger.Println(err)
+				}
+				e.SetBody("text/plain", textBuff.String())
 			}
-		} else {
-			err = t.UpdateStatus(models.EVENT_SENT)
-			if err != nil {
-				Logger.Println(err)
+			if c.Template.HTML != "" {
+				var htmlBuff bytes.Buffer
+				tmpl, err = template.New("html_template").Parse(c.Template.HTML)
+				if err != nil {
+					Logger.Println(err)
+				}
+				err = tmpl.Execute(&htmlBuff, td)
+				if err != nil {
+					Logger.Println(err)
+				}
+				if c.Template.Text == "" {
+					e.SetBody("text/html", htmlBuff.String())
+				} else {
+					e.AddAlternative("text/html", htmlBuff.String())
+				}
 			}
-			err = c.AddEvent(models.Event{Email: t.Email, Message: models.EVENT_SENT})
-			if err != nil {
-				Logger.Println(err)
+			// Attach the files
+			for _, a := range c.Template.Attachments {
+				e.Attach(func(a models.Attachment) (string, gomail.FileSetting) {
+					return a.Name, gomail.SetCopyFunc(func(w io.Writer) error {
+						decoder := base64.NewDecoder(base64.StdEncoding, strings.NewReader(a.Content))
+						_, err = io.Copy(w, decoder)
+						return err
+					})
+				}(a))
 			}
-		}
-		e.Reset()
+			Logger.Printf("Sending Email to %s\n", t.Email)
+			md := email{message: e}
+
+			md.onError = func(err error) {
+				es := struct {
+					Error string `json:"error"`
+				}{
+					Error: err.Error(),
+				}
+				ej, err := json.Marshal(es)
+				if err != nil {
+					Logger.Println(err)
+				}
+				err = t.UpdateStatus(models.ERROR)
+				if err != nil {
+					Logger.Println(err)
+				}
+				err = c.AddEvent(models.Event{Email: t.Email, Message: models.EVENT_SENDING_ERROR, Details: string(ej)})
+				if err != nil {
+					Logger.Println(err)
+				}
+				ack <- "Mail Send Complete"
+			}
+			md.onSuccess = func() {
+				err = t.UpdateStatus(models.EVENT_SENT)
+				if err != nil {
+					Logger.Println(err)
+				}
+				err = c.AddEvent(models.Event{Email: t.Email, Message: models.EVENT_SENT})
+				if err != nil {
+					Logger.Println(err)
+				}
+				ack <- "Mail Send Complete"
+			}
+
+			pool <- &md
+		}(t)
 	}
-	err = c.UpdateStatus(models.CAMPAIGN_EMAILS_SENT)
-	if err != nil {
-		Logger.Println(err)
+	n := 0
+	size := len(c.Results)
+	for {
+		<-ack
+		n++
+		if n == size {
+			err = c.UpdateStatus(models.CAMPAIGN_EMAILS_SENT)
+			if err != nil {
+				Logger.Println(err)
+			}
+			close(pool)
+			return
+		}
 	}
 }
 
