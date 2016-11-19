@@ -100,6 +100,7 @@ function edit(idx) {
                     record.email,
                     record.position);
             });
+            targets.DataTable().draw();
         }
     })
 }
@@ -128,19 +129,21 @@ function addTarget(firstNameInput, lastNameInput, emailInput, positionInput) {
     // Check table to see if email already exists.
     var targetsTable = targets.DataTable();
     var existingRowIndex = targetsTable
-        .column(2, {order: "index"}) // Email column has index of 2
+        .column(2, {
+            order: "index"
+        }) // Email column has index of 2
         .data()
         .indexOf(email);
-
     // Update or add new row as necessary.
     if (existingRowIndex >= 0) {
         targetsTable
-            .row(existingRowIndex, {order: "index"})
+            .row(existingRowIndex, {
+                order: "index"
+            })
             .data(newRow);
     } else {
         targetsTable.row.add(newRow);
     }
-    targetsTable.draw();
 }
 
 function load() {
@@ -194,14 +197,15 @@ function load() {
 
 $(document).ready(function() {
     load()
-    // Setup the event listeners
-    // Handle manual additions
+        // Setup the event listeners
+        // Handle manual additions
     $("#targetForm").submit(function() {
         addTarget(
             $("#firstName").val(),
             $("#lastName").val(),
             $("#email").val(),
             $("#position").val());
+        targets.DataTable().draw();
 
         // Reset user input.
         $("#targetForm>div>input").val('');
