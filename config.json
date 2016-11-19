@@ -11,6 +11,7 @@
 		"cert_path" : "example.crt",
 		"key_path": "example.key"
 	},
+	"db_name" : "sqlite3",
 	"db_path" : "gophish.db",
-	"migrations_path" : "db/migrations/"
+	"migrations_prefix" : "db/db_"
 }

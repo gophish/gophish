@@ -18,8 +18,9 @@ type ModelsSuite struct{}
 var _ = check.Suite(&ModelsSuite{})
 
 func (s *ModelsSuite) SetUpSuite(c *check.C) {
+	config.Conf.DBName = "sqlite3"
 	config.Conf.DBPath = ":memory:"
-	config.Conf.MigrationsPath = "../db/migrations/"
+	config.Conf.MigrationsPath = "../db/db_sqlite3/migrations/"
 	err := Setup()
 	if err != nil {
 		c.Fatalf("Failed creating database: %v", err)

@@ -1,0 +1,5 @@
+production:
+    driver: mysql 
+    open: root:@(:3307)/gophish?charset=utf8&parseTime=True&loc=Local
+    dialect: mysql
+    import: github.com/go-sql-driver/mysql
