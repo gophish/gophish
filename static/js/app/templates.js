@@ -164,7 +164,7 @@ function edit(idx) {
                 file.type || "application/octet-stream"
             ]).draw()
         })
-        if (template.html.indexOf("{{.Tracker}}</body>") != -1) {
+        if (template.html.indexOf("{{.Tracker}}") != -1) {
             $("#use_tracker_checkbox").prop("checked", true)
         } else {
             $("#use_tracker_checkbox").prop("checked", false)
@@ -225,7 +225,7 @@ function copy(idx) {
             .remove()
             .draw();
     })
-    if (template.html.indexOf("{{.Tracker}}</body>") != -1) {
+    if (template.html.indexOf("{{.Tracker}}") != -1) {
         $("#use_tracker_checkbox").prop("checked", true)
     } else {
         $("#use_tracker_checkbox").prop("checked", false)
