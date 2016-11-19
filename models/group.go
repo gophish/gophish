@@ -3,9 +3,8 @@ package models
 import (
 	"errors"
 	"net/mail"
+	"sort"
 	"time"
-
-	"github.com/jinzhu/gorm"
 )
 
 // Group contains the fields needed for a user -> group mapping
@@ -33,6 +32,12 @@ type Target struct {
 	Email     string `json:"email"`
 	Position  string `json:"position"`
 }
+
+type SortByEmail []Target
+
+func (a SortByEmail) Len() int           { return len(a) }
+func (a SortByEmail) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a SortByEmail) Less(i, j int) bool { return a[i].Email < a[j].Email }
 
 // ErrNoEmailSpecified is thrown when no email is specified for the Target
 var ErrEmailNotSpecified = errors.New("No email address specified")
@@ -112,9 +117,21 @@ func PostGroup(g *Group) error {
 		Logger.Println(err)
 		return err
 	}
+
+	sort.Sort(SortByEmail(g.Targets))
+
+	c := ""
+	ch := make(chan interface{}, len(g.Targets))
+	size := 0
 	for _, t := range g.Targets {
-		insertTargetIntoGroup(t, g.Id)
+		if c != t.Email {
+			size++
+			c = t.Email
+			Logger.Println(c)
+			go insertTargetIntoGroup(t, g.Id, ch)
+		}
 	}
+	Wait(ch, size, func(a interface{}) {})
 	return nil
 }
 
@@ -123,62 +140,46 @@ func PutGroup(g *Group) error {
 	if err := g.Validate(); err != nil {
 		return err
 	}
-	// Fetch group's existing targets from database.
-	ts := []Target{}
-	ts, err = GetTargets(g.Id)
-	if err != nil {
-		Logger.Printf("Error getting targets from group ID: %d", g.Id)
-		return err
-	}
-	// Check existing targets, removing any that are no longer in the group.
-	tExists := false
-	for _, t := range ts {
-		tExists = false
-		// Is the target still in the group?
-		for _, nt := range g.Targets {
-			if t.Email == nt.Email {
-				tExists = true
-				break
-			}
-		}
-		// If the target does not exist in the group any longer, we delete it
-		if !tExists {
-			err = db.Where("group_id=? and target_id=?", g.Id, t.Id).Delete(&GroupTarget{}).Error
-			if err != nil {
-				Logger.Printf("Error deleting email %s\n", t.Email)
-			}
-		}
-	}
-	// Add any targets that are not in the database yet.
-	for _, nt := range g.Targets {
-		// Check and see if the target already exists in the db
-		tExists = false
-		for _, t := range ts {
-			if t.Email == nt.Email {
-				tExists = true
-				nt.Id = t.Id
-				break
-			}
-		}
-		// Add target if not in database, otherwise update target information.
-		if !tExists {
-			insertTargetIntoGroup(nt, g.Id)
-		} else {
-			UpdateTarget(nt)
-		}
-	}
-	err = db.Save(g).Error
+
+	err := db.Exec("DELETE FROM TARGETS WHERE ID IN (SELECT target_id FROM GROUP_TARGETS WHERE group_id=?)", g.Id).Error
 	if err != nil {
 		Logger.Println(err)
 		return err
 	}
+	// Delete all the group_targets entries for this group
+	err = db.Where("group_id=?", g.Id).Delete(&GroupTarget{}).Error
+	if err != nil {
+		Logger.Println(err)
+		return err
+	}
+
+	sort.Sort(SortByEmail(g.Targets))
+
+	c := ""
+	ch := make(chan interface{}, len(g.Targets))
+	size := 0
+	for _, t := range g.Targets {
+		if c != t.Email {
+			size++
+			c = t.Email
+			Logger.Println(c)
+			go insertTargetIntoGroup(t, g.Id, ch)
+		}
+	}
+	Wait(ch, size, func(a interface{}) {})
 	return nil
 }
 
 // DeleteGroup deletes a given group by group ID and user ID
 func DeleteGroup(g *Group) error {
+
+	err := db.Exec("DELETE FROM TARGETS WHERE ID IN (SELECT target_id FROM GROUP_TARGETS WHERE group_id=?)", g.Id).Error
+	if err != nil {
+		Logger.Println(err)
+		return err
+	}
 	// Delete all the group_targets entries for this group
-	err := db.Where("group_id=?", g.Id).Delete(&GroupTarget{}).Error
+	err = db.Where("group_id=?", g.Id).Delete(&GroupTarget{}).Error
 	if err != nil {
 		Logger.Println(err)
 		return err
@@ -192,33 +193,22 @@ func DeleteGroup(g *Group) error {
 	return err
 }
 
-func insertTargetIntoGroup(t Target, gid int64) error {
+func insertTargetIntoGroup(t Target, gid int64, ack chan interface{}) error {
+
+	defer func() { ack <- "Complete" }()
+
 	if _, err = mail.ParseAddress(t.Email); err != nil {
 		Logger.Printf("Invalid email %s\n", t.Email)
 		return err
 	}
-	trans := db.Begin()
-	trans.Where(t).FirstOrCreate(&t)
+
+	err = db.Save(&t).Error
 	if err != nil {
-		Logger.Printf("Error adding target: %s\n", t.Email)
-		return err
+		Logger.Println(err)
 	}
-	err = trans.Where("group_id=? and target_id=?", gid, t.Id).Find(&GroupTarget{}).Error
-	if err == gorm.ErrRecordNotFound {
-		err = trans.Save(&GroupTarget{GroupId: gid, TargetId: t.Id}).Error
-		if err != nil {
-			Logger.Println(err)
-			return err
-		}
-	}
+	err = db.Save(&GroupTarget{GroupId: gid, TargetId: t.Id}).Error
 	if err != nil {
-		Logger.Printf("Error adding many-many mapping for %s\n", t.Email)
-		return err
-	}
-	err = trans.Commit().Error
-	if err != nil {
-		Logger.Printf("Error committing db changes\n")
-		return err
+		Logger.Println(err)
 	}
 	return nil
 }

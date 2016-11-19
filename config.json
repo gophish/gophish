@@ -12,5 +12,6 @@
 		"key_path": "example.key"
 	},
 	"db_path" : "gophish.db",
+	"db_pool" : 10,
 	"migrations_path" : "db/migrations/"
 }

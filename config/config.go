@@ -27,6 +27,7 @@ type Config struct {
 	AdminConf      AdminServer `json:"admin_server"`
 	PhishConf      PhishServer `json:"phish_server"`
 	DBPath         string      `json:"db_path"`
+	DBPool         int         `json:"db_pool"`
 	MigrationsPath string      `json:"migrations_path"`
 }
 
