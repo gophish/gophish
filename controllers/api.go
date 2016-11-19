@@ -176,7 +176,6 @@ func API_Groups(w http.ResponseWriter, r *http.Request) {
 			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
 			return
 		}
-		w.Header().Set("Location", "http://localhost:3333/api/groups/"+string(g.Id))
 		JSONResponse(w, g, http.StatusCreated)
 	}
 }
