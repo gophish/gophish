@@ -14,7 +14,7 @@ CREATE TABLE smtp(
 	username varchar(255),
 	password varchar(255),
 	from_address varchar(255),
-	modified_date datetime default CURRENT_TIMESTAMP,
+	modified_date datetime,
 	ignore_cert_errors BOOLEAN
 );
 -- +goose Down
