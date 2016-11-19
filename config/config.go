@@ -34,7 +34,7 @@ type Config struct {
 var Conf Config
 
 // Version contains the current gophish version
-var Version = "0.2alpha"
+var Version = "0.3-dev"
 
 func init() {
 	// Get the config file
