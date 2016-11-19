@@ -11,11 +11,6 @@
 		"cert_path" : "example.crt",
 		"key_path": "example.key"
 	},
-	"smtp" : {
-		"host" : "smtp.example.com:25",
-		"user" : "username",
-		"pass" : "password"
-	},
 	"db_path" : "gophish.db",
 	"migrations_path" : "db/migrations/"
 }

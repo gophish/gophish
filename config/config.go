@@ -6,13 +6,6 @@ import (
 	"io/ioutil"
 )
 
-// SMTPServer represents the SMTP configuration details
-type SMTPServer struct {
-	Host     string `json:"host"`
-	User     string `json:"user"`
-	Password string `json:"password"`
-}
-
 // AdminServer represents the Admin server configuration details
 type AdminServer struct {
 	ListenURL string `json:"listen_url"`
@@ -33,7 +26,6 @@ type PhishServer struct {
 type Config struct {
 	AdminConf      AdminServer `json:"admin_server"`
 	PhishConf      PhishServer `json:"phish_server"`
-	SMTPConf       SMTPServer  `json:"smtp"`
 	DBPath         string      `json:"db_path"`
 	MigrationsPath string      `json:"migrations_path"`
 }
