@@ -251,7 +251,7 @@ func PostCampaign(c *Campaign, uid int64) error {
 	c.UserId = uid
 	c.CreatedDate = time.Now()
 	c.CompletedDate = time.Time{}
-	c.Status = CAMPAIGN_QUEUED
+	c.Status = CAMPAIGN_CREATED
 	if c.LaunchDate.IsZero() {
 		c.LaunchDate = time.Now()
 	}
@@ -323,7 +323,9 @@ func PostCampaign(c *Campaign, uid int64) error {
 			c.Results = append(c.Results, *r)
 		}
 	}
-	return nil
+	c.Status = CAMPAIGN_QUEUED
+	err = db.Save(c).Error
+	return err
 }
 
 //DeleteCampaign deletes the specified campaign
