@@ -37,6 +37,7 @@ import (
 	"github.com/gophish/gophish/config"
 	"github.com/gophish/gophish/controllers"
 	"github.com/gophish/gophish/models"
+	"github.com/gophish/gophish/util"
 	"github.com/gorilla/handlers"
 )
 
@@ -56,6 +57,10 @@ func main() {
 		adminHandler := gziphandler.GzipHandler(controllers.CreateAdminRouter())
 		auth.Store.Options.Secure = config.Conf.AdminConf.UseTLS
 		if config.Conf.AdminConf.UseTLS { // use TLS for Admin web server if available
+			err := util.CheckAndCreateSSL(config.Conf.AdminConf.CertPath, config.Conf.AdminConf.KeyPath)
+			if err != nil {
+				Logger.Fatal(err)
+			}
 			Logger.Printf("Starting admin server at https://%s\n", config.Conf.AdminConf.ListenURL)
 			Logger.Fatal(http.ListenAndServeTLS(config.Conf.AdminConf.ListenURL, config.Conf.AdminConf.CertPath, config.Conf.AdminConf.KeyPath,
 				handlers.CombinedLoggingHandler(os.Stdout, adminHandler)))
