@@ -3,6 +3,7 @@ var PostData = []
 var targetsTable ;
 var tableInfo = {};
 tableInfo.start=0;
+tableInfo.order=0;
 tableInfo.length=0;
 
 // Save attempts to POST or PUT to /groups/
@@ -82,15 +83,45 @@ function edit(idx) {
           data:function(params){
               tableInfo.start = params.start;
               tableInfo.length = params.length;
+              tableInfo.order = params.order;
               delete params.draw;
               delete params.columns;
-              delete params.order;
+            //   delete params.order;
               delete params.search;
               delete params.length;
               delete params.start;
               return;
           },
           dataSrc:function(json){
+              PostData = PostData.sort(
+                  function(a,b){
+                      if(tableInfo.order[0].column==0){
+                        if(tableInfo.order[0].dir=="asc"){
+                            return a.first_name>b.first_name?1:0;
+                        } else {
+                            return a.first_name<b.first_name?1:0;
+                        }
+                      } else if(tableInfo.order[0].column==1){
+                          if(tableInfo.order[0].dir=="asc"){
+                              return a.last_name>b.last_name?1:0;
+                          } else {
+                              return a.last_name<b.last_name?1:0;
+                          }
+                      } else if(tableInfo.order[0].column==2){
+                          if(tableInfo.order[0].dir=="asc"){
+                              return a.email>b.email?1:0;
+                          } else {
+                              return a.email<b.email?1:0;
+                          }
+                      } else if(tableInfo.order[0].column==3){
+                          if(tableInfo.order[0].dir=="asc"){
+                              return a.position>b.position?1:0;
+                          } else {
+                              return a.position<b.position?1:0;
+                          }
+                      }
+                  }
+              );
               var data = [];
               for(var i=tableInfo.start;i<tableInfo.start+tableInfo.length && i<PostData.length;i++){
                   data.push(xssParsing(PostData[i]));
@@ -101,17 +132,17 @@ function edit(idx) {
               return json.data;
           }
       },
-        infoCallback:   function( settings, start, end, max, total, pre ) {
-                            var info = "";
-                            if(PostData.length<=tableInfo.length){
-                                info += "Showing "+(PostData.length)+" to "+PostData.length;
-                            } else{
-                                info += "Showing "+(tableInfo.start+1)+" to "+(tableInfo.start+1+tableInfo.length);
-                            }
-                            info += " of "+PostData.length+" entries"
-                            return info;
-                        },
-        ordering: false,
+        // infoCallback:   function( settings, start, end, max, total, pre ) {
+        //                     var info = "";
+        //                     if(PostData.length<=tableInfo.length){
+        //                         info += "Showing "+(PostData.length)+" to "+PostData.length;
+        //                     } else{
+        //                         info += "Showing "+(tableInfo.start+1)+" to "+(tableInfo.start+1+tableInfo.length);
+        //                     }
+        //                     info += " of "+PostData.length+" entries"
+        //                     return info;
+        //                 },
+        // ordering: false,
         deferRender:    true,
         destroy: true, // Destroy any other instantiated table - http://datatables.net/manual/tech-notes/3#destroy
         columnDefs: [{
