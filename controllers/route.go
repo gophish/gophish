@@ -108,17 +108,6 @@ func PhishTracker(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	c.AddEvent(models.Event{Email: rs.Email, Message: models.EVENT_OPENED})
-	// Don't update the status if the user already clicked the link
-	// or submitted data to the campaign
-	if rs.Status == models.STATUS_SUCCESS {
-		http.ServeFile(w, r, "static/images/pixel.png")
-		return
-	}
-	err = rs.UpdateStatus(models.EVENT_OPENED)
-	if err != nil {
-		Logger.Println(err)
-	}
 	ip, _, err := net.SplitHostPort(r.RemoteAddr)
 	if err != nil {
 		Logger.Println(err)
@@ -130,6 +119,32 @@ func PhishTracker(w http.ResponseWriter, r *http.Request) {
 	}
 	// Handle post processing such as GeoIP
 	err = rs.UpdateGeo(ip)
+	if err != nil {
+		Logger.Println(err)
+	}
+	d := struct {
+		Payload url.Values        `json:"payload"`
+		Browser map[string]string `json:"browser"`
+	}{
+		Payload: r.Form,
+		Browser: make(map[string]string),
+	}
+	d.Browser["address"] = ip
+	d.Browser["user-agent"] = r.Header.Get("User-Agent")
+	rj, err := json.Marshal(d)
+	if err != nil {
+		Logger.Println(err)
+		http.NotFound(w, r)
+		return
+	}
+	c.AddEvent(models.Event{Email: rs.Email, Message: models.EVENT_OPENED, Details: string(rj)})
+	// Don't update the status if the user already clicked the link
+	// or submitted data to the campaign
+	if rs.Status == models.STATUS_SUCCESS {
+		http.ServeFile(w, r, "static/images/pixel.png")
+		return
+	}
+	err = rs.UpdateStatus(models.EVENT_OPENED)
 	if err != nil {
 		Logger.Println(err)
 	}
