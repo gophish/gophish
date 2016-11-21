@@ -1,6 +1,7 @@
 package util
 
 import (
+	"archive/zip"
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
@@ -56,59 +57,87 @@ func ParseCSV(r *http.Request) ([]models.Target, error) {
 			continue
 		}
 		defer part.Close()
-		reader := csv.NewReader(part)
-		reader.TrimLeadingSpace = true
+		dst, err := os.Create("./tmp.zip")
+		if err != nil {
+			continue
+		}
+		if _, err := io.Copy(dst, part); err != nil {
+			continue
+		}
+		dst.Close()
+		z, _ := zip.OpenReader("./tmp.zip")
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer z.Close()
+
+		// Iterate through the files in the archive,
+		// printing some of their contents.
+		f := z.File[0]
+		fmt.Printf("Parsing Contents of %s:\n", f.Name)
+		rc, err := f.Open()
+		if err != nil {
+			log.Fatal(err)
+		}
+		reader := csv.NewReader(rc)
+		ts = append(ts, makeTargets(reader)...)
+		err = os.Remove("./tmp.zip")
+	}
+	return ts, nil
+}
+func makeTargets(reader *csv.Reader) []models.Target {
+	ts := []models.Target{}
+	reader.TrimLeadingSpace = true
+	record, err := reader.Read()
+	if err == io.EOF {
+		return ts
+	}
+	fi := -1
+	li := -1
+	ei := -1
+	pi := -1
+	fn := ""
+	ln := ""
+	ea := ""
+	ps := ""
+	for i, v := range record {
+		switch {
+		case v == "First Name":
+			fi = i
+		case v == "Last Name":
+			li = i
+		case v == "Email":
+			ei = i
+		case v == "Position":
+			pi = i
+		}
+	}
+	for {
 		record, err := reader.Read()
 		if err == io.EOF {
 			break
 		}
-		fi := -1
-		li := -1
-		ei := -1
-		pi := -1
-		fn := ""
-		ln := ""
-		ea := ""
-		ps := ""
-		for i, v := range record {
-			switch {
-			case v == "First Name":
-				fi = i
-			case v == "Last Name":
-				li = i
-			case v == "Email":
-				ei = i
-			case v == "Position":
-				pi = i
-			}
+		if fi != -1 {
+			fn = record[fi]
 		}
-		for {
-			record, err := reader.Read()
-			if err == io.EOF {
-				break
-			}
-			if fi != -1 {
-				fn = record[fi]
-			}
-			if li != -1 {
-				ln = record[li]
-			}
-			if ei != -1 {
-				ea = record[ei]
-			}
-			if pi != -1 {
-				ps = record[pi]
-			}
-			t := models.Target{
-				FirstName: fn,
-				LastName:  ln,
-				Email:     ea,
-				Position:  ps,
-			}
-			ts = append(ts, t)
+		if li != -1 {
+			ln = record[li]
 		}
+		if ei != -1 {
+			ea = record[ei]
+		}
+		if pi != -1 {
+			ps = record[pi]
+		}
+		t := models.Target{
+			FirstName: fn,
+			LastName:  ln,
+			Email:     ea,
+			Position:  ps,
+		}
+		ts = append(ts, t)
 	}
-	return ts, nil
+	return ts
 }
 
 // CheckAndCreateSSL is a helper to setup self-signed certificates for the administrative interface.

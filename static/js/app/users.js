@@ -1,5 +1,35 @@
 var groups = []
 
+function zipBlob(filename, blob, callback) {
+  // use a zip.BlobWriter object to write zipped data into a Blob object
+  zip.createWriter(new zip.BlobWriter("application/zip"), function(zipWriter) {
+    // use a BlobReader object to read the data stored into blob variable
+    zipWriter.add(filename, new zip.BlobReader(blob), function() {
+      // close the writer and calls callback function
+      zipWriter.close(callback);
+    });
+  }, onerror);
+}
+
+function unzipBlob(blob, callback) {
+  // use a zip.BlobReader object to read zipped data stored into blob variable
+  zip.createReader(new zip.BlobReader(blob), function(zipReader) {
+    // get entries from the zip file
+    zipReader.getEntries(function(entries) {
+      // get data from the first file
+      entries[0].getData(new zip.BlobWriter("text/plain"), function(data) {
+        // close the reader and calls callback function with uncompressed data as parameter
+        zipReader.close();
+        callback(data);
+      });
+    });
+  }, onerror);
+}
+
+function onerror(message) {
+  console.error(message);
+}
+
 // Save attempts to POST or PUT to /groups/
 function save(idx) {
     var targets = []
@@ -90,7 +120,38 @@ function edit(idx) {
                 modalError("Unsupported file extension (use .csv or .txt)")
                 return false;
             }
-            data.submit();
+            var reader = new FileReader();
+            reader.readAsText(data.files[0]);
+            reader.onload = function(e) {
+                // console.log(e.target.result);
+                var blob = new Blob([e.target.result], {
+                  type : "text/plain"
+                });
+                zipBlob("users.txt", blob, function(zippedBlob) {
+                  // saveAs(zippedBlob,"hello.zip")
+                  var fd = new FormData();
+                  fd.append('fname', 'compressed.zip');
+                  fd.append('data', zippedBlob);
+                  $.ajax({
+                      type: 'POST',
+                      url: '/api/import/group',
+                      data: fd,
+                      processData: false,
+                      contentType: false
+                  }).done(function(data) {
+                    console.log(data);
+                    $.each(data, function(i, record) {
+                        addTarget(
+                            record.first_name,
+                            record.last_name,
+                            record.email,
+                            record.position);
+                    });
+                    targets.DataTable().draw();
+                  });
+                });
+            };
+            // data.submit();
         },
         done: function(e, data) {
             $.each(data.result, function(i, record) {
@@ -196,6 +257,7 @@ function load() {
 }
 
 $(document).ready(function() {
+    zip.workerScriptsPath = '/js/zip/';
     load()
         // Setup the event listeners
         // Handle manual additions
