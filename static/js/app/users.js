@@ -1,15 +1,17 @@
 var groups = []
-var PostData = []
+var LocalData = []
+var Data_View = []
 var targetsTable ;
 var tableInfo = {};
 tableInfo.start=0;
-tableInfo.order=0;
+tableInfo.order=[{"column":0,"dir":"asc"}];
+tableInfo.search={"regex":false,"value":""};
 tableInfo.length=0;
 
 // Save attempts to POST or PUT to /groups/
 function save(idx) {
     var targets = []
-    targets = PostData;
+    targets = LocalData;
     var group = {
             name: $("#name").val(),
             targets: targets
@@ -52,20 +54,20 @@ function dismiss() {
 }
 
 function removeDuplicates() {
-    PostData = PostData.sort(
+    LocalData = LocalData.sort(
         function(a,b){
             return a.email>b.email?1:0;
         }
     );
-    var newPostData = [];
+    var newLocalData = [];
     var prev = {"email":""};
-    $.each(PostData, function(i, target) {
+    $.each(LocalData, function(i, target) {
         if(prev.email != target.email){
             prev = target;
-            newPostData.push(target);
+            newLocalData.push(target);
         }
     });
-    PostData = newPostData;
+    LocalData = newLocalData;
 }
 
 function xssParsing(input) {
@@ -84,16 +86,20 @@ function edit(idx) {
               tableInfo.start = params.start;
               tableInfo.length = params.length;
               tableInfo.order = params.order;
+              tableInfo.search = params.search;
               delete params.draw;
               delete params.columns;
-            //   delete params.order;
-              delete params.search;
               delete params.length;
               delete params.start;
               return;
           },
           dataSrc:function(json){
-              PostData = PostData.sort(
+              Data_View = [];
+              $.each(LocalData,function(i,val){
+                  if (val.email.search(tableInfo.search.value)>=0 || val.first_name.search(tableInfo.search.value)>=0 || val.last_name.search(tableInfo.search.value)>=0 || val.position.search(tableInfo.search.value)>=0)
+                    Data_View.push(val)
+              });
+              Data_View = Data_View.sort(
                   function(a,b){
                       if(tableInfo.order[0].column==0){
                         if(tableInfo.order[0].dir=="asc"){
@@ -123,23 +129,23 @@ function edit(idx) {
                   }
               );
               var data = [];
-              for(var i=tableInfo.start;i<tableInfo.start+tableInfo.length && i<PostData.length;i++){
-                  data.push(xssParsing(PostData[i]));
+              for(var i=tableInfo.start;i<tableInfo.start+tableInfo.length && i<Data_View.length;i++){
+                  data.push(xssParsing(Data_View[i]));
               }
-              json.recordsFiltered = PostData.length;
-              json.recordsTotal = PostData.length;
+              json.recordsFiltered = Data_View.length;
+              json.recordsTotal = Data_View.length;
               json.data = data;
               return json.data;
           }
       },
         // infoCallback:   function( settings, start, end, max, total, pre ) {
         //                     var info = "";
-        //                     if(PostData.length<=tableInfo.length){
-        //                         info += "Showing "+(PostData.length)+" to "+PostData.length;
+        //                     if(LocalData.length<=tableInfo.length){
+        //                         info += "Showing "+(LocalData.length)+" to "+LocalData.length;
         //                     } else{
         //                         info += "Showing "+(tableInfo.start+1)+" to "+(tableInfo.start+1+tableInfo.length);
         //                     }
-        //                     info += " of "+PostData.length+" entries"
+        //                     info += " of "+LocalData.length+" entries"
         //                     return info;
         //                 },
         // ordering: false,
@@ -155,11 +161,11 @@ function edit(idx) {
     })
     if (idx == -1) {
         group = {}
-        PostData = [];
+        LocalData = [];
     } else {
         group = groups[idx]
         $("#name").val(group.name)
-        PostData = group.targets;
+        LocalData = group.targets;
         targetsTable.DataTable().draw();
     }
     // Handle file uploads
@@ -176,7 +182,7 @@ function edit(idx) {
             data.submit();
         },
         done: function(e, data) {
-            PostData = PostData.concat(data.result);
+            LocalData = LocalData.concat(data.result);
             removeDuplicates();
             targetsTable.DataTable().draw();
         }
@@ -246,7 +252,7 @@ $(document).ready(function() {
     // Setup the event listeners
     // Handle manual additions
     $("#targetForm").submit(function() {
-        PostData.push({
+        LocalData.push({
             first_name: $("#firstName").val(),
             last_name: $("#lastName").val(),
             email: $("#email").val().toLowerCase(),
@@ -261,7 +267,14 @@ $(document).ready(function() {
     });
     // Handle Deletion
     $("#targetsTable").on("click", "span>i.fa-trash-o", function() {
-        PostData.splice($("#targetsTable tbody tr").index($(this).parents('tr')),1)
+        var primaryKey = Data_View[$("#targetsTable tbody tr").index($(this).parents('tr'))].email;
+        for(var i=0;i<LocalData.length;i++){
+            if(LocalData[i].email == primaryKey){
+                LocalData.splice(i,1)
+                break;
+            }
+        }
+        // LocalData.splice(,1)
         targetsTable.DataTable().draw();
     });
     $("#modal").on("hide.bs.modal", function() {
