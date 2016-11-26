@@ -124,7 +124,7 @@ func processCampaign(c *models.Campaign) {
 			t,
 			c.URL + "?rid=" + t.RId,
 			c.URL + "/track?rid=" + t.RId,
-			"<img style='display: none' src='" + c.URL + "/track?rid=" + t.RId + "'/>",
+			"<img alt='' style='display: none' src='" + c.URL + "/track?rid=" + t.RId + "'/>",
 			fn,
 		}
 		// Parse the templates
