@@ -298,7 +298,7 @@ $(document).ready(function() {
     });
     api.campaigns.get()
         .success(function(cs) {
-            campaigns = cs
+            campaigns = cs["campaigns"]
             $("#loading").hide()
             if (campaigns.length > 0) {
                 $("#campaignTable").show()
