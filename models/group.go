@@ -63,7 +63,7 @@ func GetGroups(uid int64) ([]Group, error) {
 		return gs, err
 	}
 	for i, _ := range gs {
-		gs[i].Targets, err = GetTargets(gs[i].Id)
+		gs[i].Targets, err = GetLimitedTargets(gs[i].Id)
 		if err != nil {
 			Logger.Println(err)
 		}
@@ -241,5 +241,12 @@ func UpdateTarget(target Target) error {
 func GetTargets(gid int64) ([]Target, error) {
 	ts := []Target{}
 	err := db.Table("targets").Select("targets.id, targets.email, targets.first_name, targets.last_name, targets.position").Joins("left join group_targets gt ON targets.id = gt.target_id").Where("gt.group_id=?", gid).Scan(&ts).Error
+	return ts, err
+}
+
+// GetTargets performs a many-to-many select to get all the Targets for a Group
+func GetLimitedTargets(gid int64) ([]Target, error) {
+	ts := []Target{}
+	err := db.Limit(10).Table("targets").Select("targets.id, targets.email, targets.first_name, targets.last_name, targets.position").Joins("left join group_targets gt ON targets.id = gt.target_id").Where("gt.group_id=?", gid).Scan(&ts).Error
 	return ts, err
 }
