@@ -26,6 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 import (
+	"compress/gzip"
 	"fmt"
 	"log"
 	"net/http"
@@ -54,7 +55,8 @@ func main() {
 	// Start the web servers
 	go func() {
 		defer wg.Done()
-		adminHandler := gziphandler.GzipHandler(controllers.CreateAdminRouter())
+		gzipWrapper, _ := gziphandler.NewGzipLevelHandler(gzip.BestCompression)
+		adminHandler := gzipWrapper(controllers.CreateAdminRouter())
 		auth.Store.Options.Secure = config.Conf.AdminConf.UseTLS
 		if config.Conf.AdminConf.UseTLS { // use TLS for Admin web server if available
 			err := util.CheckAndCreateSSL(config.Conf.AdminConf.CertPath, config.Conf.AdminConf.KeyPath)
