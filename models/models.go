@@ -11,6 +11,7 @@ import (
 	"bitbucket.org/liamstask/goose/lib/goose"
 
 	_ "github.com/go-sql-driver/mysql"
+  _ "github.com/lib/pq"
 	"github.com/gophish/gophish/config"
 	"github.com/jinzhu/gorm"
 	_ "github.com/mattn/go-sqlite3" // Blank import needed to import sqlite3
@@ -70,6 +71,10 @@ func chooseDBDriver(name, openStr string) goose.DBDriver {
 		d.Import = "github.com/go-sql-driver/mysql"
 		d.Dialect = &goose.MySqlDialect{}
 
+  case "postgres":
+    d.Import = "github.com/lib/pq"
+    d.Dialect = &goose.PostgresDialect{}
+
 	// Default database is sqlite3
 	default:
 		d.Import = "github.com/mattn/go-sqlite3"
@@ -83,8 +88,10 @@ func chooseDBDriver(name, openStr string) goose.DBDriver {
 // It also populates the Gophish Config object
 func Setup() error {
 	create_db := false
-	if _, err = os.Stat(config.Conf.DBPath); err != nil || config.Conf.DBPath == ":memory:" {
-		create_db = true
+	if config.Conf.DBName == "sqlite3" {
+		if _, err = os.Stat(config.Conf.DBPath); err != nil || config.Conf.DBPath == ":memory:" {
+			create_db = true
+		}
 	}
 	// Setup the goose configuration
 	migrateConf := &goose.DBConf{
