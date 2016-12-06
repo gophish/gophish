@@ -76,6 +76,10 @@
               <label class="control-label" for="template">Email Template:</label>
               <input type="text" class="typeahead form-control" placeholder="Template Name" id="template"/>
               <br>
+                <label class="control-label" for="delay">Sending Delay: <i class="fa fa-question-circle" data-toggle="tooltip" data-placement="right" title="Delay between emails sent in seconds (must be an integer!)"></i></label>
+              <input name="number" onkeyup="if (/\D/g.test(this.value)) this.value = this.value.replace(/\D/g,'')" class="form-control" value=0 id="delay"/>
+	      <!--input type="number" onkeyup="if (/\D/g.test(this.value)) this.value = this.value.replace(/\D/g,'')" class="form-control" id="delay"/-->
+		<br>
 	      <label class="control-label" for="page">Landing Page:</label>
 	      <input type="text" class="typeahead form-control" placeholder="Landing Page" id="page"/>
 	      <br>
@@ -90,9 +94,9 @@
 		    <button type="button" data-toggle="modal" data-target="#sendTestEmailModal" class="btn btn-primary typeahead-button"><i class="fa fa-envelope"></i> Send Test Email</button>
 		</span>
 	      </div>
-              <label class="control-label" for="users">Groups:</label>
+		 <label class="control-label" for="users">Groups:</label>
               <form id="groupForm">
-                  <div class="input-group">
+                 <div class="input-group">
                       <input type="text" class="typeahead form-control" placeholder="Group Name" id="groupSelect" />
                       <span class="input-group-btn">
                           <button class="btn btn-primary typeahead-button"><i class="fa fa-plus"></i> Add</button>
