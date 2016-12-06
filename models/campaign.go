@@ -26,6 +26,7 @@ type Campaign struct {
 	SMTPId        int64     `json:"-"`
 	SMTP          SMTP      `json:"smtp"`
 	URL           string    `json:"url"`
+	Delay         int64    `json:"delay,string"`
 }
 
 // CampaignResults is a struct representing the results from a campaign
@@ -91,6 +92,7 @@ type SendTestEmailRequest struct {
 	Tracker     string   `json:"tracker"`
 	TrackingURL string   `json:"tracking_url"`
 	From        string   `json:"from"`
+	Delay       int64    `json:"delay,string"`
 	Target
 }
 

@@ -81,7 +81,6 @@ func API_Campaigns(w http.ResponseWriter, r *http.Request) {
 		}
 		err = models.PostCampaign(&c, ctx.Get(r, "user_id").(int64))
 		if err != nil {
-			Logger.Println("bob12345")
 			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
 			return
 		}
