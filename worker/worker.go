@@ -110,6 +110,8 @@ func processCampaign(c *models.Campaign) {
 		}
 		return
 	}
+	//grab delay for the campaign
+	delay := c.Delay
 	// Send each email
 	e := gomail.NewMessage()
 	for _, t := range c.Results {
@@ -209,6 +211,10 @@ func processCampaign(c *models.Campaign) {
 				Logger.Println(err)
 			}
 		}
+                //Pause for user defined amount of time (in seconds) between emails
+                duration := time.Duration(delay)*time.Second
+                Logger.Println("Pausing for ",delay," seconds...")
+                time.Sleep(duration)
 		e.Reset()
 	}
 	err = c.UpdateStatus(models.CAMPAIGN_EMAILS_SENT)
