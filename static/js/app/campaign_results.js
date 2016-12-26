@@ -259,10 +259,12 @@ function renderTimeline(data) {
                 '    <i class="fa ' + statuses[event.message].icon + '"></i></div>' +
                 '    <div class="timeline-message">' + escapeHtml(event.message) +
                 '    <span class="timeline-date">' + moment(event.time).format('MMMM Do YYYY h:mm a') + '</span>'
-            if (event.details && event.message == "Submitted Data") {
-                results += '<div class="timeline-replay-button"><button onclick="replay(' + i + ')" class="btn btn-success">'
-                results += '<i class="fa fa-refresh"></i> Replay Credentials</button></div>'
-                results += '<div class="timeline-event-details"><i class="fa fa-caret-right"></i> View Details</div>'
+            if (event.details) {
+                if (event.message == "Submitted Data") {
+                    results += '<div class="timeline-replay-button"><button onclick="replay(' + i + ')" class="btn btn-success">'
+                    results += '<i class="fa fa-refresh"></i> Replay Credentials</button></div>'
+                    results += '<div class="timeline-event-details"><i class="fa fa-caret-right"></i> View Details</div>'
+                }
                 details = JSON.parse(event.details)
                 if (details.payload) {
                     results += '<div class="timeline-event-results">'
@@ -281,6 +283,7 @@ function renderTimeline(data) {
                     results += '</div>'
                 }
                 if (details.error) {
+                    results += '<div class="timeline-event-details"><i class="fa fa-caret-right"></i> View Details</div>'
                     results += '<div class="timeline-event-results">'
                     results += '<span class="label label-default">Error</span> ' + details.error
                     results += '</div>'
