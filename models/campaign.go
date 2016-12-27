@@ -176,20 +176,30 @@ type Event struct {
 	Details    string    `json:"details"`
 }
 
-// GetCampaigns returns the campaigns owned by the given user.
-func GetCampaigns(uid int64) ([]Campaign, error) {
+func (c *Campaign) avgSuccess() int64 {
+	var count, total interface{}
+	db.Table("results").Where("campaign_id=? and status='Success'", c.Id).Count(&count)
+	db.Table("results").Where("campaign_id=?", c.Id).Count(&total)
+	avg := (float64(count.(int64)) / float64(total.(int64))) * 100
+	return int64(avg)
+}
+
+// GetCampaigns returns information about the campaigns owned by the given user, along with Average success rate of the launched campaigns
+func GetCampaigns(uid int64) ([]Campaign, []int64, error) {
 	cs := []Campaign{}
 	err := db.Model(&User{Id: uid}).Related(&cs).Error
 	if err != nil {
 		Logger.Println(err)
 	}
+	a := make([]int64, len(cs))
 	for i, _ := range cs {
-		err = cs[i].getDetails()
+		j := cs[i].avgSuccess()
 		if err != nil {
 			Logger.Println(err)
 		}
+		a[i] = j
 	}
-	return cs, err
+	return cs, a, err
 }
 
 // GetCampaign returns the campaign, if it exists, specified by the given id and user_id.

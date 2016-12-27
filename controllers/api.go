@@ -64,11 +64,17 @@ func API_Reset(w http.ResponseWriter, r *http.Request) {
 func API_Campaigns(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "GET":
-		cs, err := models.GetCampaigns(ctx.Get(r, "user_id").(int64))
+		cs, s, err := models.GetCampaigns(ctx.Get(r, "user_id").(int64))
 		if err != nil {
 			Logger.Println(err)
 		}
-		JSONResponse(w, cs, http.StatusOK)
+		JSONResponse(w, struct {
+			Campaigns []models.Campaign `json:"campaigns"`
+			Avg       []int64           `json:"avg"`
+		}{
+			Campaigns: cs,
+			Avg:       s,
+		}, http.StatusOK)
 	//POST: Create a new campaign and return it as JSON
 	case r.Method == "POST":
 		c := models.Campaign{}

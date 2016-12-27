@@ -23,7 +23,7 @@ $(document).ready(function() {
     api.campaigns.get()
         .success(function(cs) {
             $("#loading").hide()
-            campaigns = cs
+            campaigns = cs["campaigns"];
             if (campaigns.length > 0) {
                 $("#dashboard").show()
                     // Create the overview chart data
@@ -72,15 +72,10 @@ $(document).ready(function() {
                     </button></div>"
                         ]).draw()
                         // Add it to the chart data
-                    campaign.y = 0
-                    $.each(campaign.results, function(j, result) {
-                        if (result.status == "Success") {
-                            campaign.y++;
-                        }
-                    })
-                    campaign.y = Math.floor((campaign.y / campaign.results.length) * 100)
-                    average += campaign.y
-                        // Add the data to the overview chart
+                    campaign.y = cs["avg"][i];
+                    console.log(campaign.y);
+                    average += campaign.y;
+                    // Add the data to the overview chart
                     overview_data.labels.push(campaign_date)
                     overview_data.series[0].push({
                         meta: i,
