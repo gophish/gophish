@@ -44,6 +44,7 @@ function launch() {
                         smtp: {
                             name: $("#profile").val()
                         },
+			delay: $("#delay").val(),
                         launch_date: moment($("#launch_date").val(), "MM/DD/YYYY hh:mm a").format(),
                         groups: groups
                     }
@@ -113,6 +114,7 @@ function dismiss() {
     $("#page").val("")
     $("#url").val("")
     $("#profile").val("")
+    $("#delay").val("")
     $("#groupSelect").val("")
     $("#modal").modal('hide')
     $("#groupTable").dataTable().DataTable().clear().draw()
@@ -245,6 +247,7 @@ function copy(idx) {
     $("#template").val(campaign.template.name)
     $("#page").val(campaign.page.name)
     $("#profile").val(campaign.smtp.name)
+    $("#delay").val(campaign.delay)
     $("#url").val(campaign.url)
 }
 
