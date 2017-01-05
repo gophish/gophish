@@ -223,11 +223,11 @@
 }
 
 .ct-point-clicked {
-	fill:#f05b4f !important;
+	fill:#F39C12 !important;
 }
 
 .ct-point-opened {
-	fill:#eb9532 !important;
+	fill:#f9bf3b !important;
 }
 
 .ct-point-sent {
@@ -327,7 +327,7 @@
 }
 
 .ct-slice-donut.ct-slice-donut-opened{
-    stroke:#eb9532 !important;
+    stroke:#f9bf3b !important;
 }
 
 .ct-slice-donut.ct-slice-donut-success{
@@ -335,7 +335,7 @@
 }
 
 .ct-slice-donut.ct-slice-donut-clicked{
-    stroke:#f05b4f !important;
+    stroke:#F39C12!important;
 }
 
 .ct-slice-donut.ct-slice-donut-sending{
@@ -351,7 +351,7 @@
 }
 
 .ct-legend-opened {
-    background-color: #eb9532 !important;
+    background-color: #f9bf3b !important;
 }
 
 .ct-legend-success {
@@ -359,11 +359,15 @@
 }
 
 .ct-legend-clicked {
-    background-color: #f05b4f !important;
+    background-color: #F39C12 !important;
 }
 
 .ct-legend-sending {
     background-color: #428bca !important;
+}
+
+.label-clicked {
+    background-color: #F39C12 !important;
 }
 
 .gophish-editor {

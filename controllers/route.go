@@ -180,7 +180,6 @@ func PhishHandler(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	rs.UpdateStatus(models.STATUS_SUCCESS)
 	p, err := models.GetPage(c.PageId, c.UserId)
 	if err != nil {
 		Logger.Println(err)
@@ -216,12 +215,16 @@ func PhishHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	switch {
 	case r.Method == "GET":
+		if rs.Status != models.EVENT_CLICKED && rs.Status != models.EVENT_DATA_SUBMIT {
+			rs.UpdateStatus(models.EVENT_CLICKED)
+		}
 		err = c.AddEvent(models.Event{Email: rs.Email, Message: models.EVENT_CLICKED, Details: string(rj)})
 		if err != nil {
 			Logger.Println(err)
 		}
 	case r.Method == "POST":
 		// If data was POST'ed, let's record it
+		rs.UpdateStatus(models.EVENT_DATA_SUBMIT)
 		// Store the data in an event
 		c.AddEvent(models.Event{Email: rs.Email, Message: models.EVENT_DATA_SUBMIT, Details: string(rj)})
 		if err != nil {

@@ -74,7 +74,7 @@ $(document).ready(function() {
                         // Add it to the chart data
                     campaign.y = 0
                     $.each(campaign.results, function(j, result) {
-                        if (result.status == "Success") {
+                        if (result.status == "Clicked Link" || result.status == "Submitted Data") {
                             campaign.y++;
                         }
                     })

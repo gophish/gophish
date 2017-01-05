@@ -20,13 +20,13 @@ var statuses = {
     "Clicked Link": {
         slice: "ct-slice-donut-clicked",
         legend: "ct-legend-clicked",
-        label: "label-danger",
+        label: "label-clicked",
         icon: "fa-mouse-pointer",
         point: "ct-point-clicked"
     },
     "Success": {
-        slice: "ct-slice-donut-clicked",
-        legend: "ct-legend-clicked",
+        slice: "ct-slice-donut-success",
+        legend: "ct-legend-success",
         label: "label-danger",
         icon: "fa-exclamation",
         point: "ct-point-clicked"
@@ -46,8 +46,8 @@ var statuses = {
         point: "ct-point-error"
     },
     "Submitted Data": {
-        slice: "ct-slice-donut-clicked",
-        legend: "ct-legend-clicked",
+        slice: "ct-slice-donut-success",
+        legend: "ct-legend-success",
         label: "label-danger",
         icon: "fa-exclamation",
         point: "ct-point-clicked"
