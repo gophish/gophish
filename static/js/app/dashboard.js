@@ -56,7 +56,10 @@ $(document).ready(function() {
                     columnDefs: [{
                         orderable: false,
                         targets: "no-sort"
-                    }]
+                    }],
+                    order: [
+                        [1, "desc"]
+                    ]
                 });
                 $.each(campaigns, function(i, campaign) {
                     var campaign_date = moment(campaign.created_date).format('MMMM Do YYYY, h:mm:ss a')

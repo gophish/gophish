@@ -241,14 +241,14 @@ function copy(idx) {
         })
         // Set our initial values
     api.campaignId.get(campaigns[idx].id)
-        .success(function(campaign){
+        .success(function(campaign) {
             $("#name").val("Copy of " + campaign.name)
             $("#template").val(campaign.template.name)
             $("#page").val(campaign.page.name)
             $("#profile").val(campaign.smtp.name)
             $("#url").val(campaign.url)
         })
-        .error(function(data){
+        .error(function(data) {
             $("#modal\\.flashes").empty().append("<div style=\"text-align:center\" class=\"alert alert-danger\">\
             <i class=\"fa fa-exclamation-circle\"></i> " + data.responseJSON.message + "</div>")
         })
@@ -312,7 +312,10 @@ $(document).ready(function() {
                     columnDefs: [{
                         orderable: false,
                         targets: "no-sort"
-                    }]
+                    }],
+                    order: [
+                        [1, "desc"]
+                    ]
                 });
                 $.each(campaigns, function(i, campaign) {
                     label = labels[campaign.status] || "label-default";
