@@ -240,12 +240,18 @@ function copy(idx) {
             }
         })
         // Set our initial values
-    var campaign = campaigns[idx]
-    $("#name").val("Copy of " + campaign.name)
-    $("#template").val(campaign.template.name)
-    $("#page").val(campaign.page.name)
-    $("#profile").val(campaign.smtp.name)
-    $("#url").val(campaign.url)
+    api.campaignId.get(campaigns[idx].id)
+        .success(function(campaign){
+            $("#name").val("Copy of " + campaign.name)
+            $("#template").val(campaign.template.name)
+            $("#page").val(campaign.page.name)
+            $("#profile").val(campaign.smtp.name)
+            $("#url").val(campaign.url)
+        })
+        .error(function(data){
+            $("#modal\\.flashes").empty().append("<div style=\"text-align:center\" class=\"alert alert-danger\">\
+            <i class=\"fa fa-exclamation-circle\"></i> " + data.responseJSON.message + "</div>")
+        })
 }
 
 $(document).ready(function() {
@@ -296,9 +302,9 @@ $(document).ready(function() {
     $('#modal').on('hidden.bs.modal', function(event) {
         dismiss()
     });
-    api.campaigns.get()
-        .success(function(cs) {
-            campaigns = cs
+    api.campaigns.summary()
+        .success(function(data) {
+            campaigns = data.campaigns
             $("#loading").hide()
             if (campaigns.length > 0) {
                 $("#campaignTable").show()

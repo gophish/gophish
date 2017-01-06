@@ -20,10 +20,10 @@ function deleteCampaign(idx) {
 }
 
 $(document).ready(function() {
-    api.campaigns.get()
-        .success(function(cs) {
+    api.campaigns.summary()
+        .success(function(data) {
             $("#loading").hide()
-            campaigns = cs
+            campaigns = data.campaigns
             if (campaigns.length > 0) {
                 $("#dashboard").show()
                     // Create the overview chart data
@@ -41,7 +41,9 @@ $(document).ready(function() {
                         showGrid: false
                     },
                     showArea: true,
-                    plugins: []
+                    plugins: [],
+                    low: 0,
+                    high: 100
                 }
                 var average_opts = {
                     donut: true,
@@ -73,12 +75,8 @@ $(document).ready(function() {
                         ]).draw()
                         // Add it to the chart data
                     campaign.y = 0
-                    $.each(campaign.results, function(j, result) {
-                        if (result.status == "Clicked Link" || result.status == "Submitted Data") {
-                            campaign.y++;
-                        }
-                    })
-                    campaign.y = Math.floor((campaign.y / campaign.results.length) * 100)
+                    campaign.y += campaign.stats.clicked + campaign.stats.submitted_data
+                    campaign.y = Math.floor((campaign.y / campaign.stats.total) * 100)
                     average += campaign.y
                         // Add the data to the overview chart
                     overview_data.labels.push(campaign_date)
@@ -87,7 +85,7 @@ $(document).ready(function() {
                         value: campaign.y
                     })
                 })
-                average = Math.floor(average / campaigns.length);
+                average = Math.floor(average / data.total);
                 average_data.series.push({
                     meta: "Unsuccessful Phishes",
                     value: 100 - average

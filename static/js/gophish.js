@@ -47,6 +47,10 @@ var api = {
         // post() - Posts a campaign to POST /campaigns
         post: function(data) {
             return query("/campaigns/", "POST", data, false)
+        },
+        // summary() - Queries the API for GET /campaigns/summary
+        summary: function() {
+            return query("/campaigns/summary", "GET", {}, false)
         }
     },
     // campaignId contains the endpoints for /campaigns/:id
@@ -66,6 +70,10 @@ var api = {
         // complete() - Completes a campaign at POST /campaigns/:id/complete
         complete: function(id) {
             return query("/campaigns/" + id + "/complete", "GET", {}, true)
+        },
+        // summary() - Queries the API for GET /campaigns/summary
+        summary: function(id) {
+            return query("/campaigns/" + id + "/summary", "GET", {}, true)
         }
     },
     // groups contains the endpoints for /groups
