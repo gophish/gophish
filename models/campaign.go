@@ -37,6 +37,33 @@ type CampaignResults struct {
 	Events  []Event  `json:"timeline,omitempty"`
 }
 
+// CampaignsSummary is a struct representing the overview of campaigns
+type CampaignSummaries struct {
+	Total     int64             `json:"total"`
+	Campaigns []CampaignSummary `json:"campaigns"`
+}
+
+// CampaignSummary is a struct representing the overview of a single camaign
+type CampaignSummary struct {
+	Id            int64         `json:"id"`
+	CreatedDate   time.Time     `json:"created_date"`
+	LaunchDate    time.Time     `json:"launch_date"`
+	CompletedDate time.Time     `json:"completed_date"`
+	Status        string        `json:"status"`
+	Name          string        `json:"name"`
+	Stats         CampaignStats `json:"stats"`
+}
+
+// CampaignStats is a struct representing the statistics for a single campaign
+type CampaignStats struct {
+	Total         int64 `json:"total"`
+	EmailsSent    int64 `json:"sent"`
+	OpenedEmail   int64 `json:"opened"`
+	ClickedLink   int64 `json:"clicked"`
+	SubmittedData int64 `json:"submitted_data"`
+	Error         int64 `json:"error"`
+}
+
 // ErrCampaignNameNotSpecified indicates there was no template given by the user
 var ErrCampaignNameNotSpecified = errors.New("Campaign name not specified")
 
@@ -165,6 +192,34 @@ func (c *Campaign) getDetails() error {
 	return nil
 }
 
+// getCampaignStats returns a CampaignStats object for the campaign with the given campaign ID.
+func getCampaignStats(cid int64) (CampaignStats, error) {
+	s := CampaignStats{}
+	query := db.Table("results").Where("campaign_id = ?", cid)
+	err := query.Count(&s.Total).Error
+	if err != nil {
+		return s, err
+	}
+	err = query.Where("status=?", EVENT_SENT).Count(&s.EmailsSent).Error
+	if err != nil {
+		return s, err
+	}
+	err = query.Where("status=?", EVENT_OPENED).Count(&s.OpenedEmail).Error
+	if err != nil {
+		return s, err
+	}
+	query.Where("status=?", EVENT_CLICKED).Count(&s.ClickedLink)
+	if err != nil {
+		return s, err
+	}
+	query.Where("status=?", EVENT_DATA_SUBMIT).Count(&s.SubmittedData)
+	if err != nil {
+		return s, err
+	}
+	err = query.Where("status=?", ERROR).Count(&s.Error).Error
+	return s, err
+}
+
 // Event contains the fields for an event
 // that occurs during the campaign
 type Event struct {
@@ -190,6 +245,51 @@ func GetCampaigns(uid int64) ([]Campaign, error) {
 		}
 	}
 	return cs, err
+}
+
+// GetCampaignSummaries gets the summary objects for all the campaigns
+// owned by the current user
+func GetCampaignSummaries(uid int64) (CampaignSummaries, error) {
+	overview := CampaignSummaries{}
+	cs := []CampaignSummary{}
+	// Get the basic campaign information
+	query := db.Table("campaigns").Where("user_id = ?", uid)
+	query = query.Select("id, name, created_date, launch_date, completed_date, status")
+	err := query.Scan(&cs).Error
+	if err != nil {
+		Logger.Println(err)
+		return overview, err
+	}
+	for i := range cs {
+		s, err := getCampaignStats(cs[i].Id)
+		if err != nil {
+			Logger.Println(err)
+			return overview, err
+		}
+		cs[i].Stats = s
+	}
+	overview.Total = int64(len(cs))
+	overview.Campaigns = cs
+	return overview, nil
+}
+
+// GetCampaignSummary gets the summary object for a campaign specified by the campaign ID
+func GetCampaignSummary(id int64, uid int64) (CampaignSummary, error) {
+	cs := CampaignSummary{}
+	query := db.Table("campaigns").Where("user_id = ? AND id = ?", uid, id)
+	query = query.Select("id, name, created_date, launch_date, completed_date, status")
+	err := query.Scan(&cs).Error
+	if err != nil {
+		Logger.Println(err)
+		return cs, err
+	}
+	s, err := getCampaignStats(cs.Id)
+	if err != nil {
+		Logger.Println(err)
+		return cs, err
+	}
+	cs.Stats = s
+	return cs, nil
 }
 
 // GetCampaign returns the campaign, if it exists, specified by the given id and user_id.

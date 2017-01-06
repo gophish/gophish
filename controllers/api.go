@@ -87,6 +87,20 @@ func API_Campaigns(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// API_Campaigns_Summary returns the summary for the current user's campaigns
+func API_Campaigns_Summary(w http.ResponseWriter, r *http.Request) {
+	switch {
+	case r.Method == "GET":
+		cs, err := models.GetCampaignSummaries(ctx.Get(r, "user_id").(int64))
+		if err != nil {
+			Logger.Println(err)
+			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
+			return
+		}
+		JSONResponse(w, cs, http.StatusOK)
+	}
+}
+
 // API_Campaigns_Id returns details about the requested campaign. If the campaign is not
 // valid, API_Campaigns_Id returns null.
 func API_Campaigns_Id(w http.ResponseWriter, r *http.Request) {
@@ -125,6 +139,26 @@ func API_Campaigns_Id_Results(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		JSONResponse(w, cr, http.StatusOK)
 		return
+	}
+}
+
+// API_Campaigns_Id_Summary returns just the summary for a given campaign.
+func API_Campaign_Id_Summary(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, _ := strconv.ParseInt(vars["id"], 0, 64)
+	switch {
+	case r.Method == "GET":
+		cs, err := models.GetCampaignSummary(id, ctx.Get(r, "user_id").(int64))
+		if err != nil {
+			if err == gorm.ErrRecordNotFound {
+				JSONResponse(w, models.Response{Success: false, Message: "Campaign not found"}, http.StatusNotFound)
+			} else {
+				JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
+			}
+			Logger.Println(err)
+			return
+		}
+		JSONResponse(w, cs, http.StatusOK)
 	}
 }
 
