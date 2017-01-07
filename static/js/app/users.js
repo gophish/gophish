@@ -67,17 +67,24 @@ function edit(idx) {
         group = {}
     } else {
         group = groups[idx]
-        $("#name").val(group.name)
-        $.each(group.targets, function(i, record) {
-            targets.DataTable()
-                .row.add([
-                    escapeHtml(record.first_name),
-                    escapeHtml(record.last_name),
-                    escapeHtml(record.email),
-                    escapeHtml(record.position),
-                    '<span style="cursor:pointer;"><i class="fa fa-trash-o"></i></span>'
-                ]).draw()
-        });
+        api.groupId.get(group.id)
+          .success(function(gs) {
+              group = gs;
+              $("#name").val(group.name)
+              $.each(group.targets, function(i, record) {
+                  targets.DataTable()
+                      .row.add([
+                          escapeHtml(record.first_name),
+                          escapeHtml(record.last_name),
+                          escapeHtml(record.email),
+                          escapeHtml(record.position),
+                          '<span style="cursor:pointer;"><i class="fa fa-trash-o"></i></span>'
+                      ]).draw()
+              });
+          })
+          .error(function() {
+              errorFlash("Error fetching groups")
+          })
     }
     // Handle file uploads
     $("#csvupload").fileupload({
