@@ -12,20 +12,9 @@
 
     <title>{{ .Title }} - Gophish</title>
 
-    <!-- Bootstrap core CSS -->
-    <link href="/bootstrap/css/bootstrap.css" rel="stylesheet">
-    <!-- Custom styles for this template -->
-    <link href="/css/main.css" rel="stylesheet">
-    <link href="/css/dashboard.css" rel="stylesheet">
-    <link href="/css/flat-ui.css" rel="stylesheet">
-    <link href="/css/dataTables.bootstrap.css" rel="stylesheet">
-    <link href="/css/font-awesome.min.css" rel="stylesheet">
-    <link href="/css/chartist.min.css" rel="stylesheet">
-    <link href="/css/bootstrap-datetime.css" rel='stylesheet' type='text/css'>
+    <link href="/css/dist/gophish.css" rel="stylesheet" type="text/css">
     <link href='https://fonts.googleapis.com/css?family=Roboto:700,500' rel='stylesheet' type='text/css'>
     <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300,600,700' rel='stylesheet' type='text/css'>
-    <link href="/css/checkbox.css" rel="stylesheet">
-    <link href="/css/sweetalert2.min.css" rel="stylesheet">
     <script>
     {{if .User}}
     var user = {
@@ -88,14 +77,8 @@
     </div>
     {{template "body" .}}
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="/js/jquery.js"></script>
-    <script src="/js/bootstrap.min.js"></script>
-    <script src="/js/jquery.dataTables.min.js"></script>
-    <script src="/js/dataTables.bootstrap.js"></script>
-    <script src="/js/chartist.min.js"></script>
-    <script src="/js/moment.min.js"></script>
-    <script src="/js/datetime-moment.js"></script>
-    <script src="/js/gophish.js"></script>
+    <script src="/js/dist/vendor.min.js"></script>
+    <script src="/js/dist/app/gophish.min.js"></script>
     {{template "scripts" .}}
 </body>
 
