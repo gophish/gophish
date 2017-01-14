@@ -1,7 +1,7 @@
 var groups = []
 
 // Save attempts to POST or PUT to /groups/
-function save(idx) {
+function save(id) {
     var targets = []
     $.each($("#targetsTable").DataTable().rows().data(), function(i, target) {
         targets.push({
@@ -16,10 +16,10 @@ function save(idx) {
             targets: targets
         }
         // Submit the group
-    if (idx != -1) {
+    if (id != -1) {
         // If we're just editing an existing group,
         // we need to PUT /groups/:id
-        group.id = groups[idx].id
+        group.id = id
         api.groupId.put(group)
             .success(function(data) {
                 successFlash("Group updated successfully!")
@@ -52,7 +52,7 @@ function dismiss() {
     $("#modal\\.flashes").empty()
 }
 
-function edit(idx) {
+function edit(id) {
     targets = $("#targetsTable").dataTable({
         destroy: true, // Destroy any other instantiated table - http://datatables.net/manual/tech-notes/3#destroy
         columnDefs: [{
@@ -61,23 +61,29 @@ function edit(idx) {
         }]
     })
     $("#modalSubmit").unbind('click').click(function() {
-        save(idx)
+        save(id)
     })
-    if (idx == -1) {
-        group = {}
+    if (id == -1) {
+        var group = {}
     } else {
-        group = groups[idx]
-        $("#name").val(group.name)
-        $.each(group.targets, function(i, record) {
-            targets.DataTable()
-                .row.add([
-                    escapeHtml(record.first_name),
-                    escapeHtml(record.last_name),
-                    escapeHtml(record.email),
-                    escapeHtml(record.position),
-                    '<span style="cursor:pointer;"><i class="fa fa-trash-o"></i></span>'
-                ]).draw()
-        });
+        api.groupId.get(id)
+            .success(function(group) {
+                $("#name").val(group.name)
+                $.each(group.targets, function(i, record) {
+                    targets.DataTable()
+                        .row.add([
+                            escapeHtml(record.first_name),
+                            escapeHtml(record.last_name),
+                            escapeHtml(record.email),
+                            escapeHtml(record.position),
+                            '<span style="cursor:pointer;"><i class="fa fa-trash-o"></i></span>'
+                        ]).draw()
+                });
+
+            })
+            .error(function() {
+                errorFlash("Error fetching group")
+            })
     }
     // Handle file uploads
     $("#csvupload").fileupload({
@@ -105,9 +111,14 @@ function edit(idx) {
     })
 }
 
-function deleteGroup(idx) {
-    if (confirm("Delete " + groups[idx].name + "?")) {
-        api.groupId.delete(groups[idx].id)
+function deleteGroup(id) {
+    var group = groups.find(function(x){return x.id === id})
+    if (!group) {
+        console.log('wat');
+        return
+    }
+    if (confirm("Delete " + group.name + "?")) {
+        api.groupId.delete(id)
             .success(function(data) {
                 successFlash(data.message)
                 load()
@@ -150,14 +161,14 @@ function load() {
     $("#groupTable").hide()
     $("#emptyMessage").hide()
     $("#loading").show()
-    api.groups.get()
-        .success(function(gs) {
+    api.groups.summary()
+        .success(function(response) {
             $("#loading").hide()
-            if (gs.length > 0) {
-                groups = gs
+            if (response.total > 0) {
+                groups = response.groups
                 $("#emptyMessage").hide()
                 $("#groupTable").show()
-                groupTable = $("#groupTable").DataTable({
+                var groupTable = $("#groupTable").DataTable({
                     destroy: true,
                     columnDefs: [{
                         orderable: false,
@@ -166,22 +177,14 @@ function load() {
                 });
                 groupTable.clear();
                 $.each(groups, function(i, group) {
-                    var targets = ""
-                    $.each(group.targets, function(i, target) {
-                        targets += target.email + ", "
-                        if (targets.length > 50) {
-                            targets = targets.slice(0, -3) + "..."
-                            return false;
-                        }
-                    })
                     groupTable.row.add([
                         escapeHtml(group.name),
-                        escapeHtml(targets),
+                        escapeHtml(group.num_targets),
                         moment(group.modified_date).format('MMMM Do YYYY, h:mm:ss a'),
-                        "<div class='pull-right'><button class='btn btn-primary' data-toggle='modal' data-target='#modal' onclick='edit(" + i + ")'>\
+                        "<div class='pull-right'><button class='btn btn-primary' data-toggle='modal' data-target='#modal' onclick='edit(" + group.id + ")'>\
                     <i class='fa fa-pencil'></i>\
                     </button>\
-                    <button class='btn btn-danger' onclick='deleteGroup(" + i + ")'>\
+                    <button class='btn btn-danger' onclick='deleteGroup(" + group.id + ")'>\
                     <i class='fa fa-trash-o'></i>\
                     </button></div>"
                     ]).draw()

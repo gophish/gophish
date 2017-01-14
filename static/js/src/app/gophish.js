@@ -85,6 +85,10 @@ var api = {
         // post() - Posts a group to POST /groups
         post: function(group) {
             return query("/groups/", "POST", group, false)
+        },
+        // summary() - Queries the API for GET /groups/summary
+        summary: function() {
+            return query("/groups/summary", "GET", {}, true)
         }
     },
     // groupId contains the endpoints for /groups/:id

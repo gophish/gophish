@@ -18,6 +18,22 @@ type Group struct {
 	Targets      []Target  `json:"targets" sql:"-"`
 }
 
+// GroupSummaries is a struct representing the overview of Groups.
+type GroupSummaries struct {
+	Total  int64          `json:"total"`
+	Groups []GroupSummary `json:"groups"`
+}
+
+// GroupSummary represents a summary of the Group model. The only
+// difference is that, instead of listing the Targets (which could be expensive
+// for large groups), it lists the target count.
+type GroupSummary struct {
+	Id           int64     `json:"id"`
+	Name         string    `json:"name"`
+	ModifiedDate time.Time `json:"modified_date"`
+	NumTargets   int64     `json:"num_targets"`
+}
+
 // GroupTarget is used for a many-to-many relationship between 1..* Groups and 1..* Targets
 type GroupTarget struct {
 	GroupId  int64 `json:"-"`
@@ -71,6 +87,27 @@ func GetGroups(uid int64) ([]Group, error) {
 	return gs, nil
 }
 
+// GetGroupSummaries returns the summaries for the groups
+// created by the given uid.
+func GetGroupSummaries(uid int64) (GroupSummaries, error) {
+	gs := GroupSummaries{}
+	query := db.Table("groups").Where("user_id=?", uid)
+	err := query.Select("id, name, modified_date").Scan(&gs.Groups).Error
+	if err != nil {
+		Logger.Println(err)
+		return gs, err
+	}
+	for i := range gs.Groups {
+		query = db.Table("group_targets").Where("group_id=?", gs.Groups[i].Id)
+		err = query.Count(&gs.Groups[i].NumTargets).Error
+		if err != nil {
+			return gs, err
+		}
+	}
+	gs.Total = int64(len(gs.Groups))
+	return gs, nil
+}
+
 // GetGroup returns the group, if it exists, specified by the given id and user_id.
 func GetGroup(id int64, uid int64) (Group, error) {
 	g := Group{}
@@ -82,6 +119,23 @@ func GetGroup(id int64, uid int64) (Group, error) {
 	g.Targets, err = GetTargets(g.Id)
 	if err != nil {
 		Logger.Println(err)
+	}
+	return g, nil
+}
+
+// GetGroupSummary returns the summary for the requested group
+func GetGroupSummary(id int64, uid int64) (GroupSummary, error) {
+	g := GroupSummary{}
+	query := db.Table("groups").Where("user_id=? and id=?", uid, id)
+	err := query.Select("id, name, modified_date").Scan(&g).Error
+	if err != nil {
+		Logger.Println(err)
+		return g, err
+	}
+	query = db.Table("group_targets").Where("group_id=?", id)
+	err = query.Count(&g.NumTargets).Error
+	if err != nil {
+		return g, err
 	}
 	return g, nil
 }

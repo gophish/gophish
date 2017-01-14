@@ -214,6 +214,20 @@ func API_Groups(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// API_Groups_Summary returns a summary of the groups owned by the current user.
+func API_Groups_Summary(w http.ResponseWriter, r *http.Request) {
+	switch {
+	case r.Method == "GET":
+		gs, err := models.GetGroupSummaries(ctx.Get(r, "user_id").(int64))
+		if err != nil {
+			Logger.Println(err)
+			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
+			return
+		}
+		JSONResponse(w, gs, http.StatusOK)
+	}
+}
+
 // API_Groups_Id returns details about the requested group.
 // If the group is not valid, API_Groups_Id returns null.
 func API_Groups_Id(w http.ResponseWriter, r *http.Request) {
@@ -247,6 +261,21 @@ func API_Groups_Id(w http.ResponseWriter, r *http.Request) {
 		err = models.PutGroup(&g)
 		if err != nil {
 			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
+			return
+		}
+		JSONResponse(w, g, http.StatusOK)
+	}
+}
+
+// API_Groups_Id_Summary returns a summary of the groups owned by the current user.
+func API_Groups_Id_Summary(w http.ResponseWriter, r *http.Request) {
+	switch {
+	case r.Method == "GET":
+		vars := mux.Vars(r)
+		id, _ := strconv.ParseInt(vars["id"], 0, 64)
+		g, err := models.GetGroupSummary(id, ctx.Get(r, "user_id").(int64))
+		if err != nil {
+			JSONResponse(w, models.Response{Success: false, Message: "Group not found"}, http.StatusNotFound)
 			return
 		}
 		JSONResponse(w, g, http.StatusOK)
