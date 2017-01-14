@@ -82,5 +82,5 @@ gulp.task('build', function() {
 });
 
 gulp.task('watch', function() {
-    gulp.watch('static/src/**/*.js', ['jshint']);
+    gulp.watch('static/js/src/app/**/*.js', ['jshint']);
 });
