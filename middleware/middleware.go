@@ -73,6 +73,7 @@ func RequireAPIKey(handler http.Handler) http.HandlerFunc {
 		}
 		if ak == "" {
 			JSONError(w, 400, "API Key not set")
+			return
 		} else {
 			u, err := models.GetUserByAPIKey(ak)
 			if err != nil {
@@ -101,8 +102,8 @@ func RequireLogin(handler http.Handler) http.HandlerFunc {
 // JSONError returns an error in JSON format with the given
 // status code and message
 func JSONError(w http.ResponseWriter, c int, m string) {
-	w.WriteHeader(c)
-	w.Header().Set("Content-Type", "application/json")
 	cj, _ := json.MarshalIndent(models.Response{Success: false, Message: m}, "", "  ")
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(c)
 	fmt.Fprintf(w, "%s", cj)
 }
