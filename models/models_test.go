@@ -1,6 +1,7 @@
 package models
 
 import (
+	"regexp"
 	"strings"
 	"testing"
 
@@ -320,4 +321,12 @@ func (s *ModelsSuite) TestPostPage(c *check.C) {
 		_, ok = f.Find("input").Attr("name")
 		c.Assert(ok, check.Equals, false)
 	})
+}
+
+func (s *ModelsSuite) TestGenerateResultId(c *check.C) {
+	r := Result{}
+	r.GenerateId()
+	match, err := regexp.Match("[a-zA-Z0-9]{7}", []byte(r.RId))
+	c.Assert(err, check.Equals, nil)
+	c.Assert(match, check.Equals, true)
 }
