@@ -531,3 +531,13 @@ table.dataTable{
 .btn-blue:hover{
     background-color:#64a1d6;
 }
+.select2-container--bootstrap .select2-selection--single .select2-selection__rendered {
+    font-size: 15px !important;
+}
+.select2-container--bootstrap .select2-selection--single {
+    height: 42px !important;
+    padding: 8px 12px !important;
+}
+.input-group-btn .btn {
+    line-height:20px !important;
+}

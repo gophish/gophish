@@ -41,13 +41,12 @@ gulp.task('build', function() {
             vendor_directory + 'jquery.dataTables.min.js',
             vendor_directory + 'dataTables.bootstrap.js',
             vendor_directory + 'datetime-moment.js',
-            vendor_directory + 'hogan.js',
             vendor_directory + 'jquery.ui.widget.js',
             vendor_directory + 'jquery.fileupload.js',
             vendor_directory + 'jquery.iframe-transport.js',
             vendor_directory + 'sweetalert2.min.js',
-            vendor_directory + 'typeahead.min.js',
-            vendor_directory + 'bootstrap-datetime.js'
+            vendor_directory + 'bootstrap-datetime.js',
+            vendor_directory + 'select2.min.js'
         ])
         .pipe(concat('vendor.js'))
         .pipe(rename({
@@ -74,7 +73,9 @@ gulp.task('build', function() {
             css_directory + 'chartist.min.css',
             css_directory + 'bootstrap-datetime.css',
             css_directory + 'checkbox.css',
-            css_directory + 'sweetalert2.min.css'
+            css_directory + 'sweetalert2.min.css',
+            css_directory + 'select2.min.css',
+            css_directory + 'select2-bootstrap.min.css'
         ])
         .pipe(cleanCSS({compatibilty: 'ie9'}))
         .pipe(concat('gophish.css'))

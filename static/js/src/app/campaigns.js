@@ -27,22 +27,21 @@ function launch() {
         preConfirm: function() {
             return new Promise(function(resolve, reject) {
                 groups = []
-                $.each($("#groupTable").DataTable().rows().data(), function(i, group) {
-                    groups.push({
-                        name: unescapeHtml(group[0])
-                    })
+                $("#users").select2("data").forEach(function(group){
+                    groups.push({name: group.text});
                 })
+                // Validate our fields
                 campaign = {
                         name: $("#name").val(),
                         template: {
-                            name: $("#template").val()
+                            name: $("#template").select2("data")[0].text
                         },
                         url: $("#url").val(),
                         page: {
-                            name: $("#page").val()
+                            name: $("#page").select2("data")[0].text
                         },
                         smtp: {
-                            name: $("#profile").val()
+                            name: $("#profile").select2("data")[0].text
                         },
                         launch_date: moment($("#launch_date").val(), "MM/DD/YYYY hh:mm a").format(),
                         groups: groups
@@ -76,7 +75,7 @@ function launch() {
 function sendTestEmail() {
     var test_email_request = {
         template: {
-            name: $("#template").val()
+            name: $("#template").select2("data")[0].text
         },
         first_name: $("input[name=to_first_name]").val(),
         last_name: $("input[name=to_last_name]").val(),
@@ -84,10 +83,10 @@ function sendTestEmail() {
         position: $("input[name=to_position]").val(),
         url: $("#url").val(),
         page: {
-            name: $("#page").val()
+            name: $("#page").select2("data")[0].text
         },
         smtp: {
-            name: $("#profile").val()
+            name: $("#profile").select2("data")[0].text
         }
     }
     btnHtml = $("#sendTestModalSubmit").html()
@@ -107,15 +106,14 @@ function sendTestEmail() {
 }
 
 function dismiss() {
-    $("#modal\\.flashes").empty()
-    $("#name").val("")
-    $("#template").val("")
-    $("#page").val("")
-    $("#url").val("")
-    $("#profile").val("")
-    $("#groupSelect").val("")
-    $("#modal").modal('hide')
-    $("#groupTable").dataTable().DataTable().clear().draw()
+    $("#modal\\.flashes").empty();
+    $("#name").val("");
+    $("#template").val("").change();
+    $("#page").val("").change();
+    $("#url").val("");
+    $("#profile").val("").change();
+    $("#users").val("").change();
+    $("#modal").modal('hide');
 }
 
 function deleteCampaign(idx) {
@@ -152,100 +150,104 @@ function deleteCampaign(idx) {
     })
 }
 
-function edit(campaign) {
-    // Clear the bloodhound instance
-    group_bh.clear();
-    template_bh.clear();
-    page_bh.clear();
-    profile_bh.clear();
-    if (campaign == "new") {
-        api.groups.get()
-            .success(function(groups) {
-                if (groups.length == 0) {
-                    modalError("No groups found!")
-                    return false;
-                } else {
-                    group_bh.add(groups)
-                }
-            })
-        api.templates.get()
-            .success(function(templates) {
-                if (templates.length == 0) {
-                    modalError("No templates found!")
-                    return false
-                } else {
-                    template_bh.add(templates)
-                }
-            })
-        api.pages.get()
-            .success(function(pages) {
-                if (pages.length == 0) {
-                    modalError("No pages found!")
-                    return false
-                } else {
-                    page_bh.add(pages)
-                }
-            })
-        api.SMTP.get()
-            .success(function(profiles) {
-                if (profiles.length == 0) {
-                    modalError("No profiles found!")
-                    return false
-                } else {
-                    profile_bh.add(profiles)
-                }
-            })
-    }
-}
-
-function copy(idx) {
-    group_bh.clear();
-    template_bh.clear();
-    page_bh.clear();
-    profile_bh.clear();
+function setupOptions() {
     api.groups.get()
         .success(function(groups) {
             if (groups.length == 0) {
                 modalError("No groups found!")
                 return false;
             } else {
-                group_bh.add(groups)
+                var group_s2 = $.map(groups, function(obj) {
+                    obj.text = obj.name
+                    return obj
+                });
+                $("#users.form-control").select2({
+                    placeholder: "Select Groups",
+                    data: group_s2,
+                });
             }
-        })
+        });
     api.templates.get()
         .success(function(templates) {
             if (templates.length == 0) {
                 modalError("No templates found!")
                 return false
             } else {
-                template_bh.add(templates)
+                var template_s2 = $.map(templates, function(obj) {
+                    obj.text = obj.name
+                    return obj
+                });
+                $("#template.form-control").select2({
+                    placeholder: "Select a Template",
+                    data: template_s2,
+                });
             }
-        })
+        });
     api.pages.get()
         .success(function(pages) {
             if (pages.length == 0) {
                 modalError("No pages found!")
                 return false
             } else {
-                page_bh.add(pages)
+                var page_s2 = $.map(pages, function(obj) {
+                    obj.text = obj.name
+                    return obj
+                });
+                $("#page.form-control").select2({
+                    placeholder: "Select a Landing Page",
+                    data: page_s2,
+                });
             }
-        })
+        });
     api.SMTP.get()
         .success(function(profiles) {
             if (profiles.length == 0) {
                 modalError("No profiles found!")
                 return false
             } else {
-                profile_bh.add(profiles)
+                var profile_s2 = $.map(profiles, function(obj) {
+                    obj.text = obj.name
+                    return obj
+                });
+                $("#profile.form-control").select2({
+                    placeholder: "Select a Sending Profile",
+                    data: profile_s2,
+                });
             }
-        })
+        });
+}
+
+function edit(campaign) {
+    setupOptions();
+}
+
+function copy(idx) {
+    setupOptions();
         // Set our initial values
     api.campaignId.get(campaigns[idx].id)
         .success(function(campaign) {
             $("#name").val("Copy of " + campaign.name)
-            $("#template").val(campaign.template.name)
-            $("#page").val(campaign.page.name)
-            $("#profile").val(campaign.smtp.name)
+            if (!campaign.template.id) {
+                $("#template").select2({
+                    placeholder: campaign.template.name
+                });
+            } else {
+                $("#template").select2("val", campaign.template.id.toString());
+            }
+            if (!campaign.page.id) {
+                $("#page").select2({
+                    placeholder: campaign.page.name
+                });
+            } else {
+                $("#page").select2("val", campaign.page.id.toString());
+            }
+            if (!campaign.smtp.id) {
+                $("#profile").select2({
+                    placeholder: campaign.smtp.name
+                });
+            } else {
+                $("#profile").select2("val", campaign.smtp.id.toString());
+            }
             $("#url").val(campaign.url)
         })
         .error(function(data) {
@@ -285,20 +287,10 @@ $(document).ready(function() {
         $('.modal-backdrop').not('.fv-modal-stack').css('z-index', 1039 + (10 * $('body').data('fv_open_modals')));
         $('.modal-backdrop').not('fv-modal-stack').addClass('fv-modal-stack');
     });
-    $.fn.modal.Constructor.prototype.enforceFocus = function() {
-        $(document)
-            .off('focusin.bs.modal') // guard against infinite focus loop
-            .on('focusin.bs.modal', $.proxy(function(e) {
-                if (
-                    this.$element[0] !== e.target && !this.$element.has(e.target).length
-                    // CKEditor compatibility fix start.
-                    && !$(e.target).closest('.cke_dialog, .cke').length
-                    // CKEditor compatibility fix end.
-                ) {
-                    this.$element.trigger('focus');
-                }
-            }, this));
-    };
+    // Scrollbar fix - https://stackoverflow.com/questions/19305821/multiple-modals-overlay
+    $(document).on('hidden.bs.modal', '.modal', function () {
+        $('.modal:visible').length && $(document.body).addClass('modal-open');
+    });
     $('#modal').on('hidden.bs.modal', function(event) {
         dismiss()
     });
@@ -343,154 +335,8 @@ $(document).ready(function() {
             $("#loading").hide()
             errorFlash("Error fetching campaigns")
         })
-    $("#groupForm").submit(function() {
-        // Add row to group table.
-        var newRow = groupTable.row.add([
-            escapeHtml($("#groupSelect").val()),
-            '<span style="cursor:pointer;"><i class="fa fa-trash-o"></i></span>'
-        ]).draw().node();
-
-        // Set event handler for removing row from group table.
-        $(newRow).on("click", "span>i.fa-trash-o", function() {
-            groupTable.row($(this).parents('tr'))
-                .remove()
-                .draw();
-        });
-
-        // Clear user input.
-        $("#groupSelect").typeahead('val', "");
-        return false;
-    });
-    // Create the group typeahead objects
-    groupTable = $("#groupTable").DataTable({
-        columnDefs: [{
-            orderable: false,
-            targets: "no-sort"
-        }]
-    })
-    group_bh = new Bloodhound({
-        datumTokenizer: function(g) {
-            return Bloodhound.tokenizers.whitespace(g.name)
-        },
-        queryTokenizer: Bloodhound.tokenizers.whitespace,
-        local: []
-    })
-    group_bh.initialize()
-    $("#groupSelect.typeahead.form-control").typeahead({
-            hint: true,
-            highlight: true,
-            minLength: 1
-        }, {
-            name: "groups",
-            source: group_bh,
-            templates: {
-                empty: function(data) {
-                    return '<div class="tt-suggestion">No groups matched that query</div>'
-                },
-                suggestion: function(data) {
-                    return '<div>' + escapeHtml(data.name) + '</div>'
-                }
-            }
-        })
-        .bind('typeahead:select', function(ev, group) {
-            // Add selected group.
-            $("#groupSelect").typeahead('val', group.name);
-            $("#groupForm").submit();
-        })
-        .bind('typeahead:autocomplete', function(ev, group) {
-            $("#groupSelect").typeahead('val', group.name)
-        });
-    // Create the template typeahead objects
-    template_bh = new Bloodhound({
-        datumTokenizer: function(t) {
-            return Bloodhound.tokenizers.whitespace(t.name)
-        },
-        queryTokenizer: Bloodhound.tokenizers.whitespace,
-        local: []
-    })
-    template_bh.initialize()
-    $("#template.typeahead.form-control").typeahead({
-            hint: true,
-            highlight: true,
-            minLength: 1
-        }, {
-            name: "templates",
-            source: template_bh,
-            templates: {
-                empty: function(data) {
-                    return '<div class="tt-suggestion">No templates matched that query</div>'
-                },
-                suggestion: function(data) {
-                    return '<div>' + escapeHtml(data.name) + '</div>'
-                }
-            }
-        })
-        .bind('typeahead:select', function(ev, template) {
-            $("#template").typeahead('val', template.name)
-        })
-        .bind('typeahead:autocomplete', function(ev, template) {
-            $("#template").typeahead('val', template.name)
-        });
-    // Create the landing page typeahead objects
-    page_bh = new Bloodhound({
-        datumTokenizer: function(p) {
-            return Bloodhound.tokenizers.whitespace(p.name)
-        },
-        queryTokenizer: Bloodhound.tokenizers.whitespace,
-        local: []
-    })
-    page_bh.initialize()
-    $("#page.typeahead.form-control").typeahead({
-            hint: true,
-            highlight: true,
-            minLength: 1
-        }, {
-            name: "pages",
-            source: page_bh,
-            templates: {
-                empty: function(data) {
-                    return '<div class="tt-suggestion">No pages matched that query</div>'
-                },
-                suggestion: function(data) {
-                    return '<div>' + escapeHtml(data.name) + '</div>'
-                }
-            }
-        })
-        .bind('typeahead:select', function(ev, page) {
-            $("#page").typeahead('val', page.name)
-        })
-        .bind('typeahead:autocomplete', function(ev, page) {
-            $("#page").typeahead('val', page.name)
-        });
-    // Create the sending profile typeahead objects
-    profile_bh = new Bloodhound({
-        datumTokenizer: function(s) {
-            return Bloodhound.tokenizers.whitespace(s.name)
-        },
-        queryTokenizer: Bloodhound.tokenizers.whitespace,
-        local: []
-    })
-    profile_bh.initialize()
-    $("#profile.typeahead.form-control").typeahead({
-            hint: true,
-            highlight: true,
-            minLength: 1
-        }, {
-            name: "profiles",
-            source: profile_bh,
-            templates: {
-                empty: function(data) {
-                    return '<div class="tt-suggestion">No profiles matched that query</div>'
-                },
-                suggestion: function(data) {
-                    return '<div>' + escapeHtml(data.name) + '</div>'
-                }
-            }
-        })
-        .bind('typeahead:select', function(ev, profile) {
-            $("#profile").typeahead('val', profile.name)
-        })
-        .bind('typeahead:autocomplete', function(ev, profile) {
-            $("#profile").typeahead('val', profile.name)
-        });
+    // Select2 Defaults
+    $.fn.select2.defaults.set("width", "100%");
+    $.fn.select2.defaults.set("dropdownParent", $("#modal_body"));
+    $.fn.select2.defaults.set("theme", "bootstrap");
 })
