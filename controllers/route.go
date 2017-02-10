@@ -85,6 +85,10 @@ func CreatePhishingRouter() http.Handler {
 	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("./static/endpoint/"))))
 	router.HandleFunc("/track", PhishTracker)
 	router.HandleFunc("/{path:.*}/track", PhishTracker)
+	//
+        router.HandleFunc("/enabled", EnabledTracker)
+        router.HandleFunc("/{path:.*}/enabled", EnabledTracker)
+        //
 	router.HandleFunc("/{path:.*}", PhishHandler)
 	return router
 }
@@ -270,7 +274,75 @@ func PhishHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Write(htmlBuff.Bytes())
 }
+//
+// EnabledTracker tracks attachments where content was enabled, updating the status for the given Result
+func EnabledTracker(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	id := r.Form.Get("rid")
+	if id == "" {
+		Logger.Println("Missing Result ID")
+		http.NotFound(w, r)
+		return
+	}
+	rs, err := models.GetResult(id)
+	if err != nil {
+		Logger.Println("No Results found")
+		http.NotFound(w, r)
+		return
+	}
+	c, err := models.GetCampaign(rs.CampaignId, rs.UserId)
+	if err != nil {
+		Logger.Println(err)
+	}
+	// Don't process events for completed campaigns
+	if c.Status == models.CAMPAIGN_COMPLETE {
+		http.NotFound(w, r)
+		return
+	}
+	ip, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err != nil {
+		Logger.Println(err)
+		return
+	}
+	// Respect X-Forwarded headers
+	if fips := r.Header.Get("X-Forwarded-For"); fips != "" {
+		ip = strings.Split(fips, ", ")[0]
+	}
+	// Handle post processing such as GeoIP
+	err = rs.UpdateGeo(ip)
+	if err != nil {
+		Logger.Println(err)
+	}
+	d := struct {
+		Payload url.Values        `json:"payload"`
+		Browser map[string]string `json:"browser"`
+	}{
+		Payload: r.Form,
+		Browser: make(map[string]string),
+	}
+	d.Browser["address"] = ip
+	d.Browser["user-agent"] = r.Header.Get("User-Agent")
+	rj, err := json.Marshal(d)
+	if err != nil {
+		Logger.Println(err)
+		http.NotFound(w, r)
+		return
+	}
+	c.AddEvent(models.Event{Email: rs.Email, Message: models.EVENT_ENABLED, Details: string(rj)})
+	// Don't update the status if the user already clicked the link
+	// or submitted data to the campaign
+	if rs.Status == models.STATUS_SUCCESS {
+		http.ServeFile(w, r, "static/images/pixel.png")
+		return
+	}
+	err = rs.UpdateStatus(models.EVENT_ENABLED)
+	if err != nil {
+		Logger.Println(err)
+	}
+	http.ServeFile(w, r, "static/images/pixel.png")
+}
 
+//
 // Use allows us to stack middleware to process the request
 // Example taken from https://github.com/gorilla/mux/pull/36#issuecomment-25849172
 func Use(handler http.HandlerFunc, mid ...func(http.Handler) http.HandlerFunc) http.HandlerFunc {
