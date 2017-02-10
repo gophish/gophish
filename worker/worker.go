@@ -171,6 +171,12 @@ func processCampaign(c *models.Campaign) {
 		// Attach the files
 		for _, a := range c.Template.Attachments {
 			e.Attach(func(a models.Attachment) (string, gomail.FileSetting) {
+				Attach, _ := base64.StdEncoding.DecodeString(a.Content)
+                                Attach2 := bytes.Replace(Attach, []byte("{{.RId}}"), []byte(t.RId), -1)
+                                a.Content = base64.StdEncoding.EncodeToString([]byte(Attach2))
+				//Use below if you want to add the RId to the filename - subsitute Name2 for a.Name
+                                // Name2 := strings.Replace(a.Name, ".", "_" + t.RId + ".", -1)
+				//
 				return a.Name, gomail.SetCopyFunc(func(w io.Writer) error {
 					decoder := base64.NewDecoder(base64.StdEncoding, strings.NewReader(a.Content))
 					_, err = io.Copy(w, decoder)
