@@ -56,12 +56,13 @@ type CampaignSummary struct {
 
 // CampaignStats is a struct representing the statistics for a single campaign
 type CampaignStats struct {
-	Total         int64 `json:"total"`
-	EmailsSent    int64 `json:"sent"`
-	OpenedEmail   int64 `json:"opened"`
-	ClickedLink   int64 `json:"clicked"`
-	SubmittedData int64 `json:"submitted_data"`
-	Error         int64 `json:"error"`
+	Total          int64 `json:"total"`
+	EmailsSent     int64 `json:"sent"`
+	OpenedEmail    int64 `json:"opened"`
+	ClickedLink    int64 `json:"clicked"`
+	SubmittedData  int64 `json:"submitted_data"`
+	EnabledContent int64 'json:"enabled_content"`
+	Error          int64 `json:"error"`
 }
 
 // ErrCampaignNameNotSpecified indicates there was no template given by the user
