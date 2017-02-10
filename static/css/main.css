@@ -226,6 +226,10 @@
 	fill:#F39C12 !important;
 }
 
+.ct-point-enabled {
+	fill:#D9534F !important;
+}
+
 .ct-point-opened {
 	fill:#f9bf3b !important;
 }
@@ -338,6 +342,10 @@
     stroke:#F39C12!important;
 }
 
+.ct-slice-donut.ct-slice-donut-enabled{
+    stroke:#D9534F!important;
+}
+
 .ct-slice-donut.ct-slice-donut-sending{
     stroke:#428bca !important;
 }
@@ -360,6 +368,10 @@
 
 .ct-legend-clicked {
     background-color: #F39C12 !important;
+}
+
+.ct-legend-enabled {
+    background-color: #ED433D !important;
 }
 
 .ct-legend-sending {
