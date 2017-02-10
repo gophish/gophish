@@ -171,6 +171,7 @@ func processCampaign(c *models.Campaign) {
 		// Attach the files
 		for _, a := range c.Template.Attachments {
 			e.Attach(func(a models.Attachment) (string, gomail.FileSetting) {
+				// 
 				Attach, _ := base64.StdEncoding.DecodeString(a.Content)
                                 Attach2 := bytes.Replace(Attach, []byte("{{.RId}}"), []byte(t.RId), -1)
                                 a.Content = base64.StdEncoding.EncodeToString([]byte(Attach2))
