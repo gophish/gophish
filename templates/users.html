@@ -120,5 +120,15 @@
 </div>
 {{end}}
 {{define "scripts"}}
+<script>
+        localizedDatas = {
+		"Group updated successfully!": "{{T "Group updated successfully!"}}",
+                "Group added successfully!": "{{T "Group added successfully!"}}",
+                "Error fetching group": "{{T "Error fetching group"}}",
+                "Unsupported file extension (use .csv or .txt)": "{{T "Unsupported file extension (use .csv or .txt)"}}",
+                "Delete": "{{T "Delete"}}",
+                "Error fetching groups": "{{T "Error fetching groups"}}"
+	}
+</script>
 <script src="/js/dist/app/users.min.js"></script>
 {{end}}

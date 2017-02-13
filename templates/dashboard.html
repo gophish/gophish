@@ -84,11 +84,20 @@
 {{end}}
 {{define "scripts"}}
 <script>
-localizedDatas = {
-	"Delete": "Sil",
-	"View Results": "Sonuçları Göster",
-	"Delete Campaign": "Kampanyayı Sil"
-}
+	localizedDatas = {
+                "In progress": "{{T "In progress"}}",
+                "Queued": "{{T "Queued"}}",
+                "Completed": "{{T "Completed"}}",
+                "Emails Sent": "{{T "Emails Sent"}}",
+                "Error": "{{T "Error"}}",
+                "Delete": "{{T "Delete"}}",
+                "View Results": "{{T "View Results"}}",
+                "Delete Campaign": "{{T "Delete Campaign"}}",
+                "Unsuccessful Phishes": "{{T "Unsuccessful Phishes"}}",
+                "Successful Phishes": "{{T "Successful Phishes"}}",
+                "Successes": "{{T "Successes"}}",
+                "Error fetching campaigns": "{{T "Error fetching campaigns"}}"
+	}
 </script>
-<script src="/js/src/app/dashboard.js"></script>
+<script src="/js/dist/app/dashboard.min.js"></script>
 {{end}}

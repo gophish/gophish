@@ -136,6 +136,17 @@
 </div>
 {{end}}
 {{define "scripts"}}
+<script>
+        localizedDatas = {
+		"Email Sent!": "{{T "Email Sent!"}}",
+                "Profile edited successfully!": "{{T "Profile edited successfully!"}}",
+                "Profile added successfully!": "{{T "Profile added successfully!"}}",
+                "Edit Profile": "{{T "Edit Profile"}}",
+                "Copy Profile": "{{T "Copy Profile"}}",
+                "Delete Profile": "{{T "Delete Profile"}}",
+                "Error fetching profiles": "{{T "Error fetching profiles"}}"
+	}
+</script>
 <script src="/js/ckeditor/ckeditor.js"></script>
 <script src="/js/ckeditor/adapters/jquery.js"></script>
 <script src="/js/dist/app/sending_profiles.min.js"></script>

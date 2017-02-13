@@ -154,6 +154,18 @@
 </div>
 {{end}}
 {{define "scripts"}}
+<script>
+        localizedDatas = {
+		"Template edited successfully!": "{{T "Template edited successfully!"}}",
+                "Template added successfully!": "{{T "Template added successfully!"}}",
+                "Delete": "{{T "Delete"}}",
+                "No Content Specified!": "{{T "No Content Specified!"}}",
+                "Edit Template": "{{T "Edit Template"}}",
+                "Copy Template": "{{T "Copy Template"}}",
+                "Delete Template": "{{T "Delete Template"}}",
+                "Error fetching templates": "{{T "Error fetching templates"}}",
+	}
+</script>
 <script src="/js/src/vendor/ckeditor/ckeditor.js"></script>
 <script src="/js/src/vendor/ckeditor/adapters/jquery.js"></script>
 <script src="/js/dist/app/templates.min.js"></script>
