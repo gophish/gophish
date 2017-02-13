@@ -435,7 +435,7 @@ func API_Pages_Id(w http.ResponseWriter, r *http.Request) {
 		p.UserId = ctx.Get(r, "user_id").(int64)
 		err = models.PutPage(&p)
 		if err != nil {
-			JSONResponse(w, models.Response{Success: false, Message: util.T("Error updating page: " + err.Error())}, http.StatusInternalServerError)
+			JSONResponse(w, models.Response{Success: false, Message: util.T("Error updating page:") + " " + err.Error()}, http.StatusInternalServerError)
 			return
 		}
 		JSONResponse(w, p, http.StatusOK)

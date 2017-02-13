@@ -135,7 +135,7 @@ $(document).ready(function() {
                     var $point = $(this)
                     value = $point.attr('ct:value') || 0
                     cidx = $point.attr('ct:meta')
-                    $toolTip.html(campaigns[cidx].name + '<br>' + T("Successes:" + " " + value.toString() + "%").show();
+                    $toolTip.html(campaigns[cidx].name + '<br>' + T("Successes:") + " " + value.toString() + "%").show();
                 });
 
                 $chart.on('mouseleave', '.ct-point', function() {

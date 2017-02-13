@@ -1,0 +1,1070 @@
+[
+	{
+		"id": "Invalid Username/Password",
+                "translation": "CHANGED - Invalid Username/Password"
+        },
+        {
+		"id": "You have successfully logged out",
+                "translation": "CHANGED - You have successfully logged out"
+        },
+        {
+                "id": "Method not allowed",
+                "translation": "CHANGED - Method not allowed"
+        },
+        {
+                "id": "Settings Updated Successfully",
+                "translation": "CHANGED - Settings Updated Successfully"
+        },
+        {
+                "id": "Error parsing request",
+                "translation": "CHANGED - Error parsing request"
+	},
+	{
+		"id": "Add",
+		"translation": "CHANGED - Add"
+	},
+	{
+		"id": "Add Files",
+		"translation": "CHANGED - Add Files"
+	},
+	{
+		"id": "Add Tracking Image",
+		"translation": "CHANGED - Add Tracking Image"
+	},
+	{
+		"id": "Add User",
+		"translation": "CHANGED - Add User"
+	},
+	{
+		"id": "API Documentation",
+		"translation": "CHANGED - API Documentation"
+	},
+	{
+		"id": "API Key",
+		"translation": "CHANGED - API Key"
+	},
+	{
+		"id": "Average Phishing Results",
+		"translation": "CHANGED - Average Phishing Results"
+	},
+	{
+		"id": "Back",
+		"translation": "CHANGED - Back"
+	},
+	{
+		"id": "Bulk Import Users",
+		"translation": "CHANGED - Bulk Import Users"
+	},
+	{
+		"id": "<b>Warning:</b> Credentials are currently <b>not encrypted</b>. This means that captured passwords are stored in the database as cleartext. Be careful with this!",
+		"translation": "CHANGED - <b>Warning:</b> Credentials are currently <b>not encrypted</b>. This means that captured passwords are stored in the database as cleartext. Be careful with this!"
+	},
+	{
+		"id": "Campaign name",
+		"translation": "CHANGED - Campaign name"
+	},
+	{
+		"id": "Campaigns",
+		"translation": "CHANGED - Campaigns"
+	},
+	{
+		"id": "Campaign Timeline",
+		"translation": "CHANGED - Campaign Timeline"
+	},
+	{
+		"id": "Cancel",
+		"translation": "CHANGED - Cancel"
+	},
+	{
+		"id": "Capture Passwords",
+		"translation": "CHANGED - Capture Passwords"
+	},
+	{
+		"id": "Capture Submitted Data",
+		"translation": "CHANGED - Capture Submitted Data"
+	},
+	{
+		"id": "Change Links to Point to Landing Page",
+		"translation": "CHANGED - Change Links to Point to Landing Page"
+	},
+	{
+		"id": "Close",
+		"translation": "CHANGED - Close"
+	},
+	{
+		"id": "Complete",
+		"translation": "CHANGED - Complete"
+	},
+	{
+		"id": "Confirm New Password",
+		"translation": "CHANGED - Confirm New Password"
+	},
+	{
+		"id": "Content",
+		"translation": "CHANGED - Content"
+	},
+	{
+		"id": "Created Date",
+		"translation": "CHANGED - Created Date"
+	},
+	{
+		"id": "Dashboard",
+		"translation": "CHANGED - Dashboard"
+	},
+	{
+		"id": "Delete",
+		"translation": "CHANGED - Delete"
+	},
+	{
+		"id": "Details",
+		"translation": "CHANGED - Details"
+	},
+	{
+		"id": "Email",
+		"translation": "CHANGED - Email"
+	},
+	{
+		"id": "Email Content",
+		"translation": "CHANGED - Email Content"
+	},
+	{
+		"id": "Email Status",
+		"translation": "CHANGED - Email Status"
+	},
+	{
+		"id": "Email Subject",
+		"translation": "CHANGED - Email Subject"
+	},
+	{
+		"id": "Email Template",
+		"translation": "CHANGED - Email Template"
+	},
+	{
+		"id": "Email Templates",
+		"translation": "CHANGED - Email Templates"
+	},
+	{
+		"id": "Export CSV",
+		"translation": "CHANGED - Export CSV"
+	},
+	{
+		"id": "First Last <test@example.com>",
+		"translation": "CHANGED - First Last <test@example.com>"
+	},
+	{
+		"id": "First Name",
+		"translation": "CHANGED - First Name"
+	},
+	{
+		"id": "From",
+		"translation": "CHANGED - From"
+	},
+	{
+		"id": "Gophish version",
+		"translation": "CHANGED - Gophish version"
+	},
+	{
+		"id": "Group name",
+		"translation": "CHANGED - Group name"
+	},
+	{
+		"id": "Groups",
+		"translation": "CHANGED - Groups"
+	},
+	{
+		"id": "Host",
+		"translation": "CHANGED - Host"
+	},
+	{
+		"id": "HTML",
+		"translation": "CHANGED - HTML"
+	},
+	{
+		"id": "http://example.com",
+		"translation": "CHANGED - http://example.com"
+	},
+	{
+		"id": "http://google.com",
+		"translation": "CHANGED - http://google.com"
+	},
+	{
+		"id": "If the landing page contains a form, submitted input (except passwords!) will be captured.",
+		"translation": "CHANGED - If the landing page contains a form, submitted input (except passwords!) will be captured."
+	},
+	{
+		"id": "Ignore Certificate Errors",
+		"translation": "CHANGED - Ignore Certificate Errors"
+	},
+	{
+		"id": "Ignore common certificate errors such as self-signed certs (exposes you to MiTM attacks - use carefully!)",
+		"translation": "CHANGED - Ignore common certificate errors such as self-signed certs (exposes you to MiTM attacks - use carefully!)"
+	},
+	{
+		"id": "Import",
+		"translation": "CHANGED - Import"
+	},
+	{
+		"id": "Import Email",
+		"translation": "CHANGED - Import Email"
+	},
+	{
+		"id": "Import Site",
+		"translation": "CHANGED - Import Site"
+	},
+	{
+		"id": "Interface Type",
+		"translation": "CHANGED - Interface Type"
+	},
+	{
+		"id": "Landing Page",
+		"translation": "CHANGED - Landing Page"
+	},
+	{
+		"id": "Landing Pages",
+		"translation": "CHANGED - Landing Pages"
+	},
+	{
+		"id": "Last Modified Date",
+		"translation": "CHANGED - Last Modified Date"
+	},
+	{
+		"id": "Last Name",
+		"translation": "CHANGED - Last Name"
+	},
+	{
+		"id": "Launch Campaign",
+		"translation": "CHANGED - Launch Campaign"
+	},
+	{
+		"id": "Location of gophish listener (must be reachable by targets!)",
+		"translation": "CHANGED - Location of gophish listener (must be reachable by targets!)"
+	},
+	{
+		"id": "Login",
+		"translation": "CHANGED - Login"
+	},
+	{
+		"id": "Modified Date",
+		"translation": "CHANGED - Modified Date"
+	},
+	{
+		"id": "Name",
+		"translation": "CHANGED - Name"
+	},
+	{
+		"id": "New Campaign",
+		"translation": "CHANGED - New Campaign"
+	},
+	{
+		"id": "New Group",
+		"translation": "CHANGED - New Group"
+	},
+	{
+		"id": "New Landing Page",
+		"translation": "CHANGED - New Landing Page"
+	},
+	{
+		"id": "New Page",
+		"translation": "CHANGED - New Page"
+	},
+	{
+		"id": "New Password",
+		"translation": "CHANGED - New Password"
+	},
+	{
+		"id": "New Profile",
+		"translation": "CHANGED - New Profile"
+	},
+	{
+		"id": "New Sending Profile",
+		"translation": "CHANGED - New Sending Profile"
+	},
+	{
+		"id": "New Template",
+		"translation": "CHANGED - New Template"
+	},
+	{
+		"id": "No campaigns created yet. Let's create one!",
+		"translation": "CHANGED - No campaigns created yet. Let's create one!"
+	},
+	{
+		"id": "No groups created yet. Let's create one!",
+		"translation": "CHANGED - No groups created yet. Let's create one!"
+	},
+	{
+		"id": "No pages created yet. Let's create one!",
+		"translation": "CHANGED - No pages created yet. Let's create one!"
+	},
+	{
+		"id": "No profiles created yet. Let's create one!",
+		"translation": "CHANGED - No profiles created yet. Let's create one!"
+	},
+	{
+		"id": "No templates yet. Let's create one!",
+		"translation": "CHANGED - No templates yet. Let's create one!"
+	},
+	{
+		"id": "# of Members",
+		"translation": "CHANGED - # of Members"
+	},
+	{
+		"id": "Old Password",
+		"translation": "CHANGED - Old Password"
+	},
+	{
+		"id": "Overview",
+		"translation": "CHANGED - Overview"
+	},
+	{
+		"id": "Page name",
+		"translation": "CHANGED - Page name"
+	},
+	{
+		"id": "Password",
+		"translation": "CHANGED - Password"
+	},
+	{
+		"id": "Phishing Success Overview",
+		"translation": "CHANGED - Phishing Success Overview"
+	},
+	{
+		"id": "Plaintext",
+		"translation": "CHANGED - Plaintext"
+	},
+	{
+		"id": "Please register below",
+		"translation": "CHANGED - Please register below"
+	},
+	{
+		"id": "Please sign in",
+		"translation": "CHANGED - Please sign in"
+	},
+	{
+		"id": "Position",
+		"translation": "CHANGED - Position"
+	},
+	{
+		"id": "Raw Email Source",
+		"translation": "CHANGED - Raw Email Source"
+	},
+	{
+		"id": "Raw Events",
+		"translation": "CHANGED - Raw Events"
+	},
+	{
+		"id": "Recent Campaigns",
+		"translation": "CHANGED - Recent Campaigns"
+	},
+	{
+		"id": "Redirect to",
+		"translation": "CHANGED - Redirect to"
+	},
+	{
+		"id": "Refreshing",
+		"translation": "CHANGED - Refreshing"
+	},
+	{
+		"id": "Register",
+		"translation": "CHANGED - Register"
+	},
+	{
+		"id": "Register a New User",
+		"translation": "CHANGED - Register a New User"
+	},
+	{
+		"id": "Reset",
+		"translation": "CHANGED - Reset"
+	},
+	{
+		"id": "Result ID",
+		"translation": "CHANGED - Result ID"
+	},
+	{
+		"id": "Results",
+		"translation": "CHANGED - Results"
+	},
+	{
+		"id": "Results for campaign.name",
+		"translation": "CHANGED - Results for campaign.name"
+	},
+	{
+		"id": "Save",
+		"translation": "CHANGED - Save"
+	},
+	{
+		"id": "Save changes",
+		"translation": "CHANGED - Save changes"
+	},
+	{
+		"id": "Save Page",
+		"translation": "CHANGED - Save Page"
+	},
+	{
+		"id": "Save Profile",
+		"translation": "CHANGED - Save Profile"
+	},
+	{
+		"id": "Save Template",
+		"translation": "CHANGED - Save Template"
+	},
+	{
+		"id": "Schedule",
+		"translation": "CHANGED - Schedule"
+	},
+	{
+		"id": "Select a Landing Page",
+		"translation": "CHANGED - Select a Landing Page"
+	},
+	{
+		"id": "Send",
+		"translation": "CHANGED - Send"
+	},
+	{
+		"id": "Sending Profile",
+		"translation": "CHANGED - Sending Profile"
+	},
+	{
+		"id": "Sending Profiles",
+		"translation": "CHANGED - Sending Profiles"
+	},
+	{
+		"id": "Send Test Email",
+		"translation": "CHANGED - Send Test Email"
+	},
+	{
+		"id": "Send Test Email to",
+		"translation": "CHANGED - Send Test Email to"
+	},
+	{
+		"id": "Settings",
+		"translation": "CHANGED - Settings"
+	},
+	{
+		"id": "Sign in",
+		"translation": "CHANGED - Sign in"
+	},
+	{
+		"id": "SMTP",
+		"translation": "CHANGED - SMTP"
+	},
+	{
+		"id": "smtp.example.com:25",
+		"translation": "CHANGED - smtp.example.com:25"
+	},
+	{
+		"id": "Status",
+		"translation": "CHANGED - Status"
+	},
+	{
+		"id": "Subject",
+		"translation": "CHANGED - Subject"
+	},
+	{
+		"id": "Successful Phishes",
+		"translation": "CHANGED - Successful Phishes"
+	},
+	{
+		"id": "Supports CSV files",
+		"translation": "CHANGED - Supports CSV files"
+	},
+	{
+		"id": "Targets Map",
+		"translation": "CHANGED - Targets Map"
+	},
+	{
+		"id": "Template Name",
+		"translation": "CHANGED - Template Name"
+	},
+	{
+		"id": "Text",
+		"translation": "CHANGED - Text"
+	},
+	{
+		"id": "This option lets you redirect the user to a page after credentials are submitted.",
+		"translation": "CHANGED - This option lets you redirect the user to a page after credentials are submitted."
+	},
+	{
+		"id": "Toggle navigation",
+		"translation": "CHANGED - Toggle navigation"
+	},
+	{
+		"id": "Type",
+		"translation": "CHANGED - Type"
+	},
+	{
+		"id": "Unsuccessful Phishes",
+		"translation": "CHANGED - Unsuccessful Phishes"
+	},
+	{
+		"id": "URL",
+		"translation": "CHANGED - URL"
+	},
+	{
+		"id": "User Guide",
+		"translation": "CHANGED - User Guide"
+	},
+	{
+		"id": "Username",
+		"translation": "CHANGED - Username"
+	},
+	{
+		"id": "Users &amp; Groups",
+		"translation": "CHANGED - Users &amp; Groups"
+	},
+	{
+		"id": "View All",
+		"translation": "CHANGED - View All"
+	},
+	{
+		"id": "Are you sure?",
+		"translation": "CHANGED - Are you sure?"
+	},
+	{
+		"id": "Campaign Completed!",
+		"translation": "CHANGED - Campaign Completed!"
+	},
+	{
+		"id": "Campaign Created",
+		"translation": "CHANGED - Campaign Created"
+	},
+	{
+		"id": "Campaign Deleted!",
+		"translation": "CHANGED - Campaign Deleted!"
+	},
+	{
+		"id": "Campaign not found!",
+		"translation": "CHANGED - Campaign not found!"
+	},
+	{
+		"id": "Campaign Scheduled!",
+		"translation": "CHANGED - Campaign Scheduled!"
+	},
+	{
+		"id": "Clicked Link",
+		"translation": "CHANGED - Clicked Link"
+	},
+	{
+		"id": "Complete Campaign",
+		"translation": "CHANGED - Complete Campaign"
+	},
+	{
+		"id": "Completed!",
+		"translation": "CHANGED - Completed!"
+	},
+	{
+		"id": "Completed",
+		"translation": "CHANGED - Completed"
+	},
+	{
+		"id": "Copy Campaign",
+		"translation": "CHANGED - Copy Campaign"
+	},
+	{
+		"id": "Copy of",
+		"translation": "CHANGED - Copy of"
+	},
+	{
+		"id": "Copy Page",
+		"translation": "CHANGED - Copy Page"
+	},
+	{
+		"id": "Copy Profile",
+		"translation": "CHANGED - Copy Profile"
+	},
+	{
+		"id": "Copy Template",
+		"translation": "CHANGED - Copy Template"
+	},
+	{
+		"id": "Delete",
+		"translation": "CHANGED - Delete"
+	},
+	{
+		"id": "Delete Campaign",
+		"translation": "CHANGED - Delete Campaign"
+	},
+	{
+		"id": "Delete Page",
+		"translation": "CHANGED - Delete Page"
+	},
+	{
+		"id": "Delete Profile",
+		"translation": "CHANGED - Delete Profile"
+	},
+	{
+		"id": "Delete Template",
+		"translation": "CHANGED - Delete Template"
+	},
+	{
+		"id": "Edit Page",
+		"translation": "CHANGED - Edit Page"
+	},
+	{
+		"id": "Edit Profile",
+		"translation": "CHANGED - Edit Profile"
+	},
+	{
+		"id": "Edit Template",
+		"translation": "CHANGED - Edit Template"
+	},
+	{
+		"id": "Email:",
+		"translation": "CHANGED - Email:"
+	},
+	{
+		"id": "Email",
+		"translation": "CHANGED - Email"
+	},
+	{
+		"id": "Email Opened",
+		"translation": "CHANGED - Email Opened"
+	},
+	{
+		"id": "Email Sent!",
+		"translation": "CHANGED - Email Sent!"
+	},
+	{
+		"id": "Email Sent",
+		"translation": "CHANGED - Email Sent"
+	},
+	{
+		"id": "Emails Sent",
+		"translation": "CHANGED - Emails Sent"
+	},
+	{
+		"id": "Error",
+		"translation": "CHANGED - Error"
+	},
+	{
+		"id": "Error fetching campaigns",
+		"translation": "CHANGED - Error fetching campaigns"
+	},
+	{
+		"id": "Error fetching group",
+		"translation": "CHANGED - Error fetching group"
+	},
+	{
+		"id": "Error fetching groups",
+		"translation": "CHANGED - Error fetching groups"
+	},
+	{
+		"id": "Error fetching pages",
+		"translation": "CHANGED - Error fetching pages"
+	},
+	{
+		"id": "Error fetching profiles",
+		"translation": "CHANGED - Error fetching profiles"
+	},
+	{
+		"id": "Error fetching templates",
+		"translation": "CHANGED - Error fetching templates"
+	},
+	{
+		"id": "Error Sending Email",
+		"translation": "CHANGED - Error Sending Email"
+	},
+	{
+		"id": "Events",
+		"translation": "CHANGED - Events"
+	},
+	{
+		"id": "Gophish will stop processing events for this campaign",
+		"translation": "CHANGED - Gophish will stop processing events for this campaign"
+	},
+	{
+		"id": "Group added successfully!",
+		"translation": "CHANGED - Group added successfully!"
+	},
+	{
+		"id": "Group updated successfully!",
+		"translation": "CHANGED - Group updated successfully!"
+	},
+	{
+		"id": "http://example.com/login",
+		"translation": "CHANGED - http://example.com/login"
+	},
+	{
+		"id": "In progress",
+		"translation": "CHANGED - In progress"
+	},
+	{
+		"id": "Invalid URL.",
+		"translation": "CHANGED - Invalid URL."
+	},
+	{
+		"id": "No Content Specified!",
+		"translation": "CHANGED - No Content Specified!"
+	},
+	{
+		"id": "No groups found!",
+		"translation": "CHANGED - No groups found!"
+	},
+	{
+		"id": "No pages found!",
+		"translation": "CHANGED - No pages found!"
+	},
+	{
+		"id": "No profiles found!",
+		"translation": "CHANGED - No profiles found!"
+	},
+	{
+		"id": "No URL Specified!",
+		"translation": "CHANGED - No URL Specified!"
+	},
+	{
+		"id": "Page added successfully!",
+		"translation": "CHANGED - Page added successfully!"
+	},
+	{
+		"id": "Page edited successfully!",
+		"translation": "CHANGED - Page edited successfully!"
+	},
+	{
+		"id": "Parameter",
+		"translation": "CHANGED - Parameter"
+	},
+	{
+		"id": "Profile added successfully!",
+		"translation": "CHANGED - Profile added successfully!"
+	},
+	{
+		"id": "Profile edited successfully!",
+		"translation": "CHANGED - Profile edited successfully!"
+	},
+	{
+		"id": "Queued",
+		"translation": "CHANGED - Queued"
+	},
+	{
+		"id": "Replay Credentials",
+		"translation": "CHANGED - Replay Credentials"
+	},
+	{
+		"id": "Select a Landing Page",
+		"translation": "CHANGED - Select a Landing Page"
+	},
+	{
+		"id": "Select a Sending Profile",
+		"translation": "CHANGED - Select a Sending Profile"
+	},
+	{
+		"id": "Select a Template",
+		"translation": "CHANGED - Select a Template"
+	},
+	{
+		"id": "Select Groups",
+		"translation": "CHANGED - Select Groups"
+	},
+	{
+		"id": "Sending",
+		"translation": "CHANGED - Sending"
+	},
+	{
+		"id": "Submitted Data",
+		"translation": "CHANGED - Submitted Data"
+	},
+	{
+		"id": "Success",
+		"translation": "CHANGED - Success"
+	},
+	{
+		"id": "Successes",
+		"translation": "CHANGED - Successes"
+	},
+	{
+		"id": "Successful Phishes",
+		"translation": "CHANGED - Successful Phishes"
+	},
+	{
+		"id": "Template added successfully!",
+		"translation": "CHANGED - Template added successfully!"
+	},
+	{
+		"id": "Template edited successfully!",
+		"translation": "CHANGED - Template edited successfully!"
+	},
+	{
+		"id": "This campaign has been deleted!",
+		"translation": "CHANGED - This campaign has been deleted!"
+	},
+	{
+		"id": "This campaign has been scheduled for launch!",
+		"translation": "CHANGED - This campaign has been scheduled for launch!"
+	},
+	{
+		"id": "This will delete the campaign. This can't be undone!",
+		"translation": "CHANGED - This will delete the campaign. This can't be undone!"
+	},
+	{
+		"id": "This will schedule the campaign to be launched.",
+		"translation": "CHANGED - This will schedule the campaign to be launched."
+	},
+	{
+		"id": "Timeline for",
+		"translation": "CHANGED - Timeline for"
+	},
+	{
+		"id": "Unknown",
+		"translation": "CHANGED - Unknown"
+	},
+	{
+		"id": "Unsuccessful Phishes",
+		"translation": "CHANGED - Unsuccessful Phishes"
+	},
+	{
+		"id": "Unsupported file extension (use .csv or .txt)",
+		"translation": "CHANGED - Unsupported file extension (use .csv or .txt)"
+	},
+	{
+		"id": "Value(s)",
+		"translation": "CHANGED - Value(s)"
+	},
+	{
+		"id": "View Details",
+		"translation": "CHANGED - View Details"
+	},
+	{
+		"id": "View Results",
+		"translation": "CHANGED - View Results"
+	},
+	{
+		"id": "Where do you want the credentials submitted to?",
+		"translation": "CHANGED - Where do you want the credentials submitted to?"
+	},
+	{
+		"id": "username already taken",
+		"translation": "CHNAGED - username already taken"
+	},
+	{
+		"id": "Page Name not specified",
+		"translation": "CHNAGED - Page Name not specified"
+	},
+	{
+		"id": "username already taken",
+		"translation": "CHNAGED - username already taken"
+	},
+	{
+		"id": "Page Name not specified",
+		"translation": "CHNAGED - Page Name not specified"
+	},
+	{
+		"id": "No email address specified",
+		"translation": "CHNAGED - No email address specified"
+	},
+	{
+		"id": "Group name not specified",
+		"translation": "CHNAGED - Group name not specified"
+	},
+	{
+		"id": "No targets specified",
+		"translation": "CHNAGED - No targets specified"
+	},
+	{
+		"id": "Campaign name not specified",
+		"translation": "CHNAGED - Campaign name not specified"
+	},
+	{
+		"id": "No groups specified",
+		"translation": "CHNAGED - No groups specified"
+	},
+	{
+		"id": "No email template specified",
+		"translation": "CHNAGED - No email template specified"
+	},
+	{
+		"id": "No landing page specified",
+		"translation": "CHNAGED - No landing page specified"
+	},
+	{
+		"id": "No sending profile specified",
+		"translation": "CHNAGED - No sending profile specified"
+	},
+	{
+		"id": "Template not found",
+		"translation": "CHNAGED - Template not found"
+	},
+	{
+		"id": "Group not found",
+		"translation": "CHNAGED - Group not found"
+	},
+	{
+		"id": "Page not found",
+		"translation": "CHNAGED - Page not found"
+	},
+	{
+		"id": "Sending profile not found",
+		"translation": "CHNAGED - Sending profile not found"
+	},
+	{
+		"id": "Template name not specified",
+		"translation": "CHNAGED - Template name not specified"
+	},
+	{
+		"id": "Need to specify at least plaintext or HTML content",
+		"translation": "CHNAGED - Need to specify at least plaintext or HTML content"
+	},
+	{
+		"id": "No From Address specified",
+		"translation": "CHNAGED - No From Address specified"
+	},
+	{
+		"id": "No SMTP Host specified",
+		"translation": "CHNAGED - No SMTP Host specified"
+	},
+	{
+		"id": "Invalid SMTP server address",
+		"translation": "CHNAGED - Invalid SMTP server address"
+	},
+	{
+		"id": "API Key successfully reset!",
+		"translation": "CHNAGED - API Key successfully reset!"
+	},
+	{
+		"id": "Binary file gophish matches",
+		"translation": "CHNAGED - Binary file gophish matches"
+	},
+	{
+		"id": "Campaign completed successfully!",
+		"translation": "CHNAGED - Campaign completed successfully!"
+	},
+	{
+		"id": "Campaign deleted successfully!",
+		"translation": "CHNAGED - Campaign deleted successfully!"
+	},
+	{
+		"id": "Campaign not found",
+		"translation": "CHNAGED - Campaign not found"
+	},
+	{
+		"id": "Email Sent",
+		"translation": "CHNAGED - Email Sent"
+	},
+	{
+		"id": "Error completing campaign",
+		"translation": "CHNAGED - Error completing campaign"
+	},
+	{
+		"id": "Error decoding JSON Request",
+		"translation": "CHNAGED - Error decoding JSON Request"
+	},
+	{
+		"id": "Error deleting campaign",
+		"translation": "CHNAGED - Error deleting campaign"
+	},
+	{
+		"id": "Error deleting group",
+		"translation": "CHNAGED - Error deleting group"
+	},
+	{
+		"id": "Error deleting page",
+		"translation": "CHNAGED - Error deleting page"
+	},
+	{
+		"id": "Error deleting SMTP",
+		"translation": "CHNAGED - Error deleting SMTP"
+	},
+	{
+		"id": "Error deleting template",
+		"translation": "CHNAGED - Error deleting template"
+	},
+	{
+		"id": "Error: /:id and group_id mismatch",
+		"translation": "CHNAGED - Error: /:id and group_id mismatch"
+	},
+	{
+		"id": "Error: /:id and template_id mismatch",
+		"translation": "CHNAGED - Error: /:id and template_id mismatch"
+	},
+	{
+		"id": "Error inserting template into database",
+		"translation": "CHNAGED - Error inserting template into database"
+	},
+	{
+		"id": "Error parsing CSV",
+		"translation": "CHNAGED - Error parsing CSV"
+	},
+	{
+		"id": "Error setting API Key",
+		"translation": "CHNAGED - Error setting API Key"
+	},
+	{
+		"id": "Error updating page",
+		"translation": "CHNAGED - Error updating page"
+	},
+	{
+		"id": "Error updating page:",
+		"translation": "CHNAGED - Error updating page:"
+	},
+	{
+		"id": "Group deleted successfully!",
+		"translation": "CHNAGED - Group deleted successfully!"
+	},
+	{
+		"id": "Group name already in use",
+		"translation": "CHNAGED - Group name already in use"
+	},
+	{
+		"id": "Group not found",
+		"translation": "CHNAGED - Group not found"
+	},
+	{
+		"id": "/:id and /:page_id mismatch",
+		"translation": "CHNAGED - /:id and /:page_id mismatch"
+	},
+	{
+		"id": "/:id and /:smtp_id mismatch",
+		"translation": "CHNAGED - /:id and /:smtp_id mismatch"
+	},
+	{
+		"id": "Invalid JSON structure",
+		"translation": "CHNAGED - Invalid JSON structure"
+	},
+	{
+		"id": "Invalid request",
+		"translation": "CHNAGED - Invalid request"
+	},
+	{
+		"id": "Method not allowed",
+		"translation": "CHNAGED - Method not allowed"
+	},
+	{
+		"id": "No groups found",
+		"translation": "CHNAGED - No groups found"
+	},
+	{
+		"id": "Page Deleted Successfully",
+		"translation": "CHNAGED - Page Deleted Successfully"
+	},
+	{
+		"id": "Page name already in use",
+		"translation": "CHNAGED - Page name already in use"
+	},
+	{
+		"id": "Page not found",
+		"translation": "CHNAGED - Page not found"
+	},
+	{
+		"id": "SMTP Deleted Successfully",
+		"translation": "CHNAGED - SMTP Deleted Successfully"
+	},
+	{
+		"id": "SMTP name already in use",
+		"translation": "CHNAGED - SMTP name already in use"
+	},
+	{
+		"id": "SMTP not found",
+		"translation": "CHNAGED - SMTP not found"
+	},
+	{
+		"id": "Template deleted successfully!",
+		"translation": "CHNAGED - Template deleted successfully!"
+	},
+	{
+		"id": "Template name already in use",
+		"translation": "CHNAGED - Template name already in use"
+	},
+	{
+		"id": "Template not found",
+		"translation": "CHNAGED - Template not found"
+	}
+]

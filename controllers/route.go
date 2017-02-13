@@ -429,7 +429,7 @@ func Settings(w http.ResponseWriter, r *http.Request) {
 		getTemplate(w, "settings").ExecuteTemplate(w, "base", params)
 	case r.Method == "POST":
 		err := auth.ChangePassword(r)
-		msg := models.Response{Success: true, Message: "Settings Updated Successfully"}
+		msg := models.Response{Success: true, Message: util.T("Settings Updated Successfully")}
 		if err == auth.ErrInvalidPassword {
 			msg.Message = "Invalid Password"
 			msg.Success = false
@@ -480,7 +480,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			session.Save(r, w)
 			http.Redirect(w, r, "/", 302)
 		} else {
-			Flash(w, r, "danger", "Invalid Username/Password")
+			Flash(w, r, "danger", util.T("Invalid Username/Password"))
 			http.Redirect(w, r, "/login", 302)
 		}
 	}
@@ -492,14 +492,14 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 	// Now that we are all registered, we can log the user in
 	session := ctx.Get(r, "session").(*sessions.Session)
 	delete(session.Values, "id")
-	Flash(w, r, "success", "You have successfully logged out")
+	Flash(w, r, "success", util.T("You have successfully logged out"))
 	http.Redirect(w, r, "/login", 302)
 }
 
 // Preview allows for the viewing of page html in a separate browser window
 func Preview(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
-		http.Error(w, "Method not allowed", http.StatusBadRequest)
+		http.Error(w, util.T("Method not allowed"), http.StatusBadRequest)
 		return
 	}
 	fmt.Fprintf(w, "%s", r.FormValue("html"))
@@ -509,13 +509,13 @@ func Preview(w http.ResponseWriter, r *http.Request) {
 func Clone(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	if r.Method != "POST" {
-		http.Error(w, "Method not allowed", http.StatusBadRequest)
+		http.Error(w, util.T("Method not allowed"), http.StatusBadRequest)
 		return
 	}
 	if url, ok := vars["url"]; ok {
 		Logger.Println(url)
 	}
-	http.Error(w, "No URL given.", http.StatusBadRequest)
+	http.Error(w, util.T("No URL given."), http.StatusBadRequest)
 }
 
 func getTemplate(w http.ResponseWriter, tmpl string) *template.Template {

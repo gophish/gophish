@@ -35,25 +35,26 @@ import (
 
 	"github.com/NYTimes/gziphandler"
 	"github.com/gophish/gophish/auth"
-	"github.com/gophish/gophish/config"
+	"./config"
 	"./controllers"
 	"github.com/gophish/gophish/models"
 	"./util"
 	"github.com/gorilla/handlers"
-        "github.com/nicksnyder/go-i18n/i18n"
+//        "github.com/nicksnyder/go-i18n/i18n"
 )
 
 var Logger = log.New(os.Stdout, " ", log.Ldate|log.Ltime|log.Lshortfile)
 
 func main() {
 	// Setup the global variables and settings
-        i18n.MustLoadTranslationFile("translations/en-US.all.json")
 	err := models.Setup()
 	if err != nil {
 		fmt.Println(err)
 	}
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
+
+        util.ChangeLang(config.Conf.AdminConf.Language)
 	// Start the web servers
 	go func() {
 		defer wg.Done()
