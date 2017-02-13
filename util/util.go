@@ -21,10 +21,20 @@ import (
 
 	"github.com/gophish/gophish/models"
 	"github.com/jordan-wright/email"
+        "github.com/nicksnyder/go-i18n/i18n"
 )
 
 // Logger is used to send logging messages to stdout.
 var Logger = log.New(os.Stdout, " ", log.Ldate|log.Ltime|log.Lshortfile)
+
+func T(text string) string{
+	T, _ := i18n.Tfunc("en-US", "en-US")
+        result := T(text)
+        if result == text {
+        	fmt.Println("NON-TRANSLATION %s", text)
+        }
+	return result
+}
 
 // ParseMail takes in an HTTP Request and returns an Email object
 // TODO: This function will likely be changed to take in a []byte

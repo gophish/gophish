@@ -3,24 +3,24 @@
     <div class="row">
         <div class="col-sm-3 col-md-2 sidebar">
             <ul class="nav nav-sidebar">
-                <li class="active"><a href="#">Dashboard</a>
+                <li class="active"><a href="#">{{T "Dashboard"}}</a>
                 </li>
-                <li><a href="/campaigns">Campaigns</a>
+                <li><a href="/campaigns">{{T "Campaigns"}}</a>
                 </li>
-                <li><a href="/users">Users &amp; Groups</a>
+                <li><a href="/users">{{T "Users &amp; Groups"}}</a>
                 </li>
-                <li><a href="/templates">Email Templates</a>
+                <li><a href="/templates">{{T "Email Templates"}}</a>
                 </li>
-                <li><a href="/landing_pages">Landing Pages</a>
+                <li><a href="/landing_pages">{{T "Landing Pages"}}</a>
                 </li>
-                <li><a href="/sending_profiles">Sending Profiles</a>
+                <li><a href="/sending_profiles">{{T "Sending Profiles"}}</a>
                 </li>
-                <li><a href="/settings">Settings</a>
+                <li><a href="/settings">{{T "Settings"}}</a>
                 </li>
                 <li><hr></li>
-                <li><a href="https://gophish.gitbooks.io/user-guide/content/">User Guide</a>
+                <li><a href="https://gophish.gitbooks.io/user-guide/content/">{{T "User Guide"}}</a>
                 </li>
-                <li><a href="/api/">API Documentation</a>
+                <li><a href="/api/">{{T "API Documentation"}}</a>
                 </li>
             </ul>
         </div>
@@ -28,50 +28,50 @@
 </div>
 <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
     <h1 class="page-header">
-        Dashboard
+        {{T "Dashboard"}}
     </h1>
     <div id="loading">
         <i class="fa fa-spinner fa-spin fa-4x"></i>
     </div>
     <div id="emptyMessage" class="row" style="display:none;">
         <div class="alert alert-info">
-            No campaigns created yet. Let's create one!
+            {{T "No campaigns created yet. Let's create one!"}}
         </div>
     </div>
     <div id="dashboard" style="display:none;">
         <div class="row">
             <div id="overview_chart" class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
-                <p style="text-align:center;">Phishing Success Overview</p>
+                <p style="text-align:center;">{{T "Phishing Success Overview"}}</p>
             </div>
             <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
-                <p style="text-align:center;">Average Phishing Results</p>
+                <p style="text-align:center;">{{T "Average Phishing Results"}}</p>
                 <div id="average_chart" class="col-lg-7 col-md-7"></div>
                 <div id="average_chart_legend" class="col-lg-5 col-md-5">
                     <ul class="chartist-legend">
                         <li>
-                            <span style="background-color:#f05b4f;"></span> Successful Phishes
+                            <span style="background-color:#f05b4f;"></span> {{T "Successful Phishes"}}
                         </li>
                         <li>
-                            <span style="background-color:#1abc9c;"></span> Unsuccessful Phishes
+                            <span style="background-color:#1abc9c;"></span> {{T "Unsuccessful Phishes"}}
                         </li>
                     </ul>
                 </div>
             </div>
         </div>
         <div class="row">
-            <h2>Recent Campaigns</h2>
+            <h2>{{T "Recent Campaigns"}}</h2>
         </div>
         <div class="row">
-            <a href="/campaigns"><button type="button" class="btn btn-primary">View All</button></a>
+            <a href="/campaigns"><button type="button" class="btn btn-primary">{{T "View All"}}</button></a>
         </div>
         &nbsp;&nbsp;
         <div class="row">
             <table id="campaignTable" class="table">
                 <thead>
                     <tr>
-                        <th>Name</th>
-                        <th>Created Date</th>
-                        <th>Status</th>
+                        <th>{{T "Name"}}</th>
+                        <th>{{T "Created Date"}}</th>
+                        <th>{{T "Status"}}</th>
                         <th class="col-md-2 col-sm-2 no-sort"></th>
                     </tr>
                 </thead>
@@ -83,5 +83,12 @@
 </div>
 {{end}}
 {{define "scripts"}}
-<script src="/js/dist/app/dashboard.min.js"></script>
+<script>
+localizedDatas = {
+	"Delete": "Sil",
+	"View Results": "Sonuçları Göster",
+	"Delete Campaign": "Kampanyayı Sil"
+}
+</script>
+<script src="/js/src/app/dashboard.js"></script>
 {{end}}

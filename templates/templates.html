@@ -3,24 +3,24 @@
     <div class="row">
         <div class="col-sm-3 col-md-2 sidebar">
             <ul class="nav nav-sidebar">
-                <li><a href="/">Dashboard</a>
+                <li><a href="/">{{T "Dashboard"}}</a>
                 </li>
-                <li><a href="/campaigns">Campaigns</a>
+                <li><a href="/campaigns">{{T "Campaigns"}}</a>
                 </li>
-                <li><a href="/users">Users &amp; Groups</a>
+                <li><a href="/users">{{T "Users &amp; Groups"}}</a>
                 </li>
-                <li class="active"><a href="/templates">Email Templates</a>
+                <li class="active"><a href="/templates">{{T "Email Templates"}}</a>
                 </li>
-                <li><a href="/landing_pages">Landing Pages</a>
+                <li><a href="/landing_pages">{{T "Landing Pages"}}</a>
                 </li>
-                <li><a href="/sending_profiles">Sending Profiles</a>
+                <li><a href="/sending_profiles">{{T "Sending Profiles"}}</a>
                 </li>
-                <li><a href="/settings">Settings</a>
+                <li><a href="/settings">{{T "Settings"}}</a>
                 </li>
                 <li><hr></li>
-                <li><a href="https://gophish.gitbooks.io/user-guide/content/">User Guide</a>
+                <li><a href="https://gophish.gitbooks.io/user-guide/content/">{{T "User Guide"}}</a>
                 </li>
-                <li><a href="/api/">API Documentation</a>
+                <li><a href="/api/">{{T "API Documentation"}}</a>
                 </li>
             </ul>
         </div>
@@ -29,12 +29,12 @@
 <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
     <div class="row">
         <h1 class="page-header">
-            Email Templates
+            {{T "Email Templates"}}
         </h1>
     </div>
     <div id="flashes" class="row"></div>
     <div class="row">
-        <button type="button" class="btn btn-primary" onclick="edit(-1)" data-toggle="modal" data-target="#modal"><i class="fa fa-plus"></i> New Template</button>
+        <button type="button" class="btn btn-primary" onclick="edit(-1)" data-toggle="modal" data-target="#modal"><i class="fa fa-plus"></i> {{T "New Template"}}</button>
     </div>
     &nbsp;
     <div id="loading">
@@ -42,15 +42,15 @@
     </div>
     <div id="emptyMessage" class="row" style="display:none;">
         <div class="alert alert-info">
-            No templates yet. Let's create one!
+            {{T "No templates yet. Let's create one!"}}
         </div>
     </div>
     <div class="row">
         <table id="templateTable" class="table" style="display:none;">
             <thead>
                 <tr>
-                    <th>Name</th>
-                    <th>Modified Date</th>
+                    <th>{{T "Name"}}</th>
+                    <th>{{T "Modified Date"}}</th>
                     <th class="col-md-2 no-sort"></th>
                 </tr>
             </thead>
@@ -66,30 +66,30 @@
         <!-- New Template Modal -->
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="dismiss()"><span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title" id="templateModalLabel">New Template</h4>
+          <h4 class="modal-title" id="templateModalLabel">{{T "New Template"}}</h4>
         </div>
         <div class="modal-body">
             <div class="row" id="modal.flashes"></div>
-            <label class="control-label" for="name">Name:</label>
+            <label class="control-label" for="name">{{T "Name"}}:</label>
             <div class="form-group">
                 <input type="text" class="form-control" ng-model="template.name" placeholder="Template name" id="name" autofocus/>
             </div>
             <div class="form-group">
-		<button class="btn btn-danger" data-toggle="modal" data-target="#importEmailModal"><i class="fa fa-envelope"></i> Import Email</button>
+		<button class="btn btn-danger" data-toggle="modal" data-target="#importEmailModal"><i class="fa fa-envelope"></i> {{T "Import Email"}}</button>
             </div>
-            <label class="control-label" for="subject">Subject:</label>
+            <label class="control-label" for="subject">{{T "Subject"}}:</label>
             <div class="form-group">
-                <input type="text" class="form-control" placeholder="Email Subject" id="subject" />
+                <input type="text" class="form-control" placeholder="{{T "Email Subject"}}" id="subject" />
             </div>
             <!-- Nav tabs -->
             <ul class="nav nav-tabs" role="tablist">
-                <li class="active" role="text"><a href="#text" aria-controls="text" role="tab" data-toggle="tab">Text</a></li>
-                <li role="html"><a href="#html" aria-controls="html" role="tab" data-toggle="tab">HTML</a></li>
+                <li class="active" role="text"><a href="#text" aria-controls="text" role="tab" data-toggle="tab">{{T "Text"}}</a></li>
+                <li role="html"><a href="#html" aria-controls="html" role="tab" data-toggle="tab">{{T "HTML"}}</a></li>
             </ul>
             <!-- Tab panes -->
             <div class="tab-content">
                 <div role="tabpanel" class="tab-pane active" id="text">
-                    <textarea rows="10" id="text_editor" class="gophish-editor form-control" placeholder="Plaintext"></textarea>
+                    <textarea rows="10" id="text_editor" class="gophish-editor form-control" placeholder="{{T "Plaintext"}}"></textarea>
                 </div>
                 <div role="tabpanel" class="tab-pane" id="html">
                     <textarea id="html_editor"></textarea>
@@ -97,9 +97,9 @@
             </div>
 	    <div class="checkbox checkbox-primary">
                 <input id="use_tracker_checkbox" type="checkbox" checked>
-		<label for="use_tracker_checkbox">Add Tracking Image</label>
+		<label for="use_tracker_checkbox">{{T "Add Tracking Image"}}</label>
             </div>
-            <span class="btn btn-danger btn-file"><i class="fa fa-plus"></i> Add Files
+            <span class="btn btn-danger btn-file"><i class="fa fa-plus"></i> {{T "Add Files"}}
                 <input id="attachmentUpload" type="file" onchange="attach(this.files)" multiple>
             </span>
             <br />
@@ -108,10 +108,10 @@
                 <thead>
                     <tr>
                         <th class="col-md-1 no-sort"></th>
-                        <th class="col-md-10">Name</th>
+                        <th class="col-md-10">{{T "Name"}}</th>
                         <th class="col-md-1 no-sort"></th>
-                        <th class="datatable_hidden no-sort">Content</th>
-                        <th class="datatable_hidden no-sort">Type</th>
+                        <th class="datatable_hidden no-sort">{{T "Content"}}</th>
+                        <th class="datatable_hidden no-sort">{{T "Type"}}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -119,8 +119,8 @@
             </table>
         </div>
         <div class="modal-footer">
-            <button type="button" data-dismiss="modal" class="btn btn-default" onclick="dismiss()">Cancel</button>
-            <button type="button" class="btn btn-primary" id="modalSubmit">Save Template</button>
+            <button type="button" data-dismiss="modal" class="btn btn-default" onclick="dismiss()">{{T "Cancel"}}</button>
+            <button type="button" class="btn btn-primary" id="modalSubmit">{{T "Save Template"}}</button>
         </div>
     </div>
   </div>
@@ -132,22 +132,22 @@
         <!-- New Email Modal -->
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title" id="importEmailModalLabel">Import Email</h4>
+          <h4 class="modal-title" id="importEmailModalLabel">{{T "Import Email"}}</h4>
         </div>
         <div class="modal-body">
             <div class="row" id="modal.flashes"></div>
-            <label class="control-label" for="email">Email Content:</label>
+            <label class="control-label" for="email">{{T "Email Content"}}:</label>
             <div class="form-group">
-                    <textarea rows="10" id="email_content" class="gophish-editor form-control" placeholder="Raw Email Source"></textarea>
+                    <textarea rows="10" id="email_content" class="gophish-editor form-control" placeholder="{{T "Raw Email Source"}}"></textarea>
             </div>
 	    <div class="checkbox checkbox-primary">
                 <input id="convert_links_checkbox" type="checkbox" checked>
-		<label for="convert_links_checkbox">Change Links to Point to Landing Page</label>
+		<label for="convert_links_checkbox">{{T "Change Links to Point to Landing Page"}}</label>
             </div>
         </div>
         <div class="modal-footer">
-            <button type="button" data-dismiss="modal" class="btn btn-default">Cancel</button>
-            <button type="button" class="btn btn-primary" id="modalSubmit" onclick="importEmail()">Import</button>
+            <button type="button" data-dismiss="modal" class="btn btn-default">{{T "Cancel"}}</button>
+            <button type="button" class="btn btn-primary" id="modalSubmit" onclick="importEmail()">{{T "Import"}}</button>
         </div>
     </div>
   </div>

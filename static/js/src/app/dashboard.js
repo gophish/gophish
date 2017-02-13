@@ -10,7 +10,7 @@ var labels = {
 }
 
 function deleteCampaign(idx) {
-    if (confirm("Delete " + campaigns[idx].name + "?")) {
+    if (confirm(T("Delete ") + campaigns[idx].name + "?")) {
         api.campaignId.delete(campaigns[idx].id)
             .success(function(data) {
                 successFlash(data.message)
@@ -68,11 +68,11 @@ $(document).ready(function() {
                     campaignTable.row.add([
                             escapeHtml(campaign.name),
                             campaign_date,
-                            "<span class=\"label " + label + "\">" + campaign.status + "</span>",
-                            "<div class='pull-right'><a class='btn btn-primary' href='/campaigns/" + campaign.id + "' data-toggle='tooltip' data-placement='right' title='View Results'>\
+                            "<span class=\"label " + label + "\">" + T(campaign.status) + "</span>",
+                            "<div class='pull-right'><a class='btn btn-primary' href='/campaigns/" + campaign.id + "' data-toggle='tooltip' data-placement='right' title='" + T("View Results") +"'>\
                     <i class='fa fa-bar-chart'></i>\
                     </a>\
-                    <button class='btn btn-danger' onclick='deleteCampaign(" + i + ")' data-toggle='tooltip' data-placement='right' title='Delete Campaign'>\
+                    <button class='btn btn-danger' onclick='deleteCampaign(" + i + ")' data-toggle='tooltip' data-placement='right' title='" + T("Delete Campaign") + "'>\
                     <i class='fa fa-trash-o'></i>\
                     </button></div>"
                         ]).draw()

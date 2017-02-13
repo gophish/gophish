@@ -21,6 +21,7 @@ import (
 	"github.com/gorilla/csrf"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
+	"../util"
 )
 
 // Logger is used to send logging messages to stdout.
@@ -241,7 +242,9 @@ func PhishHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	var htmlBuff bytes.Buffer
-	tmpl, err := template.New("html_template").Parse(p.HTML)
+	tmpl, err := template.New("html_template").Funcs(template.FuncMap{
+                        "T": util.T,
+                }).Parse(p.HTML)
 	if err != nil {
 		Logger.Println(err)
 		http.NotFound(w, r)
@@ -295,7 +298,9 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	case r.Method == "GET":
 		params.Flashes = session.Flashes()
 		session.Save(r, w)
-		templates := template.New("template")
+		templates := template.New("template").Funcs(template.FuncMap{
+                        "T": util.T,
+                })
 		_, err := templates.ParseFiles("templates/register.html", "templates/flashes.html")
 		if err != nil {
 			Logger.Println(err)
@@ -455,7 +460,9 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	case r.Method == "GET":
 		params.Flashes = session.Flashes()
 		session.Save(r, w)
-		templates := template.New("template")
+		templates := template.New("template").Funcs(template.FuncMap{
+			"T": util.T,
+		})
 		_, err := templates.ParseFiles("templates/login.html", "templates/flashes.html")
 		if err != nil {
 			Logger.Println(err)
@@ -512,7 +519,9 @@ func Clone(w http.ResponseWriter, r *http.Request) {
 }
 
 func getTemplate(w http.ResponseWriter, tmpl string) *template.Template {
-	templates := template.New("template")
+	templates := template.New("template").Funcs(template.FuncMap{
+                        "T": util.T,
+                })
 	_, err := templates.ParseFiles("templates/base.html", "templates/"+tmpl+".html", "templates/flashes.html")
 	if err != nil {
 		Logger.Println(err)
