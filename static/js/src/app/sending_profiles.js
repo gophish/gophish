@@ -18,12 +18,12 @@ function sendTestEmail() {
         }
     }
     btnHtml = $("#sendTestModalSubmit").html()
-    $("#sendTestModalSubmit").html('<i class="fa fa-spinner fa-spin"></i> Sending')
+    $("#sendTestModalSubmit").html('<i class="fa fa-spinner fa-spin"></i> ' + T('Sending'))
         // Send the test email
     api.send_test_email(test_email_request)
         .success(function(data) {
             $("#sendTestEmailModal\\.flashes").empty().append("<div style=\"text-align:center\" class=\"alert alert-success\">\
-	    <i class=\"fa fa-check-circle\"></i> Email Sent!</div>")
+	    <i class=\"fa fa-check-circle\"></i> " + T("Email Sent!") + "</div>")
             $("#sendTestModalSubmit").html(btnHtml)
         })
         .error(function(data) {
@@ -47,7 +47,7 @@ function save(idx) {
         profile.id = profiles[idx].id
         api.SMTPId.put(profile)
             .success(function(data) {
-                successFlash("Profile edited successfully!")
+                successFlash(T("Profile edited successfully!"))
                 load()
                 dismiss()
             })
@@ -58,7 +58,7 @@ function save(idx) {
         // Submit the profile
         api.SMTP.post(profile)
             .success(function(data) {
-                successFlash("Profile added successfully!")
+                successFlash(T("Profile added successfully!"))
                 load()
                 dismiss()
             })
@@ -81,7 +81,7 @@ function dismiss() {
 }
 
 function deleteProfile(idx) {
-    if (confirm("Delete " + profiles[idx].name + "?")) {
+    if (confirm(T("Delete") + " " + profiles[idx].name + "?")) {
         api.SMTPId.delete(profiles[idx].id)
             .success(function(data) {
                 successFlash(data.message)
@@ -113,7 +113,7 @@ function copy(idx) {
     })
     var profile = {}
     profile = profiles[idx]
-    $("#name").val("Copy of " + profile.name)
+    $("#name").val(T("Copy of") + " " + profile.name)
     $("#interface_type").val(profile.interface_type)
     $("#from").val(profile.from_address)
     $("#host").val(profile.host)
@@ -145,13 +145,13 @@ function load() {
                         escapeHtml(profile.name),
                         profile.interface_type,
                         moment(profile.modified_date).format('MMMM Do YYYY, h:mm:ss a'),
-                        "<div class='pull-right'><span data-toggle='modal' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Edit Profile' onclick='edit(" + i + ")'>\
+                        "<div class='pull-right'><span data-toggle='modal' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='" + T("Edit Profile") + "' onclick='edit(" + i + ")'>\
                     <i class='fa fa-pencil'></i>\
                     </button></span>\
-		    <span data-toggle='modal' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Copy Profile' onclick='copy(" + i + ")'>\
+		    <span data-toggle='modal' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='" + T("Copy Profile") + "' onclick='copy(" + i + ")'>\
                     <i class='fa fa-copy'></i>\
                     </button></span>\
-                    <button class='btn btn-danger' data-toggle='tooltip' data-placement='left' title='Delete Profile' onclick='deleteProfile(" + i + ")'>\
+                    <button class='btn btn-danger' data-toggle='tooltip' data-placement='left' title='" + T("Delete Profile") + "' onclick='deleteProfile(" + i + ")'>\
                     <i class='fa fa-trash-o'></i>\
                     </button></div>"
                     ]).draw()
@@ -163,7 +163,7 @@ function load() {
         })
         .error(function() {
             $("#loading").hide()
-            errorFlash("Error fetching profiles")
+            errorFlash(T("Error fetching profiles"))
         })
 }
 

@@ -14,12 +14,12 @@ var campaign = {}
 // Launch attempts to POST to /campaigns/
 function launch() {
     swal({
-        title: "Are you sure?",
-        text: "This will schedule the campaign to be launched.",
+        title: T("Are you sure?"),
+        text: T("This will schedule the campaign to be launched."),
         type: "question",
         animation: false,
         showCancelButton: true,
-        confirmButtonText: "Launch",
+        confirmButtonText: T("Launch"),
         confirmButtonColor: "#428bca",
         reverseButtons: true,
         allowOutsideClick: false,
@@ -61,8 +61,8 @@ function launch() {
         }
     }).then(function() {
         swal(
-            'Campaign Scheduled!',
-            'This campaign has been scheduled for launch!',
+            T('Campaign Scheduled!'),
+            T('This campaign has been scheduled for launch!'),
             'success'
         );
         $('button:contains("OK")').on('click', function() {
@@ -90,12 +90,12 @@ function sendTestEmail() {
         }
     }
     btnHtml = $("#sendTestModalSubmit").html()
-    $("#sendTestModalSubmit").html('<i class="fa fa-spinner fa-spin"></i> Sending')
+    $("#sendTestModalSubmit").html('<i class="fa fa-spinner fa-spin"></i> '+ T('Sending'))
         // Send the test email
     api.send_test_email(test_email_request)
         .success(function(data) {
             $("#sendTestEmailModal\\.flashes").empty().append("<div style=\"text-align:center\" class=\"alert alert-success\">\
-            <i class=\"fa fa-check-circle\"></i> Email Sent!</div>")
+            <i class=\"fa fa-check-circle\"></i> " + T('Email Sent!') + "</div>")
             $("#sendTestModalSubmit").html(btnHtml)
         })
         .error(function(data) {
@@ -118,12 +118,12 @@ function dismiss() {
 
 function deleteCampaign(idx) {
     swal({
-        title: "Are you sure?",
-        text: "This will delete the campaign. This can't be undone!",
+        title: T("Are you sure?"),
+        text: T("This will delete the campaign. This can't be undone!"),
         type: "warning",
         animation: false,
         showCancelButton: true,
-        confirmButtonText: "Delete " + campaigns[idx].name,
+        confirmButtonText: T("Delete") + " " + campaigns[idx].name,
         confirmButtonColor: "#428bca",
         reverseButtons: true,
         allowOutsideClick: false,
@@ -140,8 +140,8 @@ function deleteCampaign(idx) {
         }
     }).then(function() {
         swal(
-            'Campaign Deleted!',
-            'This campaign has been deleted!',
+            T('Campaign Deleted!'),
+            T('This campaign has been deleted!'),
             'success'
         );
         $('button:contains("OK")').on('click', function() {
@@ -154,7 +154,7 @@ function setupOptions() {
     api.groups.get()
         .success(function(groups) {
             if (groups.length == 0) {
-                modalError("No groups found!")
+                modalError(T("No groups found!"))
                 return false;
             } else {
                 var group_s2 = $.map(groups, function(obj) {
@@ -162,7 +162,7 @@ function setupOptions() {
                     return obj
                 });
                 $("#users.form-control").select2({
-                    placeholder: "Select Groups",
+                    placeholder: T("Select Groups"),
                     data: group_s2,
                 });
             }
@@ -170,7 +170,7 @@ function setupOptions() {
     api.templates.get()
         .success(function(templates) {
             if (templates.length == 0) {
-                modalError("No templates found!")
+                modalError(T("No templates found!"))
                 return false
             } else {
                 var template_s2 = $.map(templates, function(obj) {
@@ -178,7 +178,7 @@ function setupOptions() {
                     return obj
                 });
                 $("#template.form-control").select2({
-                    placeholder: "Select a Template",
+                    placeholder: T("Select a Template"),
                     data: template_s2,
                 });
             }
@@ -186,7 +186,7 @@ function setupOptions() {
     api.pages.get()
         .success(function(pages) {
             if (pages.length == 0) {
-                modalError("No pages found!")
+                modalError(T("No pages found!"))
                 return false
             } else {
                 var page_s2 = $.map(pages, function(obj) {
@@ -194,7 +194,7 @@ function setupOptions() {
                     return obj
                 });
                 $("#page.form-control").select2({
-                    placeholder: "Select a Landing Page",
+                    placeholder: T("Select a Landing Page"),
                     data: page_s2,
                 });
             }
@@ -202,7 +202,7 @@ function setupOptions() {
     api.SMTP.get()
         .success(function(profiles) {
             if (profiles.length == 0) {
-                modalError("No profiles found!")
+                modalError(T("No profiles found!"))
                 return false
             } else {
                 var profile_s2 = $.map(profiles, function(obj) {
@@ -210,7 +210,7 @@ function setupOptions() {
                     return obj
                 });
                 $("#profile.form-control").select2({
-                    placeholder: "Select a Sending Profile",
+                    placeholder: T("Select a Sending Profile"),
                     data: profile_s2,
                 });
             }
@@ -226,7 +226,7 @@ function copy(idx) {
         // Set our initial values
     api.campaignId.get(campaigns[idx].id)
         .success(function(campaign) {
-            $("#name").val("Copy of " + campaign.name)
+            $("#name").val(T("Copy of") + " " + campaign.name)
             if (!campaign.template.id) {
                 $("#template").select2({
                     placeholder: campaign.template.name
@@ -314,14 +314,14 @@ $(document).ready(function() {
                     campaignTable.row.add([
                         escapeHtml(campaign.name),
                         moment(campaign.created_date).format('MMMM Do YYYY, h:mm:ss a'),
-                        "<span class=\"label " + label + "\">" + campaign.status + "</span>",
-                        "<div class='pull-right'><a class='btn btn-primary' href='/campaigns/" + campaign.id + "' data-toggle='tooltip' data-placement='left' title='View Results'>\
+                        "<span class=\"label " + label + "\">" + T(campaign.status) + "</span>",
+                        "<div class='pull-right'><a class='btn btn-primary' href='/campaigns/" + campaign.id + "' data-toggle='tooltip' data-placement='left' title='" + T('View Results') + "'>\
                     <i class='fa fa-bar-chart'></i>\
                     </a>\
-            <span data-toggle='modal' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Copy Campaign' onclick='copy(" + i + ")'>\
+            <span data-toggle='modal' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='" + T('Copy Campaign') + "' onclick='copy(" + i + ")'>\
                     <i class='fa fa-copy'></i>\
                     </button></span>\
-                    <button class='btn btn-danger' onclick='deleteCampaign(" + i + ")' data-toggle='tooltip' data-placement='left' title='Delete Campaign'>\
+                    <button class='btn btn-danger' onclick='deleteCampaign(" + i + ")' data-toggle='tooltip' data-placement='left' title='" + T('Delete Campaign') + "'>\
                     <i class='fa fa-trash-o'></i>\
                     </button></div>"
                     ]).draw()
@@ -333,7 +333,7 @@ $(document).ready(function() {
         })
         .error(function() {
             $("#loading").hide()
-            errorFlash("Error fetching campaigns")
+            errorFlash(T("Error fetching campaigns"))
         })
     // Select2 Defaults
     $.fn.select2.defaults.set("width", "100%");

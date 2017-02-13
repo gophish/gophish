@@ -10,7 +10,7 @@ var labels = {
 }
 
 function deleteCampaign(idx) {
-    if (confirm(T("Delete ") + campaigns[idx].name + "?")) {
+    if (confirm(T("Delete") + " " + campaigns[idx].name + "?")) {
         api.campaignId.delete(campaigns[idx].id)
             .success(function(data) {
                 successFlash(data.message)
@@ -90,11 +90,11 @@ $(document).ready(function() {
                 })
                 average = Math.floor(average / data.total);
                 average_data.series.push({
-                    meta: "Unsuccessful Phishes",
+                    meta: T("Unsuccessful Phishes"),
                     value: 100 - average
                 })
                 average_data.series.push({
-                        meta: "Successful Phishes",
+                        meta: T("Successful Phishes"),
                         value: average
                     })
                     // Build the charts
@@ -135,7 +135,7 @@ $(document).ready(function() {
                     var $point = $(this)
                     value = $point.attr('ct:value') || 0
                     cidx = $point.attr('ct:meta')
-                    $toolTip.html(campaigns[cidx].name + '<br>' + "Successes: " + value.toString() + "%").show();
+                    $toolTip.html(campaigns[cidx].name + '<br>' + T("Successes:" + " " + value.toString() + "%").show();
                 });
 
                 $chart.on('mouseleave', '.ct-point', function() {
@@ -156,6 +156,6 @@ $(document).ready(function() {
             }
         })
         .error(function() {
-            errorFlash("Error fetching campaigns")
+            errorFlash(T("Error fetching campaigns"))
         })
 })
