@@ -313,7 +313,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		if succ {
 			session.AddFlash(models.Flash{
 				Type:    "success",
-				Message: "Registration successful!.",
+				Message: util.T("Registration successful!."),
 			})
 			session.Save(r, w)
 			http.Redirect(w, r, "/login", 302)
@@ -431,7 +431,7 @@ func Settings(w http.ResponseWriter, r *http.Request) {
 		err := auth.ChangePassword(r)
 		msg := models.Response{Success: true, Message: util.T("Settings Updated Successfully")}
 		if err == auth.ErrInvalidPassword {
-			msg.Message = "Invalid Password"
+			msg.Message = util.T("Invalid Password")
 			msg.Success = false
 			JSONResponse(w, msg, http.StatusBadRequest)
 			return
