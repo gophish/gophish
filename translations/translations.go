@@ -10,7 +10,7 @@ var Lang = "en-US"
 
 func T(text string) string{
         if B == nil {
-                i18n.MustLoadTranslationFile("translations/" + strings.ToLower(Lang) + ".all.json")
+                i18n.LoadTranslationFile("translations/" + strings.ToLower(Lang) + ".all.json")
                 B, _ = i18n.Tfunc(Lang)
         }
 
