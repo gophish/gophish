@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
-	"github.com/gophish/gophish/util"
+	"github.com/gophish/gophish/translations"
 )
 
 // Template models hold the attributes for an email template to be sent to targets
@@ -23,10 +23,10 @@ type Template struct {
 }
 
 // ErrTemplateNameNotSpecified is thrown when a template name is not specified
-var ErrTemplateNameNotSpecified = errors.New(util.T("Template name not specified"))
+var ErrTemplateNameNotSpecified = errors.New(translations.T("Template name not specified"))
 
 // ErrTemplateMissingParameter is thrown when a needed parameter is not provided
-var ErrTemplateMissingParameter = errors.New(util.T("Need to specify at least plaintext or HTML content"))
+var ErrTemplateMissingParameter = errors.New(translations.T("Need to specify at least plaintext or HTML content"))
 
 // Validate checks the given template to make sure values are appropriate and complete
 func (t *Template) Validate() error {

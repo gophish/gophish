@@ -8,7 +8,6 @@ import (
 
 	"github.com/jinzhu/gorm"
 	"github.com/oschwald/maxminddb-golang"
-	"github.com/gophish/gophish/util"
 )
 
 type mmCity struct {

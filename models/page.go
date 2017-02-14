@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/gophish/gophish/util"
+	"github.com/gophish/gophish/translations"
 )
 
 // Page contains the fields used for a Page model
@@ -22,7 +22,7 @@ type Page struct {
 }
 
 // ErrPageNameNotSpecified is thrown if the name of the landing page is blank.
-var ErrPageNameNotSpecified = errors.New(util.T("Page Name not specified"))
+var ErrPageNameNotSpecified = errors.New(translations.T("Page Name not specified"))
 
 // parseHTML parses the page HTML on save to handle the
 // capturing (or lack thereof!) of credentials and passwords

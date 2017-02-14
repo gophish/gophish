@@ -18,31 +18,13 @@ import (
 	"net/mail"
 	"os"
 	"time"
-	"strings"
 
 	"github.com/gophish/gophish/models"
 	"github.com/jordan-wright/email"
-        "github.com/nicksnyder/go-i18n/i18n"
 )
 
 // Logger is used to send logging messages to stdout.
 var Logger = log.New(os.Stdout, " ", log.Ldate|log.Ltime|log.Lshortfile)
-var B i18n.TranslateFunc
-var Lang = "en-US"
-
-func T(text string) string{
-	if B == nil {
-		i18n.MustLoadTranslationFile("translations/" + strings.ToLower(Lang) + ".all.json")
-		B, _ = i18n.Tfunc(Lang)
-	}
-
-	return B(text)
-}
-
-func ChangeLang(lang string) {
-	Lang = lang
-	B = nil
-}
 
 // ParseMail takes in an HTTP Request and returns an Email object
 // TODO: This function will likely be changed to take in a []byte

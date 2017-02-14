@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"github.com/gophish/gophish/util"
+	"github.com/gophish/gophish/translations"
 )
 
 // SMTP contains the attributes needed to handle the sending of campaign emails
@@ -25,14 +25,14 @@ type SMTP struct {
 
 // ErrFromAddressNotSpecified is thrown when there is no "From" address
 // specified in the SMTP configuration
-var ErrFromAddressNotSpecified = errors.New(util.T("No From Address specified"))
+var ErrFromAddressNotSpecified = errors.New(translations.T("No From Address specified"))
 
 // ErrHostNotSpecified is thrown when there is no Host specified
 // in the SMTP configuration
-var ErrHostNotSpecified = errors.New(util.T("No SMTP Host specified"))
+var ErrHostNotSpecified = errors.New(translations.T("No SMTP Host specified"))
 
 // ErrInvalidHost indicates that the SMTP server string is invalid
-var ErrInvalidHost = errors.New(util.T("Invalid SMTP server address"))
+var ErrInvalidHost = errors.New(translations.T("Invalid SMTP server address"))
 
 // TableName specifies the database tablename for Gorm to use
 func (s SMTP) TableName() string {

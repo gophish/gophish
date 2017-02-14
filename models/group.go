@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
-	"github.com/gophish/gophish/util"
+	"github.com/gophish/gophish/translations"
 )
 
 // Group contains the fields needed for a user -> group mapping
@@ -52,13 +52,13 @@ type Target struct {
 }
 
 // ErrNoEmailSpecified is thrown when no email is specified for the Target
-var ErrEmailNotSpecified = errors.New(util.T("No email address specified"))
+var ErrEmailNotSpecified = errors.New(translations.T("No email address specified"))
 
 // ErrGroupNameNotSpecified is thrown when a group name is not specified
-var ErrGroupNameNotSpecified = errors.New(util.T("Group name not specified"))
+var ErrGroupNameNotSpecified = errors.New(translations.T("Group name not specified"))
 
 // ErrNoTargetsSpecified is thrown when no targets are specified by the user
-var ErrNoTargetsSpecified = errors.New(util.T("No targets specified"))
+var ErrNoTargetsSpecified = errors.New(translations.T("No targets specified"))
 
 // Validate performs validation on a group given by the user
 func (g *Group) Validate() error {
