@@ -10,7 +10,7 @@ import (
 	ctx "github.com/gophish/gophish/context"
 	"github.com/gophish/gophish/models"
 	"github.com/gorilla/csrf"
-	"../util"
+	"github.com/gophish/gophish/util"
 )
 
 var CSRFExemptPrefixes = []string{
