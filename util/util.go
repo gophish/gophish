@@ -36,7 +36,7 @@ func T(text string) string{
 		B, _ = i18n.Tfunc(Lang)
 	}
 
-        return B(text)
+	return B(text)
 }
 
 func ChangeLang(lang string) {
