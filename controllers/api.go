@@ -16,11 +16,11 @@ import (
 	"github.com/gophish/gophish/auth"
 	ctx "github.com/gophish/gophish/context"
 	"github.com/gophish/gophish/models"
-	"github.com/gophish/gophish/util"
 	"github.com/gophish/gophish/worker"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	"github.com/jordan-wright/email"
+        "../util"
 )
 
 // Worker is the worker that processes phishing events and updates campaigns.
@@ -52,9 +52,9 @@ func API_Reset(w http.ResponseWriter, r *http.Request) {
 		u.ApiKey = auth.GenerateSecureKey()
 		err := models.PutUser(&u)
 		if err != nil {
-			http.Error(w, "Error setting API Key", http.StatusInternalServerError)
+			http.Error(w, util.T("Error setting API Key"), http.StatusInternalServerError)
 		} else {
-			JSONResponse(w, models.Response{Success: true, Message: "API Key successfully reset!", Data: u.ApiKey}, http.StatusOK)
+			JSONResponse(w, models.Response{Success: true, Message: util.T("API Key successfully reset!"), Data: u.ApiKey}, http.StatusOK)
 		}
 	}
 }
@@ -109,7 +109,7 @@ func API_Campaigns_Id(w http.ResponseWriter, r *http.Request) {
 	c, err := models.GetCampaign(id, ctx.Get(r, "user_id").(int64))
 	if err != nil {
 		Logger.Println(err)
-		JSONResponse(w, models.Response{Success: false, Message: "Campaign not found"}, http.StatusNotFound)
+		JSONResponse(w, models.Response{Success: false, Message: util.T("Campaign not found")}, http.StatusNotFound)
 		return
 	}
 	switch {
@@ -118,10 +118,10 @@ func API_Campaigns_Id(w http.ResponseWriter, r *http.Request) {
 	case r.Method == "DELETE":
 		err = models.DeleteCampaign(id)
 		if err != nil {
-			JSONResponse(w, models.Response{Success: false, Message: "Error deleting campaign"}, http.StatusInternalServerError)
+			JSONResponse(w, models.Response{Success: false, Message: util.T("Error deleting campaign")}, http.StatusInternalServerError)
 			return
 		}
-		JSONResponse(w, models.Response{Success: true, Message: "Campaign deleted successfully!"}, http.StatusOK)
+		JSONResponse(w, models.Response{Success: true, Message: util.T("Campaign deleted successfully!")}, http.StatusOK)
 	}
 }
 
@@ -133,7 +133,7 @@ func API_Campaigns_Id_Results(w http.ResponseWriter, r *http.Request) {
 	cr, err := models.GetCampaignResults(id, ctx.Get(r, "user_id").(int64))
 	if err != nil {
 		Logger.Println(err)
-		JSONResponse(w, models.Response{Success: false, Message: "Campaign not found"}, http.StatusNotFound)
+		JSONResponse(w, models.Response{Success: false, Message: util.T("Campaign not found")}, http.StatusNotFound)
 		return
 	}
 	if r.Method == "GET" {
@@ -151,9 +151,9 @@ func API_Campaign_Id_Summary(w http.ResponseWriter, r *http.Request) {
 		cs, err := models.GetCampaignSummary(id, ctx.Get(r, "user_id").(int64))
 		if err != nil {
 			if err == gorm.ErrRecordNotFound {
-				JSONResponse(w, models.Response{Success: false, Message: "Campaign not found"}, http.StatusNotFound)
+				JSONResponse(w, models.Response{Success: false, Message: util.T("Campaign not found")}, http.StatusNotFound)
 			} else {
-				JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
+				JSONResponse(w, models.Response{Success: false, Message: util.T(err.Error())}, http.StatusInternalServerError)
 			}
 			Logger.Println(err)
 			return
@@ -171,10 +171,10 @@ func API_Campaigns_Id_Complete(w http.ResponseWriter, r *http.Request) {
 	case r.Method == "GET":
 		err := models.CompleteCampaign(id, ctx.Get(r, "user_id").(int64))
 		if err != nil {
-			JSONResponse(w, models.Response{Success: false, Message: "Error completing campaign"}, http.StatusInternalServerError)
+			JSONResponse(w, models.Response{Success: false, Message: util.T("Error completing campaign")}, http.StatusInternalServerError)
 			return
 		}
-		JSONResponse(w, models.Response{Success: true, Message: "Campaign completed successfully!"}, http.StatusOK)
+		JSONResponse(w, models.Response{Success: true, Message: util.T("Campaign completed successfully!")}, http.StatusOK)
 	}
 }
 
@@ -185,7 +185,7 @@ func API_Groups(w http.ResponseWriter, r *http.Request) {
 	case r.Method == "GET":
 		gs, err := models.GetGroups(ctx.Get(r, "user_id").(int64))
 		if err != nil {
-			JSONResponse(w, models.Response{Success: false, Message: "No groups found"}, http.StatusNotFound)
+			JSONResponse(w, models.Response{Success: false, Message: util.T("No groups found")}, http.StatusNotFound)
 			return
 		}
 		JSONResponse(w, gs, http.StatusOK)
@@ -195,12 +195,12 @@ func API_Groups(w http.ResponseWriter, r *http.Request) {
 		// Put the request into a group
 		err := json.NewDecoder(r.Body).Decode(&g)
 		if err != nil {
-			JSONResponse(w, models.Response{Success: false, Message: "Invalid JSON structure"}, http.StatusBadRequest)
+			JSONResponse(w, models.Response{Success: false, Message: util.T("Invalid JSON structure")}, http.StatusBadRequest)
 			return
 		}
 		_, err = models.GetGroupByName(g.Name, ctx.Get(r, "user_id").(int64))
 		if err != gorm.ErrRecordNotFound {
-			JSONResponse(w, models.Response{Success: false, Message: "Group name already in use"}, http.StatusConflict)
+			JSONResponse(w, models.Response{Success: false, Message: util.T("Group name already in use")}, http.StatusConflict)
 			return
 		}
 		g.ModifiedDate = time.Now()
@@ -235,7 +235,7 @@ func API_Groups_Id(w http.ResponseWriter, r *http.Request) {
 	id, _ := strconv.ParseInt(vars["id"], 0, 64)
 	g, err := models.GetGroup(id, ctx.Get(r, "user_id").(int64))
 	if err != nil {
-		JSONResponse(w, models.Response{Success: false, Message: "Group not found"}, http.StatusNotFound)
+		JSONResponse(w, models.Response{Success: false, Message: util.T("Group not found")}, http.StatusNotFound)
 		return
 	}
 	switch {
@@ -244,23 +244,23 @@ func API_Groups_Id(w http.ResponseWriter, r *http.Request) {
 	case r.Method == "DELETE":
 		err = models.DeleteGroup(&g)
 		if err != nil {
-			JSONResponse(w, models.Response{Success: false, Message: "Error deleting group"}, http.StatusInternalServerError)
+			JSONResponse(w, models.Response{Success: false, Message: util.T("Error deleting group")}, http.StatusInternalServerError)
 			return
 		}
-		JSONResponse(w, models.Response{Success: true, Message: "Group deleted successfully!"}, http.StatusOK)
+		JSONResponse(w, models.Response{Success: true, Message: util.T("Group deleted successfully!")}, http.StatusOK)
 	case r.Method == "PUT":
 		// Change this to get from URL and uid (don't bother with id in r.Body)
 		g = models.Group{}
 		err = json.NewDecoder(r.Body).Decode(&g)
 		if g.Id != id {
-			JSONResponse(w, models.Response{Success: false, Message: "Error: /:id and group_id mismatch"}, http.StatusInternalServerError)
+			JSONResponse(w, models.Response{Success: false, Message: util.T("Error: /:id and group_id mismatch")}, http.StatusInternalServerError)
 			return
 		}
 		g.ModifiedDate = time.Now()
 		g.UserId = ctx.Get(r, "user_id").(int64)
 		err = models.PutGroup(&g)
 		if err != nil {
-			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
+			JSONResponse(w, models.Response{Success: false, Message: util.T(err.Error())}, http.StatusBadRequest)
 			return
 		}
 		JSONResponse(w, g, http.StatusOK)
@@ -275,7 +275,7 @@ func API_Groups_Id_Summary(w http.ResponseWriter, r *http.Request) {
 		id, _ := strconv.ParseInt(vars["id"], 0, 64)
 		g, err := models.GetGroupSummary(id, ctx.Get(r, "user_id").(int64))
 		if err != nil {
-			JSONResponse(w, models.Response{Success: false, Message: "Group not found"}, http.StatusNotFound)
+			JSONResponse(w, models.Response{Success: false, Message: util.T("Group not found")}, http.StatusNotFound)
 			return
 		}
 		JSONResponse(w, g, http.StatusOK)
@@ -297,27 +297,27 @@ func API_Templates(w http.ResponseWriter, r *http.Request) {
 		// Put the request into a template
 		err := json.NewDecoder(r.Body).Decode(&t)
 		if err != nil {
-			JSONResponse(w, models.Response{Success: false, Message: "Invalid JSON structure"}, http.StatusBadRequest)
+			JSONResponse(w, models.Response{Success: false, Message: util.T("Invalid JSON structure")}, http.StatusBadRequest)
 			return
 		}
 		_, err = models.GetTemplateByName(t.Name, ctx.Get(r, "user_id").(int64))
 		if err != gorm.ErrRecordNotFound {
-			JSONResponse(w, models.Response{Success: false, Message: "Template name already in use"}, http.StatusConflict)
+			JSONResponse(w, models.Response{Success: false, Message: util.T("Template name already in use")}, http.StatusConflict)
 			return
 		}
 		t.ModifiedDate = time.Now()
 		t.UserId = ctx.Get(r, "user_id").(int64)
 		err = models.PostTemplate(&t)
 		if err == models.ErrTemplateNameNotSpecified {
-			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
+			JSONResponse(w, models.Response{Success: false, Message: util.T(err.Error())}, http.StatusBadRequest)
 			return
 		}
 		if err == models.ErrTemplateMissingParameter {
-			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
+			JSONResponse(w, models.Response{Success: false, Message: util.T(err.Error())}, http.StatusBadRequest)
 			return
 		}
 		if err != nil {
-			JSONResponse(w, models.Response{Success: false, Message: "Error inserting template into database"}, http.StatusInternalServerError)
+			JSONResponse(w, models.Response{Success: false, Message: util.T("Error inserting template into database")}, http.StatusInternalServerError)
 			Logger.Println(err)
 			return
 		}
@@ -331,7 +331,7 @@ func API_Templates_Id(w http.ResponseWriter, r *http.Request) {
 	id, _ := strconv.ParseInt(vars["id"], 0, 64)
 	t, err := models.GetTemplate(id, ctx.Get(r, "user_id").(int64))
 	if err != nil {
-		JSONResponse(w, models.Response{Success: false, Message: "Template not found"}, http.StatusNotFound)
+		JSONResponse(w, models.Response{Success: false, Message: util.T("Template not found")}, http.StatusNotFound)
 		return
 	}
 	switch {
@@ -340,10 +340,10 @@ func API_Templates_Id(w http.ResponseWriter, r *http.Request) {
 	case r.Method == "DELETE":
 		err = models.DeleteTemplate(id, ctx.Get(r, "user_id").(int64))
 		if err != nil {
-			JSONResponse(w, models.Response{Success: false, Message: "Error deleting template"}, http.StatusInternalServerError)
+			JSONResponse(w, models.Response{Success: false, Message: util.T("Error deleting template")}, http.StatusInternalServerError)
 			return
 		}
-		JSONResponse(w, models.Response{Success: true, Message: "Template deleted successfully!"}, http.StatusOK)
+		JSONResponse(w, models.Response{Success: true, Message: util.T("Template deleted successfully!")}, http.StatusOK)
 	case r.Method == "PUT":
 		t = models.Template{}
 		err = json.NewDecoder(r.Body).Decode(&t)
@@ -351,14 +351,14 @@ func API_Templates_Id(w http.ResponseWriter, r *http.Request) {
 			Logger.Println(err)
 		}
 		if t.Id != id {
-			JSONResponse(w, models.Response{Success: false, Message: "Error: /:id and template_id mismatch"}, http.StatusBadRequest)
+			JSONResponse(w, models.Response{Success: false, Message: util.T("Error: /:id and template_id mismatch")}, http.StatusBadRequest)
 			return
 		}
 		t.ModifiedDate = time.Now()
 		t.UserId = ctx.Get(r, "user_id").(int64)
 		err = models.PutTemplate(&t)
 		if err != nil {
-			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
+			JSONResponse(w, models.Response{Success: false, Message: util.T(err.Error())}, http.StatusBadRequest)
 			return
 		}
 		JSONResponse(w, t, http.StatusOK)
@@ -380,13 +380,13 @@ func API_Pages(w http.ResponseWriter, r *http.Request) {
 		// Put the request into a page
 		err := json.NewDecoder(r.Body).Decode(&p)
 		if err != nil {
-			JSONResponse(w, models.Response{Success: false, Message: "Invalid request"}, http.StatusBadRequest)
+			JSONResponse(w, models.Response{Success: false, Message: util.T("Invalid request")}, http.StatusBadRequest)
 			return
 		}
 		// Check to make sure the name is unique
 		_, err = models.GetPageByName(p.Name, ctx.Get(r, "user_id").(int64))
 		if err != gorm.ErrRecordNotFound {
-			JSONResponse(w, models.Response{Success: false, Message: "Page name already in use"}, http.StatusConflict)
+			JSONResponse(w, models.Response{Success: false, Message: util.T("Page name already in use")}, http.StatusConflict)
 			Logger.Println(err)
 			return
 		}
@@ -394,7 +394,7 @@ func API_Pages(w http.ResponseWriter, r *http.Request) {
 		p.UserId = ctx.Get(r, "user_id").(int64)
 		err = models.PostPage(&p)
 		if err != nil {
-			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
+			JSONResponse(w, models.Response{Success: false, Message: util.T(err.Error())}, http.StatusInternalServerError)
 			return
 		}
 		JSONResponse(w, p, http.StatusCreated)
@@ -408,7 +408,7 @@ func API_Pages_Id(w http.ResponseWriter, r *http.Request) {
 	id, _ := strconv.ParseInt(vars["id"], 0, 64)
 	p, err := models.GetPage(id, ctx.Get(r, "user_id").(int64))
 	if err != nil {
-		JSONResponse(w, models.Response{Success: false, Message: "Page not found"}, http.StatusNotFound)
+		JSONResponse(w, models.Response{Success: false, Message: util.T("Page not found")}, http.StatusNotFound)
 		return
 	}
 	switch {
@@ -417,10 +417,10 @@ func API_Pages_Id(w http.ResponseWriter, r *http.Request) {
 	case r.Method == "DELETE":
 		err = models.DeletePage(id, ctx.Get(r, "user_id").(int64))
 		if err != nil {
-			JSONResponse(w, models.Response{Success: false, Message: "Error deleting page"}, http.StatusInternalServerError)
+			JSONResponse(w, models.Response{Success: false, Message: util.T("Error deleting page")}, http.StatusInternalServerError)
 			return
 		}
-		JSONResponse(w, models.Response{Success: true, Message: "Page Deleted Successfully"}, http.StatusOK)
+		JSONResponse(w, models.Response{Success: true, Message: util.T("Page Deleted Successfully")}, http.StatusOK)
 	case r.Method == "PUT":
 		p = models.Page{}
 		err = json.NewDecoder(r.Body).Decode(&p)
@@ -428,14 +428,14 @@ func API_Pages_Id(w http.ResponseWriter, r *http.Request) {
 			Logger.Println(err)
 		}
 		if p.Id != id {
-			JSONResponse(w, models.Response{Success: false, Message: "/:id and /:page_id mismatch"}, http.StatusBadRequest)
+			JSONResponse(w, models.Response{Success: false, Message: util.T("/:id and /:page_id mismatch")}, http.StatusBadRequest)
 			return
 		}
 		p.ModifiedDate = time.Now()
 		p.UserId = ctx.Get(r, "user_id").(int64)
 		err = models.PutPage(&p)
 		if err != nil {
-			JSONResponse(w, models.Response{Success: false, Message: "Error updating page: " + err.Error()}, http.StatusInternalServerError)
+			JSONResponse(w, models.Response{Success: false, Message: util.T("Error updating page:") + " " + err.Error()}, http.StatusInternalServerError)
 			return
 		}
 		JSONResponse(w, p, http.StatusOK)
@@ -457,13 +457,13 @@ func API_SMTP(w http.ResponseWriter, r *http.Request) {
 		// Put the request into a page
 		err := json.NewDecoder(r.Body).Decode(&s)
 		if err != nil {
-			JSONResponse(w, models.Response{Success: false, Message: "Invalid request"}, http.StatusBadRequest)
+			JSONResponse(w, models.Response{Success: false, Message: util.T("Invalid request")}, http.StatusBadRequest)
 			return
 		}
 		// Check to make sure the name is unique
 		_, err = models.GetSMTPByName(s.Name, ctx.Get(r, "user_id").(int64))
 		if err != gorm.ErrRecordNotFound {
-			JSONResponse(w, models.Response{Success: false, Message: "SMTP name already in use"}, http.StatusConflict)
+			JSONResponse(w, models.Response{Success: false, Message: util.T("SMTP name already in use")}, http.StatusConflict)
 			Logger.Println(err)
 			return
 		}
@@ -471,7 +471,7 @@ func API_SMTP(w http.ResponseWriter, r *http.Request) {
 		s.UserId = ctx.Get(r, "user_id").(int64)
 		err = models.PostSMTP(&s)
 		if err != nil {
-			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
+			JSONResponse(w, models.Response{Success: false, Message: util.T(err.Error())}, http.StatusInternalServerError)
 			return
 		}
 		JSONResponse(w, s, http.StatusCreated)
@@ -485,7 +485,7 @@ func API_SMTP_Id(w http.ResponseWriter, r *http.Request) {
 	id, _ := strconv.ParseInt(vars["id"], 0, 64)
 	s, err := models.GetSMTP(id, ctx.Get(r, "user_id").(int64))
 	if err != nil {
-		JSONResponse(w, models.Response{Success: false, Message: "SMTP not found"}, http.StatusNotFound)
+		JSONResponse(w, models.Response{Success: false, Message: util.T("SMTP not found")}, http.StatusNotFound)
 		return
 	}
 	switch {
@@ -494,10 +494,10 @@ func API_SMTP_Id(w http.ResponseWriter, r *http.Request) {
 	case r.Method == "DELETE":
 		err = models.DeleteSMTP(id, ctx.Get(r, "user_id").(int64))
 		if err != nil {
-			JSONResponse(w, models.Response{Success: false, Message: "Error deleting SMTP"}, http.StatusInternalServerError)
+			JSONResponse(w, models.Response{Success: false, Message: util.T("Error deleting SMTP")}, http.StatusInternalServerError)
 			return
 		}
-		JSONResponse(w, models.Response{Success: true, Message: "SMTP Deleted Successfully"}, http.StatusOK)
+		JSONResponse(w, models.Response{Success: true, Message: util.T("SMTP Deleted Successfully")}, http.StatusOK)
 	case r.Method == "PUT":
 		s = models.SMTP{}
 		err = json.NewDecoder(r.Body).Decode(&s)
@@ -505,19 +505,19 @@ func API_SMTP_Id(w http.ResponseWriter, r *http.Request) {
 			Logger.Println(err)
 		}
 		if s.Id != id {
-			JSONResponse(w, models.Response{Success: false, Message: "/:id and /:smtp_id mismatch"}, http.StatusBadRequest)
+			JSONResponse(w, models.Response{Success: false, Message: util.T("/:id and /:smtp_id mismatch")}, http.StatusBadRequest)
 			return
 		}
 		err = s.Validate()
 		if err != nil {
-			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
+			JSONResponse(w, models.Response{Success: false, Message: util.T(err.Error())}, http.StatusBadRequest)
 			return
 		}
 		s.ModifiedDate = time.Now()
 		s.UserId = ctx.Get(r, "user_id").(int64)
 		err = models.PutSMTP(&s)
 		if err != nil {
-			JSONResponse(w, models.Response{Success: false, Message: "Error updating page"}, http.StatusInternalServerError)
+			JSONResponse(w, models.Response{Success: false, Message: util.T("Error updating page")}, http.StatusInternalServerError)
 			return
 		}
 		JSONResponse(w, s, http.StatusOK)
@@ -528,7 +528,7 @@ func API_SMTP_Id(w http.ResponseWriter, r *http.Request) {
 func API_Import_Group(w http.ResponseWriter, r *http.Request) {
 	ts, err := util.ParseCSV(r)
 	if err != nil {
-		JSONResponse(w, models.Response{Success: false, Message: "Error parsing CSV"}, http.StatusInternalServerError)
+		JSONResponse(w, models.Response{Success: false, Message: util.T("Error parsing CSV")}, http.StatusInternalServerError)
 		return
 	}
 	JSONResponse(w, ts, http.StatusOK)
@@ -539,7 +539,7 @@ func API_Import_Group(w http.ResponseWriter, r *http.Request) {
 // Returns a Message object
 func API_Import_Email(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
-		JSONResponse(w, models.Response{Success: false, Message: "Method not allowed"}, http.StatusBadRequest)
+		JSONResponse(w, models.Response{Success: false, Message: util.T("Method not allowed")}, http.StatusBadRequest)
 		return
 	}
 	ir := struct {
@@ -548,7 +548,7 @@ func API_Import_Email(w http.ResponseWriter, r *http.Request) {
 	}{}
 	err := json.NewDecoder(r.Body).Decode(&ir)
 	if err != nil {
-		JSONResponse(w, models.Response{Success: false, Message: "Error decoding JSON Request"}, http.StatusBadRequest)
+		JSONResponse(w, models.Response{Success: false, Message: util.T("Error decoding JSON Request")}, http.StatusBadRequest)
 		return
 	}
 	e, err := email.NewEmailFromReader(strings.NewReader(ir.Content))
@@ -561,7 +561,7 @@ func API_Import_Email(w http.ResponseWriter, r *http.Request) {
 	if ir.ConvertLinks {
 		d, err := goquery.NewDocumentFromReader(bytes.NewReader(e.HTML))
 		if err != nil {
-			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
+			JSONResponse(w, models.Response{Success: false, Message: util.T(err.Error())}, http.StatusBadRequest)
 			return
 		}
 		d.Find("a").Each(func(i int, a *goquery.Selection) {
@@ -569,7 +569,7 @@ func API_Import_Email(w http.ResponseWriter, r *http.Request) {
 		})
 		h, err := d.Html()
 		if err != nil {
-			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
+			JSONResponse(w, models.Response{Success: false, Message: util.T(err.Error())}, http.StatusInternalServerError)
 			return
 		}
 		e.HTML = []byte(h)
@@ -589,16 +589,16 @@ func API_Import_Email(w http.ResponseWriter, r *http.Request) {
 func API_Import_Site(w http.ResponseWriter, r *http.Request) {
 	cr := cloneRequest{}
 	if r.Method != "POST" {
-		JSONResponse(w, models.Response{Success: false, Message: "Method not allowed"}, http.StatusBadRequest)
+		JSONResponse(w, models.Response{Success: false, Message: util.T("Method not allowed")}, http.StatusBadRequest)
 		return
 	}
 	err := json.NewDecoder(r.Body).Decode(&cr)
 	if err != nil {
-		JSONResponse(w, models.Response{Success: false, Message: "Error decoding JSON Request"}, http.StatusBadRequest)
+		JSONResponse(w, models.Response{Success: false, Message: util.T("Error decoding JSON Request")}, http.StatusBadRequest)
 		return
 	}
 	if err = cr.validate(); err != nil {
-		JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
+		JSONResponse(w, models.Response{Success: false, Message: util.T(err.Error())}, http.StatusBadRequest)
 		return
 	}
 	tr := &http.Transport{
@@ -609,13 +609,13 @@ func API_Import_Site(w http.ResponseWriter, r *http.Request) {
 	client := &http.Client{Transport: tr}
 	resp, err := client.Get(cr.URL)
 	if err != nil {
-		JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
+		JSONResponse(w, models.Response{Success: false, Message: util.T(err.Error())}, http.StatusBadRequest)
 		return
 	}
 	// Insert the base href tag to better handle relative resources
 	d, err := goquery.NewDocumentFromResponse(resp)
 	if err != nil {
-		JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
+		JSONResponse(w, models.Response{Success: false, Message: util.T(err.Error())}, http.StatusBadRequest)
 		return
 	}
 	// Assuming we don't want to include resources, we'll need a base href
@@ -634,7 +634,7 @@ func API_Import_Site(w http.ResponseWriter, r *http.Request) {
 	})
 	h, err := d.Html()
 	if err != nil {
-		JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
+		JSONResponse(w, models.Response{Success: false, Message: util.T(err.Error())}, http.StatusInternalServerError)
 		return
 	}
 	cs := cloneResponse{HTML: h}
@@ -647,17 +647,17 @@ func API_Import_Site(w http.ResponseWriter, r *http.Request) {
 func API_Send_Test_Email(w http.ResponseWriter, r *http.Request) {
 	s := &models.SendTestEmailRequest{}
 	if r.Method != "POST" {
-		JSONResponse(w, models.Response{Success: false, Message: "Method not allowed"}, http.StatusBadRequest)
+		JSONResponse(w, models.Response{Success: false, Message: util.T("Method not allowed")}, http.StatusBadRequest)
 		return
 	}
 	err := json.NewDecoder(r.Body).Decode(s)
 	if err != nil {
-		JSONResponse(w, models.Response{Success: false, Message: "Error decoding JSON Request"}, http.StatusBadRequest)
+		JSONResponse(w, models.Response{Success: false, Message: util.T("Error decoding JSON Request")}, http.StatusBadRequest)
 		return
 	}
 	// Validate the given request
 	if err = s.Validate(); err != nil {
-		JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
+		JSONResponse(w, models.Response{Success: false, Message: util.T(err.Error())}, http.StatusBadRequest)
 		return
 	}
 
@@ -682,10 +682,10 @@ func API_Send_Test_Email(w http.ResponseWriter, r *http.Request) {
 		s.Template, err = models.GetTemplateByName(s.Template.Name, ctx.Get(r, "user_id").(int64))
 		if err == gorm.ErrRecordNotFound {
 			Logger.Printf("Error - Template %s does not exist", s.Template.Name)
-			JSONResponse(w, models.Response{Success: false, Message: models.ErrTemplateNotFound.Error()}, http.StatusBadRequest)
+			JSONResponse(w, models.Response{Success: false, Message: util.T(models.ErrTemplateNotFound.Error())}, http.StatusBadRequest)
 		} else if err != nil {
 			Logger.Println(err)
-			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
+			JSONResponse(w, models.Response{Success: false, Message: util.T(err.Error())}, http.StatusBadRequest)
 			return
 		}
 	}
@@ -696,10 +696,10 @@ func API_Send_Test_Email(w http.ResponseWriter, r *http.Request) {
 		s.SMTP, err = models.GetSMTPByName(s.SMTP.Name, ctx.Get(r, "user_id").(int64))
 		if err == gorm.ErrRecordNotFound {
 			Logger.Printf("Error - Sending profile %s does not exist", s.SMTP.Name)
-			JSONResponse(w, models.Response{Success: false, Message: models.ErrSMTPNotFound.Error()}, http.StatusBadRequest)
+			JSONResponse(w, models.Response{Success: false, Message: util.T(models.ErrSMTPNotFound.Error())}, http.StatusBadRequest)
 		} else if err != nil {
 			Logger.Println(err)
-			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
+			JSONResponse(w, models.Response{Success: false, Message: util.T(err.Error())}, http.StatusBadRequest)
 			return
 		}
 	}
@@ -707,10 +707,10 @@ func API_Send_Test_Email(w http.ResponseWriter, r *http.Request) {
 	// Send the test email
 	err = worker.SendTestEmail(s)
 	if err != nil {
-		JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
+		JSONResponse(w, models.Response{Success: false, Message: util.T(err.Error())}, http.StatusInternalServerError)
 		return
 	}
-	JSONResponse(w, models.Response{Success: true, Message: "Email Sent"}, http.StatusOK)
+	JSONResponse(w, models.Response{Success: true, Message: util.T("Email Sent")}, http.StatusOK)
 	return
 }
 

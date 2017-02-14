@@ -1,0 +1,1070 @@
+[
+	{
+		"id": "Invalid Username/Password",
+                "translation": "Hatalı Kullanıcı Adı / Şifre"
+        },
+        {
+		"id": "You have successfully logged out",
+                "translation": "Başarı ile çıkış yaptınız"
+        },
+        {
+                "id": "Method not allowed",
+                "translation": "Bu HTTP methoduna izin verilmemekte"
+        },
+        {
+                "id": "Settings Updated Successfully",
+                "translation": "Ayarlarınız başarı ile güncellendi"
+        },
+        {
+                "id": "Error parsing request",
+                "translation": "HTTP Talebi işlenemedi"
+	},
+	{
+		"id": "Add",
+		"translation": "Ekle"
+	},
+	{
+		"id": "Add Files",
+		"translation": "Dosya(lar) Ekle"
+	},
+	{
+		"id": "Add Tracking Image",
+		"translation": "Takip İmajı Ekle"
+	},
+	{
+		"id": "Add User",
+		"translation": "Kullanıcı Ekle"
+	},
+	{
+		"id": "API Documentation",
+		"translation": "API Dökümantasyonu"
+	},
+	{
+		"id": "API Key",
+		"translation": "API Anahatrı"
+	},
+	{
+		"id": "Average Phishing Results",
+		"translation": "Ortalama Phishing Sonuçları"
+	},
+	{
+		"id": "Back",
+		"translation": "Geri"
+	},
+	{
+		"id": "Bulk Import Users",
+		"translation": "Toplu Kullanıcı Yükleme"
+	},
+	{
+		"id": "<b>Warning:</b> Credentials are currently <b>not encrypted</b>. This means that captured passwords are stored in the database as cleartext. Be careful with this!",
+		"translation": "<b>Uyarı:</b> Yakalnmış şifreler açık metin olarak saklanacaktır. Bu özellik ile dikkatli olunuz!"
+	},
+	{
+		"id": "Campaign name",
+		"translation": "Kampanya ismi"
+	},
+	{
+		"id": "Campaigns",
+		"translation": "Kampanyalar"
+	},
+	{
+		"id": "Campaign Timeline",
+		"translation": "Kampanya Zaman Çizelgesi"
+	},
+	{
+		"id": "Cancel",
+		"translation": "İptal"
+	},
+	{
+		"id": "Capture Passwords",
+		"translation": "Şifreleri de Yakala"
+	},
+	{
+		"id": "Capture Submitted Data",
+		"translation": "Gönderilmiş Verileri Yakala"
+	},
+	{
+		"id": "Change Links to Point to Landing Page",
+		"translation": "Website Temasının Adresini İçerikteki İle Değiştir"
+	},
+	{
+		"id": "Close",
+		"translation": "Kapat"
+	},
+	{
+		"id": "Complete",
+		"translation": "Tamamla"
+	},
+	{
+		"id": "Confirm New Password",
+		"translation": "Yeni Şifrenin Tekrarı"
+	},
+	{
+		"id": "Content",
+		"translation": "İçerik"
+	},
+	{
+		"id": "Created Date",
+		"translation": "Yaratılma Tarihi"
+	},
+	{
+		"id": "Dashboard",
+		"translation": "Dashboard"
+	},
+	{
+		"id": "Delete",
+		"translation": "Kaldır"
+	},
+	{
+		"id": "Details",
+		"translation": "Detaylar"
+	},
+	{
+		"id": "Email",
+		"translation": "E-posta"
+	},
+	{
+		"id": "Email Content",
+		"translation": "E-posta İçeriği"
+	},
+	{
+		"id": "Email Status",
+		"translation": "E-posa Durumu"
+	},
+	{
+		"id": "Email Subject",
+		"translation": "E-posta Konusu"
+	},
+	{
+		"id": "Email Template",
+		"translation": "E-posta Teması"
+	},
+	{
+		"id": "Email Templates",
+		"translation": "E-posta Temaları"
+	},
+	{
+		"id": "Export CSV",
+		"translation": "CSV Olarak Dışarı Aktar"
+	},
+	{
+		"id": "First Last <test@example.com>",
+		"translation": "İsim Soyad <test@ornek.com>"
+	},
+	{
+		"id": "First Name",
+		"translation": "İsim"
+	},
+	{
+		"id": "From",
+		"translation": "Gönderici"
+	},
+	{
+		"id": "Gophish version",
+		"translation": "Gophish versiyonu"
+	},
+	{
+		"id": "Group name",
+		"translation": "Grup ismi"
+	},
+	{
+		"id": "Groups",
+		"translation": "Gruplar"
+	},
+	{
+		"id": "Host",
+		"translation": "Sunucu"
+	},
+	{
+		"id": "HTML",
+		"translation": "HTML"
+	},
+	{
+		"id": "http://example.com",
+		"translation": "http://ornek.com"
+	},
+	{
+		"id": "http://google.com",
+		"translation": "http://google.com"
+	},
+	{
+		"id": "If the landing page contains a form, submitted input (except passwords!) will be captured.",
+		"translation": "Website temasından gönderilen veriler kayıt edilecektir (şifreler hariç)."
+	},
+	{
+		"id": "Ignore Certificate Errors",
+		"translation": "Sertifika Hatasını Görmezden Gel"
+	},
+	{
+		"id": "Ignore common certificate errors such as self-signed certs (exposes you to MiTM attacks - use carefully!)",
+		"translation": "Genel sertifika hatalarını (örneğin: kendinden imzalanmış sertifika) görmezden gel. Bu özelliği kullanırken dikkatli olun MiTM saldırılarına karşı dayanıksız hale geleceksiniz."
+	},
+	{
+		"id": "Import",
+		"translation": "İçeri Aktar"
+	},
+	{
+		"id": "Import Email",
+		"translation": "E-postayı İçeri Aktar"
+	},
+	{
+		"id": "Import Site",
+		"translation": "Websitesini İçeri Aktar"
+	},
+	{
+		"id": "Interface Type",
+		"translation": "Bağlantı Birimi Tipi"
+	},
+	{
+		"id": "Landing Page",
+		"translation": "Website Teması"
+	},
+	{
+		"id": "Landing Pages",
+		"translation": "Website Temaları"
+	},
+	{
+		"id": "Last Modified Date",
+		"translation": "Son Güncellenme Zamanı"
+	},
+	{
+		"id": "Last Name",
+		"translation": "Soyad"
+	},
+	{
+		"id": "Launch Campaign",
+		"translation": "Kampanyayı Başlat"
+	},
+	{
+		"id": "Location of gophish listener (must be reachable by targets!)",
+		"translation": "Gophish servisinin adresi (hedefler tarafından ulaşılabilir olmalıdır)"
+	},
+	{
+		"id": "Login",
+		"translation": "Giriş"
+	},
+	{
+		"id": "Modified Date",
+		"translation": "Güncellenme Zamanı"
+	},
+	{
+		"id": "Name",
+		"translation": "İsim"
+	},
+	{
+		"id": "New Campaign",
+		"translation": "Yeni Kampanya"
+	},
+	{
+		"id": "New Group",
+		"translation": "Yeni Hedef Grup"
+	},
+	{
+		"id": "New Landing Page",
+		"translation": "Yeni Website Teması"
+	},
+	{
+		"id": "New Page",
+		"translation": "Yeni Website Teması"
+	},
+	{
+		"id": "New Password",
+		"translation": "Yeni Şifre"
+	},
+	{
+		"id": "New Profile",
+		"translation": "Yeni Profil"
+	},
+	{
+		"id": "New Sending Profile",
+		"translation": "Yeni Gönderici Profili"
+	},
+	{
+		"id": "New Template",
+		"translation": "Yeni Tema"
+	},
+	{
+		"id": "No campaigns created yet. Let's create one!",
+		"translation": "Hiçbir kampanya yaratılmamış, hadi yenisini yaratalım."
+	},
+	{
+		"id": "No groups created yet. Let's create one!",
+		"translation": "Hiçbir hedef grup yaratılmamış, hadi yenisini yaratalım."
+	},
+	{
+		"id": "No pages created yet. Let's create one!",
+		"translation": "Hiçbir website teması yaratılmamış, hadi yenisini yaratalım."
+	},
+	{
+		"id": "No profiles created yet. Let's create one!",
+		"translation": "Hiçbir gönderici profili yaratılmamış, hadi yenisini yaratalım."
+	},
+	{
+		"id": "No templates yet. Let's create one!",
+		"translation": "Hiçbir e-posta teması yaratılmamış, hadi yenisini yaratalım."
+	},
+	{
+		"id": "# of Members",
+		"translation": "# Uye Sayısı"
+	},
+	{
+		"id": "Old Password",
+		"translation": "Eski Şifre"
+	},
+	{
+		"id": "Overview",
+		"translation": "Özet"
+	},
+	{
+		"id": "Page name",
+		"translation": "Sayfa İsmi"
+	},
+	{
+		"id": "Password",
+		"translation": "Şifre"
+	},
+	{
+		"id": "Phishing Success Overview",
+		"translation": "Özel Başarı Oranı"
+	},
+	{
+		"id": "Plaintext",
+		"translation": "Açık Metin"
+	},
+	{
+		"id": "Please register below",
+		"translation": "Bilgileri aşağıda bulabilirsiniz"
+	},
+	{
+		"id": "Please sign in",
+		"translation": "Lütfen giriş yapınız"
+	},
+	{
+		"id": "Position",
+		"translation": "Ünvan"
+	},
+	{
+		"id": "Raw Email Source",
+		"translation": "Ham E-posta Kaynağı"
+	},
+	{
+		"id": "Raw Events",
+		"translation": "Ham İşlemler"
+	},
+	{
+		"id": "Recent Campaigns",
+		"translation": "Güncel Kampanyalar"
+	},
+	{
+		"id": "Redirect to",
+		"translation": "Yönlendirilecek Adres"
+	},
+	{
+		"id": "Refreshing",
+		"translation": "Güncelleniyor"
+	},
+	{
+		"id": "Register",
+		"translation": "Kaydet"
+	},
+	{
+		"id": "Register a New User",
+		"translation": "Yeni Kullanıcı Yarat"
+	},
+	{
+		"id": "Reset",
+		"translation": "Yenile"
+	},
+	{
+		"id": "Result ID",
+		"translation": "Sonuç ID"
+	},
+	{
+		"id": "Results",
+		"translation": "Sonçlar"
+	},
+	{
+		"id": "Results for",
+		"translation": "Sonuçlar"
+	},
+	{
+		"id": "Save",
+		"translation": "Kaydet"
+	},
+	{
+		"id": "Save changes",
+		"translation": "Değişiklikleri kaydet"
+	},
+	{
+		"id": "Save Page",
+		"translation": "Sayfayı Kaydet"
+	},
+	{
+		"id": "Save Profile",
+		"translation": "Profili Kaydet"
+	},
+	{
+		"id": "Save Template",
+		"translation": "Temayı Kaydet"
+	},
+	{
+		"id": "Schedule",
+		"translation": "Zamanla"
+	},
+	{
+		"id": "Select a Landing Page",
+		"translation": "Ulaşılacak Website Teması"
+	},
+	{
+		"id": "Send",
+		"translation": "Gönder"
+	},
+	{
+		"id": "Sending Profile",
+		"translation": "Gönderici Profili"
+	},
+	{
+		"id": "Sending Profiles",
+		"translation": "Gönderici Profilleri"
+	},
+	{
+		"id": "Send Test Email",
+		"translation": "Test E-postası Gönder"
+	},
+	{
+		"id": "Send Test Email to",
+		"translation": "Test E-postası Alıcısı"
+	},
+	{
+		"id": "Settings",
+		"translation": "Ayarlar"
+	},
+	{
+		"id": "Sign in",
+		"translation": "Giriş Yap"
+	},
+	{
+		"id": "SMTP",
+		"translation": "SMTP"
+	},
+	{
+		"id": "smtp.example.com:25",
+		"translation": "smtp.ornek.com:25"
+	},
+	{
+		"id": "Status",
+		"translation": "Durum"
+	},
+	{
+		"id": "Subject",
+		"translation": "Konu"
+	},
+	{
+		"id": "Successful Phishes",
+		"translation": "Başarılı Phishingler"
+	},
+	{
+		"id": "Supports CSV files",
+		"translation": "CSV Dosyaları Desteklenmektedir"
+	},
+	{
+		"id": "Targets Map",
+		"translation": "Hedefler Haritası"
+	},
+	{
+		"id": "Template Name",
+		"translation": "Tema İsmi"
+	},
+	{
+		"id": "Text",
+		"translation": "Metin"
+	},
+	{
+		"id": "This option lets you redirect the user to a page after credentials are submitted.",
+		"translation": "Bu opsiyon form gönderiminden sonra hedefin bir adrese yönlendirilmesini sağlanmaktadır."
+	},
+	{
+		"id": "Toggle navigation",
+		"translation": "Navigasyonu Aç/Kapa"
+	},
+	{
+		"id": "Type",
+		"translation": "Tip"
+	},
+	{
+		"id": "Unsuccessful Phishes",
+		"translation": "Başarısız Phishingler"
+	},
+	{
+		"id": "URL",
+		"translation": "URL"
+	},
+	{
+		"id": "User Guide",
+		"translation": "Kullanıcı Kılavuzu"
+	},
+	{
+		"id": "Username",
+		"translation": "Kullanıcı Adı"
+	},
+	{
+		"id": "Users &amp; Groups",
+		"translation": "Hedef Gruplar"
+	},
+	{
+		"id": "View All",
+		"translation": "Tümünü Gör"
+	},
+	{
+		"id": "Are you sure?",
+		"translation": "Emin Misiniz?"
+	},
+	{
+		"id": "Campaign Completed!",
+		"translation": "Kampanya Tamamlandı!"
+	},
+	{
+		"id": "Campaign Created",
+		"translation": "Kampanya Yaratıldı"
+	},
+	{
+		"id": "Campaign Deleted!",
+		"translation": "Kampanya Silindi!"
+	},
+	{
+		"id": "Campaign not found!",
+		"translation": "Kampanya bulunamadı!"
+	},
+	{
+		"id": "Campaign Scheduled!",
+		"translation": "Kampanya Zamanlandı!"
+	},
+	{
+		"id": "Clicked Link",
+		"translation": "Tıklanılan Adres"
+	},
+	{
+		"id": "Complete Campaign",
+		"translation": "Kampanyayı Tamamla"
+	},
+	{
+		"id": "Completed!",
+		"translation": "Tamamlandı!"
+	},
+	{
+		"id": "Completed",
+		"translation": "Tamamlandı"
+	},
+	{
+		"id": "Copy Campaign",
+		"translation": "Kampanyayı Klonla"
+	},
+	{
+		"id": "Copy of",
+		"translation": "Kopya"
+	},
+	{
+		"id": "Copy Page",
+		"translation": "Kopya Websitesi"
+	},
+	{
+		"id": "Copy Profile",
+		"translation": "Kopya Profil"
+	},
+	{
+		"id": "Copy Template",
+		"translation": "Kopya Tema"
+	},
+	{
+		"id": "Delete",
+		"translation": "Sil"
+	},
+	{
+		"id": "Delete Campaign",
+		"translation": "Kampanyayı Sil"
+	},
+	{
+		"id": "Delete Page",
+		"translation": "Websitesini Sil"
+	},
+	{
+		"id": "Delete Profile",
+		"translation": "Profili Sil"
+	},
+	{
+		"id": "Delete Template",
+		"translation": "Temayı Sil"
+	},
+	{
+		"id": "Edit Page",
+		"translation": "Temayı Güncelle"
+	},
+	{
+		"id": "Edit Profile",
+		"translation": "Profili Güncelle"
+	},
+	{
+		"id": "Edit Template",
+		"translation": "Temayı Güncelle"
+	},
+	{
+		"id": "Email:",
+		"translation": "E-posta:"
+	},
+	{
+		"id": "Email",
+		"translation": "E-psta"
+	},
+	{
+		"id": "Email Opened",
+		"translation": "E-posta Açıldı"
+	},
+	{
+		"id": "Email Sent!",
+		"translation": "E-posta Gönderildi!"
+	},
+	{
+		"id": "Email Sent",
+		"translation": "E-posta Gönderildi"
+	},
+	{
+		"id": "Emails Sent",
+		"translation": "E-postalar Gönderildi"
+	},
+	{
+		"id": "Error",
+		"translation": "Hata"
+	},
+	{
+		"id": "Error fetching campaigns",
+		"translation": "Kampanyalar yüklenirken hata oluştu"
+	},
+	{
+		"id": "Error fetching group",
+		"translation": "Hedef grup yüklenirken hata oluştu"
+	},
+	{
+		"id": "Error fetching groups",
+		"translation": "Hedef gruplar yüklenirken hata oluştu"
+	},
+	{
+		"id": "Error fetching pages",
+		"translation": "Website temaları yüklenirken hata oluştu"
+	},
+	{
+		"id": "Error fetching profiles",
+		"translation": "Gönderici profilleri yüklenirken hata oluştu"
+	},
+	{
+		"id": "Error fetching templates",
+		"translation": "E-posta temaları yüklenirken hata oluştu"
+	},
+	{
+		"id": "Error Sending Email",
+		"translation": "E-post Gönderim Hatası"
+	},
+	{
+		"id": "Events",
+		"translation": "Etkinlikler"
+	},
+	{
+		"id": "Gophish will stop processing events for this campaign",
+		"translation": "Gophish bu kampanyanın etkinliğini durduracak"
+	},
+	{
+		"id": "Group added successfully!",
+		"translation": "Grup başarıyla eklendi!"
+	},
+	{
+		"id": "Group updated successfully!",
+		"translation": "Grup başarıyla güncellendi!"
+	},
+	{
+		"id": "http://example.com/login",
+		"translation": "http://ornek.com/giris"
+	},
+	{
+		"id": "In progress",
+		"translation": "İşlemde"
+	},
+	{
+		"id": "Invalid URL.",
+		"translation": "Geçersi URL."
+	},
+	{
+		"id": "No Content Specified!",
+		"translation": "İçerik Tanımlanmadı!"
+	},
+	{
+		"id": "No groups found!",
+		"translation": "Grup bulunamadı!"
+	},
+	{
+		"id": "No pages found!",
+		"translation": "Website bulunamadı!"
+	},
+	{
+		"id": "No profiles found!",
+		"translation": "Gönderici profili bulunamadı!"
+	},
+	{
+		"id": "No URL Specified!",
+		"translation": "URL Adresi bulunamadı!"
+	},
+	{
+		"id": "Page added successfully!",
+		"translation": "Websitesi başarıyla eklendi!"
+	},
+	{
+		"id": "Page edited successfully!",
+		"translation": "Websitesi başarıyla güncellendi!"
+	},
+	{
+		"id": "Parameter",
+		"translation": "Parametre"
+	},
+	{
+		"id": "Profile added successfully!",
+		"translation": "Profil başarıyla eklendi!"
+	},
+	{
+		"id": "Profile edited successfully!",
+		"translation": "Profil başarıyla güncellendi!"
+	},
+	{
+		"id": "Queued",
+		"translation": "Sıraya Alındı"
+	},
+	{
+		"id": "Replay Credentials",
+		"translation": "Bilgileri Tekrarla"
+	},
+	{
+		"id": "Select a Landing Page",
+		"translation": "Ulaşılacak Websitesi Teması Seçin"
+	},
+	{
+		"id": "Select a Sending Profile",
+		"translation": "Gönderici Profili Seçin"
+	},
+	{
+		"id": "Select a Template",
+		"translation": "E-posta Teması Seçin"
+	},
+	{
+		"id": "Select Groups",
+		"translation": "Hedef Grupları Seçin"
+	},
+	{
+		"id": "Sending",
+		"translation": "Gönderiliyor"
+	},
+	{
+		"id": "Submitted Data",
+		"translation": "Formla İletilen Veri"
+	},
+	{
+		"id": "Success",
+		"translation": "Başarı"
+	},
+	{
+		"id": "Successes",
+		"translation": "Başarılar"
+	},
+	{
+		"id": "Successful Phishes",
+		"translation": "Başarılı Saldırılar"
+	},
+	{
+		"id": "Template added successfully!",
+		"translation": "Tema başarıyla eklendi!"
+	},
+	{
+		"id": "Template edited successfully!",
+		"translation": "Tema başarıyla güncellendi!"
+	},
+	{
+		"id": "This campaign has been deleted!",
+		"translation": "Bu kampanya silindi!"
+	},
+	{
+		"id": "This campaign has been scheduled for launch!",
+		"translation": "Bu kampanya zamanlandı!"
+	},
+	{
+		"id": "This will delete the campaign. This can't be undone!",
+		"translation": "Bu işlem kampanyayı silecek, bu işlem geri alınamaz!"
+	},
+	{
+		"id": "This will schedule the campaign to be launched.",
+		"translation": "Kampanya zamanı geldiğinde başlatlmak üzere programlanacak."
+	},
+	{
+		"id": "Timeline for",
+		"translation": "Zaman Çizelgesi"
+	},
+	{
+		"id": "Unknown",
+		"translation": "Bilinmeyen"
+	},
+	{
+		"id": "Unsuccessful Phishes",
+		"translation": "Başarısız Phishingler"
+	},
+	{
+		"id": "Unsupported file extension (use .csv or .txt)",
+		"translation": "Desteklenmeyen dosya uzantısı (.csv veya .txt kullanın)"
+	},
+	{
+		"id": "Value(s)",
+		"translation": "Değer(ler)"
+	},
+	{
+		"id": "View Details",
+		"translation": "Detaylara Gözat"
+	},
+	{
+		"id": "View Results",
+		"translation": "Sonuçlara Gözat"
+	},
+	{
+		"id": "Where do you want the credentials submitted to?",
+		"translation": "Şifre bilgileri nereye postalansın?"
+	},
+	{
+		"id": "username already taken",
+		"translation": "Kullanıcı adı çoktan alınmış"
+	},
+	{
+		"id": "Page Name not specified",
+		"translation": "Sayfa ismi belirlenmemiş"
+	},
+	{
+		"id": "No email address specified",
+		"translation": "E-posta adresi belirlenmemiş"
+	},
+	{
+		"id": "Group name not specified",
+		"translation": "Grup ismi belirlenmemiş"
+	},
+	{
+		"id": "No targets specified",
+		"translation": "Hiçbir hedef belirlenmemiş"
+	},
+	{
+		"id": "Campaign name not specified",
+		"translation": "Kampanya ismi belirlenmemiş"
+	},
+	{
+		"id": "No groups specified",
+		"translation": "Hedef gruplar belirlenmemiş"
+	},
+	{
+		"id": "No email template specified",
+		"translation": "E-posta teması belirlenmemiş"
+	},
+	{
+		"id": "No landing page specified",
+		"translation": "Erişilecek website teması belirlenmemiş"
+	},
+	{
+		"id": "No sending profile specified",
+		"translation": "Gönderici profili belirlenmemiş"
+	},
+	{
+		"id": "Template not found",
+		"translation": "Tema bulunamadı"
+	},
+	{
+		"id": "Group not found",
+		"translation": "Grup bulunamadı"
+	},
+	{
+		"id": "Page not found",
+		"translation": "Websitesi bulunamadı"
+	},
+	{
+		"id": "Sending profile not found",
+		"translation": "Gönderici profili bulunamadı"
+	},
+	{
+		"id": "Template name not specified",
+		"translation": "Tema ismi belirlenmemiş"
+	},
+	{
+		"id": "Need to specify at least plaintext or HTML content",
+		"translation": "Metin veya HTML içeriği belirlenmeli"
+	},
+	{
+		"id": "No From Address specified",
+		"translation": "Gönderici adresi belirlenmemiş"
+	},
+	{
+		"id": "No SMTP Host specified",
+		"translation": "SMTP sunucu adresi belirlenmemiş"
+	},
+	{
+		"id": "Invalid SMTP server address",
+		"translation": "Geçersiz SMTP sunucu adresi"
+	},
+	{
+		"id": "API Key successfully reset!",
+		"translation": "API anahtarı başarıyla yenilendi!"
+	},
+	{
+		"id": "Binary file gophish matches",
+		"translation": "Binary dosya formatı bulundu"
+	},
+	{
+		"id": "Campaign completed successfully!",
+		"translation": "Kampanya başarıyla tamamlandı!"
+	},
+	{
+		"id": "Campaign deleted successfully!",
+		"translation": "Kampanya başarıyla silindi!"
+	},
+	{
+		"id": "Campaign not found",
+		"translation": "Kampanya bulunamadı"
+	},
+	{
+		"id": "Email Sent",
+		"translation": "E-posta Gönderildi"
+	},
+	{
+		"id": "Error completing campaign",
+		"translation": "Kampanya Tamamlama Esnasında Hata Alındı"
+	},
+	{
+		"id": "Error decoding JSON Request",
+		"translation": "JSON paketi açılamadı"
+	},
+	{
+		"id": "Error deleting campaign",
+		"translation": "Kampanya silinirken hata oluştu"
+	},
+	{
+		"id": "Error deleting group",
+		"translation": "Grup silinirken hata oluştu"
+	},
+	{
+		"id": "Error deleting page",
+		"translation": "Websitesi silinirken hata oluştu"
+	},
+	{
+		"id": "Error deleting SMTP",
+		"translation": "SMTP Silinirken hata oluştu"
+	},
+	{
+		"id": "Error deleting template",
+		"translation": "Tema silinirken hata oluştu"
+	},
+	{
+		"id": "Error: /:id and group_id mismatch",
+		"translation": "Hata: /:id ve group_id uyuşmamakta"
+	},
+	{
+		"id": "Error: /:id and template_id mismatch",
+		"translation": "Hata: /:id ve template_id uyuşmamakta"
+	},
+	{
+		"id": "Error inserting template into database",
+		"translation": "Veri tabanı şablonu yüklenirken hata oluştu"
+	},
+	{
+		"id": "Error parsing CSV",
+		"translation": "CSV dosyayı işlenemedi"
+	},
+	{
+		"id": "Error setting API Key",
+		"translation": "API anahtarı belirlenirken hata oluştu"
+	},
+	{
+		"id": "Error updating page",
+		"translation": "Sayfa güncellenirken hata oluştu"
+	},
+	{
+		"id": "Error updating page:",
+		"translation": "Sayfa güncellenirken hata oluştu:"
+	},
+	{
+		"id": "Group deleted successfully!",
+		"translation": "Grup başarıyla silindi!"
+	},
+	{
+		"id": "Group name already in use",
+		"translation": "Grup ismi daha evel kullanılmış"
+	},
+	{
+		"id": "Group not found",
+		"translation": "Grup bulunamadı"
+	},
+	{
+		"id": "/:id and /:page_id mismatch",
+		"translation": "/:id ve /:page_id uyuşmamakta"
+	},
+	{
+		"id": "/:id and /:smtp_id mismatch",
+		"translation": "/:id ve /:smtp_id uyuşmamakta"
+	},
+	{
+		"id": "Invalid JSON structure",
+		"translation": "Geçersiz JSON formatı"
+	},
+	{
+		"id": "Invalid request",
+		"translation": "Geçersiz talep"
+	},
+	{
+		"id": "Method not allowed",
+		"translation": "Methoda izin verilmedi"
+	},
+	{
+		"id": "No groups found",
+		"translation": "Grup bulunamadı"
+	},
+	{
+		"id": "Page Deleted Successfully",
+		"translation": "Sayfa Başarıyla Silindi"
+	},
+	{
+		"id": "Page name already in use",
+		"translation": "Sayfa ismi daha önce kullanılmış"
+	},
+	{
+		"id": "Page not found",
+		"translation": "Sayfa bulunamadı"
+	},
+	{
+		"id": "SMTP Deleted Successfully",
+		"translation": "SMTP başarıyla silindi"
+	},
+	{
+		"id": "SMTP name already in use",
+		"translation": "SMTP ismi daha önce kullanılmış"
+	},
+	{
+		"id": "SMTP not found",
+		"translation": "SMTP bulunamadı"
+	},
+	{
+		"id": "Template deleted successfully!",
+		"translation": "Tema başarıyla silindi!"
+	},
+	{
+		"id": "Template name already in use",
+		"translation": "Tema ismi daha önce kullanılmış"
+	},
+	{
+		"id": "Template not found",
+		"translation": "Tema bulunamadı"
+	},
+	{
+		"id": "Invalid Password",
+		"translation": "Hatalı Şifre"
+	},
+	{
+		"id": "Registration successful!.",
+		"translation": "Kayıt başarıyla tamamlandı!"
+	}
+]

@@ -22,7 +22,7 @@ function save(id) {
         group.id = id
         api.groupId.put(group)
             .success(function(data) {
-                successFlash("Group updated successfully!")
+                successFlash(T("Group updated successfully!"))
                 load()
                 dismiss()
                 $("#modal").modal('hide')
@@ -35,7 +35,7 @@ function save(id) {
         // to /groups
         api.groups.post(group)
             .success(function(data) {
-                successFlash("Group added successfully!")
+                successFlash(T("Group added successfully!"))
                 load()
                 dismiss()
                 $("#modal").modal('hide')
@@ -82,7 +82,7 @@ function edit(id) {
 
             })
             .error(function() {
-                errorFlash("Error fetching group")
+                errorFlash(T("Error fetching group"))
             })
     }
     // Handle file uploads
@@ -93,7 +93,7 @@ function edit(id) {
             var acceptFileTypes = /(csv|txt)$/i;
             var filename = data.originalFiles[0]['name']
             if (filename && !acceptFileTypes.test(filename.split(".").pop())) {
-                modalError("Unsupported file extension (use .csv or .txt)")
+                modalError(T("Unsupported file extension (use .csv or .txt)"))
                 return false;
             }
             data.submit();
@@ -117,7 +117,7 @@ function deleteGroup(id) {
         console.log('wat');
         return
     }
-    if (confirm("Delete " + group.name + "?")) {
+    if (confirm(T("Delete") + " " + group.name + "?")) {
         api.groupId.delete(id)
             .success(function(data) {
                 successFlash(data.message)
@@ -194,7 +194,7 @@ function load() {
             }
         })
         .error(function() {
-            errorFlash("Error fetching groups")
+            errorFlash(T("Error fetching groups"))
         })
 }
 

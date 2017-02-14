@@ -35,10 +35,10 @@ import (
 
 	"github.com/NYTimes/gziphandler"
 	"github.com/gophish/gophish/auth"
-	"github.com/gophish/gophish/config"
-	"github.com/gophish/gophish/controllers"
+	"./config"
+	"./controllers"
 	"github.com/gophish/gophish/models"
-	"github.com/gophish/gophish/util"
+	"./util"
 	"github.com/gorilla/handlers"
 )
 
@@ -52,6 +52,8 @@ func main() {
 	}
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
+
+        util.ChangeLang(config.Conf.AdminConf.Language)
 	// Start the web servers
 	go func() {
 		defer wg.Done()

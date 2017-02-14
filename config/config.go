@@ -12,6 +12,7 @@ type AdminServer struct {
 	UseTLS    bool   `json:"use_tls"`
 	CertPath  string `json:"cert_path"`
 	KeyPath   string `json:"key_path"`
+	Language  string `json:"languge"`
 }
 
 // PhishServer represents the Phish server configuration details

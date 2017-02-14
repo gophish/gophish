@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
+        "../util"
 )
 
 // Campaign is a struct representing a created campaign
@@ -65,31 +66,31 @@ type CampaignStats struct {
 }
 
 // ErrCampaignNameNotSpecified indicates there was no template given by the user
-var ErrCampaignNameNotSpecified = errors.New("Campaign name not specified")
+var ErrCampaignNameNotSpecified = errors.New(util.T("Campaign name not specified"))
 
 // ErrGroupNotSpecified indicates there was no template given by the user
-var ErrGroupNotSpecified = errors.New("No groups specified")
+var ErrGroupNotSpecified = errors.New(util.T("No groups specified"))
 
 // ErrTemplateNotSpecified indicates there was no template given by the user
-var ErrTemplateNotSpecified = errors.New("No email template specified")
+var ErrTemplateNotSpecified = errors.New(util.T("No email template specified"))
 
 // ErrPageNotSpecified indicates a landing page was not provided for the campaign
-var ErrPageNotSpecified = errors.New("No landing page specified")
+var ErrPageNotSpecified = errors.New(util.T("No landing page specified"))
 
 // ErrSMTPNotSpecified indicates a sending profile was not provided for the campaign
-var ErrSMTPNotSpecified = errors.New("No sending profile specified")
+var ErrSMTPNotSpecified = errors.New(util.T("No sending profile specified"))
 
 // ErrTemplateNotFound indicates the template specified does not exist in the database
-var ErrTemplateNotFound = errors.New("Template not found")
+var ErrTemplateNotFound = errors.New(util.T("Template not found"))
 
 // ErrGroupnNotFound indicates a group specified by the user does not exist in the database
-var ErrGroupNotFound = errors.New("Group not found")
+var ErrGroupNotFound = errors.New(util.T("Group not found"))
 
 // ErrPageNotFound indicates a page specified by the user does not exist in the database
-var ErrPageNotFound = errors.New("Page not found")
+var ErrPageNotFound = errors.New(util.T("Page not found"))
 
 // ErrSMTPNotFound indicates a sending profile specified by the user does not exist in the database
-var ErrSMTPNotFound = errors.New("Sending profile not found")
+var ErrSMTPNotFound = errors.New(util.T("Sending profile not found"))
 
 // Validate checks to make sure there are no invalid fields in a submitted campaign
 func (c *Campaign) Validate() error {

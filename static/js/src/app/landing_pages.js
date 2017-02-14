@@ -18,7 +18,7 @@ function save(idx) {
         page.id = pages[idx].id
         api.pageId.put(page)
             .success(function(data) {
-                successFlash("Page edited successfully!")
+                successFlash(T("Page edited successfully!"))
                 load()
                 dismiss()
             })
@@ -26,7 +26,7 @@ function save(idx) {
         // Submit the page
         api.pages.post(page)
             .success(function(data) {
-                successFlash("Page added successfully!")
+                successFlash(T("Page added successfully!"))
                 load()
                 dismiss()
             })
@@ -49,7 +49,7 @@ function dismiss() {
 }
 
 function deletePage(idx) {
-    if (confirm("Delete " + pages[idx].name + "?")) {
+    if (confirm(T("Delete") + " " + pages[idx].name + "?")) {
         api.pageId.delete(pages[idx].id)
             .success(function(data) {
                 successFlash(data.message)
@@ -61,7 +61,7 @@ function deletePage(idx) {
 function importSite() {
     url = $("#url").val()
     if (!url) {
-        modalError("No URL Specified!")
+        modalError(T("No URL Specified!"))
     } else {
         api.clone_site({
                 url: url,
@@ -104,7 +104,7 @@ function copy(idx) {
     })
     $("#html_editor").ckeditor()
     var page = pages[idx]
-    $("#name").val("Copy of " + page.name)
+    $("#name").val(T("Copy of") + " " + page.name)
     $("#html_editor").val(page.html)
 }
 
@@ -133,13 +133,13 @@ function load() {
                     pagesTable.row.add([
                         escapeHtml(page.name),
                         moment(page.modified_date).format('MMMM Do YYYY, h:mm:ss a'),
-                        "<div class='pull-right'><span data-toggle='modal' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Edit Page' onclick='edit(" + i + ")'>\
+                        "<div class='pull-right'><span data-toggle='modal' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='" + T("Edit Page") + "' onclick='edit(" + i + ")'>\
                     <i class='fa fa-pencil'></i>\
                     </button></span>\
-		    <span data-toggle='modal' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Copy Page' onclick='copy(" + i + ")'>\
+		    <span data-toggle='modal' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='" + T("Copy Page") + "' onclick='copy(" + i + ")'>\
                     <i class='fa fa-copy'></i>\
                     </button></span>\
-                    <button class='btn btn-danger' data-toggle='tooltip' data-placement='left' title='Delete Page' onclick='deletePage(" + i + ")'>\
+                    <button class='btn btn-danger' data-toggle='tooltip' data-placement='left' title='" + T("Delete Page") + "' onclick='deletePage(" + i + ")'>\
                     <i class='fa fa-trash-o'></i>\
                     </button></div>"
                     ]).draw()
@@ -151,7 +151,7 @@ function load() {
         })
         .error(function() {
             $("#loading").hide()
-            errorFlash("Error fetching pages")
+            errorFlash(T("Error fetching pages"))
         })
 }
 
