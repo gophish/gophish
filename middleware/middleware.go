@@ -10,6 +10,7 @@ import (
 	ctx "github.com/gophish/gophish/context"
 	"github.com/gophish/gophish/models"
 	"github.com/gorilla/csrf"
+	"github.com/gophish/gophish/translations"
 )
 
 var CSRFExemptPrefixes = []string{
@@ -36,7 +37,7 @@ func GetContext(handler http.Handler) http.HandlerFunc {
 		// Parse the request form
 		err := r.ParseForm()
 		if err != nil {
-			http.Error(w, "Error parsing request", http.StatusInternalServerError)
+			http.Error(w, translations.T("Error parsing request"), http.StatusInternalServerError)
 		}
 		// Set the context appropriately here.
 		// Set the session
@@ -77,7 +78,7 @@ func RequireAPIKey(handler http.Handler) http.HandlerFunc {
 		} else {
 			u, err := models.GetUserByAPIKey(ak)
 			if err != nil {
-				JSONError(w, 400, "Invalid API Key")
+				JSONError(w, 400, translations.T("Invalid API Key"))
 				return
 			}
 			r = ctx.Set(r, "user_id", u.Id)

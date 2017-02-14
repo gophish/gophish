@@ -3,24 +3,24 @@
     <div class="row">
         <div class="col-sm-3 col-md-2 sidebar">
             <ul class="nav nav-sidebar">
-                <li><a href="/">Dashboard</a>
+                <li><a href="/">{{T "Dashboard"}}</a>
                 </li>
-                <li><a href="/campaigns">Campaigns</a>
+                <li><a href="/campaigns">{{T "Campaigns"}}</a>
                 </li>
-                <li><a href="/users">Users &amp; Groups</a>
+                <li><a href="/users">{{T "Users & Groups"}}</a>
                 </li>
-                <li><a href="/templates">Email Templates</a>
+                <li><a href="/templates">{{T "Email Templates"}}</a>
                 </li>
-                <li><a href="/landing_pages">Landing Pages</a>
+                <li><a href="/landing_pages">{{T "Landing Pages"}}</a>
                 </li>
-                <li><a href="/sending_profiles">Sending Profiles</a>
+                <li><a href="/sending_profiles">{{T "Sending Profiles"}}</a>
                 </li>
-                <li class="active"><a href="/settings">Settings</a>
+                <li class="active"><a href="/settings">{{T "Settings"}}</a>
                 </li>
                 <li><hr></li>
-                <li><a href="https://gophish.gitbooks.io/user-guide/content/">User Guide</a>
+                <li><a href="https://gophish.gitbooks.io/user-guide/content/">{{T "User Guide"}}</a>
                 </li>
-                <li><a href="/api/">API Documentation</a>
+                <li><a href="/api/">{{T "API Documentation"}}</a>
                 </li>
             </ul>
         </div>
@@ -28,69 +28,72 @@
 </div>
 <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
     <div class="row">
-        <h1 class="page-header">Settings</h1>
+        <h1 class="page-header">{{T "Settings"}}</h1>
     </div>
     <div id="flashes" class="row"></div>
     <div class="row">
-        <label class="col-sm-2 control-label form-label">Gophish version</label>
+        <label class="col-sm-2 control-label form-label">{{T "Gophish version"}}</label>
         <div class="col-md-6">
             <label class="form-label">{{.Version}}</label>
         </div>
     </div>
     <br/>
     <div class="row">
-	    <label class="col-sm-2 control-label form-label">Register a New User</label>
+	    <label class="col-sm-2 control-label form-label">{{T "Register a New User"}}</label>
 	    <div class="col-md-6">
-	        <a href="/register" class="btn btn-primary"><i class="fa fa-plus"></i> Add User</a>
+	        <a href="/register" class="btn btn-primary"><i class="fa fa-plus"></i> {{T "Add User"}}</a>
             </div>
     </div>
     <br/>
     <div class="row">
-        <label for="api_key" class="col-sm-2 control-label form-label">API Key:</label>
+        <label for="api_key" class="col-sm-2 control-label form-label">{{T "API Key"}}:</label>
         <div class="col-md-6">
             <input type="text" id="api_key" onclick="this.select();" value="{{.User.ApiKey}}" class="form-control" readonly/>
         </div>
         <form id="apiResetForm">
-            <button class="btn btn-primary"><i class="fa fa-refresh" type="submit"></i> Reset</button>
+            <button class="btn btn-primary"><i class="fa fa-refresh" type="submit"></i> {{T "Reset"}}</button>
             <input type="hidden" name="csrf_token" value="{{.Token}}"/>
         </form>
     </div>
     <br />
     <form id="settingsForm">
         <div class="row">
-            <label for="username" class="col-sm-2 control-label form-label">Username:</label>
+            <label for="username" class="col-sm-2 control-label form-label">{{T "Username"}}:</label>
             <div class="col-md-6">
                 <input type="text" id="username" name="username" value="{{.User.Username}}" class="form-control" />
             </div>
         </div>
         <br />
         <div class="row">
-            <label for="current_password" class="col-sm-2 control-label form-label">Old Password:</label>
+            <label for="current_password" class="col-sm-2 control-label form-label">{{T "Old Password"}}:</label>
             <div class="col-md-6">
                 <input type="password" id="current_password" name="current_password" autocomplete="off" class="form-control"/>
             </div>
         </div>
         <br />
         <div class="row">
-            <label for="new_password" class="col-sm-2 control-label form-label">New Password:</label>
+            <label for="new_password" class="col-sm-2 control-label form-label">{{T "New Password"}}:</label>
             <div class="col-md-6">
                 <input type="password" id="new_password" name="new_password" autocomplete="off" class="form-control" />
             </div>
         </div>
         <br />
         <div class="row">
-            <label for="confirm_new_password" class="col-sm-2 control-label form-label">Confirm New Password:</label>
+            <label for="confirm_new_password" class="col-sm-2 control-label form-label">{{T "Confirm New Password"}}:</label>
             <div class="col-md-6">
                 <input type="password" id="confirm_new_password" name="confirm_new_password" autocomplete="off" class="form-control" />
             </div>
         </div>
         <input type="hidden" name="csrf_token" value="{{.Token}}"/>
         <br />
-	<button class="btn btn-primary" type="submit"><i class="fa fa-save"></i> Save</button>
+	<button class="btn btn-primary" type="submit"><i class="fa fa-save"></i> {{T "Save"}}</button>
     </form>
     <br/>
 </div>
 {{end}}
 {{define "scripts"}}
+<script>
+        localizedDatas = {}
+</script>
 <script src="/js/dist/app/settings.min.js"></script>
 {{end}}

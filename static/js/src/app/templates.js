@@ -46,7 +46,7 @@ function save(idx) {
         template.id = templates[idx].id
         api.templateId.put(template)
             .success(function(data) {
-                successFlash("Template edited successfully!")
+                successFlash(T("Template edited successfully!"))
                 load()
                 dismiss()
             })
@@ -57,7 +57,7 @@ function save(idx) {
         // Submit the template
         api.templates.post(template)
             .success(function(data) {
-                successFlash("Template added successfully!")
+                successFlash(T("Template added successfully!"))
                 load()
                 dismiss()
             })
@@ -78,7 +78,7 @@ function dismiss() {
 }
 
 function deleteTemplate(idx) {
-    if (confirm("Delete " + templates[idx].name + "?")) {
+    if (confirm(T("Delete") + " " + templates[idx].name + "?")) {
         api.templateId.delete(templates[idx].id)
             .success(function(data) {
                 successFlash(data.message)
@@ -204,7 +204,7 @@ function copy(idx) {
         attachments: []
     }
     template = templates[idx]
-    $("#name").val("Copy of " + template.name)
+    $("#name").val(T("Copy of") + " " + template.name)
     $("#subject").val(template.subject)
     $("#html_editor").val(template.html)
     $("#text_editor").val(template.text)
@@ -236,7 +236,7 @@ function importEmail() {
     raw = $("#email_content").val()
     convert_links = $("#convert_links_checkbox").prop("checked")
     if (!raw) {
-        modalError("No Content Specified!")
+        modalError(T("No Content Specified!"))
     } else {
         $.ajax({
                 method: "POST",
@@ -282,13 +282,13 @@ function load() {
                     templateTable.row.add([
                         escapeHtml(template.name),
                         moment(template.modified_date).format('MMMM Do YYYY, h:mm:ss a'),
-                        "<div class='pull-right'><span data-toggle='modal' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Edit Template' onclick='edit(" + i + ")'>\
+                        "<div class='pull-right'><span data-toggle='modal' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='" + T("Edit Template") + "' onclick='edit(" + i + ")'>\
                     <i class='fa fa-pencil'></i>\
                     </button></span>\
-		    <span data-toggle='modal' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Copy Template' onclick='copy(" + i + ")'>\
+		    <span data-toggle='modal' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='" + T("Copy Template") + "' onclick='copy(" + i + ")'>\
                     <i class='fa fa-copy'></i>\
                     </button></span>\
-                    <button class='btn btn-danger' data-toggle='tooltip' data-placement='left' title='Delete Template' onclick='deleteTemplate(" + i + ")'>\
+                    <button class='btn btn-danger' data-toggle='tooltip' data-placement='left' title='" + T("Delete Template") + "' onclick='deleteTemplate(" + i + ")'>\
                     <i class='fa fa-trash-o'></i>\
                     </button></div>"
                     ]).draw()
@@ -300,7 +300,7 @@ function load() {
         })
         .error(function() {
             $("#loading").hide()
-            errorFlash("Error fetching templates")
+            errorFlash(T("Error fetching templates"))
         })
 }
 

@@ -3,7 +3,7 @@ var doPoll = true;
 
 // statuses is a helper map to point result statuses to ui classes
 var statuses = {
-    "Email Sent": {
+    "Email Sent"): {
         slice: "ct-slice-donut-sent",
         legend: "ct-legend-sent",
         label: "label-success",
@@ -84,12 +84,12 @@ function dismiss() {
 // Deletes a campaign after prompting the user
 function deleteCampaign() {
     swal({
-        title: "Are you sure?",
-        text: "This will delete the campaign. This can't be undone!",
+        title: T("Are you sure?"),
+        text: T("This will delete the campaign. This can't be undone!"),
         type: "warning",
         animation: false,
         showCancelButton: true,
-        confirmButtonText: "Delete Campaign",
+        confirmButtonText: T("Delete Campaign"),
         confirmButtonColor: "#428bca",
         reverseButtons: true,
         allowOutsideClick: false,
@@ -106,8 +106,8 @@ function deleteCampaign() {
         }
     }).then(function() {
         swal(
-            'Campaign Deleted!',
-            'This campaign has been deleted!',
+            T('Campaign Deleted!'),
+            T('This campaign has been deleted!'),
             'success'
         );
         $('button:contains("OK")').on('click', function() {
@@ -119,12 +119,12 @@ function deleteCampaign() {
 // Completes a campaign after prompting the user
 function completeCampaign() {
     swal({
-        title: "Are you sure?",
-        text: "Gophish will stop processing events for this campaign",
+        title: T("Are you sure?"),
+        text: T("Gophish will stop processing events for this campaign"),
         type: "warning",
         animation: false,
         showCancelButton: true,
-        confirmButtonText: "Complete Campaign",
+        confirmButtonText: T("Complete Campaign"),
         confirmButtonColor: "#428bca",
         reverseButtons: true,
         allowOutsideClick: false,
@@ -141,12 +141,12 @@ function completeCampaign() {
         }
     }).then(function() {
         swal(
-            'Campaign Completed!',
-            'This campaign has been completed!',
+            T('Campaign Completed!'),
+            T('This campaign has been completed!'),
             'success'
         );
         $('#complete_button')[0].disabled = true;
-        $('#complete_button').text('Completed!')
+        $('#complete_button').text(T('Completed!'))
         doPoll = false;
     })
 }
@@ -209,17 +209,17 @@ function replay(event_idx) {
         /* Ensure we know where to send the user */
         // Prompt for the URL
     swal({
-        title: 'Where do you want the credentials submitted to?',
+        title: T('Where do you want the credentials submitted to?'),
         input: 'text',
         showCancelButton: true,
-        inputPlaceholder: "http://example.com/login",
+        inputPlaceholder: T("http://example.com/login"),
         inputValue: url || "",
         inputValidator: function(value) {
             return new Promise(function(resolve, reject) {
                 if (value) {
                     resolve();
                 } else {
-                    reject('Invalid URL.');
+                    reject(T('Invalid URL.'));
                 }
             });
         }
@@ -246,8 +246,8 @@ function renderTimeline(data) {
         "position": data[5]
     }
     results = '<div class="timeline col-sm-12 well well-lg">' +
-        '<h6>Timeline for ' + escapeHtml(record.first_name) + ' ' + escapeHtml(record.last_name) +
-        '</h6><span class="subtitle">Email: ' + escapeHtml(record.email) + '</span>' +
+        '<h6>'+ T('Timeline for') + ' + escapeHtml(record.first_name) + ' ' + escapeHtml(record.last_name) +
+        '</h6><span class="subtitle">' + T('Email') + ': ' + escapeHtml(record.email) + '</span>' +
         '<div class="timeline-graph col-sm-6">'
     $.each(campaign.timeline, function(i, event) {
         if (!event.email || event.email == record.email) {
@@ -257,19 +257,19 @@ function renderTimeline(data) {
             results +=
                 '    <div class="timeline-icon ' + statuses[event.message].label + '">' +
                 '    <i class="fa ' + statuses[event.message].icon + '"></i></div>' +
-                '    <div class="timeline-message">' + escapeHtml(event.message) +
+                '    <div class="timeline-message">' + T(escapeHtml(event.message)) +
                 '    <span class="timeline-date">' + moment(event.time).format('MMMM Do YYYY h:mm a') + '</span>'
             if (event.details) {
                 if (event.message == "Submitted Data") {
                     results += '<div class="timeline-replay-button"><button onclick="replay(' + i + ')" class="btn btn-success">'
-                    results += '<i class="fa fa-refresh"></i> Replay Credentials</button></div>'
-                    results += '<div class="timeline-event-details"><i class="fa fa-caret-right"></i> View Details</div>'
+                    results += '<i class="fa fa-refresh"></i> '+ T('Replay Credentials') + '</button></div>'
+                    results += '<div class="timeline-event-details"><i class="fa fa-caret-right"></i>' + T('View Details') + '</div>'
                 }
                 details = JSON.parse(event.details)
                 if (details.payload) {
                     results += '<div class="timeline-event-results">'
                     results += '    <table class="table table-condensed table-bordered table-striped">'
-                    results += '        <thead><tr><th>Parameter</th><th>Value(s)</tr></thead><tbody>'
+                    results += '        <thead><tr><th>' + T('Parameter') + '</th><th>' + T('Value(s)') + '</tr></thead><tbody>'
                     $.each(Object.keys(details.payload), function(i, param) {
                         if (param == "rid") {
                             return true;
@@ -283,9 +283,9 @@ function renderTimeline(data) {
                     results += '</div>'
                 }
                 if (details.error) {
-                    results += '<div class="timeline-event-details"><i class="fa fa-caret-right"></i> View Details</div>'
+                    results += '<div class="timeline-event-details"><i class="fa fa-caret-right"></i> '+ T('View Details') + '</div>'
                     results += '<div class="timeline-event-results">'
-                    results += '<span class="label label-default">Error</span> ' + details.error
+                    results += '<span class="label label-default">'+ T('Error') + '</span> ' + details.error
                     results += '</div>'
                 }
             }
@@ -312,7 +312,7 @@ function poll() {
                 /* Update the timeline */
             var timeline_data = {
                 series: [{
-                    name: "Events",
+                    name: T("Events"),
                     data: []
                 }]
             }
@@ -345,7 +345,7 @@ function poll() {
                     meta: status,
                     value: count
                 })
-                $("#email_chart_legend").append('<li><span class="' + statuses[status].legend + '"></span>' + status + '</li>')
+                $("#email_chart_legend").append('<li><span class="' + statuses[status].legend + '"></span>' + T(status) + '</li>')
             })
             var email_chart = $("#email_chart")
             if (email_chart.get(0).__chartist__) {
@@ -364,7 +364,7 @@ function poll() {
                     $.each(campaign.results, function(j, result) {
                         if (result.id == rid) {
                             var label = statuses[result.status].label || "label-default";
-                            rowData[6] = "<span class=\"label " + label + "\">" + result.status + "</span>"
+                            rowData[6] = "<span class=\"label " + label + "\">" + T(result.status) + "</span>"
                             resultsTable.row(i).data(rowData).draw(false)
                             if (row.child.isShown()) {
                                 row.child(renderTimeline(row.data()))
@@ -412,7 +412,7 @@ function load() {
                 $("#loading").hide()
                 $("#campaignResults").show()
                     // Set the title
-                $("#page-title").text("Results for " + c.name)
+                $("#page-title").text(T("Results for") + " " + c.name)
                 if (c.status == "Completed") {
                     $('#complete_button')[0].disabled = true;
                     $('#complete_button').text('Completed!');
@@ -437,7 +437,7 @@ function load() {
                     // Setup our graphs
                 var timeline_data = {
                     series: [{
-                        name: "Events",
+                        name: T("Events"),
                         data: []
                     }]
                 }
@@ -497,7 +497,7 @@ function load() {
                             escapeHtml(result.last_name) || "",
                             escapeHtml(result.email) || "",
                             escapeHtml(result.position) || "",
-                            "<span class=\"label " + label + "\">" + result.status + "</span>"
+                            "<span class=\"label " + label + "\">" + T(result.status) + "</span>"
                         ]).draw()
                         if (!email_series_data[result.status]) {
                             email_series_data[result.status] = 1
@@ -539,7 +539,7 @@ function load() {
                         meta: status,
                         value: count
                     })
-                    $("#email_chart_legend").append('<li><span class="' + statuses[status].legend + '"></span>' + status + '</li>')
+                    $("#email_chart_legend").append('<li><span class="' + statuses[status].legend + '"></span>' + T(status) + '</li>')
                 })
                 var timeline_chart = new Chartist.Line('#timeline_chart', timeline_data, timeline_opts)
                 timeline_chart.on('draw', function(data) {
@@ -567,7 +567,7 @@ function load() {
                     cidx = $point.attr('meta')
                     html = "Event: " + campaign.timeline[cidx].message
                     if (campaign.timeline[cidx].email) {
-                        html += '<br>' + "Email: " + escapeHtml(campaign.timeline[cidx].email)
+                        html += '<br>' + T("Email:") + " " + escapeHtml(campaign.timeline[cidx].email)
                     }
                     $toolTip.html(html).show()
                 });
@@ -671,7 +671,7 @@ function load() {
         })
         .error(function() {
             $("#loading").hide()
-            errorFlash(" Campaign not found!")
+            errorFlash(T("Campaign not found!"))
         })
 }
 $(document).ready(function() {

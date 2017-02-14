@@ -3,24 +3,24 @@
     <div class="row">
         <div class="col-sm-3 col-md-2 sidebar">
             <ul class="nav nav-sidebar">
-                <li><a href="/">Dashboard</a>
+                <li><a href="/">{{T "Dashboard"}}</a>
                 </li>
-                <li class="active"><a href="/campaigns">Campaigns</a>
+                <li class="active"><a href="/campaigns">{{T "Campaigns"}}</a>
                 </li>
-                <li><a href="/users">Users &amp; Groups</a>
+                <li><a href="/users">{{T "Users & Groups"}}</a>
                 </li>
-                <li><a href="/templates">Email Templates</a>
+                <li><a href="/templates">{{T "Email Templates"}}</a>
                 </li>
-                <li><a href="/landing_pages">Landing Pages</a>
+                <li><a href="/landing_pages">{{T "Landing Pages"}}</a>
                 </li>
-                <li><a href="/sending_profiles">Sending Profiles</a>
+                <li><a href="/sending_profiles">{{T "Sending Profiles"}}</a>
                 </li>
-                <li><a href="/settings">Settings</a>
+                <li><a href="/settings">{{T "Settings"}}</a>
                 </li>
                 <li><hr></li>
-                <li><a href="https://gophish.gitbooks.io/user-guide/content/">User Guide</a>
+                <li><a href="https://gophish.gitbooks.io/user-guide/content/">{{T "User Guide"}}</a>
                 </li>
-                <li><a href="/api/">API Documentation</a>
+                <li><a href="/api/">{{T "API Documentation"}}</a>
                 </li>
             </ul>
         </div>
@@ -32,36 +32,36 @@
     </div>
     <div style="display:none;" id="campaignResults">
         <div class="row">
-            <h1 class="page-header" id="page-title">Results for campaign.name</h1>
+            <h1 class="page-header" id="page-title">{{T "Results for"}} campaign.name</h1>
         </div>
         <div class="row">
             <a href="/campaigns" class="btn btn-default">
-                <i class="fa fa-arrow-circle-o-left fa-lg"></i> Back
+                <i class="fa fa-arrow-circle-o-left fa-lg"></i> {{T "Back"}}
             </a>
 	    <div class="btn-group">
             <button type="button" id="exportButton" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-		    <i class="fa fa-file-excel-o"></i> Export CSV
+		    <i class="fa fa-file-excel-o"></i> {{T "Export CSV"}}
 		    <i class="fa fa-caret-down"></i>
             </button>
 	    <ul class="dropdown-menu" aria-labelledby="exportButton">
-		    <li><a href="#" onclick="exportAsCSV('results')">Results</a></li>
-		    <li><a href="#" onclick="exportAsCSV('events')">Raw Events</a></li>
+		    <li><a href="#" onclick="exportAsCSV('results')">{{T "Results"}}</a></li>
+		    <li><a href="#" onclick="exportAsCSV('events')">{{T "Raw Events"}}</a></li>
 	    </ul>
     	    </div>
             <button id="complete_button" type="button" class="btn btn-blue" data-toggle="tooltip" onclick="completeCampaign()">
-                <i class="fa fa-flag-checkered"></i> Complete
+                <i class="fa fa-flag-checkered"></i> {{T "Complete"}}
             </button>
             <button type="button" class="btn btn-danger" data-toggle="tooltip" onclick="deleteCampaign()">
-                <i class="fa fa-trash-o fa-lg"></i> Delete
+                <i class="fa fa-trash-o fa-lg"></i> {{T "Delete"}}
             </button>
 	    <span id="refresh_message">
-		    <i class="fa fa-spin fa-spinner"></i> Refreshing
+		    <i class="fa fa-spin fa-spinner"></i> {{T "Refreshing"}}
             </span>
         </div>
         <br />
         <div class="row">
             <ul class="nav nav-tabs" role="tablist">
-                <li class="active"><a href="#overview" aria-controls="home" role="tab" data-toggle="tab">Overview</a></li>
+                <li class="active"><a href="#overview" aria-controls="home" role="tab" data-toggle="tab">{{T "Overview"}}</a></li>
                 <!--<li><a href="#plugins" aria-controls="profile" role="tab" data-toggle="tab">Plugins</a></li>
 		<li><a href="#demographics" aria-controls="settings" role="tab" data-toggle="tab">Demographics</a></li>-->
             </ul>
@@ -70,12 +70,12 @@
                     <br/>
                     <div class="row">
                         <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
-                            <p style="text-align:center;">Campaign Timeline</p>
+                            <p style="text-align:center;">{{T "Campaign Timeline"}}</p>
                             <br/>
                             <div id="timeline_chart"></div>
                         </div>
                         <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
-                            <p style="text-align:center;">Email Status</p>
+                            <p style="text-align:center;">{{T "Email Status"}}</p>
                             <div id="email_chart" class="col-lg-7 col-md-7"></div>
                             <div class="col-lg-5 col-md-5">
                                 <ul id="email_chart_legend" class="chartist-legend">
@@ -85,7 +85,7 @@
                     </div>
 		    <div class="row">
                         <div class="col-md-6">
-                            <p style="text-align:center;">Targets Map</p>
+                            <p style="text-align:center;">{{T "Targets Map"}}</p>
                             <div id="resultsMap"></div>
                         </div>
 		    </div>
@@ -99,17 +99,17 @@
             </div>
         </div>
         <div class="row">
-            <h2>Details</h2>
+            <h2>{{T "Details"}}</h2>
             <table id="resultsTable" class="table">
                 <thead>
                     <tr>
-			            <th>Result ID</th>
+			            <th>{{T "Result ID"}}</th>
                         <th class="no-sort"></th>
-                        <th>First Name</th>
-                        <th>Last Name</th>
-                        <th>Email</th>
-                        <th>Position</th>
-                        <th>Status</th>
+                        <th>{{T "First Name"}}</th>
+                        <th>{{T "Last Name"}}</th>
+                        <th>{{T "Email"}}</th>
+                        <th>{{T "Position"}}</th>
+                        <th>{{T "Status"}}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -121,5 +121,43 @@
 </div>
 {{end}}
 {{define "scripts"}}
+<script>
+        localizedDatas = {
+                "Email Sent": "{{T "Email Sent"}}",
+                "Email Opened": "{{T "Email Opened"}}",
+                "Clicked Link": "{{T "Clicked Link"}}",
+                "Success": "{{T "Success"}}",
+                "Error": "{{T "Error"}}",
+                "Error Sending Email": "{{T "Error Sending Email"}}",
+                "Submitted Data": "{{T "Submitted Data"}}",
+                "Unknown": "{{T "Unknown"}}",
+                "Sending": "{{T "Sending"}}",
+                "Campaign Created": "{{T "Campaign Created"}}",
+                "Are you sure?": "{{T "Are you sure?"}}",
+                "This will delete the campaign. This can't be undone!": "{{T "This will delete the campaign. This can't be undone!"}}",
+                "Delete Campaign": "{{T "Delete Campaign"}}",
+                "Campaign Deleted!": "{{T "Campaign Deleted!"}}",
+                "This campaign has been deleted!": "{{T "This campaign has been deleted!"}}",
+                "Gophish will stop processing events for this campaign": "{{T "Gophish will stop processing events for this campaign"}}",
+                "Complete Campaign": "{{T "Complete Campaign"}}",
+                "Campaign Completed!": "{{T "This campaign has been completed!"}}",
+                "Completed!": "{{T "Completed!"}}",
+                "Where do you want the credentials submitted to?": "{{T "Where do you want the credentials submitted to?"}}",
+                "http://example.com/login": "{{T "http://example.com/login"}}",
+                "Invalid URL.": "{{T "Invalid URL."}}",
+                "Timeline for": "{{T "Timeline for"}}",
+                "Email": "{{T "Email"}}",
+                "Replay Credentials": "{{T "Replay Credentials"}}",
+                "View Details": "{{T "View Details"}}",
+                "Parameter": "{{T "Parameter"}}",
+                "Value(s)": "{{T "Value(s)"}}",
+                "View Details": "{{T "View Details"}}",
+                "Error": "{{T "Error"}}",
+                "Completed!": "{{T "Completed!"}}",
+                "Events": "{{T "Events"}}",
+                "Email:": "{{T "Email:"}}",
+                "Campaign not found!": "{{T "Campaign not found!"}}",
+}
+</script>
 <script src="/js/dist/app/campaign_results.min.js"></script>
 {{end}}

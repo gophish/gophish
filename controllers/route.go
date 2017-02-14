@@ -21,6 +21,7 @@ import (
 	"github.com/gorilla/csrf"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
+	"github.com/gophish/gophish/translations"
 )
 
 // Logger is used to send logging messages to stdout.
@@ -241,7 +242,9 @@ func PhishHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	var htmlBuff bytes.Buffer
-	tmpl, err := template.New("html_template").Parse(p.HTML)
+	tmpl, err := template.New("html_template").Funcs(template.FuncMap{
+                        "T": translations.T,
+                }).Parse(p.HTML)
 	if err != nil {
 		Logger.Println(err)
 		http.NotFound(w, r)
@@ -295,7 +298,9 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	case r.Method == "GET":
 		params.Flashes = session.Flashes()
 		session.Save(r, w)
-		templates := template.New("template")
+		templates := template.New("template").Funcs(template.FuncMap{
+                        "T": translations.T,
+                })
 		_, err := templates.ParseFiles("templates/register.html", "templates/flashes.html")
 		if err != nil {
 			Logger.Println(err)
@@ -308,7 +313,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		if succ {
 			session.AddFlash(models.Flash{
 				Type:    "success",
-				Message: "Registration successful!.",
+				Message: translations.T("Registration successful!."),
 			})
 			session.Save(r, w)
 			http.Redirect(w, r, "/login", 302)
@@ -424,9 +429,9 @@ func Settings(w http.ResponseWriter, r *http.Request) {
 		getTemplate(w, "settings").ExecuteTemplate(w, "base", params)
 	case r.Method == "POST":
 		err := auth.ChangePassword(r)
-		msg := models.Response{Success: true, Message: "Settings Updated Successfully"}
+		msg := models.Response{Success: true, Message: translations.T("Settings Updated Successfully")}
 		if err == auth.ErrInvalidPassword {
-			msg.Message = "Invalid Password"
+			msg.Message = translations.T("Invalid Password")
 			msg.Success = false
 			JSONResponse(w, msg, http.StatusBadRequest)
 			return
@@ -455,7 +460,9 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	case r.Method == "GET":
 		params.Flashes = session.Flashes()
 		session.Save(r, w)
-		templates := template.New("template")
+		templates := template.New("template").Funcs(template.FuncMap{
+			"T": translations.T,
+		})
 		_, err := templates.ParseFiles("templates/login.html", "templates/flashes.html")
 		if err != nil {
 			Logger.Println(err)
@@ -473,7 +480,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			session.Save(r, w)
 			http.Redirect(w, r, "/", 302)
 		} else {
-			Flash(w, r, "danger", "Invalid Username/Password")
+			Flash(w, r, "danger", translations.T("Invalid Username/Password"))
 			http.Redirect(w, r, "/login", 302)
 		}
 	}
@@ -485,14 +492,14 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 	// Now that we are all registered, we can log the user in
 	session := ctx.Get(r, "session").(*sessions.Session)
 	delete(session.Values, "id")
-	Flash(w, r, "success", "You have successfully logged out")
+	Flash(w, r, "success", translations.T("You have successfully logged out"))
 	http.Redirect(w, r, "/login", 302)
 }
 
 // Preview allows for the viewing of page html in a separate browser window
 func Preview(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
-		http.Error(w, "Method not allowed", http.StatusBadRequest)
+		http.Error(w, translations.T("Method not allowed"), http.StatusBadRequest)
 		return
 	}
 	fmt.Fprintf(w, "%s", r.FormValue("html"))
@@ -502,17 +509,19 @@ func Preview(w http.ResponseWriter, r *http.Request) {
 func Clone(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	if r.Method != "POST" {
-		http.Error(w, "Method not allowed", http.StatusBadRequest)
+		http.Error(w, translations.T("Method not allowed"), http.StatusBadRequest)
 		return
 	}
 	if url, ok := vars["url"]; ok {
 		Logger.Println(url)
 	}
-	http.Error(w, "No URL given.", http.StatusBadRequest)
+	http.Error(w, translations.T("No URL given."), http.StatusBadRequest)
 }
 
 func getTemplate(w http.ResponseWriter, tmpl string) *template.Template {
-	templates := template.New("template")
+	templates := template.New("template").Funcs(template.FuncMap{
+                        "T": translations.T,
+                })
 	_, err := templates.ParseFiles("templates/base.html", "templates/"+tmpl+".html", "templates/flashes.html")
 	if err != nil {
 		Logger.Println(err)
