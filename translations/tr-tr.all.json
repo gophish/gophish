@@ -1058,5 +1058,13 @@
 	{
 		"id": "Template not found",
 		"translation": "Tema bulunamadı"
+	},
+	{
+		"id": "Invalid Password",
+		"translation": "Hatalı Şifre"
+	},
+	{
+		"id": "Registration successful!.",
+		"translation": "Kayıt başarıyla tamamlandı!"
 	}
 ]

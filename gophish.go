@@ -40,7 +40,6 @@ import (
 	"github.com/gophish/gophish/models"
 	"./util"
 	"github.com/gorilla/handlers"
-//        "github.com/nicksnyder/go-i18n/i18n"
 )
 
 var Logger = log.New(os.Stdout, " ", log.Ldate|log.Ltime|log.Lshortfile)
