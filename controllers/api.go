@@ -20,7 +20,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	"github.com/jordan-wright/email"
-        "../util"
+        "github.com/gophish/gophish/util"
 )
 
 // Worker is the worker that processes phishing events and updates campaigns.

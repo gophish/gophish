@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
-	"../util"
+	"github.com/gophish/gophish/util"
 )
 
 // Group contains the fields needed for a user -> group mapping

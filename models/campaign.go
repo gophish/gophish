@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
-        "../util"
+        "github.com/gophish/gophish/util"
 )
 
 // Campaign is a struct representing a created campaign

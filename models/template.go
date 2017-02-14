@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
-	"../util"
+	"github.com/gophish/gophish/util"
 )
 
 // Template models hold the attributes for an email template to be sent to targets

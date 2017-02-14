@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
-	"../util"
+	"github.com/gophish/gophish/util"
 )
 
 // Page contains the fields used for a Page model

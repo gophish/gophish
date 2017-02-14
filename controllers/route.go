@@ -21,7 +21,7 @@ import (
 	"github.com/gorilla/csrf"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
-	"../util"
+	"github.com/gophish/gophish/util"
 )
 
 // Logger is used to send logging messages to stdout.

@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"../util"
+	"github.com/gophish/gophish/util"
 )
 
 // SMTP contains the attributes needed to handle the sending of campaign emails
