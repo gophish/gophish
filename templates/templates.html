@@ -117,6 +117,30 @@
                 <tbody>
                 </tbody>
             </table>
+	    <hr>
+	    <label class="control-label" for="custom_headers">Custom Email Headers:</label>
+	    <form id="customHeadersForm">
+	    	<div class="col-md-4">
+			<input type="text" class="form-control" name="custom_header" id="customHeaderKey" placeholder="x-custom-header">
+		</div>
+		<div class="col-md-4">
+			<input type="text" class="form-control" name="custom_value" id="customHeaderValue" placeholder="{{"{{"}}.URL{{"}}"}}-gophish">
+		</div>
+		<div class="col-md-2">
+	    		<button class="btn btn-danger btn-headers" type="submit"><i class="fa fa-plus"></i> Add Custom Header</button>
+		</div>
+	    </form>
+	  <br />
+	  <br />
+          <table id="customHeadersTable" class="table table-hover table-striped table-condensed">
+              <thead>
+                  <tr>
+                      <th>Header</th>
+                      <th>Value</th>
+		      <th class="no-sort"></th>
+              <tbody>
+              </tbody>
+          </table>
         </div>
         <div class="modal-footer">
             <button type="button" data-dismiss="modal" class="btn btn-default" onclick="dismiss()">Cancel</button>
