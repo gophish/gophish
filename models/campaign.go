@@ -172,11 +172,6 @@ func (c *Campaign) getDetails() error {
 		Logger.Println(err)
 		return err
 	}
-	err = db.Where("template_id=?", c.Template.Id).Find(&c.Template.CustomHeaders).Error
-	if err != nil && err != gorm.ErrRecordNotFound {
-		Logger.Println(err)
-		return err
-	}
 	err = db.Table("pages").Where("id=?", c.PageId).Find(&c.Page).Error
 	if err != nil {
 		if err != gorm.ErrRecordNotFound {
@@ -193,6 +188,11 @@ func (c *Campaign) getDetails() error {
 		}
 		c.SMTP = SMTP{Name: "[Deleted]"}
 		Logger.Printf("%s: sending profile not found for campaign\n", err)
+	}
+	err = db.Where("smtp_id=?", c.SMTP.Id).Find(&c.SMTP.Headers).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		Logger.Println(err)
+		return err
 	}
 	return nil
 }

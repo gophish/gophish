@@ -11,15 +11,14 @@ import (
 
 // Template models hold the attributes for an email template to be sent to targets
 type Template struct {
-	Id            int64          `json:"id" gorm:"column:id; primary_key:yes"`
-	UserId        int64          `json:"-" gorm:"column:user_id"`
-	Name          string         `json:"name"`
-	Subject       string         `json:"subject"`
-	Text          string         `json:"text"`
-	HTML          string         `json:"html" gorm:"column:html"`
-	CustomHeaders []CustomHeader `json:"custom_headers"`
-	ModifiedDate  time.Time      `json:"modified_date"`
-	Attachments   []Attachment   `json:"attachments"`
+	Id           int64        `json:"id" gorm:"column:id; primary_key:yes"`
+	UserId       int64        `json:"-" gorm:"column:user_id"`
+	Name         string       `json:"name"`
+	Subject      string       `json:"subject"`
+	Text         string       `json:"text"`
+	HTML         string       `json:"html" gorm:"column:html"`
+	ModifiedDate time.Time    `json:"modified_date"`
+	Attachments  []Attachment `json:"attachments"`
 }
 
 // ErrTemplateNameNotSpecified is thrown when a template name is not specified
@@ -92,15 +91,6 @@ func GetTemplates(uid int64) ([]Template, error) {
 			Logger.Println(err)
 			return ts, err
 		}
-		// Get CustomHeaders
-		err = db.Where("template_id=?", ts[i].Id).Find(&ts[i].CustomHeaders).Error
-		if err == nil && len(ts[i].CustomHeaders) == 0 {
-			ts[i].CustomHeaders = make([]CustomHeader, 0)
-		}
-		if err != nil && err != gorm.ErrRecordNotFound {
-			Logger.Println(err)
-			return ts, err
-		}
 	}
 	return ts, err
 }
@@ -123,17 +113,6 @@ func GetTemplate(id int64, uid int64) (Template, error) {
 	if err == nil && len(t.Attachments) == 0 {
 		t.Attachments = make([]Attachment, 0)
 	}
-
-	// Get CustomHeaders
-	err = db.Where("template_id=?", t.Id).Find(&t.CustomHeaders).Error
-	if err != nil && err != gorm.ErrRecordNotFound {
-		Logger.Println(err)
-		return t, err
-	}
-	if err == nil && len(t.CustomHeaders) == 0 {
-		t.CustomHeaders = make([]CustomHeader, 0)
-	}
-
 	return t, err
 }
 
@@ -155,17 +134,6 @@ func GetTemplateByName(n string, uid int64) (Template, error) {
 	if err == nil && len(t.Attachments) == 0 {
 		t.Attachments = make([]Attachment, 0)
 	}
-
-	// Get CustomHeaders
-	err = db.Where("template_id=?", t.Id).Find(&t.CustomHeaders).Error
-	if err != nil && err != gorm.ErrRecordNotFound {
-		Logger.Println(err)
-		return t, err
-	}
-	if err == nil && len(t.CustomHeaders) == 0 {
-		t.CustomHeaders = make([]CustomHeader, 0)
-	}
-
 	return t, err
 }
 
@@ -186,17 +154,6 @@ func PostTemplate(t *Template) error {
 		Logger.Println(t.Attachments[i].Name)
 		t.Attachments[i].TemplateId = t.Id
 		err := db.Save(&t.Attachments[i]).Error
-		if err != nil {
-			Logger.Println(err)
-			return err
-		}
-	}
-
-	// Save every custom header
-	for i, _ := range t.CustomHeaders {
-		Logger.Println(t.CustomHeaders[i].Key + " : " + t.CustomHeaders[i].Value)
-		t.CustomHeaders[i].TemplateId = t.Id
-		err := db.Save(&t.CustomHeaders[i]).Error
 		if err != nil {
 			Logger.Println(err)
 			return err
@@ -229,24 +186,6 @@ func PutTemplate(t *Template) error {
 		}
 	}
 
-	// Delete all custom headers, and replace with new ones
-	err = db.Where("template_id=?", t.Id).Delete(&CustomHeader{}).Error
-	if err != nil && err != gorm.ErrRecordNotFound {
-		Logger.Println(err)
-		return err
-	}
-	if err == gorm.ErrRecordNotFound {
-		err = nil
-	}
-	for i, _ := range t.CustomHeaders {
-		t.CustomHeaders[i].TemplateId = t.Id
-		err := db.Save(&t.CustomHeaders[i]).Error
-		if err != nil {
-			Logger.Println(err)
-			return err
-		}
-	}
-
 	// Save final template
 	err = db.Where("id=?", t.Id).Save(t).Error
 	if err != nil {
@@ -261,13 +200,6 @@ func PutTemplate(t *Template) error {
 func DeleteTemplate(id int64, uid int64) error {
 	// Delete attachments
 	err := db.Where("template_id=?", id).Delete(&Attachment{}).Error
-	if err != nil {
-		Logger.Println(err)
-		return err
-	}
-
-	// Delete custom headers
-	err = db.Where("template_id=?", id).Delete(&CustomHeader{}).Error
 	if err != nil {
 		Logger.Println(err)
 		return err
