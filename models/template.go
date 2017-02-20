@@ -64,6 +64,7 @@ func (t *Template) Validate() error {
 	if err != nil {
 		return err
 	}
+
 	tmpl, err = template.New("text_template").Parse(t.Text)
 	if err != nil {
 		return err
@@ -81,6 +82,7 @@ func GetTemplates(uid int64) ([]Template, error) {
 		return ts, err
 	}
 	for i, _ := range ts {
+		// Get Attachments
 		err = db.Where("template_id=?", ts[i].Id).Find(&ts[i].Attachments).Error
 		if err == nil && len(ts[i].Attachments) == 0 {
 			ts[i].Attachments = make([]Attachment, 0)
@@ -101,6 +103,8 @@ func GetTemplate(id int64, uid int64) (Template, error) {
 		Logger.Println(err)
 		return t, err
 	}
+
+	// Get Attachments
 	err = db.Where("template_id=?", t.Id).Find(&t.Attachments).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		Logger.Println(err)
@@ -120,6 +124,8 @@ func GetTemplateByName(n string, uid int64) (Template, error) {
 		Logger.Println(err)
 		return t, err
 	}
+
+	// Get Attachments
 	err = db.Where("template_id=?", t.Id).Find(&t.Attachments).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		Logger.Println(err)
@@ -142,6 +148,8 @@ func PostTemplate(t *Template) error {
 		Logger.Println(err)
 		return err
 	}
+
+	// Save every attachment
 	for i, _ := range t.Attachments {
 		Logger.Println(t.Attachments[i].Name)
 		t.Attachments[i].TemplateId = t.Id
@@ -177,6 +185,8 @@ func PutTemplate(t *Template) error {
 			return err
 		}
 	}
+
+	// Save final template
 	err = db.Where("id=?", t.Id).Save(t).Error
 	if err != nil {
 		Logger.Println(err)
@@ -188,11 +198,14 @@ func PutTemplate(t *Template) error {
 // DeleteTemplate deletes an existing template in the database.
 // An error is returned if a template with the given user id and template id is not found.
 func DeleteTemplate(id int64, uid int64) error {
+	// Delete attachments
 	err := db.Where("template_id=?", id).Delete(&Attachment{}).Error
 	if err != nil {
 		Logger.Println(err)
 		return err
 	}
+
+	// Finally, delete the template itself
 	err = db.Where("user_id=?", uid).Delete(Template{Id: id}).Error
 	if err != nil {
 		Logger.Println(err)

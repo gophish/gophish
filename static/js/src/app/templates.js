@@ -42,6 +42,7 @@ function save(idx) {
             type: target[4],
         })
     })
+
     if (idx != -1) {
         template.id = templates[idx].id
         api.templateId.put(template)
@@ -169,6 +170,7 @@ function edit(idx) {
         } else {
             $("#use_tracker_checkbox").prop("checked", false)
         }
+
     }
     // Handle Deletion
     $("#attachmentsTable").unbind('click').on("click", "span>i.fa-trash-o", function() {
@@ -346,4 +348,5 @@ $(document).ready(function() {
         dismiss()
     });
     load()
+
 })

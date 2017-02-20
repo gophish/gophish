@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/jinzhu/gorm"
 )
 
 // SMTP contains the attributes needed to handle the sending of campaign emails
@@ -19,7 +21,17 @@ type SMTP struct {
 	Password         string    `json:"password,omitempty"`
 	FromAddress      string    `json:"from_address"`
 	IgnoreCertErrors bool      `json:"ignore_cert_errors"`
+	Headers          []Header  `json:"headers"`
 	ModifiedDate     time.Time `json:"modified_date"`
+}
+
+// Header contains the fields and methods for a sending profile to have
+// custom headers
+type Header struct {
+	Id     int64  `json:"-"`
+	SMTPId int64  `json:"-"`
+	Key    string `json:"key"`
+	Value  string `json:"value"`
 }
 
 // ErrFromAddressNotSpecified is thrown when there is no "From" address
@@ -70,8 +82,16 @@ func GetSMTPs(uid int64) ([]SMTP, error) {
 	err := db.Where("user_id=?", uid).Find(&ss).Error
 	if err != nil {
 		Logger.Println(err)
+		return ss, err
 	}
-	return ss, err
+	for i, _ := range ss {
+		err = db.Where("smtp_id=?", ss[i].Id).Find(&ss[i].Headers).Error
+		if err != nil && err != gorm.ErrRecordNotFound {
+			Logger.Println(err)
+			return ss, err
+		}
+	}
+	return ss, nil
 }
 
 // GetSMTP returns the SMTP, if it exists, specified by the given id and user_id.
@@ -81,6 +101,11 @@ func GetSMTP(id int64, uid int64) (SMTP, error) {
 	if err != nil {
 		Logger.Println(err)
 	}
+	err = db.Where("smtp_id=?", s.Id).Find(&s.Headers).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		Logger.Println(err)
+		return s, err
+	}
 	return s, err
 }
 
@@ -89,6 +114,11 @@ func GetSMTPByName(n string, uid int64) (SMTP, error) {
 	s := SMTP{}
 	err := db.Where("user_id=? and name=?", uid, n).Find(&s).Error
 	if err != nil {
+		Logger.Println(err)
+		return s, err
+	}
+	err = db.Where("smtp_id=?", s.Id).Find(&s.Headers).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
 		Logger.Println(err)
 	}
 	return s, err
@@ -106,6 +136,15 @@ func PostSMTP(s *SMTP) error {
 	if err != nil {
 		Logger.Println(err)
 	}
+	// Save custom headers
+	for i, _ := range s.Headers {
+		s.Headers[i].SMTPId = s.Id
+		err := db.Save(&s.Headers[i]).Error
+		if err != nil {
+			Logger.Println(err)
+			return err
+		}
+	}
 	return err
 }
 
@@ -121,12 +160,32 @@ func PutSMTP(s *SMTP) error {
 	if err != nil {
 		Logger.Println(err)
 	}
+	// Delete all custom headers, and replace with new ones
+	err = db.Where("smtp_id=?", s.Id).Delete(&Header{}).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		Logger.Println(err)
+		return err
+	}
+	for i, _ := range s.Headers {
+		s.Headers[i].SMTPId = s.Id
+		err := db.Save(&s.Headers[i]).Error
+		if err != nil {
+			Logger.Println(err)
+			return err
+		}
+	}
 	return err
 }
 
 // DeleteSMTP deletes an existing SMTP in the database.
 // An error is returned if a SMTP with the given user id and SMTP id is not found.
 func DeleteSMTP(id int64, uid int64) error {
+	// Delete all custom headers
+	err = db.Where("smtp_id=?", id).Delete(&Header{}).Error
+	if err != nil {
+		Logger.Println(err)
+		return err
+	}
 	err = db.Where("user_id=?", uid).Delete(SMTP{Id: id}).Error
 	if err != nil {
 		Logger.Println(err)

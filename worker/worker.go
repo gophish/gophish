@@ -127,7 +127,36 @@ func processCampaign(c *models.Campaign) {
 			"<img alt='' style='display: none' src='" + c.URL + "/track?rid=" + t.RId + "'/>",
 			fn,
 		}
-		// Parse the templates
+
+		// Parse the customHeader templates
+		for _, header := range c.SMTP.Headers {
+			parsedHeader := struct {
+				Key   bytes.Buffer
+				Value bytes.Buffer
+			}{}
+			keytmpl, err := template.New("text_template").Parse(header.Key)
+			if err != nil {
+				Logger.Println(err)
+			}
+			err = keytmpl.Execute(&parsedHeader.Key, td)
+			if err != nil {
+				Logger.Println(err)
+			}
+
+			valtmpl, err := template.New("text_template").Parse(header.Value)
+			if err != nil {
+				Logger.Println(err)
+			}
+			err = valtmpl.Execute(&parsedHeader.Value, td)
+			if err != nil {
+				Logger.Println(err)
+			}
+
+			// Add our header immediately
+			e.SetHeader(parsedHeader.Key.String(), parsedHeader.Value.String())
+		}
+
+		// Parse remaining templates
 		var subjBuff bytes.Buffer
 		tmpl, err := template.New("text_template").Parse(c.Template.Subject)
 		if err != nil {
@@ -243,10 +272,37 @@ func SendTestEmail(s *models.SendTestEmailRequest) error {
 		Logger.Println(err)
 		return err
 	}
+	Logger.Println("Creating email using template")
 	e := gomail.NewMessage()
+	// Parse the customHeader templates
+	for _, header := range s.SMTP.Headers {
+		parsedHeader := struct {
+			Key   bytes.Buffer
+			Value bytes.Buffer
+		}{}
+		keytmpl, err := template.New("text_template").Parse(header.Key)
+		if err != nil {
+			Logger.Println(err)
+		}
+		err = keytmpl.Execute(&parsedHeader.Key, s)
+		if err != nil {
+			Logger.Println(err)
+		}
+
+		valtmpl, err := template.New("text_template").Parse(header.Value)
+		if err != nil {
+			Logger.Println(err)
+		}
+		err = valtmpl.Execute(&parsedHeader.Value, s)
+		if err != nil {
+			Logger.Println(err)
+		}
+
+		// Add our header immediately
+		e.SetHeader(parsedHeader.Key.String(), parsedHeader.Value.String())
+	}
 	e.SetHeader("From", s.SMTP.FromAddress)
 	e.SetHeader("To", s.Email)
-	Logger.Println("Creating email using template")
 	// Parse the templates
 	var subjBuff bytes.Buffer
 	tmpl, err := template.New("text_template").Parse(s.Template.Subject)

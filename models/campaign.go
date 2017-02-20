@@ -189,6 +189,11 @@ func (c *Campaign) getDetails() error {
 		c.SMTP = SMTP{Name: "[Deleted]"}
 		Logger.Printf("%s: sending profile not found for campaign\n", err)
 	}
+	err = db.Where("smtp_id=?", c.SMTP.Id).Find(&c.SMTP.Headers).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		Logger.Println(err)
+		return err
+	}
 	return nil
 }
 

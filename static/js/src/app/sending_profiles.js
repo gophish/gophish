@@ -2,6 +2,13 @@ var profiles = []
 
 // Attempts to send a test email by POSTing to /campaigns/
 function sendTestEmail() {
+    var headers = [];
+    $.each($("#headersTable").DataTable().rows().data(), function(i, header) {
+        headers.push({
+            key: unescapeHtml(header[0]),
+            value: unescapeHtml(header[1]),
+        })
+    })
     var test_email_request = {
         template: {},
         first_name: $("input[name=to_first_name]").val(),
@@ -14,7 +21,8 @@ function sendTestEmail() {
             host: $("#host").val(),
             username: $("#username").val(),
             password: $("#password").val(),
-            ignore_cert_errors: $("#ignore_cert_errors").prop("checked")
+            ignore_cert_errors: $("#ignore_cert_errors").prop("checked"),
+            headers: headers,
         }
     }
     btnHtml = $("#sendTestModalSubmit").html()
@@ -35,7 +43,15 @@ function sendTestEmail() {
 
 // Save attempts to POST to /smtp/
 function save(idx) {
-    var profile = {}
+    var profile = {
+        headers: []
+    }
+    $.each($("#headersTable").DataTable().rows().data(), function(i, header) {
+        profile.headers.push({
+            key: unescapeHtml(header[0]),
+            value: unescapeHtml(header[1]),
+        })
+    })
     profile.name = $("#name").val()
     profile.interface_type = $("#interface_type").val()
     profile.from_address = $("#from").val()
@@ -77,6 +93,7 @@ function dismiss() {
     $("#username").val("")
     $("#password").val("")
     $("#ignore_cert_errors").prop("checked", true)
+    $("#headersTable").dataTable().DataTable().clear().draw()
     $("#modal").modal('hide')
 }
 
@@ -91,6 +108,14 @@ function deleteProfile(idx) {
 }
 
 function edit(idx) {
+    headers = $("#headersTable").dataTable({
+        destroy: true, // Destroy any other instantiated table - http://datatables.net/manual/tech-notes/3#destroy
+        columnDefs: [{
+            orderable: false,
+            targets: "no-sort"
+        }]
+    })
+
     $("#modalSubmit").unbind('click').click(function() {
         save(idx)
     })
@@ -104,6 +129,9 @@ function edit(idx) {
         $("#username").val(profile.username)
         $("#password").val(profile.password)
         $("#ignore_cert_errors").prop("checked", profile.ignore_cert_errors)
+        $.each(profile.headers, function(i, record) {
+            addCustomHeader(record.key, record.value)
+        });
     }
 }
 
@@ -167,6 +195,34 @@ function load() {
         })
 }
 
+function addCustomHeader(header, value) {
+    // Create new data row.
+    var newRow = [
+        escapeHtml(header),
+        escapeHtml(value),
+        '<span style="cursor:pointer;"><i class="fa fa-trash-o"></i></span>'
+    ];
+
+    // Check table to see if header already exists.
+    var headersTable = headers.DataTable();
+    var existingRowIndex = headersTable
+        .column(0) // Email column has index of 2
+        .data()
+        .indexOf(escapeHtml(header));
+
+    // Update or add new row as necessary.
+    if (existingRowIndex >= 0) {
+        headersTable
+            .row(existingRowIndex, {
+                order: "index"
+            })
+            .data(newRow);
+    } else {
+        headersTable.row.add(newRow);
+    }
+    headersTable.draw();
+}
+
 $(document).ready(function() {
     // Setup multiple modals
     // Code based on http://miles-by-motorcycle.com/static/bootstrap-modal/index.html
@@ -207,6 +263,27 @@ $(document).ready(function() {
     };
     $('#modal').on('hidden.bs.modal', function(event) {
         dismiss()
+    });
+    // Code to deal with custom email headers
+    $("#headersForm").on('submit', function() {
+        headerKey = $("#headerKey").val();
+        headerValue = $("#headerValue").val();
+
+        if (headerKey == "" || headerValue == "") {
+            return false;
+        }
+        addCustomHeader(headerKey, headerValue);
+        // Reset user input.
+        $("#headersForm>div>input").val('');
+        $("#headerKey").focus();
+        return false;
+    });
+    // Handle Deletion
+    $("#headersTable").on("click", "span>i.fa-trash-o", function() {
+        headers.DataTable()
+            .row($(this).parents('tr'))
+            .remove()
+            .draw();
     });
     load()
 })
