@@ -138,7 +138,6 @@ func PostSMTP(s *SMTP) error {
 	}
 	// Save custom headers
 	for i, _ := range s.Headers {
-		Logger.Println(s.Headers[i].Key + " : " + s.Headers[i].Value)
 		s.Headers[i].SMTPId = s.Id
 		err := db.Save(&s.Headers[i]).Error
 		if err != nil {
