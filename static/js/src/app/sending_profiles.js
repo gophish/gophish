@@ -47,7 +47,6 @@ function save(idx) {
         headers: []
     }
     $.each($("#headersTable").DataTable().rows().data(), function(i, header) {
-        console.log(header);
         profile.headers.push({
             key: unescapeHtml(header[0]),
             value: unescapeHtml(header[1]),

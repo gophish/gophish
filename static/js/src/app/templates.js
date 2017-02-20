@@ -71,7 +71,6 @@ function save(idx) {
 function dismiss() {
     $("#modal\\.flashes").empty()
     $("#attachmentsTable").dataTable().DataTable().clear().draw()
-    $("#customHeadersTable").dataTable().DataTable().clear().draw()
     $("#name").val("")
     $("#subject").val("")
     $("#text_editor").val("")
