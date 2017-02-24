@@ -145,7 +145,7 @@ func PhishTracker(w http.ResponseWriter, r *http.Request) {
 	c.AddEvent(models.Event{Email: rs.Email, Message: models.EVENT_OPENED, Details: string(rj)})
 	// Don't update the status if the user already clicked the link
 	// or submitted data to the campaign
-	if rs.Status == models.STATUS_SUCCESS {
+	if rs.Status == models.EVENT_CLICKED || rs.Status == models.EVENT_DATA_SUBMIT {
 		http.ServeFile(w, r, "static/images/pixel.png")
 		return
 	}
