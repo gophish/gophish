@@ -78,7 +78,7 @@ $(document).ready(function() {
                         ]).draw()
                         // Add it to the chart data
                     campaign.y = 0
-                    campaign.y += campaign.stats.clicked + campaign.stats.submitted_data
+                    campaign.y += campaign.stats.clicked + campaign.stats.enabled_content + campaign.stats.submitted_data
                     campaign.y = Math.floor((campaign.y / campaign.stats.total) * 100)
                     average += campaign.y
                         // Add the data to the overview chart

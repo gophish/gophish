@@ -35,6 +35,7 @@ const (
 	EVENT_SENDING_ERROR  string = "Error Sending Email"
 	EVENT_OPENED         string = "Email Opened"
 	EVENT_CLICKED        string = "Clicked Link"
+	EVENT_ENABLED        string = "Content Enabled"
 	EVENT_DATA_SUBMIT    string = "Submitted Data"
 	STATUS_SUCCESS       string = "Success"
 	STATUS_SENDING       string = "Sending"

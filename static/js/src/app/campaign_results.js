@@ -24,6 +24,13 @@ var statuses = {
         icon: "fa-mouse-pointer",
         point: "ct-point-clicked"
     },
+    "Content Enabled": {
+        slice: "ct-slice-donut-enabled",
+        legend: "ct-legend-enabled",
+        label: "label-danger",
+        icon: "fa-exclamation",
+        point: "ct-point-enabled"
+    },
     "Success": {
         slice: "ct-slice-donut-success",
         legend: "ct-legend-success",
@@ -50,7 +57,7 @@ var statuses = {
         legend: "ct-legend-success",
         label: "label-danger",
         icon: "fa-exclamation",
-        point: "ct-point-clicked"
+        point: "ct-point-success"
     },
     "Unknown": {
         slice: "ct-slice-donut-error",
