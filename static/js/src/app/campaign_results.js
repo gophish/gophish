@@ -399,6 +399,8 @@ function poll() {
                 }
             })
             map.bubbles(bubbles)
+            $("#refresh_message").hide()
+            $("#refresh_btn").show()
         })
 }
 
@@ -674,18 +676,25 @@ function load() {
             errorFlash(" Campaign not found!")
         })
 }
+
+var setRefresh
+function refresh() {
+    if (!doPoll) {
+        return;
+    }
+    $("#refresh_message").show()
+    $("#refresh_btn").hide()
+    poll()
+    clearTimeout(setRefresh)
+    setRefresh = setTimeout(refresh, 60000)
+};
+
+
+
 $(document).ready(function() {
     load();
     // Start the polling loop
-    function refresh() {
-        if (!doPoll) {
-            return;
-        }
-        $("#refresh_message").show()
-        poll()
-        $("#refresh_message").hide()
-        setTimeout(refresh, 10000)
-    };
+    
     // Start the polling loop
-    setTimeout(refresh, 10000)
+    setRefresh = setTimeout(refresh, 60000)
 })
