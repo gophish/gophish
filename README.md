@@ -11,12 +11,12 @@ Gophish: Open-Source Phishing Toolkit
 
 [Gophish](https://getgophish.com) is an open-source phishing toolkit designed for businesses and penetration testers. It provides the ability to quickly and easily setup and execute phishing engagements and security awareness training.
 
-###Current Status
+### Current Status
 **Update 2/19/2017**
 
 Gophish version 0.2.1 binaries will be released soon! I am just fixing a few final bugs and then I will build the final binaries. 
 
-###Install
+### Install
 
 Installation of Gophish is dead-simple - just download and extract the zip containing the [release for your system](https://github.com/gophish/gophish/releases/), and run the binary. Gophish has binary releases for Windows, Mac, and Linux platforms.
 
@@ -28,18 +28,18 @@ To build Gophish from source, simply run ```go get github.com/gophish/gophish```
 ### Docker
 You can also use Gophish via an unofficial Docker container [here](https://hub.docker.com/r/matteoggl/gophish/).
 
-###Setup
+### Setup
 After running the Gophish binary, open an Internet browser to http://localhost:3333 and login with the default username (admin) and password (gophish).
 
-###Documentation
+### Documentation
 
 Documentation can be found on our [site](http://getgophish.com/documentation). Find something missing? Let us know by filing an issue!
 
-###Issues
+### Issues
 
 Find a bug? Want more features? Find something missing in the documentation? Let us know! Please don't hesitate to [file an issue](https://github.com/gophish/gophish/issues/new) and we'll get right on it.
 
-###License
+### License
 ```
 Gophish - Open-Source Phishing Framework
 
