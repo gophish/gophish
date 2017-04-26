@@ -84,6 +84,7 @@ func CreatePhishingRouter() http.Handler {
 	router := mux.NewRouter()
 	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("./static/endpoint/"))))
 	router.HandleFunc("/track", PhishTracker)
+	router.HandleFunc("/robots.txt", RobotsHandler)
 	router.HandleFunc("/{path:.*}/track", PhishTracker)
 	router.HandleFunc("/{path:.*}", PhishHandler)
 	return router
@@ -269,6 +270,11 @@ func PhishHandler(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 	}
 	w.Write(htmlBuff.Bytes())
+}
+
+// Prevents search engines, etc. from indexing phishing materials
+func RobotsHandler(w http.ResponseWriter, r *http.Request) {
+	w.Write(([]byte)("User-agent: *\nDisallow: /\n"))
 }
 
 // Use allows us to stack middleware to process the request
