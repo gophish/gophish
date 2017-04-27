@@ -272,9 +272,9 @@ func PhishHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(htmlBuff.Bytes())
 }
 
-// Prevents search engines, etc. from indexing phishing materials
+// RobotsHandler prevents search engines, etc. from indexing phishing materials
 func RobotsHandler(w http.ResponseWriter, r *http.Request) {
-	w.Write(([]byte)("User-agent: *\nDisallow: /\n"))
+	fmt.Fprintln(w, "User-agent: *\nDisallow: /")
 }
 
 // Use allows us to stack middleware to process the request
