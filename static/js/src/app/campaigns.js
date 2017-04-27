@@ -311,10 +311,21 @@ $(document).ready(function() {
                 });
                 $.each(campaigns, function(i, campaign) {
                     label = labels[campaign.status] || "label-default";
+
+		    //section for tooltips on the status of a campaign to show some quick stats
+                    var launchDate;
+                    if(moment(campaign.launch_date).isAfter(moment())){
+                        launchDate = "Scheduled to start: "+moment(campaign.launch_date).format('MMMM Do YYYY, h:mm:ss a')
+                        var quickStats = launchDate+"<br><br>"+"Number of recipients: "+campaign.stats.total
+                    } else {
+                        launchDate = "Launch Date: "+moment(campaign.launch_date).format('MMMM Do YYYY, h:mm:ss a')
+                        var quickStats = launchDate+"<br><br>"+"Number of recipients: "+campaign.stats.total+"<br><br>"+"Emails opened: "+campaign.stats.opened+"<br><br>"+"Emails clicked: "+campaign.stats.clicked+"<br><br>"+"Submitted Credentials: "+campaign.stats.submitted_data+"<br><br>"+"Errors : "+campaign.stats.error
+                    }
+
                     campaignTable.row.add([
                         escapeHtml(campaign.name),
                         moment(campaign.created_date).format('MMMM Do YYYY, h:mm:ss a'),
-                        "<span class=\"label " + label + "\">" + campaign.status + "</span>",
+			"<span class=\"label " + label + "\" data-toggle=\"tooltip\" data-placement=\"right\" data-html=\"true\" title=\""+quickStats+"\">" + campaign.status + "</span>",
                         "<div class='pull-right'><a class='btn btn-primary' href='/campaigns/" + campaign.id + "' data-toggle='tooltip' data-placement='left' title='View Results'>\
                     <i class='fa fa-bar-chart'></i>\
                     </a>\
