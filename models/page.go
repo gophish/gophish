@@ -39,9 +39,11 @@ func (p *Page) parseHTML() error {
 			// If we don't want to capture passwords,
 			// find all the password fields and remove the "name" attribute.
 			if !p.CapturePasswords {
-				passwordFields := f.Find("input[type=\"password\"]")
-				passwordFields.Each(func(j int, pass *goquery.Selection) {
-					pass.RemoveAttr("name")
+				inputs := f.Find("input")
+				inputs.Each(func(j int, input *goquery.Selection) {
+					if t, _ := input.Attr("type"); strings.EqualFold(t, "password") {
+						input.RemoveAttr("name")
+					}
 				})
 			}
 		} else {
