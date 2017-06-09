@@ -24,6 +24,9 @@ type ControllersSuite struct {
 // as is the Admin Server for our API calls
 var as *httptest.Server = httptest.NewUnstartedServer(handlers.CombinedLoggingHandler(os.Stdout, CreateAdminRouter()))
 
+// ps is the Phishing Server
+var ps *httptest.Server = httptest.NewUnstartedServer(handlers.CombinedLoggingHandler(os.Stdout, CreatePhishingRouter()))
+
 func (s *ControllersSuite) SetupSuite() {
 	config.Conf.DBName = "sqlite3"
 	config.Conf.DBPath = ":memory:"
@@ -40,6 +43,63 @@ func (s *ControllersSuite) SetupSuite() {
 	u, err := models.GetUser(1)
 	s.Nil(err)
 	s.ApiKey = u.ApiKey
+	// Start the phishing server
+	ps.Config.Addr = config.Conf.PhishConf.ListenURL
+	ps.Start()
+	// Move our cwd up to the project root for help with resolving
+	// static assets
+	err = os.Chdir("../")
+	s.Nil(err)
+}
+
+func (s *ControllersSuite) TearDownTest() {
+	campaigns, _ := models.GetCampaigns(1)
+	for _, campaign := range campaigns {
+		models.DeleteCampaign(campaign.Id)
+	}
+}
+
+func (s *ControllersSuite) SetupTest() {
+	// Add a group
+	group := models.Group{Name: "Test Group"}
+	group.Targets = []models.Target{
+		models.Target{Email: "test1@example.com", FirstName: "First", LastName: "Example"},
+		models.Target{Email: "test2@example.com", FirstName: "Second", LastName: "Example"},
+	}
+	group.UserId = 1
+	models.PostGroup(&group)
+
+	// Add a template
+	t := models.Template{Name: "Test Template"}
+	t.Subject = "Test subject"
+	t.Text = "Text text"
+	t.HTML = "<html>Test</html>"
+	t.UserId = 1
+	models.PostTemplate(&t)
+
+	// Add a landing page
+	p := models.Page{Name: "Test Page"}
+	p.HTML = "<html>Test</html>"
+	p.UserId = 1
+	models.PostPage(&p)
+
+	// Add a sending profile
+	smtp := models.SMTP{Name: "Test Page"}
+	smtp.UserId = 1
+	smtp.Host = "example.com"
+	smtp.FromAddress = "test@test.com"
+	models.PostSMTP(&smtp)
+
+	// Setup and "launch" our campaign
+	// Set the status such that no emails are attempted
+	c := models.Campaign{Name: "Test campaign"}
+	c.UserId = 1
+	c.Template = t
+	c.Page = p
+	c.SMTP = smtp
+	c.Groups = []models.Group{group}
+	models.PostCampaign(&c, c.UserId)
+	c.UpdateStatus(models.CAMPAIGN_EMAILS_SENT)
 }
 
 func (s *ControllersSuite) TestSiteImportBaseHref() {
@@ -65,8 +125,9 @@ func (s *ControllersSuite) TestSiteImportBaseHref() {
 }
 
 func (s *ControllersSuite) TearDownSuite() {
-	// Tear down the admin server
+	// Tear down the admin and phishing servers
 	as.Close()
+	ps.Close()
 }
 
 func TestControllerSuite(t *testing.T) {
