@@ -33,6 +33,8 @@ import (
 	"os"
 	"sync"
 
+	"gopkg.in/alecthomas/kingpin.v2"
+
 	"github.com/NYTimes/gziphandler"
 	"github.com/gophish/gophish/auth"
 	"github.com/gophish/gophish/config"
@@ -42,9 +44,16 @@ import (
 	"github.com/gorilla/handlers"
 )
 
-var Logger = log.New(os.Stdout, " ", log.Ldate|log.Ltime|log.Lshortfile)
+var (
+	Logger = log.New(os.Stdout, " ", log.Ldate|log.Ltime|log.Lshortfile)
+
+	configPath = kingpin.Flag("config", "Location of config.json.").Default("./config.json").String()
+)
 
 func main() {
+	// Parse the CLI flags and load the config
+	kingpin.Parse()
+	config.LoadConfig(*configPath)
 	// Setup the global variables and settings
 	err := models.Setup()
 	if err != nil {

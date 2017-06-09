@@ -37,9 +37,9 @@ var Conf Config
 // Version contains the current gophish version
 var Version = "0.3"
 
-func init() {
+func LoadConfig(filepath string) {
 	// Get the config file
-	config_file, err := ioutil.ReadFile("./config.json")
+	config_file, err := ioutil.ReadFile(filepath)
 	if err != nil {
 		fmt.Printf("File error: %v\n", err)
 	}
