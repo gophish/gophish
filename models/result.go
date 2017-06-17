@@ -2,9 +2,11 @@ package models
 
 import (
 	"crypto/rand"
+	"fmt"
 	"log"
 	"math/big"
 	"net"
+	"net/mail"
 
 	"github.com/jinzhu/gorm"
 	"github.com/oschwald/maxminddb-golang"
@@ -86,6 +88,19 @@ func (r *Result) GenerateId() error {
 		}
 	}
 	return nil
+}
+
+// Returns the email address to use in the "To" header of the email
+func (r *Result) FormatAddress() string {
+	addr := r.Email
+	if r.FirstName != "" && r.LastName != "" {
+		a := &mail.Address{
+			Name:    fmt.Sprintf("%s %s", r.FirstName, r.LastName),
+			Address: r.Email,
+		}
+		addr = a.String()
+	}
+	return addr
 }
 
 // GetResult returns the Result object from the database

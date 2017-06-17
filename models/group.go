@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"fmt"
 	"net/mail"
 	"time"
 
@@ -48,6 +49,19 @@ type Target struct {
 	LastName  string `json:"last_name"`
 	Email     string `json:"email"`
 	Position  string `json:"position"`
+}
+
+// Returns the email address to use in the "To" header of the email
+func (t *Target) FormatAddress() string {
+	addr := t.Email
+	if t.FirstName != "" && t.LastName != "" {
+		a := &mail.Address{
+			Name:    fmt.Sprintf("%s %s", t.FirstName, t.LastName),
+			Address: t.Email,
+		}
+		addr = a.String()
+	}
+	return addr
 }
 
 // ErrNoEmailSpecified is thrown when no email is specified for the Target

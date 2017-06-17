@@ -1,6 +1,7 @@
 package models
 
 import (
+	"net/mail"
 	"regexp"
 	"strings"
 	"testing"
@@ -347,4 +348,22 @@ func (s *ModelsSuite) TestGenerateResultId(c *check.C) {
 	match, err := regexp.Match("[a-zA-Z0-9]{7}", []byte(r.RId))
 	c.Assert(err, check.Equals, nil)
 	c.Assert(match, check.Equals, true)
+}
+
+func (s *ModelsSuite) TestFormatAddress(c *check.C) {
+	r := Result{
+		FirstName: "John",
+		LastName:  "Doe",
+		Email:     "johndoe@example.com",
+	}
+	expected := &mail.Address{
+		Name:    "John Doe",
+		Address: "johndoe@example.com",
+	}
+	c.Assert(r.FormatAddress(), check.Equals, expected.String())
+
+	r = Result{
+		Email: "johndoe@example.com",
+	}
+	c.Assert(r.FormatAddress(), check.Equals, r.Email)
 }

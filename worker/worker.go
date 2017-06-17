@@ -168,7 +168,7 @@ func processCampaign(c *models.Campaign) {
 		}
 		e.SetHeader("Subject", subjBuff.String())
 		Logger.Println("Creating email using template")
-		e.SetHeader("To", t.Email)
+		e.SetHeader("To", t.FormatAddress())
 		if c.Template.Text != "" {
 			var textBuff bytes.Buffer
 			tmpl, err = template.New("text_template").Parse(c.Template.Text)
@@ -302,7 +302,7 @@ func SendTestEmail(s *models.SendTestEmailRequest) error {
 		e.SetHeader(parsedHeader.Key.String(), parsedHeader.Value.String())
 	}
 	e.SetHeader("From", s.SMTP.FromAddress)
-	e.SetHeader("To", s.Email)
+	e.SetHeader("To", s.FormatAddress())
 	// Parse the templates
 	var subjBuff bytes.Buffer
 	tmpl, err := template.New("text_template").Parse(s.Template.Subject)
