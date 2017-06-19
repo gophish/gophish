@@ -9,12 +9,21 @@ var statuses = {
         icon: "fa-envelope",
         point: "ct-point-sent"
     },
-    "Email Sent": {
+    "Emails Sent": {
         slice: "ct-slice-donut-sent",
         legend: "ct-legend-sent",
         label: "label-success",
         icon: "fa-envelope",
         point: "ct-point-sent"
+    },
+    "In progress": {
+        label: "label-primary"
+    },
+    "Queued": {
+        label: "label-info"
+    },
+    "Completed": {
+        label: "label-success"
     },
     "Email Opened": {
         slice: "ct-slice-donut-opened",
@@ -199,7 +208,7 @@ $(document).ready(function() {
                 });
                 $.each(campaigns, function(i, campaign) {
                         var campaign_date = moment(campaign.created_date).format('MMMM Do YYYY, h:mm:ss a')
-                        var label = statuses[campaign.status] || "label-default";
+                        var label = statuses[campaign.status].label || "label-default";
                         //section for tooltips on the status of a campaign to show some quick stats
                         var launchDate;
                         if (moment(campaign.launch_date).isAfter(moment())) {
