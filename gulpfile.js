@@ -46,7 +46,8 @@ gulp.task('build', function() {
             vendor_directory + 'jquery.iframe-transport.js',
             vendor_directory + 'sweetalert2.min.js',
             vendor_directory + 'bootstrap-datetime.js',
-            vendor_directory + 'select2.min.js'
+            vendor_directory + 'select2.min.js',
+            vendor_directory + 'core.min.js'
         ])
         .pipe(concat('vendor.js'))
         .pipe(rename({
@@ -60,7 +61,9 @@ gulp.task('build', function() {
         .pipe(rename({
             suffix: '.min'
         }))
-        .pipe(uglify())
+        .pipe(uglify().on('error', function(e){
+            console.log(e);
+        }))
         .pipe(gulp.dest(dest_js_directory + 'app/'));
 
     return gulp.src([
