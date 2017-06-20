@@ -1,0 +1,205 @@
+{{define "body"}}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-3 col-md-2 sidebar">
+            <ul class="nav nav-sidebar">
+                <li><a href="/">Dashboard</a>
+                </li>
+                <li><a href="/campaigns">Campaigns</a>
+                </li>
+                <li><a href="/users">Users &amp; Groups</a>
+                </li>
+                <li><a href="/templates">Email Templates</a>
+                </li>
+                <li><a href="/landing_pages">Landing Pages</a>
+                </li>
+                 <li><a href="/education">Education</a>
+                </li>
+                <li><a href="/sending_profiles">Sending Profiles</a>
+                </li>
+                <li><a href="/settings">Settings</a>
+                </li>
+                <li><hr></li>
+                <li><a href="https://gophish.gitbooks.io/user-guide/content/">User Guide</a>
+                </li>
+                <li><a href="/api/">API Documentation</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+    <h1 class="page-header">
+        Education
+    </h1>
+    <div id="flashes" class="row"></div>
+    <div class="row">
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal"><i class="fa fa-plus"></i> New Page</button>
+    </div>
+    &nbsp;
+<div id="emptyMessage" class="row" {{if not .Message}} style="display:none;"{{end}}>
+        <div class="alert alert-info">
+            {{if .Message}} {{.Message}} {{end}}
+        </div>
+    </div>
+
+{{if .List}} 
+
+<div class="row">
+        <table id="pagesTable" class="table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Last Modified Date</th>
+                    <th class="col-md-2 no-sort"></th>
+                </tr>
+            </thead>
+
+{{range $index,$article := .List }}
+
+            <tbody id="t_{{$index}}">
+
+                <tr role="row">
+                    <td id="edu_name_{{$index}}"class="sorting_1">{{- .Name -}}</td>
+                    <td>{{- .Body -}}</td>
+                    <td class="col-md-2 no-sort"></td>
+                    <td>
+
+                        <div class="pull-right">
+
+                            <span data-toggle="modal" data-target="#modal"><button class="btn btn-primary" data-toggle="tooltip" data-placement="left" title="" onclick="edit({{$index}})" data-original-title="Edit Page">                    <i class="fa fa-pencil"></i>                    </button></span>                      
+                            
+                            <button class="btn btn-danger" data-toggle="tooltip" data-placement="left" title="" onclick="deletePage({{$index}})" data-original-title="Delete Page"><i class="fa fa-trash-o"></i>                    </button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        
+{{end}}
+
+</table>
+    </div>
+<div class="dataTables_info" id="pagesTable_info" role="status" aria-live="polite">Showing {{len .List}} of {{len .List}} entries</div>
+
+{{end}}
+   
+</div>
+<!-- Modal -->
+<div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+        <!-- New Template Modal -->
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="dismiss()"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="modalLabel">New Landing Page</h4>
+        </div>
+        <div class="modal-body">
+            <div class="row" id="modal.flashes"></div>
+            <label class="control-label" for="name">Name:</label>
+            <div class="form-group">
+                <input type="text" class="form-control" placeholder="Page name" id="name" autofocus/>
+            </div>
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs" role="tablist">
+                <li class="active" role="html"><a href="#html" aria-controls="html" role="tab" data-toggle="tab">HTML</a></li>
+            </ul>
+            <!-- Tab panes -->
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane active" id="html">
+                    <textarea id="html_editor"></textarea>
+                </div>
+            </div>
+        <div class="modal-footer">
+            <button type="button" data-dismiss="modal" class="btn btn-default" onclick="dismiss()">Cancel</button>
+            <button type="button" data-dismiss="modal" class="btn btn-primary" id="modalSubmit" onclick="submar()">Save Page</button>
+        </div>
+        <input type="hidden" name="csrf_token" value="{{.Token}}"/>
+    </div>
+  </div>
+</div>
+<!-- Modal -->
+
+{{end}}
+{{define "scripts"}}
+<script src="/js/src/vendor/ckeditor/ckeditor.js"></script>
+<script src="/js/src/vendor/ckeditor/adapters/jquery.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+<script>
+
+    CKEDITOR.replace( 'html_editor' );
+
+    var token = document.getElementsByName("csrf_token")[0].value;
+
+    function submar() {
+        var name = document.getElementById("name").value;
+        var body = CKEDITOR.instances.html_editor.getData();
+        var formData = {"action": "SUBMIT", "name": name, "body":body, "csrf_token": token};
+        $.ajax({
+            type        : 'POST', 
+            url         : 'education', 
+            data        : formData, 
+            dataType    : 'json', 
+                        encode          : true
+        })
+            .done(function(data) {
+                document.getElementById('emptyMessage').style.display = "block";
+                document.getElementsByClassName('alert alert-info')[0].innerHTML = data;
+            });
+        event.preventDefault();
+        dismiss();
+      }  
+    
+function dismiss() {
+    $("#name").val("")
+    CKEDITOR.instances.html_editor.setData('');
+    $("#modal").modal('hide')
+}
+
+function edit(id) {
+        var iden = "edu_name_".concat(id);
+        var name = document.getElementById(iden).innerHTML;
+        var formData = {"action": "EDIT", "name": name, "csrf_token": token};
+        $.ajax({
+            type        : 'POST', 
+            url         : 'education', 
+            data        : formData, 
+            dataType    : 'json', 
+                        encode          : true
+        })
+            .done(function(data) {
+                document.getElementById("name").value = name;
+                CKEDITOR.instances.html_editor.setData(data);
+            });
+        event.preventDefault();
+      }  
+
+function deletePage(id) {
+        var iden = "edu_name_".concat(id);
+        var name = document.getElementById(iden).innerHTML;
+        var formData = {"action": "DELETE", "name": name, "csrf_token": token};
+        $.ajax({
+            type        : 'POST', 
+            url         : 'education', 
+            data        : formData, 
+            dataType    : 'json', 
+                        encode          : true
+        })
+            .done(function(data) {
+                document.getElementById('emptyMessage').style.display = "block";
+                document.getElementsByClassName('alert alert-info')[0].innerHTML = data;
+                var tbod = "t_".concat(id);
+                var table = document.getElementById(tbod);
+                table.parentNode.removeChild(table);
+            });
+
+        event.preventDefault();
+
+      }  
+
+</script>
+
+{{end}}
+
+
+
