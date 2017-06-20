@@ -3,9 +3,12 @@ package controllers
 import (
 	"fmt"
 	"html/template"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/gophish/gophish/auth"
 	"github.com/gophish/gophish/config"
@@ -29,6 +32,9 @@ func CreateAdminRouter() http.Handler {
 	router.HandleFunc("/login", Login)
 	router.HandleFunc("/logout", Use(Logout, mid.RequireLogin))
 	router.HandleFunc("/campaigns", Use(Campaigns, mid.RequireLogin))
+
+	router.HandleFunc("/education", Use(Education, mid.RequireLogin))
+
 	router.HandleFunc("/campaigns/{id:[0-9]+}", Use(CampaignID, mid.RequireLogin))
 	router.HandleFunc("/templates", Use(Templates, mid.RequireLogin))
 	router.HandleFunc("/users", Use(Users, mid.RequireLogin))
@@ -196,7 +202,27 @@ func LandingPages(w http.ResponseWriter, r *http.Request) {
 		Title   string
 		Flashes []interface{}
 		Token   string
+		List    []string
 	}{Title: "Landing Pages", User: ctx.Get(r, "user").(models.User), Token: csrf.Token(r)}
+
+	pwd, _ := os.Getwd()
+	files, _ := filepath.Glob(pwd + "\\static\\endpoint\\[a-z,A-Z,0-9]*")
+	//
+	//files, _ := filepath.Glob("C:\\Users\\cpatterson\\Desktop\\gophish-master\\static\\endpoint/[a-z,A-Z,0-9]*")
+
+	if len(files) > 0 {
+
+		for index := range files {
+
+			//Get the filename by splitting off the directory portion
+			parts := strings.Split(files[index], "\\")
+			string := parts[len(parts)-1]
+
+			//Add this file to the list of files to be returned to the user
+			params.List = append(params.List, string)
+		}
+	}
+
 	getTemplate(w, "landing_pages").ExecuteTemplate(w, "base", params)
 }
 
@@ -211,6 +237,118 @@ func SendingProfiles(w http.ResponseWriter, r *http.Request) {
 	}{Title: "Sending Profiles", User: ctx.Get(r, "user").(models.User), Token: csrf.Token(r)}
 	getTemplate(w, "sending_profiles").ExecuteTemplate(w, "base", params)
 }
+
+//
+//-----------------------------------------------------------------------------
+//EDUCATION TEMPLATE FUNCTIONS
+//-----------------------------------------------------------------------------
+//
+
+// Proxy struct holds templates found by server
+type Proxy struct {
+	Name string
+	Body string
+}
+
+// Education handles the default path and template execution
+func Education(w http.ResponseWriter, r *http.Request) {
+	switch {
+	case r.Method == "GET":
+		params := struct {
+			User    models.User
+			Title   string
+			Message string
+			Token   string
+			List    []Proxy
+		}{Title: "Education", User: ctx.Get(r, "user").(models.User), Token: csrf.Token(r)}
+
+		//Return a list of every file in the endpoint directory to return to the user, excluding the .gitignore, using relevant path
+		pwd, _ := os.Getwd()
+		files, _ := filepath.Glob(pwd + "\\static\\endpoint\\[a-z,A-Z,0-9]*")
+
+		if len(files) > 0 {
+
+			//For each file found in the list
+			for index := range files {
+
+				file, err := os.Stat(files[index])
+
+				if err != nil {
+					fmt.Println(err)
+				}
+
+				//Find the last time the file was modified
+				modifiedtime := file.ModTime()
+
+				//Get the filename by splitting off the directory portion
+				parts := strings.Split(files[index], "\\")
+				string := parts[len(parts)-1][:len(parts[len(parts)-1])-5]
+
+				//Add this file to the list of files to be returned to the user
+				params.List = append(params.List, Proxy{string, modifiedtime.Format("Mon Jan _2 15:04:05 2006")})
+
+			}
+		} else {
+
+			//If there weren't any education template files found, display this message to the user
+			params.Message = "No education templates created yet. Let's create one!"
+
+		}
+
+		//Execute the template and send it to the user
+		getTemplate(w, "education").ExecuteTemplate(w, "base", params)
+
+	//If we are receiving AJAX POST REQUESTS
+	case r.Method == "POST":
+
+		//PARSE THE FORM
+		r.ParseForm()
+
+		//For the actions specified, save the form as a file on disk, return the file contents to be edited, or delete the file on disk
+		if r.Form.Get("action") == "SUBMIT" {
+
+			pwd, _ := os.Getwd()
+
+			err := ioutil.WriteFile(pwd+"\\static\\endpoint/"+r.Form.Get("name")+".html", []byte(r.Form.Get("body")), 0644)
+			if err != nil {
+				JSONResponse(w, "An error was encountered trying to save your file on server.", http.StatusOK)
+			}
+
+			JSONResponse(w, "Education page saved successfully.", http.StatusOK)
+
+		} else if r.Form.Get("action") == "EDIT" {
+
+			pwd, _ := os.Getwd()
+
+			b, err := ioutil.ReadFile(pwd + "\\static\\endpoint/" + r.Form.Get("name") + ".html")
+			if err != nil {
+				JSONResponse(w, "An error was encountered attempting to retrieve the saved file on server.", http.StatusOK)
+			}
+
+			JSONResponse(w, string(b), http.StatusOK)
+
+		} else if r.Form.Get("action") == "DELETE" {
+
+			pwd, _ := os.Getwd()
+
+			err := os.Remove(pwd + "\\static\\endpoint/" + r.Form.Get("name") + ".html")
+
+			if err != nil {
+				JSONResponse(w, "An error was encountered trying to delete the file on the server.", http.StatusOK)
+				return
+			}
+
+			JSONResponse(w, "File deleted successfully.", http.StatusOK)
+
+		}
+	}
+}
+
+//
+//--------------------------------------------------------------------------------------
+//END OF EDUCATION TEMPLATE FUNCTIONS
+//--------------------------------------------------------------------------------------
+//
 
 // Settings handles the changing of settings
 func Settings(w http.ResponseWriter, r *http.Request) {

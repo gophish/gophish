@@ -13,6 +13,8 @@
                 </li>
                 <li class="active"><a href="/landing_pages">Landing Pages</a>
                 </li>
+                 <li><a href="/education">Education</a>
+                </li>
                 <li><a href="/sending_profiles">Sending Profiles</a>
                 </li>
                 <li><a href="/settings">Settings</a>
@@ -97,9 +99,33 @@
 		</div>
             </div>
             <div id="redirect_url">
-                <label class="control-label" for="redirect_url_input">Redirect to: <i class="fa fa-question-circle" data-toggle="tooltip" data-placement="right" title="This option lets you redirect the user to a page after credentials are submitted."></i></label>
+                <label class="control-label" for="redirect_url_input">Redirect to: <i class="fa fa-question-circle" data-toggle="tooltip" data-placement="right" title="Redirect the user to a page after submitting credentials.  Redirect to Education pages with the following URL: http://phishing_server/static/ + [name] +.html"></i></label>
                 <div class="form-group">
-                    <input id="redirect_url_input" class="form-control" placeholder="http://example.com"/>
+
+                
+
+                    <input id="redirect_url_input" class="form-control" list="browsers" name="browser">
+
+
+                        {{if .List}} 
+
+
+                        <datalist id="browsers">
+
+
+                            {{range $article := .List }}
+
+
+                            <option value="http://phishing_server/static/{{$article}}">
+                            
+                            {{end}}
+
+                        </datalist>    
+
+                        {{end}}     
+
+
+
                 </div>
             </div>
         </div>
