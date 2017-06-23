@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"log"
 	"net/mail"
@@ -199,12 +200,13 @@ func processCampaign(c *models.Campaign) {
 		}
 		// Attach the files
 		for _, a := range c.Template.Attachments {
-			e.Attach(func(a models.Attachment) (string, gomail.FileSetting) {
+			e.Attach(func(a models.Attachment) (string, gomail.FileSetting, gomail.FileSetting) {
+				h := map[string][]string{"Content-ID": {fmt.Sprintf("<%s>", a.Name)}}
 				return a.Name, gomail.SetCopyFunc(func(w io.Writer) error {
 					decoder := base64.NewDecoder(base64.StdEncoding, strings.NewReader(a.Content))
 					_, err = io.Copy(w, decoder)
 					return err
-				})
+				}), gomail.SetHeader(h)
 			}(a))
 		}
 		Logger.Printf("Sending Email to %s\n", t.Email)
