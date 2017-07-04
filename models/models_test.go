@@ -37,6 +37,8 @@ func (s *ModelsSuite) TearDownTest(c *check.C) {
 	db.Delete(GroupTarget{})
 	db.Delete(SMTP{})
 	db.Delete(Page{})
+	db.Delete(Result{})
+	db.Delete(Campaign{})
 
 	// Reset users table to default state.
 	db.Not("id", 1).Delete(User{})

@@ -4,18 +4,17 @@ import (
 	"bytes"
 	"crypto/tls"
 	"encoding/base64"
-	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"log"
-	"net/mail"
+	"net/textproto"
 	"os"
 	"strconv"
 	"strings"
 	"text/template"
 	"time"
 
+	"github.com/gophish/gophish/mailer"
 	"github.com/gophish/gophish/models"
 	"gopkg.in/gomail.v2"
 )
@@ -36,215 +35,117 @@ func New() *Worker {
 func (w *Worker) Start() {
 	Logger.Println("Background Worker Started Successfully - Waiting for Campaigns")
 	for t := range time.Tick(1 * time.Minute) {
-		cs, err := models.GetQueuedCampaigns(t)
-		// Not really sure of a clean way to catch errors per campaign...
+		ms, err := models.GetQueuedMailLogs(t)
 		if err != nil {
 			Logger.Println(err)
 			continue
 		}
-		for _, c := range cs {
-			go func(c models.Campaign) {
-				processCampaign(&c)
-			}(c)
+		// We'll group the maillogs by campaign ID to (sort of) group
+		// them by sending profile. This lets us re-use the Sender
+		// instead of having to re-connect to the SMTP server for every
+		// email.
+		msg := make(map[int64][]models.MailLog)
+		for _, m := range ms {
+			msg[m.CampaignId] = append(msg[m.CampaignId], m)
+		}
+
+		// Next, we process each group of maillogs in parallel
+		for cid, msc := range msg {
+			go func(cid int64, msc []models.MailLog) {
+				uid := msc[0].UserId
+				c, err := models.GetCampaign(cid, uid)
+				if err != nil {
+					failMailLogs(err, ms)
+				}
+				if c.Status == models.CAMPAIGN_QUEUED {
+					err := c.UpdateStatus(models.CAMPAIGN_IN_PROGRESS)
+					if err != nil {
+						Logger.Println(err)
+					}
+				}
+				// Create the dialer and connect to the SMTP server
+				d := mailer.NewDialer(c.SMTP)
+				sc, err := d.Dial()
+				if err != nil {
+					failMailLogs(err, ms)
+					return
+				}
+				processMailLogs(cid, uid, msc, d)
+			}(cid, msc)
 		}
 	}
 }
 
-func processCampaign(c *models.Campaign) {
-	Logger.Printf("Worker received: %s", c.Name)
-	err := c.UpdateStatus(models.CAMPAIGN_IN_PROGRESS)
-	if err != nil {
-		Logger.Println(err)
-	}
-	f, err := mail.ParseAddress(c.SMTP.FromAddress)
-	if err != nil {
-		Logger.Println(err)
-	}
-	fn := f.Name
-	if fn == "" {
-		fn = f.Address
-	}
-	// Setup the message and dial
-	hp := strings.Split(c.SMTP.Host, ":")
-	if len(hp) < 2 {
-		hp = append(hp, "25")
-	}
-	// Any issues should have been caught in validation, so we just log
-	port, err := strconv.Atoi(hp[1])
-	if err != nil {
-		Logger.Println(err)
-	}
-	d := gomail.NewDialer(hp[0], port, c.SMTP.Username, c.SMTP.Password)
-	d.TLSConfig = &tls.Config{
-		ServerName:         c.SMTP.Host,
-		InsecureSkipVerify: c.SMTP.IgnoreCertErrors,
-	}
-	hostname, err := os.Hostname()
-	if err != nil {
-		Logger.Println(err)
-		hostname = "localhost"
-	}
-	d.LocalName = hostname
-	s, err := d.Dial()
-	// Short circuit if we have an err
-	// However, we still need to update each target
-	if err != nil {
-		Logger.Println(err)
-		for _, t := range c.Results {
-			es := struct {
-				Error string `json:"error"`
-			}{
-				Error: err.Error(),
-			}
-			ej, err := json.Marshal(es)
-			if err != nil {
-				Logger.Println(err)
-			}
-			err = t.UpdateStatus(models.ERROR)
-			if err != nil {
-				Logger.Println(err)
-			}
-			err = c.AddEvent(models.Event{Email: t.Email, Message: models.EVENT_SENDING_ERROR, Details: string(ej)})
-			if err != nil {
-				Logger.Println(err)
-			}
+// failMailLogs automatically marks each mail log as a failed sending
+// attempt. This occurs when fatal errors such as database/smtp
+// connection errors occur.
+func failMailLogs(err errors.Error, ms []models.MailLog) {
+	for _, m := range ms {
+		err := m.Error(err)
+		if err != nil {
+			Logger.Println(err)
 		}
+	}
+}
+
+// processMailLogs attempts to send each maillog provided
+func processMailLogs(cid int64, uid int64, ms []models.MailLog, d mailer.Dialer) {
+	c, err := models.GetCampaign(cid, uid)
+	if err != nil {
+		failMailLogs(err, ms)
+	}
+	sc, err := d.Dial()
+	if err != nil {
+		failMailLogs(err, ms)
 		return
 	}
-	// Send each email
-	e := gomail.NewMessage()
-	for _, t := range c.Results {
-		e.SetHeader("From", c.SMTP.FromAddress)
-		td := struct {
-			models.Result
-			URL         string
-			TrackingURL string
-			Tracker     string
-			From        string
-		}{
-			t,
-			c.URL + "?rid=" + t.RId,
-			c.URL + "/track?rid=" + t.RId,
-			"<img alt='' style='display: none' src='" + c.URL + "/track?rid=" + t.RId + "'/>",
-			fn,
-		}
-
-		// Parse the customHeader templates
-		for _, header := range c.SMTP.Headers {
-			parsedHeader := struct {
-				Key   bytes.Buffer
-				Value bytes.Buffer
-			}{}
-			keytmpl, err := template.New("text_template").Parse(header.Key)
-			if err != nil {
-				Logger.Println(err)
-			}
-			err = keytmpl.Execute(&parsedHeader.Key, td)
-			if err != nil {
-				Logger.Println(err)
-			}
-
-			valtmpl, err := template.New("text_template").Parse(header.Value)
-			if err != nil {
-				Logger.Println(err)
-			}
-			err = valtmpl.Execute(&parsedHeader.Value, td)
-			if err != nil {
-				Logger.Println(err)
-			}
-
-			// Add our header immediately
-			e.SetHeader(parsedHeader.Key.String(), parsedHeader.Value.String())
-		}
-
-		// Parse remaining templates
-		var subjBuff bytes.Buffer
-		tmpl, err := template.New("text_template").Parse(c.Template.Subject)
+	msg := gomail.NewMessage()
+	for i, _ := range ms {
+		m := ms[i]
+		err = m.GenerateMessage(msg)
 		if err != nil {
 			Logger.Println(err)
+			m.Error(err)
+			msg.Reset()
+			continue
 		}
-		err = tmpl.Execute(&subjBuff, td)
+		err := gomail.Send(sc, msg)
 		if err != nil {
-			Logger.Println(err)
-		}
-		e.SetHeader("Subject", subjBuff.String())
-		Logger.Println("Creating email using template")
-		e.SetHeader("To", t.FormatAddress())
-		if c.Template.Text != "" {
-			var textBuff bytes.Buffer
-			tmpl, err = template.New("text_template").Parse(c.Template.Text)
-			if err != nil {
-				Logger.Println(err)
-			}
-			err = tmpl.Execute(&textBuff, td)
-			if err != nil {
-				Logger.Println(err)
-			}
-			e.SetBody("text/plain", textBuff.String())
-		}
-		if c.Template.HTML != "" {
-			var htmlBuff bytes.Buffer
-			tmpl, err = template.New("html_template").Parse(c.Template.HTML)
-			if err != nil {
-				Logger.Println(err)
-			}
-			err = tmpl.Execute(&htmlBuff, td)
-			if err != nil {
-				Logger.Println(err)
-			}
-			if c.Template.Text == "" {
-				e.SetBody("text/html", htmlBuff.String())
+			if te, ok := err.(*textproto.Error); ok {
+				Logger.Println(te)
+				switch te {
+				// In the case of a temporary (4xx) error, we will
+				// set a backoff on the maillog and reconnect
+				// to be nice.
+				// I don't believe we need to reset the connection
+				// for deferred errors
+				case te.Code >= 400 && te.Code <= 499:
+					err = m.Backoff()
+					if err != nil {
+						m.Error(err)
+					}
+				// If we have a different permanent error, let's be
+				// considerate and just establish a new connection.
+				case te.Code >= 500 && te.Code <= 599:
+					m.Error(te)
+					sc, err = d.Dial()
+					if err != nil {
+						failMailLogs(err, ms[i:])
+						return
+					}
+				}
 			} else {
-				e.AddAlternative("text/html", htmlBuff.String())
+				// Generic error, let's just log it and try to
+				// re-connect
+				Logger.Println(err)
+				sc, err = d.Dial()
+				if err != nil {
+					failMailLogs(err, ms[i:])
+					return
+				}
 			}
 		}
-		// Attach the files
-		for _, a := range c.Template.Attachments {
-			e.Attach(func(a models.Attachment) (string, gomail.FileSetting, gomail.FileSetting) {
-				h := map[string][]string{"Content-ID": {fmt.Sprintf("<%s>", a.Name)}}
-				return a.Name, gomail.SetCopyFunc(func(w io.Writer) error {
-					decoder := base64.NewDecoder(base64.StdEncoding, strings.NewReader(a.Content))
-					_, err = io.Copy(w, decoder)
-					return err
-				}), gomail.SetHeader(h)
-			}(a))
-		}
-		Logger.Printf("Sending Email to %s\n", t.Email)
-		err = gomail.Send(s, e)
-		if err != nil {
-			Logger.Println(err)
-			es := struct {
-				Error string `json:"error"`
-			}{
-				Error: err.Error(),
-			}
-			ej, err := json.Marshal(es)
-			if err != nil {
-				Logger.Println(err)
-			}
-			err = t.UpdateStatus(models.ERROR)
-			if err != nil {
-				Logger.Println(err)
-			}
-			err = c.AddEvent(models.Event{Email: t.Email, Message: models.EVENT_SENDING_ERROR, Details: string(ej)})
-			if err != nil {
-				Logger.Println(err)
-			}
-		} else {
-			err = t.UpdateStatus(models.EVENT_SENT)
-			if err != nil {
-				Logger.Println(err)
-			}
-			err = c.AddEvent(models.Event{Email: t.Email, Message: models.EVENT_SENT})
-			if err != nil {
-				Logger.Println(err)
-			}
-		}
-		e.Reset()
-	}
-	err = c.UpdateStatus(models.CAMPAIGN_EMAILS_SENT)
-	if err != nil {
-		Logger.Println(err)
+		msg.Reset()
 	}
 }
 

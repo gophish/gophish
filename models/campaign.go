@@ -430,6 +430,11 @@ func PostCampaign(c *Campaign, uid int64) error {
 				Logger.Println(err)
 			}
 			c.Results = append(c.Results, *r)
+			err = GenerateMailLog(c, r)
+			if err != nil {
+				Logger.Println(err)
+				continue
+			}
 		}
 	}
 	c.Status = CAMPAIGN_QUEUED
