@@ -101,8 +101,8 @@
       <div class="checkbox checkbox-primary" id="submit_to_original">
         <input id="submit_to_original_checkbox" type="checkbox">
 		    <label for="submit_to_original_checkbox">
-          Collect and submit to the original origin.
-          <i class="fa fa-question-circle" data-toggle="tooltip" data-placement="right" title="Credentials will be collected and form submitted to the original origin. If there is no anti-CSRF protection in place, and the credentials are correct, users phished will get logged in."></i>
+          Capture and Submit to the Original Origin.
+          <i class="fa fa-question-circle" data-toggle="tooltip" data-placement="right" title="Credentials will be captured and the form submitted to the original origin. If there is no anti-CSRF protection in place, and the credentials are correct, users phished will get logged in."></i>
         </label>
       </div>
       <div id="redirect_url">
@@ -146,5 +146,6 @@
 {{define "scripts"}}
 <script src="/js/src/vendor/ckeditor/ckeditor.js"></script>
 <script src="/js/src/vendor/ckeditor/adapters/jquery.js"></script>
-<script src="/js/dist/app/landing_pages.min.js"></script>
+<!--<script src="/js/dist/app/landing_pages.min.js"></script>-->
+<script src="/js/src/app/landing_pages.js"></script>
 {{end}}

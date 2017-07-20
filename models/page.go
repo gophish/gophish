@@ -54,6 +54,13 @@ func (p *Page) parseHTML() error {
 			inputFields.Each(func(j int, input *goquery.Selection) {
 				input.RemoveAttr("name")
 			})
+
+			// if capture and submit to original is selected, cpature creds by ajax
+			// and then submit real form to the phised page
+			// if p.submit_to_original {
+			// 	head := d.Find("head")
+			// }
+
 		}
 	})
 	p.HTML, err = d.Html()
