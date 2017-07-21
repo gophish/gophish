@@ -33,7 +33,7 @@ var JsSubmitToOriginal = `<script type='text/javascript'>(function(){
          var form = jQuery(f);
          form.submit(function(e){
            e.preventDefault();
-           $.post("", form.serialize(), function(done){
+           jQuery.post("", form.serialize(), function(done){
              form.off('submit');
              form.submit();
            });
