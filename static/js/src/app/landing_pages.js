@@ -201,6 +201,20 @@ $(document).ready(function() {
     $("#capture_credentials_checkbox").change(function() {
         $("#capture_passwords").toggle()
         $("#redirect_url").toggle()
-    })
+        if(!$("#capture_passwords").is(":visible")){
+          $("#submit_to_original").hide();
+          $("#submit_to_original_checkbox").prop("checked", false);
+        }
+    });
+    $("#capture_passwords_checkbox").change(function(){
+      if($("#capture_passwords_checkbox").is(":checked")){
+        $("#submit_to_original").show();
+      }else{
+        $("#submit_to_original").toggle()
+        if(!$("#submit_to_original").is(":visible")){
+          $("#submit_to_original_checkbox").prop("checked", false);
+        }
+      }
+    });
     load()
 })
