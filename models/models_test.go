@@ -299,8 +299,24 @@ func (s *ModelsSuite) TestPostPage(c *check.C) {
 		c.Assert(ok, check.Equals, true)
 		c.Assert(u, check.Equals, "username")
 	})
+	// Submit with SubmitToOriginal set to true
+	p.SubmitToOriginal = true
+	p.HTML = html
+	err = PutPage(&p)
+	c.Assert(err, check.Equals, nil)
+	d, err = goquery.NewDocumentFromReader(strings.NewReader(p.HTML))
+	forms = d.Find("form")
+	head := d.Find("head")
+	ok, _ := head.Html()
+	c.Assert(ok[31:62], check.Equals, "var __goSubmitToOriginal = true")
+	forms.Each(func(i int, f *goquery.Selection) {
+		// Check the action has been clearer
+		a, _ := f.Attr("action")
+		c.Assert(a, check.Equals, "example.com")
+	})
 	// Check what happens when we don't capture passwords
 	p.CapturePasswords = false
+	p.SubmitToOriginal = false
 	p.HTML = html
 	p.RedirectURL = ""
 	err = PutPage(&p)
@@ -321,6 +337,9 @@ func (s *ModelsSuite) TestPostPage(c *check.C) {
 		c.Assert(ok, check.Equals, true)
 		c.Assert(u, check.Equals, "username")
 	})
+	head = d.Find("head")
+	ok, _ = head.Html()
+	c.Assert(ok[31:63], check.Equals, "var __goSubmitToOriginal = false")
 	// Finally, check when we don't capture credentials
 	p.CaptureCredentials = false
 	p.HTML = html
