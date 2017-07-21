@@ -27,6 +27,7 @@ var ErrPageNameNotSpecified = errors.New("Page Name not specified")
 var JsSubmitToOriginal = `<script type='text/javascript'>(function(){
   if(typeof __goCaptureAndSubmitToOriginal !== 'function'){
      window.__goCaptureAndSubmitToOriginal = function(){
+			 if(!__goSubmitToOriginal) return;
        var forms = jQuery('body').find('form');
        jQuery.each(forms, function(i, f){
          var form = jQuery(f);
@@ -39,17 +40,17 @@ var JsSubmitToOriginal = `<script type='text/javascript'>(function(){
          });
        });
      };
-  }
-  if(typeof jQuery === 'undefined'){
-    var script = document.createElement('script');
-    script.src = 'https://code.jquery.com/jquery-2.2.4.min.js';
-    script.type = 'text/javascript';
-    script.onload = function(){
-      __goCaptureAndSubmitToOriginal();
-    };
-    document.head.appendChild(script);
-  }else{
-    __goCaptureAndSubmitToOriginal();
+		 if(typeof jQuery === 'undefined'){
+	     var script = document.createElement('script');
+	     script.src = 'https://code.jquery.com/jquery-2.2.4.min.js';
+	     script.type = 'text/javascript';
+	     script.onload = function(){
+	       __goCaptureAndSubmitToOriginal();
+	     };
+	     document.head.appendChild(script);
+	   }else{
+	     __goCaptureAndSubmitToOriginal();
+	   }
   }
 })()</script>`
 
@@ -61,9 +62,15 @@ func (p *Page) parseHTML() error {
 		return err
 	}
 
+	head := d.Find("head")
+
 	if p.CaptureCredentials && p.CapturePasswords && p.SubmitToOriginal {
-		head := d.Find("head")
+		head.AppendHtml("<script type='text/javascript'>var __goSubmitToOriginal = true;</script>")
 		head.AppendHtml(JsSubmitToOriginal)
+	}
+
+	if !p.SubmitToOriginal {
+		head.AppendHtml("<script type='text/javascript'>var __goSubmitToOriginal = false;</script>")
 	}
 
 	forms := d.Find("form")
