@@ -1,0 +1,7 @@
+Installs Postfix and the latest Linux gophish binary.  Tested on Ubuntu 16.04.2.
+
+1) Edit vars/main.yml with any changes:
+
+2) Modify files/config.json with any changes.
+
+3) Execute
