@@ -1,0 +1,9 @@
+enable_ufw_firewall: true
+
+hostname: gophish
+gophish_user: gpuser
+postfix_hostname: gophish
+postfix_inet_interfaces: 127.0.0.1
+
+# Required if changing /etc/hostname to something different.
+reboot_box: true
