@@ -50,6 +50,7 @@ function dismiss() {
     $("#targetsTable").dataTable().DataTable().clear().draw()
     $("#name").val("")
     $("#modal\\.flashes").empty()
+    $("#users").val("").change();
 }
 
 function edit(id) {
