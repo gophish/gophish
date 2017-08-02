@@ -35,7 +35,7 @@
     <div id="flashes" class="row"></div>
     <div class="row">
         <button type="button" class="btn btn-primary" onclick="edit(-1)" data-toggle="modal" data-target="#modal"><i class="fa fa-plus"></i> New Group</button>
-        <button type="button" class="btn btn-primary" onclick="createRandomSubgroups()" data-toggle="modal" data-target="#subgroup-modal"><i class="fa fa-random"></i> Create Random Subgroups</button>
+        <button id="subgroupsButton" type="button" class="btn btn-primary" onclick="createRandomSubgroups()" data-toggle="modal" data-target="#subgroup-modal"><i class="fa fa-random"></i> Create Random Subgroups</button>
     </div>
     &nbsp;
     <div id="loading">
@@ -130,7 +130,7 @@
       <div class="modal-body">
         <form id="subgroupForm">
           <div class="row">
-            <div class="form-group">
+            <div class="col-lg-1">
               <label class="control-label" for="users">Parent Group:</label>
               <select class="form-control" id="users"></select>
             </div>

@@ -179,6 +179,7 @@ function addTarget(firstNameInput, lastNameInput, emailInput, positionInput) {
 function load() {
     $("#groupTable").hide()
     $("#emptyMessage").hide()
+    $("#subgroupsButton").attr('disabled',false)
     $("#loading").show()
     api.groups.summary()
         .success(function(response) {
@@ -186,6 +187,7 @@ function load() {
             if (response.total > 0) {
                 groups = response.groups
                 $("#emptyMessage").hide()
+                $("#subgroupsButton").attr('disabled',false)
                 $("#groupTable").show()
                 var groupTable = $("#groupTable").DataTable({
                     destroy: true,
@@ -210,6 +212,7 @@ function load() {
                 })
             } else {
                 $("#emptyMessage").show()
+                $("#subgroupsButton").attr('disabled',true)
             }
         })
         .error(function() {
