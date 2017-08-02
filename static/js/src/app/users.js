@@ -248,4 +248,9 @@ $(document).ready(function() {
     $("#modal").on("hide.bs.modal", function() {
         dismiss();
     });
+    
+    // Select2 Defaults
+    $.fn.select2.defaults.set("width", "100%");
+    $.fn.select2.defaults.set("dropdownParent", $("#modal_body"));
+    $.fn.select2.defaults.set("theme", "bootstrap");
 });
