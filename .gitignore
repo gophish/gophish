@@ -26,6 +26,6 @@ _testmain.go
 *.db
 
 # Go build stuff
-gophish.exe
+gophish
 *.crt
 *.key
