@@ -35,6 +35,7 @@
     <div id="flashes" class="row"></div>
     <div class="row">
         <button type="button" class="btn btn-primary" onclick="edit(-1)" data-toggle="modal" data-target="#modal"><i class="fa fa-plus"></i> New Group</button>
+        <button type="button" class="btn btn-primary" onclick="createRandomSubgroups()" data-toggle="modal" data-target="#subgroup-modal"><i class="fa fa-random"></i> Create Random Subgroups</button>
     </div>
     &nbsp;
     <div id="loading">
@@ -114,6 +115,34 @@
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
         <button type="button" class="btn btn-primary" id="modalSubmit">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Subgroup Modal -->
+<div class="modal fade" id="subgroup-modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="groupModalLabel">Create Random Subgroups</h4>
+      </div>
+      <div class="modal-body">
+        <form id="subgroupForm">
+          <div class="row">
+            <label class="control-label" for="users">Parent Group:</label>
+            <select class="form-control" id="users"></select>
+          </div>
+          <div class="row">
+            <div class="col-sm-2">
+              <input type="text" class="form-control" placeholder="# of subgroups" id="subgroups">
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-primary" id="subgroupModalSubmit"><i class="fa fa-random"></i> Generate Subgroups</button> 
       </div>
     </div>
   </div>

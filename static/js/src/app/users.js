@@ -111,6 +111,25 @@ function edit(id) {
     })
 }
 
+function createRandomSubgroups() {
+    api.groups.get()
+        .success(function(groups) {
+            if (groups.length == 0) {
+                modalError("No groups found!")
+                return false;
+            } else {
+                var group_s2 = $.map(groups, function(obj) {
+                    obj.text = obj.name
+                    return obj
+                });
+                $("#users.form-control").select2({
+                    placeholder: "Select Groups",
+                    data: group_s2,
+                });
+            }
+        });
+}
+
 function deleteGroup(id) {
     var group = groups.find(function(x){return x.id === id})
     if (!group) {
