@@ -51,6 +51,7 @@ function dismiss() {
     $("#name").val("")
     $("#modal\\.flashes").empty()
     $("#users").val("").change();
+    $("#subgroups").val("").change();
 }
 
 function edit(id) {
@@ -121,14 +122,83 @@ function createRandomSubgroups() {
             } else {
                 var group_s2 = $.map(groups, function(obj) {
                     obj.text = obj.name
+                    obj.value = obj.id
                     return obj
                 });
                 $("#users.form-control").select2({
-                    placeholder: "Select Groups",
+                    placeholder: "Select Group",
                     data: group_s2,
                 });
             }
         });
+
+
+    $("#subgroupModalSubmit").unbind('click').click(function() {
+        var parentTargets = [];
+        var parentGroup = {};
+        var select = $("#users")[0];
+        var subgroups = Number.parseInt($("#subgroups").val());
+        if (select.options.selectedIndex != -1 && subgroups) {
+            api.groupId.get($(select.options[select.options.selectedIndex]).val())
+                .success(function(data) {
+                    parentTargets = data.targets;
+                    parentGroup = data;
+
+                    totalTargets = parentTargets.length;
+
+                    if (subgroups > 1 && subgroups <= totalTargets) {
+                        var count = Math.floor(totalTargets / subgroups);
+                        var extra = totalTargets % subgroups;
+                        console.log(extra);
+                        var newGroups = [];
+                        var date = new Date();
+                        for (var i = 0; i < subgroups; i++) {
+                            newGroups.push({
+                                name: parentGroup.name + "-" + (date.getTime() + i),
+                                targets: []
+                            })
+                        }
+
+                        for (var i = 0; i < count; i++) {
+                            for (var j = 0; j < newGroups.length; j++) {
+                                newGroups[j].targets.push(parentTargets.splice(Math.floor(Math.random() * parentTargets.length), 1)[0]);
+                            }
+                        }
+
+                        var indices = [];
+                        for (var i = 0; i < newGroups.length; i++) {
+                            indices.push(i);
+                        }
+                        for (var i = 0; i < extra; i++) {
+                            var index = indices.splice(Math.floor(Math.random() * newGroups.length), 1);
+                            newGroups[index].targets.push(parentTargets.splice(Math.floor(Math.random() * parentTargets.length), 1)[0]);
+                        }
+
+                        for (var i = 0; i < newGroups.length; i++) {
+                            api.groups.post(newGroups[i])
+                                .success(function(data) {
+                                    successFlash("Subgroups created successfully!")
+                                    load()
+                                    dismiss()
+                                    $("#modal").modal('hide')
+                                })
+                                .error(function(data) {
+                                    console.log(newGroups[i]);
+                                    $("#modal\\.flashes").empty().append("<div style=\"text-align:center\" class=\"alert alert-danger\">\
+            <i class=\"fa fa-exclamation-circle\"></i> " + data.responseJSON.message + "</div>")
+                                })
+                        }
+                    } else {
+                        modalError("Invalid number of subgroups!");
+                    }
+                })
+                .error(function(data) {
+                    modalError(data.responseJSON.message);
+                })
+        } else {
+            modalError("Invalid options!");
+        }
+    })
 }
 
 function deleteGroup(id) {
@@ -222,6 +292,31 @@ function load() {
 }
 
 $(document).ready(function() {
+    $('.modal').on('hidden.bs.modal', function(event) {
+        $(this).removeClass('fv-modal-stack');
+        $('body').data('fv_open_modals', $('body').data('fv_open_modals') - 1);
+    });
+    $('.modal').on('shown.bs.modal', function(event) {
+        // Keep track of the number of open modals
+        if (typeof($('body').data('fv_open_modals')) == 'undefined') {
+            $('body').data('fv_open_modals', 0);
+        }
+        // if the z-index of this modal has been set, ignore.
+        if ($(this).hasClass('fv-modal-stack')) {
+            return;
+        }
+        $(this).addClass('fv-modal-stack');
+        // Increment the number of open modals
+        $('body').data('fv_open_modals', $('body').data('fv_open_modals') + 1);
+        // Setup the appropriate z-index
+        $(this).css('z-index', 1040 + (10 * $('body').data('fv_open_modals')));
+        $('.modal-backdrop').not('.fv-modal-stack').css('z-index', 1039 + (10 * $('body').data('fv_open_modals')));
+        $('.modal-backdrop').not('fv-modal-stack').addClass('fv-modal-stack');
+    });
+    // Scrollbar fix - https://stackoverflow.com/questions/19305821/multiple-modals-overlay
+    $(document).on('hidden.bs.modal', '.modal', function () {
+        $('.modal:visible').length && $(document.body).addClass('modal-open');
+    });
     load()
         // Setup the event listeners
         // Handle manual additions
@@ -245,10 +340,10 @@ $(document).ready(function() {
             .remove()
             .draw();
     });
-    $("#modal").on("hide.bs.modal", function() {
+    $(".modal").on("hide.bs.modal", function() {
         dismiss();
     });
-    
+
     // Select2 Defaults
     $.fn.select2.defaults.set("width", "100%");
     $.fn.select2.defaults.set("dropdownParent", $("#modal_body"));
