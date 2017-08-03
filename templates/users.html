@@ -120,37 +120,36 @@
   </div>
 </div>
 <!-- Subgroup Modal -->
-<div class="modal fade" id="subgroup-modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="groupModalLabel">Create Random Subgroups</h4>
-      </div>
-      <div class="modal-body">
-        <form id="subgroupForm">
-          <div class="row">
-            <div class="col-lg-1">
-              <label class="control-label" for="users">Parent Group:</label>
-              <select class="form-control" id="users"></select>
+<div class="modal fade" id="subgroup-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="groupModalLabel">Create Random Subgroups</h4>
             </div>
-          </div>
-          <br />
-          <div class="row">
-            <div class="col-sm-2">
-              <input type="text" class="form-control" placeholder="# of subgroups" id="subgroups">
+            <div class="modal-body" id="modal_body">
+                <div class="row" id="modal.flashes"></div>
+                <div class="form-group">
+                    <label class="control-label" for="users">Parent Group:</label>
+                    <select class="form-control" id="users">
+                        <option value="-1"></option>
+                    </select>
+                    <br />
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" placeholder="# of subgroups" id="subgroups">
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        <button type="submit" class="btn btn-primary" id="subgroupModalSubmit"><i class="fa fa-random"></i> Generate Subgroups</button> 
-      </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary" id="subgroupModalSubmit">Generate Subgroups</button>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 {{end}}
 {{define "scripts"}}
-<script src="/js/src/app/users.js"></script>
+<script src="/js/dist/app/users.min.js"></script>
 {{end}}
