@@ -62,48 +62,48 @@
 </div>
 <!-- Modal -->
 <div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="dismiss()"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="campaignModalLabel">New Campaign</h4>
-      </div>
-      <div class="modal-body" id="modal_body">
-          <div class="row" id="modal.flashes"></div>
-          <div class="form-group">
-              <label for="name">Name:</label>
-              <input type="text" class="form-control" id="name" placeholder="Campaign name" autofocus>
-              <label class="control-label" for="template">Email Template:</label>
-              <select class="form-control" placeholder="Template Name" id="template"/>
-                  <option></option>
-              </select>
-	      <label class="control-label" for="page">Landing Page:</label>
-          <select class="form-control" placeholder="Landing Page" id="page"/>
-                  <option></option>
-          </select>
-	      <label class="control-label" for="url">URL: <i class="fa fa-question-circle" data-toggle="tooltip" data-placement="right" title="Location of gophish listener (must be reachable by targets!)"></i></label>
-              <input type="text" class="form-control" placeholder="http://192.168.1.1" id="url"/>
-	      <label class="control-label" for="url">Schedule: </label>
-              <input type="text" class="form-control" id="launch_date"/>
-	      <label class="control-label" for="profile">Sending Profile:</label>
-              <div class="input-group">
-                <select class="form-control" placeholder="Sending Profile" id="profile"/>
-                  <option></option>
-                </select>
-                <span class="input-group-btn">
-                  <button type="button" data-toggle="modal" data-target="#sendTestEmailModal" class="btn btn-primary button"><i class="fa fa-envelope"></i> Send Test Email</button>
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="dismiss()"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="campaignModalLabel">New Campaign</h4>
+            </div>
+            <div class="modal-body" id="modal_body">
+                <div class="row" id="modal.flashes"></div>
+                <div class="form-group">
+                    <label for="name">Name:</label>
+                    <input type="text" class="form-control" id="name" placeholder="Campaign name" autofocus>
+                    <label class="control-label" for="template">Email Template:</label>
+                    <select class="form-control" placeholder="Template Name" id="template" />
+                    <option></option>
+                    </select>
+                    <label class="control-label" for="page">Landing Page:</label>
+                    <select class="form-control" placeholder="Landing Page" id="page" />
+                    <option></option>
+                    </select>
+                    <label class="control-label" for="url">URL: <i class="fa fa-question-circle" data-toggle="tooltip" data-placement="right" title="Location of gophish listener (must be reachable by targets!)"></i></label>
+                    <input type="text" class="form-control" placeholder="http://192.168.1.1" id="url" />
+                    <label class="control-label" for="url">Schedule: </label>
+                    <input type="text" class="form-control" id="launch_date" />
+                    <label class="control-label" for="profile">Sending Profile:</label>
+                    <div class="input-group">
+                    <select class="form-control" placeholder="Sending Profile" id="profile">
+                        <option></option>
+                    </select>
+                    <span class="input-group-btn">
+                    <button type="button" data-toggle="modal" data-target="#sendTestEmailModal" class="btn btn-primary button"><i class="fa fa-envelope"></i> Send Test Email</button>
                 </span>
-              </div>
-              <label class="control-label" for="users">Groups:</label>
-              <select class="form-control" id="users" multiple="multiple"></select>
-          </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal" onclick="dismiss()">Close</button>
-	<button type="button" id="launchButton" class="btn btn-primary" onclick="launch()"><i class="fa fa-rocket"></i> Launch Campaign</button>
-      </div>
+                    </div>
+                    <label class="control-label" for="users">Groups:</label>
+                    <select class="form-control" id="users" multiple="multiple"></select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal" onclick="dismiss()">Close</button>
+                <button type="button" id="launchButton" class="btn btn-primary" onclick="launch()"><i class="fa fa-rocket"></i> Launch Campaign</button>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 <!-- Send Test Email Modal -->
 <div class="modal" id="sendTestEmailModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel">
