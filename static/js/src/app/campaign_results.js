@@ -4,64 +4,70 @@ var doPoll = true;
 // statuses is a helper map to point result statuses to ui classes
 var statuses = {
     "Email Sent": {
-        slice: "ct-slice-donut-sent",
-        legend: "ct-legend-sent",
+        color: "#1abc9c",
         label: "label-success",
         icon: "fa-envelope",
         point: "ct-point-sent"
     },
+    "Emails Sent": {
+        color: "#1abc9c",
+        label: "label-success",
+        icon: "fa-envelope",
+        point: "ct-point-sent"
+    },
+    "In progress": {
+        label: "label-primary"
+    },
+    "Queued": {
+        label: "label-info"
+    },
+    "Completed": {
+        label: "label-success"
+    },
     "Email Opened": {
-        slice: "ct-slice-donut-opened",
-        legend: "ct-legend-opened",
+        color: "#f9bf3b",
         label: "label-warning",
         icon: "fa-envelope",
         point: "ct-point-opened"
     },
     "Clicked Link": {
-        slice: "ct-slice-donut-clicked",
-        legend: "ct-legend-clicked",
+        color: "#F39C12",
         label: "label-clicked",
         icon: "fa-mouse-pointer",
         point: "ct-point-clicked"
     },
     "Success": {
-        slice: "ct-slice-donut-success",
-        legend: "ct-legend-success",
+        color: "#f05b4f",
         label: "label-danger",
         icon: "fa-exclamation",
         point: "ct-point-clicked"
     },
     "Error": {
-        slice: "ct-slice-donut-error",
-        legend: "ct-legend-error",
+        color: "#6c7a89",
         label: "label-default",
         icon: "fa-times",
         point: "ct-point-error"
     },
     "Error Sending Email": {
-        slice: "ct-slice-donut-error",
-        legend: "ct-legend-error",
+        color: "#6c7a89",
         label: "label-default",
         icon: "fa-times",
         point: "ct-point-error"
     },
     "Submitted Data": {
-        slice: "ct-slice-donut-success",
-        legend: "ct-legend-success",
+        color: "#f05b4f",
         label: "label-danger",
         icon: "fa-exclamation",
         point: "ct-point-clicked"
     },
     "Unknown": {
-        slice: "ct-slice-donut-error",
-        legend: "ct-legend-error",
+        color: "#6c7a89",
         label: "label-default",
         icon: "fa-question",
         point: "ct-point-error"
     },
     "Sending": {
-        slice: "ct-slice-donut-sending",
-        legend: "ct-legend-sending",
+        color: "#428bca",
         label: "label-primary",
         icon: "fa-spinner",
         point: "ct-point-sending"
@@ -71,6 +77,22 @@ var statuses = {
         icon: "fa-rocket"
     }
 }
+
+var statusMapping = {
+    "Email Sent": "sent",
+    "Email Opened": "opened",
+    "Clicked Link": "clicked",
+    "Submitted Data": "submitted_data",
+}
+
+// This is an underwhelming attempt at an enum
+// until I have time to refactor this appropriately.
+var progressListing = [
+    "Email Sent",
+    "Email Opened",
+    "Clicked Link",
+    "Submitted Data"
+]
 
 var campaign = {}
 var bubbles = []
@@ -93,24 +115,25 @@ function deleteCampaign() {
         confirmButtonColor: "#428bca",
         reverseButtons: true,
         allowOutsideClick: false,
-        preConfirm: function() {
-            return new Promise(function(resolve, reject) {
+        showLoaderOnConfirm: true,
+        preConfirm: function () {
+            return new Promise(function (resolve, reject) {
                 api.campaignId.delete(campaign.id)
-                    .success(function(msg) {
+                    .success(function (msg) {
                         resolve()
                     })
-                    .error(function(data) {
+                    .error(function (data) {
                         reject(data.responseJSON.message)
                     })
             })
         }
-    }).then(function() {
+    }).then(function () {
         swal(
             'Campaign Deleted!',
             'This campaign has been deleted!',
             'success'
         );
-        $('button:contains("OK")').on('click', function() {
+        $('button:contains("OK")').on('click', function () {
             location.href = '/campaigns'
         })
     })
@@ -128,18 +151,19 @@ function completeCampaign() {
         confirmButtonColor: "#428bca",
         reverseButtons: true,
         allowOutsideClick: false,
-        preConfirm: function() {
-            return new Promise(function(resolve, reject) {
+        showLoaderOnConfirm: true,
+        preConfirm: function () {
+            return new Promise(function (resolve, reject) {
                 api.campaignId.complete(campaign.id)
-                    .success(function(msg) {
+                    .success(function (msg) {
                         resolve()
                     })
-                    .error(function(data) {
+                    .error(function (data) {
                         reject(data.responseJSON.message)
                     })
             })
         }
-    }).then(function() {
+    }).then(function () {
         swal(
             'Campaign Completed!',
             'This campaign has been completed!',
@@ -190,32 +214,32 @@ function replay(event_idx) {
     details = JSON.parse(request.details)
     url = null
     form = $('<form>').attr({
-            method: 'POST',
-            target: '_blank',
-        })
-        /* Create a form object and submit it */
-    $.each(Object.keys(details.payload), function(i, param) {
-            if (param == "rid") {
-                return true;
-            }
-            if (param == "__original_url") {
-                url = details.payload[param];
-                return true;
-            }
-            $('<input>').attr({
-                name: param,
-            }).val(details.payload[param]).appendTo(form);
-        })
-        /* Ensure we know where to send the user */
-        // Prompt for the URL
+        method: 'POST',
+        target: '_blank',
+    })
+    /* Create a form object and submit it */
+    $.each(Object.keys(details.payload), function (i, param) {
+        if (param == "rid") {
+            return true;
+        }
+        if (param == "__original_url") {
+            url = details.payload[param];
+            return true;
+        }
+        $('<input>').attr({
+            name: param,
+        }).val(details.payload[param]).appendTo(form);
+    })
+    /* Ensure we know where to send the user */
+    // Prompt for the URL
     swal({
         title: 'Where do you want the credentials submitted to?',
         input: 'text',
         showCancelButton: true,
         inputPlaceholder: "http://example.com/login",
         inputValue: url || "",
-        inputValidator: function(value) {
-            return new Promise(function(resolve, reject) {
+        inputValidator: function (value) {
+            return new Promise(function (resolve, reject) {
                 if (value) {
                     resolve();
                 } else {
@@ -223,7 +247,7 @@ function replay(event_idx) {
                 }
             });
         }
-    }).then(function(result) {
+    }).then(function (result) {
         url = result
         submitForm()
     })
@@ -249,7 +273,7 @@ function renderTimeline(data) {
         '<h6>Timeline for ' + escapeHtml(record.first_name) + ' ' + escapeHtml(record.last_name) +
         '</h6><span class="subtitle">Email: ' + escapeHtml(record.email) + '</span>' +
         '<div class="timeline-graph col-sm-6">'
-    $.each(campaign.timeline, function(i, event) {
+    $.each(campaign.timeline, function (i, event) {
         if (!event.email || event.email == record.email) {
             // Add the event
             results += '<div class="timeline-entry">' +
@@ -270,7 +294,7 @@ function renderTimeline(data) {
                     results += '<div class="timeline-event-results">'
                     results += '    <table class="table table-condensed table-bordered table-striped">'
                     results += '        <thead><tr><th>Parameter</th><th>Value(s)</tr></thead><tbody>'
-                    $.each(Object.keys(details.payload), function(i, param) {
+                    $.each(Object.keys(details.payload), function (i, param) {
                         if (param == "rid") {
                             return true;
                         }
@@ -296,6 +320,131 @@ function renderTimeline(data) {
     return results
 }
 
+var renderTimelineChart = function (chartopts) {
+    return Highcharts.chart('timeline_chart', {
+        chart: {
+            zoomType: 'x',
+            type: 'line',
+            height: "200px"
+        },
+        title: {
+            text: 'Campaign Timeline'
+        },
+        xAxis: {
+            type: 'datetime',
+            dateTimeLabelFormats: {
+                second: '%l:%M:%S',
+                minute: '%l:%M',
+                hour: '%l:%M',
+                day: '%b %d, %Y',
+                week: '%b %d, %Y',
+                month: '%b %Y'
+            }
+        },
+        yAxis: {
+            min: 0,
+            max: 2,
+            visible: false,
+            tickInterval: 1,
+            labels: {
+                enabled: false
+            },
+            title: {
+                text: ""
+            }
+        },
+        tooltip: {
+            formatter: function () {
+                return Highcharts.dateFormat('%A, %b %d %l:%M:%S %P', new Date(this.x)) +
+                    '<br>Event: ' + this.point.message + '<br>Email: <b>' + this.point.email + '</b>'
+            }
+        },
+        legend: {
+            enabled: false
+        },
+        plotOptions: {
+            series: {
+                marker: {
+                    enabled: true,
+                    symbol: 'circle',
+                    radius: 3
+                },
+                cursor: 'pointer',
+            },
+            line: {
+                states: {
+                    hover: {
+                        lineWidth: 1
+                    }
+                }
+            }
+        },
+        credits: {
+            enabled: false
+        },
+        series: [{
+            data: chartopts['data'],
+            dashStyle: "shortdash",
+            color: "#cccccc",
+            lineWidth: 1
+        }]
+    })
+}
+
+/* Renders a pie chart using the provided chartops */
+var renderPieChart = function (chartopts) {
+    return Highcharts.chart(chartopts['elemId'], {
+        chart: {
+            type: 'pie',
+            events: {
+                load: function () {
+                    var chart = this,
+                        rend = chart.renderer,
+                        pie = chart.series[0],
+                        left = chart.plotLeft + pie.center[0],
+                        top = chart.plotTop + pie.center[1];
+                    this.innerText = rend.text(chartopts['data'][0].y, left, top).
+                        attr({
+                            'text-anchor': 'middle',
+                            'font-size': '24px',
+                            'font-weight': 'bold',
+                            'fill': chartopts['colors'][0],
+                            'font-family': 'Helvetica,Arial,sans-serif'
+                        }).add();
+                },
+                render: function () {
+                    this.innerText.attr({ text: chartopts['data'][0].y })
+                }
+            }
+        },
+        title: {
+            text: chartopts['title']
+        },
+        plotOptions: {
+            pie: {
+                innerSize: '80%',
+                dataLabels: {
+                    enabled: false
+                }
+            }
+        },
+        credits: {
+            enabled: false
+        },
+        tooltip: {
+            formatter: function () {
+                if (this.key == undefined) {
+                    return false
+                }
+                return '<span style="color:' + this.color + '">\u25CF</span>' + this.point.name + ': <b>' + this.y + '</b><br/>'
+            }
+        },
+        series: [{
+            data: chartopts['data'],
+            colors: chartopts['colors'],
+        }]
+    })
+}
 
 /* poll - Queries the API and updates the UI with the results
  *
@@ -307,81 +456,94 @@ function renderTimeline(data) {
  */
 function poll() {
     api.campaignId.results(campaign.id)
-        .success(function(c) {
+        .success(function (c) {
             campaign = c
-                /* Update the timeline */
-            var timeline_data = {
-                series: [{
-                    name: "Events",
-                    data: []
-                }]
-            }
-            $.each(campaign.timeline, function(i, event) {
-                timeline_data.series[0].data.push({
-                    meta: i,
-                    x: new Date(event.time),
+            /* Update the timeline */
+            var timeline_series_data = []
+            $.each(campaign.timeline, function (i, event) {
+                var event_date = moment(event.time)
+                timeline_series_data.push({
+                    email: event.email,
+                    x: event_date.valueOf(),
                     y: 1
                 })
             })
-            var timeline_chart = $("#timeline_chart")
-            if (timeline_chart.get(0).__chartist__) {
-                timeline_chart.get(0).__chartist__.update(timeline_data)
-            }
+            var timeline_series_data = []
+            $.each(campaign.timeline, function (i, event) {
+                var event_date = moment(event.time)
+                timeline_series_data.push({
+                    email: event.email,
+                    message: event.message,
+                    x: event_date.valueOf(),
+                    y: 1,
+                    marker: {
+                        fillColor: statuses[event.message].color
+                    }
+                })
+            })
+            var timeline_chart = $("#timeline_chart").highcharts()
+            timeline_chart.series[0].update({
+                data: timeline_series_data
+            })
             /* Update the results donut chart */
-            var email_data = {
-                series: []
-            }
             var email_series_data = {}
-            $.each(campaign.results, function(i, result) {
-                if (!email_series_data[result.status]) {
-                    email_series_data[result.status] = 1
-                } else {
-                    email_series_data[result.status]++;
+            // Load the initial data
+            Object.keys(statusMapping).forEach(function (k) {
+                email_series_data[k] = 0
+            });
+            $.each(campaign.results, function (i, result) {
+                email_series_data[result.status]++;
+                // Backfill status values
+                var step = progressListing.indexOf(result.status)
+                for (var i = 0; i < step; i++) {
+                    email_series_data[progressListing[i]]++
                 }
             })
-            $("#email_chart_legend").html("")
-            $.each(email_series_data, function(status, count) {
-                email_data.series.push({
-                    meta: status,
-                    value: count
+            $.each(email_series_data, function (status, count) {
+                var email_data = []
+                if (!(status in statusMapping)) {
+                    return true
+                }
+                email_data.push({
+                    name: status,
+                    y: count
                 })
-                $("#email_chart_legend").append('<li><span class="' + statuses[status].legend + '"></span>' + status + '</li>')
+                email_data.push({
+                    name: '',
+                    y: campaign.results.length - count
+                })
+                var chart = $("#" + statusMapping[status] + "_chart").highcharts()
+                chart.series[0].update({
+                    data: email_data
+                })
             })
-            var email_chart = $("#email_chart")
-            if (email_chart.get(0).__chartist__) {
-                email_chart.get(0).__chartist__.on('draw', function(data) {
-                        data.element.addClass(statuses[data.meta].slice)
-                    })
-                    // Update with the latest data
-                email_chart.get(0).__chartist__.update(email_data)
-            }
             /* Update the datatable */
             resultsTable = $("#resultsTable").DataTable()
-            resultsTable.rows().every(function(i, tableLoop, rowLoop) {
-                    var row = this.row(i)
-                    var rowData = row.data()
-                    var rid = rowData[0]
-                    $.each(campaign.results, function(j, result) {
-                        if (result.id == rid) {
-                            var label = statuses[result.status].label || "label-default";
-                            rowData[6] = "<span class=\"label " + label + "\">" + result.status + "</span>"
-                            resultsTable.row(i).data(rowData).draw(false)
-                            if (row.child.isShown()) {
-                                row.child(renderTimeline(row.data()))
-                            }
-                            return false
+            resultsTable.rows().every(function (i, tableLoop, rowLoop) {
+                var row = this.row(i)
+                var rowData = row.data()
+                var rid = rowData[0]
+                $.each(campaign.results, function (j, result) {
+                    if (result.id == rid) {
+                        var label = statuses[result.status].label || "label-default";
+                        rowData[6] = "<span class=\"label " + label + "\">" + result.status + "</span>"
+                        resultsTable.row(i).data(rowData).draw(false)
+                        if (row.child.isShown()) {
+                            row.child(renderTimeline(row.data()))
                         }
-                    })
+                        return false
+                    }
                 })
-                /* Update the map information */
+            })
+            /* Update the map information */
             bubbles = []
-            $.each(campaign.results, function(i, result) {
+            $.each(campaign.results, function (i, result) {
                 // Check that it wasn't an internal IP
                 if (result.latitude == 0 && result.longitude == 0) {
                     return true;
                 }
                 newIP = true
-                $.each(bubbles, function(i, bubble) {
+                $.each(bubbles, function (i, bubble) {
                     if (bubble.ip == result.ip) {
                         bubbles[i].radius += 1
                         newIP = false
@@ -407,13 +569,13 @@ function poll() {
 function load() {
     campaign.id = window.location.pathname.split('/').slice(-1)[0]
     api.campaignId.results(campaign.id)
-        .success(function(c) {
+        .success(function (c) {
             campaign = c
             if (campaign) {
                 $("title").text(c.name + " - Gophish")
                 $("#loading").hide()
                 $("#campaignResults").show()
-                    // Set the title
+                // Set the title
                 $("#page-title").text("Results for " + c.name)
                 if (c.status == "Completed") {
                     $('#complete_button')[0].disabled = true;
@@ -422,57 +584,21 @@ function load() {
                 }
                 // Setup tooltips
                 $('[data-toggle="tooltip"]').tooltip()
-                    // Setup viewing the details of a result
-                $("#resultsTable").on("click", ".timeline-event-details", function() {
-                        // Show the parameters
-                        payloadResults = $(this).parent().find(".timeline-event-results")
-                        if (payloadResults.is(":visible")) {
-                            $(this).find("i").removeClass("fa-caret-down")
-                            $(this).find("i").addClass("fa-caret-right")
-                            payloadResults.hide()
-                        } else {
-                            $(this).find("i").removeClass("fa-caret-right")
-                            $(this).find("i").addClass("fa-caret-down")
-                            payloadResults.show()
-                        }
-                    })
-                    // Setup our graphs
-                var timeline_data = {
-                    series: [{
-                        name: "Events",
-                        data: []
-                    }]
-                }
-                var email_data = {
-                    series: []
-                }
-                var email_legend = {}
-                var email_series_data = {}
-                var timeline_opts = {
-                    axisX: {
-                        showGrid: false,
-                        type: Chartist.FixedScaleAxis,
-                        divisor: 5,
-                        labelInterpolationFnc: function(value) {
-                            return moment(value).format('MMMM Do YYYY h:mm a')
-                        }
-                    },
-                    axisY: {
-                        type: Chartist.FixedScaleAxis,
-                        ticks: [0, 1, 2],
-                        low: 0,
-                        showLabel: false
-                    },
-                    showArea: false,
-                    plugins: []
-                }
-                var email_opts = {
-                        donut: true,
-                        donutWidth: 40,
-                        chartPadding: 0,
-                        showLabel: false
+                // Setup viewing the details of a result
+                $("#resultsTable").on("click", ".timeline-event-details", function () {
+                    // Show the parameters
+                    payloadResults = $(this).parent().find(".timeline-event-results")
+                    if (payloadResults.is(":visible")) {
+                        $(this).find("i").removeClass("fa-caret-down")
+                        $(this).find("i").addClass("fa-caret-right")
+                        payloadResults.hide()
+                    } else {
+                        $(this).find("i").removeClass("fa-caret-right")
+                        $(this).find("i").addClass("fa-caret-down")
+                        payloadResults.show()
                     }
-                    // Setup the results table
+                })
+                // Setup the results table
                 resultsTable = $("#resultsTable").DataTable({
                     destroy: true,
                     "order": [
@@ -490,25 +616,31 @@ function load() {
                     }]
                 });
                 resultsTable.clear();
-                $.each(campaign.results, function(i, result) {
-                        label = statuses[result.status].label || "label-default";
-                        resultsTable.row.add([
-                            result.id,
-                            "<i class=\"fa fa-caret-right\"></i>",
-                            escapeHtml(result.first_name) || "",
-                            escapeHtml(result.last_name) || "",
-                            escapeHtml(result.email) || "",
-                            escapeHtml(result.position) || "",
-                            "<span class=\"label " + label + "\">" + result.status + "</span>"
-                        ]).draw()
-                        if (!email_series_data[result.status]) {
-                            email_series_data[result.status] = 1
-                        } else {
-                            email_series_data[result.status]++;
-                        }
-                    })
-                    // Setup the individual timelines
-                $('#resultsTable tbody').on('click', 'td.details-control', function() {
+                var email_series_data = {}
+                var timeline_series_data = []
+                Object.keys(statusMapping).forEach(function (k) {
+                    email_series_data[k] = 0
+                });
+                $.each(campaign.results, function (i, result) {
+                    label = statuses[result.status].label || "label-default";
+                    resultsTable.row.add([
+                        result.id,
+                        "<i class=\"fa fa-caret-right\"></i>",
+                        escapeHtml(result.first_name) || "",
+                        escapeHtml(result.last_name) || "",
+                        escapeHtml(result.email) || "",
+                        escapeHtml(result.position) || "",
+                        "<span class=\"label " + label + "\">" + result.status + "</span>"
+                    ]).draw()
+                    email_series_data[result.status]++;
+                    // Backfill status values
+                    var step = progressListing.indexOf(result.status)
+                    for (var i = 0; i < step; i++) {
+                        email_series_data[progressListing[i]]++
+                    }
+                })
+                // Setup the individual timelines
+                $('#resultsTable tbody').on('click', 'td.details-control', function () {
                     var tr = $(this).closest('tr');
                     var row = resultsTable.row(tr);
                     if (row.child.isShown()) {
@@ -528,88 +660,42 @@ function load() {
                     }
                 });
                 // Setup the graphs
-                $.each(campaign.timeline, function(i, event) {
-                    timeline_data.series[0].data.push({
-                        meta: i,
-                        x: new Date(event.time),
-                        y: 1
-                    })
-                })
-                $("#email_chart_legend").html("")
-                $.each(email_series_data, function(status, count) {
-                    email_data.series.push({
-                        meta: status,
-                        value: count
-                    })
-                    $("#email_chart_legend").append('<li><span class="' + statuses[status].legend + '"></span>' + status + '</li>')
-                })
-                var timeline_chart = new Chartist.Line('#timeline_chart', timeline_data, timeline_opts)
-                timeline_chart.on('draw', function(data) {
-                        if (data.type === "point") {
-                            var point_style = statuses[campaign.timeline[data.meta].message].point
-                            var circle = new Chartist.Svg("circle", {
-                                cx: [data.x],
-                                cy: [data.y],
-                                r: 5,
-                                fill: "#283F50",
-                                meta: data.meta,
-                                value: 1,
-                            }, point_style + ' ct-timeline-point')
-                            data.element.replace(circle)
+                $.each(campaign.timeline, function (i, event) {
+                    var event_date = moment(event.time)
+                    timeline_series_data.push({
+                        email: event.email,
+                        message: event.message,
+                        x: event_date.valueOf(),
+                        y: 1,
+                        marker: {
+                            fillColor: statuses[event.message].color
                         }
                     })
-                    // Setup the overview chart listeners
-                $chart = $("#timeline_chart")
-                var $toolTip = $chart
-                    .append('<div class="chartist-tooltip"></div>')
-                    .find('.chartist-tooltip')
-                    .hide();
-                $chart.on('mouseenter', '.ct-timeline-point', function() {
-                    var $point = $(this)
-                    cidx = $point.attr('meta')
-                    html = "Event: " + campaign.timeline[cidx].message
-                    if (campaign.timeline[cidx].email) {
-                        html += '<br>' + "Email: " + escapeHtml(campaign.timeline[cidx].email)
+                })
+                renderTimelineChart({
+                    data: timeline_series_data
+                })
+                $.each(email_series_data, function (status, count) {
+                    var email_data = []
+                    if (!(status in statusMapping)) {
+                        return true
                     }
-                    $toolTip.html(html).show()
-                });
-                $chart.on('mouseleave', '.ct-timeline-point', function() {
-                    $toolTip.hide();
-                });
-                $chart.on('mousemove', function(event) {
-                    $toolTip.css({
-                        left: (event.offsetX || event.originalEvent.layerX) - $toolTip.width() / 2 - 10,
-                        top: (event.offsetY + 70 || event.originalEvent.layerY) - $toolTip.height() - 40
-                    });
-                });
-
-                var email_chart = new Chartist.Pie("#email_chart", email_data, email_opts)
-                email_chart.on('draw', function(data) {
-                        data.element.addClass(statuses[data.meta].slice)
+                    email_data.push({
+                        name: status,
+                        y: count
                     })
-                    // Setup the average chart listeners
-                $piechart = $("#email_chart")
-                var $pietoolTip = $piechart
-                    .append('<div class="chartist-tooltip"></div>')
-                    .find('.chartist-tooltip')
-                    .hide();
-
-                $piechart.on('mouseenter', '.ct-slice-donut', function() {
-                    var $point = $(this)
-                    value = $point.attr('ct:value')
-                    label = $point.attr('ct:meta')
-                    $pietoolTip.html(label + ': ' + value.toString()).show();
-                });
-
-                $piechart.on('mouseleave', '.ct-slice-donut', function() {
-                    $pietoolTip.hide();
-                });
-                $piechart.on('mousemove', function(event) {
-                    $pietoolTip.css({
-                        left: (event.offsetX || event.originalEvent.layerX) - $pietoolTip.width() / 2 - 10,
-                        top: (event.offsetY + 40 || event.originalEvent.layerY) - $pietoolTip.height() - 80
-                    });
-                });
+                    email_data.push({
+                        name: '',
+                        y: campaign.results.length - count
+                    })
+                    var chart = renderPieChart({
+                        elemId: statusMapping[status] + '_chart',
+                        title: status,
+                        name: status,
+                        data: email_data,
+                        colors: [statuses[status].color, '#dddddd']
+                    })
+                })
                 if (!map) {
                     map = new Datamap({
                         element: document.getElementById("resultsMap"),
@@ -627,13 +713,13 @@ function load() {
                         }
                     });
                 }
-                $.each(campaign.results, function(i, result) {
+                $.each(campaign.results, function (i, result) {
                     // Check that it wasn't an internal IP
                     if (result.latitude == 0 && result.longitude == 0) {
                         return true;
                     }
                     newIP = true
-                    $.each(bubbles, function(i, bubble) {
+                    $.each(bubbles, function (i, bubble) {
                         if (bubble.ip == result.ip) {
                             bubbles[i].radius += 1
                             newIP = false
@@ -653,7 +739,7 @@ function load() {
                 map.bubbles(bubbles)
             }
             // Load up the map data (only once!)
-            $('a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
+            $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
                 if ($(e.target).attr('href') == "#overview") {
                     if (!map) {
                         map = new Datamap({
@@ -671,7 +757,7 @@ function load() {
                 }
             })
         })
-        .error(function() {
+        .error(function () {
             $("#loading").hide()
             errorFlash(" Campaign not found!")
         })
@@ -691,10 +777,14 @@ function refresh() {
 
 
 
-$(document).ready(function() {
+$(document).ready(function () {
+    Highcharts.setOptions({
+        global: {
+            useUTC: false
+        }
+    })
     load();
-    // Start the polling loop
-    
+
     // Start the polling loop
     setRefresh = setTimeout(refresh, 60000)
 })

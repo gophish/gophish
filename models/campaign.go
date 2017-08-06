@@ -198,6 +198,7 @@ func (c *Campaign) getDetails() error {
 }
 
 // getCampaignStats returns a CampaignStats object for the campaign with the given campaign ID.
+// It also backfills numbers as appropriate with a running total, so that the values are aggregated.
 func getCampaignStats(cid int64) (CampaignStats, error) {
 	s := CampaignStats{}
 	query := db.Table("results").Where("campaign_id = ?", cid)
@@ -205,11 +206,7 @@ func getCampaignStats(cid int64) (CampaignStats, error) {
 	if err != nil {
 		return s, err
 	}
-	err = query.Where("status=?", EVENT_SENT).Count(&s.EmailsSent).Error
-	if err != nil {
-		return s, err
-	}
-	err = query.Where("status=?", EVENT_OPENED).Count(&s.OpenedEmail).Error
+	query.Where("status=?", EVENT_DATA_SUBMIT).Count(&s.SubmittedData)
 	if err != nil {
 		return s, err
 	}
@@ -217,10 +214,20 @@ func getCampaignStats(cid int64) (CampaignStats, error) {
 	if err != nil {
 		return s, err
 	}
-	query.Where("status=?", EVENT_DATA_SUBMIT).Count(&s.SubmittedData)
+	// Every submitted data event implies they clicked the link
+	s.ClickedLink += s.SubmittedData
+	err = query.Where("status=?", EVENT_OPENED).Count(&s.OpenedEmail).Error
 	if err != nil {
 		return s, err
 	}
+	// Every clicked link event implies they opened the email
+	s.OpenedEmail += s.ClickedLink
+	err = query.Where("status=?", EVENT_SENT).Count(&s.EmailsSent).Error
+	if err != nil {
+		return s, err
+	}
+	// Every opened email event implies the email was sent 
+	s.EmailsSent += s.OpenedEmail
 	err = query.Where("status=?", ERROR).Count(&s.Error).Error
 	return s, err
 }

@@ -3,15 +3,13 @@ var campaigns = []
 // statuses is a helper map to point result statuses to ui classes
 var statuses = {
     "Email Sent": {
-        slice: "ct-slice-donut-sent",
-        legend: "ct-legend-sent",
+        color: "#1abc9c",
         label: "label-success",
         icon: "fa-envelope",
         point: "ct-point-sent"
     },
     "Emails Sent": {
-        slice: "ct-slice-donut-sent",
-        legend: "ct-legend-sent",
+        color: "#1abc9c",
         label: "label-success",
         icon: "fa-envelope",
         point: "ct-point-sent"
@@ -26,57 +24,49 @@ var statuses = {
         label: "label-success"
     },
     "Email Opened": {
-        slice: "ct-slice-donut-opened",
-        legend: "ct-legend-opened",
+        color: "#f9bf3b",
         label: "label-warning",
         icon: "fa-envelope",
         point: "ct-point-opened"
     },
     "Clicked Link": {
-        slice: "ct-slice-donut-clicked",
-        legend: "ct-legend-clicked",
+        color: "#F39C12",
         label: "label-clicked",
         icon: "fa-mouse-pointer",
         point: "ct-point-clicked"
     },
     "Success": {
-        slice: "ct-slice-donut-success",
-        legend: "ct-legend-success",
+        color: "#f05b4f",
         label: "label-danger",
         icon: "fa-exclamation",
         point: "ct-point-clicked"
     },
     "Error": {
-        slice: "ct-slice-donut-error",
-        legend: "ct-legend-error",
+        color: "#6c7a89",
         label: "label-default",
         icon: "fa-times",
         point: "ct-point-error"
     },
     "Error Sending Email": {
-        slice: "ct-slice-donut-error",
-        legend: "ct-legend-error",
+        color: "#6c7a89",
         label: "label-default",
         icon: "fa-times",
         point: "ct-point-error"
     },
     "Submitted Data": {
-        slice: "ct-slice-donut-success",
-        legend: "ct-legend-success",
+        color: "#f05b4f",
         label: "label-danger",
         icon: "fa-exclamation",
         point: "ct-point-clicked"
     },
     "Unknown": {
-        slice: "ct-slice-donut-error",
-        legend: "ct-legend-error",
+        color: "#6c7a89",
         label: "label-default",
         icon: "fa-question",
         point: "ct-point-error"
     },
     "Sending": {
-        slice: "ct-slice-donut-sending",
-        legend: "ct-legend-sending",
+        color: "#428bca",
         label: "label-primary",
         icon: "fa-spinner",
         point: "ct-point-sending"
@@ -92,34 +82,80 @@ var statsMapping = {
     "opened": "Email Opened",
     "clicked": "Clicked Link",
     "submitted_data": "Submitted Data",
-    "error": "Error"
 }
 
 function deleteCampaign(idx) {
     if (confirm("Delete " + campaigns[idx].name + "?")) {
         api.campaignId.delete(campaigns[idx].id)
-            .success(function(data) {
+            .success(function (data) {
                 successFlash(data.message)
                 location.reload()
             })
     }
 }
 
-function generateStatsPieChart(campaigns) {
-    var stats_opts = {
-        donut: true,
-        donutWidth: 40,
-        chartPadding: 0,
-        showLabel: false
-    }
+/* Renders a pie chart using the provided chartops */
+function renderPieChart(chartopts) {
+    return Highcharts.chart(chartopts['elemId'], {
+        chart: {
+            type: 'pie',
+            events: {
+                load: function () {
+                    var chart = this,
+                        rend = chart.renderer,
+                        pie = chart.series[0],
+                        left = chart.plotLeft + pie.center[0],
+                        top = chart.plotTop + pie.center[1];
+                    this.innerText = rend.text(chartopts['data'][0].count, left, top).
+                        attr({
+                            'text-anchor': 'middle',
+                            'font-size': '24px',
+                            'font-weight': 'bold',
+                            'fill': chartopts['colors'][0],
+                            'font-family': 'Helvetica,Arial,sans-serif'
+                        }).add();
+                },
+                render: function () {
+                    this.innerText.attr({ text: chartopts['data'][0].count })
+                }
+            }
+        },
+        title: {
+            text: chartopts['title']
+        },
+        plotOptions: {
+            pie: {
+                innerSize: '80%',
+                dataLabels: {
+                    enabled: false
+                }
+            }
+        },
+        credits: {
+            enabled: false
+        },
+        tooltip: {
+            formatter: function () {
+                if (this.key == undefined) {
+                    return false
+                }
+                return '<span style="color:' + this.color + '">\u25CF</span>' + this.point.name + ': <b>' + this.y + '%</b><br/>'
+            }
+        },
+        series: [{
+            data: chartopts['data'],
+            colors: chartopts['colors'],
+        }]
+    })
+}
+
+function generateStatsPieCharts(campaigns) {
+    var stats_data = []
     var stats_series_data = {}
-    var stats_data = {
-        series: []
-    }
     var total = 0
 
-    $.each(campaigns, function(i, campaign) {
-        $.each(campaign.stats, function(status, count) {
+    $.each(campaigns, function (i, campaign) {
+        $.each(campaign.stats, function (status, count) {
             if (status == "total") {
                 total += count
                 return true
@@ -131,153 +167,172 @@ function generateStatsPieChart(campaigns) {
             }
         })
     })
-    $.each(stats_series_data, function(status, count) {
+    $.each(stats_series_data, function (status, count) {
         // I don't like this, but I guess it'll have to work.
         // Turns submitted_data into Submitted Data
+        if (!(status in statsMapping)) {
+            return true
+        }
         status_label = statsMapping[status]
-        stats_data.series.push({
-            meta: status_label,
-            value: Math.floor((count / total) * 100)
+        stats_data.push({
+            name: status_label,
+            y: Math.floor((count / total) * 100),
+            count: count
         })
-        $("#stats_chart_legend").append('<li><span class="' + statuses[status_label].legend + '"></span>' + status_label + '</li>')
-    })
-
-    var stats_chart = new Chartist.Pie("#stats_chart", stats_data, stats_opts)
-
-    $piechart = $("#stats_chart")
-    var $pietoolTip = $piechart
-        .append('<div class="chartist-tooltip"></div>')
-        .find('.chartist-tooltip')
-        .hide();
-
-    $piechart.get(0).__chartist__.on('draw', function(data) {
-            data.element.addClass(statuses[data.meta].slice)
+        stats_data.push({
+            name: '',
+            y: 100 - Math.floor((count / total) * 100)
         })
-        // Update with the latest data
-    $piechart.get(0).__chartist__.update(stats_data)
-
-    $piechart.on('mouseenter', '.ct-slice-donut', function() {
-        var $point = $(this)
-        value = $point.attr('ct:value')
-        label = $point.attr('ct:meta')
-        $pietoolTip.html(label + ': ' + value.toString() + "%").show();
-    });
-
-    $piechart.on('mouseleave', '.ct-slice-donut', function() {
-        $pietoolTip.hide();
-    });
-    $piechart.on('mousemove', function(event) {
-        $pietoolTip.css({
-            left: (event.offsetX || event.originalEvent.layerX) - $pietoolTip.width() / 2 - 10,
-            top: (event.offsetY + 40 || event.originalEvent.layerY) - $pietoolTip.height() - 80
-        });
+        var stats_chart = renderPieChart({
+            elemId: status + '_chart',
+            title: status_label,
+            name: status,
+            data: stats_data,
+            colors: [statuses[status_label].color, "#dddddd"]
+        })
+        stats_data = []
     });
 }
 
-$(document).ready(function() {
+function generateTimelineChart(campaigns) {
+    var overview_data = []
+    $.each(campaigns, function (i, campaign) {
+        var campaign_date = moment(campaign.created_date)
+        // Add it to the chart data
+        campaign.y = 0
+        // Clicked events also contain our data submitted events
+        campaign.y += campaign.stats.clicked
+        campaign.y = Math.floor((campaign.y / campaign.stats.total) * 100)
+        // Add the data to the overview chart
+        overview_data.push({
+            campaign_id: campaign.id,
+            name: campaign.name,
+            x: campaign_date.valueOf(),
+            y: campaign.y
+        })
+    })
+    Highcharts.chart('overview_chart', {
+        chart: {
+            zoomType: 'x',
+            type: 'areaspline'
+        },
+        title: {
+            text: 'Phishing Success Overview'
+        },
+        xAxis: {
+            type: 'datetime',
+            dateTimeLabelFormats: {
+                second: '%l:%M:%S',
+                minute: '%l:%M',
+                hour: '%l:%M',
+                day: '%b %d, %Y',
+                week: '%b %d, %Y',
+                month: '%b %Y'
+            }
+        },
+        yAxis: {
+            min: 0,
+            max: 100,
+            title: {
+                text: "% of Success"
+            }
+        },
+        tooltip: {
+            formatter: function () {
+                return Highcharts.dateFormat('%A, %b %d %l:%M:%S %P', new Date(this.x)) +
+                    '<br>' + this.point.name + '<br>% Success: <b>' + this.y + '%</b>'
+            }
+        },
+        legend: {
+            enabled: false
+        },
+        plotOptions: {
+            series: {
+                marker: {
+                    enabled: true,
+                    symbol: 'circle',
+                    radius: 3
+                },
+                cursor: 'pointer',
+                point: {
+                    events: {
+                        click: function (e) {
+                            window.location.href = "/campaigns/" + this.campaign_id
+                        }
+                    }
+                }
+            }
+        },
+        credits: {
+            enabled: false
+        },
+        series: [{
+            data: overview_data,
+            color: "#f05b4f",
+            fillOpacity: 0.5
+        }]
+    })
+}
+
+$(document).ready(function () {
     api.campaigns.summary()
-        .success(function(data) {
+        .success(function (data) {
             $("#loading").hide()
             campaigns = data.campaigns
             if (campaigns.length > 0) {
                 $("#dashboard").show()
-                    // Create the overview chart data
-                var overview_data = {
-                    labels: [],
-                    series: [
-                        []
-                    ]
-                }
-                var overview_opts = {
-                    axisX: {
-                        showGrid: false
-                    },
-                    showArea: true,
-                    plugins: [],
-                    low: 0,
-                    high: 100
-                }
+                // Create the overview chart data
                 campaignTable = $("#campaignTable").DataTable({
                     columnDefs: [{
                         orderable: false,
                         targets: "no-sort"
-                    }],
+                    },
+                    { className: "color-sent", targets: [2] },
+                    { className: "color-opened", targets: [3] },
+                    { className: "color-clicked", targets: [4] },
+                    { className: "color-success", targets: [5] }],
                     order: [
                         [1, "desc"]
                     ]
                 });
-                $.each(campaigns, function(i, campaign) {
-                        var campaign_date = moment(campaign.created_date).format('MMMM Do YYYY, h:mm:ss a')
-                        var label = statuses[campaign.status].label || "label-default";
-                        //section for tooltips on the status of a campaign to show some quick stats
-                        var launchDate;
-                        if (moment(campaign.launch_date).isAfter(moment())) {
-                            launchDate = "Scheduled to start: " + moment(campaign.launch_date).format('MMMM Do YYYY, h:mm:ss a')
-                            var quickStats = launchDate + "<br><br>" + "Number of recipients: " + campaign.stats.total
-                        } else {
-                            launchDate = "Launch Date: " + moment(campaign.launch_date).format('MMMM Do YYYY, h:mm:ss a')
-                            var quickStats = launchDate + "<br><br>" + "Number of recipients: " + campaign.stats.total + "<br><br>" + "Emails opened: " + campaign.stats.opened + "<br><br>" + "Emails clicked: " + campaign.stats.clicked + "<br><br>" + "Submitted Credentials: " + campaign.stats.submitted_data + "<br><br>" + "Errors : " + campaign.stats.error
-                        }
-                        // Add it to the table
-                        campaignTable.row.add([
-                            escapeHtml(campaign.name),
-                            campaign_date,
-                            "<span class=\"label " + label + "\" data-toggle=\"tooltip\" data-placement=\"right\" data-html=\"true\" title=\"" + quickStats + "\">" + campaign.status + "</span>",
-                            "<div class='pull-right'><a class='btn btn-primary' href='/campaigns/" + campaign.id + "' data-toggle='tooltip' data-placement='left' title='View Results'>\
+                $.each(campaigns, function (i, campaign) {
+                    var campaign_date = moment(campaign.created_date).format('MMMM Do YYYY, h:mm:ss a')
+                    var label = statuses[campaign.status].label || "label-default";
+                    //section for tooltips on the status of a campaign to show some quick stats
+                    var launchDate;
+                    if (moment(campaign.launch_date).isAfter(moment())) {
+                        launchDate = "Scheduled to start: " + moment(campaign.launch_date).format('MMMM Do YYYY, h:mm:ss a')
+                        var quickStats = launchDate + "<br><br>" + "Number of recipients: " + campaign.stats.total
+                    } else {
+                        launchDate = "Launch Date: " + moment(campaign.launch_date).format('MMMM Do YYYY, h:mm:ss a')
+                        var quickStats = launchDate + "<br><br>" + "Number of recipients: " + campaign.stats.total + "<br><br>" + "Emails opened: " + campaign.stats.opened + "<br><br>" + "Emails clicked: " + campaign.stats.clicked + "<br><br>" + "Submitted Credentials: " + campaign.stats.submitted_data + "<br><br>" + "Errors : " + campaign.stats.error
+                    }
+                    // Add it to the table
+                    campaignTable.row.add([
+                        escapeHtml(campaign.name),
+                        campaign_date,
+                        campaign.stats.sent,
+                        campaign.stats.opened,
+                        campaign.stats.clicked,
+                        campaign.stats.submitted_data,
+                        "<span class=\"label " + label + "\" data-toggle=\"tooltip\" data-placement=\"right\" data-html=\"true\" title=\"" + quickStats + "\">" + campaign.status + "</span>",
+                        "<div class='pull-right'><a class='btn btn-primary' href='/campaigns/" + campaign.id + "' data-toggle='tooltip' data-placement='left' title='View Results'>\
                     <i class='fa fa-bar-chart'></i>\
                     </a>\
                     <button class='btn btn-danger' onclick='deleteCampaign(" + i + ")' data-toggle='tooltip' data-placement='left' title='Delete Campaign'>\
                     <i class='fa fa-trash-o'></i>\
                     </button></div>"
-                        ]).draw()
-                        $('[data-toggle="tooltip"]').tooltip()
-                            // Add it to the chart data
-                        campaign.y = 0
-                        campaign.y += campaign.stats.clicked + campaign.stats.submitted_data
-                        campaign.y = Math.floor((campaign.y / campaign.stats.total) * 100)
-                            // Add the data to the overview chart
-                        overview_data.labels.push(campaign_date)
-                        overview_data.series[0].push({
-                            meta: i,
-                            value: campaign.y
-                        })
-                    })
-                    // Build the charts
-                generateStatsPieChart(campaigns)
-                var overview_chart = new Chartist.Line('#overview_chart', overview_data, overview_opts)
-
-                // Setup the overview chart listeners
-                $chart = $("#overview_chart")
-                var $toolTip = $chart
-                    .append('<div class="chartist-tooltip"></div>')
-                    .find('.chartist-tooltip')
-                    .hide();
-
-                $chart.on('mouseenter', '.ct-point', function() {
-                    var $point = $(this)
-                    value = $point.attr('ct:value') || 0
-                    cidx = $point.attr('ct:meta')
-                    $toolTip.html(campaigns[cidx].name + '<br>' + "Successes: " + value.toString() + "%").show();
-                });
-
-                $chart.on('mouseleave', '.ct-point', function() {
-                    $toolTip.hide();
-                });
-                $chart.on('mousemove', function(event) {
-                    $toolTip.css({
-                        left: (event.offsetX || event.originalEvent.layerX) - $toolTip.width() / 2 - 10,
-                        top: (event.offsetY + 40 || event.originalEvent.layerY) - $toolTip.height() - 40
-                    });
-                });
-                $("#overview_chart").on("click", ".ct-point", function(e) {
-                    var $cidx = $(this).attr('ct:meta');
-                    window.location.href = "/campaigns/" + campaigns[cidx].id
-                });
+                    ]).draw()
+                    $('[data-toggle="tooltip"]').tooltip()
+                })
+                // Build the charts
+                generateStatsPieCharts(campaigns)
+                generateTimelineChart(campaigns)
             } else {
                 $("#emptyMessage").show()
             }
         })
-        .error(function() {
+        .error(function () {
             errorFlash("Error fetching campaigns")
         })
 })

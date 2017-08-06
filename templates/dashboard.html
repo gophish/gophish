@@ -38,19 +38,15 @@
             No campaigns created yet. Let's create one!
         </div>
     </div>
-    <div id="dashboard" style="display:none;">
+    <div id="dashboard">
         <div class="row">
-            <div id="overview_chart" class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
-                <p style="text-align:center;">Phishing Success Overview</p>
-            </div>
-            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
-                <p style="text-align:center;">Average Phishing Results</p>
-                <div id="stats_chart" class="col-lg-7 col-md-7"></div>
-                <div class="col-lg-5 col-md-5">
-                    <ul id="stats_chart_legend" class="chartist-legend">
-                    </ul>
-                </div>
-            </div>
+            <div id="overview_chart" style="height:200px;" class="col-lg-12 col-md-12 col-sm-12 col-xs-12"></div>
+        </div>
+        <div class="row">
+            <div id="sent_chart" style="height:200px;" class="col-lg-3 col-md-3"></div>
+            <div id="opened_chart" style="height:200px;" class="col-lg-3 col-md-3"></div>
+            <div id="clicked_chart" style="height:200px;" class="col-lg-3 col-md-3"></div>
+            <div id="submitted_data_chart" style="height:200px;" class="col-lg-3 col-md-3"></div>
         </div>
         <div class="row">
             <h2>Recent Campaigns</h2>
@@ -63,10 +59,14 @@
             <table id="campaignTable" class="table">
                 <thead>
                     <tr>
-                        <th>Name</th>
-                        <th>Created Date</th>
-                        <th>Status</th>
-                        <th class="col-md-2 col-sm-2 no-sort"></th>
+                        <th class="col-md-2 col-sm-2">Name</th>
+                        <th class="col-md-2 col-sm-2">Created Date</th>
+                        <th class="col-md-1 col-sm-1"><i class="fa fa-envelope-o"></i></th>
+                        <th class="col-md-1 col-sm-1"><i class="fa fa-envelope-open-o"></i></th>
+                        <th class="col-md-1 col-sm-1"><i class="fa fa-mouse-pointer"></i></th>
+                        <th class="col-md-1 col-sm-1"><i class="fa fa-exclamation-circle"></i></th>
+                        <th class="col-md-1 col-sm-1">Status</th>
+                        <th class="col-md-2 col-sm-2 no-sort"></i></th>
                     </tr>
                 </thead>
                 <tbody>
