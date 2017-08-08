@@ -512,6 +512,9 @@ td.details-control{
 #capture_passwords {
 	display:none;
 }
+#submit_to_original {
+	display:none;
+}
 #redirect_url {
 	display:none;
 }
