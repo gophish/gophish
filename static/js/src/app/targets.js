@@ -3,74 +3,81 @@ var statuses = {
     "Email Sent": {
         color: "#1abc9c",
         label: "label-success",
-        icon: "fa-envelope",
-        point: "ct-point-sent"
-    },
-    "Emails Sent": {
-        color: "#1abc9c",
-        label: "label-success",
+        order: 3,
         icon: "fa-envelope",
         point: "ct-point-sent"
     },
     "In progress": {
-        label: "label-primary"
+        label: "label-primary",
+        order: 4
     },
     "Queued": {
-        label: "label-info"
+        label: "label-info",
+        order: 4
     },
     "Completed": {
-        label: "label-success"
+        label: "label-success",
+        order: 4
     },
     "Email Opened": {
         color: "#f9bf3b",
         label: "label-warning",
+        order: 2,
         icon: "fa-envelope",
         point: "ct-point-opened"
     },
     "Clicked Link": {
         color: "#F39C12",
         label: "label-clicked",
+        order: 1,
         icon: "fa-mouse-pointer",
         point: "ct-point-clicked"
     },
     "Success": {
         color: "#f05b4f",
         label: "label-danger",
+        order: 4,
         icon: "fa-exclamation",
         point: "ct-point-clicked"
     },
     "Error": {
         color: "#6c7a89",
         label: "label-default",
+        order: 5,
         icon: "fa-times",
         point: "ct-point-error"
     },
     "Error Sending Email": {
         color: "#6c7a89",
         label: "label-default",
+        order: 5,
         icon: "fa-times",
         point: "ct-point-error"
     },
     "Submitted Data": {
         color: "#f05b4f",
         label: "label-danger",
+        order: 0,
         icon: "fa-exclamation",
         point: "ct-point-clicked"
     },
     "Unknown": {
         color: "#6c7a89",
         label: "label-default",
+        order: 5,
         icon: "fa-question",
         point: "ct-point-error"
     },
     "Sending": {
         color: "#428bca",
         label: "label-primary",
+        order: 4,
         icon: "fa-spinner",
         point: "ct-point-sending"
     },
     "Campaign Created": {
         label: "label-success",
+        order: 4,
         icon: "fa-rocket"
     }
 }
@@ -113,8 +120,9 @@ function load() {
                 targetTable.clear();
                 $.each(targets, function(i, target) {
                     label = statuses[target.status].label || "label-default";
+                    order = statuses[target.status].order;
                     targetTable.row.add([
-                        "<span class=\"label " + label + "\">" + target.status + "</span>",
+                        "<span class=\"label " + label + "\"><p style=\"display:none\">" + order + "</p>" + target.status + "</span>",
                         escapeHtml(target.first_name),
                         escapeHtml(target.last_name),
                         escapeHtml(target.email),
