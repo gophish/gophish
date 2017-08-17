@@ -1,0 +1,67 @@
+{{define "body"}}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-3 col-md-2 sidebar">
+            <ul class="nav nav-sidebar">
+                <li><a href="/">Dashboard</a>
+                </li>
+                <li><a href="/campaigns">Campaigns</a>
+                </li>
+                <li class="active"><a href="/users">Users &amp; Groups</a>
+                </li>
+                <li><a href="/templates">Email Templates</a>
+                </li>
+                <li><a href="/landing_pages">Landing Pages</a>
+                </li>
+                <li><a href="/sending_profiles">Sending Profiles</a>
+                </li>
+                <li><a href="/settings">Settings</a>
+                </li>
+                <li><hr></li>
+                <li><a href="https://gophish.gitbooks.io/user-guide/content/">User Guide</a>
+                </li>
+                <li><a href="/api/">API Documentation</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+    <div class="row">
+        <h1 class="page-header">
+            Campaign Targets
+        </h1>
+    </div>
+    <div id="flashes" class="row"></div>
+    <div class="row">
+        <button type="button" class="btn btn-primary" onclick="edit(-1)" data-toggle="modal" data-target="#modal"><i class="fa fa-plus"></i> New Group</button>
+    </div>
+    &nbsp;
+    <div id="loading">
+        <i class="fa fa-spinner fa-spin fa-4x"></i>
+    </div>
+    <div id="emptyMessage" class="row" style="display:none;">
+        <div class="alert alert-info">
+            No groups created yet. Let's create one!
+        </div>
+    </div>
+    <div class="row">
+        <table id="groupTable" class="table" style="display:none;">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th># of Members</th>
+                    <th>Modified Date</th>
+                    <th class="col-md-2 no-sort"></th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{{end}}
+{{define "scripts"}}
+<script src="/js/src/app/targets.js"></script>
+{{end}}
