@@ -33,13 +33,6 @@ var statuses = {
         icon: "fa-mouse-pointer",
         point: "ct-point-clicked"
     },
-    "Success": {
-        color: "#f05b4f",
-        label: "label-danger",
-        order: 4,
-        icon: "fa-exclamation",
-        point: "ct-point-clicked"
-    },
     "Error": {
         color: "#6c7a89",
         label: "label-default",
@@ -74,11 +67,6 @@ var statuses = {
         order: 4,
         icon: "fa-spinner",
         point: "ct-point-sending"
-    },
-    "Campaign Created": {
-        label: "label-success",
-        order: 4,
-        icon: "fa-rocket"
     }
 }
 
