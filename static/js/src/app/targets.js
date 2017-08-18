@@ -112,10 +112,16 @@ function load() {
                 $("#targetTable").show()
                 var targetTable = $("#targetTable").DataTable({
                     destroy: true,
+                    pageLength: 100,
+                    dom: 'lBfrtip',
+                    buttons: [
+                        'copy', 'csv', 'excel', 'print'
+                    ],
                     columnDefs: [{
                         orderable: false,
                         targets: "no-sort"
-                    }]
+                    }],
+                    order: [[0, 'asc'], [4, 'asc'], [1, 'asc'], [2, 'asc']]
                 });
                 targetTable.clear();
                 $.each(targets, function(i, target) {
@@ -126,10 +132,7 @@ function load() {
                         escapeHtml(target.first_name),
                         escapeHtml(target.last_name),
                         escapeHtml(target.email),
-                        escapeHtml(target.campaign.name),
-                        "<div class='pull-right'><a class='btn btn-primary' href='/campaigns/" + target.campaign.id + "' data-toggle='tooltip' data-placement='left' title='View Results'>\
-                    <i class='fa fa-bar-chart'></i>\
-                    </a></div"
+                        "<a href=\"/campaigns/" + target.campaign.id + "\">" + escapeHtml(target.campaign.name) + "</a>"
                     ]).draw()
                 })
             } else {
