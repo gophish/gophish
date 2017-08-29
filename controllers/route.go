@@ -31,6 +31,7 @@ func CreateAdminRouter() http.Handler {
 	router.HandleFunc("/campaigns", Use(Campaigns, mid.RequireLogin))
 	router.HandleFunc("/campaigns/{id:[0-9]+}", Use(CampaignID, mid.RequireLogin))
 	router.HandleFunc("/templates", Use(Templates, mid.RequireLogin))
+	router.HandleFunc("/targets", Use(Targets, mid.RequireLogin))
 	router.HandleFunc("/users", Use(Users, mid.RequireLogin))
 	router.HandleFunc("/landing_pages", Use(LandingPages, mid.RequireLogin))
 	router.HandleFunc("/sending_profiles", Use(SendingProfiles, mid.RequireLogin))
@@ -174,6 +175,18 @@ func Templates(w http.ResponseWriter, r *http.Request) {
 		Token   string
 	}{Title: "Email Templates", User: ctx.Get(r, "user").(models.User), Token: csrf.Token(r)}
 	getTemplate(w, "templates").ExecuteTemplate(w, "base", params)
+}
+
+// Targets handles the default path and template execution
+func Targets(w http.ResponseWriter, r *http.Request) {
+	// Example of using session - will be removed.
+	params := struct {
+		User    models.User
+		Title   string
+		Flashes []interface{}
+		Token   string
+	}{Title: "Targets", User: ctx.Get(r, "user").(models.User), Token: csrf.Token(r)}
+	getTemplate(w, "targets").ExecuteTemplate(w, "base", params)
 }
 
 // Users handles the default path and template execution
