@@ -36,7 +36,7 @@ func New() *Worker {
 func (w *Worker) Start() {
 	Logger.Println("Background Worker Started Successfully - Waiting for Campaigns")
 	for t := range time.Tick(1 * time.Minute) {
-		cs, err := models.GetQueuedCampaigns(t)
+		cs, err := models.GetQueuedCampaigns(t.UTC())
 		// Not really sure of a clean way to catch errors per campaign...
 		if err != nil {
 			Logger.Println(err)

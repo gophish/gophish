@@ -24,48 +24,49 @@ function launch() {
         reverseButtons: true,
         allowOutsideClick: false,
         showLoaderOnConfirm: true,
-        preConfirm: function() {
-            return new Promise(function(resolve, reject) {
+        preConfirm: function () {
+            return new Promise(function (resolve, reject) {
                 groups = []
-                $("#users").select2("data").forEach(function(group){
-                    groups.push({name: group.text});
+                $("#users").select2("data").forEach(function (group) {
+                    groups.push({ name: group.text });
                 })
                 // Validate our fields
                 campaign = {
-                        name: $("#name").val(),
-                        template: {
-                            name: $("#template").select2("data")[0].text
-                        },
-                        url: $("#url").val(),
-                        page: {
-                            name: $("#page").select2("data")[0].text
-                        },
-                        smtp: {
-                            name: $("#profile").select2("data")[0].text
-                        },
-                        launch_date: moment($("#launch_date").val(), "MM/DD/YYYY hh:mm a").format(),
-                        groups: groups
-                    }
-                    // Submit the campaign
+                    name: $("#name").val(),
+                    template: {
+                        name: $("#template").select2("data")[0].text
+                    },
+                    url: $("#url").val(),
+                    page: {
+                        name: $("#page").select2("data")[0].text
+                    },
+                    smtp: {
+                        name: $("#profile").select2("data")[0].text
+                    },
+                    launch_date: moment($("#launch_date").val(), "MM/DD/YYYY hh:mm a").utc().format(),
+                    groups: groups
+                }
+                console.log("Launching campaign at time: " + campaign.launch_date)
+                // Submit the campaign
                 api.campaigns.post(campaign)
-                    .success(function(data) {
+                    .success(function (data) {
                         resolve()
                         campaign = data
                     })
-                    .error(function(data) {
+                    .error(function (data) {
                         $("#modal\\.flashes").empty().append("<div style=\"text-align:center\" class=\"alert alert-danger\">\
             <i class=\"fa fa-exclamation-circle\"></i> " + data.responseJSON.message + "</div>")
                         swal.close()
                     })
             })
         }
-    }).then(function() {
+    }).then(function () {
         swal(
             'Campaign Scheduled!',
             'This campaign has been scheduled for launch!',
             'success'
         );
-        $('button:contains("OK")').on('click', function() {
+        $('button:contains("OK")').on('click', function () {
             window.location = "/campaigns/" + campaign.id.toString()
         })
     })
@@ -91,14 +92,14 @@ function sendTestEmail() {
     }
     btnHtml = $("#sendTestModalSubmit").html()
     $("#sendTestModalSubmit").html('<i class="fa fa-spinner fa-spin"></i> Sending')
-        // Send the test email
+    // Send the test email
     api.send_test_email(test_email_request)
-        .success(function(data) {
+        .success(function (data) {
             $("#sendTestEmailModal\\.flashes").empty().append("<div style=\"text-align:center\" class=\"alert alert-success\">\
             <i class=\"fa fa-check-circle\"></i> Email Sent!</div>")
             $("#sendTestModalSubmit").html(btnHtml)
         })
-        .error(function(data) {
+        .error(function (data) {
             $("#sendTestEmailModal\\.flashes").empty().append("<div style=\"text-align:center\" class=\"alert alert-danger\">\
             <i class=\"fa fa-exclamation-circle\"></i> " + data.responseJSON.message + "</div>")
             $("#sendTestModalSubmit").html(btnHtml)
@@ -127,24 +128,24 @@ function deleteCampaign(idx) {
         confirmButtonColor: "#428bca",
         reverseButtons: true,
         allowOutsideClick: false,
-        preConfirm: function() {
-            return new Promise(function(resolve, reject) {
+        preConfirm: function () {
+            return new Promise(function (resolve, reject) {
                 api.campaignId.delete(campaigns[idx].id)
-                    .success(function(msg) {
+                    .success(function (msg) {
                         resolve()
                     })
-                    .error(function(data) {
+                    .error(function (data) {
                         reject(data.responseJSON.message)
                     })
             })
         }
-    }).then(function() {
+    }).then(function () {
         swal(
             'Campaign Deleted!',
             'This campaign has been deleted!',
             'success'
         );
-        $('button:contains("OK")').on('click', function() {
+        $('button:contains("OK")').on('click', function () {
             location.reload()
         })
     })
@@ -152,12 +153,12 @@ function deleteCampaign(idx) {
 
 function setupOptions() {
     api.groups.get()
-        .success(function(groups) {
+        .success(function (groups) {
             if (groups.length == 0) {
                 modalError("No groups found!")
                 return false;
             } else {
-                var group_s2 = $.map(groups, function(obj) {
+                var group_s2 = $.map(groups, function (obj) {
                     obj.text = obj.name
                     return obj
                 });
@@ -168,12 +169,12 @@ function setupOptions() {
             }
         });
     api.templates.get()
-        .success(function(templates) {
+        .success(function (templates) {
             if (templates.length == 0) {
                 modalError("No templates found!")
                 return false
             } else {
-                var template_s2 = $.map(templates, function(obj) {
+                var template_s2 = $.map(templates, function (obj) {
                     obj.text = obj.name
                     return obj
                 });
@@ -184,12 +185,12 @@ function setupOptions() {
             }
         });
     api.pages.get()
-        .success(function(pages) {
+        .success(function (pages) {
             if (pages.length == 0) {
                 modalError("No pages found!")
                 return false
             } else {
-                var page_s2 = $.map(pages, function(obj) {
+                var page_s2 = $.map(pages, function (obj) {
                     obj.text = obj.name
                     return obj
                 });
@@ -200,12 +201,12 @@ function setupOptions() {
             }
         });
     api.SMTP.get()
-        .success(function(profiles) {
+        .success(function (profiles) {
             if (profiles.length == 0) {
                 modalError("No profiles found!")
                 return false
             } else {
-                var profile_s2 = $.map(profiles, function(obj) {
+                var profile_s2 = $.map(profiles, function (obj) {
                     obj.text = obj.name
                     return obj
                 });
@@ -223,9 +224,9 @@ function edit(campaign) {
 
 function copy(idx) {
     setupOptions();
-        // Set our initial values
+    // Set our initial values
     api.campaignId.get(campaigns[idx].id)
-        .success(function(campaign) {
+        .success(function (campaign) {
             $("#name").val("Copy of " + campaign.name)
             if (!campaign.template.id) {
                 $("#template").select2({
@@ -250,29 +251,29 @@ function copy(idx) {
             }
             $("#url").val(campaign.url)
         })
-        .error(function(data) {
+        .error(function (data) {
             $("#modal\\.flashes").empty().append("<div style=\"text-align:center\" class=\"alert alert-danger\">\
             <i class=\"fa fa-exclamation-circle\"></i> " + data.responseJSON.message + "</div>")
         })
 }
 
-$(document).ready(function() {
+$(document).ready(function () {
     $("#launch_date").datetimepicker({
-            "widgetPositioning": {
-                "vertical": "bottom"
-            },
-            "showTodayButton": true,
-            "defaultDate": moment()
-        })
-        // Setup multiple modals
-        // Code based on http://miles-by-motorcycle.com/static/bootstrap-modal/index.html
-    $('.modal').on('hidden.bs.modal', function(event) {
+        "widgetPositioning": {
+            "vertical": "bottom"
+        },
+        "showTodayButton": true,
+        "defaultDate": moment()
+    })
+    // Setup multiple modals
+    // Code based on http://miles-by-motorcycle.com/static/bootstrap-modal/index.html
+    $('.modal').on('hidden.bs.modal', function (event) {
         $(this).removeClass('fv-modal-stack');
         $('body').data('fv_open_modals', $('body').data('fv_open_modals') - 1);
     });
-    $('.modal').on('shown.bs.modal', function(event) {
+    $('.modal').on('shown.bs.modal', function (event) {
         // Keep track of the number of open modals
-        if (typeof($('body').data('fv_open_modals')) == 'undefined') {
+        if (typeof ($('body').data('fv_open_modals')) == 'undefined') {
             $('body').data('fv_open_modals', 0);
         }
         // if the z-index of this modal has been set, ignore.
@@ -291,11 +292,11 @@ $(document).ready(function() {
     $(document).on('hidden.bs.modal', '.modal', function () {
         $('.modal:visible').length && $(document.body).addClass('modal-open');
     });
-    $('#modal').on('hidden.bs.modal', function(event) {
+    $('#modal').on('hidden.bs.modal', function (event) {
         dismiss()
     });
     api.campaigns.summary()
-        .success(function(data) {
+        .success(function (data) {
             campaigns = data.campaigns
             $("#loading").hide()
             if (campaigns.length > 0) {
@@ -309,23 +310,25 @@ $(document).ready(function() {
                         [1, "desc"]
                     ]
                 });
-                $.each(campaigns, function(i, campaign) {
+                $.each(campaigns, function (i, campaign) {
+                    console.log(campaign)
+                    console.log(campaign.created_date)
                     label = labels[campaign.status] || "label-default";
 
-		    //section for tooltips on the status of a campaign to show some quick stats
+                    //section for tooltips on the status of a campaign to show some quick stats
                     var launchDate;
-                    if(moment(campaign.launch_date).isAfter(moment())){
-                        launchDate = "Scheduled to start: "+moment(campaign.launch_date).format('MMMM Do YYYY, h:mm:ss a')
-                        var quickStats = launchDate+"<br><br>"+"Number of recipients: "+campaign.stats.total
+                    if (moment(campaign.launch_date).isAfter(moment())) {
+                        launchDate = "Scheduled to start: " + moment(campaign.launch_date).format('MMMM Do YYYY, h:mm:ss a')
+                        var quickStats = launchDate + "<br><br>" + "Number of recipients: " + campaign.stats.total
                     } else {
-                        launchDate = "Launch Date: "+moment(campaign.launch_date).format('MMMM Do YYYY, h:mm:ss a')
-                        var quickStats = launchDate+"<br><br>"+"Number of recipients: "+campaign.stats.total+"<br><br>"+"Emails opened: "+campaign.stats.opened+"<br><br>"+"Emails clicked: "+campaign.stats.clicked+"<br><br>"+"Submitted Credentials: "+campaign.stats.submitted_data+"<br><br>"+"Errors : "+campaign.stats.error
+                        launchDate = "Launch Date: " + moment(campaign.launch_date).format('MMMM Do YYYY, h:mm:ss a')
+                        var quickStats = launchDate + "<br><br>" + "Number of recipients: " + campaign.stats.total + "<br><br>" + "Emails opened: " + campaign.stats.opened + "<br><br>" + "Emails clicked: " + campaign.stats.clicked + "<br><br>" + "Submitted Credentials: " + campaign.stats.submitted_data + "<br><br>" + "Errors : " + campaign.stats.error
                     }
 
                     campaignTable.row.add([
                         escapeHtml(campaign.name),
                         moment(campaign.created_date).format('MMMM Do YYYY, h:mm:ss a'),
-			"<span class=\"label " + label + "\" data-toggle=\"tooltip\" data-placement=\"right\" data-html=\"true\" title=\""+quickStats+"\">" + campaign.status + "</span>",
+                        "<span class=\"label " + label + "\" data-toggle=\"tooltip\" data-placement=\"right\" data-html=\"true\" title=\"" + quickStats + "\">" + campaign.status + "</span>",
                         "<div class='pull-right'><a class='btn btn-primary' href='/campaigns/" + campaign.id + "' data-toggle='tooltip' data-placement='left' title='View Results'>\
                     <i class='fa fa-bar-chart'></i>\
                     </a>\
@@ -342,7 +345,7 @@ $(document).ready(function() {
                 $("#emptyMessage").show()
             }
         })
-        .error(function() {
+        .error(function () {
             $("#loading").hide()
             errorFlash("Error fetching campaigns")
         })

@@ -140,7 +140,7 @@ func (c *Campaign) UpdateStatus(s string) error {
 // AddEvent creates a new campaign event in the database
 func (c *Campaign) AddEvent(e Event) error {
 	e.CampaignId = c.Id
-	e.Time = time.Now()
+	e.Time = time.Now().UTC()
 	return db.Debug().Save(&e).Error
 }
 
@@ -226,7 +226,7 @@ func getCampaignStats(cid int64) (CampaignStats, error) {
 	if err != nil {
 		return s, err
 	}
-	// Every opened email event implies the email was sent 
+	// Every opened email event implies the email was sent
 	s.EmailsSent += s.OpenedEmail
 	err = query.Where("status=?", ERROR).Count(&s.Error).Error
 	return s, err
@@ -279,6 +279,7 @@ func GetCampaignSummaries(uid int64) (CampaignSummaries, error) {
 			return overview, err
 		}
 		cs[i].Stats = s
+		Logger.Println(cs[i].CreatedDate.String())
 	}
 	overview.Total = int64(len(cs))
 	overview.Campaigns = cs
@@ -361,11 +362,13 @@ func PostCampaign(c *Campaign, uid int64) error {
 	}
 	// Fill in the details
 	c.UserId = uid
-	c.CreatedDate = time.Now()
+	c.CreatedDate = time.Now().UTC()
 	c.CompletedDate = time.Time{}
 	c.Status = CAMPAIGN_CREATED
 	if c.LaunchDate.IsZero() {
-		c.LaunchDate = time.Now()
+		c.LaunchDate = time.Now().UTC()
+	} else {
+		c.LaunchDate = c.LaunchDate.UTC()
 	}
 	// Check to make sure all the groups already exist
 	for i, g := range c.Groups {
@@ -479,7 +482,7 @@ func CompleteCampaign(id int64, uid int64) error {
 		return nil
 	}
 	// Mark the campaign as complete
-	c.CompletedDate = time.Now()
+	c.CompletedDate = time.Now().UTC()
 	c.Status = CAMPAIGN_COMPLETE
 	err = db.Where("id=? and user_id=?", id, uid).Save(&c).Error
 	if err != nil {

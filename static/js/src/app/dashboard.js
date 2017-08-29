@@ -197,7 +197,7 @@ function generateStatsPieCharts(campaigns) {
 function generateTimelineChart(campaigns) {
     var overview_data = []
     $.each(campaigns, function (i, campaign) {
-        var campaign_date = moment(campaign.created_date)
+        var campaign_date = moment.utc(campaign.created_date).local()
         // Add it to the chart data
         campaign.y = 0
         // Clicked events also contain our data submitted events
@@ -275,6 +275,11 @@ function generateTimelineChart(campaigns) {
 }
 
 $(document).ready(function () {
+    Highcharts.setOptions({
+        global: {
+            useUTC: false
+        }
+    })
     api.campaigns.summary()
         .success(function (data) {
             $("#loading").hide()
