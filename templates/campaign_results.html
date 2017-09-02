@@ -17,7 +17,9 @@
                 </li>
                 <li><a href="/settings">Settings</a>
                 </li>
-                <li><hr></li>
+                <li>
+                    <hr>
+                </li>
                 <li><a href="https://gophish.gitbooks.io/user-guide/content/">User Guide</a>
                 </li>
                 <li><a href="/api/">API Documentation</a>
@@ -38,16 +40,17 @@
             <a href="/campaigns" class="btn btn-default">
                 <i class="fa fa-arrow-circle-o-left fa-lg"></i> Back
             </a>
-	    <div class="btn-group">
-            <button type="button" id="exportButton" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-		    <i class="fa fa-file-excel-o"></i> Export CSV
-		    <i class="fa fa-caret-down"></i>
-            </button>
-	    <ul class="dropdown-menu" aria-labelledby="exportButton">
-		    <li><a href="#" onclick="exportAsCSV('results')">Results</a></li>
-		    <li><a href="#" onclick="exportAsCSV('events')">Raw Events</a></li>
-	    </ul>
-    	    </div>
+            <div class="btn-group">
+                <button type="button" id="exportButton" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
+                    aria-expanded="true">
+                    <i class="fa fa-file-excel-o"></i> Export CSV
+                    <i class="fa fa-caret-down"></i>
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="exportButton">
+                    <li><a href="#" onclick="exportAsCSV('results')">Results</a></li>
+                    <li><a href="#" onclick="exportAsCSV('events')">Raw Events</a></li>
+                </ul>
+            </div>
             <button id="complete_button" type="button" class="btn btn-blue" data-toggle="tooltip" onclick="completeCampaign()">
                 <i class="fa fa-flag-checkered"></i> Complete
             </button>
@@ -57,72 +60,60 @@
             <button id="refresh_btn" type="button" class="btn btn-blue" data-toggle="tooltip" onclick="refresh()">
                 <i class="fa fa-refresh fa-lg"></i> Refresh
             </button>
-	    <span id="refresh_message">
-		    <i class="fa fa-spin fa-spinner"></i> Refreshing
+            <span id="refresh_message">
+                <i class="fa fa-spin fa-spinner"></i> Refreshing
             </span>
         </div>
         <br />
         <div class="row">
             <ul class="nav nav-tabs" role="tablist">
                 <li class="active"><a href="#overview" aria-controls="home" role="tab" data-toggle="tab">Overview</a></li>
-                <!--<li><a href="#plugins" aria-controls="profile" role="tab" data-toggle="tab">Plugins</a></li>
-		<li><a href="#demographics" aria-controls="settings" role="tab" data-toggle="tab">Demographics</a></li>-->
             </ul>
             <div class="tab-content">
                 <div role="tabpanel" class="tab-pane active" id="overview">
                     <br/>
                     <div class="row">
-                        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
-                            <p style="text-align:center;">Campaign Timeline</p>
-                            <br/>
+                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                             <div id="timeline_chart"></div>
                         </div>
-                        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
-                            <p style="text-align:center;">Email Status</p>
-                            <div id="email_chart" class="col-lg-7 col-md-7"></div>
-                            <div class="col-lg-5 col-md-5">
-                                <ul id="email_chart_legend" class="chartist-legend">
-                                </ul>
-                            </div>
-                        </div>
                     </div>
-		    <div class="row">
-                        <div class="col-md-6">
-                            <p style="text-align:center;">Targets Map</p>
-                            <div id="resultsMap"></div>
-                        </div>
-		    </div>
+                    <div class="row">
+                        <div id="sent_chart" style="height:200px;" class="col-lg-3 col-md-3"></div>
+                        <div id="opened_chart" style="height:200px;" class="col-lg-3 col-md-3"></div>
+                        <div id="clicked_chart" style="height:200px;" class="col-lg-3 col-md-3"></div>
+                        <div id="submitted_data_chart" style="height:200px;" class="col-lg-3 col-md-3"></div>
+                    </div>
                 </div>
-		<!--
-                <div role="tabpanel" class="tab-pane" id="plugins">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p style="text-align:center;">Targets Map</p>
+                        <div id="resultsMap"></div>
+                    </div>
                 </div>
-                <div role="tabpanel" class="tab-pane" id="demographics">
-                    Demographics here
-                </div> -->
             </div>
         </div>
-        <div class="row">
-            <h2>Details</h2>
-            <table id="resultsTable" class="table">
-                <thead>
-                    <tr>
-			            <th>Result ID</th>
-                        <th class="no-sort"></th>
-                        <th>First Name</th>
-                        <th>Last Name</th>
-                        <th>Email</th>
-                        <th>Position</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
-        </div>
     </div>
-    <div id="flashes" class="row"></div>
+    <div class="row">
+        <h2>Details</h2>
+        <table id="resultsTable" class="table">
+            <thead>
+                <tr>
+                    <th>Result ID</th>
+                    <th class="no-sort"></th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Email</th>
+                    <th>Position</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
 </div>
-{{end}}
-{{define "scripts"}}
+<div id="flashes" class="row"></div>
+</div>
+{{end}} {{define "scripts"}}
 <script src="/js/dist/app/campaign_results.min.js"></script>
 {{end}}

@@ -23,7 +23,7 @@ function save(idx) {
     template.html = CKEDITOR.instances["html_editor"].getData();
     // Fix the URL Scheme added by CKEditor (until we can remove it from the plugin)
     template.html = template.html.replace(/https?:\/\/{{\.URL}}/gi, "{{.URL}}")
-        // If the "Add Tracker Image" checkbox is checked, add the tracker
+    // If the "Add Tracker Image" checkbox is checked, add the tracker
     if ($("#use_tracker_checkbox").prop("checked")) {
         if (template.html.indexOf("{{.Tracker}}") == -1 &&
             template.html.indexOf("{{.TrackingUrl}}") == -1) {
@@ -34,8 +34,8 @@ function save(idx) {
         template.html = template.html.replace("{{.Tracker}}</body>", "</body>")
     }
     template.text = $("#text_editor").val()
-        // Add the attachments
-    $.each($("#attachmentsTable").DataTable().rows().data(), function(i, target) {
+    // Add the attachments
+    $.each($("#attachmentsTable").DataTable().rows().data(), function (i, target) {
         template.attachments.push({
             name: unescapeHtml(target[1]),
             content: target[3],
@@ -46,23 +46,23 @@ function save(idx) {
     if (idx != -1) {
         template.id = templates[idx].id
         api.templateId.put(template)
-            .success(function(data) {
+            .success(function (data) {
                 successFlash("Template edited successfully!")
                 load()
                 dismiss()
             })
-            .error(function(data) {
+            .error(function (data) {
                 modalError(data.responseJSON.message)
             })
     } else {
         // Submit the template
         api.templates.post(template)
-            .success(function(data) {
+            .success(function (data) {
                 successFlash("Template added successfully!")
                 load()
                 dismiss()
             })
-            .error(function(data) {
+            .error(function (data) {
                 modalError(data.responseJSON.message)
             })
     }
@@ -81,7 +81,7 @@ function dismiss() {
 function deleteTemplate(idx) {
     if (confirm("Delete " + templates[idx].name + "?")) {
         api.templateId.delete(templates[idx].id)
-            .success(function(data) {
+            .success(function (data) {
                 successFlash(data.message)
                 load()
             })
@@ -102,12 +102,12 @@ function attach(files) {
             targets: [3, 4]
         }]
     });
-    $.each(files, function(i, file) {
+    $.each(files, function (i, file) {
         var reader = new FileReader();
         /* Make this a datatable */
-        reader.onload = function(e) {
+        reader.onload = function (e) {
             var icon = icons[file.type] || "fa-file-o"
-                // Add the record to the modal
+            // Add the record to the modal
             attachmentsTable.row.add([
                 '<i class="fa ' + icon + '"></i>',
                 escapeHtml(file.name),
@@ -116,7 +116,7 @@ function attach(files) {
                 file.type || "application/octet-stream"
             ]).draw()
         }
-        reader.onerror = function(e) {
+        reader.onerror = function (e) {
             console.log(e)
         }
         reader.readAsDataURL(file)
@@ -124,10 +124,10 @@ function attach(files) {
 }
 
 function edit(idx) {
-    $("#modalSubmit").unbind('click').click(function() {
+    $("#modalSubmit").unbind('click').click(function () {
         save(idx)
     })
-    $("#attachmentUpload").unbind('click').click(function() {
+    $("#attachmentUpload").unbind('click').click(function () {
         this.value = null
     })
     $("#html_editor").ckeditor()
@@ -154,9 +154,9 @@ function edit(idx) {
         $("#subject").val(template.subject)
         $("#html_editor").val(template.html)
         $("#text_editor").val(template.text)
-        $.each(template.attachments, function(i, file) {
+        $.each(template.attachments, function (i, file) {
             var icon = icons[file.type] || "fa-file-o"
-                // Add the record to the modal
+            // Add the record to the modal
             attachmentsTable.row.add([
                 '<i class="fa ' + icon + '"></i>',
                 escapeHtml(file.name),
@@ -173,7 +173,7 @@ function edit(idx) {
 
     }
     // Handle Deletion
-    $("#attachmentsTable").unbind('click').on("click", "span>i.fa-trash-o", function() {
+    $("#attachmentsTable").unbind('click').on("click", "span>i.fa-trash-o", function () {
         attachmentsTable.row($(this).parents('tr'))
             .remove()
             .draw();
@@ -181,10 +181,10 @@ function edit(idx) {
 }
 
 function copy(idx) {
-    $("#modalSubmit").unbind('click').click(function() {
+    $("#modalSubmit").unbind('click').click(function () {
         save(-1)
     })
-    $("#attachmentUpload").unbind('click').click(function() {
+    $("#attachmentUpload").unbind('click').click(function () {
         this.value = null
     })
     $("#html_editor").ckeditor()
@@ -210,19 +210,19 @@ function copy(idx) {
     $("#subject").val(template.subject)
     $("#html_editor").val(template.html)
     $("#text_editor").val(template.text)
-    $.each(template.attachments, function(i, file) {
-            var icon = icons[file.type] || "fa-file-o"
-                // Add the record to the modal
-            attachmentsTable.row.add([
-                '<i class="fa ' + icon + '"></i>',
-                escapeHtml(file.name),
-                '<span class="remove-row"><i class="fa fa-trash-o"></i></span>',
-                file.content,
-                file.type || "application/octet-stream"
-            ]).draw()
-        })
-        // Handle Deletion
-    $("#attachmentsTable").unbind('click').on("click", "span>i.fa-trash-o", function() {
+    $.each(template.attachments, function (i, file) {
+        var icon = icons[file.type] || "fa-file-o"
+        // Add the record to the modal
+        attachmentsTable.row.add([
+            '<i class="fa ' + icon + '"></i>',
+            escapeHtml(file.name),
+            '<span class="remove-row"><i class="fa fa-trash-o"></i></span>',
+            file.content,
+            file.type || "application/octet-stream"
+        ]).draw()
+    })
+    // Handle Deletion
+    $("#attachmentsTable").unbind('click').on("click", "span>i.fa-trash-o", function () {
         attachmentsTable.row($(this).parents('tr'))
             .remove()
             .draw();
@@ -241,22 +241,22 @@ function importEmail() {
         modalError("No Content Specified!")
     } else {
         $.ajax({
-                method: "POST",
-                url: "/api/import/email",
-                data: JSON.stringify({
-                    content: raw,
-                    convert_links: convert_links
-                }),
-                dataType: "json",
-                contentType: "application/json"
-            })
-            .success(function(data) {
+            method: "POST",
+            url: "/api/import/email",
+            data: JSON.stringify({
+                content: raw,
+                convert_links: convert_links
+            }),
+            dataType: "json",
+            contentType: "application/json"
+        })
+            .success(function (data) {
                 $("#text_editor").val(data.text)
                 $("#html_editor").val(data.html)
                 $("#subject").val(data.subject)
                 $("#importEmailModal").modal("hide")
             })
-            .error(function(data) {
+            .error(function (data) {
                 modalError(data.responseJSON.message)
             })
     }
@@ -267,7 +267,7 @@ function load() {
     $("#emptyMessage").hide()
     $("#loading").show()
     api.templates.get()
-        .success(function(ts) {
+        .success(function (ts) {
             templates = ts
             $("#loading").hide()
             if (templates.length > 0) {
@@ -280,7 +280,7 @@ function load() {
                     }]
                 });
                 templateTable.clear()
-                $.each(templates, function(i, template) {
+                $.each(templates, function (i, template) {
                     templateTable.row.add([
                         escapeHtml(template.name),
                         moment(template.modified_date).format('MMMM Do YYYY, h:mm:ss a'),
@@ -300,22 +300,22 @@ function load() {
                 $("#emptyMessage").show()
             }
         })
-        .error(function() {
+        .error(function () {
             $("#loading").hide()
             errorFlash("Error fetching templates")
         })
 }
 
-$(document).ready(function() {
+$(document).ready(function () {
     // Setup multiple modals
     // Code based on http://miles-by-motorcycle.com/static/bootstrap-modal/index.html
-    $('.modal').on('hidden.bs.modal', function(event) {
+    $('.modal').on('hidden.bs.modal', function (event) {
         $(this).removeClass('fv-modal-stack');
         $('body').data('fv_open_modals', $('body').data('fv_open_modals') - 1);
     });
-    $('.modal').on('shown.bs.modal', function(event) {
+    $('.modal').on('shown.bs.modal', function (event) {
         // Keep track of the number of open modals
-        if (typeof($('body').data('fv_open_modals')) == 'undefined') {
+        if (typeof ($('body').data('fv_open_modals')) == 'undefined') {
             $('body').data('fv_open_modals', 0);
         }
         // if the z-index of this modal has been set, ignore.
@@ -330,10 +330,10 @@ $(document).ready(function() {
         $('.modal-backdrop').not('.fv-modal-stack').css('z-index', 1039 + (10 * $('body').data('fv_open_modals')));
         $('.modal-backdrop').not('fv-modal-stack').addClass('fv-modal-stack');
     });
-    $.fn.modal.Constructor.prototype.enforceFocus = function() {
+    $.fn.modal.Constructor.prototype.enforceFocus = function () {
         $(document)
             .off('focusin.bs.modal') // guard against infinite focus loop
-            .on('focusin.bs.modal', $.proxy(function(e) {
+            .on('focusin.bs.modal', $.proxy(function (e) {
                 if (
                     this.$element[0] !== e.target && !this.$element.has(e.target).length
                     // CKEditor compatibility fix start.
@@ -344,9 +344,12 @@ $(document).ready(function() {
                 }
             }, this));
     };
-    $('#modal').on('hidden.bs.modal', function(event) {
+    $('#modal').on('hidden.bs.modal', function (event) {
         dismiss()
     });
+    $("#importEmailModal").on('hidden.bs.modal', function (event) {
+        $("#email_content").val("")
+    })
     load()
 
 })

@@ -541,3 +541,25 @@ table.dataTable{
 .input-group-btn .btn {
     line-height:20px !important;
 }
+.highcharts-title {
+    font-family: "Source Sans Pro",Helvetica,Arial,sans-serif;
+}
+.color-success {
+    font-weight: bold;
+    color: #f05b4f;
+}
+.color-sent {
+    font-weight: bold;
+    color: #1abc9c;
+}
+.color-opened {
+    font-weight: bold;
+    color: #f9bf3b;
+}
+.color-clicked {
+    font-weight: bold;
+    color: #f39c12;
+}
+.color-success {
+    color: #f05b4f;
+}

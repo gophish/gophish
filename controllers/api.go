@@ -203,7 +203,7 @@ func API_Groups(w http.ResponseWriter, r *http.Request) {
 			JSONResponse(w, models.Response{Success: false, Message: "Group name already in use"}, http.StatusConflict)
 			return
 		}
-		g.ModifiedDate = time.Now()
+		g.ModifiedDate = time.Now().UTC()
 		g.UserId = ctx.Get(r, "user_id").(int64)
 		err = models.PostGroup(&g)
 		if err != nil {
@@ -256,7 +256,7 @@ func API_Groups_Id(w http.ResponseWriter, r *http.Request) {
 			JSONResponse(w, models.Response{Success: false, Message: "Error: /:id and group_id mismatch"}, http.StatusInternalServerError)
 			return
 		}
-		g.ModifiedDate = time.Now()
+		g.ModifiedDate = time.Now().UTC()
 		g.UserId = ctx.Get(r, "user_id").(int64)
 		err = models.PutGroup(&g)
 		if err != nil {
@@ -305,7 +305,7 @@ func API_Templates(w http.ResponseWriter, r *http.Request) {
 			JSONResponse(w, models.Response{Success: false, Message: "Template name already in use"}, http.StatusConflict)
 			return
 		}
-		t.ModifiedDate = time.Now()
+		t.ModifiedDate = time.Now().UTC()
 		t.UserId = ctx.Get(r, "user_id").(int64)
 		err = models.PostTemplate(&t)
 		if err == models.ErrTemplateNameNotSpecified {
@@ -354,7 +354,7 @@ func API_Templates_Id(w http.ResponseWriter, r *http.Request) {
 			JSONResponse(w, models.Response{Success: false, Message: "Error: /:id and template_id mismatch"}, http.StatusBadRequest)
 			return
 		}
-		t.ModifiedDate = time.Now()
+		t.ModifiedDate = time.Now().UTC()
 		t.UserId = ctx.Get(r, "user_id").(int64)
 		err = models.PutTemplate(&t)
 		if err != nil {
@@ -390,7 +390,7 @@ func API_Pages(w http.ResponseWriter, r *http.Request) {
 			Logger.Println(err)
 			return
 		}
-		p.ModifiedDate = time.Now()
+		p.ModifiedDate = time.Now().UTC()
 		p.UserId = ctx.Get(r, "user_id").(int64)
 		err = models.PostPage(&p)
 		if err != nil {
@@ -431,7 +431,7 @@ func API_Pages_Id(w http.ResponseWriter, r *http.Request) {
 			JSONResponse(w, models.Response{Success: false, Message: "/:id and /:page_id mismatch"}, http.StatusBadRequest)
 			return
 		}
-		p.ModifiedDate = time.Now()
+		p.ModifiedDate = time.Now().UTC()
 		p.UserId = ctx.Get(r, "user_id").(int64)
 		err = models.PutPage(&p)
 		if err != nil {
@@ -467,7 +467,7 @@ func API_SMTP(w http.ResponseWriter, r *http.Request) {
 			Logger.Println(err)
 			return
 		}
-		s.ModifiedDate = time.Now()
+		s.ModifiedDate = time.Now().UTC()
 		s.UserId = ctx.Get(r, "user_id").(int64)
 		err = models.PostSMTP(&s)
 		if err != nil {
@@ -513,7 +513,7 @@ func API_SMTP_Id(w http.ResponseWriter, r *http.Request) {
 			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
 			return
 		}
-		s.ModifiedDate = time.Now()
+		s.ModifiedDate = time.Now().UTC()
 		s.UserId = ctx.Get(r, "user_id").(int64)
 		err = models.PutSMTP(&s)
 		if err != nil {
