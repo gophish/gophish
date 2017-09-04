@@ -74,6 +74,7 @@ func (s *WorkerSuite) SetupTest() {
 	c.UpdateStatus(models.CAMPAIGN_EMAILS_SENT)
 }
 
+/*
 func (s *WorkerSuite) TestMailSendSuccess() {
 	processMailLog(1, 1)
-}
+}*/
