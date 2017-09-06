@@ -65,11 +65,6 @@ func (w *Worker) Start() {
 				}
 				// Create the dialer and connect to the SMTP server
 				d := mailer.NewDialer(c.SMTP)
-				sc, err := d.Dial()
-				if err != nil {
-					failMailLogs(err, ms)
-					return
-				}
 				processMailLogs(cid, uid, msc, d)
 			}(cid, msc)
 		}
