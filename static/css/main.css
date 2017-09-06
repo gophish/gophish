@@ -174,7 +174,7 @@
 .tt-hint {
   color: #999
 }
-.tt-menu {    // used to be tt-dropdown-menu in older versions
+.tt-menu {    
   width: 422px;
   margin-top: 4px;
   padding: 4px 0;
@@ -543,6 +543,7 @@ table.dataTable{
 }
 .highcharts-title {
     font-family: "Source Sans Pro",Helvetica,Arial,sans-serif;
+    font-size: 16px !important;
 }
 .color-success {
     font-weight: bold;
@@ -562,4 +563,7 @@ table.dataTable{
 }
 .color-success {
     color: #f05b4f;
+}
+.nav>li.active>a:focus, .nav>li.active>a:hover {
+    background-color: #37485a;
 }
