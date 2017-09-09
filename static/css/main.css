@@ -564,6 +564,6 @@ table.dataTable{
 .color-success {
     color: #f05b4f;
 }
-.nav>li.active>a:focus, .nav>li.active>a:hover {
+.nav-sidebar>li.active>a:focus, .nav-sidebar>li.active>a:hover {
     background-color: #37485a;
 }
