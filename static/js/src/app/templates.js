@@ -344,6 +344,10 @@ $(document).ready(function () {
                 }
             }, this));
     };
+    // Scrollbar fix - https://stackoverflow.com/questions/19305821/multiple-modals-overlay
+    $(document).on('hidden.bs.modal', '.modal', function () {
+        $('.modal:visible').length && $(document.body).addClass('modal-open');
+    });
     $('#modal').on('hidden.bs.modal', function (event) {
         dismiss()
     });

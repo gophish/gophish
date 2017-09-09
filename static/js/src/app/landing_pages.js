@@ -17,7 +17,7 @@ function save(idx) {
     if (idx != -1) {
         page.id = pages[idx].id
         api.pageId.put(page)
-            .success(function(data) {
+            .success(function (data) {
                 successFlash("Page edited successfully!")
                 load()
                 dismiss()
@@ -25,12 +25,12 @@ function save(idx) {
     } else {
         // Submit the page
         api.pages.post(page)
-            .success(function(data) {
+            .success(function (data) {
                 successFlash("Page added successfully!")
                 load()
                 dismiss()
             })
-            .error(function(data) {
+            .error(function (data) {
                 modalError(data.responseJSON.message)
             })
     }
@@ -51,7 +51,7 @@ function dismiss() {
 function deletePage(idx) {
     if (confirm("Delete " + pages[idx].name + "?")) {
         api.pageId.delete(pages[idx].id)
-            .success(function(data) {
+            .success(function (data) {
                 successFlash(data.message)
                 load()
             })
@@ -64,22 +64,22 @@ function importSite() {
         modalError("No URL Specified!")
     } else {
         api.clone_site({
-                url: url,
-                include_resources: false
-            })
-            .success(function(data) {
+            url: url,
+            include_resources: false
+        })
+            .success(function (data) {
                 console.log($("#html_editor"))
                 $("#html_editor").val(data.html)
                 $("#importSiteModal").modal("hide")
             })
-            .error(function(data) {
+            .error(function (data) {
                 modalError(data.responseJSON.message)
             })
     }
 }
 
 function edit(idx) {
-    $("#modalSubmit").unbind('click').click(function() {
+    $("#modalSubmit").unbind('click').click(function () {
         save(idx)
     })
     $("#html_editor").ckeditor()
@@ -99,7 +99,7 @@ function edit(idx) {
 }
 
 function copy(idx) {
-    $("#modalSubmit").unbind('click').click(function() {
+    $("#modalSubmit").unbind('click').click(function () {
         save(-1)
     })
     $("#html_editor").ckeditor()
@@ -116,7 +116,7 @@ function load() {
     $("#emptyMessage").hide()
     $("#loading").show()
     api.pages.get()
-        .success(function(ps) {
+        .success(function (ps) {
             pages = ps
             $("#loading").hide()
             if (pages.length > 0) {
@@ -129,7 +129,7 @@ function load() {
                     }]
                 });
                 pagesTable.clear()
-                $.each(pages, function(i, page) {
+                $.each(pages, function (i, page) {
                     pagesTable.row.add([
                         escapeHtml(page.name),
                         moment(page.modified_date).format('MMMM Do YYYY, h:mm:ss a'),
@@ -149,22 +149,22 @@ function load() {
                 $("#emptyMessage").show()
             }
         })
-        .error(function() {
+        .error(function () {
             $("#loading").hide()
             errorFlash("Error fetching pages")
         })
 }
 
-$(document).ready(function() {
+$(document).ready(function () {
     // Setup multiple modals
     // Code based on http://miles-by-motorcycle.com/static/bootstrap-modal/index.html
-    $('.modal').on('hidden.bs.modal', function(event) {
+    $('.modal').on('hidden.bs.modal', function (event) {
         $(this).removeClass('fv-modal-stack');
         $('body').data('fv_open_modals', $('body').data('fv_open_modals') - 1);
     });
-    $('.modal').on('shown.bs.modal', function(event) {
+    $('.modal').on('shown.bs.modal', function (event) {
         // Keep track of the number of open modals
-        if (typeof($('body').data('fv_open_modals')) == 'undefined') {
+        if (typeof ($('body').data('fv_open_modals')) == 'undefined') {
             $('body').data('fv_open_modals', 0);
         }
         // if the z-index of this modal has been set, ignore.
@@ -179,10 +179,10 @@ $(document).ready(function() {
         $('.modal-backdrop').not('.fv-modal-stack').css('z-index', 1039 + (10 * $('body').data('fv_open_modals')));
         $('.modal-backdrop').not('fv-modal-stack').addClass('fv-modal-stack');
     });
-    $.fn.modal.Constructor.prototype.enforceFocus = function() {
+    $.fn.modal.Constructor.prototype.enforceFocus = function () {
         $(document)
             .off('focusin.bs.modal') // guard against infinite focus loop
-            .on('focusin.bs.modal', $.proxy(function(e) {
+            .on('focusin.bs.modal', $.proxy(function (e) {
                 if (
                     this.$element[0] !== e.target && !this.$element.has(e.target).length
                     // CKEditor compatibility fix start.
@@ -193,10 +193,14 @@ $(document).ready(function() {
                 }
             }, this));
     };
-    $('#modal').on('hidden.bs.modal', function(event) {
+    // Scrollbar fix - https://stackoverflow.com/questions/19305821/multiple-modals-overlay
+    $(document).on('hidden.bs.modal', '.modal', function () {
+        $('.modal:visible').length && $(document.body).addClass('modal-open');
+    });
+    $('#modal').on('hidden.bs.modal', function (event) {
         dismiss()
     });
-    $("#capture_credentials_checkbox").change(function() {
+    $("#capture_credentials_checkbox").change(function () {
         $("#capture_passwords").toggle()
         $("#redirect_url").toggle()
     })
