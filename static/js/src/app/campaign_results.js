@@ -404,16 +404,18 @@ var renderPieChart = function (chartopts) {
                         left = chart.plotLeft + pie.center[0],
                         top = chart.plotTop + pie.center[1];
                     this.innerText = rend.text(chartopts['data'][0].y, left, top).
-                        attr({
-                            'text-anchor': 'middle',
-                            'font-size': '24px',
-                            'font-weight': 'bold',
-                            'fill': chartopts['colors'][0],
-                            'font-family': 'Helvetica,Arial,sans-serif'
-                        }).add();
+                    attr({
+                        'text-anchor': 'middle',
+                        'font-size': '24px',
+                        'font-weight': 'bold',
+                        'fill': chartopts['colors'][0],
+                        'font-family': 'Helvetica,Arial,sans-serif'
+                    }).add();
                 },
                 render: function () {
-                    this.innerText.attr({ text: chartopts['data'][0].y })
+                    this.innerText.attr({
+                        text: chartopts['data'][0].y
+                    })
                 }
             }
         },
@@ -444,6 +446,41 @@ var renderPieChart = function (chartopts) {
             colors: chartopts['colors'],
         }]
     })
+}
+
+/* Updates the bubbles on the map
+
+@param {campaign.result[]} results - The campaign results to process
+*/
+var updateMap = function (results) {
+    if (!map) {
+        return
+    }
+    bubbles = []
+    $.each(campaign.results, function (i, result) {
+        // Check that it wasn't an internal IP
+        if (result.latitude == 0 && result.longitude == 0) {
+            return true;
+        }
+        newIP = true
+        $.each(bubbles, function (i, bubble) {
+            if (bubble.ip == result.ip) {
+                bubbles[i].radius += 1
+                newIP = false
+                return false
+            }
+        })
+        if (newIP) {
+            bubbles.push({
+                latitude: result.latitude,
+                longitude: result.longitude,
+                name: result.ip,
+                fillKey: "point",
+                radius: 2
+            })
+        }
+    })
+    map.bubbles(bubbles)
 }
 
 /* poll - Queries the API and updates the UI with the results
@@ -536,31 +573,7 @@ function poll() {
                 })
             })
             /* Update the map information */
-            bubbles = []
-            $.each(campaign.results, function (i, result) {
-                // Check that it wasn't an internal IP
-                if (result.latitude == 0 && result.longitude == 0) {
-                    return true;
-                }
-                newIP = true
-                $.each(bubbles, function (i, bubble) {
-                    if (bubble.ip == result.ip) {
-                        bubbles[i].radius += 1
-                        newIP = false
-                        return false
-                    }
-                })
-                if (newIP) {
-                    bubbles.push({
-                        latitude: result.latitude,
-                        longitude: result.longitude,
-                        name: result.ip,
-                        fillKey: "point",
-                        radius: 2
-                    })
-                }
-            })
-            map.bubbles(bubbles)
+            updateMap(campaign.results)
             $("#refresh_message").hide()
             $("#refresh_btn").show()
         })
@@ -568,6 +581,7 @@ function poll() {
 
 function load() {
     campaign.id = window.location.pathname.split('/').slice(-1)[0]
+    var use_map = JSON.parse(localStorage.getItem('gophish.use_map'))
     api.campaignId.results(campaign.id)
         .success(function (c) {
             campaign = c
@@ -696,7 +710,8 @@ function load() {
                         colors: [statuses[status].color, '#dddddd']
                     })
                 })
-                if (!map) {
+                if (use_map) {
+                    $("#resultsMapContainer").show()
                     map = new Datamap({
                         element: document.getElementById("resultsMap"),
                         responsive: true,
@@ -713,49 +728,8 @@ function load() {
                         }
                     });
                 }
-                $.each(campaign.results, function (i, result) {
-                    // Check that it wasn't an internal IP
-                    if (result.latitude == 0 && result.longitude == 0) {
-                        return true;
-                    }
-                    newIP = true
-                    $.each(bubbles, function (i, bubble) {
-                        if (bubble.ip == result.ip) {
-                            bubbles[i].radius += 1
-                            newIP = false
-                            return false
-                        }
-                    })
-                    if (newIP) {
-                        bubbles.push({
-                            latitude: result.latitude,
-                            longitude: result.longitude,
-                            name: result.ip,
-                            fillKey: "point",
-                            radius: 2
-                        })
-                    }
-                })
-                map.bubbles(bubbles)
+                updateMap(campaign.results)
             }
-            // Load up the map data (only once!)
-            $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-                if ($(e.target).attr('href') == "#overview") {
-                    if (!map) {
-                        map = new Datamap({
-                            element: document.getElementById("resultsMap"),
-                            responsive: true,
-                            fills: {
-                                defaultFill: "#ffffff"
-                            },
-                            geographyConfig: {
-                                highlightFillColor: "#1abc9c",
-                                borderColor: "#283F50"
-                            }
-                        });
-                    }
-                }
-            })
         })
         .error(function () {
             $("#loading").hide()
@@ -764,6 +738,7 @@ function load() {
 }
 
 var setRefresh
+
 function refresh() {
     if (!doPoll) {
         return;

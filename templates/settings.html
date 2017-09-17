@@ -17,7 +17,9 @@
                 </li>
                 <li class="active"><a href="/settings">Settings</a>
                 </li>
-                <li><hr></li>
+                <li>
+                    <hr>
+                </li>
                 <li><a href="https://gophish.gitbooks.io/user-guide/content/">User Guide</a>
                 </li>
                 <li><a href="/api/">API Documentation</a>
@@ -31,66 +33,83 @@
         <h1 class="page-header">Settings</h1>
     </div>
     <div id="flashes" class="row"></div>
-    <div class="row">
-        <label class="col-sm-2 control-label form-label">Gophish version</label>
-        <div class="col-md-6">
-            <label class="form-label">{{.Version}}</label>
+    <!-- Nav tabs -->
+    <ul class="nav nav-tabs" role="tablist">
+        <li class="active" role="mainSettings"><a href="#mainSettings" aria-controls="mainSettings" role="tab" data-toggle="tab">Account Settings</a></li>
+        <li role="uiSettings"><a href="#uiSettings" aria-controls="uiSettings" role="tab" data-toggle="tab">UI Settings</a></li>
+    </ul>
+    <!-- Tab Panes -->
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane active" id="mainSettings">
+            <br/>
+            <div class="row">
+                <label class="col-sm-2 control-label form-label">Gophish version</label>
+                <div class="col-md-6">
+                    <label class="form-label">{{.Version}}</label>
+                </div>
+            </div>
+            <br/>
+            <div class="row">
+                <label class="col-sm-2 control-label form-label">Register a New User</label>
+                <div class="col-md-6">
+                    <a href="/register" class="btn btn-primary"><i class="fa fa-plus"></i> Add User</a>
+                </div>
+            </div>
+            <br/>
+            <div class="row">
+                <label for="api_key" class="col-sm-2 control-label form-label">API Key:</label>
+                <div class="col-md-6">
+                    <input type="text" id="api_key" onclick="this.select();" value="{{.User.ApiKey}}" class="form-control" readonly/>
+                </div>
+                <form id="apiResetForm">
+                    <button class="btn btn-primary"><i class="fa fa-refresh" type="submit"></i> Reset</button>
+                    <input type="hidden" name="csrf_token" value="{{.Token}}" />
+                </form>
+            </div>
+            <br />
+            <form id="settingsForm">
+                <div class="row">
+                    <label for="username" class="col-sm-2 control-label form-label">Username:</label>
+                    <div class="col-md-6">
+                        <input type="text" id="username" name="username" value="{{.User.Username}}" class="form-control" />
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <label for="current_password" class="col-sm-2 control-label form-label">Old Password:</label>
+                    <div class="col-md-6">
+                        <input type="password" id="current_password" name="current_password" autocomplete="off" class="form-control" />
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <label for="new_password" class="col-sm-2 control-label form-label">New Password:</label>
+                    <div class="col-md-6">
+                        <input type="password" id="new_password" name="new_password" autocomplete="off" class="form-control" />
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <label for="confirm_new_password" class="col-sm-2 control-label form-label">Confirm New Password:</label>
+                    <div class="col-md-6">
+                        <input type="password" id="confirm_new_password" name="confirm_new_password" autocomplete="off" class="form-control" />
+                    </div>
+                </div>
+                <input type="hidden" name="csrf_token" value="{{.Token}}" />
+                <br />
+                <button class="btn btn-primary" type="submit"><i class="fa fa-save"></i> Save</button>
+            </form>
+            <br/>
+        </div>
+        <div role="tabpanel" class="tab-pane" id="uiSettings">
+            <br/>
+            <div class="checkbox checkbox-primary">
+                <input id="use_map" type="checkbox">
+                <label for="use_map">Show campaign results map</label>
+            </div>
         </div>
     </div>
-    <br/>
-    <div class="row">
-	    <label class="col-sm-2 control-label form-label">Register a New User</label>
-	    <div class="col-md-6">
-	        <a href="/register" class="btn btn-primary"><i class="fa fa-plus"></i> Add User</a>
-            </div>
-    </div>
-    <br/>
-    <div class="row">
-        <label for="api_key" class="col-sm-2 control-label form-label">API Key:</label>
-        <div class="col-md-6">
-            <input type="text" id="api_key" onclick="this.select();" value="{{.User.ApiKey}}" class="form-control" readonly/>
-        </div>
-        <form id="apiResetForm">
-            <button class="btn btn-primary"><i class="fa fa-refresh" type="submit"></i> Reset</button>
-            <input type="hidden" name="csrf_token" value="{{.Token}}"/>
-        </form>
-    </div>
-    <br />
-    <form id="settingsForm">
-        <div class="row">
-            <label for="username" class="col-sm-2 control-label form-label">Username:</label>
-            <div class="col-md-6">
-                <input type="text" id="username" name="username" value="{{.User.Username}}" class="form-control" />
-            </div>
-        </div>
-        <br />
-        <div class="row">
-            <label for="current_password" class="col-sm-2 control-label form-label">Old Password:</label>
-            <div class="col-md-6">
-                <input type="password" id="current_password" name="current_password" autocomplete="off" class="form-control"/>
-            </div>
-        </div>
-        <br />
-        <div class="row">
-            <label for="new_password" class="col-sm-2 control-label form-label">New Password:</label>
-            <div class="col-md-6">
-                <input type="password" id="new_password" name="new_password" autocomplete="off" class="form-control" />
-            </div>
-        </div>
-        <br />
-        <div class="row">
-            <label for="confirm_new_password" class="col-sm-2 control-label form-label">Confirm New Password:</label>
-            <div class="col-md-6">
-                <input type="password" id="confirm_new_password" name="confirm_new_password" autocomplete="off" class="form-control" />
-            </div>
-        </div>
-        <input type="hidden" name="csrf_token" value="{{.Token}}"/>
-        <br />
-	<button class="btn btn-primary" type="submit"><i class="fa fa-save"></i> Save</button>
-    </form>
-    <br/>
 </div>
-{{end}}
-{{define "scripts"}}
+{{end}} {{define "scripts"}}
 <script src="/js/dist/app/settings.min.js"></script>
 {{end}}
