@@ -2,141 +2,189 @@
 <html lang="en">
 
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Gophish Documentation - Includes API documentation, user guide, and development docs">
+    <title>
+        Documentation - Gophish
+    </title>
+    <meta charSet="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Gophish Documentation - Includes the API documentation, user guide, and development documentation">
     <meta name="author" content="Jordan Wright">
-    <link rel="shortcut icon" href="assets/ico/favicon.ico">
-
-    <title>Gophish - Documentation</title>
-
-    <!-- Bootstrap core CSS -->
-    <link href="../assets/css/bootstrap.min.css" rel="stylesheet">
-    <link href='//fonts.googleapis.com/css?family=Open+Sans:300italic,400,300,600,700' rel='stylesheet' type='text/css'>
-    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600,700' rel='stylesheet' type='text/css'>
-    <link href="../assets/css/font-awesome.min.css" rel="stylesheet">
-
-    <!-- Custom styles for this template -->
-    <link href="../assets/css/main.css" rel="stylesheet">
-    <script src="../assets/js/holder.js"></script>
-
-    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-    <![endif]-->
+    <meta name="keywords" content="gophish documentation, gophish, gophish user guide, phishing framework, phishing toolkit, open source phishing">
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="/build/css/build.css">
+    <script defer src="/build/js/build.min.js"></script>
 </head>
 
 <body>
-
-        <!-- Fixed navbar -->
-        <div class="navbar navbar-dark navbar-fixed-top" role="navigation">
-            <div class="container">
-                <div class="navbar-header">
-                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                        <span class="sr-only">Toggle navigation</span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                    </button>
-                    <a class="navbar-brand" href="/">
-                        <img src="../assets/images/logo_inv_small.png">&nbsp;gophish
-                    </a>
-                </div>
-                <div class="navbar-collapse collapse">
-                    <ul class="nav navbar-nav">
-                        <li><a href="#"><b>Documentation</b></a>
-                        </li>
-                        <li><a href="https://github.com/gophish/gophish"><b>Code</b></a>
-                        </li>
-			<li><a href="../blog"><b>Blog</b></a>
-                        </li>
-			<li><a href="../support"><b>Support</b></a>
-                        </li>
-                    </ul>
-                    <ul class="nav navbar-nav navbar-right">
-                        <li><a href="https://github.com/gophish/gophish/releases" class="btn btn btn-primary" id="download-button"><i class="fa fa-download"></i> Download</a>
-                        </li>
-                    </ul>
-                </div>
-                <!--/.nav-collapse -->
-            </div>
-        </div>
-        <div style="margin-top:60px;background-color:#283F50">
-            <div class="row">
-		    <div class="col-lg-12 col-md-12" style="text-align:center;">
-                	<h1 class="gophish-header">Documentation</h1>
-            </div>
-        </div>
-    </div>
-    <div class="container marketing-panel" id="about">
-        <!-- START THE FEATURETTES -->
-        <div class="row featurette">
-            <div class="col-md-6">
-                <h2 class="featurette-heading">
-                    <span class="fa-stack fa-2x">
-                        <i class="fa fa-circle fa-stack-2x"></i>
-                        <i class="fa fa-file-pdf-o fa-stack-1x fa-inverse"></i>
-                    </span>
-                    <br />User Guide
-                </h2>
-                <h4>
-                    <span>Learn to use all the great features gophish has to offer!</span>
-                </h4>
-		<a href="https://www.gitbook.com/book/gophish/user-guide/details" class="btn btn-primary" target="_blank">Documentation</a>
-            </div>
-            <div class="col-md-6">
-                <h2 class="featurette-heading">
-                    <span class="fa-stack fa-2x">
-                        <i style="color:#283F50" class="fa fa-circle fa-stack-2x"></i>
-                        <i class="fa fa-code fa-stack-1x fa-inverse"></i>
-                    </span>
-                    <br/>API Documentation
-                </h2>
-                <h4>
-                    </span>Endpoints, methods, and examples on how to use gophish's extensive API
-                </h4>
-		<a href="api/" class="btn btn-primary" target="_blank">Documentation</a>
-            </div>
-        </div>
-        <div class="row featurette">
-            <div class="col-md-12">
-            <h2 class="featurette-heading">
-                <span class="fa-stack fa-2x">
-                    <i style="color:#283F50" class="fa fa-github fa-2x"></i>
-                </span>
-                <br />Developer Documentation
-            </h2>
-            <h4>
-                </span>Full documentation on the gophish source code
-            </h4>
-	<a href="https://godoc.org/github.com/gophish/gophish" class="btn btn-primary" target="_blank">Documentation</a>
-        </div>
-        <!-- /END THE FEATURETTES -->
-    </div>
-    <div class="footer">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-purple">
         <div class="container">
-            <p class="pull-right"><a href="#">Back to top</a>
-            </p>
-            <p style="text-align:left;">&copy; Jordan (<a href="https://github.com/jordan-wright">jordan-wright</a>) 2015-2016</p>
-	    <p style="text-align:left;">Icons made by <a href="http://www.freepik.com" title="Freepik">Freepik</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a> is licensed under <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0">CC BY 3.0</a></p>
+            <a class="navbar-brand" href="/">
+                <img src="/img/logo.svg" width="30" height="30" class="d-inline-block align-top" alt="">
+                <strong>Gophish</strong>
+            </a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarContent" aria-controls="navbarSupportedContent"
+                aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/documentation">Documentation</a>
+                    </li>
+                    <li class="nav-item">
+                        <a target="_blank" class="nav-link" href="https://github.com/gophish/gophish/issues">Support</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/blog">Blog</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="mt-1 ml-md-1 btn btn-primary" href="https://github.com/gophish/gophish/releases">Download</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="mt-5 feature">
+        <div class="container">
+            <div class="row text-center">
+                <div class="col-12">
+                    <h3 class="heading">
+                        Documentation
+                    </h3>
+                </div>
+            </div>
+            <div class="row mb-4 justify-content-center">
+                <div class="card doc-card">
+                    <div class="mt-4 d-flex justify-content-center section-media">
+                        <span class="fa-layers fa-fw">
+                            <i class="fal fa-book section-icon"></i>
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <h4 class="card-title text-center">User Guide</h4>
+                        <p class="card-text">Learn how to install, configure, and use Gophish to test your organization's exposure to phishing.</p>
+                    </div>
+                    <div class="card-footer d-flex justify-content-center">
+                        <a target="_blank" class="btn-lg btn-feature btn" href="https://gophish.gitbooks.io/user-guide/content/">Read</a>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="card-deck">
+                    <div class="mb-4 card doc-card">
+                        <div class="mt-4 d-flex justify-content-center section-media">
+                            <span class="fa-layers fa-fw">
+                                <i class="fal fa-circle section-icon"></i>
+                                <i class="far fa-code section-icon" data-fa-transform="shrink-8"></i>
+                            </span>
+                        </div>
+                        <div class="card-body text-center">
+                            <h4 class="card-title">API Documentation</h4>
+                            <p class="card-text">Methods, endpoints, and examples that show how to automate Gophish campaigns</p>
+                        </div>
+                        <div class="card-footer d-flex justify-content-center">
+                            <a target="_blank" class="btn-feature btn" href="https://gophish.gitbooks.io/api-documentation/content/">Read</a>
+                        </div>
+                    </div>
+                    <div class="mb-4 card doc-card">
+                        <div class="mt-4 d-flex justify-content-center section-media">
+                            <span class="fa-layers fa-fw">
+                                <i class="fal fa-circle section-icon"></i>
+                                <i class="fab fa-python section-icon" data-fa-transform="shrink-8"></i>
+                            </span>
+                        </div>
+                        <div class="card-body text-center">
+                            <h4 class="card-title">Python Client Documentation</h4>
+                            <p class="card-text">Learn how to use the Python client to automate Gophish campaigns</p>
+                        </div>
+                        <div class="card-footer d-flex justify-content-center">
+                            <a target="_blank" class="btn-feature btn" href="https://gophish.gitbooks.io/python-api-client/content/">Read</a>
+                        </div>
+                    </div>
+                    <div class="mb-4 card doc-card">
+                        <div class="mt-4 d-flex justify-content-center section-media">
+                            <i class="fab fa-github section-icon"></i>
+                        </div>
+                        <div class="card-body text-center">
+                            <h4 class="card-title">Developer Documentation</h4>
+                            <p class="card-text">Full documentation on the Gophish source code</p>
+                        </div>
+                        <div class="card-footer d-flex justify-content-center">
+                            <a target="_blank" class="btn-feature btn" href="https://godoc.org/github.com/gophish/gophish">Read</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-
-    <!-- Bootstrap core JavaScript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
-    <script src="../assets/js/bootstrap.min.js"></script>
+    <div class="jumbotron jumbotron-fluid jumbotron-footer bg-purple">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-xs-12 col-lg-5">
+                    <h5 class="heading">
+                        Test Your Exposure to Phishing.
+                        <div><br></div>
+                        <div><b>For Free.</b></div>
+                    </h5>
+                </div>
+                <div class="col-xs-12 col-lg-7">
+                    <div class="d-flex justify-content-lg-end">
+                        <a class="btn mt-3 mt-lg-0 btn-lg btn-primary" href="https://github.com/gophish/gophish/releases">
+                            Download
+                        </a>
+                        <a class="btn ml-3 mt-3 mt-lg-0 btn-lg btn-primary-o" href="https://github.com/gophish/gophish">
+                            <i class="fab fa-github"></i> See the Code 
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class="footer bg-purple">
+        <div class="container">
+            <div class="row">
+                <div class="col align-self-center">
+                    <a class="navbar-brand" href="#">
+                        <img src="/img/logo.svg" width="30" height="30" class="d-inline-block align-top" alt=""/>
+                        <strong>Gophish</strong>
+                    </a>
+                    <p class="small text-muted">© 2012-2017 Jordan Wright. All rights reserved.</p>
+                </div>
+                <div class="col align-self-center">
+                    <ul class="nav justify-content-end text-muted">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/documentation">Documentation</a>
+                        </li>
+                        <li class="nav-item">
+                            <a target="_blank" class="nav-link" href="https://github.com/gophish/gophish/issues">Support</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/blog">Blog</a>
+                        </li>
+                </div>
+            </div>
+        </div>
+        </div>
+    </footer>
     <script>
-	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-	  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-	  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-	  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-	
-	  ga('create', 'UA-47018345-1', 'auto');
-	  ga('send', 'pageview');
+        (function (i, s, o, g, r, a, m) {
+            i['GoogleAnalyticsObject'] = r;
+            i[r] = i[r] || function () {
+                (i[r].q = i[r].q || []).push(arguments)
+            }, i[r].l = 1 * new Date();
+            a = s.createElement(o),
+                m = s.getElementsByTagName(o)[0];
+            a.async = 1;
+            a.src = g;
+            m.parentNode.insertBefore(a, m)
+        })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+        ga('create', 'UA-47018345-1', 'auto');
+        ga('send', 'pageview');
     </script>
 </body>
 
