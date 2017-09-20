@@ -179,6 +179,7 @@ function completeCampaign() {
 function exportAsCSV(scope) {
     exportHTML = $("#exportButton").html()
     var csvScope = null
+    var filename = campaign.name + ' - ' + capitalize(scope) + '.csv'
     switch (scope) {
         case "results":
             csvScope = campaign.results
@@ -196,12 +197,12 @@ function exportAsCSV(scope) {
         type: 'text/csv;charset=utf-8;'
     });
     if (navigator.msSaveBlob) {
-        navigator.msSaveBlob(csvData, scope + '.csv');
+        navigator.msSaveBlob(csvData, filename);
     } else {
         var csvURL = window.URL.createObjectURL(csvData);
         var dlLink = document.createElement('a');
         dlLink.href = csvURL;
-        dlLink.setAttribute('download', scope + '.csv');
+        dlLink.setAttribute('download', filename)
         document.body.appendChild(dlLink)
         dlLink.click();
         document.body.removeChild(dlLink)
