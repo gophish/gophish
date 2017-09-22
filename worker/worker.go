@@ -114,7 +114,7 @@ func processCampaign(c *models.Campaign) {
 	// Send each email
 	e := gomail.NewMessage()
 	for _, t := range c.Results {
-		e.SetHeader("From", c.SMTP.FromAddress)
+		e.SetAddressHeader("From", f.Address, f.Name)
 		td := struct {
 			models.Result
 			URL         string
@@ -249,6 +249,11 @@ func processCampaign(c *models.Campaign) {
 }
 
 func SendTestEmail(s *models.SendTestEmailRequest) error {
+	f, err := mail.ParseAddress(s.SMTP.FromAddress)
+	if err != nil {
+		Logger.Println(err)
+		return err
+	}
 	hp := strings.Split(s.SMTP.Host, ":")
 	if len(hp) < 2 {
 		hp = append(hp, "25")
@@ -303,7 +308,7 @@ func SendTestEmail(s *models.SendTestEmailRequest) error {
 		// Add our header immediately
 		e.SetHeader(parsedHeader.Key.String(), parsedHeader.Value.String())
 	}
-	e.SetHeader("From", s.SMTP.FromAddress)
+	e.SetAddressHeader("From", f.Address, f.Name)
 	e.SetHeader("To", s.FormatAddress())
 	// Parse the templates
 	var subjBuff bytes.Buffer
