@@ -8,7 +8,6 @@ import (
 	"crypto/x509/pkix"
 	"encoding/csv"
 	"encoding/pem"
-	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -94,7 +93,11 @@ func ParseCSV(r *http.Request) ([]models.Target, error) {
 				ln = record[li]
 			}
 			if ei != -1 {
-				ea = record[ei]
+				csvEmail, err := mail.ParseAddress(record[ei])
+				if err != nil {
+					continue
+				}
+				ea = csvEmail.Address
 			}
 			if pi != -1 {
 				ps = record[pi]
@@ -133,7 +136,7 @@ func CheckAndCreateSSL(cp string, kp string) error {
 	serialNumber, err := rand.Int(rand.Reader, serialNumberLimit)
 
 	if err != nil {
-		return errors.New(fmt.Sprintf("TLS Certificate Generation: Failed to generate a random serial number: %s", err))
+		return fmt.Errorf("TLS Certificate Generation: Failed to generate a random serial number: %s", err)
 	}
 
 	template := x509.Certificate{
@@ -151,24 +154,24 @@ func CheckAndCreateSSL(cp string, kp string) error {
 
 	derBytes, err := x509.CreateCertificate(rand.Reader, &template, &template, priv.Public(), priv)
 	if err != nil {
-		return errors.New(fmt.Sprintf("TLS Certificate Generation: Failed to create certificate: %s", err))
+		return fmt.Errorf("TLS Certificate Generation: Failed to create certificate: %s", err)
 	}
 
 	certOut, err := os.Create(cp)
 	if err != nil {
-		return errors.New(fmt.Sprintf("TLS Certificate Generation: Failed to open %s for writing: %s", cp, err))
+		return fmt.Errorf("TLS Certificate Generation: Failed to open %s for writing: %s", cp, err)
 	}
 	pem.Encode(certOut, &pem.Block{Type: "CERTIFICATE", Bytes: derBytes})
 	certOut.Close()
 
 	keyOut, err := os.OpenFile(kp, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
-		return errors.New(fmt.Sprintf("TLS Certificate Generation: Failed to open %s for writing", kp))
+		return fmt.Errorf("TLS Certificate Generation: Failed to open %s for writing", kp)
 	}
 
 	b, err := x509.MarshalECPrivateKey(priv)
 	if err != nil {
-		return errors.New(fmt.Sprintf("TLS Certificate Generation: Unable to marshal ECDSA private key: %v", err))
+		return fmt.Errorf("TLS Certificate Generation: Unable to marshal ECDSA private key: %v", err)
 	}
 
 	pem.Encode(keyOut, &pem.Block{Type: "EC PRIVATE KEY", Bytes: b})
