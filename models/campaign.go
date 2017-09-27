@@ -279,7 +279,6 @@ func GetCampaignSummaries(uid int64) (CampaignSummaries, error) {
 			return overview, err
 		}
 		cs[i].Stats = s
-		Logger.Println(cs[i].CreatedDate.String())
 	}
 	overview.Total = int64(len(cs))
 	overview.Campaigns = cs

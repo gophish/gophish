@@ -387,7 +387,8 @@ var renderTimelineChart = function (chartopts) {
             data: chartopts['data'],
             dashStyle: "shortdash",
             color: "#cccccc",
-            lineWidth: 1
+            lineWidth: 1,
+            turboThreshold: 0
         }]
     })
 }
@@ -565,7 +566,7 @@ function poll() {
                     if (result.id == rid) {
                         var label = statuses[result.status].label || "label-default";
                         rowData[6] = "<span class=\"label " + label + "\">" + result.status + "</span>"
-                        resultsTable.row(i).data(rowData).draw(false)
+                        resultsTable.row(i).data(rowData)
                         if (row.child.isShown()) {
                             row.child(renderTimeline(row.data()))
                         }
@@ -573,6 +574,7 @@ function poll() {
                     }
                 })
             })
+            resultsTable.draw(false)
             /* Update the map information */
             updateMap(campaign.results)
             $("#refresh_message").hide()
@@ -646,7 +648,7 @@ function load() {
                         escapeHtml(result.email) || "",
                         escapeHtml(result.position) || "",
                         "<span class=\"label " + label + "\">" + result.status + "</span>"
-                    ]).draw()
+                    ])
                     email_series_data[result.status]++;
                     // Backfill status values
                     var step = progressListing.indexOf(result.status)
@@ -654,6 +656,7 @@ function load() {
                         email_series_data[progressListing[i]]++
                     }
                 })
+                resultsTable.draw();
                 // Setup the individual timelines
                 $('#resultsTable tbody').on('click', 'td.details-control', function () {
                     var tr = $(this).closest('tr');
