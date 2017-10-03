@@ -3,7 +3,7 @@ var profiles = []
 // Attempts to send a test email by POSTing to /campaigns/
 function sendTestEmail() {
     var headers = [];
-    $.each($("#headersTable").DataTable().rows().data(), function(i, header) {
+    $.each($("#headersTable").DataTable().rows().data(), function (i, header) {
         headers.push({
             key: unescapeHtml(header[0]),
             value: unescapeHtml(header[1]),
@@ -27,14 +27,14 @@ function sendTestEmail() {
     }
     btnHtml = $("#sendTestModalSubmit").html()
     $("#sendTestModalSubmit").html('<i class="fa fa-spinner fa-spin"></i> Sending')
-        // Send the test email
+    // Send the test email
     api.send_test_email(test_email_request)
-        .success(function(data) {
+        .success(function (data) {
             $("#sendTestEmailModal\\.flashes").empty().append("<div style=\"text-align:center\" class=\"alert alert-success\">\
 	    <i class=\"fa fa-check-circle\"></i> Email Sent!</div>")
             $("#sendTestModalSubmit").html(btnHtml)
         })
-        .error(function(data) {
+        .error(function (data) {
             $("#sendTestEmailModal\\.flashes").empty().append("<div style=\"text-align:center\" class=\"alert alert-danger\">\
 	    <i class=\"fa fa-exclamation-circle\"></i> " + data.responseJSON.message + "</div>")
             $("#sendTestModalSubmit").html(btnHtml)
@@ -46,7 +46,7 @@ function save(idx) {
     var profile = {
         headers: []
     }
-    $.each($("#headersTable").DataTable().rows().data(), function(i, header) {
+    $.each($("#headersTable").DataTable().rows().data(), function (i, header) {
         profile.headers.push({
             key: unescapeHtml(header[0]),
             value: unescapeHtml(header[1]),
@@ -62,23 +62,23 @@ function save(idx) {
     if (idx != -1) {
         profile.id = profiles[idx].id
         api.SMTPId.put(profile)
-            .success(function(data) {
+            .success(function (data) {
                 successFlash("Profile edited successfully!")
                 load()
                 dismiss()
             })
-            .error(function(data) {
+            .error(function (data) {
                 modalError(data.responseJSON.message)
             })
     } else {
         // Submit the profile
         api.SMTP.post(profile)
-            .success(function(data) {
+            .success(function (data) {
                 successFlash("Profile added successfully!")
                 load()
                 dismiss()
             })
-            .error(function(data) {
+            .error(function (data) {
                 modalError(data.responseJSON.message)
             })
     }
@@ -97,10 +97,15 @@ function dismiss() {
     $("#modal").modal('hide')
 }
 
+var dismissSendTestEmailModal = function () {
+    $("#sendTestEmailModal\\.flashes").empty()
+    $("#sendTestModalSubmit").html("<i class='fa fa-envelope'></i> Send")
+}
+
 function deleteProfile(idx) {
     if (confirm("Delete " + profiles[idx].name + "?")) {
         api.SMTPId.delete(profiles[idx].id)
-            .success(function(data) {
+            .success(function (data) {
                 successFlash(data.message)
                 load()
             })
@@ -116,7 +121,7 @@ function edit(idx) {
         }]
     })
 
-    $("#modalSubmit").unbind('click').click(function() {
+    $("#modalSubmit").unbind('click').click(function () {
         save(idx)
     })
     var profile = {}
@@ -129,14 +134,14 @@ function edit(idx) {
         $("#username").val(profile.username)
         $("#password").val(profile.password)
         $("#ignore_cert_errors").prop("checked", profile.ignore_cert_errors)
-        $.each(profile.headers, function(i, record) {
+        $.each(profile.headers, function (i, record) {
             addCustomHeader(record.key, record.value)
         });
     }
 }
 
 function copy(idx) {
-    $("#modalSubmit").unbind('click').click(function() {
+    $("#modalSubmit").unbind('click').click(function () {
         save(-1)
     })
     var profile = {}
@@ -155,7 +160,7 @@ function load() {
     $("#emptyMessage").hide()
     $("#loading").show()
     api.SMTP.get()
-        .success(function(ss) {
+        .success(function (ss) {
             profiles = ss
             $("#loading").hide()
             if (profiles.length > 0) {
@@ -168,7 +173,7 @@ function load() {
                     }]
                 });
                 profileTable.clear()
-                $.each(profiles, function(i, profile) {
+                $.each(profiles, function (i, profile) {
                     profileTable.row.add([
                         escapeHtml(profile.name),
                         profile.interface_type,
@@ -189,7 +194,7 @@ function load() {
                 $("#emptyMessage").show()
             }
         })
-        .error(function() {
+        .error(function () {
             $("#loading").hide()
             errorFlash("Error fetching profiles")
         })
@@ -223,16 +228,16 @@ function addCustomHeader(header, value) {
     headersTable.draw();
 }
 
-$(document).ready(function() {
+$(document).ready(function () {
     // Setup multiple modals
     // Code based on http://miles-by-motorcycle.com/static/bootstrap-modal/index.html
-    $('.modal').on('hidden.bs.modal', function(event) {
+    $('.modal').on('hidden.bs.modal', function (event) {
         $(this).removeClass('fv-modal-stack');
         $('body').data('fv_open_modals', $('body').data('fv_open_modals') - 1);
     });
-    $('.modal').on('shown.bs.modal', function(event) {
+    $('.modal').on('shown.bs.modal', function (event) {
         // Keep track of the number of open modals
-        if (typeof($('body').data('fv_open_modals')) == 'undefined') {
+        if (typeof ($('body').data('fv_open_modals')) == 'undefined') {
             $('body').data('fv_open_modals', 0);
         }
         // if the z-index of this modal has been set, ignore.
@@ -247,10 +252,10 @@ $(document).ready(function() {
         $('.modal-backdrop').not('.fv-modal-stack').css('z-index', 1039 + (10 * $('body').data('fv_open_modals')));
         $('.modal-backdrop').not('fv-modal-stack').addClass('fv-modal-stack');
     });
-    $.fn.modal.Constructor.prototype.enforceFocus = function() {
+    $.fn.modal.Constructor.prototype.enforceFocus = function () {
         $(document)
             .off('focusin.bs.modal') // guard against infinite focus loop
-            .on('focusin.bs.modal', $.proxy(function(e) {
+            .on('focusin.bs.modal', $.proxy(function (e) {
                 if (
                     this.$element[0] !== e.target && !this.$element.has(e.target).length
                     // CKEditor compatibility fix start.
@@ -261,11 +266,18 @@ $(document).ready(function() {
                 }
             }, this));
     };
-    $('#modal').on('hidden.bs.modal', function(event) {
+    // Scrollbar fix - https://stackoverflow.com/questions/19305821/multiple-modals-overlay
+    $(document).on('hidden.bs.modal', '.modal', function () {
+        $('.modal:visible').length && $(document.body).addClass('modal-open');
+    });
+    $('#modal').on('hidden.bs.modal', function (event) {
         dismiss()
     });
+    $("#sendTestEmailModal").on("hidden.bs.modal", function (event) {
+        dismissSendTestEmailModal()
+    })
     // Code to deal with custom email headers
-    $("#headersForm").on('submit', function() {
+    $("#headersForm").on('submit', function () {
         headerKey = $("#headerKey").val();
         headerValue = $("#headerValue").val();
 
@@ -279,7 +291,7 @@ $(document).ready(function() {
         return false;
     });
     // Handle Deletion
-    $("#headersTable").on("click", "span>i.fa-trash-o", function() {
+    $("#headersTable").on("click", "span>i.fa-trash-o", function () {
         headers.DataTable()
             .row($(this).parents('tr'))
             .remove()

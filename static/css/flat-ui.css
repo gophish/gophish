@@ -158,7 +158,7 @@ you can use the generic selector below, but it's slower:
 }
 body {
   font-family: "Source Sans Pro", Helvetica, Arial, sans-serif;
-  font-size: 18px;
+  font-size: 16px;
   line-height: 1.72222;
   color: #283F50;
   background-color: #ffffff;
@@ -276,7 +276,7 @@ h6,
   font-size: 24px;
 }
 p {
-  font-size: 18px;
+  font-size: 16px;
   line-height: 1.72222;
   margin: 0 0 15px;
 }
@@ -404,7 +404,7 @@ blockquote p {
 }
 blockquote small,
 blockquote .small {
-  font-size: 18px;
+  font-size: 16px;
   line-height: 1.72222;
   font-style: italic;
   color: inherit;
@@ -1007,7 +1007,7 @@ fieldset[disabled] .btn-link:focus {
   right: 20px;
 }
 .select .btn.btn-lg .filter-option {
-  left: 18px;
+  left: 16px;
   right: 38px;
 }
 .select .btn.btn-sm .filter-option {
@@ -1379,7 +1379,7 @@ select[multiple].input-hg {
   padding: 0 15px 0 0;
 }
 .input-sm + .input-icon {
-  font-size: 18px;
+  font-size: 16px;
   line-height: 30px;
   padding: 0 10px 0 0;
 }

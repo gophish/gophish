@@ -36,15 +36,17 @@ type Config struct {
 var Conf Config
 
 // Version contains the current gophish version
-var Version = "0.3"
+var Version = ""
 
+// LoadConfig loads the configuration from the specified filepath
 func LoadConfig(filepath string) {
 	// Get the config file
-	config_file, err := ioutil.ReadFile(filepath)
+	configFile, err := ioutil.ReadFile(filepath)
 	if err != nil {
 		fmt.Printf("File error: %v\n", err)
 	}
-	json.Unmarshal(config_file, &Conf)
+	json.Unmarshal(configFile, &Conf)
+
 	// Choosing the migrations directory based on the database used.
 	Conf.MigrationsPath = Conf.MigrationsPath + Conf.DBName
 	// Explicitly set the TestFlag to false to prevent config.json overrides

@@ -105,7 +105,7 @@ func (m MailLog) GenerateMessage(msg *gomail.Message) error {
 	if fn == "" {
 		fn = f.Address
 	}
-	msg.SetHeader("From", c.SMTP.FromAddress)
+	msg.SetAddressHeader("From", c.SMTP.FromAddress)
 	td := struct {
 		Result
 		URL         string

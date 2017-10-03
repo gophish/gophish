@@ -26,6 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 import (
+	"io/ioutil"
 	"compress/gzip"
 	"fmt"
 	"log"
@@ -51,11 +52,22 @@ var (
 )
 
 func main() {
+	// Load the version
+	version, err := ioutil.ReadFile("./VERSION")
+	if err != nil {
+		Logger.Fatalln(err)
+	}
+	kingpin.Version(string(version))
+
 	// Parse the CLI flags and load the config
+	kingpin.CommandLine.HelpFlag.Short('h')
 	kingpin.Parse()
+
+	// Load the config
 	config.LoadConfig(*configPath)
+	config.Version = string(version)
 	// Setup the global variables and settings
-	err := models.Setup()
+	err = models.Setup()
 	if err != nil {
 		fmt.Println(err)
 	}

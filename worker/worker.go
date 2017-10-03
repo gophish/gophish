@@ -7,6 +7,7 @@ import (
 	"errors"
 	"io"
 	"log"
+	"net/mail"
 	"net/textproto"
 	"os"
 	"strconv"
@@ -144,6 +145,11 @@ func processMailLogs(cid int64, uid int64, ms []models.MailLog, d mailer.Dialer)
 }
 
 func SendTestEmail(s *models.SendTestEmailRequest) error {
+	f, err := mail.ParseAddress(s.SMTP.FromAddress)
+	if err != nil {
+		Logger.Println(err)
+		return err
+	}
 	hp := strings.Split(s.SMTP.Host, ":")
 	if len(hp) < 2 {
 		hp = append(hp, "25")
@@ -198,7 +204,7 @@ func SendTestEmail(s *models.SendTestEmailRequest) error {
 		// Add our header immediately
 		e.SetHeader(parsedHeader.Key.String(), parsedHeader.Value.String())
 	}
-	e.SetHeader("From", s.SMTP.FromAddress)
+	e.SetAddressHeader("From", f.Address, f.Name)
 	e.SetHeader("To", s.FormatAddress())
 	// Parse the templates
 	var subjBuff bytes.Buffer

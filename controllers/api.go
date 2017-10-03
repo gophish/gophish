@@ -683,6 +683,7 @@ func API_Send_Test_Email(w http.ResponseWriter, r *http.Request) {
 		if err == gorm.ErrRecordNotFound {
 			Logger.Printf("Error - Template %s does not exist", s.Template.Name)
 			JSONResponse(w, models.Response{Success: false, Message: models.ErrTemplateNotFound.Error()}, http.StatusBadRequest)
+			return
 		} else if err != nil {
 			Logger.Println(err)
 			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
@@ -693,15 +694,15 @@ func API_Send_Test_Email(w http.ResponseWriter, r *http.Request) {
 	// If a complete sending profile is provided use it
 	if err := s.SMTP.Validate(); err != nil {
 		// Otherwise get the SMTP requested by name
-		s.SMTP, err = models.GetSMTPByName(s.SMTP.Name, ctx.Get(r, "user_id").(int64))
-		if err == gorm.ErrRecordNotFound {
-			Logger.Printf("Error - Sending profile %s does not exist", s.SMTP.Name)
-			JSONResponse(w, models.Response{Success: false, Message: models.ErrSMTPNotFound.Error()}, http.StatusBadRequest)
-		} else if err != nil {
+		smtp, lookupErr := models.GetSMTPByName(s.SMTP.Name, ctx.Get(r, "user_id").(int64))
+		// If the Sending Profile doesn't exist, let's err on the side
+		// of caution and assume that the validation failure was more important.
+		if lookupErr != nil {
 			Logger.Println(err)
 			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
 			return
 		}
+		s.SMTP = smtp
 	}
 
 	// Send the test email
