@@ -3,7 +3,7 @@
 Gophish
 =======
 
-[![Build Status](https://travis-ci.org/gophish/gophish.svg?branch=master)](https://travis-ci.org/gophish/gophish) [![GoDoc](https://godoc.org/github.com/gophish/gophish?status.svg)](https://godoc.org/github.com/gophish/gophish)
+[![Build Status](https://travis-ci.org/teamnsrg/gophish.svg?branch=master)](https://travis-ci.org/teamnsrg/gophish) [![GoDoc](https://godoc.org/github.com/gophish/gophish?status.svg)](https://godoc.org/github.com/gophish/gophish)
 
 Gophish: Open-Source Phishing Toolkit
 
