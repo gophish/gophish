@@ -1,4 +1,6 @@
 # TODO
+- Set up separate development / production config
+- Set up production certificate + mysql
 - Enable/disable STARTTLS for emails
 - Enable/disable DKIM for emails
 - Enable/disable PGP signature for emails
