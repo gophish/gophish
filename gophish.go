@@ -48,7 +48,7 @@ import (
 var (
 	Logger = log.New(os.Stdout, " ", log.Ldate|log.Ltime|log.Lshortfile)
 
-	configPath = kingpin.Flag("config", "Location of config.json.").Default("./config.json").String()
+	configPath = kingpin.Flag("config", "Location of config json file").Default("./config/development.json").String()
 )
 
 func main() {
