@@ -9,7 +9,7 @@ import (
 	"os"
 
 	"bitbucket.org/liamstask/goose/lib/goose"
-
+	_ "github.com/lib/pq"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gophish/gophish/config"
 	"github.com/jinzhu/gorm"
@@ -69,7 +69,9 @@ func chooseDBDriver(name, openStr string) goose.DBDriver {
 	case "mysql":
 		d.Import = "github.com/go-sql-driver/mysql"
 		d.Dialect = &goose.MySqlDialect{}
-
+	case "postgres":
+		d.Import = "github.com/lib/pq"
+		d.Dialect = &goose.PostgresDialect{}
 	// Default database is sqlite3
 	default:
 		d.Import = "github.com/mattn/go-sqlite3"
