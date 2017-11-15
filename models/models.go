@@ -9,11 +9,11 @@ import (
 	"os"
 
 	"bitbucket.org/liamstask/goose/lib/goose"
-	_ "github.com/lib/pq"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/teamnsrg/gophish/config"
 	"github.com/jinzhu/gorm"
+	_ "github.com/lib/pq"
 	_ "github.com/mattn/go-sqlite3" // Blank import needed to import sqlite3
+	"github.com/teamnsrg/gophish/config"
 )
 
 var db *gorm.DB
@@ -117,6 +117,7 @@ func Setup() error {
 	}
 	//If the database didn't exist, we need to create the admin user
 	if create_db {
+
 		//Create the default user
 		initUser := User{
 			Username: "admin",
@@ -128,6 +129,15 @@ func Setup() error {
 			Logger.Println(err)
 			return err
 		}
+
+		//Populate the Database
+		if config.Conf.Environment == "production" {
+			Logger.Println("Production Database seed not Implemented")
+		} else {
+			Logger.Println("Setting up Dev Environment Database with demo campaign...")
+			//TODO
+		}
+
 	}
 	return nil
 }
