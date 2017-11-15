@@ -37,11 +37,11 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 
 	"github.com/NYTimes/gziphandler"
-	"github.com/gophish/gophish/auth"
-	"github.com/gophish/gophish/config"
-	"github.com/gophish/gophish/controllers"
-	"github.com/gophish/gophish/models"
-	"github.com/gophish/gophish/util"
+	"github.com/teamnsrg/gophish/auth"
+	"github.com/teamnsrg/gophish/config"
+	"github.com/teamnsrg/gophish/controllers"
+	"github.com/teamnsrg/gophish/models"
+	"github.com/teamnsrg/gophish/util"
 	"github.com/gorilla/handlers"
 )
 

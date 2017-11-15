@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/gophish/gophish/models"
+	"github.com/teamnsrg/gophish/models"
 )
 
 func (s *ControllersSuite) getFirstCampaign() models.Campaign {

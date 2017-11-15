@@ -12,8 +12,8 @@ import (
 	"net/url"
 	"strings"
 
-	ctx "github.com/gophish/gophish/context"
-	"github.com/gophish/gophish/models"
+	ctx "github.com/teamnsrg/gophish/context"
+	"github.com/teamnsrg/gophish/models"
 	"github.com/gorilla/mux"
 )
 

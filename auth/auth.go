@@ -9,8 +9,8 @@ import (
 
 	"crypto/rand"
 
-	ctx "github.com/gophish/gophish/context"
-	"github.com/gophish/gophish/models"
+	ctx "github.com/teamnsrg/gophish/context"
+	"github.com/teamnsrg/gophish/models"
 	"github.com/gorilla/securecookie"
 	"github.com/gorilla/sessions"
 	"golang.org/x/crypto/bcrypt"

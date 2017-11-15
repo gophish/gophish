@@ -13,5 +13,6 @@
 	},
 	"db_name" : "sqlite3",
 	"db_path" : "gophish.db",
-	"migrations_prefix" : "db/db_"
+	"migrations_prefix" : "db/db_",
+	"environment": "development"
 }

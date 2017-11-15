@@ -11,7 +11,7 @@ import (
 	"bitbucket.org/liamstask/goose/lib/goose"
 	_ "github.com/lib/pq"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/gophish/gophish/config"
+	"github.com/teamnsrg/gophish/config"
 	"github.com/jinzhu/gorm"
 	_ "github.com/mattn/go-sqlite3" // Blank import needed to import sqlite3
 )
