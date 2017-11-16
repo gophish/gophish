@@ -7,7 +7,7 @@ import (
 	"io"
 	"log"
 	"os"
-
+        "time"
 	"bitbucket.org/liamstask/goose/lib/goose"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
@@ -132,10 +132,179 @@ func Setup() error {
 
 		//Populate the Database
 		if config.Conf.Environment == "production" {
-			Logger.Println("Production Database seed not Implemented")
+			Logger.Printf("Production Database seed not Implemented")
 		} else {
-			Logger.Println("Setting up Dev Environment Database with demo campaign...")
-			//TODO
+			Logger.Printf("Setting up Dev Environment Database with demo campaign...")
+
+                        //Construct Demo Targets
+                        target1 := Target{
+                            Id: 1,
+                            FirstName: "Keepak",
+                            LastName: "Dumar",
+                            Email: "dpk@km.ar",
+                            Position: "Chief Solutions Officer",
+                        }
+                        target2 := Target{
+                            Id: 2,
+                            FirstName: "Mane",
+                            LastName: "Za",
+                            Email: "zzma@km.ar",
+                            Position: "Go Guru Recruiter",
+                        }
+                        target3 := Target{
+                            Id: 3,
+                            FirstName: "Roshua",
+                            LastName: "Jeynolds",
+                            Email: "reyjey@km.ar",
+                            Position: "Director of Good Movies and/or Snacks",
+                        }
+                        target4 := Target{
+                            Id: 4,
+                            FirstName: "Robert",
+                            LastName: "La'Bla",
+                            Email: "barkbark@km.ar",
+                            Position: "Fifth Wheel",
+                        }
+                        target5 := Target{
+                            Id: 5,
+                            FirstName: "Michael",
+                            LastName: "Bailey, M.D.",
+                            Email: "thatkindofdoctor@km.ar",
+                            Position: "Trauma Accupuncture Specialist",
+                        }
+
+                        //Save Targets
+		        err = db.Save(&target1).Error
+		        if err != nil {
+                            Logger.Printf("Error saving Target 1")
+			    Logger.Println(err)
+			    return err
+		        }
+		        err = db.Save(&target2).Error
+		        if err != nil {
+                            Logger.Printf("Error saving Target 2")
+			    Logger.Println(err)
+			    return err
+		        }
+		        err = db.Save(&target3).Error
+		        if err != nil {
+                            Logger.Printf("Error saving Target 3")
+			    Logger.Println(err)
+			    return err
+		        }
+		        err = db.Save(&target4).Error
+		        if err != nil {
+                            Logger.Printf("Error saving Target 4")
+			    Logger.Println(err)
+			    return err
+		        }
+		        err = db.Save(&target5).Error
+		        if err != nil {
+                            Logger.Printf("Error saving Target 5")
+			    Logger.Println(err)
+			    return err
+		        }
+
+                        //Build Groups
+                        group1 := Group{
+                            Id : 1,
+                            UserId : 1,
+                            Name : "IT Dept.",
+                            ModifiedDate : time.Now(),
+                            Targets : []Target{target1, target2, target3,},
+                        }
+                        group2 := Group{
+                            Id : 2,
+                            UserId : 1,
+                            Name : "Admin Dept.",
+                            ModifiedDate : time.Now(),
+                            Targets : []Target{target4, target4,},
+                        }
+
+                        //Save Groups
+		        err = db.Save(&group1).Error
+		        if err != nil {
+                            Logger.Printf("Error saving Group 1")
+			    Logger.Println(err)
+			    return err
+		        }
+		        err = db.Save(&group2).Error
+		        if err != nil {
+                            Logger.Printf("Error saving Group 2")
+			    Logger.Println(err)
+			    return err
+		        }
+                        Logger.Printf("Done Prepopulating")
+
+                        //Build Group -> Target Links
+                        g1_t1 := GroupTarget {
+                            GroupId  : 1,
+                            TargetId : 1,
+                        }
+                        g1_t2 := GroupTarget {
+                            GroupId  : 1,
+                            TargetId : 2,
+                        }
+                        g1_t3 := GroupTarget {
+                            GroupId  : 1,
+                            TargetId : 3,
+                        }
+                        g2_t3 := GroupTarget {
+                            GroupId  : 2,
+                            TargetId : 3,
+                        }
+                        g2_t4 := GroupTarget {
+                            GroupId  : 2,
+                            TargetId : 4,
+                        }
+                        g2_t5 := GroupTarget {
+                            GroupId  : 2,
+                            TargetId : 5,
+                        }
+
+                        //Save Group->Target Links
+		        err = db.Save(&g1_t1).Error
+		        if err != nil {
+                            Logger.Printf("Error saving Group-Target 1")
+			    Logger.Println(err)
+			    return err
+		        }
+		        err = db.Save(&g1_t2).Error
+		        if err != nil {
+                            Logger.Printf("Error saving Group-Target 2")
+			    Logger.Println(err)
+			    return err
+		        }
+		        err = db.Save(&g1_t3).Error
+		        if err != nil {
+                            Logger.Printf("Error saving Group-Target 3")
+			    Logger.Println(err)
+			    return err
+		        }
+		        err = db.Save(&g2_t3).Error
+		        if err != nil {
+                            Logger.Printf("Error saving Group-Target 4")
+			    Logger.Println(err)
+			    return err
+		        }
+		        err = db.Save(&g2_t4).Error
+		        if err != nil {
+                            Logger.Printf("Error saving Group-Target 5")
+			    Logger.Println(err)
+			    return err
+		        }
+		        err = db.Save(&g2_t5).Error
+		        if err != nil {
+                            Logger.Printf("Error saving Group-Target 6")
+			    Logger.Println(err)
+			    return err
+		        }
+                        //sending_profile := 0
+                        //email_template :=0
+                        //landing_page :=0
+                        //campaign :=0
+
+                        //Save Campaign
 		}
 
 	}
