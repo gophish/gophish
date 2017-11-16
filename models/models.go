@@ -139,24 +139,24 @@ func Setup() error {
                         //Construct Demo Targets
                         target1 := Target{
                             Id: 1,
-                            FirstName: "Keepak",
-                            LastName: "Dumar",
-                            Email: "dpk@km.ar",
-                            Position: "Chief Solutions Officer",
+                            FirstName: "Zane",
+                            LastName: "Ma",
+                            Email: "zanema2@illinois.edu",
+                            Position: "Research Assistant",
                         }
                         target2 := Target{
                             Id: 2,
-                            FirstName: "Mane",
-                            LastName: "Za",
-                            Email: "zzma@km.ar",
-                            Position: "Go Guru Recruiter",
+                            FirstName: "Joshua",
+                            LastName: "Reynolds",
+                            Email: "joshuar3@illinois.edu",
+                            Position: "Research Assistant",
                         }
                         target3 := Target{
                             Id: 3,
-                            FirstName: "Roshua",
-                            LastName: "Jeynolds",
-                            Email: "reyjey@km.ar",
-                            Position: "Director of Good Movies and/or Snacks",
+                            FirstName: "Joey",
+                            LastName: "Dickinson",
+                            Email: "jddicki2@illinois.edu",
+                            Position: "Undergraduate Senior Thesis Researcher",
                         }
                         target4 := Target{
                             Id: 4,
@@ -209,14 +209,14 @@ func Setup() error {
                         group1 := Group{
                             Id : 1,
                             UserId : 1,
-                            Name : "IT Dept.",
+                            Name : "PEOPLE ON THE PAPER",
                             ModifiedDate : time.Now(),
                             Targets : []Target{target1, target2, target3,},
                         }
                         group2 := Group{
                             Id : 2,
                             UserId : 1,
-                            Name : "Admin Dept.",
+                            Name : "OTHER GROUP",
                             ModifiedDate : time.Now(),
                             Targets : []Target{target4, target4,},
                         }
