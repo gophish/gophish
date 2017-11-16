@@ -37,18 +37,18 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 
 	"github.com/NYTimes/gziphandler"
-	"github.com/gophish/gophish/auth"
-	"github.com/gophish/gophish/config"
-	"github.com/gophish/gophish/controllers"
-	"github.com/gophish/gophish/models"
-	"github.com/gophish/gophish/util"
+	"github.com/teamnsrg/gophish/auth"
+	"github.com/teamnsrg/gophish/config"
+	"github.com/teamnsrg/gophish/controllers"
+	"github.com/teamnsrg/gophish/models"
+	"github.com/teamnsrg/gophish/util"
 	"github.com/gorilla/handlers"
 )
 
 var (
 	Logger = log.New(os.Stdout, " ", log.Ldate|log.Ltime|log.Lshortfile)
 
-	configPath = kingpin.Flag("config", "Location of config.json.").Default("./config.json").String()
+	configPath = kingpin.Flag("config", "Location of config json file").Default("./config/development.json").String()
 )
 
 func main() {

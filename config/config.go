@@ -29,6 +29,7 @@ type Config struct {
 	DBName         string      `json:"db_name"`
 	DBPath         string      `json:"db_path"`
 	MigrationsPath string      `json:"migrations_prefix"`
+	Environment    string      `json:environment`
 }
 
 // Conf contains the initialized configuration struct

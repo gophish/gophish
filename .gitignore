@@ -24,3 +24,16 @@ _testmain.go
 
 *.exe
 *.db
+
+# Build executable
+gophish
+
+# Local mysqlite db, generated certificate files
+gophish.db
+gophish_admin.crt
+gophish_admin.key
+
+# IntelliJ IDEA
+.idea
+
+

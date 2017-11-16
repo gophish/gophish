@@ -2,8 +2,6 @@ language: go
 sudo: false
 
 go:
-  - 1.5
-  - 1.6
   - 1.7
   - 1.8
   - 1.9
@@ -13,3 +11,6 @@ install:
   - go get -d -v ./... && go build -v ./...
   - go get gopkg.in/check.v1
   - go get github.com/stretchr/testify
+
+script:
+  - go test -v ./...
