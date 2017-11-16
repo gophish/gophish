@@ -299,12 +299,100 @@ func Setup() error {
 			    Logger.Println(err)
 			    return err
 		        }
-                        //sending_profile := 0
-                        //email_template :=0
-                        //landing_page :=0
-                        //campaign :=0
 
-                        //Save Campaign
+                        //Make a Sending Profile
+                        sending_profile := SMTP{
+                            Id          : 1,
+                            UserId      : 1,
+                            Interface   : "SMTP",
+                            Name        : "Default Sending Profile",
+                            Host        : "example.com",
+                            Username    : "test",
+                            Password    : "12345",
+                            FromAddress : "example.com",
+                            IgnoreCertErrors : true,
+                            Headers     : []Header{},
+                            ModifiedDate: time.Now(),
+                        }
+
+                        //Save Sending Profile
+		        err = db.Save(&sending_profile).Error
+		        if err != nil {
+                            Logger.Printf("Error saving Sending Profile")
+			    Logger.Println(err)
+			    return err
+		        }
+
+                        //Make an Email Template
+                        email_template := Template{
+                            Id       : 1,
+                            UserId   : 1,
+                            Name     : "Default Email Template",
+                            Subject  : "You should click this link",
+                            Text     : "Hi\nYou should go to this link {LINK}.\nSincerely,\nYour Boss",
+                            HTML     : "<html></html>",
+                            ModifiedDate: time.Now(),
+                            Attachments : []Attachment{},
+                        }
+
+                        //Save Email Template
+		        err = db.Save(&email_template).Error
+		        if err != nil {
+                            Logger.Printf("Error saving Landing Page")
+			    Logger.Println(err)
+			    return err
+		        }
+
+                        //TODO Figure out why this wont work 
+                        //Make a landing page
+                        landing_page := Page{
+	                    Id           : 1,
+	                    UserId       : 1,
+                            Name         : "Default Phish Page",
+	                    HTML         : "<html><head></head><body><form><p>Please type sensitive information here</p><input></input><form></body></html>",
+	                    CaptureCredentials : false,
+	                    CapturePasswords : false,
+	                    RedirectURL  : "http://example.com",
+	                    ModifiedDate : time.Now(),
+                        }
+
+                        //Save Landing Page
+		        err = db.Save(&landing_page).Error
+		        if err != nil {
+                            Logger.Printf("Error saving Landing Page")
+			    Logger.Println(err)
+			    return err
+		        }
+
+                        //Make Campaign
+                        campaign := Campaign{
+	                    Id             : 1,
+	                    UserId         : 1,
+	                    Name           : "Demo Campaign",
+	                    CreatedDate    : time.Now(),
+	                    LaunchDate     : time.Now(),
+	                    CompletedDate  : time.Now(),
+	                    TemplateId     : 1,
+	                    Template       : email_template,
+	                    PageId         : 1,
+	                    Page           : landing_page,
+	                    Status         : "In Development",
+	                    Results        : []Result{},
+	                    Groups         : []Group{group1, group2},
+	                    Events         : []Event{},
+	                    SMTPId         : 1,
+	                    SMTP           : sending_profile,
+	                    URL            : "www.example.com",
+                        }
+
+                        //Save Campaign 
+		        err = db.Save(&campaign).Error
+		        if err != nil {
+                            Logger.Printf("Error saving Campaign")
+			    Logger.Println(err)
+			    return err
+		        }
+                        Logger.Printf("Successfully initialized data")
 		}
 
 	}
