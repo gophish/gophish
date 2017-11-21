@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<!--
+Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
+For licensing, see LICENSE.md or http://ckeditor.com/license
+-->
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Manual test for http://dev.ckeditor.com/ticket/11460</title>
+	<script src="../../../ckeditor.js"></script>
+	<script src="../../../dev/console/console.js"></script>
+	<script src="../../../plugins/clipboard/dev/console.js"></script>
+	<link rel="stylesheet" href="../../../samples/old/sample.css">
+	<style type="text/css">
+	h2 {
+		margin: 10px 0px 4px 0px;
+		padding: 0;
+		font-size: 14px;
+	}
+	h3 {
+		margin: 5px 0px 2px 0px;
+		padding: 0;
+		font-size: 12px;
+	}
+	</style>
+</head>
+<body>
+	<h1 class="samples">
+		Manual test for #11460
+	</h1>
+	<h2>Description (<a href="javascript:hideshow('description');">hide/show</a>)</h2>
+	<div id="description" class="description">
+		<p>Test internal D&amp;D in the editor, dropping content from an external source (helpers, MS Word) and D&amp;D between editors. Keep in mind that internal D&amp;D is the most complex operation because editor have to handle two ranges at the same time.</p>
+		<h3>Expected behavior:</h3>
+		<ul>
+			<li>proper drop position,</li>
+			<li>in the internal and cross editor D&amp;D: dragged content should be removed,</li>
+			<li>dropped content should be (more less) the same as dragged content,</li>
+			<li>paste event should be fired,</li>
+			<li>undo should work properly (one undo operation for one D&amp;D),</li>
+			<li>no crashes, nor errors,</li>
+		</ul>
+		<h3>Drag scenarios:</h3>
+		<ul>
+			<li>drag simple text,</li>
+			<li>drag table cell/cells,</li>
+			<li>drag link,</li>
+			<li>drag helpers textarea content,</li>
+			<li>drag helpers html content,</li>
+			<li>drag content from MS Word.</li>
+		</ul>
+		<h3>Drop scenarios:</h3>
+		<ul>
+			<li>drop in the different paragraph (before and after),</li>
+			<li>drop in the same paragraph (before and after),</li>
+			<li>drop in the same text node (before and after),</li>
+			<li>drop between text lines,</li>
+			<li>drop on the whitespace next to the header,</li>
+			<li>drop on the whitespace on the left side from the quote,</li>
+			<li>drop into a cell.</li>
+		</ul>
+		<h3>Known issues (not part of this ticket):</h3>
+		<ul>
+			<li>because of <a href="http://dev.ckeditor.com/ticket/11636">#11636</a> dragged content is not correct in some cases (e.g. when you drag part of the link),</li>
+			<li>drag position needs clean up after D&amp;D (e.g. remove empty paragraphs, fix table),</li>
+			<li>drop position needs clean up after D&amp;D (e.g. add spaces before/after dropped content, apply parents styles, break paragraph when one paragraph is dropped at the end to the other paragraph),</li>
+			<li>in the external D&amp;D: Chrome add plenty of addition tags.</li>
+		</ul>
+	</div>
+	<div>
+		<h2>Helpers (<a href="javascript:hideshow('helpers');">hide/show</a>)</h2>
+		<div id="helpers">
+			<textarea style="width:49%; height:50px; float: left;">Lorem ipsum dolor sit amet, consectetur adipiscing elit. In commodo vulputate tempor. Sed <b>at</b> elit.</textarea>
+			<div style="width:49%; height:50px; float: right;">
+				Lorem ipsum <b>dolor</b> sit <i>amet</i>, consectetur adipiscing elit. In commodo vulputate tempor. Sed &lt;b&gt;at elit&lt;/b&gt; vel ligula mollis aliquet a ac odio.
+				<pre>
+Aenean cursus egestas ipsum.
+				</pre>
+			</div>
+			<div style="clear:both;"></div>
+		</div>
+	</div>
+	<div>
+		<h2>Classic editor (<a href="javascript:hideshow('classic-editor');">hide/show</a>)</h2>
+		<div id="classic-editor">
+			<textarea cols="80" id="classic" name="classic" rows="10">
+				&lt;h1&gt;&lt;img alt=&quot;Saturn V carrying Apollo 11&quot; class=&quot;right&quot; src=&quot;../../../samples/assets/sample.jpg&quot;/&gt; Apollo 11&lt;/h1&gt; &lt;p&gt;&lt;b&gt;Apollo 11&lt;/b&gt; was the spaceflight that landed the first humans, Americans &lt;a href=&quot;http://en.wikipedia.org/wiki/Neil_Armstrong&quot; title=&quot;Neil Armstrong&quot;&gt;Neil Armstrong&lt;/a&gt; and &lt;a href=&quot;http://en.wikipedia.org/wiki/Buzz_Aldrin&quot; title=&quot;Buzz Aldrin&quot;&gt;Buzz Aldrin&lt;/a&gt;, on the Moon on July 20, 1969, at 20:18 UTC. Armstrong became the first to step onto the lunar surface 6 hours later on July 21 at 02:56 UTC.&lt;/p&gt; &lt;p&gt;Armstrong spent about &lt;s&gt;three and a half&lt;/s&gt; two and a half hours outside the spacecraft, Aldrin slightly less; and together they collected 47.5 pounds (21.5&amp;nbsp;kg) of lunar material for return to Earth. A third member of the mission, &lt;a href=&quot;http://en.wikipedia.org/wiki/Michael_Collins_(astronaut)&quot; title=&quot;Michael Collins (astronaut)&quot;&gt;Michael Collins&lt;/a&gt;, piloted the &lt;a href=&quot;http://en.wikipedia.org/wiki/Apollo_Command/Service_Module&quot; title=&quot;Apollo Command/Service Module&quot;&gt;command&lt;/a&gt; spacecraft alone in lunar orbit until Armstrong and Aldrin returned to it for the trip back to Earth.&lt;/p&gt; &lt;h2&gt;Broadcasting and &lt;em&gt;quotes&lt;/em&gt; &lt;a id=&quot;quotes&quot; name=&quot;quotes&quot;&gt;&lt;/a&gt;&lt;/h2&gt; &lt;p&gt;Broadcast on live TV to a world-wide audience, Armstrong stepped onto the lunar surface and described the event as:&lt;/p&gt; &lt;blockquote&gt;&lt;p&gt;One small step for [a] man, one giant leap for mankind.&lt;/p&gt;&lt;/blockquote&gt; &lt;p&gt;Apollo 11 effectively ended the &lt;a href=&quot;http://en.wikipedia.org/wiki/Space_Race&quot; title=&quot;Space Race&quot;&gt;Space Race&lt;/a&gt; and fulfilled a national goal proposed in 1961 by the late U.S. President &lt;a href=&quot;http://en.wikipedia.org/wiki/John_F._Kennedy&quot; title=&quot;John F. Kennedy&quot;&gt;John F. Kennedy&lt;/a&gt; in a speech before the United States Congress:&lt;/p&gt; &lt;blockquote&gt;&lt;p&gt;[...] before this decade is out, of landing a man on the Moon and returning him safely to the Earth.&lt;/p&gt;&lt;/blockquote&gt; &lt;h2&gt;Technical details &lt;a id=&quot;tech-details&quot; name=&quot;tech-details&quot;&gt;&lt;/a&gt;&lt;/h2&gt; &lt;table align=&quot;right&quot; border=&quot;1&quot; bordercolor=&quot;#ccc&quot; cellpadding=&quot;5&quot; cellspacing=&quot;0&quot; style=&quot;border-collapse:collapse;margin:10px 0 10px 15px;&quot;&gt; &lt;caption&gt;&lt;strong&gt;Mission crew&lt;/strong&gt;&lt;/caption&gt; &lt;thead&gt; &lt;tr&gt; &lt;th scope=&quot;col&quot;&gt;Position&lt;/th&gt; &lt;th scope=&quot;col&quot;&gt;Astronaut&lt;/th&gt; &lt;/tr&gt; &lt;/thead&gt; &lt;tbody&gt; &lt;tr&gt; &lt;td&gt;Commander&lt;/td&gt; &lt;td&gt;Neil A. Armstrong&lt;/td&gt; &lt;/tr&gt; &lt;tr&gt; &lt;td&gt;Command Module Pilot&lt;/td&gt; &lt;td&gt;Michael Collins&lt;/td&gt; &lt;/tr&gt; &lt;tr&gt; &lt;td&gt;Lunar Module Pilot&lt;/td&gt; &lt;td&gt;Edwin &amp;quot;Buzz&amp;quot; E. Aldrin, Jr.&lt;/td&gt; &lt;/tr&gt; &lt;/tbody&gt; &lt;/table&gt; &lt;p&gt;Launched by a &lt;strong&gt;Saturn V&lt;/strong&gt; rocket from &lt;a href=&quot;http://en.wikipedia.org/wiki/Kennedy_Space_Center&quot; title=&quot;Kennedy Space Center&quot;&gt;Kennedy Space Center&lt;/a&gt; in Merritt Island, Florida on July 16, Apollo 11 was the fifth manned mission of &lt;a href=&quot;http://en.wikipedia.org/wiki/NASA&quot; title=&quot;NASA&quot;&gt;NASA&lt;/a&gt;&amp;#39;s Apollo program. The Apollo spacecraft had three parts:&lt;/p&gt; &lt;ol&gt; &lt;li&gt;&lt;strong&gt;Command Module&lt;/strong&gt; with a cabin for the three astronauts which was the only part which landed back on Earth&lt;/li&gt; &lt;li&gt;&lt;strong&gt;Service Module&lt;/strong&gt; which supported the Command Module with propulsion, electrical power, oxygen and water&lt;/li&gt; &lt;li&gt;&lt;strong&gt;Lunar Module&lt;/strong&gt; for landing on the Moon.&lt;/li&gt; &lt;/ol&gt; &lt;p&gt;After being sent to the Moon by the Saturn V&amp;#39;s upper stage, the astronauts separated the spacecraft from it and travelled for three days until they entered into lunar orbit. Armstrong and Aldrin then moved into the Lunar Module and landed in the &lt;a href=&quot;http://en.wikipedia.org/wiki/Mare_Tranquillitatis&quot; title=&quot;Mare Tranquillitatis&quot;&gt;Sea of Tranquility&lt;/a&gt;. They stayed a total of about 21 and a half hours on the lunar surface. After lifting off in the upper part of the Lunar Module and rejoining Collins in the Command Module, they returned to Earth and landed in the &lt;a href=&quot;http://en.wikipedia.org/wiki/Pacific_Ocean&quot; title=&quot;Pacific Ocean&quot;&gt;Pacific Ocean&lt;/a&gt; on July 24.&lt;/p&gt; &lt;hr/&gt; &lt;p style=&quot;text-align: right;&quot;&gt;&lt;small&gt;Source: &lt;a href=&quot;http://en.wikipedia.org/wiki/Apollo_11&quot;&gt;Wikipedia.org&lt;/a&gt;&lt;/small&gt;&lt;/p&gt;
+			</textarea>
+		</div>
+	</div>
+	<div>
+		<h2>Inline editor (<a href="javascript:hideshow('inline');">hide/show</a>)</h2>
+		<div id="inline" contenteditable="true">
+			<h1><img alt="Saturn V carrying Apollo 11" class="right" src="../../../samples/assets/sample.jpg" /> Apollo 11</h1>
+
+			<p><b>Apollo 11</b> was the spaceflight that landed the first humans, Americans <a href="http://en.wikipedia.org/wiki/Neil_Armstrong" title="Neil Armstrong">Neil Armstrong</a> and <a href="http://en.wikipedia.org/wiki/Buzz_Aldrin" title="Buzz Aldrin">Buzz Aldrin</a>, on the Moon on July 20, 1969, at 20:18 UTC. Armstrong became the first to step onto the lunar surface 6 hours later on July 21 at 02:56 UTC.</p>
+
+			<p>Armstrong spent about <s>three and a half</s> two and a half hours outside the spacecraft, Aldrin slightly less; and together they collected 47.5 pounds (21.5&nbsp;kg) of lunar material for return to Earth. A third member of the mission, <a href="http://en.wikipedia.org/wiki/Michael_Collins_(astronaut)" title="Michael Collins (astronaut)">Michael Collins</a>, piloted the <a href="http://en.wikipedia.org/wiki/Apollo_Command/Service_Module" title="Apollo Command/Service Module">command</a> spacecraft alone in lunar orbit until Armstrong and Aldrin returned to it for the trip back to Earth.</p>
+
+			<h2>Broadcasting and <em>quotes</em> <a id="quotes" name="quotes"></a></h2>
+
+			<p>Broadcast on live TV to a world-wide audience, Armstrong stepped onto the lunar surface and described the event as:</p>
+
+			<blockquote>
+				<p>One small step for [a] man, one giant leap for mankind.</p>
+			</blockquote>
+
+			<p>Apollo 11 effectively ended the <a href="http://en.wikipedia.org/wiki/Space_Race" title="Space Race">Space Race</a> and fulfilled a national goal proposed in 1961 by the late U.S. President <a href="http://en.wikipedia.org/wiki/John_F._Kennedy" title="John F. Kennedy">John F. Kennedy</a> in a speech before the United States Congress:</p>
+
+			<blockquote>
+				<p>[...] before this decade is out, of landing a man on the Moon and returning him safely to the Earth.</p>
+			</blockquote>
+
+			<h2>Technical details <a id="tech-details" name="tech-details"></a></h2>
+
+			<table align="right" border="1" bordercolor="#ccc" cellpadding="5" cellspacing="0" style="border-collapse:collapse;margin:10px 0 10px 15px;">
+				<caption><strong>Mission crew</strong></caption>
+				<thead>
+				<tr>
+					<th scope="col">Position</th>
+					<th scope="col">Astronaut</th>
+				</tr>
+				</thead>
+				<tbody>
+				<tr>
+					<td>Commander</td>
+					<td>Neil A. Armstrong</td>
+				</tr>
+				<tr>
+					<td>Command Module Pilot</td>
+					<td>Michael Collins</td>
+				</tr>
+				<tr>
+					<td>Lunar Module Pilot</td>
+					<td>Edwin &quot;Buzz&quot; E. Aldrin, Jr.</td>
+				</tr>
+				</tbody>
+			</table>
+
+			<p>Launched by a <strong>Saturn V</strong> rocket from <a href="http://en.wikipedia.org/wiki/Kennedy_Space_Center" title="Kennedy Space Center">Kennedy Space Center</a> in Merritt Island, Florida on July 16, Apollo 11 was the fifth manned mission of <a href="http://en.wikipedia.org/wiki/NASA" title="NASA">NASA</a>&#39;s Apollo program. The Apollo spacecraft had three parts:</p>
+
+			<ol>
+				<li><strong>Command Module</strong> with a cabin for the three astronauts which was the only part which landed back on Earth</li>
+				<li><strong>Service Module</strong> which supported the Command Module with propulsion, electrical power, oxygen and water</li>
+				<li><strong>Lunar Module</strong> for landing on the Moon.</li>
+			</ol>
+
+			<p>After being sent to the Moon by the Saturn V&#39;s upper stage, the astronauts separated the spacecraft from it and travelled for three days until they entered into lunar orbit. Armstrong and Aldrin then moved into the Lunar Module and landed in the <a href="http://en.wikipedia.org/wiki/Mare_Tranquillitatis" title="Mare Tranquillitatis">Sea of Tranquility</a>. They stayed a total of about 21 and a half hours on the lunar surface. After lifting off in the upper part of the Lunar Module and rejoining Collins in the Command Module, they returned to Earth and landed in the <a href="http://en.wikipedia.org/wiki/Pacific_Ocean" title="Pacific Ocean">Pacific Ocean</a> on July 24.</p>
+
+			<hr />
+			<p style="text-align: right;"><small>Source: <a href="http://en.wikipedia.org/wiki/Apollo_11">Wikipedia.org</a></small></p>
+		</div>
+	</div>
+		<script type="text/javascript">
+		CKEDITOR.disableAutoInline = true;
+
+		function hideshow( id ) {
+			var element = CKEDITOR.document.getById( id );
+
+			if( element.getStyle( 'display' ) == 'none' )
+				element.show();
+			else
+				element.hide();
+		}
+
+		CKEDITOR.replace( 'classic' );
+		CKEDITOR.inline( 'inline' );
+
+		CKCONSOLE.addEventPanel( 'dragstart', [ '$', 'target', 'dataTransfer' ] );
+		CKCONSOLE.addEventPanel( 'dragend', [ '$', 'target', 'dataTransfer' ]	);
+		CKCONSOLE.addEventPanel( 'drop',
+			[ '$', 'target', 'dataTransfer', 'dragRange', 'dropRange' ] );
+
+		CKCONSOLE.create( 'dragstart', { editor: 'classic' } );
+		CKCONSOLE.create( 'drop', { editor: 'classic' } );
+		CKCONSOLE.create( 'paste', { editor: 'classic' } );
+		CKCONSOLE.create( 'dragend', { editor: 'classic' } );
+
+		CKCONSOLE.create( 'dragstart', { editor: 'inline' } );
+		CKCONSOLE.create( 'drop', { editor: 'inline' } );
+		CKCONSOLE.create( 'paste', { editor: 'inline' } );
+		CKCONSOLE.create( 'dragend', { editor: 'inline' } );
+	</script>
+</body>
+</html>
