@@ -1,0 +1,5500 @@
+[class*=e1a-] {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  margin: -.2ex .05em 0 .1em;
+  line-height: normal;
+  vertical-align: middle;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: 1em 1em; }
+
+.e1a-lg {
+  width: 1.25em;
+  height: 1.25em;
+  margin: -0.25ex 0.0625em 0 0.125em;
+  background-size: 1.25em 1.25em; }
+
+.e1a-2x {
+  width: 2em;
+  height: 2em;
+  margin: -0.4ex 0.1em 0 0.2em;
+  background-size: 2em 2em; }
+
+.e1a-3x {
+  width: 3em;
+  height: 3em;
+  margin: -0.6ex 0.15em 0 0.3em;
+  background-size: 3em 3em; }
+
+.e1a-4x {
+  width: 4em;
+  height: 4em;
+  margin: -0.8ex 0.2em 0 0.4em;
+  background-size: 4em 4em; }
+
+.e1a-5x {
+  width: 5em;
+  height: 5em;
+  margin: -1ex 0.25em 0 0.5em;
+  background-size: 5em 5em; }
+
+.e1a-100 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4af.svg"); }
+
+.e1a-1234 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f522.svg"); }
+
+.e1a-grinning {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f600.svg"); }
+
+.e1a-grimacing {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f62c.svg"); }
+
+.e1a-grin {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f601.svg"); }
+
+.e1a-joy {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f602.svg"); }
+
+.e1a-smiley {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f603.svg"); }
+
+.e1a-smile {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f604.svg"); }
+
+.e1a-sweat_smile {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f605.svg"); }
+
+.e1a-laughing {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f606.svg"); }
+
+.e1a-innocent {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f607.svg"); }
+
+.e1a-wink {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f609.svg"); }
+
+.e1a-blush {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f60a.svg"); }
+
+.e1a-slight_smile {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f642.svg"); }
+
+.e1a-upside_down {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f643.svg"); }
+
+.e1a-relaxed {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/263a.svg"); }
+
+.e1a-yum {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f60b.svg"); }
+
+.e1a-relieved {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f60c.svg"); }
+
+.e1a-heart_eyes {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f60d.svg"); }
+
+.e1a-kissing_heart {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f618.svg"); }
+
+.e1a-kissing {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f617.svg"); }
+
+.e1a-kissing_smiling_eyes {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f619.svg"); }
+
+.e1a-kissing_closed_eyes {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f61a.svg"); }
+
+.e1a-stuck_out_tongue_winking_eye {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f61c.svg"); }
+
+.e1a-stuck_out_tongue_closed_eyes {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f61d.svg"); }
+
+.e1a-stuck_out_tongue {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f61b.svg"); }
+
+.e1a-money_mouth {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f911.svg"); }
+
+.e1a-nerd {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f913.svg"); }
+
+.e1a-sunglasses {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f60e.svg"); }
+
+.e1a-hugging {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f917.svg"); }
+
+.e1a-smirk {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f60f.svg"); }
+
+.e1a-no_mouth {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f636.svg"); }
+
+.e1a-neutral_face {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f610.svg"); }
+
+.e1a-expressionless {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f611.svg"); }
+
+.e1a-unamused {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f612.svg"); }
+
+.e1a-rolling_eyes {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f644.svg"); }
+
+.e1a-thinking {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f914.svg"); }
+
+.e1a-flushed {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f633.svg"); }
+
+.e1a-disappointed {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f61e.svg"); }
+
+.e1a-worried {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f61f.svg"); }
+
+.e1a-angry {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f620.svg"); }
+
+.e1a-rage {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f621.svg"); }
+
+.e1a-pensive {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f614.svg"); }
+
+.e1a-confused {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f615.svg"); }
+
+.e1a-slight_frown {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f641.svg"); }
+
+.e1a-frowning2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2639.svg"); }
+
+.e1a-persevere {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f623.svg"); }
+
+.e1a-confounded {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f616.svg"); }
+
+.e1a-tired_face {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f62b.svg"); }
+
+.e1a-weary {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f629.svg"); }
+
+.e1a-triumph {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f624.svg"); }
+
+.e1a-open_mouth {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f62e.svg"); }
+
+.e1a-scream {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f631.svg"); }
+
+.e1a-fearful {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f628.svg"); }
+
+.e1a-cold_sweat {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f630.svg"); }
+
+.e1a-hushed {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f62f.svg"); }
+
+.e1a-frowning {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f626.svg"); }
+
+.e1a-anguished {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f627.svg"); }
+
+.e1a-cry {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f622.svg"); }
+
+.e1a-disappointed_relieved {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f625.svg"); }
+
+.e1a-sleepy {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f62a.svg"); }
+
+.e1a-sweat {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f613.svg"); }
+
+.e1a-sob {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f62d.svg"); }
+
+.e1a-dizzy_face {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f635.svg"); }
+
+.e1a-astonished {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f632.svg"); }
+
+.e1a-zipper_mouth {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f910.svg"); }
+
+.e1a-mask {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f637.svg"); }
+
+.e1a-thermometer_face {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f912.svg"); }
+
+.e1a-head_bandage {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f915.svg"); }
+
+.e1a-sleeping {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f634.svg"); }
+
+.e1a-zzz {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4a4.svg"); }
+
+.e1a-poop {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4a9.svg"); }
+
+.e1a-smiling_imp {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f608.svg"); }
+
+.e1a-imp {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f47f.svg"); }
+
+.e1a-japanese_ogre {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f479.svg"); }
+
+.e1a-japanese_goblin {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f47a.svg"); }
+
+.e1a-skull {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f480.svg"); }
+
+.e1a-ghost {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f47b.svg"); }
+
+.e1a-alien {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f47d.svg"); }
+
+.e1a-robot {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f916.svg"); }
+
+.e1a-smiley_cat {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f63a.svg"); }
+
+.e1a-smile_cat {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f638.svg"); }
+
+.e1a-joy_cat {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f639.svg"); }
+
+.e1a-heart_eyes_cat {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f63b.svg"); }
+
+.e1a-smirk_cat {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f63c.svg"); }
+
+.e1a-kissing_cat {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f63d.svg"); }
+
+.e1a-scream_cat {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f640.svg"); }
+
+.e1a-crying_cat_face {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f63f.svg"); }
+
+.e1a-pouting_cat {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f63e.svg"); }
+
+.e1a-raised_hands {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f64c.svg"); }
+
+.e1a-clap {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f44f.svg"); }
+
+.e1a-wave {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f44b.svg"); }
+
+.e1a-thumbsup {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f44d.svg"); }
+
+.e1a-thumbsdown {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f44e.svg"); }
+
+.e1a-punch {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f44a.svg"); }
+
+.e1a-fist {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/270a.svg"); }
+
+.e1a-v {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/270c.svg"); }
+
+.e1a-ok_hand {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f44c.svg"); }
+
+.e1a-raised_hand {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/270b.svg"); }
+
+.e1a-open_hands {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f450.svg"); }
+
+.e1a-muscle {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4aa.svg"); }
+
+.e1a-pray {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f64f.svg"); }
+
+.e1a-point_up {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/261d.svg"); }
+
+.e1a-point_up_2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f446.svg"); }
+
+.e1a-point_down {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f447.svg"); }
+
+.e1a-point_left {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f448.svg"); }
+
+.e1a-point_right {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f449.svg"); }
+
+.e1a-middle_finger {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f595.svg"); }
+
+.e1a-hand_splayed {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f590.svg"); }
+
+.e1a-metal {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f918.svg"); }
+
+.e1a-vulcan {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f596.svg"); }
+
+.e1a-writing_hand {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/270d.svg"); }
+
+.e1a-nail_care {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f485.svg"); }
+
+.e1a-lips {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f444.svg"); }
+
+.e1a-tongue {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f445.svg"); }
+
+.e1a-ear {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f442.svg"); }
+
+.e1a-nose {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f443.svg"); }
+
+.e1a-eye {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f441.svg"); }
+
+.e1a-eyes {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f440.svg"); }
+
+.e1a-bust_in_silhouette {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f464.svg"); }
+
+.e1a-busts_in_silhouette {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f465.svg"); }
+
+.e1a-speaking_head {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f5e3.svg"); }
+
+.e1a-baby {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f476.svg"); }
+
+.e1a-boy {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f466.svg"); }
+
+.e1a-girl {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f467.svg"); }
+
+.e1a-man {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f468.svg"); }
+
+.e1a-woman {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f469.svg"); }
+
+.e1a-person_with_blond_hair {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f471.svg"); }
+
+.e1a-older_man {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f474.svg"); }
+
+.e1a-older_woman {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f475.svg"); }
+
+.e1a-man_with_gua_pi_mao {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f472.svg"); }
+
+.e1a-man_with_turban {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f473.svg"); }
+
+.e1a-cop {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f46e.svg"); }
+
+.e1a-construction_worker {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f477.svg"); }
+
+.e1a-guardsman {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f482.svg"); }
+
+.e1a-spy {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f575.svg"); }
+
+.e1a-santa {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f385.svg"); }
+
+.e1a-angel {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f47c.svg"); }
+
+.e1a-princess {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f478.svg"); }
+
+.e1a-bride_with_veil {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f470.svg"); }
+
+.e1a-walking {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6b6.svg"); }
+
+.e1a-runner {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3c3.svg"); }
+
+.e1a-dancer {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f483.svg"); }
+
+.e1a-dancers {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f46f.svg"); }
+
+.e1a-couple {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f46b.svg"); }
+
+.e1a-two_men_holding_hands {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f46c.svg"); }
+
+.e1a-two_women_holding_hands {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f46d.svg"); }
+
+.e1a-bow {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f647.svg"); }
+
+.e1a-information_desk_person {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f481.svg"); }
+
+.e1a-no_good {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f645.svg"); }
+
+.e1a-ok_woman {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f646.svg"); }
+
+.e1a-raising_hand {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f64b.svg"); }
+
+.e1a-person_with_pouting_face {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f64e.svg"); }
+
+.e1a-person_frowning {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f64d.svg"); }
+
+.e1a-haircut {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f487.svg"); }
+
+.e1a-massage {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f486.svg"); }
+
+.e1a-couple_with_heart {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f491.svg"); }
+
+.e1a-couple_ww {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f469-2764-1f469.svg"); }
+
+.e1a-couple_mm {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f468-2764-1f468.svg"); }
+
+.e1a-couplekiss {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f48f.svg"); }
+
+.e1a-kiss_ww {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f469-2764-1f48b-1f469.svg"); }
+
+.e1a-kiss_mm {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f468-2764-1f48b-1f468.svg"); }
+
+.e1a-family {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f46a.svg"); }
+
+.e1a-family_mwg {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f468-1f469-1f467.svg"); }
+
+.e1a-family_mwgb {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f468-1f469-1f467-1f466.svg"); }
+
+.e1a-family_mwbb {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f468-1f469-1f466-1f466.svg"); }
+
+.e1a-family_mwgg {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f468-1f469-1f467-1f467.svg"); }
+
+.e1a-family_wwb {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f469-1f469-1f466.svg"); }
+
+.e1a-family_wwg {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f469-1f469-1f467.svg"); }
+
+.e1a-family_wwgb {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f469-1f469-1f467-1f466.svg"); }
+
+.e1a-family_wwbb {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f469-1f469-1f466-1f466.svg"); }
+
+.e1a-family_wwgg {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f469-1f469-1f467-1f467.svg"); }
+
+.e1a-family_mmb {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f468-1f468-1f466.svg"); }
+
+.e1a-family_mmg {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f468-1f468-1f467.svg"); }
+
+.e1a-family_mmgb {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f468-1f468-1f467-1f466.svg"); }
+
+.e1a-family_mmbb {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f468-1f468-1f466-1f466.svg"); }
+
+.e1a-family_mmgg {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f468-1f468-1f467-1f467.svg"); }
+
+.e1a-womans_clothes {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f45a.svg"); }
+
+.e1a-shirt {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f455.svg"); }
+
+.e1a-jeans {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f456.svg"); }
+
+.e1a-necktie {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f454.svg"); }
+
+.e1a-dress {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f457.svg"); }
+
+.e1a-bikini {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f459.svg"); }
+
+.e1a-kimono {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f458.svg"); }
+
+.e1a-lipstick {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f484.svg"); }
+
+.e1a-kiss {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f48b.svg"); }
+
+.e1a-footprints {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f463.svg"); }
+
+.e1a-high_heel {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f460.svg"); }
+
+.e1a-sandal {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f461.svg"); }
+
+.e1a-boot {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f462.svg"); }
+
+.e1a-mans_shoe {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f45e.svg"); }
+
+.e1a-athletic_shoe {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f45f.svg"); }
+
+.e1a-womans_hat {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f452.svg"); }
+
+.e1a-tophat {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3a9.svg"); }
+
+.e1a-helmet_with_cross {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/26d1.svg"); }
+
+.e1a-mortar_board {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f393.svg"); }
+
+.e1a-crown {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f451.svg"); }
+
+.e1a-school_satchel {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f392.svg"); }
+
+.e1a-pouch {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f45d.svg"); }
+
+.e1a-purse {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f45b.svg"); }
+
+.e1a-handbag {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f45c.svg"); }
+
+.e1a-briefcase {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4bc.svg"); }
+
+.e1a-eyeglasses {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f453.svg"); }
+
+.e1a-dark_sunglasses {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f576.svg"); }
+
+.e1a-ring {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f48d.svg"); }
+
+.e1a-closed_umbrella {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f302.svg"); }
+
+.e1a-dog {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f436.svg"); }
+
+.e1a-cat {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f431.svg"); }
+
+.e1a-mouse {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f42d.svg"); }
+
+.e1a-hamster {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f439.svg"); }
+
+.e1a-rabbit {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f430.svg"); }
+
+.e1a-bear {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f43b.svg"); }
+
+.e1a-panda_face {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f43c.svg"); }
+
+.e1a-koala {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f428.svg"); }
+
+.e1a-tiger {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f42f.svg"); }
+
+.e1a-lion_face {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f981.svg"); }
+
+.e1a-cow {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f42e.svg"); }
+
+.e1a-pig {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f437.svg"); }
+
+.e1a-pig_nose {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f43d.svg"); }
+
+.e1a-frog {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f438.svg"); }
+
+.e1a-octopus {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f419.svg"); }
+
+.e1a-monkey_face {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f435.svg"); }
+
+.e1a-see_no_evil {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f648.svg"); }
+
+.e1a-hear_no_evil {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f649.svg"); }
+
+.e1a-speak_no_evil {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f64a.svg"); }
+
+.e1a-monkey {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f412.svg"); }
+
+.e1a-chicken {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f414.svg"); }
+
+.e1a-penguin {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f427.svg"); }
+
+.e1a-bird {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f426.svg"); }
+
+.e1a-baby_chick {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f424.svg"); }
+
+.e1a-hatching_chick {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f423.svg"); }
+
+.e1a-hatched_chick {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f425.svg"); }
+
+.e1a-wolf {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f43a.svg"); }
+
+.e1a-boar {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f417.svg"); }
+
+.e1a-horse {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f434.svg"); }
+
+.e1a-unicorn {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f984.svg"); }
+
+.e1a-bee {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f41d.svg"); }
+
+.e1a-bug {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f41b.svg"); }
+
+.e1a-snail {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f40c.svg"); }
+
+.e1a-beetle {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f41e.svg"); }
+
+.e1a-ant {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f41c.svg"); }
+
+.e1a-spider {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f577.svg"); }
+
+.e1a-scorpion {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f982.svg"); }
+
+.e1a-crab {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f980.svg"); }
+
+.e1a-snake {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f40d.svg"); }
+
+.e1a-turtle {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f422.svg"); }
+
+.e1a-tropical_fish {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f420.svg"); }
+
+.e1a-fish {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f41f.svg"); }
+
+.e1a-blowfish {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f421.svg"); }
+
+.e1a-dolphin {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f42c.svg"); }
+
+.e1a-whale {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f433.svg"); }
+
+.e1a-whale2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f40b.svg"); }
+
+.e1a-crocodile {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f40a.svg"); }
+
+.e1a-leopard {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f406.svg"); }
+
+.e1a-tiger2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f405.svg"); }
+
+.e1a-water_buffalo {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f403.svg"); }
+
+.e1a-ox {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f402.svg"); }
+
+.e1a-cow2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f404.svg"); }
+
+.e1a-dromedary_camel {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f42a.svg"); }
+
+.e1a-camel {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f42b.svg"); }
+
+.e1a-elephant {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f418.svg"); }
+
+.e1a-goat {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f410.svg"); }
+
+.e1a-ram {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f40f.svg"); }
+
+.e1a-sheep {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f411.svg"); }
+
+.e1a-racehorse {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f40e.svg"); }
+
+.e1a-pig2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f416.svg"); }
+
+.e1a-rat {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f400.svg"); }
+
+.e1a-mouse2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f401.svg"); }
+
+.e1a-rooster {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f413.svg"); }
+
+.e1a-turkey {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f983.svg"); }
+
+.e1a-dove {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f54a.svg"); }
+
+.e1a-dog2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f415.svg"); }
+
+.e1a-poodle {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f429.svg"); }
+
+.e1a-cat2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f408.svg"); }
+
+.e1a-rabbit2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f407.svg"); }
+
+.e1a-chipmunk {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f43f.svg"); }
+
+.e1a-feet {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f43e.svg"); }
+
+.e1a-dragon {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f409.svg"); }
+
+.e1a-dragon_face {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f432.svg"); }
+
+.e1a-cactus {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f335.svg"); }
+
+.e1a-christmas_tree {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f384.svg"); }
+
+.e1a-evergreen_tree {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f332.svg"); }
+
+.e1a-deciduous_tree {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f333.svg"); }
+
+.e1a-palm_tree {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f334.svg"); }
+
+.e1a-seedling {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f331.svg"); }
+
+.e1a-herb {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f33f.svg"); }
+
+.e1a-shamrock {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2618.svg"); }
+
+.e1a-four_leaf_clover {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f340.svg"); }
+
+.e1a-bamboo {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f38d.svg"); }
+
+.e1a-tanabata_tree {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f38b.svg"); }
+
+.e1a-leaves {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f343.svg"); }
+
+.e1a-fallen_leaf {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f342.svg"); }
+
+.e1a-maple_leaf {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f341.svg"); }
+
+.e1a-ear_of_rice {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f33e.svg"); }
+
+.e1a-hibiscus {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f33a.svg"); }
+
+.e1a-sunflower {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f33b.svg"); }
+
+.e1a-rose {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f339.svg"); }
+
+.e1a-tulip {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f337.svg"); }
+
+.e1a-blossom {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f33c.svg"); }
+
+.e1a-cherry_blossom {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f338.svg"); }
+
+.e1a-bouquet {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f490.svg"); }
+
+.e1a-mushroom {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f344.svg"); }
+
+.e1a-chestnut {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f330.svg"); }
+
+.e1a-jack_o_lantern {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f383.svg"); }
+
+.e1a-shell {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f41a.svg"); }
+
+.e1a-spider_web {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f578.svg"); }
+
+.e1a-earth_americas {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f30e.svg"); }
+
+.e1a-earth_africa {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f30d.svg"); }
+
+.e1a-earth_asia {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f30f.svg"); }
+
+.e1a-full_moon {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f315.svg"); }
+
+.e1a-waning_gibbous_moon {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f316.svg"); }
+
+.e1a-last_quarter_moon {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f317.svg"); }
+
+.e1a-waning_crescent_moon {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f318.svg"); }
+
+.e1a-new_moon {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f311.svg"); }
+
+.e1a-waxing_crescent_moon {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f312.svg"); }
+
+.e1a-first_quarter_moon {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f313.svg"); }
+
+.e1a-waxing_gibbous_moon {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f314.svg"); }
+
+.e1a-new_moon_with_face {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f31a.svg"); }
+
+.e1a-full_moon_with_face {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f31d.svg"); }
+
+.e1a-first_quarter_moon_with_face {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f31b.svg"); }
+
+.e1a-last_quarter_moon_with_face {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f31c.svg"); }
+
+.e1a-sun_with_face {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f31e.svg"); }
+
+.e1a-crescent_moon {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f319.svg"); }
+
+.e1a-star {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2b50.svg"); }
+
+.e1a-star2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f31f.svg"); }
+
+.e1a-dizzy {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4ab.svg"); }
+
+.e1a-sparkles {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2728.svg"); }
+
+.e1a-comet {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2604.svg"); }
+
+.e1a-sunny {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2600.svg"); }
+
+.e1a-white_sun_small_cloud {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f324.svg"); }
+
+.e1a-partly_sunny {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/26c5.svg"); }
+
+.e1a-white_sun_cloud {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f325.svg"); }
+
+.e1a-white_sun_rain_cloud {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f326.svg"); }
+
+.e1a-cloud {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2601.svg"); }
+
+.e1a-cloud_rain {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f327.svg"); }
+
+.e1a-thunder_cloud_rain {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/26c8.svg"); }
+
+.e1a-cloud_lightning {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f329.svg"); }
+
+.e1a-zap {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/26a1.svg"); }
+
+.e1a-fire {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f525.svg"); }
+
+.e1a-boom {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4a5.svg"); }
+
+.e1a-snowflake {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2744.svg"); }
+
+.e1a-cloud_snow {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f328.svg"); }
+
+.e1a-snowman2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2603.svg"); }
+
+.e1a-snowman {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/26c4.svg"); }
+
+.e1a-wind_blowing_face {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f32c.svg"); }
+
+.e1a-dash {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4a8.svg"); }
+
+.e1a-cloud_tornado {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f32a.svg"); }
+
+.e1a-fog {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f32b.svg"); }
+
+.e1a-umbrella2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2602.svg"); }
+
+.e1a-umbrella {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2614.svg"); }
+
+.e1a-droplet {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4a7.svg"); }
+
+.e1a-sweat_drops {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4a6.svg"); }
+
+.e1a-ocean {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f30a.svg"); }
+
+.e1a-green_apple {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f34f.svg"); }
+
+.e1a-apple {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f34e.svg"); }
+
+.e1a-pear {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f350.svg"); }
+
+.e1a-tangerine {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f34a.svg"); }
+
+.e1a-lemon {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f34b.svg"); }
+
+.e1a-banana {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f34c.svg"); }
+
+.e1a-watermelon {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f349.svg"); }
+
+.e1a-grapes {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f347.svg"); }
+
+.e1a-strawberry {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f353.svg"); }
+
+.e1a-melon {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f348.svg"); }
+
+.e1a-cherries {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f352.svg"); }
+
+.e1a-peach {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f351.svg"); }
+
+.e1a-pineapple {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f34d.svg"); }
+
+.e1a-tomato {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f345.svg"); }
+
+.e1a-eggplant {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f346.svg"); }
+
+.e1a-hot_pepper {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f336.svg"); }
+
+.e1a-corn {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f33d.svg"); }
+
+.e1a-sweet_potato {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f360.svg"); }
+
+.e1a-honey_pot {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f36f.svg"); }
+
+.e1a-bread {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f35e.svg"); }
+
+.e1a-cheese {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f9c0.svg"); }
+
+.e1a-poultry_leg {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f357.svg"); }
+
+.e1a-meat_on_bone {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f356.svg"); }
+
+.e1a-fried_shrimp {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f364.svg"); }
+
+.e1a-cooking {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f373.svg"); }
+
+.e1a-hamburger {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f354.svg"); }
+
+.e1a-fries {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f35f.svg"); }
+
+.e1a-hotdog {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f32d.svg"); }
+
+.e1a-pizza {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f355.svg"); }
+
+.e1a-spaghetti {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f35d.svg"); }
+
+.e1a-taco {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f32e.svg"); }
+
+.e1a-burrito {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f32f.svg"); }
+
+.e1a-ramen {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f35c.svg"); }
+
+.e1a-stew {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f372.svg"); }
+
+.e1a-fish_cake {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f365.svg"); }
+
+.e1a-sushi {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f363.svg"); }
+
+.e1a-bento {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f371.svg"); }
+
+.e1a-curry {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f35b.svg"); }
+
+.e1a-rice_ball {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f359.svg"); }
+
+.e1a-rice {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f35a.svg"); }
+
+.e1a-rice_cracker {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f358.svg"); }
+
+.e1a-oden {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f362.svg"); }
+
+.e1a-dango {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f361.svg"); }
+
+.e1a-shaved_ice {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f367.svg"); }
+
+.e1a-ice_cream {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f368.svg"); }
+
+.e1a-icecream {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f366.svg"); }
+
+.e1a-cake {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f370.svg"); }
+
+.e1a-birthday {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f382.svg"); }
+
+.e1a-custard {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f36e.svg"); }
+
+.e1a-candy {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f36c.svg"); }
+
+.e1a-lollipop {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f36d.svg"); }
+
+.e1a-chocolate_bar {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f36b.svg"); }
+
+.e1a-popcorn {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f37f.svg"); }
+
+.e1a-doughnut {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f369.svg"); }
+
+.e1a-cookie {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f36a.svg"); }
+
+.e1a-beer {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f37a.svg"); }
+
+.e1a-beers {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f37b.svg"); }
+
+.e1a-wine_glass {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f377.svg"); }
+
+.e1a-cocktail {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f378.svg"); }
+
+.e1a-tropical_drink {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f379.svg"); }
+
+.e1a-champagne {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f37e.svg"); }
+
+.e1a-sake {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f376.svg"); }
+
+.e1a-tea {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f375.svg"); }
+
+.e1a-coffee {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2615.svg"); }
+
+.e1a-baby_bottle {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f37c.svg"); }
+
+.e1a-fork_and_knife {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f374.svg"); }
+
+.e1a-fork_knife_plate {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f37d.svg"); }
+
+.e1a-soccer {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/26bd.svg"); }
+
+.e1a-basketball {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3c0.svg"); }
+
+.e1a-football {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3c8.svg"); }
+
+.e1a-baseball {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/26be.svg"); }
+
+.e1a-tennis {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3be.svg"); }
+
+.e1a-volleyball {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3d0.svg"); }
+
+.e1a-rugby_football {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3c9.svg"); }
+
+.e1a-8ball {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3b1.svg"); }
+
+.e1a-golf {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/26f3.svg"); }
+
+.e1a-golfer {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3cc.svg"); }
+
+.e1a-ping_pong {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3d3.svg"); }
+
+.e1a-badminton {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3f8.svg"); }
+
+.e1a-hockey {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3d2.svg"); }
+
+.e1a-field_hockey {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3d1.svg"); }
+
+.e1a-cricket {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3cf.svg"); }
+
+.e1a-ski {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3bf.svg"); }
+
+.e1a-skier {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/26f7.svg"); }
+
+.e1a-snowboarder {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3c2.svg"); }
+
+.e1a-ice_skate {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/26f8.svg"); }
+
+.e1a-bow_and_arrow {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3f9.svg"); }
+
+.e1a-fishing_pole_and_fish {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3a3.svg"); }
+
+.e1a-rowboat {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6a3.svg"); }
+
+.e1a-swimmer {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3ca.svg"); }
+
+.e1a-surfer {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3c4.svg"); }
+
+.e1a-bath {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6c0.svg"); }
+
+.e1a-basketball_player {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/26f9.svg"); }
+
+.e1a-lifter {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3cb.svg"); }
+
+.e1a-bicyclist {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6b4.svg"); }
+
+.e1a-mountain_bicyclist {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6b5.svg"); }
+
+.e1a-horse_racing {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3c7.svg"); }
+
+.e1a-levitate {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f574.svg"); }
+
+.e1a-trophy {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3c6.svg"); }
+
+.e1a-running_shirt_with_sash {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3bd.svg"); }
+
+.e1a-medal {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3c5.svg"); }
+
+.e1a-military_medal {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f396.svg"); }
+
+.e1a-reminder_ribbon {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f397.svg"); }
+
+.e1a-rosette {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3f5.svg"); }
+
+.e1a-ticket {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3ab.svg"); }
+
+.e1a-tickets {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f39f.svg"); }
+
+.e1a-performing_arts {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3ad.svg"); }
+
+.e1a-art {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3a8.svg"); }
+
+.e1a-circus_tent {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3aa.svg"); }
+
+.e1a-microphone {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3a4.svg"); }
+
+.e1a-headphones {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3a7.svg"); }
+
+.e1a-musical_score {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3bc.svg"); }
+
+.e1a-musical_keyboard {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3b9.svg"); }
+
+.e1a-saxophone {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3b7.svg"); }
+
+.e1a-trumpet {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3ba.svg"); }
+
+.e1a-guitar {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3b8.svg"); }
+
+.e1a-violin {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3bb.svg"); }
+
+.e1a-clapper {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3ac.svg"); }
+
+.e1a-video_game {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3ae.svg"); }
+
+.e1a-space_invader {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f47e.svg"); }
+
+.e1a-dart {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3af.svg"); }
+
+.e1a-game_die {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3b2.svg"); }
+
+.e1a-slot_machine {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3b0.svg"); }
+
+.e1a-bowling {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3b3.svg"); }
+
+.e1a-red_car {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f697.svg"); }
+
+.e1a-taxi {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f695.svg"); }
+
+.e1a-blue_car {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f699.svg"); }
+
+.e1a-bus {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f68c.svg"); }
+
+.e1a-trolleybus {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f68e.svg"); }
+
+.e1a-race_car {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3ce.svg"); }
+
+.e1a-police_car {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f693.svg"); }
+
+.e1a-ambulance {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f691.svg"); }
+
+.e1a-fire_engine {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f692.svg"); }
+
+.e1a-minibus {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f690.svg"); }
+
+.e1a-truck {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f69a.svg"); }
+
+.e1a-articulated_lorry {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f69b.svg"); }
+
+.e1a-tractor {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f69c.svg"); }
+
+.e1a-motorcycle {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3cd.svg"); }
+
+.e1a-bike {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6b2.svg"); }
+
+.e1a-rotating_light {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6a8.svg"); }
+
+.e1a-oncoming_police_car {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f694.svg"); }
+
+.e1a-oncoming_bus {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f68d.svg"); }
+
+.e1a-oncoming_automobile {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f698.svg"); }
+
+.e1a-oncoming_taxi {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f696.svg"); }
+
+.e1a-aerial_tramway {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6a1.svg"); }
+
+.e1a-mountain_cableway {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6a0.svg"); }
+
+.e1a-suspension_railway {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f69f.svg"); }
+
+.e1a-railway_car {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f683.svg"); }
+
+.e1a-train {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f68b.svg"); }
+
+.e1a-monorail {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f69d.svg"); }
+
+.e1a-bullettrain_side {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f684.svg"); }
+
+.e1a-bullettrain_front {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f685.svg"); }
+
+.e1a-light_rail {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f688.svg"); }
+
+.e1a-mountain_railway {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f69e.svg"); }
+
+.e1a-steam_locomotive {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f682.svg"); }
+
+.e1a-train2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f686.svg"); }
+
+.e1a-metro {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f687.svg"); }
+
+.e1a-tram {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f68a.svg"); }
+
+.e1a-station {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f689.svg"); }
+
+.e1a-helicopter {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f681.svg"); }
+
+.e1a-airplane_small {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6e9.svg"); }
+
+.e1a-airplane {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2708.svg"); }
+
+.e1a-airplane_departure {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6eb.svg"); }
+
+.e1a-airplane_arriving {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6ec.svg"); }
+
+.e1a-sailboat {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/26f5.svg"); }
+
+.e1a-motorboat {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6e5.svg"); }
+
+.e1a-speedboat {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6a4.svg"); }
+
+.e1a-ferry {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/26f4.svg"); }
+
+.e1a-cruise_ship {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6f3.svg"); }
+
+.e1a-rocket {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f680.svg"); }
+
+.e1a-satellite_orbital {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6f0.svg"); }
+
+.e1a-seat {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4ba.svg"); }
+
+.e1a-anchor {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2693.svg"); }
+
+.e1a-construction {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6a7.svg"); }
+
+.e1a-fuelpump {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/26fd.svg"); }
+
+.e1a-busstop {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f68f.svg"); }
+
+.e1a-vertical_traffic_light {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6a6.svg"); }
+
+.e1a-traffic_light {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6a5.svg"); }
+
+.e1a-checkered_flag {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3c1.svg"); }
+
+.e1a-ship {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6a2.svg"); }
+
+.e1a-ferris_wheel {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3a1.svg"); }
+
+.e1a-roller_coaster {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3a2.svg"); }
+
+.e1a-carousel_horse {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3a0.svg"); }
+
+.e1a-construction_site {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3d7.svg"); }
+
+.e1a-foggy {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f301.svg"); }
+
+.e1a-tokyo_tower {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f5fc.svg"); }
+
+.e1a-factory {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3ed.svg"); }
+
+.e1a-fountain {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/26f2.svg"); }
+
+.e1a-rice_scene {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f391.svg"); }
+
+.e1a-mountain {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/26f0.svg"); }
+
+.e1a-mountain_snow {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3d4.svg"); }
+
+.e1a-mount_fuji {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f5fb.svg"); }
+
+.e1a-volcano {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f30b.svg"); }
+
+.e1a-japan {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f5fe.svg"); }
+
+.e1a-camping {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3d5.svg"); }
+
+.e1a-tent {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/26fa.svg"); }
+
+.e1a-park {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3de.svg"); }
+
+.e1a-motorway {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6e3.svg"); }
+
+.e1a-railway_track {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6e4.svg"); }
+
+.e1a-sunrise {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f305.svg"); }
+
+.e1a-sunrise_over_mountains {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f304.svg"); }
+
+.e1a-desert {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3dc.svg"); }
+
+.e1a-beach {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3d6.svg"); }
+
+.e1a-island {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3dd.svg"); }
+
+.e1a-city_sunset {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f307.svg"); }
+
+.e1a-city_dusk {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f306.svg"); }
+
+.e1a-cityscape {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3d9.svg"); }
+
+.e1a-night_with_stars {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f303.svg"); }
+
+.e1a-bridge_at_night {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f309.svg"); }
+
+.e1a-milky_way {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f30c.svg"); }
+
+.e1a-stars {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f320.svg"); }
+
+.e1a-sparkler {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f387.svg"); }
+
+.e1a-fireworks {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f386.svg"); }
+
+.e1a-rainbow {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f308.svg"); }
+
+.e1a-homes {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3d8.svg"); }
+
+.e1a-european_castle {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3f0.svg"); }
+
+.e1a-japanese_castle {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3ef.svg"); }
+
+.e1a-stadium {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3df.svg"); }
+
+.e1a-statue_of_liberty {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f5fd.svg"); }
+
+.e1a-house {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3e0.svg"); }
+
+.e1a-house_with_garden {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3e1.svg"); }
+
+.e1a-house_abandoned {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3da.svg"); }
+
+.e1a-office {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3e2.svg"); }
+
+.e1a-department_store {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3ec.svg"); }
+
+.e1a-post_office {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3e3.svg"); }
+
+.e1a-european_post_office {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3e4.svg"); }
+
+.e1a-hospital {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3e5.svg"); }
+
+.e1a-bank {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3e6.svg"); }
+
+.e1a-hotel {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3e8.svg"); }
+
+.e1a-convenience_store {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3ea.svg"); }
+
+.e1a-school {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3eb.svg"); }
+
+.e1a-love_hotel {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3e9.svg"); }
+
+.e1a-wedding {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f492.svg"); }
+
+.e1a-classical_building {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3db.svg"); }
+
+.e1a-church {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/26ea.svg"); }
+
+.e1a-mosque {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f54c.svg"); }
+
+.e1a-synagogue {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f54d.svg"); }
+
+.e1a-kaaba {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f54b.svg"); }
+
+.e1a-shinto_shrine {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/26e9.svg"); }
+
+.e1a-watch {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/231a.svg"); }
+
+.e1a-iphone {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4f1.svg"); }
+
+.e1a-calling {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4f2.svg"); }
+
+.e1a-computer {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4bb.svg"); }
+
+.e1a-keyboard {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2328.svg"); }
+
+.e1a-desktop {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f5a5.svg"); }
+
+.e1a-printer {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f5a8.svg"); }
+
+.e1a-mouse_three_button {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f5b1.svg"); }
+
+.e1a-trackball {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f5b2.svg"); }
+
+.e1a-joystick {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f579.svg"); }
+
+.e1a-compression {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f5dc.svg"); }
+
+.e1a-minidisc {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4bd.svg"); }
+
+.e1a-floppy_disk {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4be.svg"); }
+
+.e1a-cd {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4bf.svg"); }
+
+.e1a-dvd {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4c0.svg"); }
+
+.e1a-vhs {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4fc.svg"); }
+
+.e1a-camera {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4f7.svg"); }
+
+.e1a-camera_with_flash {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4f8.svg"); }
+
+.e1a-video_camera {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4f9.svg"); }
+
+.e1a-movie_camera {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3a5.svg"); }
+
+.e1a-projector {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4fd.svg"); }
+
+.e1a-film_frames {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f39e.svg"); }
+
+.e1a-telephone_receiver {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4de.svg"); }
+
+.e1a-telephone {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/260e.svg"); }
+
+.e1a-pager {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4df.svg"); }
+
+.e1a-fax {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4e0.svg"); }
+
+.e1a-tv {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4fa.svg"); }
+
+.e1a-radio {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4fb.svg"); }
+
+.e1a-microphone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f399.svg"); }
+
+.e1a-level_slider {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f39a.svg"); }
+
+.e1a-control_knobs {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f39b.svg"); }
+
+.e1a-stopwatch {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/23f1.svg"); }
+
+.e1a-timer {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/23f2.svg"); }
+
+.e1a-alarm_clock {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/23f0.svg"); }
+
+.e1a-clock {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f570.svg"); }
+
+.e1a-hourglass_flowing_sand {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/23f3.svg"); }
+
+.e1a-hourglass {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/231b.svg"); }
+
+.e1a-satellite {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4e1.svg"); }
+
+.e1a-battery {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f50b.svg"); }
+
+.e1a-electric_plug {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f50c.svg"); }
+
+.e1a-bulb {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4a1.svg"); }
+
+.e1a-flashlight {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f526.svg"); }
+
+.e1a-candle {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f56f.svg"); }
+
+.e1a-wastebasket {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f5d1.svg"); }
+
+.e1a-oil {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6e2.svg"); }
+
+.e1a-money_with_wings {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4b8.svg"); }
+
+.e1a-dollar {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4b5.svg"); }
+
+.e1a-yen {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4b4.svg"); }
+
+.e1a-euro {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4b6.svg"); }
+
+.e1a-pound {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4b7.svg"); }
+
+.e1a-moneybag {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4b0.svg"); }
+
+.e1a-credit_card {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4b3.svg"); }
+
+.e1a-gem {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f48e.svg"); }
+
+.e1a-scales {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2696.svg"); }
+
+.e1a-wrench {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f527.svg"); }
+
+.e1a-hammer {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f528.svg"); }
+
+.e1a-hammer_pick {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2692.svg"); }
+
+.e1a-tools {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6e0.svg"); }
+
+.e1a-pick {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/26cf.svg"); }
+
+.e1a-nut_and_bolt {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f529.svg"); }
+
+.e1a-gear {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2699.svg"); }
+
+.e1a-chains {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/26d3.svg"); }
+
+.e1a-gun {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f52b.svg"); }
+
+.e1a-bomb {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4a3.svg"); }
+
+.e1a-knife {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f52a.svg"); }
+
+.e1a-dagger {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f5e1.svg"); }
+
+.e1a-crossed_swords {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2694.svg"); }
+
+.e1a-shield {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6e1.svg"); }
+
+.e1a-smoking {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6ac.svg"); }
+
+.e1a-skull_crossbones {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2620.svg"); }
+
+.e1a-coffin {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/26b0.svg"); }
+
+.e1a-urn {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/26b1.svg"); }
+
+.e1a-amphora {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3fa.svg"); }
+
+.e1a-crystal_ball {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f52e.svg"); }
+
+.e1a-prayer_beads {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4ff.svg"); }
+
+.e1a-barber {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f488.svg"); }
+
+.e1a-alembic {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2697.svg"); }
+
+.e1a-telescope {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f52d.svg"); }
+
+.e1a-microscope {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f52c.svg"); }
+
+.e1a-hole {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f573.svg"); }
+
+.e1a-pill {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f48a.svg"); }
+
+.e1a-syringe {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f489.svg"); }
+
+.e1a-thermometer {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f321.svg"); }
+
+.e1a-label {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3f7.svg"); }
+
+.e1a-bookmark {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f516.svg"); }
+
+.e1a-toilet {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6bd.svg"); }
+
+.e1a-shower {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6bf.svg"); }
+
+.e1a-bathtub {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6c1.svg"); }
+
+.e1a-key {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f511.svg"); }
+
+.e1a-key2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f5dd.svg"); }
+
+.e1a-couch {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6cb.svg"); }
+
+.e1a-sleeping_accommodation {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6cc.svg"); }
+
+.e1a-bed {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6cf.svg"); }
+
+.e1a-door {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6aa.svg"); }
+
+.e1a-bellhop {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6ce.svg"); }
+
+.e1a-frame_photo {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f5bc.svg"); }
+
+.e1a-map {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f5fa.svg"); }
+
+.e1a-beach_umbrella {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/26f1.svg"); }
+
+.e1a-moyai {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f5ff.svg"); }
+
+.e1a-shopping_bags {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6cd.svg"); }
+
+.e1a-balloon {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f388.svg"); }
+
+.e1a-flags {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f38f.svg"); }
+
+.e1a-ribbon {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f380.svg"); }
+
+.e1a-gift {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f381.svg"); }
+
+.e1a-confetti_ball {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f38a.svg"); }
+
+.e1a-tada {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f389.svg"); }
+
+.e1a-dolls {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f38e.svg"); }
+
+.e1a-wind_chime {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f390.svg"); }
+
+.e1a-crossed_flags {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f38c.svg"); }
+
+.e1a-izakaya_lantern {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3ee.svg"); }
+
+.e1a-envelope {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2709.svg"); }
+
+.e1a-envelope_with_arrow {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4e9.svg"); }
+
+.e1a-incoming_envelope {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4e8.svg"); }
+
+.e1a-e-mail {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4e7.svg"); }
+
+.e1a-love_letter {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f48c.svg"); }
+
+.e1a-postbox {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4ee.svg"); }
+
+.e1a-mailbox_closed {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4ea.svg"); }
+
+.e1a-mailbox {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4eb.svg"); }
+
+.e1a-mailbox_with_mail {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4ec.svg"); }
+
+.e1a-mailbox_with_no_mail {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4ed.svg"); }
+
+.e1a-package {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4e6.svg"); }
+
+.e1a-postal_horn {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4ef.svg"); }
+
+.e1a-inbox_tray {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4e5.svg"); }
+
+.e1a-outbox_tray {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4e4.svg"); }
+
+.e1a-scroll {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4dc.svg"); }
+
+.e1a-page_with_curl {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4c3.svg"); }
+
+.e1a-bookmark_tabs {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4d1.svg"); }
+
+.e1a-bar_chart {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4ca.svg"); }
+
+.e1a-chart_with_upwards_trend {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4c8.svg"); }
+
+.e1a-chart_with_downwards_trend {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4c9.svg"); }
+
+.e1a-page_facing_up {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4c4.svg"); }
+
+.e1a-date {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4c5.svg"); }
+
+.e1a-calendar {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4c6.svg"); }
+
+.e1a-calendar_spiral {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f5d3.svg"); }
+
+.e1a-card_index {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4c7.svg"); }
+
+.e1a-card_box {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f5c3.svg"); }
+
+.e1a-ballot_box {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f5f3.svg"); }
+
+.e1a-file_cabinet {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f5c4.svg"); }
+
+.e1a-clipboard {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4cb.svg"); }
+
+.e1a-notepad_spiral {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f5d2.svg"); }
+
+.e1a-file_folder {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4c1.svg"); }
+
+.e1a-open_file_folder {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4c2.svg"); }
+
+.e1a-dividers {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f5c2.svg"); }
+
+.e1a-newspaper2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f5de.svg"); }
+
+.e1a-newspaper {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4f0.svg"); }
+
+.e1a-notebook {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4d3.svg"); }
+
+.e1a-closed_book {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4d5.svg"); }
+
+.e1a-green_book {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4d7.svg"); }
+
+.e1a-blue_book {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4d8.svg"); }
+
+.e1a-orange_book {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4d9.svg"); }
+
+.e1a-notebook_with_decorative_cover {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4d4.svg"); }
+
+.e1a-ledger {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4d2.svg"); }
+
+.e1a-books {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4da.svg"); }
+
+.e1a-book {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4d6.svg"); }
+
+.e1a-link {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f517.svg"); }
+
+.e1a-paperclip {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4ce.svg"); }
+
+.e1a-paperclips {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f587.svg"); }
+
+.e1a-scissors {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2702.svg"); }
+
+.e1a-triangular_ruler {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4d0.svg"); }
+
+.e1a-straight_ruler {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4cf.svg"); }
+
+.e1a-pushpin {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4cc.svg"); }
+
+.e1a-round_pushpin {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4cd.svg"); }
+
+.e1a-triangular_flag_on_post {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6a9.svg"); }
+
+.e1a-flag_white {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3f3.svg"); }
+
+.e1a-flag_black {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3f4.svg"); }
+
+.e1a-closed_lock_with_key {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f510.svg"); }
+
+.e1a-lock {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f512.svg"); }
+
+.e1a-unlock {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f513.svg"); }
+
+.e1a-lock_with_ink_pen {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f50f.svg"); }
+
+.e1a-pen_ballpoint {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f58a.svg"); }
+
+.e1a-pen_fountain {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f58b.svg"); }
+
+.e1a-black_nib {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2712.svg"); }
+
+.e1a-pencil {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4dd.svg"); }
+
+.e1a-pencil2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/270f.svg"); }
+
+.e1a-crayon {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f58d.svg"); }
+
+.e1a-paintbrush {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f58c.svg"); }
+
+.e1a-mag {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f50d.svg"); }
+
+.e1a-mag_right {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f50e.svg"); }
+
+.e1a-heart {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2764.svg"); }
+
+.e1a-yellow_heart {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f49b.svg"); }
+
+.e1a-green_heart {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f49a.svg"); }
+
+.e1a-blue_heart {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f499.svg"); }
+
+.e1a-purple_heart {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f49c.svg"); }
+
+.e1a-broken_heart {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f494.svg"); }
+
+.e1a-heart_exclamation {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2763.svg"); }
+
+.e1a-two_hearts {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f495.svg"); }
+
+.e1a-revolving_hearts {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f49e.svg"); }
+
+.e1a-heartbeat {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f493.svg"); }
+
+.e1a-heartpulse {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f497.svg"); }
+
+.e1a-sparkling_heart {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f496.svg"); }
+
+.e1a-cupid {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f498.svg"); }
+
+.e1a-gift_heart {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f49d.svg"); }
+
+.e1a-heart_decoration {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f49f.svg"); }
+
+.e1a-peace {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/262e.svg"); }
+
+.e1a-cross {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/271d.svg"); }
+
+.e1a-star_and_crescent {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/262a.svg"); }
+
+.e1a-om_symbol {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f549.svg"); }
+
+.e1a-wheel_of_dharma {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2638.svg"); }
+
+.e1a-star_of_david {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2721.svg"); }
+
+.e1a-six_pointed_star {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f52f.svg"); }
+
+.e1a-menorah {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f54e.svg"); }
+
+.e1a-yin_yang {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/262f.svg"); }
+
+.e1a-orthodox_cross {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2626.svg"); }
+
+.e1a-place_of_worship {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6d0.svg"); }
+
+.e1a-ophiuchus {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/26ce.svg"); }
+
+.e1a-aries {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2648.svg"); }
+
+.e1a-taurus {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2649.svg"); }
+
+.e1a-gemini {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/264a.svg"); }
+
+.e1a-cancer {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/264b.svg"); }
+
+.e1a-leo {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/264c.svg"); }
+
+.e1a-virgo {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/264d.svg"); }
+
+.e1a-libra {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/264e.svg"); }
+
+.e1a-scorpius {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/264f.svg"); }
+
+.e1a-sagittarius {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2650.svg"); }
+
+.e1a-capricorn {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2651.svg"); }
+
+.e1a-aquarius {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2652.svg"); }
+
+.e1a-pisces {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2653.svg"); }
+
+.e1a-id {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f194.svg"); }
+
+.e1a-atom {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/269b.svg"); }
+
+.e1a-u7a7a {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f233.svg"); }
+
+.e1a-u5272 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f239.svg"); }
+
+.e1a-radioactive {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2622.svg"); }
+
+.e1a-biohazard {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2623.svg"); }
+
+.e1a-mobile_phone_off {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4f4.svg"); }
+
+.e1a-vibration_mode {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4f3.svg"); }
+
+.e1a-u6709 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f236.svg"); }
+
+.e1a-u7121 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f21a.svg"); }
+
+.e1a-u7533 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f238.svg"); }
+
+.e1a-u55b6 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f23a.svg"); }
+
+.e1a-u6708 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f237.svg"); }
+
+.e1a-eight_pointed_black_star {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2734.svg"); }
+
+.e1a-vs {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f19a.svg"); }
+
+.e1a-accept {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f251.svg"); }
+
+.e1a-white_flower {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4ae.svg"); }
+
+.e1a-ideograph_advantage {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f250.svg"); }
+
+.e1a-secret {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/3299.svg"); }
+
+.e1a-congratulations {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/3297.svg"); }
+
+.e1a-u5408 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f234.svg"); }
+
+.e1a-u6e80 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f235.svg"); }
+
+.e1a-u7981 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f232.svg"); }
+
+.e1a-a {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f170.svg"); }
+
+.e1a-b {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f171.svg"); }
+
+.e1a-ab {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f18e.svg"); }
+
+.e1a-cl {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f191.svg"); }
+
+.e1a-o2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f17e.svg"); }
+
+.e1a-sos {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f198.svg"); }
+
+.e1a-no_entry {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/26d4.svg"); }
+
+.e1a-name_badge {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4db.svg"); }
+
+.e1a-no_entry_sign {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6ab.svg"); }
+
+.e1a-x {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/274c.svg"); }
+
+.e1a-o {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2b55.svg"); }
+
+.e1a-anger {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4a2.svg"); }
+
+.e1a-hotsprings {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2668.svg"); }
+
+.e1a-no_pedestrians {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6b7.svg"); }
+
+.e1a-do_not_litter {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6af.svg"); }
+
+.e1a-no_bicycles {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6b3.svg"); }
+
+.e1a-non-potable_water {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6b1.svg"); }
+
+.e1a-underage {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f51e.svg"); }
+
+.e1a-no_mobile_phones {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4f5.svg"); }
+
+.e1a-exclamation {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2757.svg"); }
+
+.e1a-grey_exclamation {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2755.svg"); }
+
+.e1a-question {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2753.svg"); }
+
+.e1a-grey_question {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2754.svg"); }
+
+.e1a-bangbang {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/203c.svg"); }
+
+.e1a-interrobang {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2049.svg"); }
+
+.e1a-low_brightness {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f505.svg"); }
+
+.e1a-high_brightness {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f506.svg"); }
+
+.e1a-trident {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f531.svg"); }
+
+.e1a-fleur-de-lis {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/269c.svg"); }
+
+.e1a-part_alternation_mark {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/303d.svg"); }
+
+.e1a-warning {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/26a0.svg"); }
+
+.e1a-children_crossing {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6b8.svg"); }
+
+.e1a-beginner {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f530.svg"); }
+
+.e1a-recycle {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/267b.svg"); }
+
+.e1a-u6307 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f22f.svg"); }
+
+.e1a-chart {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4b9.svg"); }
+
+.e1a-sparkle {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2747.svg"); }
+
+.e1a-eight_spoked_asterisk {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2733.svg"); }
+
+.e1a-negative_squared_cross_mark {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/274e.svg"); }
+
+.e1a-white_check_mark {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2705.svg"); }
+
+.e1a-diamond_shape_with_a_dot_inside {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4a0.svg"); }
+
+.e1a-cyclone {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f300.svg"); }
+
+.e1a-loop {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/27bf.svg"); }
+
+.e1a-globe_with_meridians {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f310.svg"); }
+
+.e1a-m {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/24c2.svg"); }
+
+.e1a-atm {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3e7.svg"); }
+
+.e1a-sa {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f202.svg"); }
+
+.e1a-passport_control {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6c2.svg"); }
+
+.e1a-customs {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6c3.svg"); }
+
+.e1a-baggage_claim {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6c4.svg"); }
+
+.e1a-left_luggage {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6c5.svg"); }
+
+.e1a-wheelchair {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/267f.svg"); }
+
+.e1a-no_smoking {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6ad.svg"); }
+
+.e1a-wc {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6be.svg"); }
+
+.e1a-parking {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f17f.svg"); }
+
+.e1a-potable_water {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6b0.svg"); }
+
+.e1a-mens {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6b9.svg"); }
+
+.e1a-womens {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6ba.svg"); }
+
+.e1a-baby_symbol {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6bc.svg"); }
+
+.e1a-restroom {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6bb.svg"); }
+
+.e1a-put_litter_in_its_place {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6ae.svg"); }
+
+.e1a-cinema {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3a6.svg"); }
+
+.e1a-signal_strength {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4f6.svg"); }
+
+.e1a-koko {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f201.svg"); }
+
+.e1a-ng {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f196.svg"); }
+
+.e1a-ok {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f197.svg"); }
+
+.e1a-up {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f199.svg"); }
+
+.e1a-cool {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f192.svg"); }
+
+.e1a-new {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f195.svg"); }
+
+.e1a-free {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f193.svg"); }
+
+.e1a-zero {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/0030-20e3.svg"); }
+
+.e1a-one {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/0031-20e3.svg"); }
+
+.e1a-two {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/0032-20e3.svg"); }
+
+.e1a-three {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/0033-20e3.svg"); }
+
+.e1a-four {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/0034-20e3.svg"); }
+
+.e1a-five {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/0035-20e3.svg"); }
+
+.e1a-six {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/0036-20e3.svg"); }
+
+.e1a-seven {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/0037-20e3.svg"); }
+
+.e1a-eight {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/0038-20e3.svg"); }
+
+.e1a-nine {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/0039-20e3.svg"); }
+
+.e1a-keycap_ten {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f51f.svg"); }
+
+.e1a-arrow_forward {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/25b6.svg"); }
+
+.e1a-pause_button {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/23f8.svg"); }
+
+.e1a-play_pause {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/23ef.svg"); }
+
+.e1a-stop_button {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/23f9.svg"); }
+
+.e1a-record_button {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/23fa.svg"); }
+
+.e1a-track_next {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/23ed.svg"); }
+
+.e1a-track_previous {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/23ee.svg"); }
+
+.e1a-fast_forward {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/23e9.svg"); }
+
+.e1a-rewind {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/23ea.svg"); }
+
+.e1a-twisted_rightwards_arrows {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f500.svg"); }
+
+.e1a-repeat {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f501.svg"); }
+
+.e1a-repeat_one {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f502.svg"); }
+
+.e1a-arrow_backward {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/25c0.svg"); }
+
+.e1a-arrow_up_small {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f53c.svg"); }
+
+.e1a-arrow_down_small {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f53d.svg"); }
+
+.e1a-arrow_double_up {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/23eb.svg"); }
+
+.e1a-arrow_double_down {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/23ec.svg"); }
+
+.e1a-arrow_right {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/27a1.svg"); }
+
+.e1a-arrow_left {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2b05.svg"); }
+
+.e1a-arrow_up {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2b06.svg"); }
+
+.e1a-arrow_down {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2b07.svg"); }
+
+.e1a-arrow_upper_right {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2197.svg"); }
+
+.e1a-arrow_lower_right {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2198.svg"); }
+
+.e1a-arrow_lower_left {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2199.svg"); }
+
+.e1a-arrow_upper_left {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2196.svg"); }
+
+.e1a-arrow_up_down {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2195.svg"); }
+
+.e1a-left_right_arrow {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2194.svg"); }
+
+.e1a-arrows_counterclockwise {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f504.svg"); }
+
+.e1a-arrow_right_hook {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/21aa.svg"); }
+
+.e1a-leftwards_arrow_with_hook {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/21a9.svg"); }
+
+.e1a-arrow_heading_up {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2934.svg"); }
+
+.e1a-arrow_heading_down {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2935.svg"); }
+
+.e1a-hash {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/0023-20e3.svg"); }
+
+.e1a-asterisk {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/002a-20e3.svg"); }
+
+.e1a-information_source {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2139.svg"); }
+
+.e1a-abc {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f524.svg"); }
+
+.e1a-abcd {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f521.svg"); }
+
+.e1a-capital_abcd {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f520.svg"); }
+
+.e1a-symbols {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f523.svg"); }
+
+.e1a-musical_note {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3b5.svg"); }
+
+.e1a-notes {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3b6.svg"); }
+
+.e1a-wavy_dash {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/3030.svg"); }
+
+.e1a-curly_loop {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/27b0.svg"); }
+
+.e1a-heavy_check_mark {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2714.svg"); }
+
+.e1a-arrows_clockwise {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f503.svg"); }
+
+.e1a-heavy_plus_sign {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2795.svg"); }
+
+.e1a-heavy_minus_sign {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2796.svg"); }
+
+.e1a-heavy_division_sign {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2797.svg"); }
+
+.e1a-heavy_multiplication_x {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2716.svg"); }
+
+.e1a-heavy_dollar_sign {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4b2.svg"); }
+
+.e1a-currency_exchange {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4b1.svg"); }
+
+.e1a-copyright {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/00a9.svg"); }
+
+.e1a-registered {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/00ae.svg"); }
+
+.e1a-tm {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2122.svg"); }
+
+.e1a-end {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f51a.svg"); }
+
+.e1a-back {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f519.svg"); }
+
+.e1a-on {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f51b.svg"); }
+
+.e1a-top {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f51d.svg"); }
+
+.e1a-soon {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f51c.svg"); }
+
+.e1a-ballot_box_with_check {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2611.svg"); }
+
+.e1a-radio_button {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f518.svg"); }
+
+.e1a-white_circle {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/26aa.svg"); }
+
+.e1a-black_circle {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/26ab.svg"); }
+
+.e1a-red_circle {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f534.svg"); }
+
+.e1a-large_blue_circle {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f535.svg"); }
+
+.e1a-small_orange_diamond {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f538.svg"); }
+
+.e1a-small_blue_diamond {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f539.svg"); }
+
+.e1a-large_orange_diamond {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f536.svg"); }
+
+.e1a-large_blue_diamond {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f537.svg"); }
+
+.e1a-small_red_triangle {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f53a.svg"); }
+
+.e1a-black_small_square {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/25aa.svg"); }
+
+.e1a-white_small_square {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/25ab.svg"); }
+
+.e1a-black_large_square {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2b1b.svg"); }
+
+.e1a-white_large_square {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2b1c.svg"); }
+
+.e1a-small_red_triangle_down {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f53b.svg"); }
+
+.e1a-black_medium_square {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/25fc.svg"); }
+
+.e1a-white_medium_square {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/25fb.svg"); }
+
+.e1a-black_medium_small_square {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/25fe.svg"); }
+
+.e1a-white_medium_small_square {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/25fd.svg"); }
+
+.e1a-black_square_button {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f532.svg"); }
+
+.e1a-white_square_button {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f533.svg"); }
+
+.e1a-speaker {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f508.svg"); }
+
+.e1a-sound {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f509.svg"); }
+
+.e1a-loud_sound {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f50a.svg"); }
+
+.e1a-mute {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f507.svg"); }
+
+.e1a-mega {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4e3.svg"); }
+
+.e1a-loudspeaker {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4e2.svg"); }
+
+.e1a-bell {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f514.svg"); }
+
+.e1a-no_bell {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f515.svg"); }
+
+.e1a-black_joker {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f0cf.svg"); }
+
+.e1a-mahjong {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f004.svg"); }
+
+.e1a-spades {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2660.svg"); }
+
+.e1a-clubs {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2663.svg"); }
+
+.e1a-hearts {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2665.svg"); }
+
+.e1a-diamonds {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/2666.svg"); }
+
+.e1a-flower_playing_cards {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3b4.svg"); }
+
+.e1a-thought_balloon {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4ad.svg"); }
+
+.e1a-anger_right {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f5ef.svg"); }
+
+.e1a-speech_balloon {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4ac.svg"); }
+
+.e1a-clock1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f550.svg"); }
+
+.e1a-clock2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f551.svg"); }
+
+.e1a-clock3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f552.svg"); }
+
+.e1a-clock4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f553.svg"); }
+
+.e1a-clock5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f554.svg"); }
+
+.e1a-clock6 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f555.svg"); }
+
+.e1a-clock7 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f556.svg"); }
+
+.e1a-clock8 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f557.svg"); }
+
+.e1a-clock9 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f558.svg"); }
+
+.e1a-clock10 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f559.svg"); }
+
+.e1a-clock11 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f55a.svg"); }
+
+.e1a-clock12 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f55b.svg"); }
+
+.e1a-clock130 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f55c.svg"); }
+
+.e1a-clock230 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f55d.svg"); }
+
+.e1a-clock330 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f55e.svg"); }
+
+.e1a-clock430 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f55f.svg"); }
+
+.e1a-clock530 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f560.svg"); }
+
+.e1a-clock630 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f561.svg"); }
+
+.e1a-clock730 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f562.svg"); }
+
+.e1a-clock830 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f563.svg"); }
+
+.e1a-clock930 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f564.svg"); }
+
+.e1a-clock1030 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f565.svg"); }
+
+.e1a-clock1130 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f566.svg"); }
+
+.e1a-clock1230 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f567.svg"); }
+
+.e1a-eye_in_speech_bubble {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f441-1f5e8.svg"); }
+
+.e1a-flag_ac {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e6-1f1e8.svg"); }
+
+.e1a-flag_af {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e6-1f1eb.svg"); }
+
+.e1a-flag_al {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e6-1f1f1.svg"); }
+
+.e1a-flag_dz {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e9-1f1ff.svg"); }
+
+.e1a-flag_ad {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e6-1f1e9.svg"); }
+
+.e1a-flag_ao {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e6-1f1f4.svg"); }
+
+.e1a-flag_ai {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e6-1f1ee.svg"); }
+
+.e1a-flag_ag {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e6-1f1ec.svg"); }
+
+.e1a-flag_ar {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e6-1f1f7.svg"); }
+
+.e1a-flag_am {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e6-1f1f2.svg"); }
+
+.e1a-flag_aw {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e6-1f1fc.svg"); }
+
+.e1a-flag_au {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e6-1f1fa.svg"); }
+
+.e1a-flag_at {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e6-1f1f9.svg"); }
+
+.e1a-flag_az {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e6-1f1ff.svg"); }
+
+.e1a-flag_bs {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e7-1f1f8.svg"); }
+
+.e1a-flag_bh {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e7-1f1ed.svg"); }
+
+.e1a-flag_bd {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e7-1f1e9.svg"); }
+
+.e1a-flag_bb {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e7-1f1e7.svg"); }
+
+.e1a-flag_by {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e7-1f1fe.svg"); }
+
+.e1a-flag_be {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e7-1f1ea.svg"); }
+
+.e1a-flag_bz {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e7-1f1ff.svg"); }
+
+.e1a-flag_bj {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e7-1f1ef.svg"); }
+
+.e1a-flag_bm {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e7-1f1f2.svg"); }
+
+.e1a-flag_bt {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e7-1f1f9.svg"); }
+
+.e1a-flag_bo {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e7-1f1f4.svg"); }
+
+.e1a-flag_ba {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e7-1f1e6.svg"); }
+
+.e1a-flag_bw {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e7-1f1fc.svg"); }
+
+.e1a-flag_br {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e7-1f1f7.svg"); }
+
+.e1a-flag_bn {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e7-1f1f3.svg"); }
+
+.e1a-flag_bg {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e7-1f1ec.svg"); }
+
+.e1a-flag_bf {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e7-1f1eb.svg"); }
+
+.e1a-flag_bi {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e7-1f1ee.svg"); }
+
+.e1a-flag_cv {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e8-1f1fb.svg"); }
+
+.e1a-flag_kh {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f0-1f1ed.svg"); }
+
+.e1a-flag_cm {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e8-1f1f2.svg"); }
+
+.e1a-flag_ca {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e8-1f1e6.svg"); }
+
+.e1a-flag_ky {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f0-1f1fe.svg"); }
+
+.e1a-flag_cf {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e8-1f1eb.svg"); }
+
+.e1a-flag_td {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f9-1f1e9.svg"); }
+
+.e1a-flag_cl {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e8-1f1f1.svg"); }
+
+.e1a-flag_cn {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e8-1f1f3.svg"); }
+
+.e1a-flag_co {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e8-1f1f4.svg"); }
+
+.e1a-flag_km {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f0-1f1f2.svg"); }
+
+.e1a-flag_cg {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e8-1f1ec.svg"); }
+
+.e1a-flag_cd {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e8-1f1e9.svg"); }
+
+.e1a-flag_cr {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e8-1f1f7.svg"); }
+
+.e1a-flag_hr {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ed-1f1f7.svg"); }
+
+.e1a-flag_cu {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e8-1f1fa.svg"); }
+
+.e1a-flag_cy {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e8-1f1fe.svg"); }
+
+.e1a-flag_cz {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e8-1f1ff.svg"); }
+
+.e1a-flag_dk {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e9-1f1f0.svg"); }
+
+.e1a-flag_dj {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e9-1f1ef.svg"); }
+
+.e1a-flag_dm {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e9-1f1f2.svg"); }
+
+.e1a-flag_do {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e9-1f1f4.svg"); }
+
+.e1a-flag_ec {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ea-1f1e8.svg"); }
+
+.e1a-flag_eg {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ea-1f1ec.svg"); }
+
+.e1a-flag_sv {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f8-1f1fb.svg"); }
+
+.e1a-flag_gq {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ec-1f1f6.svg"); }
+
+.e1a-flag_er {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ea-1f1f7.svg"); }
+
+.e1a-flag_ee {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ea-1f1ea.svg"); }
+
+.e1a-flag_et {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ea-1f1f9.svg"); }
+
+.e1a-flag_fk {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1eb-1f1f0.svg"); }
+
+.e1a-flag_fo {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1eb-1f1f4.svg"); }
+
+.e1a-flag_fj {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1eb-1f1ef.svg"); }
+
+.e1a-flag_fi {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1eb-1f1ee.svg"); }
+
+.e1a-flag_fr {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1eb-1f1f7.svg"); }
+
+.e1a-flag_pf {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f5-1f1eb.svg"); }
+
+.e1a-flag_ga {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ec-1f1e6.svg"); }
+
+.e1a-flag_gm {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ec-1f1f2.svg"); }
+
+.e1a-flag_ge {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ec-1f1ea.svg"); }
+
+.e1a-flag_de {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e9-1f1ea.svg"); }
+
+.e1a-flag_gh {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ec-1f1ed.svg"); }
+
+.e1a-flag_gi {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ec-1f1ee.svg"); }
+
+.e1a-flag_gr {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ec-1f1f7.svg"); }
+
+.e1a-flag_gl {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ec-1f1f1.svg"); }
+
+.e1a-flag_gd {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ec-1f1e9.svg"); }
+
+.e1a-flag_gu {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ec-1f1fa.svg"); }
+
+.e1a-flag_gt {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ec-1f1f9.svg"); }
+
+.e1a-flag_gn {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ec-1f1f3.svg"); }
+
+.e1a-flag_gw {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ec-1f1fc.svg"); }
+
+.e1a-flag_gy {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ec-1f1fe.svg"); }
+
+.e1a-flag_ht {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ed-1f1f9.svg"); }
+
+.e1a-flag_hn {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ed-1f1f3.svg"); }
+
+.e1a-flag_hk {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ed-1f1f0.svg"); }
+
+.e1a-flag_hu {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ed-1f1fa.svg"); }
+
+.e1a-flag_is {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ee-1f1f8.svg"); }
+
+.e1a-flag_in {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ee-1f1f3.svg"); }
+
+.e1a-flag_id {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ee-1f1e9.svg"); }
+
+.e1a-flag_ir {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ee-1f1f7.svg"); }
+
+.e1a-flag_iq {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ee-1f1f6.svg"); }
+
+.e1a-flag_ie {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ee-1f1ea.svg"); }
+
+.e1a-flag_il {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ee-1f1f1.svg"); }
+
+.e1a-flag_it {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ee-1f1f9.svg"); }
+
+.e1a-flag_ci {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e8-1f1ee.svg"); }
+
+.e1a-flag_jm {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ef-1f1f2.svg"); }
+
+.e1a-flag_jp {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ef-1f1f5.svg"); }
+
+.e1a-flag_je {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ef-1f1ea.svg"); }
+
+.e1a-flag_jo {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ef-1f1f4.svg"); }
+
+.e1a-flag_kz {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f0-1f1ff.svg"); }
+
+.e1a-flag_ke {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f0-1f1ea.svg"); }
+
+.e1a-flag_ki {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f0-1f1ee.svg"); }
+
+.e1a-flag_xk {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1fd-1f1f0.svg"); }
+
+.e1a-flag_kw {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f0-1f1fc.svg"); }
+
+.e1a-flag_kg {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f0-1f1ec.svg"); }
+
+.e1a-flag_la {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f1-1f1e6.svg"); }
+
+.e1a-flag_lv {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f1-1f1fb.svg"); }
+
+.e1a-flag_lb {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f1-1f1e7.svg"); }
+
+.e1a-flag_ls {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f1-1f1f8.svg"); }
+
+.e1a-flag_lr {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f1-1f1f7.svg"); }
+
+.e1a-flag_ly {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f1-1f1fe.svg"); }
+
+.e1a-flag_li {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f1-1f1ee.svg"); }
+
+.e1a-flag_lt {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f1-1f1f9.svg"); }
+
+.e1a-flag_lu {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f1-1f1fa.svg"); }
+
+.e1a-flag_mo {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f2-1f1f4.svg"); }
+
+.e1a-flag_mk {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f2-1f1f0.svg"); }
+
+.e1a-flag_mg {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f2-1f1ec.svg"); }
+
+.e1a-flag_mw {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f2-1f1fc.svg"); }
+
+.e1a-flag_my {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f2-1f1fe.svg"); }
+
+.e1a-flag_mv {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f2-1f1fb.svg"); }
+
+.e1a-flag_ml {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f2-1f1f1.svg"); }
+
+.e1a-flag_mt {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f2-1f1f9.svg"); }
+
+.e1a-flag_mh {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f2-1f1ed.svg"); }
+
+.e1a-flag_mr {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f2-1f1f7.svg"); }
+
+.e1a-flag_mu {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f2-1f1fa.svg"); }
+
+.e1a-flag_mx {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f2-1f1fd.svg"); }
+
+.e1a-flag_fm {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1eb-1f1f2.svg"); }
+
+.e1a-flag_md {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f2-1f1e9.svg"); }
+
+.e1a-flag_mc {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f2-1f1e8.svg"); }
+
+.e1a-flag_mn {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f2-1f1f3.svg"); }
+
+.e1a-flag_me {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f2-1f1ea.svg"); }
+
+.e1a-flag_ms {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f2-1f1f8.svg"); }
+
+.e1a-flag_ma {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f2-1f1e6.svg"); }
+
+.e1a-flag_mz {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f2-1f1ff.svg"); }
+
+.e1a-flag_mm {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f2-1f1f2.svg"); }
+
+.e1a-flag_na {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f3-1f1e6.svg"); }
+
+.e1a-flag_nr {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f3-1f1f7.svg"); }
+
+.e1a-flag_np {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f3-1f1f5.svg"); }
+
+.e1a-flag_nl {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f3-1f1f1.svg"); }
+
+.e1a-flag_nc {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f3-1f1e8.svg"); }
+
+.e1a-flag_nz {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f3-1f1ff.svg"); }
+
+.e1a-flag_ni {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f3-1f1ee.svg"); }
+
+.e1a-flag_ne {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f3-1f1ea.svg"); }
+
+.e1a-flag_ng {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f3-1f1ec.svg"); }
+
+.e1a-flag_nu {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f3-1f1fa.svg"); }
+
+.e1a-flag_kp {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f0-1f1f5.svg"); }
+
+.e1a-flag_no {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f3-1f1f4.svg"); }
+
+.e1a-flag_om {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f4-1f1f2.svg"); }
+
+.e1a-flag_pk {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f5-1f1f0.svg"); }
+
+.e1a-flag_pw {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f5-1f1fc.svg"); }
+
+.e1a-flag_ps {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f5-1f1f8.svg"); }
+
+.e1a-flag_pa {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f5-1f1e6.svg"); }
+
+.e1a-flag_pg {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f5-1f1ec.svg"); }
+
+.e1a-flag_py {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f5-1f1fe.svg"); }
+
+.e1a-flag_pe {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f5-1f1ea.svg"); }
+
+.e1a-flag_ph {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f5-1f1ed.svg"); }
+
+.e1a-flag_pl {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f5-1f1f1.svg"); }
+
+.e1a-flag_pt {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f5-1f1f9.svg"); }
+
+.e1a-flag_pr {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f5-1f1f7.svg"); }
+
+.e1a-flag_qa {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f6-1f1e6.svg"); }
+
+.e1a-flag_ro {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f7-1f1f4.svg"); }
+
+.e1a-flag_ru {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f7-1f1fa.svg"); }
+
+.e1a-flag_rw {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f7-1f1fc.svg"); }
+
+.e1a-flag_sh {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f8-1f1ed.svg"); }
+
+.e1a-flag_kn {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f0-1f1f3.svg"); }
+
+.e1a-flag_lc {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f1-1f1e8.svg"); }
+
+.e1a-flag_vc {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1fb-1f1e8.svg"); }
+
+.e1a-flag_ws {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1fc-1f1f8.svg"); }
+
+.e1a-flag_sm {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f8-1f1f2.svg"); }
+
+.e1a-flag_st {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f8-1f1f9.svg"); }
+
+.e1a-flag_sa {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f8-1f1e6.svg"); }
+
+.e1a-flag_sn {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f8-1f1f3.svg"); }
+
+.e1a-flag_rs {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f7-1f1f8.svg"); }
+
+.e1a-flag_sc {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f8-1f1e8.svg"); }
+
+.e1a-flag_sl {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f8-1f1f1.svg"); }
+
+.e1a-flag_sg {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f8-1f1ec.svg"); }
+
+.e1a-flag_sk {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f8-1f1f0.svg"); }
+
+.e1a-flag_si {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f8-1f1ee.svg"); }
+
+.e1a-flag_sb {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f8-1f1e7.svg"); }
+
+.e1a-flag_so {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f8-1f1f4.svg"); }
+
+.e1a-flag_za {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ff-1f1e6.svg"); }
+
+.e1a-flag_kr {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f0-1f1f7.svg"); }
+
+.e1a-flag_es {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ea-1f1f8.svg"); }
+
+.e1a-flag_lk {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f1-1f1f0.svg"); }
+
+.e1a-flag_sd {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f8-1f1e9.svg"); }
+
+.e1a-flag_sr {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f8-1f1f7.svg"); }
+
+.e1a-flag_sz {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f8-1f1ff.svg"); }
+
+.e1a-flag_se {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f8-1f1ea.svg"); }
+
+.e1a-flag_ch {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e8-1f1ed.svg"); }
+
+.e1a-flag_sy {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f8-1f1fe.svg"); }
+
+.e1a-flag_tw {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f9-1f1fc.svg"); }
+
+.e1a-flag_tj {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f9-1f1ef.svg"); }
+
+.e1a-flag_tz {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f9-1f1ff.svg"); }
+
+.e1a-flag_th {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f9-1f1ed.svg"); }
+
+.e1a-flag_tl {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f9-1f1f1.svg"); }
+
+.e1a-flag_tg {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f9-1f1ec.svg"); }
+
+.e1a-flag_to {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f9-1f1f4.svg"); }
+
+.e1a-flag_tt {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f9-1f1f9.svg"); }
+
+.e1a-flag_tn {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f9-1f1f3.svg"); }
+
+.e1a-flag_tr {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f9-1f1f7.svg"); }
+
+.e1a-flag_tm {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f9-1f1f2.svg"); }
+
+.e1a-flag_tv {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f9-1f1fb.svg"); }
+
+.e1a-flag_ug {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1fa-1f1ec.svg"); }
+
+.e1a-flag_ua {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1fa-1f1e6.svg"); }
+
+.e1a-flag_ae {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e6-1f1ea.svg"); }
+
+.e1a-flag_gb {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ec-1f1e7.svg"); }
+
+.e1a-flag_us {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1fa-1f1f8.svg"); }
+
+.e1a-flag_vi {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1fb-1f1ee.svg"); }
+
+.e1a-flag_uy {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1fa-1f1fe.svg"); }
+
+.e1a-flag_uz {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1fa-1f1ff.svg"); }
+
+.e1a-flag_vu {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1fb-1f1fa.svg"); }
+
+.e1a-flag_va {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1fb-1f1e6.svg"); }
+
+.e1a-flag_ve {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1fb-1f1ea.svg"); }
+
+.e1a-flag_vn {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1fb-1f1f3.svg"); }
+
+.e1a-flag_wf {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1fc-1f1eb.svg"); }
+
+.e1a-flag_eh {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ea-1f1ed.svg"); }
+
+.e1a-flag_ye {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1fe-1f1ea.svg"); }
+
+.e1a-flag_zm {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ff-1f1f2.svg"); }
+
+.e1a-flag_zw {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ff-1f1fc.svg"); }
+
+.e1a-flag_re {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f7-1f1ea.svg"); }
+
+.e1a-flag_ax {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e6-1f1fd.svg"); }
+
+.e1a-flag_ta {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f9-1f1e6.svg"); }
+
+.e1a-flag_io {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ee-1f1f4.svg"); }
+
+.e1a-flag_bq {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e7-1f1f6.svg"); }
+
+.e1a-flag_cx {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e8-1f1fd.svg"); }
+
+.e1a-flag_cc {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e8-1f1e8.svg"); }
+
+.e1a-flag_gg {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ec-1f1ec.svg"); }
+
+.e1a-flag_im {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ee-1f1f2.svg"); }
+
+.e1a-flag_yt {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1fe-1f1f9.svg"); }
+
+.e1a-flag_nf {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f3-1f1eb.svg"); }
+
+.e1a-flag_pn {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f5-1f1f3.svg"); }
+
+.e1a-flag_bl {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e7-1f1f1.svg"); }
+
+.e1a-flag_pm {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f5-1f1f2.svg"); }
+
+.e1a-flag_gs {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ec-1f1f8.svg"); }
+
+.e1a-flag_tk {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f9-1f1f0.svg"); }
+
+.e1a-flag_bv {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e7-1f1fb.svg"); }
+
+.e1a-flag_hm {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ed-1f1f2.svg"); }
+
+.e1a-flag_sj {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f8-1f1ef.svg"); }
+
+.e1a-flag_um {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1fa-1f1f2.svg"); }
+
+.e1a-flag_ic {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ee-1f1e8.svg"); }
+
+.e1a-flag_ea {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ea-1f1e6.svg"); }
+
+.e1a-flag_cp {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e8-1f1f5.svg"); }
+
+.e1a-flag_dg {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e9-1f1ec.svg"); }
+
+.e1a-flag_as {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e6-1f1f8.svg"); }
+
+.e1a-flag_aq {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e6-1f1f6.svg"); }
+
+.e1a-flag_vg {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1fb-1f1ec.svg"); }
+
+.e1a-flag_ck {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e8-1f1f0.svg"); }
+
+.e1a-flag_cw {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e8-1f1fc.svg"); }
+
+.e1a-flag_eu {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ea-1f1fa.svg"); }
+
+.e1a-flag_gf {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ec-1f1eb.svg"); }
+
+.e1a-flag_tf {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f9-1f1eb.svg"); }
+
+.e1a-flag_gp {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ec-1f1f5.svg"); }
+
+.e1a-flag_mq {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f2-1f1f6.svg"); }
+
+.e1a-flag_mp {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f2-1f1f5.svg"); }
+
+.e1a-flag_sx {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f8-1f1fd.svg"); }
+
+.e1a-flag_ss {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f8-1f1f8.svg"); }
+
+.e1a-flag_tc {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f9-1f1e8.svg"); }
+
+.e1a-flag_mf {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f2-1f1eb.svg"); }
+
+.e1a-raised_hands_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f64c-1f3fb.svg"); }
+
+.e1a-raised_hands_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f64c-1f3fc.svg"); }
+
+.e1a-raised_hands_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f64c-1f3fd.svg"); }
+
+.e1a-raised_hands_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f64c-1f3fe.svg"); }
+
+.e1a-raised_hands_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f64c-1f3ff.svg"); }
+
+.e1a-clap_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f44f-1f3fb.svg"); }
+
+.e1a-clap_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f44f-1f3fc.svg"); }
+
+.e1a-clap_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f44f-1f3fd.svg"); }
+
+.e1a-clap_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f44f-1f3fe.svg"); }
+
+.e1a-clap_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f44f-1f3ff.svg"); }
+
+.e1a-wave_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f44b-1f3fb.svg"); }
+
+.e1a-wave_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f44b-1f3fc.svg"); }
+
+.e1a-wave_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f44b-1f3fd.svg"); }
+
+.e1a-wave_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f44b-1f3fe.svg"); }
+
+.e1a-wave_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f44b-1f3ff.svg"); }
+
+.e1a-thumbsup_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f44d-1f3fb.svg"); }
+
+.e1a-thumbsup_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f44d-1f3fc.svg"); }
+
+.e1a-thumbsup_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f44d-1f3fd.svg"); }
+
+.e1a-thumbsup_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f44d-1f3fe.svg"); }
+
+.e1a-thumbsup_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f44d-1f3ff.svg"); }
+
+.e1a-thumbsdown_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f44e-1f3fb.svg"); }
+
+.e1a-thumbsdown_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f44e-1f3fc.svg"); }
+
+.e1a-thumbsdown_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f44e-1f3fd.svg"); }
+
+.e1a-thumbsdown_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f44e-1f3fe.svg"); }
+
+.e1a-thumbsdown_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f44e-1f3ff.svg"); }
+
+.e1a-punch_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f44a-1f3fb.svg"); }
+
+.e1a-punch_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f44a-1f3fc.svg"); }
+
+.e1a-punch_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f44a-1f3fd.svg"); }
+
+.e1a-punch_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f44a-1f3fe.svg"); }
+
+.e1a-punch_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f44a-1f3ff.svg"); }
+
+.e1a-fist_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/270a-1f3fb.svg"); }
+
+.e1a-fist_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/270a-1f3fc.svg"); }
+
+.e1a-fist_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/270a-1f3fd.svg"); }
+
+.e1a-fist_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/270a-1f3fe.svg"); }
+
+.e1a-fist_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/270a-1f3ff.svg"); }
+
+.e1a-v_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/270c-1f3fb.svg"); }
+
+.e1a-v_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/270c-1f3fc.svg"); }
+
+.e1a-v_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/270c-1f3fd.svg"); }
+
+.e1a-v_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/270c-1f3fe.svg"); }
+
+.e1a-v_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/270c-1f3ff.svg"); }
+
+.e1a-ok_hand_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f44c-1f3fb.svg"); }
+
+.e1a-ok_hand_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f44c-1f3fc.svg"); }
+
+.e1a-ok_hand_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f44c-1f3fd.svg"); }
+
+.e1a-ok_hand_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f44c-1f3fe.svg"); }
+
+.e1a-ok_hand_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f44c-1f3ff.svg"); }
+
+.e1a-raised_hand_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/270b-1f3fb.svg"); }
+
+.e1a-raised_hand_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/270b-1f3fc.svg"); }
+
+.e1a-raised_hand_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/270b-1f3fd.svg"); }
+
+.e1a-raised_hand_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/270b-1f3fe.svg"); }
+
+.e1a-raised_hand_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/270b-1f3ff.svg"); }
+
+.e1a-open_hands_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f450-1f3fb.svg"); }
+
+.e1a-open_hands_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f450-1f3fc.svg"); }
+
+.e1a-open_hands_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f450-1f3fd.svg"); }
+
+.e1a-open_hands_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f450-1f3fe.svg"); }
+
+.e1a-open_hands_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f450-1f3ff.svg"); }
+
+.e1a-muscle_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4aa-1f3fb.svg"); }
+
+.e1a-muscle_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4aa-1f3fc.svg"); }
+
+.e1a-muscle_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4aa-1f3fd.svg"); }
+
+.e1a-muscle_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4aa-1f3fe.svg"); }
+
+.e1a-muscle_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f4aa-1f3ff.svg"); }
+
+.e1a-pray_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f64f-1f3fb.svg"); }
+
+.e1a-pray_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f64f-1f3fc.svg"); }
+
+.e1a-pray_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f64f-1f3fd.svg"); }
+
+.e1a-pray_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f64f-1f3fe.svg"); }
+
+.e1a-pray_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f64f-1f3ff.svg"); }
+
+.e1a-point_up_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/261d-1f3fb.svg"); }
+
+.e1a-point_up_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/261d-1f3fc.svg"); }
+
+.e1a-point_up_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/261d-1f3fd.svg"); }
+
+.e1a-point_up_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/261d-1f3fe.svg"); }
+
+.e1a-point_up_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/261d-1f3ff.svg"); }
+
+.e1a-point_up_2_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f446-1f3fb.svg"); }
+
+.e1a-point_up_2_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f446-1f3fc.svg"); }
+
+.e1a-point_up_2_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f446-1f3fd.svg"); }
+
+.e1a-point_up_2_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f446-1f3fe.svg"); }
+
+.e1a-point_up_2_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f446-1f3ff.svg"); }
+
+.e1a-point_down_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f447-1f3fb.svg"); }
+
+.e1a-point_down_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f447-1f3fc.svg"); }
+
+.e1a-point_down_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f447-1f3fd.svg"); }
+
+.e1a-point_down_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f447-1f3fe.svg"); }
+
+.e1a-point_down_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f447-1f3ff.svg"); }
+
+.e1a-point_left_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f448-1f3fb.svg"); }
+
+.e1a-point_left_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f448-1f3fc.svg"); }
+
+.e1a-point_left_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f448-1f3fd.svg"); }
+
+.e1a-point_left_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f448-1f3fe.svg"); }
+
+.e1a-point_left_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f448-1f3ff.svg"); }
+
+.e1a-point_right_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f449-1f3fb.svg"); }
+
+.e1a-point_right_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f449-1f3fc.svg"); }
+
+.e1a-point_right_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f449-1f3fd.svg"); }
+
+.e1a-point_right_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f449-1f3fe.svg"); }
+
+.e1a-point_right_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f449-1f3ff.svg"); }
+
+.e1a-middle_finger_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f595-1f3fb.svg"); }
+
+.e1a-middle_finger_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f595-1f3fc.svg"); }
+
+.e1a-middle_finger_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f595-1f3fd.svg"); }
+
+.e1a-middle_finger_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f595-1f3fe.svg"); }
+
+.e1a-middle_finger_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f595-1f3ff.svg"); }
+
+.e1a-hand_splayed_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f590-1f3fb.svg"); }
+
+.e1a-hand_splayed_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f590-1f3fc.svg"); }
+
+.e1a-hand_splayed_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f590-1f3fd.svg"); }
+
+.e1a-hand_splayed_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f590-1f3fe.svg"); }
+
+.e1a-hand_splayed_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f590-1f3ff.svg"); }
+
+.e1a-metal_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f918-1f3fb.svg"); }
+
+.e1a-metal_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f918-1f3fc.svg"); }
+
+.e1a-metal_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f918-1f3fd.svg"); }
+
+.e1a-metal_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f918-1f3fe.svg"); }
+
+.e1a-metal_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f918-1f3ff.svg"); }
+
+.e1a-vulcan_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f596-1f3fb.svg"); }
+
+.e1a-vulcan_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f596-1f3fc.svg"); }
+
+.e1a-vulcan_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f596-1f3fd.svg"); }
+
+.e1a-vulcan_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f596-1f3fe.svg"); }
+
+.e1a-vulcan_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f596-1f3ff.svg"); }
+
+.e1a-writing_hand_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/270d-1f3fb.svg"); }
+
+.e1a-writing_hand_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/270d-1f3fc.svg"); }
+
+.e1a-writing_hand_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/270d-1f3fd.svg"); }
+
+.e1a-writing_hand_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/270d-1f3fe.svg"); }
+
+.e1a-writing_hand_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/270d-1f3ff.svg"); }
+
+.e1a-nail_care_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f485-1f3fb.svg"); }
+
+.e1a-nail_care_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f485-1f3fc.svg"); }
+
+.e1a-nail_care_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f485-1f3fd.svg"); }
+
+.e1a-nail_care_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f485-1f3fe.svg"); }
+
+.e1a-nail_care_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f485-1f3ff.svg"); }
+
+.e1a-ear_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f442-1f3fb.svg"); }
+
+.e1a-ear_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f442-1f3fc.svg"); }
+
+.e1a-ear_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f442-1f3fd.svg"); }
+
+.e1a-ear_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f442-1f3fe.svg"); }
+
+.e1a-ear_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f442-1f3ff.svg"); }
+
+.e1a-nose_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f443-1f3fb.svg"); }
+
+.e1a-nose_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f443-1f3fc.svg"); }
+
+.e1a-nose_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f443-1f3fd.svg"); }
+
+.e1a-nose_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f443-1f3fe.svg"); }
+
+.e1a-nose_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f443-1f3ff.svg"); }
+
+.e1a-baby_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f476-1f3fb.svg"); }
+
+.e1a-baby_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f476-1f3fc.svg"); }
+
+.e1a-baby_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f476-1f3fd.svg"); }
+
+.e1a-baby_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f476-1f3fe.svg"); }
+
+.e1a-baby_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f476-1f3ff.svg"); }
+
+.e1a-boy_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f466-1f3fb.svg"); }
+
+.e1a-boy_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f466-1f3fc.svg"); }
+
+.e1a-boy_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f466-1f3fd.svg"); }
+
+.e1a-boy_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f466-1f3fe.svg"); }
+
+.e1a-boy_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f466-1f3ff.svg"); }
+
+.e1a-girl_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f467-1f3fb.svg"); }
+
+.e1a-girl_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f467-1f3fc.svg"); }
+
+.e1a-girl_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f467-1f3fd.svg"); }
+
+.e1a-girl_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f467-1f3fe.svg"); }
+
+.e1a-girl_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f467-1f3ff.svg"); }
+
+.e1a-man_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f468-1f3fb.svg"); }
+
+.e1a-man_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f468-1f3fc.svg"); }
+
+.e1a-man_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f468-1f3fd.svg"); }
+
+.e1a-man_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f468-1f3fe.svg"); }
+
+.e1a-man_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f468-1f3ff.svg"); }
+
+.e1a-woman_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f469-1f3fb.svg"); }
+
+.e1a-woman_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f469-1f3fc.svg"); }
+
+.e1a-woman_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f469-1f3fd.svg"); }
+
+.e1a-woman_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f469-1f3fe.svg"); }
+
+.e1a-woman_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f469-1f3ff.svg"); }
+
+.e1a-person_with_blond_hair_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f471-1f3fb.svg"); }
+
+.e1a-person_with_blond_hair_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f471-1f3fc.svg"); }
+
+.e1a-person_with_blond_hair_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f471-1f3fd.svg"); }
+
+.e1a-person_with_blond_hair_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f471-1f3fe.svg"); }
+
+.e1a-person_with_blond_hair_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f471-1f3ff.svg"); }
+
+.e1a-older_man_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f474-1f3fb.svg"); }
+
+.e1a-older_man_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f474-1f3fc.svg"); }
+
+.e1a-older_man_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f474-1f3fd.svg"); }
+
+.e1a-older_man_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f474-1f3fe.svg"); }
+
+.e1a-older_man_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f474-1f3ff.svg"); }
+
+.e1a-older_woman_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f475-1f3fb.svg"); }
+
+.e1a-older_woman_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f475-1f3fc.svg"); }
+
+.e1a-older_woman_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f475-1f3fd.svg"); }
+
+.e1a-older_woman_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f475-1f3fe.svg"); }
+
+.e1a-older_woman_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f475-1f3ff.svg"); }
+
+.e1a-man_with_gua_pi_mao_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f472-1f3fb.svg"); }
+
+.e1a-man_with_gua_pi_mao_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f472-1f3fc.svg"); }
+
+.e1a-man_with_gua_pi_mao_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f472-1f3fd.svg"); }
+
+.e1a-man_with_gua_pi_mao_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f472-1f3fe.svg"); }
+
+.e1a-man_with_gua_pi_mao_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f472-1f3ff.svg"); }
+
+.e1a-man_with_turban_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f473-1f3fb.svg"); }
+
+.e1a-man_with_turban_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f473-1f3fc.svg"); }
+
+.e1a-man_with_turban_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f473-1f3fd.svg"); }
+
+.e1a-man_with_turban_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f473-1f3fe.svg"); }
+
+.e1a-man_with_turban_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f473-1f3ff.svg"); }
+
+.e1a-cop_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f46e-1f3fb.svg"); }
+
+.e1a-cop_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f46e-1f3fc.svg"); }
+
+.e1a-cop_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f46e-1f3fd.svg"); }
+
+.e1a-cop_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f46e-1f3fe.svg"); }
+
+.e1a-cop_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f46e-1f3ff.svg"); }
+
+.e1a-construction_worker_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f477-1f3fb.svg"); }
+
+.e1a-construction_worker_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f477-1f3fc.svg"); }
+
+.e1a-construction_worker_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f477-1f3fd.svg"); }
+
+.e1a-construction_worker_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f477-1f3fe.svg"); }
+
+.e1a-construction_worker_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f477-1f3ff.svg"); }
+
+.e1a-guardsman_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f482-1f3fb.svg"); }
+
+.e1a-guardsman_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f482-1f3fc.svg"); }
+
+.e1a-guardsman_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f482-1f3fd.svg"); }
+
+.e1a-guardsman_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f482-1f3fe.svg"); }
+
+.e1a-guardsman_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f482-1f3ff.svg"); }
+
+.e1a-santa_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f385-1f3fb.svg"); }
+
+.e1a-santa_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f385-1f3fc.svg"); }
+
+.e1a-santa_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f385-1f3fd.svg"); }
+
+.e1a-santa_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f385-1f3fe.svg"); }
+
+.e1a-santa_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f385-1f3ff.svg"); }
+
+.e1a-angel_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f47c-1f3fb.svg"); }
+
+.e1a-angel_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f47c-1f3fc.svg"); }
+
+.e1a-angel_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f47c-1f3fd.svg"); }
+
+.e1a-angel_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f47c-1f3fe.svg"); }
+
+.e1a-angel_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f47c-1f3ff.svg"); }
+
+.e1a-princess_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f478-1f3fb.svg"); }
+
+.e1a-princess_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f478-1f3fc.svg"); }
+
+.e1a-princess_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f478-1f3fd.svg"); }
+
+.e1a-princess_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f478-1f3fe.svg"); }
+
+.e1a-princess_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f478-1f3ff.svg"); }
+
+.e1a-bride_with_veil_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f470-1f3fb.svg"); }
+
+.e1a-bride_with_veil_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f470-1f3fc.svg"); }
+
+.e1a-bride_with_veil_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f470-1f3fd.svg"); }
+
+.e1a-bride_with_veil_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f470-1f3fe.svg"); }
+
+.e1a-bride_with_veil_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f470-1f3ff.svg"); }
+
+.e1a-walking_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6b6-1f3fb.svg"); }
+
+.e1a-walking_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6b6-1f3fc.svg"); }
+
+.e1a-walking_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6b6-1f3fd.svg"); }
+
+.e1a-walking_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6b6-1f3fe.svg"); }
+
+.e1a-walking_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6b6-1f3ff.svg"); }
+
+.e1a-runner_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3c3-1f3fb.svg"); }
+
+.e1a-runner_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3c3-1f3fc.svg"); }
+
+.e1a-runner_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3c3-1f3fd.svg"); }
+
+.e1a-runner_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3c3-1f3fe.svg"); }
+
+.e1a-runner_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3c3-1f3ff.svg"); }
+
+.e1a-dancer_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f483-1f3fb.svg"); }
+
+.e1a-dancer_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f483-1f3fc.svg"); }
+
+.e1a-dancer_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f483-1f3fd.svg"); }
+
+.e1a-dancer_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f483-1f3fe.svg"); }
+
+.e1a-dancer_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f483-1f3ff.svg"); }
+
+.e1a-bow_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f647-1f3fb.svg"); }
+
+.e1a-bow_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f647-1f3fc.svg"); }
+
+.e1a-bow_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f647-1f3fd.svg"); }
+
+.e1a-bow_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f647-1f3fe.svg"); }
+
+.e1a-bow_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f647-1f3ff.svg"); }
+
+.e1a-information_desk_person_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f481-1f3fb.svg"); }
+
+.e1a-information_desk_person_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f481-1f3fc.svg"); }
+
+.e1a-information_desk_person_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f481-1f3fd.svg"); }
+
+.e1a-information_desk_person_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f481-1f3fe.svg"); }
+
+.e1a-information_desk_person_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f481-1f3ff.svg"); }
+
+.e1a-no_good_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f645-1f3fb.svg"); }
+
+.e1a-no_good_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f645-1f3fc.svg"); }
+
+.e1a-no_good_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f645-1f3fd.svg"); }
+
+.e1a-no_good_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f645-1f3fe.svg"); }
+
+.e1a-no_good_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f645-1f3ff.svg"); }
+
+.e1a-ok_woman_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f646-1f3fb.svg"); }
+
+.e1a-ok_woman_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f646-1f3fc.svg"); }
+
+.e1a-ok_woman_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f646-1f3fd.svg"); }
+
+.e1a-ok_woman_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f646-1f3fe.svg"); }
+
+.e1a-ok_woman_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f646-1f3ff.svg"); }
+
+.e1a-raising_hand_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f64b-1f3fb.svg"); }
+
+.e1a-raising_hand_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f64b-1f3fc.svg"); }
+
+.e1a-raising_hand_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f64b-1f3fd.svg"); }
+
+.e1a-raising_hand_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f64b-1f3fe.svg"); }
+
+.e1a-raising_hand_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f64b-1f3ff.svg"); }
+
+.e1a-person_with_pouting_face_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f64e-1f3fb.svg"); }
+
+.e1a-person_with_pouting_face_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f64e-1f3fc.svg"); }
+
+.e1a-person_with_pouting_face_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f64e-1f3fd.svg"); }
+
+.e1a-person_with_pouting_face_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f64e-1f3fe.svg"); }
+
+.e1a-person_with_pouting_face_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f64e-1f3ff.svg"); }
+
+.e1a-person_frowning_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f64d-1f3fb.svg"); }
+
+.e1a-person_frowning_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f64d-1f3fc.svg"); }
+
+.e1a-person_frowning_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f64d-1f3fd.svg"); }
+
+.e1a-person_frowning_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f64d-1f3fe.svg"); }
+
+.e1a-person_frowning_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f64d-1f3ff.svg"); }
+
+.e1a-haircut_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f487-1f3fb.svg"); }
+
+.e1a-haircut_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f487-1f3fc.svg"); }
+
+.e1a-haircut_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f487-1f3fd.svg"); }
+
+.e1a-haircut_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f487-1f3fe.svg"); }
+
+.e1a-haircut_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f487-1f3ff.svg"); }
+
+.e1a-massage_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f486-1f3fb.svg"); }
+
+.e1a-massage_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f486-1f3fc.svg"); }
+
+.e1a-massage_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f486-1f3fd.svg"); }
+
+.e1a-massage_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f486-1f3fe.svg"); }
+
+.e1a-massage_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f486-1f3ff.svg"); }
+
+.e1a-rowboat_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6a3-1f3fb.svg"); }
+
+.e1a-rowboat_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6a3-1f3fc.svg"); }
+
+.e1a-rowboat_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6a3-1f3fd.svg"); }
+
+.e1a-rowboat_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6a3-1f3fe.svg"); }
+
+.e1a-rowboat_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6a3-1f3ff.svg"); }
+
+.e1a-swimmer_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3ca-1f3fb.svg"); }
+
+.e1a-swimmer_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3ca-1f3fc.svg"); }
+
+.e1a-swimmer_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3ca-1f3fd.svg"); }
+
+.e1a-swimmer_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3ca-1f3fe.svg"); }
+
+.e1a-swimmer_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3ca-1f3ff.svg"); }
+
+.e1a-surfer_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3c4-1f3fb.svg"); }
+
+.e1a-surfer_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3c4-1f3fc.svg"); }
+
+.e1a-surfer_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3c4-1f3fd.svg"); }
+
+.e1a-surfer_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3c4-1f3fe.svg"); }
+
+.e1a-surfer_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3c4-1f3ff.svg"); }
+
+.e1a-bath_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6c0-1f3fb.svg"); }
+
+.e1a-bath_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6c0-1f3fc.svg"); }
+
+.e1a-bath_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6c0-1f3fd.svg"); }
+
+.e1a-bath_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6c0-1f3fe.svg"); }
+
+.e1a-bath_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6c0-1f3ff.svg"); }
+
+.e1a-basketball_player_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/26f9-1f3fb.svg"); }
+
+.e1a-basketball_player_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/26f9-1f3fc.svg"); }
+
+.e1a-basketball_player_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/26f9-1f3fd.svg"); }
+
+.e1a-basketball_player_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/26f9-1f3fe.svg"); }
+
+.e1a-basketball_player_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/26f9-1f3ff.svg"); }
+
+.e1a-lifter_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3cb-1f3fb.svg"); }
+
+.e1a-lifter_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3cb-1f3fc.svg"); }
+
+.e1a-lifter_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3cb-1f3fd.svg"); }
+
+.e1a-lifter_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3cb-1f3fe.svg"); }
+
+.e1a-lifter_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3cb-1f3ff.svg"); }
+
+.e1a-bicyclist_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6b4-1f3fb.svg"); }
+
+.e1a-bicyclist_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6b4-1f3fc.svg"); }
+
+.e1a-bicyclist_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6b4-1f3fd.svg"); }
+
+.e1a-bicyclist_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6b4-1f3fe.svg"); }
+
+.e1a-bicyclist_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6b4-1f3ff.svg"); }
+
+.e1a-mountain_bicyclist_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6b5-1f3fb.svg"); }
+
+.e1a-mountain_bicyclist_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6b5-1f3fc.svg"); }
+
+.e1a-mountain_bicyclist_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6b5-1f3fd.svg"); }
+
+.e1a-mountain_bicyclist_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6b5-1f3fe.svg"); }
+
+.e1a-mountain_bicyclist_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6b5-1f3ff.svg"); }
+
+.e1a-horse_racing_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3c7-1f3fb.svg"); }
+
+.e1a-horse_racing_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3c7-1f3fc.svg"); }
+
+.e1a-horse_racing_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3c7-1f3fd.svg"); }
+
+.e1a-horse_racing_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3c7-1f3fe.svg"); }
+
+.e1a-horse_racing_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3c7-1f3ff.svg"); }
+
+.e1a-spy_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f575-1f3fb.svg"); }
+
+.e1a-spy_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f575-1f3fc.svg"); }
+
+.e1a-spy_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f575-1f3fd.svg"); }
+
+.e1a-spy_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f575-1f3fe.svg"); }
+
+.e1a-spy_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f575-1f3ff.svg"); }
+
+.e1a-tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3fb.svg"); }
+
+.e1a-tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3fc.svg"); }
+
+.e1a-tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3fd.svg"); }
+
+.e1a-tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3fe.svg"); }
+
+.e1a-tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3ff.svg"); }
+
+.e1a-prince_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f934-1f3fb.svg"); }
+
+.e1a-prince_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f934-1f3fc.svg"); }
+
+.e1a-prince_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f934-1f3fd.svg"); }
+
+.e1a-prince_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f934-1f3fe.svg"); }
+
+.e1a-prince_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f934-1f3ff.svg"); }
+
+.e1a-mrs_claus_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f936-1f3fb.svg"); }
+
+.e1a-mrs_claus_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f936-1f3fc.svg"); }
+
+.e1a-mrs_claus_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f936-1f3fd.svg"); }
+
+.e1a-mrs_claus_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f936-1f3fe.svg"); }
+
+.e1a-mrs_claus_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f936-1f3ff.svg"); }
+
+.e1a-man_in_tuxedo_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f935-1f3fb.svg"); }
+
+.e1a-man_in_tuxedo_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f935-1f3fc.svg"); }
+
+.e1a-man_in_tuxedo_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f935-1f3fd.svg"); }
+
+.e1a-man_in_tuxedo_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f935-1f3fe.svg"); }
+
+.e1a-man_in_tuxedo_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f935-1f3ff.svg"); }
+
+.e1a-shrug_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f937-1f3fb.svg"); }
+
+.e1a-shrug_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f937-1f3fc.svg"); }
+
+.e1a-shrug_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f937-1f3fd.svg"); }
+
+.e1a-shrug_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f937-1f3fe.svg"); }
+
+.e1a-shrug_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f937-1f3ff.svg"); }
+
+.e1a-face_palm_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f926-1f3fb.svg"); }
+
+.e1a-face_palm_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f926-1f3fc.svg"); }
+
+.e1a-face_palm_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f926-1f3fd.svg"); }
+
+.e1a-face_palm_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f926-1f3fe.svg"); }
+
+.e1a-face_palm_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f926-1f3ff.svg"); }
+
+.e1a-pregnant_woman_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f930-1f3fb.svg"); }
+
+.e1a-pregnant_woman_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f930-1f3fc.svg"); }
+
+.e1a-pregnant_woman_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f930-1f3fd.svg"); }
+
+.e1a-pregnant_woman_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f930-1f3fe.svg"); }
+
+.e1a-pregnant_woman_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f930-1f3ff.svg"); }
+
+.e1a-man_dancing_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f57a-1f3fb.svg"); }
+
+.e1a-man_dancing_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f57a-1f3fc.svg"); }
+
+.e1a-man_dancing_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f57a-1f3fd.svg"); }
+
+.e1a-man_dancing_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f57a-1f3fe.svg"); }
+
+.e1a-man_dancing_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f57a-1f3ff.svg"); }
+
+.e1a-selfie_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f933-1f3fb.svg"); }
+
+.e1a-selfie_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f933-1f3fc.svg"); }
+
+.e1a-selfie_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f933-1f3fd.svg"); }
+
+.e1a-selfie_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f933-1f3fe.svg"); }
+
+.e1a-selfie_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f933-1f3ff.svg"); }
+
+.e1a-fingers_crossed_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f91e-1f3fb.svg"); }
+
+.e1a-fingers_crossed_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f91e-1f3fc.svg"); }
+
+.e1a-fingers_crossed_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f91e-1f3fd.svg"); }
+
+.e1a-fingers_crossed_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f91e-1f3fe.svg"); }
+
+.e1a-fingers_crossed_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f91e-1f3ff.svg"); }
+
+.e1a-call_me_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f919-1f3fb.svg"); }
+
+.e1a-call_me_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f919-1f3fc.svg"); }
+
+.e1a-call_me_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f919-1f3fd.svg"); }
+
+.e1a-call_me_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f919-1f3fe.svg"); }
+
+.e1a-call_me_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f919-1f3ff.svg"); }
+
+.e1a-left_facing_fist_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f91b-1f3fb.svg"); }
+
+.e1a-left_facing_fist_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f91b-1f3fc.svg"); }
+
+.e1a-left_facing_fist_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f91b-1f3fd.svg"); }
+
+.e1a-left_facing_fist_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f91b-1f3fe.svg"); }
+
+.e1a-left_facing_fist_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f91b-1f3ff.svg"); }
+
+.e1a-right_facing_fist_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f91c-1f3fb.svg"); }
+
+.e1a-right_facing_fist_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f91c-1f3fc.svg"); }
+
+.e1a-right_facing_fist_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f91c-1f3fd.svg"); }
+
+.e1a-right_facing_fist_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f91c-1f3fe.svg"); }
+
+.e1a-right_facing_fist_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f91c-1f3ff.svg"); }
+
+.e1a-raised_back_of_hand_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f91a-1f3fb.svg"); }
+
+.e1a-raised_back_of_hand_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f91a-1f3fc.svg"); }
+
+.e1a-raised_back_of_hand_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f91a-1f3fd.svg"); }
+
+.e1a-raised_back_of_hand_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f91a-1f3fe.svg"); }
+
+.e1a-raised_back_of_hand_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f91a-1f3ff.svg"); }
+
+.e1a-handshake_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f91d-1f3fb.svg"); }
+
+.e1a-handshake_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f91d-1f3fc.svg"); }
+
+.e1a-handshake_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f91d-1f3fd.svg"); }
+
+.e1a-handshake_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f91d-1f3fe.svg"); }
+
+.e1a-handshake_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f91d-1f3ff.svg"); }
+
+.e1a-cartwheel_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f938-1f3fb.svg"); }
+
+.e1a-cartwheel_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f938-1f3fc.svg"); }
+
+.e1a-cartwheel_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f938-1f3fd.svg"); }
+
+.e1a-cartwheel_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f938-1f3fe.svg"); }
+
+.e1a-cartwheel_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f938-1f3ff.svg"); }
+
+.e1a-wrestlers_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f93c-1f3fb.svg"); }
+
+.e1a-wrestlers_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f93c-1f3fc.svg"); }
+
+.e1a-wrestlers_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f93c-1f3fd.svg"); }
+
+.e1a-wrestlers_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f93c-1f3fe.svg"); }
+
+.e1a-wrestlers_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f93c-1f3ff.svg"); }
+
+.e1a-water_polo_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f93d-1f3fb.svg"); }
+
+.e1a-water_polo_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f93d-1f3fc.svg"); }
+
+.e1a-water_polo_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f93d-1f3fd.svg"); }
+
+.e1a-water_polo_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f93d-1f3fe.svg"); }
+
+.e1a-water_polo_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f93d-1f3ff.svg"); }
+
+.e1a-handball_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f93e-1f3fb.svg"); }
+
+.e1a-handball_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f93e-1f3fc.svg"); }
+
+.e1a-handball_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f93e-1f3fd.svg"); }
+
+.e1a-handball_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f93e-1f3fe.svg"); }
+
+.e1a-handball_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f93e-1f3ff.svg"); }
+
+.e1a-juggling_tone1 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f939-1f3fb.svg"); }
+
+.e1a-juggling_tone2 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f939-1f3fc.svg"); }
+
+.e1a-juggling_tone3 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f939-1f3fd.svg"); }
+
+.e1a-juggling_tone4 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f939-1f3fe.svg"); }
+
+.e1a-juggling_tone5 {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f939-1f3ff.svg"); }
+
+.e1a-speech_left {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f5e8.svg"); }
+
+.e1a-eject {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/23cf.svg"); }
+
+.e1a-gay_pride_flag {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f3f3-1f308.svg"); }
+
+.e1a-cowboy {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f920.svg"); }
+
+.e1a-clown {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f921.svg"); }
+
+.e1a-nauseated_face {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f922.svg"); }
+
+.e1a-rofl {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f923.svg"); }
+
+.e1a-drooling_face {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f924.svg"); }
+
+.e1a-lying_face {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f925.svg"); }
+
+.e1a-sneezing_face {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f927.svg"); }
+
+.e1a-prince {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f934.svg"); }
+
+.e1a-man_in_tuxedo {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f935.svg"); }
+
+.e1a-mrs_claus {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f936.svg"); }
+
+.e1a-face_palm {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f926.svg"); }
+
+.e1a-shrug {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f937.svg"); }
+
+.e1a-pregnant_woman {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f930.svg"); }
+
+.e1a-selfie {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f933.svg"); }
+
+.e1a-man_dancing {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f57a.svg"); }
+
+.e1a-call_me {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f919.svg"); }
+
+.e1a-raised_back_of_hand {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f91a.svg"); }
+
+.e1a-left_facing_fist {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f91b.svg"); }
+
+.e1a-right_facing_fist {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f91c.svg"); }
+
+.e1a-handshake {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f91d.svg"); }
+
+.e1a-fingers_crossed {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f91e.svg"); }
+
+.e1a-black_heart {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f5a4.svg"); }
+
+.e1a-eagle {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f985.svg"); }
+
+.e1a-duck {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f986.svg"); }
+
+.e1a-bat {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f987.svg"); }
+
+.e1a-shark {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f988.svg"); }
+
+.e1a-owl {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f989.svg"); }
+
+.e1a-fox {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f98a.svg"); }
+
+.e1a-butterfly {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f98b.svg"); }
+
+.e1a-deer {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f98c.svg"); }
+
+.e1a-gorilla {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f98d.svg"); }
+
+.e1a-lizard {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f98e.svg"); }
+
+.e1a-rhino {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f98f.svg"); }
+
+.e1a-wilted_rose {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f940.svg"); }
+
+.e1a-croissant {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f950.svg"); }
+
+.e1a-avocado {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f951.svg"); }
+
+.e1a-cucumber {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f952.svg"); }
+
+.e1a-bacon {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f953.svg"); }
+
+.e1a-potato {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f954.svg"); }
+
+.e1a-carrot {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f955.svg"); }
+
+.e1a-french_bread {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f956.svg"); }
+
+.e1a-salad {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f957.svg"); }
+
+.e1a-shallow_pan_of_food {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f958.svg"); }
+
+.e1a-stuffed_flatbread {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f959.svg"); }
+
+.e1a-champagne_glass {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f942.svg"); }
+
+.e1a-tumbler_glass {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f943.svg"); }
+
+.e1a-spoon {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f944.svg"); }
+
+.e1a-octagonal_sign {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6d1.svg"); }
+
+.e1a-shopping_cart {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6d2.svg"); }
+
+.e1a-scooter {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6f4.svg"); }
+
+.e1a-motor_scooter {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6f5.svg"); }
+
+.e1a-canoe {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f6f6.svg"); }
+
+.e1a-cartwheel {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f938.svg"); }
+
+.e1a-juggling {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f939.svg"); }
+
+.e1a-wrestlers {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f93c.svg"); }
+
+.e1a-boxing_glove {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f94a.svg"); }
+
+.e1a-martial_arts_uniform {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f94b.svg"); }
+
+.e1a-water_polo {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f93d.svg"); }
+
+.e1a-handball {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f93e.svg"); }
+
+.e1a-goal {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f945.svg"); }
+
+.e1a-fencer {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f93a.svg"); }
+
+.e1a-first_place {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f947.svg"); }
+
+.e1a-second_place {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f948.svg"); }
+
+.e1a-third_place {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f949.svg"); }
+
+.e1a-drum {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f941.svg"); }
+
+.e1a-shrimp {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f990.svg"); }
+
+.e1a-squid {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f991.svg"); }
+
+.e1a-egg {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f95a.svg"); }
+
+.e1a-milk {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f95b.svg"); }
+
+.e1a-peanuts {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f95c.svg"); }
+
+.e1a-kiwi {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f95d.svg"); }
+
+.e1a-pancakes {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f95e.svg"); }
+
+.e1a-regional_indicator_z {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ff.svg"); }
+
+.e1a-regional_indicator_y {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1fe.svg"); }
+
+.e1a-regional_indicator_x {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1fd.svg"); }
+
+.e1a-regional_indicator_w {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1fc.svg"); }
+
+.e1a-regional_indicator_v {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1fb.svg"); }
+
+.e1a-regional_indicator_u {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1fa.svg"); }
+
+.e1a-regional_indicator_t {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f9.svg"); }
+
+.e1a-regional_indicator_s {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f8.svg"); }
+
+.e1a-regional_indicator_r {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f7.svg"); }
+
+.e1a-regional_indicator_q {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f6.svg"); }
+
+.e1a-regional_indicator_p {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f5.svg"); }
+
+.e1a-regional_indicator_o {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f4.svg"); }
+
+.e1a-regional_indicator_n {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f3.svg"); }
+
+.e1a-regional_indicator_m {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f2.svg"); }
+
+.e1a-regional_indicator_l {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f1.svg"); }
+
+.e1a-regional_indicator_k {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1f0.svg"); }
+
+.e1a-regional_indicator_j {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ef.svg"); }
+
+.e1a-regional_indicator_i {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ee.svg"); }
+
+.e1a-regional_indicator_h {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ed.svg"); }
+
+.e1a-regional_indicator_g {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ec.svg"); }
+
+.e1a-regional_indicator_f {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1eb.svg"); }
+
+.e1a-regional_indicator_e {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1ea.svg"); }
+
+.e1a-regional_indicator_d {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e9.svg"); }
+
+.e1a-regional_indicator_c {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e8.svg"); }
+
+.e1a-regional_indicator_b {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e7.svg"); }
+
+.e1a-regional_indicator_a {
+  background-image: url("//cdn.jsdelivr.net/emojione/assets/svg/1f1e6.svg"); }

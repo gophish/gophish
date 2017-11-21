@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<!--
+Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
+For licensing, see LICENSE.md or http://ckeditor.com/license
+-->
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>TableResize Plugin dev sample</title>
+	<script src="../../../ckeditor.js"></script>
+	<link rel="stylesheet" href="../../../samples/old/sample.css">
+</head>
+<body>
+	<h1 class="samples">
+		TableResize Plugin - dev sample
+	</h1>
+	<textarea cols="80" id="editor1" name="editor1" rows="10">
+		&lt;table style="width: 500px;" border="1"&gt;
+			&lt;caption&gt;
+				A sample table&lt;/caption&gt;
+			&lt;tbody&gt;
+				&lt;tr&gt;
+					&lt;td&gt;
+						Column 1&lt;/td&gt;
+					&lt;td&gt;
+						Column 2&lt;/td&gt;
+				&lt;/tr&gt;
+				&lt;tr&gt;
+					&lt;td&gt;
+						You can resize a table column.&lt;/td&gt;
+					&lt;td&gt;
+						Hover your mouse over its border.&lt;/td&gt;
+				&lt;/tr&gt;
+				&lt;tr&gt;
+					&lt;td&gt;
+						Watch the cursor change.&lt;/td&gt;
+					&lt;td&gt;
+						Now click and drag to resize.&lt;/td&gt;
+				&lt;/tr&gt;
+			&lt;/tbody&gt;
+		&lt;/table&gt;
+	</textarea>
+
+	<div id="inline" contenteditable="true">
+		<table style="width: 500px;" border="1">
+			<caption>
+				A sample table</caption>
+			<tbody>
+				<tr>
+					<td>
+						Column 1</td>
+					<td>
+						Column 2</td>
+				</tr>
+				<tr>
+					<td>
+						You can resize a table column.</td>
+					<td>
+						Hover your mouse over its border.</td>
+				</tr>
+				<tr>
+					<td>
+						Watch the cursor change.</td>
+					<td>
+						Now click and drag to resize.</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+
+	<table style="width: 500px;" border="1">
+		<caption>
+			A sample table</caption>
+		<tbody>
+			<tr>
+				<td>
+					Column 1</td>
+				<td>
+					Column 2</td>
+			</tr>
+			<tr>
+				<td>
+					You can resize a table column.</td>
+				<td>
+					Hover your mouse over its border.</td>
+			</tr>
+			<tr>
+				<td>
+					Watch the cursor change.</td>
+				<td>
+					Now click and drag to resize.</td>
+			</tr>
+		</tbody>
+	</table>
+	<script>
+		CKEDITOR.disableAutoInline = true;
+
+		CKEDITOR.replace( 'editor1', {
+			extraPlugins: 'tableresize'
+		} );
+
+		CKEDITOR.inline( 'inline', {
+			extraPlugins: 'tableresize'
+		});
+	</script>
+</body>
+</html>

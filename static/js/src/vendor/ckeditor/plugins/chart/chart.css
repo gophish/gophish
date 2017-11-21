@@ -1,0 +1,25 @@
+/*
+Copyright (c) 2003-2015, CKSource - Frederico Knabben. All rights reserved.
+For licensing, see LICENSE.md or http://ckeditor.com/license
+*/
+
+/**
+ * This file should be included on websites so that the rendered charts looked better.
+ */
+
+div.chartjs canvas, div.chartjs div.chartjs-legend {
+	display:inline-block;
+}
+div.chartjs div.chartjs-legend span {
+	display: inline-block;
+	width:20px;
+	height:20px;
+	margin-right:10px;
+	margin-bottom:-5px;
+}
+div.chartjs div.chartjs-legend ul {
+	list-style-type:none;
+}
+div.chartjs div.chartjs-legend li {
+	margin-top:10px;
+}

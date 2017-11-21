@@ -1,22 +1,24 @@
 ﻿/**
- * Copyright (c) 2003-2015, CKSource - Frederico Knabben. All rights reserved.
+ * Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or http://ckeditor.com/license
  */
 
 // This file contains style definitions that can be used by CKEditor plugins.
 //
-// The most common use for it is the "stylescombo" plugin, which shows a combo
-// in the editor toolbar, containing all styles. Other plugins instead, like
-// the div plugin, use a subset of the styles on their feature.
+// The most common use for it is the "stylescombo" plugin which shows the Styles drop-down
+// list containing all styles in the editor toolbar. Other plugins, like
+// the "div" plugin, use a subset of the styles for their features.
 //
-// If you don't have plugins that depend on this file, you can simply ignore it.
-// Otherwise it is strongly recommended to customize this file to match your
+// If you do not have plugins that depend on this file in your editor build, you can simply
+// ignore it. Otherwise it is strongly recommended to customize this file to match your
 // website requirements and design properly.
+//
+// For more information refer to: http://docs.ckeditor.com/#!/guide/dev_styles-section-style-rules
 
 CKEDITOR.stylesSet.add( 'default', [
-	/* Block Styles */
+	/* Block styles */
 
-	// These styles are already available in the "Format" combo ("format" plugin),
+	// These styles are already available in the "Format" drop-down list ("format" plugin),
 	// so they are not needed here by default. You may enable them to avoid
 	// placing the "Format" combo in the toolbar, maintaining the same features.
 	/*
@@ -43,11 +45,11 @@ CKEDITOR.stylesSet.add( 'default', [
 		}
 	},
 
-	/* Inline Styles */
+	/* Inline styles */
 
 	// These are core styles available as toolbar buttons. You may opt enabling
-	// some of them in the Styles combo, removing them from the toolbar.
-	// (This requires the "stylescombo" plugin)
+	// some of them in the Styles drop-down list, removing them from the toolbar.
+	// (This requires the "stylescombo" plugin.)
 	/*
 	{ name: 'Strong',			element: 'strong', overrides: 'b' },
 	{ name: 'Emphasis',			element: 'em'	, overrides: 'i' },
@@ -77,22 +79,22 @@ CKEDITOR.stylesSet.add( 'default', [
 	{ name: 'Language: RTL',	element: 'span', attributes: { 'dir': 'rtl' } },
 	{ name: 'Language: LTR',	element: 'span', attributes: { 'dir': 'ltr' } },
 
-	/* Object Styles */
+	/* Object styles */
 
 	{
-		name: 'Styled image (left)',
+		name: 'Styled Image (left)',
 		element: 'img',
 		attributes: { 'class': 'left' }
 	},
 
 	{
-		name: 'Styled image (right)',
+		name: 'Styled Image (right)',
 		element: 'img',
 		attributes: { 'class': 'right' }
 	},
 
 	{
-		name: 'Compact table',
+		name: 'Compact Table',
 		element: 'table',
 		attributes: {
 			cellpadding: '5',
@@ -106,6 +108,30 @@ CKEDITOR.stylesSet.add( 'default', [
 	},
 
 	{ name: 'Borderless Table',		element: 'table',	styles: { 'border-style': 'hidden', 'background-color': '#E6E6FA' } },
-	{ name: 'Square Bulleted List',	element: 'ul',		styles: { 'list-style-type': 'square' } }
+	{ name: 'Square Bulleted List',	element: 'ul',		styles: { 'list-style-type': 'square' } },
+
+	/* Widget styles */
+
+	{ name: 'Clean Image', type: 'widget', widget: 'image', attributes: { 'class': 'image-clean' } },
+	{ name: 'Grayscale Image', type: 'widget', widget: 'image', attributes: { 'class': 'image-grayscale' } },
+
+	{ name: 'Featured Snippet', type: 'widget', widget: 'codeSnippet', attributes: { 'class': 'code-featured' } },
+
+	{ name: 'Featured Formula', type: 'widget', widget: 'mathjax', attributes: { 'class': 'math-featured' } },
+
+	{ name: '240p', type: 'widget', widget: 'embedSemantic', attributes: { 'class': 'embed-240p' }, group: 'size' },
+	{ name: '360p', type: 'widget', widget: 'embedSemantic', attributes: { 'class': 'embed-360p' }, group: 'size' },
+	{ name: '480p', type: 'widget', widget: 'embedSemantic', attributes: { 'class': 'embed-480p' }, group: 'size' },
+	{ name: '720p', type: 'widget', widget: 'embedSemantic', attributes: { 'class': 'embed-720p' }, group: 'size' },
+	{ name: '1080p', type: 'widget', widget: 'embedSemantic', attributes: { 'class': 'embed-1080p' }, group: 'size' },
+
+	// Adding space after the style name is an intended workaround. For now, there
+	// is no option to create two styles with the same name for different widget types. See http://dev.ckeditor.com/ticket/16664.
+	{ name: '240p ', type: 'widget', widget: 'embed', attributes: { 'class': 'embed-240p' }, group: 'size' },
+	{ name: '360p ', type: 'widget', widget: 'embed', attributes: { 'class': 'embed-360p' }, group: 'size' },
+	{ name: '480p ', type: 'widget', widget: 'embed', attributes: { 'class': 'embed-480p' }, group: 'size' },
+	{ name: '720p ', type: 'widget', widget: 'embed', attributes: { 'class': 'embed-720p' }, group: 'size' },
+	{ name: '1080p ', type: 'widget', widget: 'embed', attributes: { 'class': 'embed-1080p' }, group: 'size' }
+
 ] );
 

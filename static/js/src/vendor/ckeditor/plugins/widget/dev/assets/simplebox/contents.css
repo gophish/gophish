@@ -1,0 +1,36 @@
+.simplebox {
+	padding: 8px;
+	margin: 10px;
+	background: #eee;
+	border-radius: 8px;
+	border: 1px solid #ddd;
+	box-shadow: 0 1px 1px #fff inset, 0 -1px 0px #ccc inset;
+}
+.simplebox-title, .simplebox-content {
+	box-shadow: 0 1px 1px #ddd inset;
+	border: 1px solid #cccccc;
+	border-radius: 5px;
+	background: #fff;
+}
+.simplebox-title {
+	margin: 0 0 8px;
+	padding: 5px 8px;
+}
+.simplebox-content {
+	padding: 0 8px;
+}
+.simplebox-content::after {
+	content: '';
+	display: block;
+	clear: both;
+}
+.simplebox.align-right {
+	float: right;
+}
+.simplebox.align-left {
+	float: left;
+}
+.simplebox.align-center {
+	margin-left: auto;
+	margin-right: auto;
+}
