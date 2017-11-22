@@ -419,7 +419,10 @@ func PostCampaign(c *Campaign, uid int64) error {
 		Logger.Println(err)
 		return err
 	}
-
+	err = c.AddEvent(Event{Message: "Campaign Created"})
+	if err != nil {
+		Logger.Println(err)
+	}
 	// Insert all the results
 	for _, g := range c.Groups {
 		// Insert a result for each target in the group
