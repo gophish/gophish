@@ -7,6 +7,7 @@ import (
 	"math/big"
 	"net"
 	"net/mail"
+	"time"
 
 	"github.com/jinzhu/gorm"
 	"github.com/oschwald/maxminddb-golang"
@@ -24,18 +25,19 @@ type mmGeoPoint struct {
 // Result contains the fields for a result object,
 // which is a representation of a target in a campaign.
 type Result struct {
-	Id         int64   `json:"-"`
-	CampaignId int64   `json:"-"`
-	UserId     int64   `json:"-"`
-	RId        string  `json:"id"`
-	Email      string  `json:"email"`
-	FirstName  string  `json:"first_name"`
-	LastName   string  `json:"last_name"`
-	Position   string  `json:"position"`
-	Status     string  `json:"status" sql:"not null"`
-	IP         string  `json:"ip"`
-	Latitude   float64 `json:"latitude"`
-	Longitude  float64 `json:"longitude"`
+	Id         int64     `json:"-"`
+	CampaignId int64     `json:"-"`
+	UserId     int64     `json:"-"`
+	RId        string    `json:"id"`
+	Email      string    `json:"email"`
+	FirstName  string    `json:"first_name"`
+	LastName   string    `json:"last_name"`
+	Position   string    `json:"position"`
+	Status     string    `json:"status" sql:"not null"`
+	IP         string    `json:"ip"`
+	Latitude   float64   `json:"latitude"`
+	Longitude  float64   `json:"longitude"`
+	SendDate   time.Time `json:"send_date"`
 }
 
 // UpdateStatus updates the status of the result in the database

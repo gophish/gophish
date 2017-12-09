@@ -36,9 +36,13 @@ const (
 	EVENT_OPENED         string = "Email Opened"
 	EVENT_CLICKED        string = "Clicked Link"
 	EVENT_DATA_SUBMIT    string = "Submitted Data"
+	EVENT_PROXY_REQUEST  string = "Proxied request"
 	STATUS_SUCCESS       string = "Success"
+	STATUS_QUEUED        string = "Queued"
 	STATUS_SENDING       string = "Sending"
 	STATUS_UNKNOWN       string = "Unknown"
+	STATUS_SCHEDULED     string = "Scheduled"
+	STATUS_RETRY         string = "Retrying"
 	ERROR                string = "Error"
 )
 

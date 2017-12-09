@@ -1,10 +1,12 @@
 package models
 
 import (
+	"fmt"
 	"net/mail"
 	"regexp"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gophish/gophish/config"
@@ -37,10 +39,59 @@ func (s *ModelsSuite) TearDownTest(c *check.C) {
 	db.Delete(GroupTarget{})
 	db.Delete(SMTP{})
 	db.Delete(Page{})
+	db.Delete(Result{})
+	db.Delete(MailLog{})
+	db.Delete(Campaign{})
 
 	// Reset users table to default state.
 	db.Not("id", 1).Delete(User{})
 	db.Model(User{}).Update("username", "admin")
+}
+
+func (s *ModelsSuite) createCampaignDependencies(ch *check.C) Campaign {
+	group := Group{Name: "Test Group"}
+	group.Targets = []Target{
+		Target{Email: "test1@example.com", FirstName: "First", LastName: "Example"},
+		Target{Email: "test2@example.com", FirstName: "Second", LastName: "Example"},
+	}
+	group.UserId = 1
+	ch.Assert(PostGroup(&group), check.Equals, nil)
+
+	// Add a template
+	t := Template{Name: "Test Template"}
+	t.Subject = "{{.RId}} - Subject"
+	t.Text = "{{.RId}} - Text"
+	t.HTML = "{{.RId}} - HTML"
+	t.UserId = 1
+	ch.Assert(PostTemplate(&t), check.Equals, nil)
+
+	// Add a landing page
+	p := Page{Name: "Test Page"}
+	p.HTML = "<html>Test</html>"
+	p.UserId = 1
+	ch.Assert(PostPage(&p), check.Equals, nil)
+
+	// Add a sending profile
+	smtp := SMTP{Name: "Test Page"}
+	smtp.UserId = 1
+	smtp.Host = "example.com"
+	smtp.FromAddress = "test@test.com"
+	ch.Assert(PostSMTP(&smtp), check.Equals, nil)
+
+	c := Campaign{Name: "Test campaign"}
+	c.UserId = 1
+	c.Template = t
+	c.Page = p
+	c.SMTP = smtp
+	c.Groups = []Group{group}
+	return c
+}
+
+func (s *ModelsSuite) createCampaign(ch *check.C) Campaign {
+	c := s.createCampaignDependencies(ch)
+	// Setup and "launch" our campaign
+	ch.Assert(PostCampaign(&c, c.UserId), check.Equals, nil)
+	return c
 }
 
 func (s *ModelsSuite) TestGetUser(c *check.C) {
@@ -123,14 +174,15 @@ func (s *ModelsSuite) TestGetGroupsNoGroups(c *check.C) {
 
 func (s *ModelsSuite) TestGetGroup(c *check.C) {
 	// Add group.
-	PostGroup(&Group{
+	originalGroup := &Group{
 		Name:    "Test Group",
 		Targets: []Target{Target{Email: "test@example.com"}},
 		UserId:  1,
-	})
+	}
+	c.Assert(PostGroup(originalGroup), check.Equals, nil)
 
 	// Get group and test result.
-	group, err := GetGroup(1, 1)
+	group, err := GetGroup(originalGroup.Id, 1)
 	c.Assert(err, check.Equals, nil)
 	c.Assert(len(group.Targets), check.Equals, 1)
 	c.Assert(group.Name, check.Equals, "Test Group")
@@ -366,4 +418,26 @@ func (s *ModelsSuite) TestFormatAddress(c *check.C) {
 		Email: "johndoe@example.com",
 	}
 	c.Assert(r.FormatAddress(), check.Equals, r.Email)
+}
+
+func (s *ModelsSuite) TestResultSendingStatus(ch *check.C) {
+	c := s.createCampaignDependencies(ch)
+	ch.Assert(PostCampaign(&c, c.UserId), check.Equals, nil)
+	// This campaign wasn't scheduled, so we expect the status to
+	// be sending
+	fmt.Println("Campaign STATUS")
+	fmt.Println(c.Status)
+	for _, r := range c.Results {
+		ch.Assert(r.Status, check.Equals, STATUS_SENDING)
+	}
+}
+func (s *ModelsSuite) TestResultScheduledStatus(ch *check.C) {
+	c := s.createCampaignDependencies(ch)
+	c.LaunchDate = time.Now().UTC().Add(time.Hour * time.Duration(1))
+	ch.Assert(PostCampaign(&c, c.UserId), check.Equals, nil)
+	// This campaign wasn't scheduled, so we expect the status to
+	// be sending
+	for _, r := range c.Results {
+		ch.Assert(r.Status, check.Equals, STATUS_SCHEDULED)
+	}
 }

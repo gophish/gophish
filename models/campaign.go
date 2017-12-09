@@ -108,29 +108,6 @@ func (c *Campaign) Validate() error {
 	return nil
 }
 
-// SendTestEmailRequest is the structure of a request
-// to send a test email to test an SMTP connection
-type SendTestEmailRequest struct {
-	Template    Template `json:"template"`
-	Page        Page     `json:"page"`
-	SMTP        SMTP     `json:"smtp"`
-	URL         string   `json:"url"`
-	Tracker     string   `json:"tracker"`
-	TrackingURL string   `json:"tracking_url"`
-	From        string   `json:"from"`
-	Target
-}
-
-// Validate ensures the SendTestEmailRequest structure
-// is valid.
-func (s *SendTestEmailRequest) Validate() error {
-	switch {
-	case s.Email == "":
-		return ErrEmailNotSpecified
-	}
-	return nil
-}
-
 // UpdateStatus changes the campaign status appropriately
 func (c *Campaign) UpdateStatus(s string) error {
 	// This could be made simpler, but I think there's a bug in gorm
@@ -141,7 +118,7 @@ func (c *Campaign) UpdateStatus(s string) error {
 func (c *Campaign) AddEvent(e Event) error {
 	e.CampaignId = c.Id
 	e.Time = time.Now().UTC()
-	return db.Debug().Save(&e).Error
+	return db.Save(&e).Error
 }
 
 // getDetails retrieves the related attributes of the campaign
@@ -363,11 +340,14 @@ func PostCampaign(c *Campaign, uid int64) error {
 	c.UserId = uid
 	c.CreatedDate = time.Now().UTC()
 	c.CompletedDate = time.Time{}
-	c.Status = CAMPAIGN_CREATED
+	c.Status = CAMPAIGN_QUEUED
 	if c.LaunchDate.IsZero() {
-		c.LaunchDate = time.Now().UTC()
+		c.LaunchDate = c.CreatedDate
 	} else {
 		c.LaunchDate = c.LaunchDate.UTC()
+	}
+	if c.LaunchDate.Before(c.CreatedDate) || c.LaunchDate.Equal(c.CreatedDate) {
+		c.Status = CAMPAIGN_IN_PROGRESS
 	}
 	// Check to make sure all the groups already exist
 	for i, g := range c.Groups {
@@ -427,7 +407,19 @@ func PostCampaign(c *Campaign, uid int64) error {
 	for _, g := range c.Groups {
 		// Insert a result for each target in the group
 		for _, t := range g.Targets {
-			r := &Result{Email: t.Email, Position: t.Position, Status: STATUS_SENDING, CampaignId: c.Id, UserId: c.UserId, FirstName: t.FirstName, LastName: t.LastName}
+			r := &Result{
+				Email:      t.Email,
+				Position:   t.Position,
+				Status:     STATUS_SCHEDULED,
+				CampaignId: c.Id,
+				UserId:     c.UserId,
+				FirstName:  t.FirstName,
+				LastName:   t.LastName,
+				SendDate:   c.LaunchDate,
+			}
+			if c.Status == CAMPAIGN_IN_PROGRESS {
+				r.Status = STATUS_SENDING
+			}
 			err = r.GenerateId()
 			if err != nil {
 				Logger.Println(err)
@@ -439,9 +431,13 @@ func PostCampaign(c *Campaign, uid int64) error {
 				Logger.Println(err)
 			}
 			c.Results = append(c.Results, *r)
+			err = GenerateMailLog(c, r)
+			if err != nil {
+				Logger.Println(err)
+				continue
+			}
 		}
 	}
-	c.Status = CAMPAIGN_QUEUED
 	err = db.Save(c).Error
 	return err
 }

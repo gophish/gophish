@@ -29,6 +29,7 @@ type Config struct {
 	DBName         string      `json:"db_name"`
 	DBPath         string      `json:"db_path"`
 	MigrationsPath string      `json:"migrations_prefix"`
+	TestFlag       bool        `json:"test_flag"`
 }
 
 // Conf contains the initialized configuration struct
@@ -48,4 +49,6 @@ func LoadConfig(filepath string) {
 
 	// Choosing the migrations directory based on the database used.
 	Conf.MigrationsPath = Conf.MigrationsPath + Conf.DBName
+	// Explicitly set the TestFlag to false to prevent config.json overrides
+	Conf.TestFlag = false
 }

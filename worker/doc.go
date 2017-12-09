@@ -25,4 +25,8 @@ THE SOFTWARE.
 */
 
 // Package worker contains the functionality for the background worker process.
+// It starts a background service that polls every minute for scheduled campaigns
+// to be launched.
+// If a campaign is found, it gathers the maillogs associated with the campaign and
+// sends them to the mailer package to be processed.
 package worker

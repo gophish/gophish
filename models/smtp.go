@@ -1,14 +1,31 @@
 package models
 
 import (
+	"crypto/tls"
 	"errors"
 	"net/mail"
+	"os"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/gophish/gomail"
+	"github.com/gophish/gophish/mailer"
 	"github.com/jinzhu/gorm"
 )
+
+// Dialer is a wrapper around a standard gomail.Dialer in order
+// to implement the mailer.Dialer interface. This allows us to better
+// separate the mailer package as opposed to forcing a connection
+// between mailer and gomail.
+type Dialer struct {
+	*gomail.Dialer
+}
+
+// Dial wraps the gomail dialer's Dial command
+func (d *Dialer) Dial() (mailer.Sender, error) {
+	return d.Dialer.Dial()
+}
 
 // SMTP contains the attributes needed to handle the sending of campaign emails
 type SMTP struct {
@@ -76,6 +93,34 @@ func (s *SMTP) Validate() error {
 	return err
 }
 
+// GetDialer returns a dialer for the given SMTP profile
+func (s *SMTP) GetDialer() (mailer.Dialer, error) {
+	// Setup the message and dial
+	hp := strings.Split(s.Host, ":")
+	if len(hp) < 2 {
+		hp = append(hp, "25")
+	}
+	// Any issues should have been caught in validation, but we'll
+	// double check here.
+	port, err := strconv.Atoi(hp[1])
+	if err != nil {
+		Logger.Println(err)
+		return nil, err
+	}
+	d := gomail.NewDialer(hp[0], port, s.Username, s.Password)
+	d.TLSConfig = &tls.Config{
+		ServerName:         s.Host,
+		InsecureSkipVerify: s.IgnoreCertErrors,
+	}
+	hostname, err := os.Hostname()
+	if err != nil {
+		Logger.Println(err)
+		hostname = "localhost"
+	}
+	d.LocalName = hostname
+	return &Dialer{d}, err
+}
+
 // GetSMTPs returns the SMTPs owned by the given user.
 func GetSMTPs(uid int64) ([]SMTP, error) {
 	ss := []SMTP{}
@@ -84,7 +129,7 @@ func GetSMTPs(uid int64) ([]SMTP, error) {
 		Logger.Println(err)
 		return ss, err
 	}
-	for i, _ := range ss {
+	for i := range ss {
 		err = db.Where("smtp_id=?", ss[i].Id).Find(&ss[i].Headers).Error
 		if err != nil && err != gorm.ErrRecordNotFound {
 			Logger.Println(err)
@@ -137,7 +182,7 @@ func PostSMTP(s *SMTP) error {
 		Logger.Println(err)
 	}
 	// Save custom headers
-	for i, _ := range s.Headers {
+	for i := range s.Headers {
 		s.Headers[i].SMTPId = s.Id
 		err := db.Save(&s.Headers[i]).Error
 		if err != nil {
@@ -166,7 +211,7 @@ func PutSMTP(s *SMTP) error {
 		Logger.Println(err)
 		return err
 	}
-	for i, _ := range s.Headers {
+	for i := range s.Headers {
 		s.Headers[i].SMTPId = s.Id
 		err := db.Save(&s.Headers[i]).Error
 		if err != nil {
