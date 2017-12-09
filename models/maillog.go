@@ -6,16 +6,23 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"html/template"
 	"io"
+	"math"
 	"net/mail"
 	"strings"
+	"text/template"
 	"time"
 
-	"gopkg.in/gomail.v2"
+	"github.com/gophish/gomail"
+	"github.com/gophish/gophish/mailer"
 )
 
-var MaxSendAttempts = 10
+// MaxSendAttempts set to 8 since we exponentially backoff after each failed send
+// attempt. This will give us a maximum send delay of 256 minutes, or about 4.2 hours.
+var MaxSendAttempts = 8
+
+// ErrMaxSendAttempts is thrown when the maximum number of sending attemps for a given
+// MailLog is exceeded.
 var ErrMaxSendAttempts = errors.New("max send attempts exceeded")
 
 // MailLog is a struct that holds information about an email that is to be
@@ -27,15 +34,17 @@ type MailLog struct {
 	RId         string    `json:"id"`
 	SendDate    time.Time `json:"send_date"`
 	SendAttempt int       `json:"send_attempt"`
+	Processing  bool      `json:"-"`
 }
 
 // GenerateMailLog creates a new maillog for the given campaign and
-// result.
+// result. It sets the initial send date to match the campaign's launch date.
 func GenerateMailLog(c *Campaign, r *Result) error {
 	m := &MailLog{
-		UserId:   c.UserId,
-		RId:      r.RId,
-		SendDate: c.LaunchDate,
+		UserId:     c.UserId,
+		CampaignId: c.Id,
+		RId:        r.RId,
+		SendDate:   c.LaunchDate,
 	}
 	err = db.Save(m).Error
 	return err
@@ -43,21 +52,109 @@ func GenerateMailLog(c *Campaign, r *Result) error {
 
 // Backoff sets the MailLog SendDate to be the next entry in an exponential
 // backoff. ErrMaxRetriesExceeded is thrown if this maillog has been retried
-// too many times.
-func (m MailLog) Backoff() error {
+// too many times. Backoff also unlocks the maillog so that it can be processed
+// again in the future.
+func (m *MailLog) Backoff(reason error) error {
 	if m.SendAttempt == MaxSendAttempts {
+		err = m.addError(ErrMaxSendAttempts)
 		return ErrMaxSendAttempts
 	}
-	m.SendAttempt += 1
-	m.SendDate.Add(time.Minute * time.Duration(2*m.SendAttempt))
-	db.Save(&m)
-	return nil
+	r, err := GetResult(m.RId)
+	if err != nil {
+		return err
+	}
+	// Add an error, since we had to backoff because of a
+	// temporary error of some sort during the SMTP transaction
+	err = m.addError(reason)
+	if err != nil {
+		return err
+	}
+	m.SendAttempt++
+	backoffDuration := math.Pow(2, float64(m.SendAttempt))
+	m.SendDate = m.SendDate.Add(time.Minute * time.Duration(backoffDuration))
+	err = db.Save(m).Error
+	if err != nil {
+		return err
+	}
+	r.Status = STATUS_RETRY
+	r.SendDate = m.SendDate
+	err = db.Save(r).Error
+	if err != nil {
+		return err
+	}
+	err = m.Unlock()
+	return err
+}
+
+// Unlock removes the processing flag so the maillog can be processed again
+func (m *MailLog) Unlock() error {
+	m.Processing = false
+	return db.Save(&m).Error
+}
+
+// Lock sets the processing flag so that other processes cannot modify the maillog
+func (m *MailLog) Lock() error {
+	m.Processing = true
+	return db.Save(&m).Error
+}
+
+// addError adds an error to the associated campaign
+func (m *MailLog) addError(e error) error {
+	c, err := GetCampaign(m.CampaignId, m.UserId)
+	if err != nil {
+		return err
+	}
+	// This is redundant in the case of permanent
+	// errors, but the extra query makes for
+	// a cleaner API.
+	r, err := GetResult(m.RId)
+	if err != nil {
+		return err
+	}
+	es := struct {
+		Error string `json:"error"`
+	}{
+		Error: e.Error(),
+	}
+	ej, err := json.Marshal(es)
+	if err != nil {
+		Logger.Println(err)
+	}
+	err = c.AddEvent(Event{Email: r.Email, Message: EVENT_SENDING_ERROR, Details: string(ej)})
+	return err
 }
 
 // Error sets the error status on the models.Result that the
-// maillog refers to.
-func (m MailLog) Error(err error) error {
+// maillog refers to. Since MailLog errors are permanent,
+// this action also deletes the maillog.
+func (m *MailLog) Error(e error) error {
+	Logger.Printf("Erroring out result %s\n", m.RId)
 	r, err := GetResult(m.RId)
+	if err != nil {
+		return err
+	}
+	// Update the result
+	err = r.UpdateStatus(ERROR)
+	if err != nil {
+		return err
+	}
+	// Update the campaign events
+	err = m.addError(e)
+	if err != nil {
+		return err
+	}
+	err = db.Delete(m).Error
+	return err
+}
+
+// Success deletes the maillog from the database and updates the underlying
+// campaign result.
+func (m *MailLog) Success() error {
+	r, err := GetResult(m.RId)
+	if err != nil {
+		return err
+	}
+	err = r.UpdateStatus(EVENT_SENT)
 	if err != nil {
 		return err
 	}
@@ -65,30 +162,40 @@ func (m MailLog) Error(err error) error {
 	if err != nil {
 		return err
 	}
-	// Update the result
-	r.UpdateStatus(ERROR)
-	// Update the campaign events
-	es := struct {
-		Error string `json:"error"`
-	}{
-		Error: err.Error(),
-	}
-	ej, err := json.Marshal(es)
-	if err != nil {
-		Logger.Println(err)
-	}
-	err = c.AddEvent(Event{Email: r.Email, Message: EVENT_SENDING_ERROR, Details: string(ej)})
+	err = c.AddEvent(Event{Email: r.Email, Message: EVENT_SENT})
 	if err != nil {
 		return err
 	}
+	err = db.Delete(m).Error
 	return nil
 }
 
-// GenerateMessage fills in the details of a gomail.Message instance with
+// GetDialer returns a dialer based on the maillog campaign's SMTP configuration
+func (m *MailLog) GetDialer() (mailer.Dialer, error) {
+	c, err := GetCampaign(m.CampaignId, m.UserId)
+	if err != nil {
+		return nil, err
+	}
+	return c.SMTP.GetDialer()
+}
+
+// buildTemplate creates a templated string based on the provided
+// template body and data.
+func buildTemplate(text string, data interface{}) (string, error) {
+	buff := bytes.Buffer{}
+	tmpl, err := template.New("template").Parse(text)
+	if err != nil {
+		return buff.String(), err
+	}
+	err = tmpl.Execute(&buff, data)
+	return buff.String(), err
+}
+
+// Generate fills in the details of a gomail.Message instance with
 // the correct headers and body from the campaign and recipient listed in
 // the maillog. We accept the gomail.Message as an argument so that the caller
 // can choose to re-use the message across recipients.
-func (m MailLog) GenerateMessage(msg *gomail.Message) error {
+func (m *MailLog) Generate(msg *gomail.Message) error {
 	r, err := GetResult(m.RId)
 	if err != nil {
 		return err
@@ -105,7 +212,7 @@ func (m MailLog) GenerateMessage(msg *gomail.Message) error {
 	if fn == "" {
 		fn = f.Address
 	}
-	msg.SetAddressHeader("From", c.SMTP.FromAddress)
+	msg.SetAddressHeader("From", f.Address, f.Name)
 	td := struct {
 		Result
 		URL         string
@@ -122,71 +229,44 @@ func (m MailLog) GenerateMessage(msg *gomail.Message) error {
 
 	// Parse the customHeader templates
 	for _, header := range c.SMTP.Headers {
-		parsedHeader := struct {
-			Key   bytes.Buffer
-			Value bytes.Buffer
-		}{}
-		keytmpl, err := template.New("text_template").Parse(header.Key)
-		if err != nil {
-			Logger.Println(err)
-		}
-		err = keytmpl.Execute(&parsedHeader.Key, td)
+		key, err := buildTemplate(header.Key, td)
 		if err != nil {
 			Logger.Println(err)
 		}
 
-		valtmpl, err := template.New("text_template").Parse(header.Value)
-		if err != nil {
-			Logger.Println(err)
-		}
-		err = valtmpl.Execute(&parsedHeader.Value, td)
+		value, err := buildTemplate(header.Value, td)
 		if err != nil {
 			Logger.Println(err)
 		}
 
 		// Add our header immediately
-		msg.SetHeader(parsedHeader.Key.String(), parsedHeader.Value.String())
+		msg.SetHeader(key, value)
 	}
 
 	// Parse remaining templates
-	var subjBuff bytes.Buffer
-	tmpl, err := template.New("text_template").Parse(c.Template.Subject)
+	subject, err := buildTemplate(c.Template.Subject, td)
 	if err != nil {
 		Logger.Println(err)
 	}
-	err = tmpl.Execute(&subjBuff, td)
-	if err != nil {
-		Logger.Println(err)
-	}
-	msg.SetHeader("Subject", subjBuff.String())
-	Logger.Println("Creating email using template")
+	msg.SetHeader("Subject", subject)
+
 	msg.SetHeader("To", r.FormatAddress())
 	if c.Template.Text != "" {
-		var textBuff bytes.Buffer
-		tmpl, err = template.New("text_template").Parse(c.Template.Text)
+		text, err := buildTemplate(c.Template.Text, td)
 		if err != nil {
 			Logger.Println(err)
 		}
-		err = tmpl.Execute(&textBuff, td)
-		if err != nil {
-			Logger.Println(err)
-		}
-		msg.SetBody("text/plain", textBuff.String())
+		msg.SetBody("text/plain", text)
 	}
 	if c.Template.HTML != "" {
-		var htmlBuff bytes.Buffer
-		tmpl, err = template.New("html_template").Parse(c.Template.HTML)
-		if err != nil {
-			Logger.Println(err)
-		}
-		err = tmpl.Execute(&htmlBuff, td)
+		html, err := buildTemplate(c.Template.HTML, td)
 		if err != nil {
 			Logger.Println(err)
 		}
 		if c.Template.Text == "" {
-			msg.SetBody("text/html", htmlBuff.String())
+			msg.SetBody("text/html", html)
 		} else {
-			msg.AddAlternative("text/html", htmlBuff.String())
+			msg.AddAlternative("text/html", html)
 		}
 	}
 	// Attach the files
@@ -205,12 +285,42 @@ func (m MailLog) GenerateMessage(msg *gomail.Message) error {
 }
 
 // GetQueuedMailLogs returns the mail logs that are queued up for the given minute.
-func GetQueuedMailLogs(t time.Time) ([]MailLog, error) {
-	ms := []MailLog{}
-	err := db.Where("send_at <= ?", t).
-		Where("status = ?", CAMPAIGN_QUEUED).Find(&ms).Error
+func GetQueuedMailLogs(t time.Time) ([]*MailLog, error) {
+	ms := []*MailLog{}
+	err := db.Where("send_date <= ? AND processing = ?", t, false).
+		Find(&ms).Error
 	if err != nil {
 		Logger.Println(err)
 	}
 	return ms, err
+}
+
+// GetMailLogsByCampaign returns all of the mail logs for a given campaign.
+func GetMailLogsByCampaign(cid int64) ([]*MailLog, error) {
+	ms := []*MailLog{}
+	err := db.Where("campaign_id = ?", cid).Find(&ms).Error
+	return ms, err
+}
+
+// LockMailLogs locks or unlocks a slice of maillogs for processing.
+func LockMailLogs(ms []*MailLog, lock bool) error {
+	tx := db.Begin()
+	for i := range ms {
+		ms[i].Processing = lock
+		err := tx.Debug().Save(ms[i]).Error
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+	tx.Commit()
+	return nil
+}
+
+// UnlockAllMailLogs removes the processing lock for all maillogs
+// in the database. This is intended to be called when Gophish is started
+// so that any previously locked maillogs can resume processing.
+func UnlockAllMailLogs() error {
+	err = db.Model(&MailLog{}).Update("processing", false).Error
+	return err
 }

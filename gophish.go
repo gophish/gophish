@@ -26,9 +26,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 import (
-	"io/ioutil"
 	"compress/gzip"
-	"fmt"
+	"context"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -40,6 +40,7 @@ import (
 	"github.com/gophish/gophish/auth"
 	"github.com/gophish/gophish/config"
 	"github.com/gophish/gophish/controllers"
+	"github.com/gophish/gophish/mailer"
 	"github.com/gophish/gophish/models"
 	"github.com/gophish/gophish/util"
 	"github.com/gorilla/handlers"
@@ -66,10 +67,20 @@ func main() {
 	// Load the config
 	config.LoadConfig(*configPath)
 	config.Version = string(version)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	go mailer.Mailer.Start(ctx)
 	// Setup the global variables and settings
 	err = models.Setup()
 	if err != nil {
-		fmt.Println(err)
+		Logger.Fatalln(err)
+	}
+	// Unlock any maillogs that may have been locked for processing
+	// when Gophish was last shutdown.
+	err = models.UnlockAllMailLogs()
+	if err != nil {
+		Logger.Fatalln(err)
 	}
 	wg := &sync.WaitGroup{}
 	wg.Add(1)

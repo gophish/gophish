@@ -1,20 +1,17 @@
 package mailer
 
 import (
-	"crypto/tls"
+	"context"
 	"errors"
 	"io"
 	"log"
+	"net/textproto"
 	"os"
-	"strconv"
-	"strings"
 
-	"github.com/gophish/gophish/config"
-	"github.com/gophish/gophish/models"
-
-	"gopkg.in/gomail.v2"
+	"github.com/gophish/gomail"
 )
 
+// MaxReconnectAttempts is the maximum number of times we should reconnect to a server
 var MaxReconnectAttempts = 10
 
 // ErrMaxConnectAttempts is thrown when the maximum number of reconnect attempts
@@ -24,92 +21,164 @@ var ErrMaxConnectAttempts = errors.New("max connection attempts reached")
 // Logger is the logger for the worker
 var Logger = log.New(os.Stdout, " ", log.Ldate|log.Ltime|log.Lshortfile)
 
+// Sender exposes the common operations required for sending email.
+type Sender interface {
+	Send(from string, to []string, msg io.WriterTo) error
+	Close() error
+	Reset() error
+}
+
 // Dialer dials to an SMTP server and returns the SendCloser
 type Dialer interface {
-	Dial() (gomail.SendCloser, error)
+	Dial() (Sender, error)
 }
 
-// MockDialer keeps track of calls to Dial
-type MockDialer struct {
-	dialCount int
+// Mail is an interface that handles the common operations for email messages
+type Mail interface {
+	Backoff(reason error) error
+	Error(err error) error
+	Success() error
+	Generate(msg *gomail.Message) error
+	GetDialer() (Dialer, error)
 }
 
-func (md *MockDialer) Dial() (gomail.SendCloser, error) {
-	md.dialCount++
-	return nil, nil
+// Mailer is a global instance of the mailer that can
+// be used in applications. It is the responsibility of the application
+// to call Mailer.Start()
+var Mailer *MailWorker
+
+func init() {
+	Mailer = NewMailWorker()
 }
 
-// MockMessage holds the information sent via a call to MockClient.Send()
-type MockMessage struct {
-	from    string
-	to      string
-	message io.WriterTo
+// MailWorker is the worker that receives slices of emails
+// on a channel to send. It's assumed that every slice of emails received is meant
+// to be sent to the same server.
+type MailWorker struct {
+	Queue chan []Mail
 }
 
-// MockClient is a mock gomail Sender used for testing.
-type MockClient struct {
-	messages []MockMessage
+// NewMailWorker returns an instance of MailWorker with the mail queue
+// initialized.
+func NewMailWorker() *MailWorker {
+	return &MailWorker{
+		Queue: make(chan []Mail),
+	}
 }
 
-// Send just appends the provided message record to the internal slice
-func (m *MockClient) Send(msg *gomail.Message) error {
-	m.messages = append(m.messages, MockMessage{
-		from:    msg.GetHeader("From")[0],
-		to:      msg.GetHeader("To")[0],
-		message: msg,
-	})
-	return nil
+// Start launches the mail worker to begin listening on the Queue channel
+// for new slices of Mail instances to process.
+func (mw *MailWorker) Start(ctx context.Context) {
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case ms := <-mw.Queue:
+			go func(ctx context.Context, ms []Mail) {
+				Logger.Printf("Mailer got %d mail to send", len(ms))
+				dialer, err := ms[0].GetDialer()
+				if err != nil {
+					errorMail(err, ms)
+					return
+				}
+				sendMail(ctx, dialer, ms)
+			}(ctx, ms)
+		}
+	}
 }
 
-// Close is a noop for the mock client
-func (m *MockClient) Close() error {
-	return nil
+// errorMail is a helper to handle erroring out a slice of Mail instances
+// in the case that an unrecoverable error occurs.
+func errorMail(err error, ms []Mail) {
+	for _, m := range ms {
+		m.Error(err)
+	}
 }
 
-type SMTPDialer struct {
-	dialer    *gomail.Dialer
-	dialCount int
-}
-
-// Dial increments the internal dialCount and attempts to connect
-// to the SMTP server, returning a gomail.SendCloser. Returns
-// ErrMaxConnectAttempts if the maximum number of reconnect attempts is
+// dialHost attempts to make a connection to the host specified by the Dialer.
+// It returns MaxReconnectAttempts if the number of connection attempts has been
 // exceeded.
-func (s *SMTPDialer) Dial() (gomail.SendCloser, error) {
-	s.dialCount++
-	for s.dialCount <= MaxReconnectAttempts {
-		sc, err := s.dialer.Dial()
+func dialHost(ctx context.Context, dialer Dialer) (Sender, error) {
+	sendAttempt := 0
+	var sender Sender
+	var err error
+	for {
+		select {
+		case <-ctx.Done():
+			return nil, nil
+		default:
+			break
+		}
+		sender, err = dialer.Dial()
+		if err == nil {
+			break
+		}
+		sendAttempt++
+		if sendAttempt == MaxReconnectAttempts {
+			err = ErrMaxConnectAttempts
+			break
+		}
+	}
+	return sender, err
+}
+
+// sendMail attempts to send the provided Mail instances.
+// If the context is cancelled before all of the mail are sent,
+// sendMail just returns and does not modify those emails.
+func sendMail(ctx context.Context, dialer Dialer, ms []Mail) {
+	sender, err := dialHost(ctx, dialer)
+	if err != nil {
+		errorMail(err, ms)
+		return
+	}
+	defer sender.Close()
+	message := gomail.NewMessage()
+	for _, m := range ms {
+		select {
+		case <-ctx.Done():
+			return
+		default:
+			break
+		}
+		message.Reset()
+
+		err = m.Generate(message)
 		if err != nil {
-			Logger.Println(err)
+			m.Error(err)
 			continue
 		}
-		return sc, err
-	}
-	return nil, ErrMaxConnectAttempts
-}
 
-// NewDialer returns a dialer based on the given SMTP information
-func NewDialer(smtp models.SMTP) Dialer {
-	if config.Conf.TestFlag {
-		return &MockDialer{}
-	}
-	hp := strings.Split(smtp.Host, ":")
-	if len(hp) < 2 {
-		hp = append(hp, "25")
-	}
-	// Any issues should have been caught in validation, so we just log
-	// errors and set a reasonable default
-	port, err := strconv.Atoi(hp[1])
-	if err != nil {
-		Logger.Println(err)
-		port = 25
-	}
-	d := gomail.NewDialer(hp[0], port, smtp.Username, smtp.Password)
-	d.TLSConfig = &tls.Config{
-		ServerName:         smtp.Host,
-		InsecureSkipVerify: smtp.IgnoreCertErrors,
-	}
-	return &SMTPDialer{
-		dialer: d,
+		err = gomail.Send(sender, message)
+		if err != nil {
+			if te, ok := err.(*textproto.Error); ok {
+				switch {
+				// If it's a temporary error, we should backoff and try again later.
+				// We'll reset the connection so future messages don't incur a
+				// different error (see https://github.com/gophish/gophish/issues/787).
+				case te.Code >= 400 && te.Code <= 499:
+					m.Backoff(err)
+					sender.Reset()
+					continue
+				// Otherwise, if it's a permanent error, we shouldn't backoff this message,
+				// since the RFC specifies that running the same commands won't work next time.
+				// We should reset our sender and error this message out.
+				case te.Code >= 500 && te.Code <= 599:
+					m.Error(err)
+					sender.Reset()
+					continue
+				// If something else happened, let's just error out and reset the
+				// sender
+				default:
+					m.Error(err)
+					sender.Reset()
+					continue
+				}
+			} else {
+				m.Error(err)
+				sender.Reset()
+				continue
+			}
+		}
+		m.Success()
 	}
 }

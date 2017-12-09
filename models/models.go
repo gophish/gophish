@@ -41,6 +41,8 @@ const (
 	STATUS_QUEUED        string = "Queued"
 	STATUS_SENDING       string = "Sending"
 	STATUS_UNKNOWN       string = "Unknown"
+	STATUS_SCHEDULED     string = "Scheduled"
+	STATUS_RETRY         string = "Retrying"
 	ERROR                string = "Error"
 )
 

@@ -72,6 +72,18 @@ var statuses = {
         icon: "fa-spinner",
         point: "ct-point-sending"
     },
+    "Retrying": {
+        color: "#6c7a89",
+        label: "label-default",
+        icon: "fa-clock-o",
+        point: "ct-point-error"
+    },
+    "Scheduled": {
+        color: "#428bca",
+        label: "label-primary",
+        icon: "fa-clock-o",
+        point: "ct-point-sending"
+    },
     "Campaign Created": {
         label: "label-success",
         icon: "fa-rocket"
@@ -268,7 +280,9 @@ function renderTimeline(data) {
         "first_name": data[2],
         "last_name": data[3],
         "email": data[4],
-        "position": data[5]
+        "position": data[5],
+        "status": data[6],
+        "send_date": data[7]
     }
     results = '<div class="timeline col-sm-12 well well-lg">' +
         '<h6>Timeline for ' + escapeHtml(record.first_name) + ' ' + escapeHtml(record.last_name) +
@@ -317,6 +331,15 @@ function renderTimeline(data) {
             results += '</div></div>'
         }
     })
+    // Add the scheduled send event at the bottom
+    if (record.status == "Scheduled" || record.status == "Retrying") {
+        results += '<div class="timeline-entry">' +
+            '    <div class="timeline-bar"></div>'
+        results +=
+            '    <div class="timeline-icon ' + statuses[record.status].label + '">' +
+            '    <i class="fa ' + statuses[record.status].icon + '"></i></div>' +
+            '    <div class="timeline-message">' + "Scheduled to send at " + record.send_date + '</span>'
+    }
     results += '</div></div>'
     return results
 }
@@ -485,6 +508,22 @@ var updateMap = function (results) {
     map.bubbles(bubbles)
 }
 
+/**
+ * Creates a status label for use in the results datatable
+ * @param {string} status 
+ * @param {moment(datetime)} send_date 
+ */
+function createStatusLabel(status, send_date) {
+    var label = statuses[status].label || "label-default";
+    var statusColumn = "<span class=\"label " + label + "\">" + status + "</span>"
+    // Add the tooltip if the email is scheduled to be sent
+    if (status == "Scheduled" || status == "Retrying") {
+        var sendDateMessage = "Scheduled to send at " + send_date
+        statusColumn = "<span class=\"label " + label + "\" data-toggle=\"tooltip\" data-placement=\"top\" data-html=\"true\" title=\"" + sendDateMessage + "\">" + status + "</span>"
+    }
+    return statusColumn
+}
+
 /* poll - Queries the API and updates the UI with the results
  *
  * Updates:
@@ -564,10 +603,12 @@ function poll() {
                 var rid = rowData[0]
                 $.each(campaign.results, function (j, result) {
                     if (result.id == rid) {
-                        var label = statuses[result.status].label || "label-default";
-                        rowData[6] = "<span class=\"label " + label + "\">" + result.status + "</span>"
+                        rowData[7] = moment(result.send_date).format('MMMM Do YYYY, h:mm:ss a')
+                        rowData[6] = result.status
                         resultsTable.row(i).data(rowData)
                         if (row.child.isShown()) {
+                            $(row.node()).find("i").removeClass("fa-caret-right")
+                            $(row.node()).find("i").addClass("fa-caret-down")
                             row.child(renderTimeline(row.data()))
                         }
                         return false
@@ -577,6 +618,7 @@ function poll() {
             resultsTable.draw(false)
             /* Update the map information */
             updateMap(campaign.results)
+            $('[data-toggle="tooltip"]').tooltip()
             $("#refresh_message").hide()
             $("#refresh_btn").show()
         })
@@ -599,8 +641,6 @@ function load() {
                     $('#complete_button').text('Completed!');
                     doPoll = false;
                 }
-                // Setup tooltips
-                $('[data-toggle="tooltip"]').tooltip()
                 // Setup viewing the details of a result
                 $("#resultsTable").on("click", ".timeline-event-details", function () {
                     // Show the parameters
@@ -622,15 +662,22 @@ function load() {
                         [2, "asc"]
                     ],
                     columnDefs: [{
-                        orderable: false,
-                        targets: "no-sort"
-                    }, {
-                        className: "details-control",
-                        "targets": [1]
-                    }, {
-                        "visible": false,
-                        "targets": [0]
-                    }]
+                            orderable: false,
+                            targets: "no-sort"
+                        }, {
+                            className: "details-control",
+                            "targets": [1]
+                        }, {
+                            "visible": false,
+                            "targets": [0, 7]
+                        },
+                        {
+                            "render": function (data, type, row) {
+                                return createStatusLabel(data, row[7])
+                            },
+                            "targets": [6]
+                        }
+                    ]
                 });
                 resultsTable.clear();
                 var email_series_data = {}
@@ -639,7 +686,6 @@ function load() {
                     email_series_data[k] = 0
                 });
                 $.each(campaign.results, function (i, result) {
-                    label = statuses[result.status].label || "label-default";
                     resultsTable.row.add([
                         result.id,
                         "<i class=\"fa fa-caret-right\"></i>",
@@ -647,7 +693,8 @@ function load() {
                         escapeHtml(result.last_name) || "",
                         escapeHtml(result.email) || "",
                         escapeHtml(result.position) || "",
-                        "<span class=\"label " + label + "\">" + result.status + "</span>"
+                        result.status,
+                        moment(result.send_date).format('MMMM Do YYYY, h:mm:ss a')
                     ])
                     email_series_data[result.status]++;
                     // Backfill status values
@@ -657,6 +704,8 @@ function load() {
                     }
                 })
                 resultsTable.draw();
+                // Setup tooltips
+                $('[data-toggle="tooltip"]').tooltip()
                 // Setup the individual timelines
                 $('#resultsTable tbody').on('click', 'td.details-control', function () {
                     var tr = $(this).closest('tr');
@@ -667,14 +716,12 @@ function load() {
                         tr.removeClass('shown');
                         $(this).find("i").removeClass("fa-caret-down")
                         $(this).find("i").addClass("fa-caret-right")
-                        row.invalidate('dom').draw(false)
                     } else {
                         // Open this row
                         $(this).find("i").removeClass("fa-caret-right")
                         $(this).find("i").addClass("fa-caret-down")
                         row.child(renderTimeline(row.data())).show();
                         tr.addClass('shown');
-                        row.invalidate('dom').draw(false)
                     }
                 });
                 // Setup the graphs

@@ -83,6 +83,11 @@ func API_Campaigns(w http.ResponseWriter, r *http.Request) {
 			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
 			return
 		}
+		// If the campaign is scheduled to launch immediately, send it to the worker.
+		// Otherwise, the worker will pick it up at the scheduled time
+		if c.Status == models.CAMPAIGN_IN_PROGRESS {
+			go Worker.LaunchCampaign(c)
+		}
 		JSONResponse(w, c, http.StatusCreated)
 	}
 }
@@ -645,7 +650,9 @@ func API_Import_Site(w http.ResponseWriter, r *http.Request) {
 // API_Send_Test_Email sends a test email using the template name
 // and Target given.
 func API_Send_Test_Email(w http.ResponseWriter, r *http.Request) {
-	s := &models.SendTestEmailRequest{}
+	s := &models.SendTestEmailRequest{
+		ErrorChan: make(chan error),
+	}
 	if r.Method != "POST" {
 		JSONResponse(w, models.Response{Success: false, Message: "Method not allowed"}, http.StatusBadRequest)
 		return
@@ -706,7 +713,7 @@ func API_Send_Test_Email(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Send the test email
-	err = worker.SendTestEmail(s)
+	err = Worker.SendTestEmail(s)
 	if err != nil {
 		JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
 		return
