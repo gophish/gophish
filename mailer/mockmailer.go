@@ -145,7 +145,7 @@ func (mm *mockMessage) GetDialer() (Dialer, error) {
 	return mm.getdialer()
 }
 
-func (mm *mockMessage) Backoff() error {
+func (mm *mockMessage) Backoff(reason error) error {
 	mm.backoffCount++
 	return nil
 }
@@ -167,5 +167,10 @@ func (mm *mockMessage) Generate(message *gomail.Message) error {
 		"To":   mm.to,
 	})
 	message.SetBody("text/html", string(mm.message))
+	return nil
+}
+
+func (mm *mockMessage) Success() error {
+	mm.finished = true
 	return nil
 }

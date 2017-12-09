@@ -9,8 +9,6 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/gophish/gophish/config"
-	"github.com/gophish/gophish/models"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -47,16 +45,6 @@ func newMockErrorSender(err error) *mockSender {
 		return nil
 	})
 	return sender
-}
-
-func (ms *MailerSuite) SetUpSuite() {
-	config.Conf.DBName = "sqlite3"
-	config.Conf.DBPath = ":memory:"
-	config.Conf.MigrationsPath = "../db/db_sqlite3/migrations/"
-	err := models.Setup()
-	if err != nil {
-		ms.T().Fatalf("Failed creating database: %v", err)
-	}
 }
 
 func (ms *MailerSuite) TestDialHost() {
