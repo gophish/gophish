@@ -74,9 +74,6 @@ func (s *WorkerSuite) SetupTest() {
 	c.UpdateStatus(models.CAMPAIGN_EMAILS_SENT)
 }
 
-
 func (s *WorkerSuite) TestMailSendSuccess() {
-	ms := []models.MailLog{}
-	d := mailer.MockDialer{}
-	processMailLogs(1, 1, ms, d)
+	// TODO
 }
