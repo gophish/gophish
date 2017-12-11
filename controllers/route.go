@@ -108,10 +108,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		succ, err := auth.Register(r)
 		//If we've registered, redirect to the login page
 		if succ {
-			session.AddFlash(models.Flash{
-				Type:    "success",
-				Message: "Registration successful!.",
-			})
+			Flash(w, r, "success", "Registration successful!")
 			session.Save(r, w)
 			http.Redirect(w, r, "/login", 302)
 			return
@@ -119,10 +116,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		// Check the error
 		m := err.Error()
 		Logger.Println(err)
-		session.AddFlash(models.Flash{
-			Type:    "danger",
-			Message: m,
-		})
+		Flash(w, r, "danger", m)
 		session.Save(r, w)
 		http.Redirect(w, r, "/register", 302)
 		return
@@ -276,18 +270,26 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/", 302)
 		} else {
 			Flash(w, r, "danger", "Invalid Username/Password")
-			http.Redirect(w, r, "/login", 302)
+			params.Flashes = session.Flashes()
+			session.Save(r, w)
+			templates := template.New("template")
+			_, err := templates.ParseFiles("templates/login.html", "templates/flashes.html")
+			if err != nil {
+				Logger.Println(err)
+			}
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+			w.WriteHeader(http.StatusUnauthorized)
+			template.Must(templates, err).ExecuteTemplate(w, "base", params)
 		}
 	}
 }
 
 // Logout destroys the current user session
 func Logout(w http.ResponseWriter, r *http.Request) {
-	// If it is a post request, attempt to register the account
-	// Now that we are all registered, we can log the user in
 	session := ctx.Get(r, "session").(*sessions.Session)
 	delete(session.Values, "id")
 	Flash(w, r, "success", "You have successfully logged out")
+	session.Save(r, w)
 	http.Redirect(w, r, "/login", 302)
 }
 
@@ -329,5 +331,4 @@ func Flash(w http.ResponseWriter, r *http.Request, t string, m string) {
 		Type:    t,
 		Message: m,
 	})
-	session.Save(r, w)
 }
