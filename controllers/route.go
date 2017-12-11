@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 
 	"github.com/gophish/gophish/auth"
@@ -267,7 +268,15 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		if succ {
 			session.Values["id"] = u.Id
 			session.Save(r, w)
-			http.Redirect(w, r, "/", 302)
+			next := "/"
+			url, err := url.Parse(r.FormValue("next"))
+			if err == nil {
+				path := url.Path
+				if path != "" {
+					next = path
+				}
+			}
+			http.Redirect(w, r, next, 302)
 		} else {
 			Flash(w, r, "danger", "Invalid Username/Password")
 			params.Flashes = session.Flashes()

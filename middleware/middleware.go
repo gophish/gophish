@@ -94,7 +94,9 @@ func RequireLogin(handler http.Handler) http.HandlerFunc {
 		if u := ctx.Get(r, "user"); u != nil {
 			handler.ServeHTTP(w, r)
 		} else {
-			http.Redirect(w, r, "/login", 302)
+			q := r.URL.Query()
+			q.Set("next", r.URL.Path)
+			http.Redirect(w, r, fmt.Sprintf("/login?%s", q.Encode()), 302)
 		}
 	}
 }
