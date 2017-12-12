@@ -404,9 +404,16 @@ func PostCampaign(c *Campaign, uid int64) error {
 		Logger.Println(err)
 	}
 	// Insert all the results
+	resultMap := make(map[string]bool)
 	for _, g := range c.Groups {
 		// Insert a result for each target in the group
 		for _, t := range g.Targets {
+			// Remove duplicate results - we should only
+			// send emails to unique email addresses.
+			if _, ok := resultMap[t.Email]; ok {
+				continue
+			}
+			resultMap[t.Email] = true
 			r := &Result{
 				Email:      t.Email,
 				Position:   t.Position,
