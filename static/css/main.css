@@ -437,8 +437,14 @@ p {
 
 /* Table Styling */
 
+.modal-content table {
+    table-layout: fixed;
+}
+
 .modal-content .dataTable tbody td {
     font-size: 16px;
+    overflow: hidden;
+    text-overflow: ellipsis;
     /* Smaller font on modal tables */
 }
 
