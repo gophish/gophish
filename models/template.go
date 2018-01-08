@@ -213,3 +213,34 @@ func DeleteTemplate(id int64, uid int64) error {
 	}
 	return nil
 }
+
+// DeleteTemplateByUserId deletes an existing templates with the given user id in the database.
+func DeleteTemplateByUserId(uid int64) error {
+	// Get templates
+	ts, err := GetTemplates(uid)
+	if err != nil {
+		Logger.Println(err)
+		return err
+	}
+
+	var tids []int64
+	for _, t := range ts {
+		tids = append(tids, t.Id)
+	}
+
+	// Delete attachments
+	err = db.Where("template_id in (?)", tids).Delete(&Attachment{}).Error
+	if err != nil {
+		Logger.Println(err)
+		return err
+	}
+
+	// Delete the templates themselves
+	err = db.Where("user_id=?", uid).Delete(Template{}).Error
+	if err != nil {
+		Logger.Println(err)
+		return err
+	}
+
+	return nil
+}
