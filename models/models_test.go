@@ -265,6 +265,42 @@ func (s *ModelsSuite) TestPutGroupEmptyAttribute(c *check.C) {
 	c.Assert(targets[1].LastName, check.Equals, "Example")
 }
 
+func (s *ModelsSuite) TestDeleteGroupByUserId(c *check.C) {
+	// Add groups.
+	testGroup1 := &Group{
+		Name:    "Test Group 1",
+		Targets: []Target{Target{Email: "test@example.com"}},
+		UserId:  1,
+	}
+	testGroup2 := &Group{
+		Name:    "Test Group 2",
+		Targets: []Target{Target{Email: "test@example.com"}},
+		UserId:  1,
+	}
+
+	c.Assert(PostGroup(testGroup1), check.Equals, nil)
+	c.Assert(PostGroup(testGroup2), check.Equals, nil)
+
+	//	Delete groups just created.
+	c.Assert(DeleteGroupByUserId(1), check.Equals, nil)
+
+	// Assert groups are deleted.
+	_, err := GetGroup(testGroup1.Id, 1)
+	c.Assert(err, check.ErrorMatches, "record not found")
+
+	_, err = GetGroup(testGroup2.Id, 1)
+	c.Assert(err, check.ErrorMatches, "record not found")
+
+	// Assert targets are deleted either.
+	ts1, err := GetTargets(testGroup1.Id)
+	c.Assert(err, check.Equals, nil)
+	c.Assert(len(ts1), check.Equals, 0)
+
+	ts2, err := GetTargets(testGroup2.Id)
+	c.Assert(err, check.Equals, nil)
+	c.Assert(len(ts2), check.Equals, 0)
+}
+
 func (s *ModelsSuite) TestPostSMTP(c *check.C) {
 	smtp := SMTP{
 		Name:        "Test SMTP",
