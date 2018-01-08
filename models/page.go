@@ -138,3 +138,12 @@ func DeletePage(id int64, uid int64) error {
 	}
 	return err
 }
+
+// DeletePageByUserId deletes an existing page with a given user id in the database.
+func DeletePageByUserId(uid int64) error {
+	err = db.Where("user_id=?", uid).Delete(Page{}).Error
+	if err != nil {
+		Logger.Println(err)
+	}
+	return err
+}
