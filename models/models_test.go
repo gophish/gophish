@@ -570,3 +570,50 @@ func (s *ModelsSuite) TestDuplicateResults(ch *check.C) {
 	ch.Assert(c.Results[0].Email, check.Equals, group.Targets[0].Email)
 	ch.Assert(c.Results[1].Email, check.Equals, group.Targets[2].Email)
 }
+
+func (s *ModelsSuite) TestDeleteTemplateByUserId(c *check.C) {
+	template1 := Template{
+		Name:   "Test Template 1",
+		UserId: 2,
+		HTML:   "<body></body>",
+		Attachments: []Attachment{
+			{Name: "Some attachment"},
+			{Name: "Some attachment"},
+		},
+	}
+	template2 := Template{
+		Name:   "Test Template 2",
+		UserId: 2,
+		HTML:   "<body></body>",
+		Attachments: []Attachment{
+			{Name: "Some attachment"},
+			{Name: "Some attachment"},
+		},
+	}
+
+	c.Assert(PostTemplate(&template1), check.Equals, nil)
+	c.Assert(PostTemplate(&template2), check.Equals, nil)
+
+	// Assert Templates are successfully created
+	ts, err := GetTemplates(2)
+	c.Assert(err, check.Equals, nil)
+	c.Assert(len(ts), check.Equals, 2)
+
+	// Assert Attachments are successfully created
+	var as []Attachment
+	err = db.Where("template_id in (?)", []int64{template1.Id, template2.Id}).Find(&as).Error
+	c.Assert(err, check.Equals, nil)
+	c.Assert(len(as), check.Equals, 4)
+
+	c.Assert(DeleteTemplateByUserId(2), check.Equals, nil)
+
+	// Assert Templates are successfully deleted
+	ts, err = GetTemplates(2)
+	c.Assert(err, check.Equals, nil)
+	c.Assert(len(ts), check.Equals, 0)
+
+	// Assert Attachments are successfully deleted
+	err = db.Where("template_id in (?)", []int64{template1.Id, template2.Id}).Find(&as).Error
+	c.Assert(err, check.Equals, nil)
+	c.Assert(len(as), check.Equals, 0)
+}
