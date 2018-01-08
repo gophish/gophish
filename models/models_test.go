@@ -479,6 +479,39 @@ func (s *ModelsSuite) TestPostPage(c *check.C) {
 	})
 }
 
+func (s *ModelsSuite) TestDeletePageByUserId(c *check.C) {
+	// Create pages
+	p1 := Page{
+		Name:        "Test Page 1",
+		HTML:        "<html></html>",
+		RedirectURL: "http://example.com",
+		UserId:      1,
+	}
+	p2 := Page{
+		Name:        "Test Page 2",
+		HTML:        "<html></html>",
+		RedirectURL: "http://example.com",
+		UserId:      1,
+	}
+
+	c.Assert(PostPage(&p1), check.Equals, nil)
+	c.Assert(PostPage(&p2), check.Equals, nil)
+
+	// Assert pages are successfully created
+	ps, err := GetPages(1)
+	c.Assert(err, check.Equals, nil)
+	c.Assert(len(ps), check.Equals, 2)
+
+	// Delete pages
+	c.Assert(DeletePageByUserId(1), check.Equals, nil)
+
+	// Assert pages are successfully deleted
+	ps, err = GetPages(1)
+	c.Assert(err, check.Equals, nil)
+	c.Assert(len(ps), check.Equals, 0)
+
+}
+
 func (s *ModelsSuite) TestGenerateResultId(c *check.C) {
 	r := Result{}
 	r.GenerateId()
