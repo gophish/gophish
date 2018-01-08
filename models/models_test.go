@@ -353,6 +353,55 @@ func (s *ModelsSuite) TestPostSMTPValidHeader(c *check.C) {
 	c.Assert(len(ss), check.Equals, 1)
 }
 
+func (s *ModelsSuite) TestDeleteSMTPByUserId(c *check.C) {
+	smtp1 := SMTP{
+		Name:        "Test SMTP 1",
+		Host:        "1.1.1.1:25",
+		FromAddress: "Foo Bar <foo@example.com>",
+		UserId:      1,
+		Headers: []Header{
+			{Key: "Reply-To", Value: "test@example.com"},
+			{Key: "X-Mailer", Value: "gophish"},
+		},
+	}
+	smtp2 := SMTP{
+		Name:        "Test SMTP 2",
+		Host:        "1.1.1.1:25",
+		FromAddress: "Foo Bar <foo@example.com>",
+		UserId:      1,
+		Headers: []Header{
+			{Key: "Reply-To", Value: "test@example.com"},
+			{Key: "X-Mailer", Value: "gophish"},
+		},
+	}
+
+	c.Assert(PostSMTP(&smtp1), check.Equals, nil)
+	c.Assert(PostSMTP(&smtp2), check.Equals, nil)
+
+	// Assert SMTPs are successfully created
+	ss, err := GetSMTPs(1)
+	c.Assert(err, check.Equals, nil)
+	c.Assert(len(ss), check.Equals, 2)
+
+	// Assert Headers are successfully created
+	var hs []Header
+	err = db.Where("smtp_id in (?)", []int64{smtp1.Id, smtp2.Id}).Find(&hs).Error
+	c.Assert(err, check.Equals, nil)
+	c.Assert(len(hs), check.Equals, 4)
+
+	c.Assert(DeleteSMTPByUserId(1), check.Equals, nil)
+
+	// Assert SMTPs are successfully deleted
+	ss, err = GetSMTPs(1)
+	c.Assert(err, check.Equals, nil)
+	c.Assert(len(ss), check.Equals, 0)
+
+	// Assert Headers are successfully deleted
+	err = db.Where("smtp_id in (?)", []int64{smtp1.Id, smtp2.Id}).Find(&hs).Error
+	c.Assert(err, check.Equals, nil)
+	c.Assert(len(hs), check.Equals, 0)
+}
+
 func (s *ModelsSuite) TestPostPage(c *check.C) {
 	html := `<html>
 			<head></head>
