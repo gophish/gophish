@@ -471,6 +471,44 @@ func DeleteCampaign(id int64) error {
 	return err
 }
 
+//DeleteCampaignByUserId deletes campaigns with a given user id
+func DeleteCampaignByUserId(uid int64) error {
+	// Get campaigns
+	cs, err := GetCampaigns(uid)
+	if err != nil {
+		Logger.Println(err)
+		return err
+	}
+
+	var cids []int64
+	for _, c := range cs {
+		cids = append(cids, c.Id)
+	}
+
+	// Delete all the results
+	err = db.Where("campaign_id in (?)", cids).Delete(&Result{}).Error
+	if err != nil {
+		Logger.Println(err)
+		return err
+	}
+
+	// Delete all the events
+	err = db.Where("campaign_id in (?)", cids).Delete(&Event{}).Error
+	if err != nil {
+		Logger.Println(err)
+		return err
+	}
+
+	// Delete the campaigns
+	err = db.Where("user_id=?", uid).Delete(&Campaign{}).Error
+	if err != nil {
+		Logger.Println(err)
+		return err
+	}
+
+	return err
+}
+
 // CompleteCampaign effectively "ends" a campaign.
 // Any future emails clicked will return a simple "404" page.
 func CompleteCampaign(id int64, uid int64) error {
