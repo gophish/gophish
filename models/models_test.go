@@ -301,6 +301,65 @@ func (s *ModelsSuite) TestDeleteGroupByUserId(c *check.C) {
 	c.Assert(len(ts2), check.Equals, 0)
 }
 
+func (s *ModelsSuite) TestDeleteCampaignByUserId(ch *check.C) {
+	// Create campaigns
+	c1 := s.createCampaignDependencies(ch)
+	c1.Events = []Event{
+		{Email: "test1@test.com"},
+		{Email: "test2@test.com"},
+	}
+	c1.Results = []Result{
+		{Email: "test1@test.com"},
+		{Email: "test2@test.com"},
+	}
+	ch.Assert(PostCampaign(&c1, c1.UserId), check.Equals, nil)
+
+	c2 := s.createCampaignDependencies(ch)
+	c2.Events = []Event{
+		{Email: "test1@test.com"},
+		{Email: "test2@test.com"},
+	}
+	c2.Results = []Result{
+		{Email: "test1@test.com"},
+		{Email: "test2@test.com"},
+	}
+	ch.Assert(PostCampaign(&c2, c2.UserId), check.Equals, nil)
+
+	// Assert Campaigns are created
+	cs, err := GetCampaigns(1)
+	ch.Assert(err, check.Equals, nil)
+	ch.Assert(len(cs), check.Equals, 2)
+
+	// Assert Events are created
+	var es []Event
+	err = db.Where("campaign_id in (?)", []int64{c1.Id, c2.Id}).Find(&es).Error
+	ch.Assert(err, check.Equals, nil)
+	ch.Assert(len(es), check.Not(check.Equals), 0)
+
+	// Assert Results are created
+	var rs []Result
+	err = db.Where("campaign_id in (?)", []int64{c1.Id, c2.Id}).Find(&rs).Error
+	ch.Assert(err, check.Equals, nil)
+	ch.Assert(len(rs), check.Not(check.Equals), 0)
+
+	DeleteCampaignByUserId(1)
+
+	// Assert Campaigns are deleted
+	cs, err = GetCampaigns(1)
+	ch.Assert(err, check.Equals, nil)
+	ch.Assert(len(cs), check.Equals, 0)
+
+	// Assert Events are deleted
+	err = db.Where("campaign_id in (?)", []int64{c1.Id, c2.Id}).Find(&es).Error
+	ch.Assert(err, check.Equals, nil)
+	ch.Assert(len(es), check.Equals, 0)
+
+	// Assert Results are deleted
+	err = db.Where("campaign_id in (?)", []int64{c1.Id, c2.Id}).Find(&rs).Error
+	ch.Assert(err, check.Equals, nil)
+	ch.Assert(len(rs), check.Equals, 0)
+}
+
 func (s *ModelsSuite) TestPostSMTP(c *check.C) {
 	smtp := SMTP{
 		Name:        "Test SMTP",
