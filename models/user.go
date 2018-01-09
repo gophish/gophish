@@ -51,3 +51,42 @@ func PutUser(u *User) error {
 	err := db.Save(u).Error
 	return err
 }
+
+// DeleteUser deletes the given user
+func DeleteUser(id int64) error {
+	err := DeleteTemplateByUserId(id)
+	if err != nil {
+		return err
+	}
+
+	err = DeleteSMTPByUserId(id)
+	if err != nil {
+		return err
+	}
+
+	err = DeletePageByUserId(id)
+	if err != nil {
+		return err
+	}
+
+	err = DeleteGroupByUserId(id)
+	if err != nil {
+		return err
+	}
+
+	err = DeleteCampaignByUserId(id)
+	if err != nil {
+		return err
+	}
+
+	var user User
+	if err = db.First(&user, id).Error; err != nil {
+		return err
+	}
+
+	if err = db.Delete(&user).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
