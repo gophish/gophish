@@ -109,6 +109,29 @@ func (s *ModelsSuite) TestPutUser(c *check.C) {
 	c.Assert(u.Username, check.Equals, "admin_changed")
 }
 
+func (s *ModelsSuite) TestDeleteUser(c *check.C) {
+	// Create user for test
+	username := "test user for deleteUser"
+	testUser := User{
+		Username: username,
+		Hash:     "test",
+	}
+	c.Assert(db.Save(&testUser).Error, check.Equals, nil)
+
+	// Assert user exists
+	u, err := GetUserByUsername(username)
+	c.Assert(u.Username, check.Equals, username)
+	c.Assert(err, check.Equals, ErrUsernameTaken)
+
+	// Delete user
+	c.Assert(DeleteUser(u.Id), check.Equals, nil)
+
+	// Assert user does not exists
+	u, err = GetUserByUsername(username)
+	c.Assert(u.Username, check.Equals, "")
+	c.Assert(err, check.Equals, nil)
+}
+
 func (s *ModelsSuite) TestGeneratedAPIKey(c *check.C) {
 	u, err := GetUser(1)
 	c.Assert(err, check.Equals, nil)
