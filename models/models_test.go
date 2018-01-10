@@ -100,6 +100,18 @@ func (s *ModelsSuite) TestGetUser(c *check.C) {
 	c.Assert(u.Username, check.Equals, "admin")
 }
 
+func (s *ModelsSuite) TestGetUserByUsernameWithExistedUser(c *check.C) {
+	u, err := GetUserByUsername("admin")
+	c.Assert(err, check.Equals, nil)
+	c.Assert(u.Username, check.Equals, "admin")
+}
+
+func (s *ModelsSuite) TestGetUserByUsernameWithNotExistedUser(c *check.C) {
+	u, err := GetUserByUsername("test user does not exist")
+	c.Assert(err, check.Equals, gorm.ErrRecordNotFound)
+	c.Assert(u.Username, check.Equals, "")
+}
+
 func (s *ModelsSuite) TestPutUser(c *check.C) {
 	u, err := GetUser(1)
 	u.Username = "admin_changed"
