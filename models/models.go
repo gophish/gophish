@@ -2,7 +2,6 @@ package models
 
 import (
 	"crypto/rand"
-	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -18,9 +17,6 @@ import (
 
 var db *gorm.DB
 var err error
-
-// ErrUsernameTaken is thrown when a user attempts to register a username that is taken.
-var ErrUsernameTaken = errors.New("username already taken")
 
 // Logger is a global logger used to show informational, warning, and error messages
 var Logger = log.New(os.Stdout, " ", log.Ldate|log.Ltime|log.Lshortfile)
