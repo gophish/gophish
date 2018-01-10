@@ -106,6 +106,24 @@ func (s *ModelsSuite) TestGetUserDoesNotExist(c *check.C) {
 	c.Assert(u.Username, check.Equals, "")
 }
 
+func (s *ModelsSuite) TestGetUserByAPIKeyWithExitingAPIKey(c *check.C) {
+	u, err := GetUser(1)
+	c.Assert(err, check.Equals, nil)
+
+	u, err = GetUserByAPIKey(u.ApiKey)
+	c.Assert(err, check.Equals, nil)
+	c.Assert(u.Username, check.Equals, "admin")
+}
+
+func (s *ModelsSuite) TestGetUserByAPIKeyWithNotExitingAPIKey(c *check.C) {
+	u, err := GetUser(1)
+	c.Assert(err, check.Equals, nil)
+
+	u, err = GetUserByAPIKey(u.ApiKey + "test")
+	c.Assert(err, check.Equals, gorm.ErrRecordNotFound)
+	c.Assert(u.Username, check.Equals, "")
+}
+
 func (s *ModelsSuite) TestPutUser(c *check.C) {
 	u, err := GetUser(1)
 	u.Username = "admin_changed"
