@@ -15,10 +15,7 @@ type User struct {
 func GetUser(id int64) (User, error) {
 	u := User{}
 	err := db.Where("id=?", id).First(&u).Error
-	if err != nil {
-		return u, err
-	}
-	return u, nil
+	return u, err
 }
 
 // GetUserByAPIKey returns the user that the given API Key corresponds to. If no user is found, an
