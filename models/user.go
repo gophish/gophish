@@ -23,10 +23,7 @@ func GetUser(id int64) (User, error) {
 func GetUserByAPIKey(key string) (User, error) {
 	u := User{}
 	err := db.Where("api_key = ?", key).First(&u).Error
-	if err != nil {
-		return u, err
-	}
-	return u, nil
+	return u, err
 }
 
 // GetUserByUsername returns the user that the given username corresponds to. If no user is found, an
