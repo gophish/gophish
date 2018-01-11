@@ -106,7 +106,7 @@ func (s *ModelsSuite) TestGetUserDoesNotExist(c *check.C) {
 	c.Assert(u.Username, check.Equals, "")
 }
 
-func (s *ModelsSuite) TestGetUserByAPIKeyWithExitingAPIKey(c *check.C) {
+func (s *ModelsSuite) TestGetUserByAPIKeyWithExistingAPIKey(c *check.C) {
 	u, err := GetUser(1)
 	c.Assert(err, check.Equals, nil)
 
@@ -115,7 +115,7 @@ func (s *ModelsSuite) TestGetUserByAPIKeyWithExitingAPIKey(c *check.C) {
 	c.Assert(u.Username, check.Equals, "admin")
 }
 
-func (s *ModelsSuite) TestGetUserByAPIKeyWithNotExitingAPIKey(c *check.C) {
+func (s *ModelsSuite) TestGetUserByAPIKeyWithNotExistingAPIKey(c *check.C) {
 	u, err := GetUser(1)
 	c.Assert(err, check.Equals, nil)
 
