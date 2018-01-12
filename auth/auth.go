@@ -41,6 +41,9 @@ var ErrEmptyPassword = errors.New("Password cannot be blank")
 // ErrPasswordMismatch is thrown when a user provides passwords that do not match
 var ErrPasswordMismatch = errors.New("Passwords must match")
 
+// ErrUsernameTaken is thrown when a user attempts to register a username that is taken.
+var ErrUsernameTaken = errors.New("Username already taken")
+
 // Login attempts to login the user given a request.
 func Login(r *http.Request) (bool, models.User, error) {
 	username, password := r.FormValue("username"), r.FormValue("password")
@@ -63,11 +66,17 @@ func Register(r *http.Request) (bool, error) {
 	newPassword := r.FormValue("password")
 	confirmPassword := r.FormValue("confirm_password")
 	u, err := models.GetUserByUsername(username)
+	// If the given username already exists, throw an error and return false
+	if err == nil {
+		return false, ErrUsernameTaken
+	}
+
 	// If we have an error which is not simply indicating that no user was found, report it
 	if err != nil && err != gorm.ErrRecordNotFound {
 		fmt.Println(err)
 		return false, err
 	}
+
 	u = models.User{}
 	// If we've made it here, we should have a valid username given
 	// Check that the passsword isn't blank
