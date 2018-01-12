@@ -471,8 +471,8 @@ func DeleteCampaign(id int64) error {
 	return err
 }
 
-//DeleteCampaignByUserId deletes campaigns with a given user id
-func DeleteCampaignByUserId(uid int64) error {
+//DeleteCampaignsByUserId deletes campaigns with a given user id
+func DeleteCampaignsByUserId(uid int64) error {
 	// Get campaigns
 	cs, err := GetCampaigns(uid)
 	if err != nil {

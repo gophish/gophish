@@ -288,7 +288,7 @@ func (s *ModelsSuite) TestPutGroupEmptyAttribute(c *check.C) {
 	c.Assert(targets[1].LastName, check.Equals, "Example")
 }
 
-func (s *ModelsSuite) TestDeleteGroupByUserId(c *check.C) {
+func (s *ModelsSuite) TestDeleteGroupsByUserId(c *check.C) {
 	// Add groups.
 	testGroup1 := &Group{
 		Name:    "Test Group 1",
@@ -305,7 +305,7 @@ func (s *ModelsSuite) TestDeleteGroupByUserId(c *check.C) {
 	c.Assert(PostGroup(testGroup2), check.Equals, nil)
 
 	//	Delete groups just created.
-	c.Assert(DeleteGroupByUserId(1), check.Equals, nil)
+	c.Assert(DeleteGroupsByUserId(1), check.Equals, nil)
 
 	// Assert groups are deleted.
 	_, err := GetGroup(testGroup1.Id, 1)
@@ -324,7 +324,7 @@ func (s *ModelsSuite) TestDeleteGroupByUserId(c *check.C) {
 	c.Assert(len(ts2), check.Equals, 0)
 }
 
-func (s *ModelsSuite) TestDeleteCampaignByUserId(ch *check.C) {
+func (s *ModelsSuite) TestDeleteCampaignsByUserId(ch *check.C) {
 	// Create campaigns
 	c1 := s.createCampaignDependencies(ch)
 	c1.Events = []Event{
@@ -365,7 +365,7 @@ func (s *ModelsSuite) TestDeleteCampaignByUserId(ch *check.C) {
 	ch.Assert(err, check.Equals, nil)
 	ch.Assert(len(rs), check.Not(check.Equals), 0)
 
-	DeleteCampaignByUserId(1)
+	DeleteCampaignsByUserId(1)
 
 	// Assert Campaigns are deleted
 	cs, err = GetCampaigns(1)
@@ -435,7 +435,7 @@ func (s *ModelsSuite) TestPostSMTPValidHeader(c *check.C) {
 	c.Assert(len(ss), check.Equals, 1)
 }
 
-func (s *ModelsSuite) TestDeleteSMTPByUserId(c *check.C) {
+func (s *ModelsSuite) TestDeleteSMTPsByUserId(c *check.C) {
 	smtp1 := SMTP{
 		Name:        "Test SMTP 1",
 		Host:        "1.1.1.1:25",
@@ -471,7 +471,7 @@ func (s *ModelsSuite) TestDeleteSMTPByUserId(c *check.C) {
 	c.Assert(err, check.Equals, nil)
 	c.Assert(len(hs), check.Equals, 4)
 
-	c.Assert(DeleteSMTPByUserId(1), check.Equals, nil)
+	c.Assert(DeleteSMTPsByUserId(1), check.Equals, nil)
 
 	// Assert SMTPs are successfully deleted
 	ss, err = GetSMTPs(1)
@@ -561,7 +561,7 @@ func (s *ModelsSuite) TestPostPage(c *check.C) {
 	})
 }
 
-func (s *ModelsSuite) TestDeletePageByUserId(c *check.C) {
+func (s *ModelsSuite) TestDeletePagesByUserId(c *check.C) {
 	// Create pages
 	p1 := Page{
 		Name:        "Test Page 1",
@@ -585,7 +585,7 @@ func (s *ModelsSuite) TestDeletePageByUserId(c *check.C) {
 	c.Assert(len(ps), check.Equals, 2)
 
 	// Delete pages
-	c.Assert(DeletePageByUserId(1), check.Equals, nil)
+	c.Assert(DeletePagesByUserId(1), check.Equals, nil)
 
 	// Assert pages are successfully deleted
 	ps, err = GetPages(1)
@@ -686,7 +686,7 @@ func (s *ModelsSuite) TestDuplicateResults(ch *check.C) {
 	ch.Assert(c.Results[1].Email, check.Equals, group.Targets[2].Email)
 }
 
-func (s *ModelsSuite) TestDeleteTemplateByUserId(c *check.C) {
+func (s *ModelsSuite) TestDeleteTemplatesByUserId(c *check.C) {
 	template1 := Template{
 		Name:   "Test Template 1",
 		UserId: 2,
@@ -720,7 +720,7 @@ func (s *ModelsSuite) TestDeleteTemplateByUserId(c *check.C) {
 	c.Assert(err, check.Equals, nil)
 	c.Assert(len(as), check.Equals, 4)
 
-	c.Assert(DeleteTemplateByUserId(2), check.Equals, nil)
+	c.Assert(DeleteTemplatesByUserId(2), check.Equals, nil)
 
 	// Assert Templates are successfully deleted
 	ts, err = GetTemplates(2)

@@ -214,8 +214,8 @@ func DeleteTemplate(id int64, uid int64) error {
 	return nil
 }
 
-// DeleteTemplateByUserId deletes an existing templates with the given user id in the database.
-func DeleteTemplateByUserId(uid int64) error {
+// DeleteTemplatesByUserId deletes an existing templates with the given user id in the database.
+func DeleteTemplatesByUserId(uid int64) error {
 	// Get templates
 	ts, err := GetTemplates(uid)
 	if err != nil {

@@ -238,7 +238,7 @@ func DeleteSMTP(id int64, uid int64) error {
 	return err
 }
 
-func DeleteSMTPByUserId(uid int64) error {
+func DeleteSMTPsByUserId(uid int64) error {
 	var ss []SMTP
 
 	err := db.Where("user_id=?", uid).Find(&ss).Error

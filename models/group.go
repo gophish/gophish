@@ -260,7 +260,7 @@ func DeleteGroup(g *Group) error {
 	return err
 }
 
-func DeleteGroupByUserId(uid int64) error {
+func DeleteGroupsByUserId(uid int64) error {
 	var gs []Group
 
 	err := db.Where("user_id=?", uid).Find(&gs).Error

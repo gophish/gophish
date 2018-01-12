@@ -54,27 +54,27 @@ func PutUser(u *User) error {
 
 // DeleteUser deletes the given user
 func DeleteUser(id int64) error {
-	err := DeleteTemplateByUserId(id)
+	err := DeleteTemplatesByUserId(id)
 	if err != nil {
 		return err
 	}
 
-	err = DeleteSMTPByUserId(id)
+	err = DeleteSMTPsByUserId(id)
 	if err != nil {
 		return err
 	}
 
-	err = DeletePageByUserId(id)
+	err = DeletePagesByUserId(id)
 	if err != nil {
 		return err
 	}
 
-	err = DeleteGroupByUserId(id)
+	err = DeleteGroupsByUserId(id)
 	if err != nil {
 		return err
 	}
 
-	err = DeleteCampaignByUserId(id)
+	err = DeleteCampaignsByUserId(id)
 	if err != nil {
 		return err
 	}
