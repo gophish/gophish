@@ -22,5 +22,8 @@ _cgo_export.*
 
 _testmain.go
 
+gophish_admin.crt
+gophish_admin.key
+
 *.exe
 *.db
