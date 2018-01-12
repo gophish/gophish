@@ -94,10 +94,34 @@ func (s *ModelsSuite) createCampaign(ch *check.C) Campaign {
 	return c
 }
 
-func (s *ModelsSuite) TestGetUser(c *check.C) {
+func (s *ModelsSuite) TestGetUserExists(c *check.C) {
 	u, err := GetUser(1)
 	c.Assert(err, check.Equals, nil)
 	c.Assert(u.Username, check.Equals, "admin")
+}
+
+func (s *ModelsSuite) TestGetUserDoesNotExist(c *check.C) {
+	u, err := GetUser(100)
+	c.Assert(err, check.Equals, gorm.ErrRecordNotFound)
+	c.Assert(u.Username, check.Equals, "")
+}
+
+func (s *ModelsSuite) TestGetUserByAPIKeyWithExistingAPIKey(c *check.C) {
+	u, err := GetUser(1)
+	c.Assert(err, check.Equals, nil)
+
+	u, err = GetUserByAPIKey(u.ApiKey)
+	c.Assert(err, check.Equals, nil)
+	c.Assert(u.Username, check.Equals, "admin")
+}
+
+func (s *ModelsSuite) TestGetUserByAPIKeyWithNotExistingAPIKey(c *check.C) {
+	u, err := GetUser(1)
+	c.Assert(err, check.Equals, nil)
+
+	u, err = GetUserByAPIKey(u.ApiKey + "test")
+	c.Assert(err, check.Equals, gorm.ErrRecordNotFound)
+	c.Assert(u.Username, check.Equals, "")
 }
 
 func (s *ModelsSuite) TestPutUser(c *check.C) {
