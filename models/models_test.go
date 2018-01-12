@@ -102,7 +102,7 @@ func (s *ModelsSuite) TestGetUserExists(c *check.C) {
 
 func (s *ModelsSuite) TestGetUserByUsernameWithExistingUser(c *check.C) {
 	u, err := GetUserByUsername("admin")
-  c.Assert(err, check.Equals, nil)
+	c.Assert(err, check.Equals, nil)
 	c.Assert(u.Username, check.Equals, "admin")
 }
 
@@ -124,13 +124,13 @@ func (s *ModelsSuite) TestGetUserByAPIKeyWithNotExistingAPIKey(c *check.C) {
 	c.Assert(err, check.Equals, nil)
 
 	u, err = GetUserByAPIKey(u.ApiKey + "test")
-  c.Assert(err, check.Equals, gorm.ErrRecordNotFound)
+	c.Assert(err, check.Equals, gorm.ErrRecordNotFound)
 	c.Assert(u.Username, check.Equals, "")
 }
 
 func (s *ModelsSuite) TestGetUserByUsernameWithNotExistingUser(c *check.C) {
 	u, err := GetUserByUsername("test user does not exist")
-  c.Assert(err, check.Equals, gorm.ErrRecordNotFound)
+	c.Assert(err, check.Equals, gorm.ErrRecordNotFound)
 	c.Assert(u.Username, check.Equals, "")
 }
 
@@ -155,7 +155,7 @@ func (s *ModelsSuite) TestDeleteUser(c *check.C) {
 	// Assert user exists
 	u, err := GetUserByUsername(username)
 	c.Assert(u.Username, check.Equals, username)
-	c.Assert(err, check.Equals, ErrUsernameTaken)
+	c.Assert(err, check.Equals, nil)
 
 	// Delete user
 	c.Assert(DeleteUser(u.Id), check.Equals, nil)
@@ -163,7 +163,7 @@ func (s *ModelsSuite) TestDeleteUser(c *check.C) {
 	// Assert user does not exists
 	u, err = GetUserByUsername(username)
 	c.Assert(u.Username, check.Equals, "")
-	c.Assert(err, check.Equals, nil)
+	c.Assert(err, check.Equals, gorm.ErrRecordNotFound)
 }
 
 func (s *ModelsSuite) TestGeneratedAPIKey(c *check.C) {
