@@ -13,6 +13,7 @@ import (
 	"github.com/gophish/gophish/models"
 	"github.com/gorilla/securecookie"
 	"github.com/gorilla/sessions"
+	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -44,7 +45,7 @@ var ErrPasswordMismatch = errors.New("Passwords must match")
 func Login(r *http.Request) (bool, models.User, error) {
 	username, password := r.FormValue("username"), r.FormValue("password")
 	u, err := models.GetUserByUsername(username)
-	if err != nil && err != models.ErrUsernameTaken {
+	if err != nil {
 		return false, models.User{}, err
 	}
 	//If we've made it here, we should have a valid user stored in u
@@ -63,7 +64,7 @@ func Register(r *http.Request) (bool, error) {
 	confirmPassword := r.FormValue("confirm_password")
 	u, err := models.GetUserByUsername(username)
 	// If we have an error which is not simply indicating that no user was found, report it
-	if err != nil {
+	if err != nil && err != gorm.ErrRecordNotFound {
 		fmt.Println(err)
 		return false, err
 	}

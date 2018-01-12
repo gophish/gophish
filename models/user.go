@@ -1,7 +1,5 @@
 package models
 
-import "github.com/jinzhu/gorm"
-
 // User represents the user model for gophish.
 type User struct {
 	Id       int64  `json:"id"`
@@ -31,12 +29,6 @@ func GetUserByAPIKey(key string) (User, error) {
 func GetUserByUsername(username string) (User, error) {
 	u := User{}
 	err := db.Where("username = ?", username).First(&u).Error
-	// No issue if we don't find a record
-	if err == gorm.ErrRecordNotFound {
-		return u, nil
-	} else if err == nil {
-		return u, ErrUsernameTaken
-	}
 	return u, err
 }
 

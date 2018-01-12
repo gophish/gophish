@@ -100,6 +100,12 @@ func (s *ModelsSuite) TestGetUserExists(c *check.C) {
 	c.Assert(u.Username, check.Equals, "admin")
 }
 
+func (s *ModelsSuite) TestGetUserByUsernameWithExistingUser(c *check.C) {
+	u, err := GetUserByUsername("admin")
+  c.Assert(err, check.Equals, nil)
+	c.Assert(u.Username, check.Equals, "admin")
+}
+
 func (s *ModelsSuite) TestGetUserDoesNotExist(c *check.C) {
 	u, err := GetUser(100)
 	c.Assert(err, check.Equals, gorm.ErrRecordNotFound)
@@ -111,8 +117,6 @@ func (s *ModelsSuite) TestGetUserByAPIKeyWithExistingAPIKey(c *check.C) {
 	c.Assert(err, check.Equals, nil)
 
 	u, err = GetUserByAPIKey(u.ApiKey)
-	c.Assert(err, check.Equals, nil)
-	c.Assert(u.Username, check.Equals, "admin")
 }
 
 func (s *ModelsSuite) TestGetUserByAPIKeyWithNotExistingAPIKey(c *check.C) {
@@ -120,7 +124,13 @@ func (s *ModelsSuite) TestGetUserByAPIKeyWithNotExistingAPIKey(c *check.C) {
 	c.Assert(err, check.Equals, nil)
 
 	u, err = GetUserByAPIKey(u.ApiKey + "test")
-	c.Assert(err, check.Equals, gorm.ErrRecordNotFound)
+  c.Assert(err, check.Equals, gorm.ErrRecordNotFound)
+	c.Assert(u.Username, check.Equals, "")
+}
+
+func (s *ModelsSuite) TestGetUserByUsernameWithNotExistingUser(c *check.C) {
+	u, err := GetUserByUsername("test user does not exist")
+  c.Assert(err, check.Equals, gorm.ErrRecordNotFound)
 	c.Assert(u.Username, check.Equals, "")
 }
 
