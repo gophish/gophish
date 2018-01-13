@@ -69,6 +69,12 @@ func (s *SendTestEmailRequest) Generate(msg *gomail.Message) error {
 	}
 	msg.SetAddressHeader("From", f.Address, f.Name)
 
+	url, err := buildTemplate(s.URL, s)
+	if err != nil {
+		return err
+	}
+	s.URL = url
+
 	// Parse the customHeader templates
 	for _, header := range s.SMTP.Headers {
 		key, err := buildTemplate(header.Key, s)

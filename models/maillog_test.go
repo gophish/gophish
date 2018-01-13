@@ -238,3 +238,40 @@ func (s *ModelsSuite) TestUnlockAllMailLogs(ch *check.C) {
 		ch.Assert(m.Processing, check.Equals, false)
 	}
 }
+
+func (s *ModelsSuite) TestURLTemplateRendering(ch *check.C) {
+	template := Template{
+		Name: "URLTemplate",
+		UserId: 1,
+		Text: "{{.URL}}",
+		HTML: "{{.URL}}",
+		Subject: "{{.URL}}",
+	}
+	ch.Assert(PostTemplate(&template), check.Equals, nil)
+	campaign := s.createCampaignDependencies(ch)
+	campaign.URL = "http://127.0.0.1/{{.Email}}/"
+	campaign.Template = template
+
+	ch.Assert(PostCampaign(&campaign, campaign.UserId), check.Equals, nil)
+	result := campaign.Results[0]
+	expectedURL := fmt.Sprintf("http://127.0.0.1/%s/?rid=%s", result.Email, result.RId)
+
+	m := &MailLog{}
+	err := db.Where("r_id=? AND campaign_id=?", result.RId, campaign.Id).
+		Find(m).Error
+	ch.Assert(err, check.Equals, nil)
+
+	msg := gomail.NewMessage()
+	err = m.Generate(msg)
+	ch.Assert(err, check.Equals, nil)
+
+	msgBuff := &bytes.Buffer{}
+	_, err = msg.WriteTo(msgBuff)
+	ch.Assert(err, check.Equals, nil)
+
+	got, err := email.NewEmailFromReader(msgBuff)
+	ch.Assert(err, check.Equals, nil)
+	ch.Assert(got.Subject, check.Equals, expectedURL)
+	ch.Assert(string(got.Text), check.Equals, expectedURL)
+	ch.Assert(string(got.HTML), check.Equals, expectedURL)
+}

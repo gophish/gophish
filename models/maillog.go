@@ -213,6 +213,10 @@ func (m *MailLog) Generate(msg *gomail.Message) error {
 		fn = f.Address
 	}
 	msg.SetAddressHeader("From", f.Address, f.Name)
+	url, err := buildTemplate(c.URL, r)
+	if err != nil {
+		return err
+	}
 	td := struct {
 		Result
 		URL         string
@@ -221,9 +225,9 @@ func (m *MailLog) Generate(msg *gomail.Message) error {
 		From        string
 	}{
 		r,
-		c.URL + "?rid=" + r.RId,
-		c.URL + "/track?rid=" + r.RId,
-		"<img alt='' style='display: none' src='" + c.URL + "/track?rid=" + r.RId + "'/>",
+		url + "?rid=" + r.RId,
+		url + "/track?rid=" + r.RId,
+		"<img alt='' style='display: none' src='" + url + "/track?rid=" + r.RId + "'/>",
 		fn,
 	}
 
@@ -307,7 +311,7 @@ func LockMailLogs(ms []*MailLog, lock bool) error {
 	tx := db.Begin()
 	for i := range ms {
 		ms[i].Processing = lock
-		err := tx.Debug().Save(ms[i]).Error
+		err := tx.Save(ms[i]).Error
 		if err != nil {
 			tx.Rollback()
 			return err
