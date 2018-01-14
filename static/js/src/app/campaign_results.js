@@ -297,7 +297,7 @@ function renderTimeline(data) {
                 '    <div class="timeline-icon ' + statuses[event.message].label + '">' +
                 '    <i class="fa ' + statuses[event.message].icon + '"></i></div>' +
                 '    <div class="timeline-message">' + escapeHtml(event.message) +
-                '    <span class="timeline-date">' + moment.utc(event.time).local().format('MMMM Do YYYY h:mm a') + '</span>'
+                '    <span class="timeline-date">' + moment.utc(event.time).local().format('MMMM Do YYYY h:mm:ss a') + '</span>'
             if (event.details) {
                 if (event.message == "Submitted Data") {
                     results += '<div class="timeline-replay-button"><button onclick="replay(' + i + ')" class="btn btn-success">'
