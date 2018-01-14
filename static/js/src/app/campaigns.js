@@ -28,7 +28,9 @@ function launch() {
             return new Promise(function (resolve, reject) {
                 groups = []
                 $("#users").select2("data").forEach(function (group) {
-                    groups.push({ name: group.text });
+                    groups.push({
+                        name: group.text
+                    });
                 })
                 // Validate our fields
                 campaign = {
@@ -353,4 +355,15 @@ $(document).ready(function () {
     $.fn.select2.defaults.set("width", "100%");
     $.fn.select2.defaults.set("dropdownParent", $("#modal_body"));
     $.fn.select2.defaults.set("theme", "bootstrap");
+    $.fn.select2.defaults.set("sorter", function (data) {
+        return data.sort(function (a, b) {
+            if (a.text.toLowerCase() > b.text.toLowerCase()) {
+                return 1;
+            }
+            if (a.text.toLowerCase() < b.text.toLowerCase()) {
+                return -1;
+            }
+            return 0;
+        });
+    })
 })
