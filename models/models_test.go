@@ -102,7 +102,7 @@ func (s *ModelsSuite) TestGetUserExists(c *check.C) {
 
 func (s *ModelsSuite) TestGetUserByUsernameWithExistingUser(c *check.C) {
 	u, err := GetUserByUsername("admin")
-  c.Assert(err, check.Equals, nil)
+	c.Assert(err, check.Equals, nil)
 	c.Assert(u.Username, check.Equals, "admin")
 }
 
@@ -124,13 +124,13 @@ func (s *ModelsSuite) TestGetUserByAPIKeyWithNotExistingAPIKey(c *check.C) {
 	c.Assert(err, check.Equals, nil)
 
 	u, err = GetUserByAPIKey(u.ApiKey + "test")
-  c.Assert(err, check.Equals, gorm.ErrRecordNotFound)
+	c.Assert(err, check.Equals, gorm.ErrRecordNotFound)
 	c.Assert(u.Username, check.Equals, "")
 }
 
 func (s *ModelsSuite) TestGetUserByUsernameWithNotExistingUser(c *check.C) {
 	u, err := GetUserByUsername("test user does not exist")
-  c.Assert(err, check.Equals, gorm.ErrRecordNotFound)
+	c.Assert(err, check.Equals, gorm.ErrRecordNotFound)
 	c.Assert(u.Username, check.Equals, "")
 }
 
@@ -141,6 +141,29 @@ func (s *ModelsSuite) TestPutUser(c *check.C) {
 	c.Assert(err, check.Equals, nil)
 	u, err = GetUser(1)
 	c.Assert(u.Username, check.Equals, "admin_changed")
+}
+
+func (s *ModelsSuite) TestDeleteUser(c *check.C) {
+	// Create user for test
+	username := "test user for deleteUser"
+	testUser := User{
+		Username: username,
+		Hash:     "test",
+	}
+	c.Assert(db.Save(&testUser).Error, check.Equals, nil)
+
+	// Assert user exists
+	u, err := GetUserByUsername(username)
+	c.Assert(u.Username, check.Equals, username)
+	c.Assert(err, check.Equals, nil)
+
+	// Delete user
+	c.Assert(DeleteUser(u.Id), check.Equals, nil)
+
+	// Assert user does not exists
+	u, err = GetUserByUsername(username)
+	c.Assert(u.Username, check.Equals, "")
+	c.Assert(err, check.Equals, gorm.ErrRecordNotFound)
 }
 
 func (s *ModelsSuite) TestGeneratedAPIKey(c *check.C) {
@@ -299,6 +322,101 @@ func (s *ModelsSuite) TestPutGroupEmptyAttribute(c *check.C) {
 	c.Assert(targets[1].LastName, check.Equals, "Example")
 }
 
+func (s *ModelsSuite) TestDeleteGroupsByUserId(c *check.C) {
+	// Add groups.
+	testGroup1 := &Group{
+		Name:    "Test Group 1",
+		Targets: []Target{Target{Email: "test@example.com"}},
+		UserId:  1,
+	}
+	testGroup2 := &Group{
+		Name:    "Test Group 2",
+		Targets: []Target{Target{Email: "test@example.com"}},
+		UserId:  1,
+	}
+
+	c.Assert(PostGroup(testGroup1), check.Equals, nil)
+	c.Assert(PostGroup(testGroup2), check.Equals, nil)
+
+	//	Delete groups just created.
+	c.Assert(DeleteGroupsByUserId(1), check.Equals, nil)
+
+	// Assert groups are deleted.
+	_, err := GetGroup(testGroup1.Id, 1)
+	c.Assert(err, check.ErrorMatches, "record not found")
+
+	_, err = GetGroup(testGroup2.Id, 1)
+	c.Assert(err, check.ErrorMatches, "record not found")
+
+	// Assert targets are deleted either.
+	ts1, err := GetTargets(testGroup1.Id)
+	c.Assert(err, check.Equals, nil)
+	c.Assert(len(ts1), check.Equals, 0)
+
+	ts2, err := GetTargets(testGroup2.Id)
+	c.Assert(err, check.Equals, nil)
+	c.Assert(len(ts2), check.Equals, 0)
+}
+
+func (s *ModelsSuite) TestDeleteCampaignsByUserId(ch *check.C) {
+	// Create campaigns
+	c1 := s.createCampaignDependencies(ch)
+	c1.Events = []Event{
+		{Email: "test1@test.com"},
+		{Email: "test2@test.com"},
+	}
+	c1.Results = []Result{
+		{Email: "test1@test.com"},
+		{Email: "test2@test.com"},
+	}
+	ch.Assert(PostCampaign(&c1, c1.UserId), check.Equals, nil)
+
+	c2 := s.createCampaignDependencies(ch)
+	c2.Events = []Event{
+		{Email: "test1@test.com"},
+		{Email: "test2@test.com"},
+	}
+	c2.Results = []Result{
+		{Email: "test1@test.com"},
+		{Email: "test2@test.com"},
+	}
+	ch.Assert(PostCampaign(&c2, c2.UserId), check.Equals, nil)
+
+	// Assert Campaigns are created
+	cs, err := GetCampaigns(1)
+	ch.Assert(err, check.Equals, nil)
+	ch.Assert(len(cs), check.Equals, 2)
+
+	// Assert Events are created
+	var es []Event
+	err = db.Where("campaign_id in (?)", []int64{c1.Id, c2.Id}).Find(&es).Error
+	ch.Assert(err, check.Equals, nil)
+	ch.Assert(len(es), check.Not(check.Equals), 0)
+
+	// Assert Results are created
+	var rs []Result
+	err = db.Where("campaign_id in (?)", []int64{c1.Id, c2.Id}).Find(&rs).Error
+	ch.Assert(err, check.Equals, nil)
+	ch.Assert(len(rs), check.Not(check.Equals), 0)
+
+	DeleteCampaignsByUserId(1)
+
+	// Assert Campaigns are deleted
+	cs, err = GetCampaigns(1)
+	ch.Assert(err, check.Equals, nil)
+	ch.Assert(len(cs), check.Equals, 0)
+
+	// Assert Events are deleted
+	err = db.Where("campaign_id in (?)", []int64{c1.Id, c2.Id}).Find(&es).Error
+	ch.Assert(err, check.Equals, nil)
+	ch.Assert(len(es), check.Equals, 0)
+
+	// Assert Results are deleted
+	err = db.Where("campaign_id in (?)", []int64{c1.Id, c2.Id}).Find(&rs).Error
+	ch.Assert(err, check.Equals, nil)
+	ch.Assert(len(rs), check.Equals, 0)
+}
+
 func (s *ModelsSuite) TestPostSMTP(c *check.C) {
 	smtp := SMTP{
 		Name:        "Test SMTP",
@@ -349,6 +467,55 @@ func (s *ModelsSuite) TestPostSMTPValidHeader(c *check.C) {
 	ss, err := GetSMTPs(1)
 	c.Assert(err, check.Equals, nil)
 	c.Assert(len(ss), check.Equals, 1)
+}
+
+func (s *ModelsSuite) TestDeleteSMTPsByUserId(c *check.C) {
+	smtp1 := SMTP{
+		Name:        "Test SMTP 1",
+		Host:        "1.1.1.1:25",
+		FromAddress: "Foo Bar <foo@example.com>",
+		UserId:      1,
+		Headers: []Header{
+			{Key: "Reply-To", Value: "test@example.com"},
+			{Key: "X-Mailer", Value: "gophish"},
+		},
+	}
+	smtp2 := SMTP{
+		Name:        "Test SMTP 2",
+		Host:        "1.1.1.1:25",
+		FromAddress: "Foo Bar <foo@example.com>",
+		UserId:      1,
+		Headers: []Header{
+			{Key: "Reply-To", Value: "test@example.com"},
+			{Key: "X-Mailer", Value: "gophish"},
+		},
+	}
+
+	c.Assert(PostSMTP(&smtp1), check.Equals, nil)
+	c.Assert(PostSMTP(&smtp2), check.Equals, nil)
+
+	// Assert SMTPs are successfully created
+	ss, err := GetSMTPs(1)
+	c.Assert(err, check.Equals, nil)
+	c.Assert(len(ss), check.Equals, 2)
+
+	// Assert Headers are successfully created
+	var hs []Header
+	err = db.Where("smtp_id in (?)", []int64{smtp1.Id, smtp2.Id}).Find(&hs).Error
+	c.Assert(err, check.Equals, nil)
+	c.Assert(len(hs), check.Equals, 4)
+
+	c.Assert(DeleteSMTPsByUserId(1), check.Equals, nil)
+
+	// Assert SMTPs are successfully deleted
+	ss, err = GetSMTPs(1)
+	c.Assert(err, check.Equals, nil)
+	c.Assert(len(ss), check.Equals, 0)
+
+	// Assert Headers are successfully deleted
+	err = db.Where("smtp_id in (?)", []int64{smtp1.Id, smtp2.Id}).Find(&hs).Error
+	c.Assert(err, check.Equals, nil)
+	c.Assert(len(hs), check.Equals, 0)
 }
 
 func (s *ModelsSuite) TestPostPage(c *check.C) {
@@ -426,6 +593,39 @@ func (s *ModelsSuite) TestPostPage(c *check.C) {
 		_, ok = f.Find("input").Attr("name")
 		c.Assert(ok, check.Equals, false)
 	})
+}
+
+func (s *ModelsSuite) TestDeletePagesByUserId(c *check.C) {
+	// Create pages
+	p1 := Page{
+		Name:        "Test Page 1",
+		HTML:        "<html></html>",
+		RedirectURL: "http://example.com",
+		UserId:      1,
+	}
+	p2 := Page{
+		Name:        "Test Page 2",
+		HTML:        "<html></html>",
+		RedirectURL: "http://example.com",
+		UserId:      1,
+	}
+
+	c.Assert(PostPage(&p1), check.Equals, nil)
+	c.Assert(PostPage(&p2), check.Equals, nil)
+
+	// Assert pages are successfully created
+	ps, err := GetPages(1)
+	c.Assert(err, check.Equals, nil)
+	c.Assert(len(ps), check.Equals, 2)
+
+	// Delete pages
+	c.Assert(DeletePagesByUserId(1), check.Equals, nil)
+
+	// Assert pages are successfully deleted
+	ps, err = GetPages(1)
+	c.Assert(err, check.Equals, nil)
+	c.Assert(len(ps), check.Equals, 0)
+
 }
 
 func (s *ModelsSuite) TestGenerateResultId(c *check.C) {
@@ -518,4 +718,51 @@ func (s *ModelsSuite) TestDuplicateResults(ch *check.C) {
 	ch.Assert(len(c.Results), check.Equals, 2)
 	ch.Assert(c.Results[0].Email, check.Equals, group.Targets[0].Email)
 	ch.Assert(c.Results[1].Email, check.Equals, group.Targets[2].Email)
+}
+
+func (s *ModelsSuite) TestDeleteTemplatesByUserId(c *check.C) {
+	template1 := Template{
+		Name:   "Test Template 1",
+		UserId: 2,
+		HTML:   "<body></body>",
+		Attachments: []Attachment{
+			{Name: "Some attachment"},
+			{Name: "Some attachment"},
+		},
+	}
+	template2 := Template{
+		Name:   "Test Template 2",
+		UserId: 2,
+		HTML:   "<body></body>",
+		Attachments: []Attachment{
+			{Name: "Some attachment"},
+			{Name: "Some attachment"},
+		},
+	}
+
+	c.Assert(PostTemplate(&template1), check.Equals, nil)
+	c.Assert(PostTemplate(&template2), check.Equals, nil)
+
+	// Assert Templates are successfully created
+	ts, err := GetTemplates(2)
+	c.Assert(err, check.Equals, nil)
+	c.Assert(len(ts), check.Equals, 2)
+
+	// Assert Attachments are successfully created
+	var as []Attachment
+	err = db.Where("template_id in (?)", []int64{template1.Id, template2.Id}).Find(&as).Error
+	c.Assert(err, check.Equals, nil)
+	c.Assert(len(as), check.Equals, 4)
+
+	c.Assert(DeleteTemplatesByUserId(2), check.Equals, nil)
+
+	// Assert Templates are successfully deleted
+	ts, err = GetTemplates(2)
+	c.Assert(err, check.Equals, nil)
+	c.Assert(len(ts), check.Equals, 0)
+
+	// Assert Attachments are successfully deleted
+	err = db.Where("template_id in (?)", []int64{template1.Id, template2.Id}).Find(&as).Error
+	c.Assert(err, check.Equals, nil)
+	c.Assert(len(as), check.Equals, 0)
 }

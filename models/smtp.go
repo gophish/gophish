@@ -237,3 +237,33 @@ func DeleteSMTP(id int64, uid int64) error {
 	}
 	return err
 }
+
+func DeleteSMTPsByUserId(uid int64) error {
+	var ss []SMTP
+
+	err := db.Where("user_id=?", uid).Find(&ss).Error
+	if err != nil {
+		Logger.Println(err)
+		return err
+	}
+
+	var sids []int64
+	for _, s := range ss {
+		sids = append(sids, s.Id)
+	}
+
+	// Delete all custom headers
+	err = db.Where("smtp_id in (?)", sids).Delete(&Header{}).Error
+	if err != nil {
+		Logger.Println(err)
+		return err
+	}
+
+	// Delete SMTPs
+	err = db.Where("user_id=?", uid).Delete(SMTP{}).Error
+	if err != nil {
+		Logger.Println(err)
+	}
+
+	return err
+}

@@ -260,6 +260,35 @@ func DeleteGroup(g *Group) error {
 	return err
 }
 
+func DeleteGroupsByUserId(uid int64) error {
+	var gs []Group
+
+	err := db.Where("user_id=?", uid).Find(&gs).Error
+	if err != nil {
+		Logger.Println(err)
+		return err
+	}
+
+	var gids []int64
+	for _, g := range gs {
+		gids = append(gids, g.Id)
+	}
+
+	err = db.Where("group_id in (?)", gids).Delete(&GroupTarget{}).Error
+	if err != nil {
+		Logger.Println(err)
+		return err
+	}
+
+	err = db.Where("user_id=?", uid).Delete(&Group{}).Error
+	if err != nil {
+		Logger.Println(err)
+		return err
+	}
+
+	return err
+}
+
 func insertTargetIntoGroup(t Target, gid int64) error {
 	if _, err = mail.ParseAddress(t.Email); err != nil {
 		Logger.Printf("Invalid email %s\n", t.Email)
