@@ -22,7 +22,7 @@ To build Gophish from source, simply run ```go get github.com/gophish/gophish```
 You can also use Gophish via an unofficial Docker container [here](https://hub.docker.com/r/matteoggl/gophish/).
 
 ### Setup
-After running the Gophish binary, open an Internet browser to http://localhost:3333 and login with the default username (admin) and password (gophish).
+After running the Gophish binary, open an Internet browser to https://localhost:3333 and login with the default username (admin) and password (gophish).
 
 ### Documentation
 
