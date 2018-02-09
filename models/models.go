@@ -82,10 +82,6 @@ func chooseDBDriver(name, openStr string) goose.DBDriver {
 // Setup initializes the Conn object
 // It also populates the Gophish Config object
 func Setup() error {
-	create_db := false
-	if _, err = os.Stat(config.Conf.DBPath); err != nil || config.Conf.DBPath == ":memory:" {
-		create_db = true
-	}
 	// Setup the goose configuration
 	migrateConf := &goose.DBConf{
 		MigrationsDir: config.Conf.MigrationsPath,
@@ -113,9 +109,10 @@ func Setup() error {
 		Logger.Println(err)
 		return err
 	}
-	//If the database didn't exist, we need to create the admin user
-	if create_db {
-		//Create the default user
+	// Create the admin user if it doesn't exist
+	var userCount int64
+	db.Model(&User{}).Count(&userCount)
+	if userCount == 0 {
 		initUser := User{
 			Username: "admin",
 			Hash:     "$2a$10$IYkPp0.QsM81lYYPrQx6W.U6oQGw7wMpozrKhKAHUBVL4mkm/EvAS", //gophish
