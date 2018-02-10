@@ -252,7 +252,10 @@ func (m *MailLog) Generate(msg *gomail.Message) error {
 	if err != nil {
 		Logger.Println(err)
 	}
-	msg.SetHeader("Subject", subject)
+	// don't set Subject header if the subject is empty
+	if len(subject) != 0 {
+		msg.SetHeader("Subject", subject)
+	}
 
 	msg.SetHeader("To", r.FormatAddress())
 	if c.Template.Text != "" {

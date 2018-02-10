@@ -96,7 +96,10 @@ func (s *SendTestEmailRequest) Generate(msg *gomail.Message) error {
 	if err != nil {
 		Logger.Println(err)
 	}
-	msg.SetHeader("Subject", subject)
+	// don't set the Subject header if it is blank
+	if len(subject) != 0 {
+		msg.SetHeader("Subject", subject)
+	}
 
 	msg.SetHeader("To", s.FormatAddress())
 	if s.Template.Text != "" {
