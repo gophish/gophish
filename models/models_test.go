@@ -41,7 +41,8 @@ func (s *ModelsSuite) TearDownTest(c *check.C) {
 	db.Model(User{}).Update("username", "admin")
 }
 
-func (s *ModelsSuite) createCampaignDependencies(ch *check.C) Campaign {
+func (s *ModelsSuite) createCampaignDependencies(ch *check.C, optional ...string) Campaign {
+	// we use the optional parameter to pass an alternative subject
 	group := Group{Name: "Test Group"}
 	group.Targets = []Target{
 		Target{Email: "test1@example.com", FirstName: "First", LastName: "Example"},
@@ -52,7 +53,11 @@ func (s *ModelsSuite) createCampaignDependencies(ch *check.C) Campaign {
 
 	// Add a template
 	t := Template{Name: "Test Template"}
-	t.Subject = "{{.RId}} - Subject"
+	if len(optional) > 0 {
+		t.Subject = optional[0]
+	} else {
+		t.Subject = "{{.RId}} - Subject"
+	}
 	t.Text = "{{.RId}} - Text"
 	t.HTML = "{{.RId}} - HTML"
 	t.UserId = 1

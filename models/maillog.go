@@ -253,7 +253,7 @@ func (m *MailLog) Generate(msg *gomail.Message) error {
 		Logger.Println(err)
 	}
 	// don't set Subject header if the subject is empty
-	if len(subject)!=0 {
+	if len(subject) != 0 {
 		msg.SetHeader("Subject", subject)
 	}
 

@@ -275,3 +275,37 @@ func (s *ModelsSuite) TestURLTemplateRendering(ch *check.C) {
 	ch.Assert(string(got.Text), check.Equals, expectedURL)
 	ch.Assert(string(got.HTML), check.Equals, expectedURL)
 }
+
+func (s *ModelsSuite) TestMailLogGenerateEmptySubject(ch *check.C) {
+
+	// in place of using createCampaign, we replicate its small code body
+	// here internally as we want to specify an empty subject to createCampaignDependencies
+	// campaign := s.createCampaign(ch)
+	campaign := s.createCampaignDependencies(ch, "") // specify empty subject
+	// Setup and "launch" our campaign
+	ch.Assert(PostCampaign(&campaign, campaign.UserId), check.Equals, nil)
+
+	result := campaign.Results[0]
+	m := &MailLog{}
+	err := db.Where("r_id=? AND campaign_id=?", result.RId, campaign.Id).
+		Find(m).Error
+	ch.Assert(err, check.Equals, nil)
+
+	msg := gomail.NewMessage()
+	err = m.Generate(msg)
+	ch.Assert(err, check.Equals, nil)
+
+	expected := &email.Email{
+		Subject: "",
+		Text:    []byte(fmt.Sprintf("%s - Text", result.RId)),
+		HTML:    []byte(fmt.Sprintf("%s - HTML", result.RId)),
+	}
+
+	msgBuff := &bytes.Buffer{}
+	_, err = msg.WriteTo(msgBuff)
+	ch.Assert(err, check.Equals, nil)
+
+	got, err := email.NewEmailFromReader(msgBuff)
+	ch.Assert(err, check.Equals, nil)
+	ch.Assert(got.Subject, check.Equals, expected.Subject)
+}

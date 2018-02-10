@@ -97,9 +97,7 @@ func (s *SendTestEmailRequest) Generate(msg *gomail.Message) error {
 		Logger.Println(err)
 	}
 	// don't set the Subject header if it is blank
-	if len(subject) == 0 {
-		Logger.Println("Subject is empty and the Subject header was not set")
-	}else {
+	if len(subject) != 0 {
 		msg.SetHeader("Subject", subject)
 	}
 
