@@ -9,6 +9,8 @@ import (
 	"io"
 	"math"
 	"net/mail"
+	"net/url"
+	"path"
 	"strings"
 	"text/template"
 	"time"
@@ -213,10 +215,20 @@ func (m *MailLog) Generate(msg *gomail.Message) error {
 		fn = f.Address
 	}
 	msg.SetAddressHeader("From", f.Address, f.Name)
-	url, err := buildTemplate(c.URL, r)
+	campaignURL, err := buildTemplate(c.URL, r)
 	if err != nil {
 		return err
 	}
+
+	phishURL, _ := url.Parse(campaignURL)
+	q := phishURL.Query()
+	q.Set("rid", r.RId)
+	phishURL.RawQuery = q.Encode()
+
+	trackingURL, _ := url.Parse(campaignURL)
+	trackingURL.Path = path.Join(trackingURL.Path, "/track")
+	trackingURL.RawQuery = q.Encode()
+
 	td := struct {
 		Result
 		URL         string
@@ -225,9 +237,9 @@ func (m *MailLog) Generate(msg *gomail.Message) error {
 		From        string
 	}{
 		r,
-		url + "?rid=" + r.RId,
-		url + "/track?rid=" + r.RId,
-		"<img alt='' style='display: none' src='" + url + "/track?rid=" + r.RId + "'/>",
+		phishURL.String(),
+		trackingURL.String(),
+		"<img alt='' style='display: none' src='" + trackingURL.String() + "'/>",
 		fn,
 	}
 
