@@ -49,7 +49,8 @@ import (
 var (
 	Logger = log.New(os.Stdout, " ", log.Ldate|log.Ltime|log.Lshortfile)
 
-	configPath = kingpin.Flag("config", "Location of config.json.").Default("./config.json").String()
+	configPath    = kingpin.Flag("config", "Location of config.json.").Default("./config.json").String()
+	disableMailer = kingpin.Flag("disable-mailer", "Disable the mailer (for use with multi-system deployments)").Bool()
 )
 
 func main() {
@@ -70,7 +71,11 @@ func main() {
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	go mailer.Mailer.Start(ctx)
+
+	// Provide the option to disable the built-in mailer
+	if !*disableMailer {
+		go mailer.Mailer.Start(ctx)
+	}
 	// Setup the global variables and settings
 	err = models.Setup()
 	if err != nil {
