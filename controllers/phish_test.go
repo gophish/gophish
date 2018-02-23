@@ -16,7 +16,7 @@ func (s *ControllersSuite) getFirstCampaign() models.Campaign {
 }
 
 func (s *ControllersSuite) openEmail(rid string) {
-	resp, err := http.Get(fmt.Sprintf("%s/track?rid=%s", ps.URL, rid))
+	resp, err := http.Get(fmt.Sprintf("%s/track?%s=%s", ps.URL, models.RecipientParameter, rid))
 	s.Nil(err)
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
@@ -27,7 +27,7 @@ func (s *ControllersSuite) openEmail(rid string) {
 }
 
 func (s *ControllersSuite) openEmail404(rid string) {
-	resp, err := http.Get(fmt.Sprintf("%s/track?rid=%s", ps.URL, rid))
+	resp, err := http.Get(fmt.Sprintf("%s/track?%s=%s", ps.URL, models.RecipientParameter, rid))
 	s.Nil(err)
 	defer resp.Body.Close()
 	s.Nil(err)
@@ -35,7 +35,7 @@ func (s *ControllersSuite) openEmail404(rid string) {
 }
 
 func (s *ControllersSuite) clickLink(rid string, campaign models.Campaign) {
-	resp, err := http.Get(fmt.Sprintf("%s/?rid=%s", ps.URL, rid))
+	resp, err := http.Get(fmt.Sprintf("%s/?%s=%s", ps.URL, models.RecipientParameter, rid))
 	s.Nil(err)
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
@@ -44,7 +44,7 @@ func (s *ControllersSuite) clickLink(rid string, campaign models.Campaign) {
 }
 
 func (s *ControllersSuite) clickLink404(rid string) {
-	resp, err := http.Get(fmt.Sprintf("%s/?rid=%s", ps.URL, rid))
+	resp, err := http.Get(fmt.Sprintf("%s/?%s=%s", ps.URL, models.RecipientParameter, rid))
 	s.Nil(err)
 	defer resp.Body.Close()
 	s.Nil(err)
@@ -88,11 +88,11 @@ func (s *ControllersSuite) TestNoRecipientID() {
 
 func (s *ControllersSuite) TestInvalidRecipientID() {
 	rid := "XXXXXXXXXX"
-	resp, err := http.Get(fmt.Sprintf("%s/track?rid=%s", ps.URL, rid))
+	resp, err := http.Get(fmt.Sprintf("%s/track?%s=%s", ps.URL, models.RecipientParameter, rid))
 	s.Nil(err)
 	s.Equal(resp.StatusCode, http.StatusNotFound)
 
-	resp, err = http.Get(fmt.Sprintf("%s/?rid=%s", ps.URL, rid))
+	resp, err = http.Get(fmt.Sprintf("%s/?%s=%s", ps.URL, models.RecipientParameter, rid))
 	s.Nil(err)
 	s.Equal(resp.StatusCode, http.StatusNotFound)
 }

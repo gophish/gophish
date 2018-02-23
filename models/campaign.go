@@ -91,6 +91,9 @@ var ErrPageNotFound = errors.New("Page not found")
 // ErrSMTPNotFound indicates a sending profile specified by the user does not exist in the database
 var ErrSMTPNotFound = errors.New("Sending profile not found")
 
+// RecipientParameter is the URL parameter that points to the result ID for a recipient.
+const RecipientParameter = "rid"
+
 // Validate checks to make sure there are no invalid fields in a submitted campaign
 func (c *Campaign) Validate() error {
 	switch {

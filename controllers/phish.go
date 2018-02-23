@@ -127,13 +127,19 @@ func PhishHandler(w http.ResponseWriter, r *http.Request) {
 	if fn == "" {
 		fn = f.Address
 	}
+
+	phishURL, _ := url.Parse(c.URL)
+	q := phishURL.Query()
+	q.Set(models.RecipientParameter, rs.RId)
+	phishURL.RawQuery = q.Encode()
+
 	rsf := struct {
 		models.Result
 		URL  string
 		From string
 	}{
 		rs,
-		c.URL + "?rid=" + rs.RId,
+		phishURL.String(),
 		fn,
 	}
 	err = tmpl.Execute(&htmlBuff, rsf)
@@ -156,7 +162,7 @@ func setupContext(r *http.Request) (error, *http.Request) {
 		Logger.Println(err)
 		return err, r
 	}
-	id := r.Form.Get("rid")
+	id := r.Form.Get(models.RecipientParameter)
 	if id == "" {
 		return ErrInvalidRequest, r
 	}
