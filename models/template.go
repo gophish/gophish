@@ -14,6 +14,7 @@ type Template struct {
 	Id           int64        `json:"id" gorm:"column:id; primary_key:yes"`
 	UserId       int64        `json:"-" gorm:"column:user_id"`
 	Name         string       `json:"name"`
+	EnvelopeSender      string       `json:"envelope_sender"`
 	Subject      string       `json:"subject"`
 	Text         string       `json:"text"`
 	HTML         string       `json:"html" gorm:"column:html"`

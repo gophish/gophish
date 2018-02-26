@@ -198,6 +198,7 @@ func buildTemplate(text string, data interface{}) (string, error) {
 // the maillog. We accept the gomail.Message as an argument so that the caller
 // can choose to re-use the message across recipients.
 func (m *MailLog) Generate(msg *gomail.Message) error {
+	Logger.Printf("MACHIEL TEST MAILLOG.GO 0")
 	r, err := GetResult(m.RId)
 	if err != nil {
 		return err
@@ -206,7 +207,11 @@ func (m *MailLog) Generate(msg *gomail.Message) error {
 	if err != nil {
 		return err
 	}
-	f, err := mail.ParseAddress(c.SMTP.FromAddress)
+	Logger.Printf("MACHIEL TEST MAILLOG.GO 1")
+	Logger.Printf("MACHIEL TEST MAILLOG.GO 2: %s", c.Template.EnvelopeSender)
+
+	//f, err := mail.ParseAddress(c.SMTP.FromAddress)
+	f, err := mail.ParseAddress(c.Template.EnvelopeSender)
 	if err != nil {
 		return err
 	}
@@ -219,6 +224,8 @@ func (m *MailLog) Generate(msg *gomail.Message) error {
 	if err != nil {
 		return err
 	}
+
+	Logger.Printf("MACHIEL TEST MAILLOG.GO  4 %s", f.Address)
 
 	phishURL, _ := url.Parse(campaignURL)
 	q := phishURL.Query()

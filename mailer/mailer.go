@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/textproto"
 	"os"
+	"encoding/hex"
 
 	"github.com/gophish/gomail"
 )
@@ -75,7 +76,7 @@ func (mw *MailWorker) Start(ctx context.Context) {
 			return
 		case ms := <-mw.Queue:
 			go func(ctx context.Context, ms []Mail) {
-				Logger.Printf("Mailer got %d mail to send", len(ms))
+				Logger.Printf("MACHIEL MODIFIED Mailer got %d mail to send", len(ms))
 				dialer, err := ms[0].GetDialer()
 				if err != nil {
 					errorMail(err, ms)
@@ -126,6 +127,7 @@ func dialHost(ctx context.Context, dialer Dialer) (Sender, error) {
 // If the context is cancelled before all of the mail are sent,
 // sendMail just returns and does not modify those emails.
 func sendMail(ctx context.Context, dialer Dialer, ms []Mail) {
+	
 	sender, err := dialHost(ctx, dialer)
 	if err != nil {
 		errorMail(err, ms)

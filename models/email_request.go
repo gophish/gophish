@@ -59,7 +59,10 @@ func (s *SendTestEmailRequest) Success() error {
 // Generate fills in the details of a gomail.Message with the contents
 // from the SendTestEmailRequest.
 func (s *SendTestEmailRequest) Generate(msg *gomail.Message) error {
-	f, err := mail.ParseAddress(s.SMTP.FromAddress)
+	//f, err := mail.ParseAddress(s.SMTP.FromAddress)
+	Logger.Printf("MACHIEL TEST EMAIL_REQUEST.GO 0 ")
+	Logger.Printf("MACHIEL TEST MAILLOG.GO 2: %s", s.Template.EnvelopeSender)
+	f, err := mail.ParseAddress(s.Template.EnvelopeSender)
 	if err != nil {
 		return err
 	}
@@ -68,6 +71,8 @@ func (s *SendTestEmailRequest) Generate(msg *gomail.Message) error {
 		fn = f.Address
 	}
 	msg.SetAddressHeader("From", f.Address, f.Name)
+	Logger.Printf("MACHIEL TEST EMAIL_REQUEST.GO %s", f.Address)
+
 
 	url, err := buildTemplate(s.URL, s)
 	if err != nil {
