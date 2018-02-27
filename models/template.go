@@ -5,6 +5,7 @@ import (
 	"errors"
 	"html/template"
 	"time"
+	"net/mail"
 
 	"github.com/jinzhu/gorm"
 )
@@ -35,6 +36,11 @@ func (t *Template) Validate() error {
 		return ErrTemplateNameNotSpecified
 	case t.Text == "" && t.HTML == "":
 		return ErrTemplateMissingParameter
+	case t.EnvelopeSender != "":
+		_, err := mail.ParseAddress(t.EnvelopeSender)
+		if err != nil {
+			return err
+		}
 	}
 	var buff bytes.Buffer
 	// Test that the variables used in the template
