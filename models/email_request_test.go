@@ -113,7 +113,7 @@ func (s *ModelsSuite) TestEmailRequestURLTemplating(ch *check.C) {
 		SMTP:     smtp,
 		Template: template,
 		Target:   target,
-		URL: "http://127.0.0.1/{{.Email}}",
+		URL:      "http://127.0.0.1/{{.Email}}",
 	}
 
 	msg := gomail.NewMessage()
