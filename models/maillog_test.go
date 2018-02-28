@@ -188,6 +188,40 @@ func (s *ModelsSuite) TestGenerateMailLog(ch *check.C) {
 	ch.Assert(m.Processing, check.Equals, false)
 }
 
+func (s *ModelsSuite) TestMailLogGetSmtpFrom(ch *check.C) {
+	template := Template{
+		Name:           "OverrideSmtpFrom",
+		UserId:         1,
+		Text:           "dummytext",
+		HTML:           "Dummyhtml",
+		Subject:        "Dummysubject",
+		EnvelopeSender: "spoofing@example.com",
+	}
+	ch.Assert(PostTemplate(&template), check.Equals, nil)
+	campaign := s.createCampaignDependencies(ch)
+	campaign.Template = template
+
+	ch.Assert(PostCampaign(&campaign, campaign.UserId), check.Equals, nil)
+	result := campaign.Results[0]
+
+	m := &MailLog{}
+	err := db.Where("r_id=? AND campaign_id=?", result.RId, campaign.Id).
+		Find(m).Error
+	ch.Assert(err, check.Equals, nil)
+
+	msg := gomail.NewMessage()
+	err = m.Generate(msg)
+	ch.Assert(err, check.Equals, nil)
+
+	msgBuff := &bytes.Buffer{}
+	_, err = msg.WriteTo(msgBuff)
+	ch.Assert(err, check.Equals, nil)
+
+	got, err := email.NewEmailFromReader(msgBuff)
+	ch.Assert(err, check.Equals, nil)
+	ch.Assert(got.From, check.Equals, "spoofing@example.com")
+}
+
 func (s *ModelsSuite) TestMailLogGenerate(ch *check.C) {
 	campaign := s.createCampaign(ch)
 	result := campaign.Results[0]
@@ -215,6 +249,7 @@ func (s *ModelsSuite) TestMailLogGenerate(ch *check.C) {
 	ch.Assert(got.Subject, check.Equals, expected.Subject)
 	ch.Assert(string(got.Text), check.Equals, string(expected.Text))
 	ch.Assert(string(got.HTML), check.Equals, string(expected.HTML))
+	ch.Assert(got.From, check.Equals, "test@test.com")
 }
 
 func (s *ModelsSuite) TestUnlockAllMailLogs(ch *check.C) {

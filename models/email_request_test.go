@@ -94,6 +94,35 @@ func (s *ModelsSuite) TestEmailRequestGenerate(ch *check.C) {
 	ch.Assert(string(got.HTML), check.Equals, string(expected.HTML))
 }
 
+func (s *ModelsSuite) TestGetSmtpFrom(ch *check.C) {
+	smtp := SMTP{
+		FromAddress: "from@example.com",
+	}
+	template := Template{
+		Name:    "Test Template",
+		Subject: "{{.FirstName}} - Subject",
+		Text:    "{{.Email}} - Text",
+		HTML:    "{{.Email}} - HTML",
+	}
+	target := Target{
+		FirstName: "First",
+		LastName:  "Last",
+		Email:     "firstlast@example.com",
+	}
+	req := &SendTestEmailRequest{
+		SMTP:     smtp,
+		Template: template,
+		Target:   target,
+	}
+
+	msg := gomail.NewMessage()
+	err = req.Generate(msg)
+	smtp_from, err := req.GetSmtpFrom()
+
+	ch.Assert(err, check.Equals, nil)
+	ch.Assert(smtp_from, check.Equals, "from@example.com")
+}
+
 func (s *ModelsSuite) TestEmailRequestURLTemplating(ch *check.C) {
 	smtp := SMTP{
 		FromAddress: "from@example.com",
