@@ -235,6 +235,7 @@ func (s *ModelsSuite) TestMailLogGenerate(ch *check.C) {
 	ch.Assert(err, check.Equals, nil)
 
 	expected := &email.Email{
+		From:    "test@test.com", // Default smtp.FromAddress
 		Subject: fmt.Sprintf("%s - Subject", result.RId),
 		Text:    []byte(fmt.Sprintf("%s - Text", result.RId)),
 		HTML:    []byte(fmt.Sprintf("%s - HTML", result.RId)),
@@ -246,10 +247,10 @@ func (s *ModelsSuite) TestMailLogGenerate(ch *check.C) {
 
 	got, err := email.NewEmailFromReader(msgBuff)
 	ch.Assert(err, check.Equals, nil)
+	ch.Assert(got.From, check.Equals, expected.From)
 	ch.Assert(got.Subject, check.Equals, expected.Subject)
 	ch.Assert(string(got.Text), check.Equals, string(expected.Text))
 	ch.Assert(string(got.HTML), check.Equals, string(expected.HTML))
-	ch.Assert(got.From, check.Equals, "test@test.com")
 }
 
 func (s *ModelsSuite) TestUnlockAllMailLogs(ch *check.C) {
