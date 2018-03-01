@@ -42,6 +42,13 @@ var statuses = {
         icon: "fa-exclamation",
         point: "ct-point-clicked"
     },
+//not a status, but is used for the campaign timeline and user timeline
+    "Email Reported": {
+        color: "#45d6ef",
+        label: "label-info",
+        icon: "fa-envelope",
+        point: "ct-point-reported"
+    },
     "Error": {
         color: "#6c7a89",
         label: "label-default",
@@ -282,7 +289,8 @@ function renderTimeline(data) {
         "email": data[4],
         "position": data[5],
         "status": data[6],
-        "send_date": data[7]
+        "send_date": data[7],
+        "reported": data[8]
     }
     results = '<div class="timeline col-sm-12 well well-lg">' +
         '<h6>Timeline for ' + escapeHtml(record.first_name) + ' ' + escapeHtml(record.last_name) +
@@ -603,9 +611,9 @@ function poll() {
                 var rid = rowData[0]
                 $.each(campaign.results, function (j, result) {
                     if (result.id == rid) {
-                        rowData[7] = moment(result.send_date).format('MMMM Do YYYY, h:mm:ss a')
+                        rowData[8] = moment(result.send_date).format('MMMM Do YYYY, h:mm:ss a')
+                        rowData[7] = result.reported
                         rowData[6] = result.status
-                        resultsTable.row(i).data(rowData)
                         if (row.child.isShown()) {
                             $(row.node()).find("i").removeClass("fa-caret-right")
                             $(row.node()).find("i").addClass("fa-caret-down")
@@ -669,7 +677,7 @@ function load() {
                             "targets": [1]
                         }, {
                             "visible": false,
-                            "targets": [0, 7]
+                            "targets": [0, 8]
                         },
                         {
                             "render": function (data, type, row) {
@@ -681,6 +689,7 @@ function load() {
                 });
                 resultsTable.clear();
                 var email_series_data = {}
+		var reportedCount = 0
                 var timeline_series_data = []
                 Object.keys(statusMapping).forEach(function (k) {
                     email_series_data[k] = 0
@@ -694,9 +703,13 @@ function load() {
                         escapeHtml(result.email) || "",
                         escapeHtml(result.position) || "",
                         result.status,
+                        result.reported,
                         moment(result.send_date).format('MMMM Do YYYY, h:mm:ss a')
                     ])
                     email_series_data[result.status]++;
+                    if (result.reported) {
+			reportedCount++
+		    }
                     // Backfill status values
                     var step = progressListing.indexOf(result.status)
                     for (var i = 0; i < step; i++) {
@@ -761,6 +774,28 @@ function load() {
                         colors: [statuses[status].color, '#dddddd']
                     })
                 })
+		//have to do the reported data separately as it isn't one of the statuses
+		    var reported_data = []
+		    reported_data.push({
+			    name: 'Email Reported',
+			    y: reportedCount
+		    })
+		    reported_data.push({
+                        name: '',
+                        y: campaign.results.length - reportedCount
+                    })
+
+
+                    var chart2 = renderPieChart({
+                        elemId: 'reported_chart',
+                        title: 'Reported',
+                        name: 'Email Reported',
+                        data: reported_data,
+                        colors: ['#45d6ef', '#dddddd']
+                    })
+
+
+
                 if (use_map) {
                     $("#resultsMapContainer").show()
                     map = new Datamap({

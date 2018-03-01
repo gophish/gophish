@@ -1,5 +1,4 @@
 var campaigns = []
-
 // statuses is a helper map to point result statuses to ui classes
 var statuses = {
     "Email Sent": {
@@ -28,6 +27,12 @@ var statuses = {
         label: "label-warning",
         icon: "fa-envelope",
         point: "ct-point-opened"
+    },
+    "Email Reported": {
+        color: "#45d6ef",
+        label: "label-warning",
+        icon: "fa-bullhorne",
+        point: "ct-point-reported"
     },
     "Clicked Link": {
         color: "#F39C12",
@@ -80,6 +85,7 @@ var statuses = {
 var statsMapping = {
     "sent": "Email Sent",
     "opened": "Email Opened",
+    "email_reported": "Email Reported",
     "clicked": "Clicked Link",
     "submitted_data": "Submitted Data",
 }
@@ -190,6 +196,7 @@ function generateStatsPieCharts(campaigns) {
             data: stats_data,
             colors: [statuses[status_label].color, "#dddddd"]
         })
+
         stats_data = []
     });
 }
@@ -295,7 +302,8 @@ $(document).ready(function () {
                     { className: "color-sent", targets: [2] },
                     { className: "color-opened", targets: [3] },
                     { className: "color-clicked", targets: [4] },
-                    { className: "color-success", targets: [5] }],
+                    { className: "color-success", targets: [5] },
+                    { className: "color-reported", targets: [6] }],
                     order: [
                         [1, "desc"]
                     ]
@@ -310,7 +318,7 @@ $(document).ready(function () {
                         var quickStats = launchDate + "<br><br>" + "Number of recipients: " + campaign.stats.total
                     } else {
                         launchDate = "Launch Date: " + moment(campaign.launch_date).format('MMMM Do YYYY, h:mm:ss a')
-                        var quickStats = launchDate + "<br><br>" + "Number of recipients: " + campaign.stats.total + "<br><br>" + "Emails opened: " + campaign.stats.opened + "<br><br>" + "Emails clicked: " + campaign.stats.clicked + "<br><br>" + "Submitted Credentials: " + campaign.stats.submitted_data + "<br><br>" + "Errors : " + campaign.stats.error
+                        var quickStats = launchDate + "<br><br>" + "Number of recipients: " + campaign.stats.total + "<br><br>" + "Emails opened: " + campaign.stats.opened + "<br><br>" + "Emails clicked: " + campaign.stats.clicked + "<br><br>" + "Submitted Credentials: " + campaign.stats.submitted_data + "<br><br>" + "Errors : " + campaign.stats.error + "<br><br>" + "Reported : " + campaign.stats.email_reported
                     }
                     // Add it to the table
                     campaignTable.row.add([
@@ -320,6 +328,7 @@ $(document).ready(function () {
                         campaign.stats.opened,
                         campaign.stats.clicked,
                         campaign.stats.submitted_data,
+			campaign.stats.email_reported,
                         "<span class=\"label " + label + "\" data-toggle=\"tooltip\" data-placement=\"right\" data-html=\"true\" title=\"" + quickStats + "\">" + campaign.status + "</span>",
                         "<div class='pull-right'><a class='btn btn-primary' href='/campaigns/" + campaign.id + "' data-toggle='tooltip' data-placement='left' title='View Results'>\
                     <i class='fa fa-bar-chart'></i>\

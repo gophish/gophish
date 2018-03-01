@@ -16,7 +16,7 @@ func (s *ControllersSuite) getFirstCampaign() models.Campaign {
 }
 
 func (s *ControllersSuite) openEmail(rid string) {
-	resp, err := http.Get(fmt.Sprintf("%s/track?%s=%s", ps.URL, models.RecipientParameter, rid))
+	resp, err := http.Get(fmt.Sprintf("%s/track?rid=%s", ps.URL, rid))
 	s.Nil(err)
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
@@ -25,9 +25,17 @@ func (s *ControllersSuite) openEmail(rid string) {
 	s.Nil(err)
 	s.Equal(bytes.Compare(body, expected), 0)
 }
+func (s *ControllersSuite) reportedEmail(rid string) {
+	resp, err := http.Get(fmt.Sprintf("%s/report?rid=%s", ps.URL, rid))
+	s.Nil(err)
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	s.Nil(err)
+	s.Equal(bytes.Compare(body, expected), 0)
+}
 
 func (s *ControllersSuite) openEmail404(rid string) {
-	resp, err := http.Get(fmt.Sprintf("%s/track?%s=%s", ps.URL, models.RecipientParameter, rid))
+	resp, err := http.Get(fmt.Sprintf("%s/track?rid=%s", ps.URL, rid))
 	s.Nil(err)
 	defer resp.Body.Close()
 	s.Nil(err)
@@ -35,7 +43,7 @@ func (s *ControllersSuite) openEmail404(rid string) {
 }
 
 func (s *ControllersSuite) clickLink(rid string, campaign models.Campaign) {
-	resp, err := http.Get(fmt.Sprintf("%s/?%s=%s", ps.URL, models.RecipientParameter, rid))
+	resp, err := http.Get(fmt.Sprintf("%s/?rid=%s", ps.URL, rid))
 	s.Nil(err)
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
@@ -44,7 +52,7 @@ func (s *ControllersSuite) clickLink(rid string, campaign models.Campaign) {
 }
 
 func (s *ControllersSuite) clickLink404(rid string) {
-	resp, err := http.Get(fmt.Sprintf("%s/?%s=%s", ps.URL, models.RecipientParameter, rid))
+	resp, err := http.Get(fmt.Sprintf("%s/?rid=%s", ps.URL, rid))
 	s.Nil(err)
 	defer resp.Body.Close()
 	s.Nil(err)
@@ -61,6 +69,19 @@ func (s *ControllersSuite) TestOpenedPhishingEmail() {
 	campaign = s.getFirstCampaign()
 	result = campaign.Results[0]
 	s.Equal(result.Status, models.EVENT_OPENED)
+}
+
+func (s *ControllersSuite) ReportedPhishingEmail() {
+	campaign := s.getFirstCampaign()
+	result := campaign.Results[0]
+	s.Equal(result.Status, models.STATUS_SENDING)
+
+	s.reportedEmail(result.RId)
+
+	campaign = s.getFirstCampaign()
+	result = campaign.Results[0]
+	s.Equal(result.Status, models.EVENT_OPENED)
+//	s.Equal(result.Status, models.EVENT_REPORTED)
 }
 
 func (s *ControllersSuite) TestClickedPhishingLinkAfterOpen() {
@@ -88,11 +109,11 @@ func (s *ControllersSuite) TestNoRecipientID() {
 
 func (s *ControllersSuite) TestInvalidRecipientID() {
 	rid := "XXXXXXXXXX"
-	resp, err := http.Get(fmt.Sprintf("%s/track?%s=%s", ps.URL, models.RecipientParameter, rid))
+	resp, err := http.Get(fmt.Sprintf("%s/track?rid=%s", ps.URL, rid))
 	s.Nil(err)
 	s.Equal(resp.StatusCode, http.StatusNotFound)
 
-	resp, err = http.Get(fmt.Sprintf("%s/?%s=%s", ps.URL, models.RecipientParameter, rid))
+	resp, err = http.Get(fmt.Sprintf("%s/?rid=%s", ps.URL, rid))
 	s.Nil(err)
 	s.Equal(resp.StatusCode, http.StatusNotFound)
 }
