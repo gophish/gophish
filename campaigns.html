@@ -1,0 +1,148 @@
+{{define "body"}}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-3 col-md-2 sidebar">
+            <ul class="nav nav-sidebar">
+                <li><a href="/">Dashboard</a>
+                </li>
+                <li class="active"><a href="/campaigns">Campaigns</a>
+                </li>
+                <li><a href="/users">Users &amp; Groups</a>
+                </li>
+                <li><a href="/templates">Email Templates</a>
+                </li>
+                <li><a href="/landing_pages">Landing Pages</a>
+                </li>
+                <li><a href="/sending_profiles">Sending Profiles</a>
+                </li>
+                <li><a href="/settings">Settings</a>
+                </li>
+                <li><hr></li>
+                <li><a href="https://gophish.gitbooks.io/user-guide/content/">User Guide</a>
+                </li>
+                <li><a href="/api/">API Documentation</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+    <div class="row">
+        <h1 class="page-header">
+            Campaigns
+        </h1>
+    </div>
+    <div id="flashes" class="row"></div>
+    <div class="row">
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal" onclick="edit('new')"><i class="fa fa-plus"></i> New Campaign</button>
+    </div>
+    &nbsp;
+    <div id="loading">
+        <i class="fa fa-spinner fa-spin fa-4x"></i>
+    </div>
+    <div id="emptyMessage" class="row" style="display:none;">
+        <div class="alert alert-info">
+            No campaigns created yet. Let's create one!
+        </div>
+    </div>
+    <div class="row">
+        <table id="campaignTable" class="table" style="display:none;">
+            <thead>
+                <tr>
+                    <th class="col-md-3">Name</th>
+                    <th class="col-md-4">Created Date</th>
+                    <th class="col-md-2">Status</th>
+                    <th class="col-md-3 no-sort"></th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="dismiss()"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="campaignModalLabel">New Campaign</h4>
+      </div>
+      <div class="modal-body" id="modal_body">
+          <div class="row" id="modal.flashes"></div>
+          <div class="form-group">
+              <label for="name">Name:</label>
+              <input type="text" class="form-control" id="name" placeholder="Campaign name" autofocus>
+              <label class="control-label" for="template">Email Template:</label>
+              <select class="form-control" placeholder="Template Name" id="template"/>
+                  <option></option>
+              </select>
+	      <label class="control-label" for="page">Landing Page:</label>
+          <select class="form-control" placeholder="Landing Page" id="page"/>
+                  <option></option>
+          </select>
+	      <label class="control-label" for="url">URL: <i class="fa fa-question-circle" data-toggle="tooltip" data-placement="right" title="Location of gophish listener (must be reachable by targets!)"></i></label>
+              <input type="text" class="form-control" placeholder="http://192.168.1.1" id="url"/>
+	      <label class="control-label" for="url">Schedule: </label>
+              <input type="text" class="form-control" id="launch_date"/>
+	      <label class="control-label" for="profile">Sending Profile:</label>
+	      <div class="input-group">
+              <select class="form-control" placeholder="Sending Profile" id="profile"/>
+                  <option></option>
+              </select>
+		<span class="input-group-btn">
+		    <button type="button" data-toggle="modal" data-target="#sendTestEmailModal" class="btn btn-primary button"><i class="fa fa-envelope"></i> Send Test Email</button>
+		</span>
+	      </div>
+              <label class="control-label" for="users">Groups:</label>
+              <select class="form-control" id="users" multiple="multiple"></select>
+          </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal" onclick="dismiss()">Close</button>
+	<button type="button" id="launchButton" class="btn btn-primary" onclick="launch()"><i class="fa fa-rocket"></i> Launch Campaign</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Send Test Email Modal -->
+<div class="modal" id="sendTestEmailModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+        <!-- New Email Modal -->
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="sendTestEmailModalTitle">Send Test Email</h4>
+        </div>
+        <div class="modal-body">
+            <div class="row" id="sendTestEmailModal.flashes"></div>
+            <div class="row">
+		<div class="col-sm-12">
+	            <label class="control-label" for="to">Send Test Email to:</label>
+                </div>
+	        <br>
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" placeholder="First Name" name="to_first_name">
+                </div>
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" placeholder="Last Name" name="to_last_name">
+                </div>
+                <div class="col-sm-4">
+                    <input type="email" class="form-control" placeholder="Email" name="to_email" required>
+                </div>
+                <div class="col-sm-4">
+                    <input type="text" class="form-control" placeholder="Position" name="to_position">
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" data-dismiss="modal" class="btn btn-default">Cancel</button>
+	    <button type="button" class="btn btn-primary" id="sendTestModalSubmit" onclick="sendTestEmail()"><i class="fa fa-envelope"></i> Send</button>
+        </div>
+    </div>
+  </div>
+</div>
+{{end}}
+{{define "scripts"}}
+<script src="/js/dist/app/campaigns.min.js"></script>
+{{end}}
