@@ -573,12 +573,16 @@ function poll() {
             })
             /* Update the results donut chart */
             var email_series_data = {}
+	    var reportedCount = 0
             // Load the initial data
             Object.keys(statusMapping).forEach(function (k) {
                 email_series_data[k] = 0
             });
             $.each(campaign.results, function (i, result) {
                 email_series_data[result.status]++;
+                    if (result.reported) {
+			reportedCount++
+		    }
                 // Backfill status values
                 var step = progressListing.indexOf(result.status)
                 for (var i = 0; i < step; i++) {
@@ -602,7 +606,25 @@ function poll() {
                 chart.series[0].update({
                     data: email_data
                 })
+
+
             })
+		//reported
+		var reported_data = []
+		reported_data.push({
+		    name: 'Email Reported',
+		    y: reportedCount
+		})
+		reported_data.push({
+                    name: '',
+                    y: campaign.results.length - reportedCount
+                })
+
+                var chart2 = $('#reported_chart').highcharts()
+	 	    chart2.series[0].update({
+		    data: reported_data
+		})
+
             /* Update the datatable */
             resultsTable = $("#resultsTable").DataTable()
             resultsTable.rows().every(function (i, tableLoop, rowLoop) {
@@ -614,6 +636,7 @@ function poll() {
                         rowData[8] = moment(result.send_date).format('MMMM Do YYYY, h:mm:ss a')
                         rowData[7] = result.reported
                         rowData[6] = result.status
+			resultsTable.row(i).data(rowData)
                         if (row.child.isShown()) {
                             $(row.node()).find("i").removeClass("fa-caret-right")
                             $(row.node()).find("i").addClass("fa-caret-down")
@@ -774,6 +797,7 @@ function load() {
                         colors: [statuses[status].color, '#dddddd']
                     })
                 })
+
 		//have to do the reported data separately as it isn't one of the statuses
 		    var reported_data = []
 		    reported_data.push({
@@ -785,7 +809,6 @@ function load() {
                         y: campaign.results.length - reportedCount
                     })
 
-
                     var chart2 = renderPieChart({
                         elemId: 'reported_chart',
                         title: 'Reported',
@@ -793,8 +816,6 @@ function load() {
                         data: reported_data,
                         colors: ['#45d6ef', '#dddddd']
                     })
-
-
 
                 if (use_map) {
                     $("#resultsMapContainer").show()

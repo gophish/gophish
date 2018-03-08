@@ -40,6 +40,7 @@ func CreatePhishingRouter() http.Handler {
 	router.HandleFunc("/robots.txt", RobotsHandler)
 	router.HandleFunc("/{path:.*}/track", PhishTracker)
 	router.HandleFunc("/{path:.*}/report", PhishReporter)
+	router.HandleFunc("/report", PhishReporter)
 	router.HandleFunc("/{path:.*}", PhishHandler)
 	return router
 }
@@ -93,9 +94,6 @@ func PhishReporter(w http.ResponseWriter, r *http.Request) {
                 Logger.Println(err)
         }
 }
-
-
-
 
 // PhishHandler handles incoming client connections and registers the associated actions performed
 // (such as clicked link, etc.)
@@ -153,13 +151,19 @@ func PhishHandler(w http.ResponseWriter, r *http.Request) {
 	if fn == "" {
 		fn = f.Address
 	}
+
+	phishURL, _ := url.Parse(c.URL)
+	q := phishURL.Query()
+	q.Set(models.RecipientParameter, rs.RId)
+	phishURL.RawQuery = q.Encode()
+
 	rsf := struct {
 		models.Result
 		URL  string
 		From string
 	}{
 		rs,
-		c.URL + "?rid=" + rs.RId,
+		phishURL.String(),
 		fn,
 	}
 	err = tmpl.Execute(&htmlBuff, rsf)
@@ -182,7 +186,7 @@ func setupContext(r *http.Request) (error, *http.Request) {
 		Logger.Println(err)
 		return err, r
 	}
-	id := r.Form.Get("rid")
+	id := r.Form.Get(models.RecipientParameter)
 	if id == "" {
 		return ErrInvalidRequest, r
 	}
