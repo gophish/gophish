@@ -64,7 +64,7 @@
   get_url:
     validate_certs: True
     url: https://getgophish.com/releases/latest/linux/64
-    dest: /home/{{ gophish_user }}/gophish.zip
+    dest: "/home/{{ gophish_user }}/gophish.zip"
     mode: 0755
     owner: "{{ gophish_user }}"
     group: "{{ gophish_user }}"
