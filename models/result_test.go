@@ -60,9 +60,9 @@ func (s *ModelsSuite) TestResultScheduledStatus(ch *check.C) {
 func (s *ModelsSuite) TestDuplicateResults(ch *check.C) {
 	group := Group{Name: "Test Group"}
 	group.Targets = []Target{
-		Target{Email: "test1@example.com", FirstName: "First", LastName: "Example"},
-		Target{Email: "test1@example.com", FirstName: "Duplicate", LastName: "Duplicate"},
-		Target{Email: "test2@example.com", FirstName: "Second", LastName: "Example"},
+		{Email: "test1@example.com", FirstName: "First", LastName: "Example"},
+		{Email: "test1@example.com", FirstName: "Duplicate", LastName: "Duplicate"},
+		{Email: "test2@example.com", FirstName: "Second", LastName: "Example"},
 	}
 	group.UserId = 1
 	ch.Assert(PostGroup(&group), check.Equals, nil)

@@ -7,7 +7,7 @@ import (
 
 func (s *ModelsSuite) TestPostGroup(c *check.C) {
 	g := Group{Name: "Test Group"}
-	g.Targets = []Target{Target{Email: "test@example.com"}}
+	g.Targets = []Target{{Email: "test@example.com"}}
 	g.UserId = 1
 	err := PostGroup(&g)
 	c.Assert(err, check.Equals, nil)
@@ -17,7 +17,7 @@ func (s *ModelsSuite) TestPostGroup(c *check.C) {
 
 func (s *ModelsSuite) TestPostGroupNoName(c *check.C) {
 	g := Group{Name: ""}
-	g.Targets = []Target{Target{Email: "test@example.com"}}
+	g.Targets = []Target{{Email: "test@example.com"}}
 	g.UserId = 1
 	err := PostGroup(&g)
 	c.Assert(err, check.Equals, ErrGroupNameNotSpecified)
@@ -35,12 +35,12 @@ func (s *ModelsSuite) TestGetGroups(c *check.C) {
 	// Add groups.
 	PostGroup(&Group{
 		Name:    "Test Group 1",
-		Targets: []Target{Target{Email: "test1@example.com"}},
+		Targets: []Target{{Email: "test1@example.com"}},
 		UserId:  1,
 	})
 	PostGroup(&Group{
 		Name:    "Test Group 2",
-		Targets: []Target{Target{Email: "test2@example.com"}},
+		Targets: []Target{{Email: "test2@example.com"}},
 		UserId:  1,
 	})
 
@@ -66,7 +66,7 @@ func (s *ModelsSuite) TestGetGroup(c *check.C) {
 	// Add group.
 	originalGroup := &Group{
 		Name:    "Test Group",
-		Targets: []Target{Target{Email: "test@example.com"}},
+		Targets: []Target{{Email: "test@example.com"}},
 		UserId:  1,
 	}
 	c.Assert(PostGroup(originalGroup), check.Equals, nil)
@@ -88,7 +88,7 @@ func (s *ModelsSuite) TestGetGroupByName(c *check.C) {
 	// Add group.
 	PostGroup(&Group{
 		Name:    "Test Group",
-		Targets: []Target{Target{Email: "test@example.com"}},
+		Targets: []Target{{Email: "test@example.com"}},
 		UserId:  1,
 	})
 
@@ -109,8 +109,8 @@ func (s *ModelsSuite) TestPutGroup(c *check.C) {
 	// Add test group.
 	group := Group{Name: "Test Group"}
 	group.Targets = []Target{
-		Target{Email: "test1@example.com", FirstName: "First", LastName: "Example"},
-		Target{Email: "test2@example.com", FirstName: "Second", LastName: "Example"},
+		{Email: "test1@example.com", FirstName: "First", LastName: "Example"},
+		{Email: "test2@example.com", FirstName: "Second", LastName: "Example"},
 	}
 	group.UserId = 1
 	PostGroup(&group)
@@ -134,8 +134,8 @@ func (s *ModelsSuite) TestPutGroupEmptyAttribute(c *check.C) {
 	// Add test group.
 	group := Group{Name: "Test Group"}
 	group.Targets = []Target{
-		Target{Email: "test1@example.com", FirstName: "First", LastName: "Example"},
-		Target{Email: "test2@example.com", FirstName: "Second", LastName: "Example"},
+		{Email: "test1@example.com", FirstName: "First", LastName: "Example"},
+		{Email: "test2@example.com", FirstName: "Second", LastName: "Example"},
 	}
 	group.UserId = 1
 	PostGroup(&group)
