@@ -33,6 +33,7 @@ type CampaignResults struct {
 	Id      int64    `json:"id"`
 	Name    string   `json:"name"`
 	Status  string   `json:"status"`
+	Reported string  `json:"reported"`
 	Results []Result `json:"results, omitempty"`
 	Events  []Event  `json:"timeline,omitempty"`
 }
@@ -61,6 +62,7 @@ type CampaignStats struct {
 	OpenedEmail   int64 `json:"opened"`
 	ClickedLink   int64 `json:"clicked"`
 	SubmittedData int64 `json:"submitted_data"`
+	EmailReported int64 `json:"email_reported"`
 	Error         int64 `json:"error"`
 }
 
@@ -191,6 +193,10 @@ func getCampaignStats(cid int64) (CampaignStats, error) {
 		return s, err
 	}
 	query.Where("status=?", EVENT_CLICKED).Count(&s.ClickedLink)
+	if err != nil {
+		return s, err
+	}
+	query.Where("reported=?", true).Count(&s.EmailReported)
 	if err != nil {
 		return s, err
 	}
@@ -426,6 +432,7 @@ func PostCampaign(c *Campaign, uid int64) error {
 				FirstName:  t.FirstName,
 				LastName:   t.LastName,
 				SendDate:   c.LaunchDate,
+				Reported:   false,
 			}
 			if c.Status == CAMPAIGN_IN_PROGRESS {
 				r.Status = STATUS_SENDING

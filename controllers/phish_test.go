@@ -26,6 +26,15 @@ func (s *ControllersSuite) openEmail(rid string) {
 	s.Equal(bytes.Compare(body, expected), 0)
 }
 
+func (s *ControllersSuite) reportedEmail(rid string) {
+	resp, err := http.Get(fmt.Sprintf("%s/report?%s=%s", models.RecipientParameter, rid))
+	s.Nil(err)
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	s.Nil(err)
+	s.Equal(bytes.Compare(body, expected), 0)
+}
+
 func (s *ControllersSuite) openEmail404(rid string) {
 	resp, err := http.Get(fmt.Sprintf("%s/track?%s=%s", ps.URL, models.RecipientParameter, rid))
 	s.Nil(err)
@@ -57,6 +66,18 @@ func (s *ControllersSuite) TestOpenedPhishingEmail() {
 	s.Equal(result.Status, models.STATUS_SENDING)
 
 	s.openEmail(result.RId)
+
+	campaign = s.getFirstCampaign()
+	result = campaign.Results[0]
+	s.Equal(result.Status, models.EVENT_OPENED)
+}
+
+func (s *ControllersSuite) ReportedPhishingEmail() {
+	campaign := s.getFirstCampaign()
+	result := campaign.Results[0]
+	s.Equal(result.Status, models.STATUS_SENDING)
+
+	s.reportedEmail(result.RId)
 
 	campaign = s.getFirstCampaign()
 	result = campaign.Results[0]
