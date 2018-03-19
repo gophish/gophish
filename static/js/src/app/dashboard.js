@@ -113,16 +113,18 @@ function renderPieChart(chartopts) {
                         left = chart.plotLeft + pie.center[0],
                         top = chart.plotTop + pie.center[1];
                     this.innerText = rend.text(chartopts['data'][0].count, left, top).
-                        attr({
-                            'text-anchor': 'middle',
-                            'font-size': '24px',
-                            'font-weight': 'bold',
-                            'fill': chartopts['colors'][0],
-                            'font-family': 'Helvetica,Arial,sans-serif'
-                        }).add();
+                    attr({
+                        'text-anchor': 'middle',
+                        'font-size': '16px',
+                        'font-weight': 'bold',
+                        'fill': chartopts['colors'][0],
+                        'font-family': 'Helvetica,Arial,sans-serif'
+                    }).add();
                 },
                 render: function () {
-                    this.innerText.attr({ text: chartopts['data'][0].count })
+                    this.innerText.attr({
+                        text: chartopts['data'][0].count
+                    })
                 }
             }
         },
@@ -296,14 +298,30 @@ $(document).ready(function () {
                 // Create the overview chart data
                 campaignTable = $("#campaignTable").DataTable({
                     columnDefs: [{
-                        orderable: false,
-                        targets: "no-sort"
-                    },
-                    { className: "color-sent", targets: [2] },
-                    { className: "color-opened", targets: [3] },
-                    { className: "color-clicked", targets: [4] },
-                    { className: "color-success", targets: [5] },
-                    { className: "color-reported", targets: [6] }],
+                            orderable: false,
+                            targets: "no-sort"
+                        },
+                        {
+                            className: "color-sent",
+                            targets: [2]
+                        },
+                        {
+                            className: "color-opened",
+                            targets: [3]
+                        },
+                        {
+                            className: "color-clicked",
+                            targets: [4]
+                        },
+                        {
+                            className: "color-success",
+                            targets: [5]
+                        },
+                        {
+                            className: "color-reported",
+                            targets: [6]
+                        }
+                    ],
                     order: [
                         [1, "desc"]
                     ]
@@ -328,7 +346,7 @@ $(document).ready(function () {
                         campaign.stats.opened,
                         campaign.stats.clicked,
                         campaign.stats.submitted_data,
-			campaign.stats.email_reported,
+                        campaign.stats.email_reported,
                         "<span class=\"label " + label + "\" data-toggle=\"tooltip\" data-placement=\"right\" data-html=\"true\" title=\"" + quickStats + "\">" + campaign.status + "</span>",
                         "<div class='pull-right'><a class='btn btn-primary' href='/campaigns/" + campaign.id + "' data-toggle='tooltip' data-placement='left' title='View Results'>\
                     <i class='fa fa-bar-chart'></i>\

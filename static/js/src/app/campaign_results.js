@@ -27,7 +27,7 @@ var statuses = {
     "Email Opened": {
         color: "#f9bf3b",
         label: "label-warning",
-        icon: "fa-envelope",
+        icon: "fa-envelope-open",
         point: "ct-point-opened"
     },
     "Clicked Link": {
@@ -42,11 +42,11 @@ var statuses = {
         icon: "fa-exclamation",
         point: "ct-point-clicked"
     },
-//not a status, but is used for the campaign timeline and user timeline
+    //not a status, but is used for the campaign timeline and user timeline
     "Email Reported": {
         color: "#45d6ef",
         label: "label-info",
-        icon: "fa-envelope",
+        icon: "fa-bullhorn",
         point: "ct-point-reported"
     },
     "Error": {
@@ -102,6 +102,7 @@ var statusMapping = {
     "Email Opened": "opened",
     "Clicked Link": "clicked",
     "Submitted Data": "submitted_data",
+    "Email Reported": "reported",
 }
 
 // This is an underwhelming attempt at an enum
@@ -573,16 +574,15 @@ function poll() {
             })
             /* Update the results donut chart */
             var email_series_data = {}
-	    var reportedCount = 0
             // Load the initial data
             Object.keys(statusMapping).forEach(function (k) {
                 email_series_data[k] = 0
             });
             $.each(campaign.results, function (i, result) {
                 email_series_data[result.status]++;
-                    if (result.reported) {
-			reportedCount++
-		    }
+                if (result.reported) {
+                    email_series_data['Email Reported']++
+                }
                 // Backfill status values
                 var step = progressListing.indexOf(result.status)
                 for (var i = 0; i < step; i++) {
@@ -606,24 +606,7 @@ function poll() {
                 chart.series[0].update({
                     data: email_data
                 })
-
-
             })
-		//reported
-		var reported_data = []
-		reported_data.push({
-		    name: 'Email Reported',
-		    y: reportedCount
-		})
-		reported_data.push({
-                    name: '',
-                    y: campaign.results.length - reportedCount
-                })
-
-                var chart2 = $('#reported_chart').highcharts()
-	 	    chart2.series[0].update({
-		    data: reported_data
-		})
 
             /* Update the datatable */
             resultsTable = $("#resultsTable").DataTable()
@@ -636,10 +619,10 @@ function poll() {
                         rowData[8] = moment(result.send_date).format('MMMM Do YYYY, h:mm:ss a')
                         rowData[7] = result.reported
                         rowData[6] = result.status
-			resultsTable.row(i).data(rowData)
+                        resultsTable.row(i).data(rowData)
                         if (row.child.isShown()) {
-                            $(row.node()).find("i").removeClass("fa-caret-right")
-                            $(row.node()).find("i").addClass("fa-caret-down")
+                            $(row.node()).find("#caret").removeClass("fa-caret-right")
+                            $(row.node()).find("#caret").addClass("fa-caret-down")
                             row.child(renderTimeline(row.data()))
                         }
                         return false
@@ -704,15 +687,25 @@ function load() {
                         },
                         {
                             "render": function (data, type, row) {
-                                return createStatusLabel(data, row[7])
+                                return createStatusLabel(data, row[8])
                             },
                             "targets": [6]
+                        },
+                        {
+                            className: "text-center",
+                            "render": function (reported, type, row) {
+                                if (reported) {
+                                    return "<i class='fa fa-check-circle text-center text-success'></i>"
+                                } else {
+                                    return "<i class='fa fa-times-circle text-center text-danger'></i>"
+                                }
+                            },
+                            "targets": [7]
                         }
                     ]
                 });
                 resultsTable.clear();
                 var email_series_data = {}
-		var reportedCount = 0
                 var timeline_series_data = []
                 Object.keys(statusMapping).forEach(function (k) {
                     email_series_data[k] = 0
@@ -720,7 +713,7 @@ function load() {
                 $.each(campaign.results, function (i, result) {
                     resultsTable.row.add([
                         result.id,
-                        "<i class=\"fa fa-caret-right\"></i>",
+                        "<i id=\"caret\" class=\"fa fa-caret-right\"></i>",
                         escapeHtml(result.first_name) || "",
                         escapeHtml(result.last_name) || "",
                         escapeHtml(result.email) || "",
@@ -731,8 +724,8 @@ function load() {
                     ])
                     email_series_data[result.status]++;
                     if (result.reported) {
-			reportedCount++
-		    }
+                        email_series_data['Email Reported']++
+                    }
                     // Backfill status values
                     var step = progressListing.indexOf(result.status)
                     for (var i = 0; i < step; i++) {
@@ -797,25 +790,6 @@ function load() {
                         colors: [statuses[status].color, '#dddddd']
                     })
                 })
-
-		//have to do the reported data separately as it isn't one of the statuses
-		    var reported_data = []
-		    reported_data.push({
-			    name: 'Email Reported',
-			    y: reportedCount
-		    })
-		    reported_data.push({
-                        name: '',
-                        y: campaign.results.length - reportedCount
-                    })
-
-                    var chart2 = renderPieChart({
-                        elemId: 'reported_chart',
-                        title: 'Reported',
-                        name: 'Email Reported',
-                        data: reported_data,
-                        colors: ['#45d6ef', '#dddddd']
-                    })
 
                 if (use_map) {
                     $("#resultsMapContainer").show()

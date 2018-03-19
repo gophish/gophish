@@ -75,24 +75,25 @@ func PhishTracker(w http.ResponseWriter, r *http.Request) {
 
 // PhishReporter tracks emails as they are reported, updating the status for the given Result
 func PhishReporter(w http.ResponseWriter, r *http.Request) {
-        err, r := setupContext(r)
-        if err != nil {
-                // Log the error if it wasn't something we can safely ignore
-                if err != ErrInvalidRequest && err != ErrCampaignComplete {
-                        Logger.Println(err)
-                }
-                http.NotFound(w, r)
-                return
-        }
-        rs := ctx.Get(r, "result").(models.Result)
-        c := ctx.Get(r, "campaign").(models.Campaign)
-        rj := ctx.Get(r, "details").([]byte)
-        c.AddEvent(models.Event{Email: rs.Email, Message: models.EVENT_REPORTED, Details: string(rj)})
-        
+	err, r := setupContext(r)
+	if err != nil {
+		// Log the error if it wasn't something we can safely ignore
+		if err != ErrInvalidRequest && err != ErrCampaignComplete {
+			Logger.Println(err)
+		}
+		http.NotFound(w, r)
+		return
+	}
+	rs := ctx.Get(r, "result").(models.Result)
+	c := ctx.Get(r, "campaign").(models.Campaign)
+	rj := ctx.Get(r, "details").([]byte)
+	c.AddEvent(models.Event{Email: rs.Email, Message: models.EVENT_REPORTED, Details: string(rj)})
+
 	err = rs.UpdateReported(true)
-        if err != nil {
-                Logger.Println(err)
-        }
+	if err != nil {
+		Logger.Println(err)
+	}
+	w.WriteHeader(http.StatusNoContent)
 }
 
 // PhishHandler handles incoming client connections and registers the associated actions performed
