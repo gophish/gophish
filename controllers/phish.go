@@ -39,6 +39,8 @@ func CreatePhishingRouter() http.Handler {
 	router.HandleFunc("/track", PhishTracker)
 	router.HandleFunc("/robots.txt", RobotsHandler)
 	router.HandleFunc("/{path:.*}/track", PhishTracker)
+	router.HandleFunc("/{path:.*}/report", PhishReporter)
+	router.HandleFunc("/report", PhishReporter)
 	router.HandleFunc("/{path:.*}", PhishHandler)
 	return router
 }
@@ -69,6 +71,29 @@ func PhishTracker(w http.ResponseWriter, r *http.Request) {
 		Logger.Println(err)
 	}
 	http.ServeFile(w, r, "static/images/pixel.png")
+}
+
+// PhishReporter tracks emails as they are reported, updating the status for the given Result
+func PhishReporter(w http.ResponseWriter, r *http.Request) {
+	err, r := setupContext(r)
+	if err != nil {
+		// Log the error if it wasn't something we can safely ignore
+		if err != ErrInvalidRequest && err != ErrCampaignComplete {
+			Logger.Println(err)
+		}
+		http.NotFound(w, r)
+		return
+	}
+	rs := ctx.Get(r, "result").(models.Result)
+	c := ctx.Get(r, "campaign").(models.Campaign)
+	rj := ctx.Get(r, "details").([]byte)
+	c.AddEvent(models.Event{Email: rs.Email, Message: models.EVENT_REPORTED, Details: string(rj)})
+
+	err = rs.UpdateReported(true)
+	if err != nil {
+		Logger.Println(err)
+	}
+	w.WriteHeader(http.StatusNoContent)
 }
 
 // PhishHandler handles incoming client connections and registers the associated actions performed

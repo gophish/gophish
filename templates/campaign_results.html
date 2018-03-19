@@ -3,26 +3,35 @@
     <div class="row">
         <div class="col-sm-3 col-md-2 sidebar">
             <ul class="nav nav-sidebar">
-                <li><a href="/">Dashboard</a>
+                <li>
+                    <a href="/">Dashboard</a>
                 </li>
-                <li class="active"><a href="/campaigns">Campaigns</a>
+                <li class="active">
+                    <a href="/campaigns">Campaigns</a>
                 </li>
-                <li><a href="/users">Users &amp; Groups</a>
+                <li>
+                    <a href="/users">Users &amp; Groups</a>
                 </li>
-                <li><a href="/templates">Email Templates</a>
+                <li>
+                    <a href="/templates">Email Templates</a>
                 </li>
-                <li><a href="/landing_pages">Landing Pages</a>
+                <li>
+                    <a href="/landing_pages">Landing Pages</a>
                 </li>
-                <li><a href="/sending_profiles">Sending Profiles</a>
+                <li>
+                    <a href="/sending_profiles">Sending Profiles</a>
                 </li>
-                <li><a href="/settings">Settings</a>
+                <li>
+                    <a href="/settings">Settings</a>
                 </li>
                 <li>
                     <hr>
                 </li>
-                <li><a href="https://gophish.gitbooks.io/user-guide/content/">User Guide</a>
+                <li>
+                    <a href="https://gophish.gitbooks.io/user-guide/content/">User Guide</a>
                 </li>
-                <li><a href="/api/">API Documentation</a>
+                <li>
+                    <a href="/api/">API Documentation</a>
                 </li>
             </ul>
         </div>
@@ -47,8 +56,12 @@
                     <i class="fa fa-caret-down"></i>
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="exportButton">
-                    <li><a href="#" onclick="exportAsCSV('results')">Results</a></li>
-                    <li><a href="#" onclick="exportAsCSV('events')">Raw Events</a></li>
+                    <li>
+                        <a href="#" onclick="exportAsCSV('results')">Results</a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="exportAsCSV('events')">Raw Events</a>
+                    </li>
                 </ul>
             </div>
             <button id="complete_button" type="button" class="btn btn-blue" data-toggle="tooltip" onclick="completeCampaign()">
@@ -73,10 +86,13 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div id="sent_chart" style="height:200px;" class="col-lg-3 col-md-3"></div>
-                    <div id="opened_chart" style="height:200px;" class="col-lg-3 col-md-3"></div>
-                    <div id="clicked_chart" style="height:200px;" class="col-lg-3 col-md-3"></div>
-                    <div id="submitted_data_chart" style="height:200px;" class="col-lg-3 col-md-3"></div>
+                    <div style="height:200px;" class="col-lg-1 col-md-1"></div>
+                    <div id="sent_chart" style="height:200px;" class="col-lg-2 col-md-2"></div>
+                    <div id="opened_chart" style="height:200px;" class="col-lg-2 col-md-2"></div>
+                    <div id="clicked_chart" style="height:200px;" class="col-lg-2 col-md-2"></div>
+                    <div id="submitted_data_chart" style="height:200px;" class="col-lg-2 col-md-2"></div>
+                    <div id="reported_chart" style="height:200px;" class="col-lg-2 col-md-2"></div>
+                    <div style="height:200px;" class="col-lg-1 col-md-1"></div>
                 </div>
                 <div class="row" id="resultsMapContainer">
                     <div class="col-md-6">
@@ -99,6 +115,7 @@
                     <th>Email</th>
                     <th>Position</th>
                     <th>Status</th>
+                    <th class="text-center">Reported</th>
                 </tr>
             </thead>
             <tbody>

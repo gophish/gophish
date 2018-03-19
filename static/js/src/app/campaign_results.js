@@ -27,7 +27,7 @@ var statuses = {
     "Email Opened": {
         color: "#f9bf3b",
         label: "label-warning",
-        icon: "fa-envelope",
+        icon: "fa-envelope-open",
         point: "ct-point-opened"
     },
     "Clicked Link": {
@@ -41,6 +41,13 @@ var statuses = {
         label: "label-danger",
         icon: "fa-exclamation",
         point: "ct-point-clicked"
+    },
+    //not a status, but is used for the campaign timeline and user timeline
+    "Email Reported": {
+        color: "#45d6ef",
+        label: "label-info",
+        icon: "fa-bullhorn",
+        point: "ct-point-reported"
     },
     "Error": {
         color: "#6c7a89",
@@ -95,6 +102,7 @@ var statusMapping = {
     "Email Opened": "opened",
     "Clicked Link": "clicked",
     "Submitted Data": "submitted_data",
+    "Email Reported": "reported",
 }
 
 // This is an underwhelming attempt at an enum
@@ -282,7 +290,8 @@ function renderTimeline(data) {
         "email": data[4],
         "position": data[5],
         "status": data[6],
-        "send_date": data[7]
+        "send_date": data[7],
+        "reported": data[8]
     }
     results = '<div class="timeline col-sm-12 well well-lg">' +
         '<h6>Timeline for ' + escapeHtml(record.first_name) + ' ' + escapeHtml(record.last_name) +
@@ -571,6 +580,9 @@ function poll() {
             });
             $.each(campaign.results, function (i, result) {
                 email_series_data[result.status]++;
+                if (result.reported) {
+                    email_series_data['Email Reported']++
+                }
                 // Backfill status values
                 var step = progressListing.indexOf(result.status)
                 for (var i = 0; i < step; i++) {
@@ -595,6 +607,7 @@ function poll() {
                     data: email_data
                 })
             })
+
             /* Update the datatable */
             resultsTable = $("#resultsTable").DataTable()
             resultsTable.rows().every(function (i, tableLoop, rowLoop) {
@@ -603,12 +616,13 @@ function poll() {
                 var rid = rowData[0]
                 $.each(campaign.results, function (j, result) {
                     if (result.id == rid) {
-                        rowData[7] = moment(result.send_date).format('MMMM Do YYYY, h:mm:ss a')
+                        rowData[8] = moment(result.send_date).format('MMMM Do YYYY, h:mm:ss a')
+                        rowData[7] = result.reported
                         rowData[6] = result.status
                         resultsTable.row(i).data(rowData)
                         if (row.child.isShown()) {
-                            $(row.node()).find("i").removeClass("fa-caret-right")
-                            $(row.node()).find("i").addClass("fa-caret-down")
+                            $(row.node()).find("#caret").removeClass("fa-caret-right")
+                            $(row.node()).find("#caret").addClass("fa-caret-down")
                             row.child(renderTimeline(row.data()))
                         }
                         return false
@@ -669,13 +683,24 @@ function load() {
                             "targets": [1]
                         }, {
                             "visible": false,
-                            "targets": [0, 7]
+                            "targets": [0, 8]
                         },
                         {
                             "render": function (data, type, row) {
-                                return createStatusLabel(data, row[7])
+                                return createStatusLabel(data, row[8])
                             },
                             "targets": [6]
+                        },
+                        {
+                            className: "text-center",
+                            "render": function (reported, type, row) {
+                                if (reported) {
+                                    return "<i class='fa fa-check-circle text-center text-success'></i>"
+                                } else {
+                                    return "<i class='fa fa-times-circle text-center text-danger'></i>"
+                                }
+                            },
+                            "targets": [7]
                         }
                     ]
                 });
@@ -688,15 +713,19 @@ function load() {
                 $.each(campaign.results, function (i, result) {
                     resultsTable.row.add([
                         result.id,
-                        "<i class=\"fa fa-caret-right\"></i>",
+                        "<i id=\"caret\" class=\"fa fa-caret-right\"></i>",
                         escapeHtml(result.first_name) || "",
                         escapeHtml(result.last_name) || "",
                         escapeHtml(result.email) || "",
                         escapeHtml(result.position) || "",
                         result.status,
+                        result.reported,
                         moment(result.send_date).format('MMMM Do YYYY, h:mm:ss a')
                     ])
                     email_series_data[result.status]++;
+                    if (result.reported) {
+                        email_series_data['Email Reported']++
+                    }
                     // Backfill status values
                     var step = progressListing.indexOf(result.status)
                     for (var i = 0; i < step; i++) {
@@ -761,6 +790,7 @@ function load() {
                         colors: [statuses[status].color, '#dddddd']
                     })
                 })
+
                 if (use_map) {
                     $("#resultsMapContainer").show()
                     map = new Datamap({
