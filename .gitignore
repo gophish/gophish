@@ -27,3 +27,8 @@ gophish_admin.key
 
 *.exe
 *.db
+
+# Go build stuff
+gophish
+*.crt
+*.key
