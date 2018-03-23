@@ -2,7 +2,7 @@ package mailer
 
 import (
 	"context"
-	"errors"
+	"fmt"
 	"io"
 	"log"
 	"net/textproto"
@@ -16,7 +16,18 @@ var MaxReconnectAttempts = 10
 
 // ErrMaxConnectAttempts is thrown when the maximum number of reconnect attempts
 // is reached.
-var ErrMaxConnectAttempts = errors.New("max connection attempts reached")
+type ErrMaxConnectAttempts struct {
+	underlyingError error
+}
+
+// Error returns the wrapped error response
+func (e *ErrMaxConnectAttempts) Error() string {
+	errString := "Max connection attempts exceeded"
+	if e.underlyingError != nil {
+		errString = fmt.Sprintf("%s - %s", errString, e.underlyingError.Error())
+	}
+	return errString
+}
 
 // Logger is the logger for the worker
 var Logger = log.New(os.Stdout, " ", log.Ldate|log.Ltime|log.Lshortfile)
@@ -115,7 +126,9 @@ func dialHost(ctx context.Context, dialer Dialer) (Sender, error) {
 		}
 		sendAttempt++
 		if sendAttempt == MaxReconnectAttempts {
-			err = ErrMaxConnectAttempts
+			err = &ErrMaxConnectAttempts{
+				underlyingError: err,
+			}
 			break
 		}
 	}
