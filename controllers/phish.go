@@ -114,6 +114,8 @@ func PhishHandler(w http.ResponseWriter, r *http.Request) {
 	p, err := models.GetPage(c.PageId, c.UserId)
 	if err != nil {
 		Logger.Println(err)
+		http.NotFound(w, r)
+		return
 	}
 	switch {
 	case r.Method == "GET":
@@ -143,6 +145,7 @@ func PhishHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		Logger.Println(err)
 		http.NotFound(w, r)
+		return
 	}
 	f, err := mail.ParseAddress(c.SMTP.FromAddress)
 	if err != nil {
@@ -171,6 +174,7 @@ func PhishHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		Logger.Println(err)
 		http.NotFound(w, r)
+		return
 	}
 	w.Write(htmlBuff.Bytes())
 }
