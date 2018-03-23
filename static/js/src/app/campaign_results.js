@@ -755,6 +755,9 @@ function load() {
                 });
                 // Setup the graphs
                 $.each(campaign.timeline, function (i, event) {
+                    if (event.message == "Campaign Created") {
+                        return true
+                    }
                     var event_date = moment.utc(event.time).local()
                     timeline_series_data.push({
                         email: event.email,
