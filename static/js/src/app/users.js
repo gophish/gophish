@@ -3,7 +3,7 @@ var groups = []
 // Save attempts to POST or PUT to /groups/
 function save(id) {
     var targets = []
-    $.each($("#targetsTable").DataTable().rows().data(), function(i, target) {
+    $.each($("#targetsTable").DataTable().rows().data(), function (i, target) {
         targets.push({
             first_name: unescapeHtml(target[0]),
             last_name: unescapeHtml(target[1]),
@@ -12,35 +12,35 @@ function save(id) {
         })
     })
     var group = {
-            name: $("#name").val(),
-            targets: targets
-        }
-        // Submit the group
+        name: $("#name").val(),
+        targets: targets
+    }
+    // Submit the group
     if (id != -1) {
         // If we're just editing an existing group,
         // we need to PUT /groups/:id
         group.id = id
         api.groupId.put(group)
-            .success(function(data) {
+            .success(function (data) {
                 successFlash("Group updated successfully!")
                 load()
                 dismiss()
                 $("#modal").modal('hide')
             })
-            .error(function(data) {
+            .error(function (data) {
                 modalError(data.responseJSON.message)
             })
     } else {
         // Else, if this is a new group, POST it
         // to /groups
         api.groups.post(group)
-            .success(function(data) {
+            .success(function (data) {
                 successFlash("Group added successfully!")
                 load()
                 dismiss()
                 $("#modal").modal('hide')
             })
-            .error(function(data) {
+            .error(function (data) {
                 modalError(data.responseJSON.message)
             })
     }
@@ -60,16 +60,16 @@ function edit(id) {
             targets: "no-sort"
         }]
     })
-    $("#modalSubmit").unbind('click').click(function() {
+    $("#modalSubmit").unbind('click').click(function () {
         save(id)
     })
     if (id == -1) {
         var group = {}
     } else {
         api.groupId.get(id)
-            .success(function(group) {
+            .success(function (group) {
                 $("#name").val(group.name)
-                $.each(group.targets, function(i, record) {
+                $.each(group.targets, function (i, record) {
                     targets.DataTable()
                         .row.add([
                             escapeHtml(record.first_name),
@@ -81,14 +81,15 @@ function edit(id) {
                 });
 
             })
-            .error(function() {
+            .error(function () {
                 errorFlash("Error fetching group")
             })
     }
     // Handle file uploads
     $("#csvupload").fileupload({
+        url: "/api/import/group?api_key=" + user.api_key,
         dataType: "json",
-        add: function(e, data) {
+        add: function (e, data) {
             $("#modal\\.flashes").empty()
             var acceptFileTypes = /(csv|txt)$/i;
             var filename = data.originalFiles[0]['name']
@@ -98,8 +99,8 @@ function edit(id) {
             }
             data.submit();
         },
-        done: function(e, data) {
-            $.each(data.result, function(i, record) {
+        done: function (e, data) {
+            $.each(data.result, function (i, record) {
                 addTarget(
                     record.first_name,
                     record.last_name,
@@ -112,14 +113,16 @@ function edit(id) {
 }
 
 function deleteGroup(id) {
-    var group = groups.find(function(x){return x.id === id})
+    var group = groups.find(function (x) {
+        return x.id === id
+    })
     if (!group) {
         console.log('wat');
         return
     }
     if (confirm("Delete " + group.name + "?")) {
         api.groupId.delete(id)
-            .success(function(data) {
+            .success(function (data) {
                 successFlash(data.message)
                 load()
             })
@@ -162,7 +165,7 @@ function load() {
     $("#emptyMessage").hide()
     $("#loading").show()
     api.groups.summary()
-        .success(function(response) {
+        .success(function (response) {
             $("#loading").hide()
             if (response.total > 0) {
                 groups = response.groups
@@ -176,7 +179,7 @@ function load() {
                     }]
                 });
                 groupTable.clear();
-                $.each(groups, function(i, group) {
+                $.each(groups, function (i, group) {
                     groupTable.row.add([
                         escapeHtml(group.name),
                         escapeHtml(group.num_targets),
@@ -193,16 +196,16 @@ function load() {
                 $("#emptyMessage").show()
             }
         })
-        .error(function() {
+        .error(function () {
             errorFlash("Error fetching groups")
         })
 }
 
-$(document).ready(function() {
+$(document).ready(function () {
     load()
-        // Setup the event listeners
-        // Handle manual additions
-    $("#targetForm").submit(function() {
+    // Setup the event listeners
+    // Handle manual additions
+    $("#targetForm").submit(function () {
         addTarget(
             $("#firstName").val(),
             $("#lastName").val(),
@@ -216,13 +219,13 @@ $(document).ready(function() {
         return false;
     });
     // Handle Deletion
-    $("#targetsTable").on("click", "span>i.fa-trash-o", function() {
+    $("#targetsTable").on("click", "span>i.fa-trash-o", function () {
         targets.DataTable()
             .row($(this).parents('tr'))
             .remove()
             .draw();
     });
-    $("#modal").on("hide.bs.modal", function() {
+    $("#modal").on("hide.bs.modal", function () {
         dismiss();
     });
 });

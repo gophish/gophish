@@ -102,6 +102,13 @@ func (s *ControllersSuite) SetupTest() {
 	c.UpdateStatus(models.CAMPAIGN_EMAILS_SENT)
 }
 
+func (s *ControllersSuite) TestRequireAPIKey() {
+	resp, err := http.Post(fmt.Sprintf("%s/api/import/site", as.URL), "application/json", nil)
+	s.Nil(err)
+	defer resp.Body.Close()
+	s.Equal(resp.StatusCode, http.StatusBadRequest)
+}
+
 func (s *ControllersSuite) TestSiteImportBaseHref() {
 	h := "<html><head></head><body><img src=\"/test.png\"/></body></html>"
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

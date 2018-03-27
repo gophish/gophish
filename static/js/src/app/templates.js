@@ -240,16 +240,10 @@ function importEmail() {
     if (!raw) {
         modalError("No Content Specified!")
     } else {
-        $.ajax({
-            method: "POST",
-            url: "/api/import/email",
-            data: JSON.stringify({
+        api.import_email({
                 content: raw,
                 convert_links: convert_links
-            }),
-            dataType: "json",
-            contentType: "application/json"
-        })
+            })
             .success(function (data) {
                 $("#text_editor").val(data.text)
                 $("#html_editor").val(data.html)
@@ -337,7 +331,8 @@ $(document).ready(function () {
                 if (
                     this.$element[0] !== e.target && !this.$element.has(e.target).length
                     // CKEditor compatibility fix start.
-                    && !$(e.target).closest('.cke_dialog, .cke').length
+                    &&
+                    !$(e.target).closest('.cke_dialog, .cke').length
                     // CKEditor compatibility fix end.
                 ) {
                     this.$element.trigger('focus');
