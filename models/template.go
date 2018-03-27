@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"net/mail"
 	"time"
 
 	log "github.com/gophish/gophish/logger"
@@ -13,6 +14,7 @@ type Template struct {
 	Id           int64        `json:"id" gorm:"column:id; primary_key:yes"`
 	UserId       int64        `json:"-" gorm:"column:user_id"`
 	Name         string       `json:"name"`
+	EnvelopeSender string       `json:"envelope_sender"`
 	Subject      string       `json:"subject"`
 	Text         string       `json:"text"`
 	HTML         string       `json:"html" gorm:"column:html"`
@@ -33,6 +35,11 @@ func (t *Template) Validate() error {
 		return ErrTemplateNameNotSpecified
 	case t.Text == "" && t.HTML == "":
 		return ErrTemplateMissingParameter
+	case t.EnvelopeSender != "":
+		_, err := mail.ParseAddress(t.EnvelopeSender)
+		if err != nil {
+			return err
+		}
 	}
 	if err := ValidateTemplate(t.HTML); err != nil {
 		return err
