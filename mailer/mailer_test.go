@@ -53,8 +53,12 @@ func (ms *MailerSuite) TestDialHost() {
 	md := newMockDialer()
 	md.setDial(md.unreachableDial)
 	_, err := dialHost(ctx, md)
-	if err != ErrMaxConnectAttempts {
+	if _, ok := err.(*ErrMaxConnectAttempts); !ok {
 		ms.T().Fatalf("Didn't receive expected ErrMaxConnectAttempts. Got: %s", err)
+	}
+	e := err.(*ErrMaxConnectAttempts)
+	if e.underlyingError != errHostUnreachable {
+		ms.T().Fatalf("Got invalid underlying error. Expected %s Got %s\n", e.underlyingError, errHostUnreachable)
 	}
 	if md.dialCount != MaxReconnectAttempts {
 		ms.T().Fatalf("Unexpected number of reconnect attempts. Expected %d, Got %d", MaxReconnectAttempts, md.dialCount)

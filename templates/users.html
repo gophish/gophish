@@ -3,24 +3,35 @@
     <div class="row">
         <div class="col-sm-3 col-md-2 sidebar">
             <ul class="nav nav-sidebar">
-                <li><a href="/">Dashboard</a>
+                <li>
+                    <a href="/">Dashboard</a>
                 </li>
-                <li><a href="/campaigns">Campaigns</a>
+                <li>
+                    <a href="/campaigns">Campaigns</a>
                 </li>
-                <li class="active"><a href="/users">Users &amp; Groups</a>
+                <li class="active">
+                    <a href="/users">Users &amp; Groups</a>
                 </li>
-                <li><a href="/templates">Email Templates</a>
+                <li>
+                    <a href="/templates">Email Templates</a>
                 </li>
-                <li><a href="/landing_pages">Landing Pages</a>
+                <li>
+                    <a href="/landing_pages">Landing Pages</a>
                 </li>
-                <li><a href="/sending_profiles">Sending Profiles</a>
+                <li>
+                    <a href="/sending_profiles">Sending Profiles</a>
                 </li>
-                <li><a href="/settings">Settings</a>
+                <li>
+                    <a href="/settings">Settings</a>
                 </li>
-                <li><hr></li>
-                <li><a href="https://gophish.gitbooks.io/user-guide/content/">User Guide</a>
+                <li>
+                    <hr>
                 </li>
-                <li><a href="/api/">API Documentation</a>
+                <li>
+                    <a href="https://gophish.gitbooks.io/user-guide/content/">User Guide</a>
+                </li>
+                <li>
+                    <a href="/api/">API Documentation</a>
                 </li>
             </ul>
         </div>
@@ -34,7 +45,8 @@
     </div>
     <div id="flashes" class="row"></div>
     <div class="row">
-        <button type="button" class="btn btn-primary" onclick="edit(-1)" data-toggle="modal" data-target="#modal"><i class="fa fa-plus"></i> New Group</button>
+        <button type="button" class="btn btn-primary" onclick="edit(-1)" data-toggle="modal" data-target="#modal">
+            <i class="fa fa-plus"></i> New Group</button>
     </div>
     &nbsp;
     <div id="loading">
@@ -62,63 +74,66 @@
 </div>
 <!-- Modal -->
 <div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="groupModalLabel">New Group</h4>
-      </div>
-      <div class="modal-body">
-          <div class="row" id="modal.flashes"></div>
-          <label class="control-label" for="name">Name:</label>
-          <div class="form-group">
-              <input type="text" class="form-control" ng-model="group.name" placeholder="Group name" id="name" autofocus/>
-          </div>
-          <div class="form-group">
-              <span class="btn btn-danger btn-file" data-toggle="tooltip" data-placement="right" title="Supports CSV files" id="fileUpload"><i class="fa fa-plus"></i> Bulk Import Users
-                  <input type="file" id="csvupload" data-url="/api/import/group" multiple>
-              </span>
-          </div>
-          <div class="row">
-              <form id="targetForm">
-                  <div class="col-sm-2">
-                      <input type="text" class="form-control" placeholder="First Name" id="firstName">
-                  </div>
-                  <div class="col-sm-2">
-                      <input type="text" class="form-control" placeholder="Last Name" id="lastName">
-                  </div>
-                  <div class="col-sm-3">
-                      <input type="email" class="form-control" placeholder="Email" id="email" required>
-                  </div>
-                  <div class="col-sm-3">
-                      <input type="text" class="form-control" placeholder="Position" id="position">
-                  </div>
-                  <div class="col-sm-1">
-                      <button type="submit" class="btn btn-danger btn-lg"><i class="fa fa-plus"></i> Add</button>
-                  </div>
-              </form>
-          </div>
-          <br />
-          <table id="targetsTable" class="table table-hover table-striped table-condensed">
-              <thead>
-                  <tr>
-                      <th>First Name</th>
-                      <th>Last Name</th>
-                      <th>Email</th>
-                      <th>Position</th>
-                      <th class="no-sort"></th>
-              <tbody>
-              </tbody>
-          </table>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" id="modalSubmit">Save changes</button>
-      </div>
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="groupModalLabel">New Group</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" id="modal.flashes"></div>
+                <label class="control-label" for="name">Name:</label>
+                <div class="form-group">
+                    <input type="text" class="form-control" ng-model="group.name" placeholder="Group name" id="name" autofocus/>
+                </div>
+                <div class="form-group">
+                    <span class="btn btn-danger btn-file" data-toggle="tooltip" data-placement="right" title="Supports CSV files" id="fileUpload">
+                        <i class="fa fa-plus"></i> Bulk Import Users
+                        <input type="file" id="csvupload" multiple>
+                    </span>
+                </div>
+                <div class="row">
+                    <form id="targetForm">
+                        <div class="col-sm-2">
+                            <input type="text" class="form-control" placeholder="First Name" id="firstName">
+                        </div>
+                        <div class="col-sm-2">
+                            <input type="text" class="form-control" placeholder="Last Name" id="lastName">
+                        </div>
+                        <div class="col-sm-3">
+                            <input type="email" class="form-control" placeholder="Email" id="email" required>
+                        </div>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" placeholder="Position" id="position">
+                        </div>
+                        <div class="col-sm-1">
+                            <button type="submit" class="btn btn-danger btn-lg">
+                                <i class="fa fa-plus"></i> Add</button>
+                        </div>
+                    </form>
+                </div>
+                <br />
+                <table id="targetsTable" class="table table-hover table-striped table-condensed">
+                    <thead>
+                        <tr>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Email</th>
+                            <th>Position</th>
+                            <th class="no-sort"></th>
+                            <tbody>
+                            </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="modalSubmit">Save changes</button>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
-{{end}}
-{{define "scripts"}}
+{{end}} {{define "scripts"}}
 <script src="/js/dist/app/users.min.js"></script>
 {{end}}

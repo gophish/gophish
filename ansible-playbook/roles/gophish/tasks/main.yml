@@ -2,26 +2,45 @@
   hostname:
     name: "{{ hostname }}"
 
-- name: Allow TCP 80 for Gophish
-  ufw: rule=allow port=80 proto=tcp
+- name: Allow TCP 22 for SSH.
+  ufw:
+    rule: allow
+    port: 22
+    proto: tcp
 
-- name: Allow TCP 443 for Gophish
-  ufw: rule=allow port=443 proto=tcp
+- name: Allow TCP 80 for Gophish.
+  ufw:
+    rule: allow
+    port: 80
+    proto: tcp
 
-- name: Enable ufw
-  ufw: state=enabled policy=deny
+- name: Allow TCP 443 for Gophish.
+  ufw:
+    rule: allow
+    port: 443
+    proto: tcp
+
+- name: Enable ufw.
+  ufw:
+    state: enabled
+    policy: deny
   when: enable_ufw_firewall
 
-- name: Update APT package cache
-  apt: update_cache=yes
+- name: Update APT package cache.
+  apt:
+    update_cache: yes
 
-- name: Upgrade APT to the latest packages
-  apt: upgrade=safe
+- name: Upgrade APT to the latest packages.
+  apt:
+    upgrade: safe
 
-- name: Ensure postfix is installed (Debian).
-  apt: name=postfix state=installed
+- name: Install specified packages.
+  apt:
+    pkg: "{{ item }}"
+    state: latest
+  with_items: "{{ install_packages }}"
 
-- name: Update postfix main.cf configuration file
+- name: Update postfix main.cf configuration file.
   template:
     src: main.cf.j2
     dest: /etc/postfix/main.cf
@@ -30,59 +49,60 @@
     group: root
     mode: 0644
 
-- name: Restart postfix
-  service: name=postfix state=restarted
+- name: Restart postfix.
+  service:
+    name: postfix
+    state: restarted
 
 - name: Ensure postfix is started and enabled at boot.
-  service: name=postfix state=started enabled=yes
+  service:
+    name: postfix
+    state: started
+    enabled: yes
 
-- name: Download latest Gophish .zip file
+- name: Download latest Gophish .zip file.
   get_url:
-    validate_certs: False
+    validate_certs: True
     url: https://getgophish.com/releases/latest/linux/64
-    dest: /home/{{ gophish_user }}/gophish.zip
+    dest: "/home/{{ gophish_user }}/gophish.zip"
     mode: 0755
     owner: "{{ gophish_user }}"
     group: "{{ gophish_user }}"
 
-- name: Unzip gophish file
+- name: Create directory for gophish.
+  file:
+    path: "/home/{{ gophish_user }}/gophish"
+    state: directory
+    mode: 0755
+    owner: "{{ gophish_user }}"
+    group: "{{ gophish_user }}"
+
+- name: Unzip gophish file.
   unarchive:
-    src: /home/{{ gophish_user }}/gophish.zip
-    dest: /home/{{ gophish_user }}
+    src: "/home/{{ gophish_user }}/gophish.zip"
+    dest: "/home/{{ gophish_user }}/gophish"
     remote_src: True  # File is on target server and not locally.
     owner: "{{ gophish_user }}"
     group: "{{ gophish_user }}"
 
-- shell: ls -d /home/{{ gophish_user }}/gophish-*
-  register: gophish_dir
-
-- name: Rename gophish folder
-  command: mv {{ item }} /home/{{ gophish_user }}/gophish
-  with_items: "{{ gophish_dir.stdout }}"
-
-- name: Change ownership of Gophish folder
+- name: Change ownership of Gophish folder and files.
   file:
     path: /home/{{ gophish_user }}/gophish
     owner: "{{ gophish_user }}"
     group: "{{ gophish_user }}"
     recurse: True
 
-- name: Add execution privileges to the gophish binary
-  file:
-    path: /home/{{ gophish_user }}/gophish/gophish
-    mode: 0755
-
-- name: Allow gophish binary to bind to privileged ports using setcap
+- name: Allow gophish binary to bind to privileged ports using setcap.
   shell: setcap CAP_NET_BIND_SERVICE=+eip /home/{{ gophish_user }}/gophish/gophish
 
-- name: Copy config.json file
+- name: Copy config.json file.
   copy:
     src: files/config.json
-    dest: /home/{{ gophish_user }}/gophish/config.json
+    dest: "/home/{{ gophish_user }}/gophish/config.json"
     owner: "{{ gophish_user }}"
     group: "{{ gophish_user }}"
     mode: 0644
 
-- name: Reboot the box in 1 minute
+- name: Reboot the box in 1 minute.
   command: shutdown -r 1
   when: reboot_box

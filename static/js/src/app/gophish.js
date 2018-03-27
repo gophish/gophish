@@ -194,8 +194,8 @@ var api = {
         }
     },
     // import handles all of the "import" functions in the api
-    import_email: function (raw) {
-        return query("/import/email", "POST", {}, false)
+    import_email: function (req) {
+        return query("/import/email", "POST", req, false)
     },
     // clone_site handles importing a site by url
     clone_site: function (req) {

@@ -38,11 +38,17 @@ type Result struct {
 	Latitude   float64   `json:"latitude"`
 	Longitude  float64   `json:"longitude"`
 	SendDate   time.Time `json:"send_date"`
+	Reported   bool      `json:"reported" sql:"not null"`
 }
 
 // UpdateStatus updates the status of the result in the database
 func (r *Result) UpdateStatus(s string) error {
 	return db.Table("results").Where("id=?", r.Id).Update("status", s).Error
+}
+
+// UpdateReported updates when a user reports a campaign
+func (r *Result) UpdateReported(s bool) error {
+	return db.Table("results").Where("id=?", r.Id).Update("reported", s).Error
 }
 
 // UpdateGeo updates the latitude and longitude of the result in

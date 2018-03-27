@@ -59,9 +59,9 @@ func CreateAdminRouter() http.Handler {
 	api.HandleFunc("/smtp/", Use(API_SMTP, mid.RequireAPIKey))
 	api.HandleFunc("/smtp/{id:[0-9]+}", Use(API_SMTP_Id, mid.RequireAPIKey))
 	api.HandleFunc("/util/send_test_email", Use(API_Send_Test_Email, mid.RequireAPIKey))
-	api.HandleFunc("/import/group", API_Import_Group)
-	api.HandleFunc("/import/email", API_Import_Email)
-	api.HandleFunc("/import/site", API_Import_Site)
+	api.HandleFunc("/import/group", Use(API_Import_Group, mid.RequireAPIKey))
+	api.HandleFunc("/import/email", Use(API_Import_Email, mid.RequireAPIKey))
+	api.HandleFunc("/import/site", Use(API_Import_Site, mid.RequireAPIKey))
 
 	// Setup static file serving
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./static/")))
