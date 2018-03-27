@@ -56,9 +56,14 @@ func (s *SendTestEmailRequest) Success() error {
 	return nil
 }
 
+func (s *SendTestEmailRequest) GetSmtpFrom() (string, error) {
+	return s.SMTP.FromAddress, nil
+}
+
 // Generate fills in the details of a gomail.Message with the contents
 // from the SendTestEmailRequest.
 func (s *SendTestEmailRequest) Generate(msg *gomail.Message) error {
+	// Naively use the SMTP-from as the Envelope-from for this test message
 	f, err := mail.ParseAddress(s.SMTP.FromAddress)
 	if err != nil {
 		return err
