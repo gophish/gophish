@@ -1,12 +1,12 @@
 $(document).ready(function () {
     $("#apiResetForm").submit(function (e) {
-        $.post("/api/reset", $(this).serialize())
-            .done(function (data) {
-                api_key = data.data
-                successFlash(data.message)
-                $("#api_key").val(api_key)
+        api.reset()
+            .success(function (response) {
+                user.api_key = response.data
+                successFlash(response.message)
+                $("#api_key").val(user.api_key)
             })
-            .fail(function (data) {
+            .error(function (data) {
                 errorFlash(data.message)
             })
         return false

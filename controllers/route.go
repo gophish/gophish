@@ -41,7 +41,7 @@ func CreateAdminRouter() http.Handler {
 	api := router.PathPrefix("/api").Subrouter()
 	api = api.StrictSlash(true)
 	api.HandleFunc("/", Use(API, mid.RequireLogin))
-	api.HandleFunc("/reset", Use(API_Reset, mid.RequireLogin))
+	api.HandleFunc("/reset", Use(API_Reset, mid.RequireAPIKey))
 	api.HandleFunc("/campaigns/", Use(API_Campaigns, mid.RequireAPIKey))
 	api.HandleFunc("/campaigns/summary", Use(API_Campaigns_Summary, mid.RequireAPIKey))
 	api.HandleFunc("/campaigns/{id:[0-9]+}", Use(API_Campaigns_Id, mid.RequireAPIKey))
