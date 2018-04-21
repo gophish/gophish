@@ -109,6 +109,23 @@ func (s *ControllersSuite) TestRequireAPIKey() {
 	s.Equal(resp.StatusCode, http.StatusBadRequest)
 }
 
+func (s *ControllersSuite) TestInvalidAPIKey() {
+	resp, err := http.Get(fmt.Sprintf("%s/api/groups/?api_key=%s", as.URL, "bogus-api-key"))
+	s.Nil(err)
+	defer resp.Body.Close()
+	s.Equal(resp.StatusCode, http.StatusBadRequest)
+}
+
+func (s *ControllersSuite) TestBearerToken() {
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/api/groups/", as.URL), nil)
+	s.Nil(err)
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", s.ApiKey))
+	resp, err := http.DefaultClient.Do(req)
+	s.Nil(err)
+	defer resp.Body.Close()
+	s.Equal(resp.StatusCode, http.StatusOK)
+}
+
 func (s *ControllersSuite) TestSiteImportBaseHref() {
 	h := "<html><head></head><body><img src=\"/test.png\"/></body></html>"
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

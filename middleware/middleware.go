@@ -62,8 +62,6 @@ func GetContext(handler http.Handler) http.HandlerFunc {
 
 func RequireAPIKey(handler http.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		r.ParseForm()
-		ak := r.Form.Get("api_key")
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		if r.Method == "OPTIONS" {
 			w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
@@ -71,19 +69,29 @@ func RequireAPIKey(handler http.Handler) http.HandlerFunc {
 			w.Header().Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
 			return
 		}
+		r.ParseForm()
+		ak := r.Form.Get("api_key")
+		// If we can't get the API key, we'll also check for the
+		// Authorization Bearer token
+		if ak == "" {
+			tokens, ok := r.Header["Authorization"]
+			if ok && len(tokens) >= 1 {
+				ak = tokens[0]
+				ak = strings.TrimPrefix(ak, "Bearer ")
+			}
+		}
 		if ak == "" {
 			JSONError(w, 400, "API Key not set")
 			return
-		} else {
-			u, err := models.GetUserByAPIKey(ak)
-			if err != nil {
-				JSONError(w, 400, "Invalid API Key")
-				return
-			}
-			r = ctx.Set(r, "user_id", u.Id)
-			r = ctx.Set(r, "api_key", ak)
-			handler.ServeHTTP(w, r)
 		}
+		u, err := models.GetUserByAPIKey(ak)
+		if err != nil {
+			JSONError(w, 400, "Invalid API Key")
+			return
+		}
+		r = ctx.Set(r, "user_id", u.Id)
+		r = ctx.Set(r, "api_key", ak)
+		handler.ServeHTTP(w, r)
 	}
 }
 
