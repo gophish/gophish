@@ -147,6 +147,7 @@ func (mm *mockMessage) GetDialer() (Dialer, error) {
 
 func (mm *mockMessage) Backoff(reason error) error {
 	mm.backoffCount++
+	mm.err = reason
 	return nil
 }
 

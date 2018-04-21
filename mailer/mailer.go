@@ -146,7 +146,7 @@ func sendMail(ctx context.Context, dialer Dialer, ms []Mail) {
 	}
 	defer sender.Close()
 	message := gomail.NewMessage()
-	for _, m := range ms {
+	for i, m := range ms {
 		select {
 		case <-ctx.Done():
 			return
@@ -187,8 +187,16 @@ func sendMail(ctx context.Context, dialer Dialer, ms []Mail) {
 					continue
 				}
 			} else {
-				m.Error(err)
-				sender.Reset()
+				// This likely indicates that something happened to the underlying
+				// connection. We'll try to reconnect and, if that fails, we'll
+				// error out the remaining emails.
+				origErr := err
+				sender, err = dialHost(ctx, dialer)
+				if err != nil {
+					errorMail(err, ms[i:])
+					break
+				}
+				m.Backoff(origErr)
 				continue
 			}
 		}

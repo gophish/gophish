@@ -263,16 +263,21 @@ func (ms *MailerSuite) TestUnknownError() {
 
 	message := messages[0].(*mockMessage)
 
-	// Check that the first message did not perform a backoff
-	expectedBackoffCount := 0
+	// If we get an unexpected error, this means that it's likely the
+	// underlying connection dropped. When this happens, we expect the
+	// connection to be re-established (see #997).
+	// In this case, we're successfully reestablishing the connection
+	// so we expect the backoff to occur.
+	expectedBackoffCount := 1
 	backoffCount := message.backoffCount
 	if backoffCount != expectedBackoffCount {
-		ms.T().Fatalf("Did not receive expected backoff. Got backoffCount %d, Expected %d", backoffCount, expectedCount)
+		ms.T().Fatalf("Did not receive expected backoff. Got backoffCount %d, Expected %d", backoffCount, expectedBackoffCount)
 	}
 
-	// Check that there was a reset performed on the sender
-	if sender.resetCount != expectedCount {
-		ms.T().Fatalf("Did not receive expected reset. Got resetCount %d, expected %d", sender.resetCount, expectedCount)
+	// Check that the underlying connection was reestablished
+	expectedDialCount := 2
+	if dialer.dialCount != expectedDialCount {
+		ms.T().Fatalf("Did not receive expected dial count. Got %d expected %d", dialer.dialCount, expectedDialCount)
 	}
 
 	// Check that the email errored out appropriately
