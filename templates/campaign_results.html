@@ -102,28 +102,27 @@
                 </div>
             </div>
         </div>
+        <div class="row">
+            <h2>Details</h2>
+            <table id="resultsTable" class="table">
+                <thead>
+                    <tr>
+                        <th>Result ID</th>
+                        <th class="no-sort"></th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Email</th>
+                        <th>Position</th>
+                        <th>Status</th>
+                        <th class="text-center">Reported</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
     </div>
-    <div class="row">
-        <h2>Details</h2>
-        <table id="resultsTable" class="table">
-            <thead>
-                <tr>
-                    <th>Result ID</th>
-                    <th class="no-sort"></th>
-                    <th>First Name</th>
-                    <th>Last Name</th>
-                    <th>Email</th>
-                    <th>Position</th>
-                    <th>Status</th>
-                    <th class="text-center">Reported</th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
-    </div>
-</div>
-<div id="flashes" class="row"></div>
+    <div id="flashes" class="row"></div>
 </div>
 {{end}} {{define "scripts"}}
 <script src="/js/dist/app/campaign_results.min.js"></script>
