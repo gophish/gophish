@@ -245,18 +245,20 @@ func PutGroup(g *Group) error {
 
 // DeleteGroup deletes a given group by group ID and user ID
 func DeleteGroup(g *Group) error {
-	// Delete all the group_targets entries for this group
-	err := db.Where("group_id=?", g.Id).Delete(&GroupTarget{}).Error
-	if err != nil {
-		Logger.Println(err)
-		return err
-	}
 	// Delete the group itself
 	err = db.Delete(g).Error
 	if err != nil {
 		Logger.Println(err)
 		return err
 	}
+	go func() {
+		// Delete all the group_targets entries for this group
+		err := db.Where("group_id=?", g.Id).Delete(&GroupTarget{}).Error
+		if err != nil {
+			Logger.Println(err)
+		}
+	}()
+
 	return err
 }
 

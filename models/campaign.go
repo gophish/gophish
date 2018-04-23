@@ -462,22 +462,22 @@ func PostCampaign(c *Campaign, uid int64) error {
 //DeleteCampaign deletes the specified campaign
 func DeleteCampaign(id int64) error {
 	Logger.Printf("Deleting campaign %d\n", id)
-	// Delete all the campaign results
-	err := db.Where("campaign_id=?", id).Delete(&Result{}).Error
-	if err != nil {
-		Logger.Println(err)
-		return err
-	}
-	err = db.Where("campaign_id=?", id).Delete(&Event{}).Error
-	if err != nil {
-		Logger.Println(err)
-		return err
-	}
 	// Delete the campaign
 	err = db.Delete(&Campaign{Id: id}).Error
 	if err != nil {
 		Logger.Println(err)
 	}
+	go func() {
+		// Delete all the campaign results
+		err := db.Where("campaign_id=?", id).Delete(&Result{}).Error
+		if err != nil {
+			Logger.Println(err)
+		}
+		err = db.Where("campaign_id=?", id).Delete(&Event{}).Error
+		if err != nil {
+			Logger.Println(err)
+		}
+	}()
 	return err
 }
 
