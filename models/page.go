@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
+	log "github.com/gophish/gophish/logger"
 )
 
 // Page contains the fields used for a Page model
@@ -77,7 +78,7 @@ func GetPages(uid int64) ([]Page, error) {
 	ps := []Page{}
 	err := db.Where("user_id=?", uid).Find(&ps).Error
 	if err != nil {
-		Logger.Println(err)
+		log.Error(err)
 		return ps, err
 	}
 	return ps, err
@@ -88,7 +89,7 @@ func GetPage(id int64, uid int64) (Page, error) {
 	p := Page{}
 	err := db.Where("user_id=? and id=?", uid, id).Find(&p).Error
 	if err != nil {
-		Logger.Println(err)
+		log.Error(err)
 	}
 	return p, err
 }
@@ -98,7 +99,7 @@ func GetPageByName(n string, uid int64) (Page, error) {
 	p := Page{}
 	err := db.Where("user_id=? and name=?", uid, n).Find(&p).Error
 	if err != nil {
-		Logger.Println(err)
+		log.Error(err)
 	}
 	return p, err
 }
@@ -107,13 +108,13 @@ func GetPageByName(n string, uid int64) (Page, error) {
 func PostPage(p *Page) error {
 	err := p.Validate()
 	if err != nil {
-		Logger.Println(err)
+		log.Error(err)
 		return err
 	}
 	// Insert into the DB
 	err = db.Save(p).Error
 	if err != nil {
-		Logger.Println(err)
+		log.Error(err)
 	}
 	return err
 }
@@ -124,7 +125,7 @@ func PutPage(p *Page) error {
 	err := p.Validate()
 	err = db.Where("id=?", p.Id).Save(p).Error
 	if err != nil {
-		Logger.Println(err)
+		log.Error(err)
 	}
 	return err
 }
@@ -134,7 +135,7 @@ func PutPage(p *Page) error {
 func DeletePage(id int64, uid int64) error {
 	err = db.Where("user_id=?", uid).Delete(Page{Id: id}).Error
 	if err != nil {
-		Logger.Println(err)
+		log.Error(err)
 	}
 	return err
 }

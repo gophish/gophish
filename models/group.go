@@ -6,7 +6,9 @@ import (
 	"net/mail"
 	"time"
 
+	log "github.com/gophish/gophish/logger"
 	"github.com/jinzhu/gorm"
+	"github.com/sirupsen/logrus"
 )
 
 // Group contains the fields needed for a user -> group mapping
@@ -89,13 +91,13 @@ func GetGroups(uid int64) ([]Group, error) {
 	gs := []Group{}
 	err := db.Where("user_id=?", uid).Find(&gs).Error
 	if err != nil {
-		Logger.Println(err)
+		log.Error(err)
 		return gs, err
 	}
-	for i, _ := range gs {
+	for i := range gs {
 		gs[i].Targets, err = GetTargets(gs[i].Id)
 		if err != nil {
-			Logger.Println(err)
+			log.Error(err)
 		}
 	}
 	return gs, nil
@@ -108,7 +110,7 @@ func GetGroupSummaries(uid int64) (GroupSummaries, error) {
 	query := db.Table("groups").Where("user_id=?", uid)
 	err := query.Select("id, name, modified_date").Scan(&gs.Groups).Error
 	if err != nil {
-		Logger.Println(err)
+		log.Error(err)
 		return gs, err
 	}
 	for i := range gs.Groups {
@@ -127,12 +129,12 @@ func GetGroup(id int64, uid int64) (Group, error) {
 	g := Group{}
 	err := db.Where("user_id=? and id=?", uid, id).Find(&g).Error
 	if err != nil {
-		Logger.Println(err)
+		log.Error(err)
 		return g, err
 	}
 	g.Targets, err = GetTargets(g.Id)
 	if err != nil {
-		Logger.Println(err)
+		log.Error(err)
 	}
 	return g, nil
 }
@@ -143,7 +145,7 @@ func GetGroupSummary(id int64, uid int64) (GroupSummary, error) {
 	query := db.Table("groups").Where("user_id=? and id=?", uid, id)
 	err := query.Select("id, name, modified_date").Scan(&g).Error
 	if err != nil {
-		Logger.Println(err)
+		log.Error(err)
 		return g, err
 	}
 	query = db.Table("group_targets").Where("group_id=?", id)
@@ -159,12 +161,12 @@ func GetGroupByName(n string, uid int64) (Group, error) {
 	g := Group{}
 	err := db.Where("user_id=? and name=?", uid, n).Find(&g).Error
 	if err != nil {
-		Logger.Println(err)
+		log.Error(err)
 		return g, err
 	}
 	g.Targets, err = GetTargets(g.Id)
 	if err != nil {
-		Logger.Println(err)
+		log.Error(err)
 	}
 	return g, err
 }
@@ -177,7 +179,7 @@ func PostGroup(g *Group) error {
 	// Insert the group into the DB
 	err = db.Save(g).Error
 	if err != nil {
-		Logger.Println(err)
+		log.Error(err)
 		return err
 	}
 	for _, t := range g.Targets {
@@ -195,7 +197,9 @@ func PutGroup(g *Group) error {
 	ts := []Target{}
 	ts, err = GetTargets(g.Id)
 	if err != nil {
-		Logger.Printf("Error getting targets from group ID: %d", g.Id)
+		log.WithFields(logrus.Fields{
+			"group_id": g.Id,
+		}).Error("Error getting targets from group")
 		return err
 	}
 	// Check existing targets, removing any that are no longer in the group.
@@ -213,7 +217,9 @@ func PutGroup(g *Group) error {
 		if !tExists {
 			err = db.Where("group_id=? and target_id=?", g.Id, t.Id).Delete(&GroupTarget{}).Error
 			if err != nil {
-				Logger.Printf("Error deleting email %s\n", t.Email)
+				log.WithFields(logrus.Fields{
+					"email": t.Email,
+				}).Error("Error deleting email")
 			}
 		}
 	}
@@ -237,7 +243,7 @@ func PutGroup(g *Group) error {
 	}
 	err = db.Save(g).Error
 	if err != nil {
-		Logger.Println(err)
+		log.Error(err)
 		return err
 	}
 	return nil
@@ -248,13 +254,13 @@ func DeleteGroup(g *Group) error {
 	// Delete all the group_targets entries for this group
 	err := db.Where("group_id=?", g.Id).Delete(&GroupTarget{}).Error
 	if err != nil {
-		Logger.Println(err)
+		log.Error(err)
 		return err
 	}
 	// Delete the group itself
 	err = db.Delete(g).Error
 	if err != nil {
-		Logger.Println(err)
+		log.Error(err)
 		return err
 	}
 	return err
@@ -262,30 +268,36 @@ func DeleteGroup(g *Group) error {
 
 func insertTargetIntoGroup(t Target, gid int64) error {
 	if _, err = mail.ParseAddress(t.Email); err != nil {
-		Logger.Printf("Invalid email %s\n", t.Email)
+		log.WithFields(logrus.Fields{
+			"email": t.Email,
+		}).Error("Invalid email")
 		return err
 	}
 	trans := db.Begin()
 	trans.Where(t).FirstOrCreate(&t)
 	if err != nil {
-		Logger.Printf("Error adding target: %s\n", t.Email)
+		log.WithFields(logrus.Fields{
+			"email": t.Email,
+		}).Error("Error adding target")
 		return err
 	}
 	err = trans.Where("group_id=? and target_id=?", gid, t.Id).Find(&GroupTarget{}).Error
 	if err == gorm.ErrRecordNotFound {
 		err = trans.Save(&GroupTarget{GroupId: gid, TargetId: t.Id}).Error
 		if err != nil {
-			Logger.Println(err)
+			log.Error(err)
 			return err
 		}
 	}
 	if err != nil {
-		Logger.Printf("Error adding many-many mapping for %s\n", t.Email)
+		log.WithFields(logrus.Fields{
+			"email": t.Email,
+		}).Error("Error adding many-many mapping")
 		return err
 	}
 	err = trans.Commit().Error
 	if err != nil {
-		Logger.Printf("Error committing db changes\n")
+		log.Error("Error committing db changes")
 		return err
 	}
 	return nil
@@ -300,7 +312,9 @@ func UpdateTarget(target Target) error {
 	}
 	err := db.Model(&target).Where("id = ?", target.Id).Updates(targetInfo).Error
 	if err != nil {
-		Logger.Printf("Error updating target information for %s\n", target.Email)
+		log.WithFields(logrus.Fields{
+			"email": target.Email,
+		}).Error("Error updating target information")
 	}
 	return err
 }

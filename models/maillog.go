@@ -16,6 +16,7 @@ import (
 	"time"
 
 	"github.com/gophish/gomail"
+	log "github.com/gophish/gophish/logger"
 	"github.com/gophish/gophish/mailer"
 )
 
@@ -120,7 +121,7 @@ func (m *MailLog) addError(e error) error {
 	}
 	ej, err := json.Marshal(es)
 	if err != nil {
-		Logger.Println(err)
+		log.Warn(err)
 	}
 	err = c.AddEvent(Event{Email: r.Email, Message: EVENT_SENDING_ERROR, Details: string(ej)})
 	return err
@@ -130,19 +131,21 @@ func (m *MailLog) addError(e error) error {
 // maillog refers to. Since MailLog errors are permanent,
 // this action also deletes the maillog.
 func (m *MailLog) Error(e error) error {
-	Logger.Printf("Erroring out result %s\n", m.RId)
 	r, err := GetResult(m.RId)
 	if err != nil {
+		log.Warn(err)
 		return err
 	}
 	// Update the result
 	err = r.UpdateStatus(ERROR)
 	if err != nil {
+		log.Warn(err)
 		return err
 	}
 	// Update the campaign events
 	err = m.addError(e)
 	if err != nil {
+		log.Warn(err)
 		return err
 	}
 	err = db.Delete(m).Error
@@ -247,12 +250,12 @@ func (m *MailLog) Generate(msg *gomail.Message) error {
 	for _, header := range c.SMTP.Headers {
 		key, err := buildTemplate(header.Key, td)
 		if err != nil {
-			Logger.Println(err)
+			log.Warn(err)
 		}
 
 		value, err := buildTemplate(header.Value, td)
 		if err != nil {
-			Logger.Println(err)
+			log.Warn(err)
 		}
 
 		// Add our header immediately
@@ -262,7 +265,7 @@ func (m *MailLog) Generate(msg *gomail.Message) error {
 	// Parse remaining templates
 	subject, err := buildTemplate(c.Template.Subject, td)
 	if err != nil {
-		Logger.Println(err)
+		log.Warn(err)
 	}
 	// don't set Subject header if the subject is empty
 	if len(subject) != 0 {
@@ -273,14 +276,14 @@ func (m *MailLog) Generate(msg *gomail.Message) error {
 	if c.Template.Text != "" {
 		text, err := buildTemplate(c.Template.Text, td)
 		if err != nil {
-			Logger.Println(err)
+			log.Warn(err)
 		}
 		msg.SetBody("text/plain", text)
 	}
 	if c.Template.HTML != "" {
 		html, err := buildTemplate(c.Template.HTML, td)
 		if err != nil {
-			Logger.Println(err)
+			log.Warn(err)
 		}
 		if c.Template.Text == "" {
 			msg.SetBody("text/html", html)
@@ -309,7 +312,7 @@ func GetQueuedMailLogs(t time.Time) ([]*MailLog, error) {
 	err := db.Where("send_date <= ? AND processing = ?", t, false).
 		Find(&ms).Error
 	if err != nil {
-		Logger.Println(err)
+		log.Warn(err)
 	}
 	return ms, err
 }

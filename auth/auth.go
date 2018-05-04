@@ -10,6 +10,7 @@ import (
 	"crypto/rand"
 
 	ctx "github.com/gophish/gophish/context"
+	log "github.com/gophish/gophish/logger"
 	"github.com/gophish/gophish/models"
 	"github.com/gorilla/securecookie"
 	"github.com/gorilla/sessions"
@@ -73,7 +74,7 @@ func Register(r *http.Request) (bool, error) {
 
 	// If we have an error which is not simply indicating that no user was found, report it
 	if err != nil && err != gorm.ErrRecordNotFound {
-		fmt.Println(err)
+		log.Warn(err)
 		return false, err
 	}
 

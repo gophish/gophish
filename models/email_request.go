@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/gophish/gomail"
+	log "github.com/gophish/gophish/logger"
 	"github.com/gophish/gophish/mailer"
 )
 
@@ -79,12 +80,12 @@ func (s *SendTestEmailRequest) Generate(msg *gomail.Message) error {
 	for _, header := range s.SMTP.Headers {
 		key, err := buildTemplate(header.Key, s)
 		if err != nil {
-			Logger.Println(err)
+			log.Error(err)
 		}
 
 		value, err := buildTemplate(header.Value, s)
 		if err != nil {
-			Logger.Println(err)
+			log.Error(err)
 		}
 
 		// Add our header immediately
@@ -94,7 +95,7 @@ func (s *SendTestEmailRequest) Generate(msg *gomail.Message) error {
 	// Parse remaining templates
 	subject, err := buildTemplate(s.Template.Subject, s)
 	if err != nil {
-		Logger.Println(err)
+		log.Error(err)
 	}
 	// don't set the Subject header if it is blank
 	if len(subject) != 0 {
@@ -105,14 +106,14 @@ func (s *SendTestEmailRequest) Generate(msg *gomail.Message) error {
 	if s.Template.Text != "" {
 		text, err := buildTemplate(s.Template.Text, s)
 		if err != nil {
-			Logger.Println(err)
+			log.Error(err)
 		}
 		msg.SetBody("text/plain", text)
 	}
 	if s.Template.HTML != "" {
 		html, err := buildTemplate(s.Template.HTML, s)
 		if err != nil {
-			Logger.Println(err)
+			log.Error(err)
 		}
 		if s.Template.Text == "" {
 			msg.SetBody("text/html", html)

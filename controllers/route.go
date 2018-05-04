@@ -3,23 +3,19 @@ package controllers
 import (
 	"fmt"
 	"html/template"
-	"log"
 	"net/http"
 	"net/url"
-	"os"
 
 	"github.com/gophish/gophish/auth"
 	"github.com/gophish/gophish/config"
 	ctx "github.com/gophish/gophish/context"
+	log "github.com/gophish/gophish/logger"
 	mid "github.com/gophish/gophish/middleware"
 	"github.com/gophish/gophish/models"
 	"github.com/gorilla/csrf"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
 )
-
-// Logger is used to send logging messages to stdout.
-var Logger = log.New(os.Stdout, " ", log.Ldate|log.Ltime|log.Lshortfile)
 
 // CreateAdminRouter creates the routes for handling requests to the web interface.
 // This function returns an http.Handler to be used in http.ListenAndServe().
@@ -101,7 +97,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		templates := template.New("template")
 		_, err := templates.ParseFiles("templates/register.html", "templates/flashes.html")
 		if err != nil {
-			Logger.Println(err)
+			log.Error(err)
 		}
 		template.Must(templates, err).ExecuteTemplate(w, "base", params)
 	case r.Method == "POST":
@@ -116,7 +112,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		}
 		// Check the error
 		m := err.Error()
-		Logger.Println(err)
+		log.Error(err)
 		Flash(w, r, "danger", m)
 		session.Save(r, w)
 		http.Redirect(w, r, "/register", 302)
@@ -255,14 +251,14 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		templates := template.New("template")
 		_, err := templates.ParseFiles("templates/login.html", "templates/flashes.html")
 		if err != nil {
-			Logger.Println(err)
+			log.Error(err)
 		}
 		template.Must(templates, err).ExecuteTemplate(w, "base", params)
 	case r.Method == "POST":
 		//Attempt to login
 		succ, u, err := auth.Login(r)
 		if err != nil {
-			Logger.Println(err)
+			log.Error(err)
 		}
 		//If we've logged in, save the session and redirect to the dashboard
 		if succ {
@@ -284,7 +280,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			templates := template.New("template")
 			_, err := templates.ParseFiles("templates/login.html", "templates/flashes.html")
 			if err != nil {
-				Logger.Println(err)
+				log.Error(err)
 			}
 			w.Header().Set("Content-Type", "text/html; charset=utf-8")
 			w.WriteHeader(http.StatusUnauthorized)
@@ -319,7 +315,7 @@ func Clone(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if url, ok := vars["url"]; ok {
-		Logger.Println(url)
+		log.Error(url)
 	}
 	http.Error(w, "No URL given.", http.StatusBadRequest)
 }
@@ -328,7 +324,7 @@ func getTemplate(w http.ResponseWriter, tmpl string) *template.Template {
 	templates := template.New("template")
 	_, err := templates.ParseFiles("templates/base.html", "templates/"+tmpl+".html", "templates/flashes.html")
 	if err != nil {
-		Logger.Println(err)
+		log.Error(err)
 	}
 	return template.Must(templates, err)
 }

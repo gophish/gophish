@@ -4,22 +4,18 @@ import (
 	"crypto/rand"
 	"fmt"
 	"io"
-	"log"
-	"os"
 
 	"bitbucket.org/liamstask/goose/lib/goose"
 
-	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/go-sql-driver/mysql" // Blank import needed to import mysql
 	"github.com/gophish/gophish/config"
+	log "github.com/gophish/gophish/logger"
 	"github.com/jinzhu/gorm"
 	_ "github.com/mattn/go-sqlite3" // Blank import needed to import sqlite3
 )
 
 var db *gorm.DB
 var err error
-
-// Logger is a global logger used to show informational, warning, and error messages
-var Logger = log.New(os.Stdout, " ", log.Ldate|log.Ltime|log.Lshortfile)
 
 const (
 	CAMPAIGN_IN_PROGRESS string = "In progress"
@@ -92,22 +88,22 @@ func Setup() error {
 	// Get the latest possible migration
 	latest, err := goose.GetMostRecentDBVersion(migrateConf.MigrationsDir)
 	if err != nil {
-		Logger.Println(err)
+		log.Error(err)
 		return err
 	}
 	// Open our database connection
 	db, err = gorm.Open(config.Conf.DBName, config.Conf.DBPath)
 	db.LogMode(false)
-	db.SetLogger(Logger)
+	db.SetLogger(log.Logger)
 	db.DB().SetMaxOpenConns(1)
 	if err != nil {
-		Logger.Println(err)
+		log.Error(err)
 		return err
 	}
 	// Migrate up to the latest version
 	err = goose.RunMigrationsOnDb(migrateConf, migrateConf.MigrationsDir, latest, db.DB())
 	if err != nil {
-		Logger.Println(err)
+		log.Error(err)
 		return err
 	}
 	// Create the admin user if it doesn't exist
@@ -121,7 +117,7 @@ func Setup() error {
 		initUser.ApiKey = generateSecureKey()
 		err = db.Save(&initUser).Error
 		if err != nil {
-			Logger.Println(err)
+			log.Error(err)
 			return err
 		}
 	}

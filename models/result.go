@@ -3,12 +3,12 @@ package models
 import (
 	"crypto/rand"
 	"fmt"
-	"log"
 	"math/big"
 	"net"
 	"net/mail"
 	"time"
 
+	log "github.com/gophish/gophish/logger"
 	"github.com/jinzhu/gorm"
 	"github.com/oschwald/maxminddb-golang"
 )
@@ -98,7 +98,7 @@ func (r *Result) GenerateId() error {
 	return nil
 }
 
-// Returns the email address to use in the "To" header of the email
+// FormatAddress returns the email address to use in the "To" header of the email
 func (r *Result) FormatAddress() string {
 	addr := r.Email
 	if r.FirstName != "" && r.LastName != "" {

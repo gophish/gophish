@@ -15,12 +15,14 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gophish/gophish/auth"
 	ctx "github.com/gophish/gophish/context"
+	log "github.com/gophish/gophish/logger"
 	"github.com/gophish/gophish/models"
 	"github.com/gophish/gophish/util"
 	"github.com/gophish/gophish/worker"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	"github.com/jordan-wright/email"
+	"github.com/sirupsen/logrus"
 )
 
 // Worker is the worker that processes phishing events and updates campaigns.
@@ -38,7 +40,7 @@ func API(w http.ResponseWriter, r *http.Request) {
 		templates := template.New("template")
 		_, err := templates.ParseFiles("templates/docs.html")
 		if err != nil {
-			Logger.Println(err)
+			log.Error(err)
 		}
 		template.Must(templates, err).ExecuteTemplate(w, "base", nil)
 	}
@@ -66,7 +68,7 @@ func API_Campaigns(w http.ResponseWriter, r *http.Request) {
 	case r.Method == "GET":
 		cs, err := models.GetCampaigns(ctx.Get(r, "user_id").(int64))
 		if err != nil {
-			Logger.Println(err)
+			log.Error(err)
 		}
 		JSONResponse(w, cs, http.StatusOK)
 	//POST: Create a new campaign and return it as JSON
@@ -98,7 +100,7 @@ func API_Campaigns_Summary(w http.ResponseWriter, r *http.Request) {
 	case r.Method == "GET":
 		cs, err := models.GetCampaignSummaries(ctx.Get(r, "user_id").(int64))
 		if err != nil {
-			Logger.Println(err)
+			log.Error(err)
 			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
 			return
 		}
@@ -113,7 +115,7 @@ func API_Campaigns_Id(w http.ResponseWriter, r *http.Request) {
 	id, _ := strconv.ParseInt(vars["id"], 0, 64)
 	c, err := models.GetCampaign(id, ctx.Get(r, "user_id").(int64))
 	if err != nil {
-		Logger.Println(err)
+		log.Error(err)
 		JSONResponse(w, models.Response{Success: false, Message: "Campaign not found"}, http.StatusNotFound)
 		return
 	}
@@ -137,7 +139,7 @@ func API_Campaigns_Id_Results(w http.ResponseWriter, r *http.Request) {
 	id, _ := strconv.ParseInt(vars["id"], 0, 64)
 	cr, err := models.GetCampaignResults(id, ctx.Get(r, "user_id").(int64))
 	if err != nil {
-		Logger.Println(err)
+		log.Error(err)
 		JSONResponse(w, models.Response{Success: false, Message: "Campaign not found"}, http.StatusNotFound)
 		return
 	}
@@ -160,7 +162,7 @@ func API_Campaign_Id_Summary(w http.ResponseWriter, r *http.Request) {
 			} else {
 				JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
 			}
-			Logger.Println(err)
+			log.Error(err)
 			return
 		}
 		JSONResponse(w, cs, http.StatusOK)
@@ -225,7 +227,7 @@ func API_Groups_Summary(w http.ResponseWriter, r *http.Request) {
 	case r.Method == "GET":
 		gs, err := models.GetGroupSummaries(ctx.Get(r, "user_id").(int64))
 		if err != nil {
-			Logger.Println(err)
+			log.Error(err)
 			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
 			return
 		}
@@ -293,7 +295,7 @@ func API_Templates(w http.ResponseWriter, r *http.Request) {
 	case r.Method == "GET":
 		ts, err := models.GetTemplates(ctx.Get(r, "user_id").(int64))
 		if err != nil {
-			Logger.Println(err)
+			log.Error(err)
 		}
 		JSONResponse(w, ts, http.StatusOK)
 	//POST: Create a new template and return it as JSON
@@ -323,7 +325,7 @@ func API_Templates(w http.ResponseWriter, r *http.Request) {
 		}
 		if err != nil {
 			JSONResponse(w, models.Response{Success: false, Message: "Error inserting template into database"}, http.StatusInternalServerError)
-			Logger.Println(err)
+			log.Error(err)
 			return
 		}
 		JSONResponse(w, t, http.StatusCreated)
@@ -353,7 +355,7 @@ func API_Templates_Id(w http.ResponseWriter, r *http.Request) {
 		t = models.Template{}
 		err = json.NewDecoder(r.Body).Decode(&t)
 		if err != nil {
-			Logger.Println(err)
+			log.Error(err)
 		}
 		if t.Id != id {
 			JSONResponse(w, models.Response{Success: false, Message: "Error: /:id and template_id mismatch"}, http.StatusBadRequest)
@@ -376,7 +378,7 @@ func API_Pages(w http.ResponseWriter, r *http.Request) {
 	case r.Method == "GET":
 		ps, err := models.GetPages(ctx.Get(r, "user_id").(int64))
 		if err != nil {
-			Logger.Println(err)
+			log.Error(err)
 		}
 		JSONResponse(w, ps, http.StatusOK)
 	//POST: Create a new page and return it as JSON
@@ -392,7 +394,7 @@ func API_Pages(w http.ResponseWriter, r *http.Request) {
 		_, err = models.GetPageByName(p.Name, ctx.Get(r, "user_id").(int64))
 		if err != gorm.ErrRecordNotFound {
 			JSONResponse(w, models.Response{Success: false, Message: "Page name already in use"}, http.StatusConflict)
-			Logger.Println(err)
+			log.Error(err)
 			return
 		}
 		p.ModifiedDate = time.Now().UTC()
@@ -430,7 +432,7 @@ func API_Pages_Id(w http.ResponseWriter, r *http.Request) {
 		p = models.Page{}
 		err = json.NewDecoder(r.Body).Decode(&p)
 		if err != nil {
-			Logger.Println(err)
+			log.Error(err)
 		}
 		if p.Id != id {
 			JSONResponse(w, models.Response{Success: false, Message: "/:id and /:page_id mismatch"}, http.StatusBadRequest)
@@ -453,7 +455,7 @@ func API_SMTP(w http.ResponseWriter, r *http.Request) {
 	case r.Method == "GET":
 		ss, err := models.GetSMTPs(ctx.Get(r, "user_id").(int64))
 		if err != nil {
-			Logger.Println(err)
+			log.Error(err)
 		}
 		JSONResponse(w, ss, http.StatusOK)
 	//POST: Create a new SMTP and return it as JSON
@@ -469,7 +471,7 @@ func API_SMTP(w http.ResponseWriter, r *http.Request) {
 		_, err = models.GetSMTPByName(s.Name, ctx.Get(r, "user_id").(int64))
 		if err != gorm.ErrRecordNotFound {
 			JSONResponse(w, models.Response{Success: false, Message: "SMTP name already in use"}, http.StatusConflict)
-			Logger.Println(err)
+			log.Error(err)
 			return
 		}
 		s.ModifiedDate = time.Now().UTC()
@@ -507,7 +509,7 @@ func API_SMTP_Id(w http.ResponseWriter, r *http.Request) {
 		s = models.SMTP{}
 		err = json.NewDecoder(r.Body).Decode(&s)
 		if err != nil {
-			Logger.Println(err)
+			log.Error(err)
 		}
 		if s.Id != id {
 			JSONResponse(w, models.Response{Success: false, Message: "/:id and /:smtp_id mismatch"}, http.StatusBadRequest)
@@ -558,7 +560,7 @@ func API_Import_Email(w http.ResponseWriter, r *http.Request) {
 	}
 	e, err := email.NewEmailFromReader(strings.NewReader(ir.Content))
 	if err != nil {
-		Logger.Println(err)
+		log.Error(err)
 	}
 	// If the user wants to convert links to point to
 	// the landing page, let's make it happen by changing up
@@ -688,11 +690,13 @@ func API_Send_Test_Email(w http.ResponseWriter, r *http.Request) {
 		// Get the Template requested by name
 		s.Template, err = models.GetTemplateByName(s.Template.Name, ctx.Get(r, "user_id").(int64))
 		if err == gorm.ErrRecordNotFound {
-			Logger.Printf("Error - Template %s does not exist", s.Template.Name)
+			log.WithFields(logrus.Fields{
+				"template": s.Template.Name,
+			}).Error("Template does not exist")
 			JSONResponse(w, models.Response{Success: false, Message: models.ErrTemplateNotFound.Error()}, http.StatusBadRequest)
 			return
 		} else if err != nil {
-			Logger.Println(err)
+			log.Error(err)
 			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
 			return
 		}
@@ -705,7 +709,7 @@ func API_Send_Test_Email(w http.ResponseWriter, r *http.Request) {
 		// If the Sending Profile doesn't exist, let's err on the side
 		// of caution and assume that the validation failure was more important.
 		if lookupErr != nil {
-			Logger.Println(err)
+			log.Error(err)
 			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
 			return
 		}
@@ -728,7 +732,7 @@ func JSONResponse(w http.ResponseWriter, d interface{}, c int) {
 	dj, err := json.MarshalIndent(d, "", "  ")
 	if err != nil {
 		http.Error(w, "Error creating JSON response", http.StatusInternalServerError)
-		Logger.Println(err)
+		log.Error(err)
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(c)

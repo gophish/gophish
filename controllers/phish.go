@@ -13,6 +13,7 @@ import (
 	"strings"
 
 	ctx "github.com/gophish/gophish/context"
+	log "github.com/gophish/gophish/logger"
 	"github.com/gophish/gophish/models"
 	"github.com/gorilla/mux"
 )
@@ -51,7 +52,7 @@ func PhishTracker(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		// Log the error if it wasn't something we can safely ignore
 		if err != ErrInvalidRequest && err != ErrCampaignComplete {
-			Logger.Println(err)
+			log.Error(err)
 		}
 		http.NotFound(w, r)
 		return
@@ -68,7 +69,7 @@ func PhishTracker(w http.ResponseWriter, r *http.Request) {
 	}
 	err = rs.UpdateStatus(models.EVENT_OPENED)
 	if err != nil {
-		Logger.Println(err)
+		log.Error(err)
 	}
 	http.ServeFile(w, r, "static/images/pixel.png")
 }
@@ -79,7 +80,7 @@ func PhishReporter(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		// Log the error if it wasn't something we can safely ignore
 		if err != ErrInvalidRequest && err != ErrCampaignComplete {
-			Logger.Println(err)
+			log.Error(err)
 		}
 		http.NotFound(w, r)
 		return
@@ -91,7 +92,7 @@ func PhishReporter(w http.ResponseWriter, r *http.Request) {
 
 	err = rs.UpdateReported(true)
 	if err != nil {
-		Logger.Println(err)
+		log.Error(err)
 	}
 	w.WriteHeader(http.StatusNoContent)
 }
@@ -103,7 +104,7 @@ func PhishHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		// Log the error if it wasn't something we can safely ignore
 		if err != ErrInvalidRequest && err != ErrCampaignComplete {
-			Logger.Println(err)
+			log.Error(err)
 		}
 		http.NotFound(w, r)
 		return
@@ -113,7 +114,7 @@ func PhishHandler(w http.ResponseWriter, r *http.Request) {
 	rj := ctx.Get(r, "details").([]byte)
 	p, err := models.GetPage(c.PageId, c.UserId)
 	if err != nil {
-		Logger.Println(err)
+		log.Error(err)
 		http.NotFound(w, r)
 		return
 	}
@@ -124,7 +125,7 @@ func PhishHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		err = c.AddEvent(models.Event{Email: rs.Email, Message: models.EVENT_CLICKED, Details: string(rj)})
 		if err != nil {
-			Logger.Println(err)
+			log.Error(err)
 		}
 	case r.Method == "POST":
 		// If data was POST'ed, let's record it
@@ -132,7 +133,7 @@ func PhishHandler(w http.ResponseWriter, r *http.Request) {
 		// Store the data in an event
 		c.AddEvent(models.Event{Email: rs.Email, Message: models.EVENT_DATA_SUBMIT, Details: string(rj)})
 		if err != nil {
-			Logger.Println(err)
+			log.Error(err)
 		}
 		// Redirect to the desired page
 		if p.RedirectURL != "" {
@@ -143,13 +144,13 @@ func PhishHandler(w http.ResponseWriter, r *http.Request) {
 	var htmlBuff bytes.Buffer
 	tmpl, err := template.New("html_template").Parse(p.HTML)
 	if err != nil {
-		Logger.Println(err)
+		log.Error(err)
 		http.NotFound(w, r)
 		return
 	}
 	f, err := mail.ParseAddress(c.SMTP.FromAddress)
 	if err != nil {
-		Logger.Println(err)
+		log.Error(err)
 	}
 	fn := f.Name
 	if fn == "" {
@@ -172,7 +173,7 @@ func PhishHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	err = tmpl.Execute(&htmlBuff, rsf)
 	if err != nil {
-		Logger.Println(err)
+		log.Error(err)
 		http.NotFound(w, r)
 		return
 	}
@@ -188,7 +189,7 @@ func RobotsHandler(w http.ResponseWriter, r *http.Request) {
 func setupContext(r *http.Request) (error, *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
-		Logger.Println(err)
+		log.Error(err)
 		return err, r
 	}
 	id := r.Form.Get(models.RecipientParameter)
@@ -201,7 +202,7 @@ func setupContext(r *http.Request) (error, *http.Request) {
 	}
 	c, err := models.GetCampaign(rs.CampaignId, rs.UserId)
 	if err != nil {
-		Logger.Println(err)
+		log.Error(err)
 		return err, r
 	}
 	// Don't process events for completed campaigns
@@ -210,7 +211,7 @@ func setupContext(r *http.Request) (error, *http.Request) {
 	}
 	ip, _, err := net.SplitHostPort(r.RemoteAddr)
 	if err != nil {
-		Logger.Println(err)
+		log.Error(err)
 		return err, r
 	}
 	// Respect X-Forwarded headers
@@ -220,7 +221,7 @@ func setupContext(r *http.Request) (error, *http.Request) {
 	// Handle post processing such as GeoIP
 	err = rs.UpdateGeo(ip)
 	if err != nil {
-		Logger.Println(err)
+		log.Error(err)
 	}
 	d := eventDetails{
 		Payload: r.Form,

@@ -11,19 +11,16 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
 	"math/big"
 	"net/http"
 	"net/mail"
 	"os"
 	"time"
 
+	log "github.com/gophish/gophish/logger"
 	"github.com/gophish/gophish/models"
 	"github.com/jordan-wright/email"
 )
-
-// Logger is used to send logging messages to stdout.
-var Logger = log.New(os.Stdout, " ", log.Ldate|log.Ltime|log.Lshortfile)
 
 // ParseMail takes in an HTTP Request and returns an Email object
 // TODO: This function will likely be changed to take in a []byte
@@ -124,7 +121,7 @@ func CheckAndCreateSSL(cp string, kp string) error {
 		return nil
 	}
 
-	Logger.Printf("Creating new self-signed certificates for administration interface...\n")
+	log.Infof("Creating new self-signed certificates for administration interface")
 
 	priv, err := ecdsa.GenerateKey(elliptic.P384(), rand.Reader)
 
@@ -177,6 +174,6 @@ func CheckAndCreateSSL(cp string, kp string) error {
 	pem.Encode(keyOut, &pem.Block{Type: "EC PRIVATE KEY", Bytes: b})
 	keyOut.Close()
 
-	Logger.Println("TLS Certificate Generation complete")
+	log.Info("TLS Certificate Generation complete")
 	return nil
 }

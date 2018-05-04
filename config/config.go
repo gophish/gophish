@@ -2,8 +2,9 @@ package config
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
+
+	log "github.com/gophish/gophish/logger"
 )
 
 // AdminServer represents the Admin server configuration details
@@ -43,7 +44,7 @@ func LoadConfig(filepath string) {
 	// Get the config file
 	configFile, err := ioutil.ReadFile(filepath)
 	if err != nil {
-		fmt.Printf("File error: %v\n", err)
+		log.Errorf("File error: %v\n", err)
 	}
 	json.Unmarshal(configFile, &Conf)
 
