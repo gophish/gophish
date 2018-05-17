@@ -2,11 +2,11 @@
 -- +goose Up
 -- SQL in section 'Up' is executed when this migration is applied
 CREATE TABLE IF NOT EXISTS users (id integer primary key auto_increment,username varchar(255) NOT NULL UNIQUE,hash varchar(255),api_key varchar(255) NOT NULL UNIQUE );
-CREATE TABLE IF NOT EXISTS templates (id integer primary key auto_increment,user_id bigint,name varchar(255),subject varchar(255),text text,html text,modified_date datetime );
+CREATE TABLE IF NOT EXISTS templates (id integer primary key auto_increment,user_id bigint,name varchar(255),subject varchar(255),text text,html longtext,modified_date datetime );
 CREATE TABLE IF NOT EXISTS targets (id integer primary key auto_increment,first_name varchar(255),last_name varchar(255),email varchar(255),position varchar(255) );
 CREATE TABLE IF NOT EXISTS smtp (smtp_id integer primary key auto_increment,campaign_id bigint,host varchar(255),username varchar(255),from_address varchar(255) );
 CREATE TABLE IF NOT EXISTS results (id integer primary key auto_increment,campaign_id bigint,user_id bigint,r_id varchar(255),email varchar(255),first_name varchar(255),last_name varchar(255),status varchar(255) NOT NULL ,ip varchar(255),latitude real,longitude real );
-CREATE TABLE IF NOT EXISTS pages (id integer primary key auto_increment,user_id bigint,name varchar(255),html text,modified_date datetime );
+CREATE TABLE IF NOT EXISTS pages (id integer primary key auto_increment,user_id bigint,name varchar(255),html longtext,modified_date datetime );
 CREATE TABLE IF NOT EXISTS groups (id integer primary key auto_increment,user_id bigint,name varchar(255),modified_date datetime );
 CREATE TABLE IF NOT EXISTS group_targets (group_id bigint,target_id bigint );
 CREATE TABLE IF NOT EXISTS events (id integer primary key auto_increment,campaign_id bigint,email varchar(255),time datetime,message varchar(255) );
