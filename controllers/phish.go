@@ -36,7 +36,8 @@ type eventDetails struct {
 // CreatePhishingRouter creates the router that handles phishing connections.
 func CreatePhishingRouter() http.Handler {
 	router := mux.NewRouter()
-	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("./static/endpoint/"))))
+	fileServer := http.FileServer(UnindexedFileSystem{http.Dir("./static/endpoint/")})
+	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", fileServer))
 	router.HandleFunc("/track", PhishTracker)
 	router.HandleFunc("/robots.txt", RobotsHandler)
 	router.HandleFunc("/{path:.*}/track", PhishTracker)

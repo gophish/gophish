@@ -60,7 +60,7 @@ func CreateAdminRouter() http.Handler {
 	api.HandleFunc("/import/site", Use(API_Import_Site, mid.RequireAPIKey))
 
 	// Setup static file serving
-	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./static/")))
+	router.PathPrefix("/").Handler(http.FileServer(UnindexedFileSystem{http.Dir("./static/")}))
 
 	// Setup CSRF Protection
 	csrfHandler := csrf.Protect([]byte(auth.GenerateSecureKey()),
