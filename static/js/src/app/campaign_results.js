@@ -697,7 +697,7 @@ function load() {
                                 if (reported) {
                                     return "<i class='fa fa-check-circle text-center text-success'></i>"
                                 } else {
-                                    return "<i class='fa fa-times-circle text-center text-danger'></i>"
+                                    return "<i class='fa fa-times-circle text-center text-muted'></i>"
                                 }
                             },
                             "targets": [7]
