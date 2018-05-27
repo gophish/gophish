@@ -99,11 +99,11 @@ func main() {
 			if err != nil {
 				log.Fatal(err)
 			}
-			log.Infof("Starting admin server at https://%s\n", config.Conf.AdminConf.ListenURL)
+			log.Infof("Starting admin server at https://%s", config.Conf.AdminConf.ListenURL)
 			log.Info(http.ListenAndServeTLS(config.Conf.AdminConf.ListenURL, config.Conf.AdminConf.CertPath, config.Conf.AdminConf.KeyPath,
 				handlers.CombinedLoggingHandler(log.Writer(), adminHandler)))
 		} else {
-			log.Infof("Starting admin server at http://%s\n", config.Conf.AdminConf.ListenURL)
+			log.Infof("Starting admin server at http://%s", config.Conf.AdminConf.ListenURL)
 			log.Info(http.ListenAndServe(config.Conf.AdminConf.ListenURL, handlers.CombinedLoggingHandler(os.Stdout, adminHandler)))
 		}
 	}()
@@ -112,11 +112,11 @@ func main() {
 		defer wg.Done()
 		phishHandler := gziphandler.GzipHandler(controllers.CreatePhishingRouter())
 		if config.Conf.PhishConf.UseTLS { // use TLS for Phish web server if available
-			log.Infof("Starting phishing server at https://%s\n", config.Conf.PhishConf.ListenURL)
+			log.Infof("Starting phishing server at https://%s", config.Conf.PhishConf.ListenURL)
 			log.Info(http.ListenAndServeTLS(config.Conf.PhishConf.ListenURL, config.Conf.PhishConf.CertPath, config.Conf.PhishConf.KeyPath,
 				handlers.CombinedLoggingHandler(log.Writer(), phishHandler)))
 		} else {
-			log.Infof("Starting phishing server at http://%s\n", config.Conf.PhishConf.ListenURL)
+			log.Infof("Starting phishing server at http://%s", config.Conf.PhishConf.ListenURL)
 			log.Fatal(http.ListenAndServe(config.Conf.PhishConf.ListenURL, handlers.CombinedLoggingHandler(os.Stdout, phishHandler)))
 		}
 	}()
