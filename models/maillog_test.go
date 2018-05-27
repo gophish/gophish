@@ -105,11 +105,7 @@ func (s *ModelsSuite) TestMailLogError(ch *check.C) {
 	ch.Assert(len(campaign.Events), check.Equals, expectedEventLength)
 
 	gotEvent := campaign.Events[1]
-	es := struct {
-		Error string `json:"error"`
-	}{
-		Error: expectedError.Error(),
-	}
+	es := EventError{Error: expectedError.Error()}
 	ej, _ := json.Marshal(es)
 	expectedEvent := Event{
 		Id:         gotEvent.Id,

@@ -2,6 +2,7 @@ package models
 
 import (
 	"crypto/rand"
+	"encoding/json"
 	"fmt"
 	"math/big"
 	"net"
@@ -25,30 +26,133 @@ type mmGeoPoint struct {
 // Result contains the fields for a result object,
 // which is a representation of a target in a campaign.
 type Result struct {
-	Id         int64     `json:"-"`
-	CampaignId int64     `json:"-"`
-	UserId     int64     `json:"-"`
-	RId        string    `json:"id"`
-	Email      string    `json:"email"`
-	FirstName  string    `json:"first_name"`
-	LastName   string    `json:"last_name"`
-	Position   string    `json:"position"`
-	Status     string    `json:"status" sql:"not null"`
-	IP         string    `json:"ip"`
-	Latitude   float64   `json:"latitude"`
-	Longitude  float64   `json:"longitude"`
-	SendDate   time.Time `json:"send_date"`
-	Reported   bool      `json:"reported" sql:"not null"`
+	Id           int64     `json:"-"`
+	CampaignId   int64     `json:"-"`
+	UserId       int64     `json:"-"`
+	RId          string    `json:"id"`
+	Email        string    `json:"email"`
+	FirstName    string    `json:"first_name"`
+	LastName     string    `json:"last_name"`
+	Position     string    `json:"position"`
+	Status       string    `json:"status" sql:"not null"`
+	IP           string    `json:"ip"`
+	Latitude     float64   `json:"latitude"`
+	Longitude    float64   `json:"longitude"`
+	SendDate     time.Time `json:"send_date"`
+	Reported     bool      `json:"reported" sql:"not null"`
+	ModifiedDate time.Time `json:"modified_date"`
 }
 
-// UpdateStatus updates the status of the result in the database
-func (r *Result) UpdateStatus(s string) error {
-	return db.Table("results").Where("id=?", r.Id).Update("status", s).Error
+func (r *Result) createEvent(status string, details interface{}) (*Event, error) {
+	c, err := GetCampaign(r.CampaignId, r.UserId)
+	if err != nil {
+		return nil, err
+	}
+	e := &Event{Email: r.Email, Message: status}
+	if details != nil {
+		dj, err := json.Marshal(details)
+		if err != nil {
+			return nil, err
+		}
+		e.Details = string(dj)
+	}
+	c.AddEvent(e)
+	return e, nil
 }
 
-// UpdateReported updates when a user reports a campaign
-func (r *Result) UpdateReported(s bool) error {
-	return db.Table("results").Where("id=?", r.Id).Update("reported", s).Error
+// HandleEmailSent updates a Result to indicate that the email has been
+// successfully sent to the remote SMTP server
+func (r *Result) HandleEmailSent() error {
+	event, err := r.createEvent(EVENT_SENT, nil)
+	if err != nil {
+		return err
+	}
+	r.Status = EVENT_SENT
+	r.ModifiedDate = event.Time
+	return db.Save(r).Error
+}
+
+// HandleEmailError updates a Result to indicate that there was an error when
+// attempting to send the email to the remote SMTP server.
+func (r *Result) HandleEmailError(err error) error {
+	event, err := r.createEvent(EVENT_SENDING_ERROR, EventError{Error: err.Error()})
+	if err != nil {
+		return err
+	}
+	r.Status = ERROR
+	r.ModifiedDate = event.Time
+	return db.Save(r).Error
+}
+
+// HandleEmailBackoff updates a Result to indicate that the email received a
+// temporary error and needs to be retried
+func (r *Result) HandleEmailBackoff(err error, sendDate time.Time) error {
+	event, err := r.createEvent(EVENT_SENDING_ERROR, EventError{Error: err.Error()})
+	if err != nil {
+		return err
+	}
+	r.Status = STATUS_RETRY
+	r.SendDate = sendDate
+	r.ModifiedDate = event.Time
+	return db.Save(r).Error
+}
+
+// HandleEmailOpened updates a Result in the case where the recipient opened the
+// email.
+func (r *Result) HandleEmailOpened(details EventDetails) error {
+	event, err := r.createEvent(EVENT_OPENED, details)
+	if err != nil {
+		return err
+	}
+	// Don't update the status if the user already clicked the link
+	// or submitted data to the campaign
+	if r.Status == EVENT_CLICKED || r.Status == EVENT_DATA_SUBMIT {
+		return nil
+	}
+	r.Status = EVENT_OPENED
+	r.ModifiedDate = event.Time
+	return db.Save(r).Error
+}
+
+// HandleClickedLink updates a Result in the case where the recipient clicked
+// the link in an email.
+func (r *Result) HandleClickedLink(details EventDetails) error {
+	event, err := r.createEvent(EVENT_CLICKED, details)
+	if err != nil {
+		return err
+	}
+	// Don't update the status if the user has already submitted data via the
+	// landing page form.
+	if r.Status == EVENT_DATA_SUBMIT {
+		return nil
+	}
+	r.Status = EVENT_CLICKED
+	r.ModifiedDate = event.Time
+	return db.Save(r).Error
+}
+
+// HandleFormSubmit updates a Result in the case where the recipient submitted
+// credentials to the form on a Landing Page.
+func (r *Result) HandleFormSubmit(details EventDetails) error {
+	event, err := r.createEvent(EVENT_DATA_SUBMIT, details)
+	if err != nil {
+		return err
+	}
+	r.Status = EVENT_DATA_SUBMIT
+	r.ModifiedDate = event.Time
+	return db.Save(r).Error
+}
+
+// HandleEmailReport updates a Result in the case where they report a simulated
+// phishing email using the HTTP handler.
+func (r *Result) HandleEmailReport(details EventDetails) error {
+	event, err := r.createEvent(EVENT_REPORTED, details)
+	if err != nil {
+		return err
+	}
+	r.Reported = true
+	r.ModifiedDate = event.Time
+	return db.Save(r).Error
 }
 
 // UpdateGeo updates the latitude and longitude of the result in
@@ -68,11 +172,10 @@ func (r *Result) UpdateGeo(addr string) error {
 		return err
 	}
 	// Update the database with the record information
-	return db.Table("results").Where("id=?", r.Id).Updates(map[string]interface{}{
-		"ip":        addr,
-		"latitude":  city.GeoPoint.Latitude,
-		"longitude": city.GeoPoint.Longitude,
-	}).Error
+	r.IP = addr
+	r.Latitude = city.GeoPoint.Latitude
+	r.Longitude = city.GeoPoint.Longitude
+	return db.Save(r).Error
 }
 
 // GenerateId generates a unique key to represent the result

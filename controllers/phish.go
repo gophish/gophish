@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"bytes"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"html/template"
@@ -25,13 +24,6 @@ var ErrInvalidRequest = errors.New("Invalid request")
 // ErrCampaignComplete is thrown when an event is received for a campaign that
 // has already been marked as complete.
 var ErrCampaignComplete = errors.New("Event received on completed campaign")
-
-// eventDetails is a struct that wraps common attributes we want to store
-// in an event
-type eventDetails struct {
-	Payload url.Values        `json:"payload"`
-	Browser map[string]string `json:"browser"`
-}
 
 // CreatePhishingRouter creates the router that handles phishing connections.
 func CreatePhishingRouter() http.Handler {
@@ -59,16 +51,8 @@ func PhishTracker(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	rs := ctx.Get(r, "result").(models.Result)
-	c := ctx.Get(r, "campaign").(models.Campaign)
-	rj := ctx.Get(r, "details").([]byte)
-	c.AddEvent(models.Event{Email: rs.Email, Message: models.EVENT_OPENED, Details: string(rj)})
-	// Don't update the status if the user already clicked the link
-	// or submitted data to the campaign
-	if rs.Status == models.EVENT_CLICKED || rs.Status == models.EVENT_DATA_SUBMIT {
-		http.ServeFile(w, r, "static/images/pixel.png")
-		return
-	}
-	err = rs.UpdateStatus(models.EVENT_OPENED)
+	d := ctx.Get(r, "details").(models.EventDetails)
+	err = rs.HandleEmailOpened(d)
 	if err != nil {
 		log.Error(err)
 	}
@@ -87,11 +71,9 @@ func PhishReporter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	rs := ctx.Get(r, "result").(models.Result)
-	c := ctx.Get(r, "campaign").(models.Campaign)
-	rj := ctx.Get(r, "details").([]byte)
-	c.AddEvent(models.Event{Email: rs.Email, Message: models.EVENT_REPORTED, Details: string(rj)})
+	d := ctx.Get(r, "details").(models.EventDetails)
 
-	err = rs.UpdateReported(true)
+	err = rs.HandleEmailReport(d)
 	if err != nil {
 		log.Error(err)
 	}
@@ -112,7 +94,7 @@ func PhishHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	rs := ctx.Get(r, "result").(models.Result)
 	c := ctx.Get(r, "campaign").(models.Campaign)
-	rj := ctx.Get(r, "details").([]byte)
+	d := ctx.Get(r, "details").(models.EventDetails)
 	p, err := models.GetPage(c.PageId, c.UserId)
 	if err != nil {
 		log.Error(err)
@@ -121,18 +103,12 @@ func PhishHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	switch {
 	case r.Method == "GET":
-		if rs.Status != models.EVENT_CLICKED && rs.Status != models.EVENT_DATA_SUBMIT {
-			rs.UpdateStatus(models.EVENT_CLICKED)
-		}
-		err = c.AddEvent(models.Event{Email: rs.Email, Message: models.EVENT_CLICKED, Details: string(rj)})
+		err = rs.HandleClickedLink(d)
 		if err != nil {
 			log.Error(err)
 		}
 	case r.Method == "POST":
-		// If data was POST'ed, let's record it
-		rs.UpdateStatus(models.EVENT_DATA_SUBMIT)
-		// Store the data in an event
-		c.AddEvent(models.Event{Email: rs.Email, Message: models.EVENT_DATA_SUBMIT, Details: string(rj)})
+		err = rs.HandleFormSubmit(d)
 		if err != nil {
 			log.Error(err)
 		}
@@ -224,16 +200,15 @@ func setupContext(r *http.Request) (error, *http.Request) {
 	if err != nil {
 		log.Error(err)
 	}
-	d := eventDetails{
+	d := models.EventDetails{
 		Payload: r.Form,
 		Browser: make(map[string]string),
 	}
 	d.Browser["address"] = ip
 	d.Browser["user-agent"] = r.Header.Get("User-Agent")
-	rj, err := json.Marshal(d)
 
 	r = ctx.Set(r, "result", rs)
 	r = ctx.Set(r, "campaign", c)
-	r = ctx.Set(r, "details", rj)
+	r = ctx.Set(r, "details", d)
 	return nil, r
 }

@@ -66,7 +66,10 @@ func (s *ControllersSuite) TestOpenedPhishingEmail() {
 
 	campaign = s.getFirstCampaign()
 	result = campaign.Results[0]
+	lastEvent := campaign.Events[len(campaign.Events)-1]
 	s.Equal(result.Status, models.EVENT_OPENED)
+	s.Equal(lastEvent.Message, models.EVENT_OPENED)
+	s.Equal(result.ModifiedDate, lastEvent.Time)
 }
 
 func (s *ControllersSuite) TestReportedPhishingEmail() {
@@ -78,8 +81,10 @@ func (s *ControllersSuite) TestReportedPhishingEmail() {
 
 	campaign = s.getFirstCampaign()
 	result = campaign.Results[0]
+	lastEvent := campaign.Events[len(campaign.Events)-1]
 	s.Equal(result.Reported, true)
-	s.Equal(campaign.Events[len(campaign.Events)-1].Message, models.EVENT_REPORTED)
+	s.Equal(lastEvent.Message, models.EVENT_REPORTED)
+	s.Equal(result.ModifiedDate, lastEvent.Time)
 }
 
 func (s *ControllersSuite) TestClickedPhishingLinkAfterOpen() {
@@ -92,7 +97,10 @@ func (s *ControllersSuite) TestClickedPhishingLinkAfterOpen() {
 
 	campaign = s.getFirstCampaign()
 	result = campaign.Results[0]
+	lastEvent := campaign.Events[len(campaign.Events)-1]
 	s.Equal(result.Status, models.EVENT_CLICKED)
+	s.Equal(lastEvent.Message, models.EVENT_CLICKED)
+	s.Equal(result.ModifiedDate, lastEvent.Time)
 }
 
 func (s *ControllersSuite) TestNoRecipientID() {

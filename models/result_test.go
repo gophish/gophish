@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	"net/mail"
 	"regexp"
 	"time"
@@ -40,10 +39,9 @@ func (s *ModelsSuite) TestResultSendingStatus(ch *check.C) {
 	ch.Assert(PostCampaign(&c, c.UserId), check.Equals, nil)
 	// This campaign wasn't scheduled, so we expect the status to
 	// be sending
-	fmt.Println("Campaign STATUS")
-	fmt.Println(c.Status)
 	for _, r := range c.Results {
 		ch.Assert(r.Status, check.Equals, STATUS_SENDING)
+		ch.Assert(r.ModifiedDate, check.Equals, c.CreatedDate)
 	}
 }
 func (s *ModelsSuite) TestResultScheduledStatus(ch *check.C) {
@@ -54,6 +52,7 @@ func (s *ModelsSuite) TestResultScheduledStatus(ch *check.C) {
 	// be sending
 	for _, r := range c.Results {
 		ch.Assert(r.Status, check.Equals, STATUS_SCHEDULED)
+		ch.Assert(r.ModifiedDate, check.Equals, c.CreatedDate)
 	}
 }
 

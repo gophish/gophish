@@ -26,4 +26,5 @@ gophish_admin.crt
 gophish_admin.key
 
 *.exe
-*.db
+gophish.db*
+gophish

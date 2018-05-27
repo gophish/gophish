@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"net/url"
 	"time"
 
 	log "github.com/gophish/gophish/logger"
@@ -68,6 +69,30 @@ type CampaignStats struct {
 	Error         int64 `json:"error"`
 }
 
+// Event contains the fields for an event
+// that occurs during the campaign
+type Event struct {
+	Id         int64     `json:"-"`
+	CampaignId int64     `json:"-"`
+	Email      string    `json:"email"`
+	Time       time.Time `json:"time"`
+	Message    string    `json:"message"`
+	Details    string    `json:"details"`
+}
+
+// EventDetails is a struct that wraps common attributes we want to store
+// in an event
+type EventDetails struct {
+	Payload url.Values        `json:"payload"`
+	Browser map[string]string `json:"browser"`
+}
+
+// EventError is a struct that wraps an error that occurs when sending an
+// email to a recipient
+type EventError struct {
+	Error string `json:"error"`
+}
+
 // ErrCampaignNameNotSpecified indicates there was no template given by the user
 var ErrCampaignNameNotSpecified = errors.New("Campaign name not specified")
 
@@ -122,10 +147,10 @@ func (c *Campaign) UpdateStatus(s string) error {
 }
 
 // AddEvent creates a new campaign event in the database
-func (c *Campaign) AddEvent(e Event) error {
+func (c *Campaign) AddEvent(e *Event) error {
 	e.CampaignId = c.Id
 	e.Time = time.Now().UTC()
-	return db.Save(&e).Error
+	return db.Save(e).Error
 }
 
 // getDetails retrieves the related attributes of the campaign
@@ -218,17 +243,6 @@ func getCampaignStats(cid int64) (CampaignStats, error) {
 	s.EmailsSent += s.OpenedEmail
 	err = query.Where("status=?", ERROR).Count(&s.Error).Error
 	return s, err
-}
-
-// Event contains the fields for an event
-// that occurs during the campaign
-type Event struct {
-	Id         int64     `json:"-"`
-	CampaignId int64     `json:"-"`
-	Email      string    `json:"email"`
-	Time       time.Time `json:"time"`
-	Message    string    `json:"message"`
-	Details    string    `json:"details"`
 }
 
 // GetCampaigns returns the campaigns owned by the given user.
@@ -422,7 +436,7 @@ func PostCampaign(c *Campaign, uid int64) error {
 		log.Error(err)
 		return err
 	}
-	err = c.AddEvent(Event{Message: "Campaign Created"})
+	err = c.AddEvent(&Event{Message: "Campaign Created"})
 	if err != nil {
 		log.Error(err)
 	}
@@ -438,15 +452,16 @@ func PostCampaign(c *Campaign, uid int64) error {
 			}
 			resultMap[t.Email] = true
 			r := &Result{
-				Email:      t.Email,
-				Position:   t.Position,
-				Status:     STATUS_SCHEDULED,
-				CampaignId: c.Id,
-				UserId:     c.UserId,
-				FirstName:  t.FirstName,
-				LastName:   t.LastName,
-				SendDate:   c.LaunchDate,
-				Reported:   false,
+				Email:        t.Email,
+				Position:     t.Position,
+				Status:       STATUS_SCHEDULED,
+				CampaignId:   c.Id,
+				UserId:       c.UserId,
+				FirstName:    t.FirstName,
+				LastName:     t.LastName,
+				SendDate:     c.LaunchDate,
+				Reported:     false,
+				ModifiedDate: c.CreatedDate,
 			}
 			if c.Status == CAMPAIGN_IN_PROGRESS {
 				r.Status = STATUS_SENDING

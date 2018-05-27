@@ -3,7 +3,6 @@ package models
 import (
 	"bytes"
 	"encoding/base64"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -58,20 +57,16 @@ func GenerateMailLog(c *Campaign, r *Result) error {
 // too many times. Backoff also unlocks the maillog so that it can be processed
 // again in the future.
 func (m *MailLog) Backoff(reason error) error {
-	if m.SendAttempt == MaxSendAttempts {
-		err = m.addError(ErrMaxSendAttempts)
-		return ErrMaxSendAttempts
-	}
 	r, err := GetResult(m.RId)
 	if err != nil {
 		return err
 	}
+	if m.SendAttempt == MaxSendAttempts {
+		r.HandleEmailError(ErrMaxSendAttempts)
+		return ErrMaxSendAttempts
+	}
 	// Add an error, since we had to backoff because of a
 	// temporary error of some sort during the SMTP transaction
-	err = m.addError(reason)
-	if err != nil {
-		return err
-	}
 	m.SendAttempt++
 	backoffDuration := math.Pow(2, float64(m.SendAttempt))
 	m.SendDate = m.SendDate.Add(time.Minute * time.Duration(backoffDuration))
@@ -79,9 +74,7 @@ func (m *MailLog) Backoff(reason error) error {
 	if err != nil {
 		return err
 	}
-	r.Status = STATUS_RETRY
-	r.SendDate = m.SendDate
-	err = db.Save(r).Error
+	err = r.HandleEmailBackoff(reason, m.SendDate)
 	if err != nil {
 		return err
 	}
@@ -101,32 +94,6 @@ func (m *MailLog) Lock() error {
 	return db.Save(&m).Error
 }
 
-// addError adds an error to the associated campaign
-func (m *MailLog) addError(e error) error {
-	c, err := GetCampaign(m.CampaignId, m.UserId)
-	if err != nil {
-		return err
-	}
-	// This is redundant in the case of permanent
-	// errors, but the extra query makes for
-	// a cleaner API.
-	r, err := GetResult(m.RId)
-	if err != nil {
-		return err
-	}
-	es := struct {
-		Error string `json:"error"`
-	}{
-		Error: e.Error(),
-	}
-	ej, err := json.Marshal(es)
-	if err != nil {
-		log.Warn(err)
-	}
-	err = c.AddEvent(Event{Email: r.Email, Message: EVENT_SENDING_ERROR, Details: string(ej)})
-	return err
-}
-
 // Error sets the error status on the models.Result that the
 // maillog refers to. Since MailLog errors are permanent,
 // this action also deletes the maillog.
@@ -136,14 +103,7 @@ func (m *MailLog) Error(e error) error {
 		log.Warn(err)
 		return err
 	}
-	// Update the result
-	err = r.UpdateStatus(ERROR)
-	if err != nil {
-		log.Warn(err)
-		return err
-	}
-	// Update the campaign events
-	err = m.addError(e)
+	err = r.HandleEmailError(e)
 	if err != nil {
 		log.Warn(err)
 		return err
@@ -159,15 +119,7 @@ func (m *MailLog) Success() error {
 	if err != nil {
 		return err
 	}
-	err = r.UpdateStatus(EVENT_SENT)
-	if err != nil {
-		return err
-	}
-	c, err := GetCampaign(m.CampaignId, m.UserId)
-	if err != nil {
-		return err
-	}
-	err = c.AddEvent(Event{Email: r.Email, Message: EVENT_SENT})
+	err = r.HandleEmailSent()
 	if err != nil {
 		return err
 	}
