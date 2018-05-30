@@ -46,7 +46,8 @@ function launch() {
                         name: $("#profile").select2("data")[0].text
                     },
                     launch_date: moment($("#launch_date").val(), "MM/DD/YYYY hh:mm a").utc().format(),
-                    groups: groups
+                    groups: groups,
+                    send_delay: parseInt($("#send_delay").val()),
                 }
                 console.log("Launching campaign at time: " + campaign.launch_date)
                 // Submit the campaign

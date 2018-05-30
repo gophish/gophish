@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/textproto"
+	"time"
 
 	"github.com/gophish/gomail"
 	log "github.com/gophish/gophish/logger"
@@ -50,6 +51,20 @@ type Mail interface {
 	GetDialer() (Dialer, error)
 }
 
+// MailBundle contains all mails, as well as the sending delay between each mail
+type MailBundle struct {
+	Delay int64
+	Mails []Mail
+}
+
+// NewMailBundle returns an instance of MailBundle
+func NewMailBundle(ms []Mail, delay int64) *MailBundle {
+	return &MailBundle{
+		Mails: ms,
+		Delay: delay,
+	}
+}
+
 // Mailer is a global instance of the mailer that can
 // be used in applications. It is the responsibility of the application
 // to call Mailer.Start()
@@ -63,14 +78,14 @@ func init() {
 // on a channel to send. It's assumed that every slice of emails received is meant
 // to be sent to the same server.
 type MailWorker struct {
-	Queue chan []Mail
+	Queue chan *MailBundle
 }
 
 // NewMailWorker returns an instance of MailWorker with the mail queue
 // initialized.
 func NewMailWorker() *MailWorker {
 	return &MailWorker{
-		Queue: make(chan []Mail),
+		Queue: make(chan *MailBundle),
 	}
 }
 
@@ -81,16 +96,22 @@ func (mw *MailWorker) Start(ctx context.Context) {
 		select {
 		case <-ctx.Done():
 			return
-		case ms := <-mw.Queue:
-			go func(ctx context.Context, ms []Mail) {
-				log.Infof("Mailer got %d mail to send", len(ms))
+		case mb := <-mw.Queue:
+			go func(ctx context.Context, mb *MailBundle) {
+				ms := mb.Mails
+				log.Infof("Mailer got %d mail to send with %ds delay", len(ms), mb.Delay)
 				dialer, err := ms[0].GetDialer()
 				if err != nil {
 					errorMail(err, ms)
 					return
 				}
-				sendMail(ctx, dialer, ms)
-			}(ctx, ms)
+				// Check for Delay
+				if mb.Delay <= 0 {
+					sendMail(ctx, dialer, ms)
+				} else {
+					sendDelayedMail(ctx, dialer, ms, mb.Delay)
+				}
+			}(ctx, mb)
 		}
 	}
 }
@@ -219,4 +240,21 @@ func sendMail(ctx context.Context, dialer Dialer, ms []Mail) {
 		}).Info("Email sent")
 		m.Success()
 	}
+}
+
+//
+func sendDelayedMail(ctx context.Context, dialer Dialer, ms []Mail, delay int64) {
+	interval := time.Duration(delay) * time.Second
+	tick := time.NewTicker(interval).C
+	for i, m := range ms {
+		select {
+		case <-ctx.Done():
+			log.Debug("Done")
+			return
+		case <-tick:
+			log.Infof("Sending Mail ( %d / %d )", i+1, len(ms))
+			sendMail(ctx, dialer, []Mail{m})
+		}
+	}
+	log.Info("Mailer Finished")
 }
