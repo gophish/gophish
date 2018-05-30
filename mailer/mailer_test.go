@@ -16,7 +16,7 @@ type MailerSuite struct {
 	suite.Suite
 }
 
-func packMails(ms []Mail) MailBundle {
+func packMails(ms []Mail) *MailBundle {
 	return &MailBundle{
 		Mails: ms,
 	}
@@ -92,7 +92,7 @@ func (ms *MailerSuite) TestMailWorkerStart() {
 	})
 
 	messages := generateMessages(dialer)
-	bundle := packMails(generateMessages(dialer))
+	bundle := packMails(messages)
 
 	// Send the campaign
 	mw.Queue <- bundle
@@ -134,7 +134,7 @@ func (ms *MailerSuite) TestBackoff() {
 	})
 
 	messages := generateMessages(dialer)
-	bundle := packMails(generateMessages(dialer))
+	bundle := packMails(messages)
 
 	// Send the campaign
 	mw.Queue <- bundle
@@ -189,7 +189,7 @@ func (ms *MailerSuite) TestPermError() {
 	})
 
 	messages := generateMessages(dialer)
-	bundle := packMails(generateMessages(dialer))
+	bundle := packMails(messages)
 
 	// Send the campaign
 	mw.Queue <- bundle
@@ -249,7 +249,7 @@ func (ms *MailerSuite) TestUnknownError() {
 	})
 
 	messages := generateMessages(dialer)
-	bundle := packMails(generateMessages(dialer))
+	bundle := packMails(messages)
 
 	// Send the campaign
 	mw.Queue <- bundle
@@ -311,9 +311,10 @@ func (ms *MailerSuite) TestsendDelayedMail() {
 		return sender, nil
 	})
 
-	messages := generateMessages(dialer)
-	bundle := packMails(generateMessages(dialer))
-	bundle.Delay = 2 * time.Second // or 2
+	// can only use one mail based on new connection
+	messages := []Mail{generateMessages(dialer)[0]}
+	bundle := packMails(messages)
+	bundle.Delay = 2
 
 	// Send the campaign
 	mw.Queue <- bundle
@@ -330,7 +331,7 @@ func (ms *MailerSuite) TestsendDelayedMail() {
 		idx++
 	}
 	if len(got) != len(messages) {
-		ms.T().Fatalf("Unexpected number of messages received. Expected %d Got %d", len(got), len(messages))
+		ms.T().Fatalf("Unexpected number of messages received. Expected %d Got %d", len(messages), len(got))
 	}
 }
 
