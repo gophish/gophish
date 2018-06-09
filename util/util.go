@@ -100,10 +100,12 @@ func ParseCSV(r *http.Request) ([]models.Target, error) {
 				ps = record[pi]
 			}
 			t := models.Target{
-				FirstName: fn,
-				LastName:  ln,
-				Email:     ea,
-				Position:  ps,
+				BaseRecipient: models.BaseRecipient{
+					FirstName: fn,
+					LastName:  ln,
+					Email:     ea,
+					Position:  ps,
+				},
 			}
 			ts = append(ts, t)
 		}

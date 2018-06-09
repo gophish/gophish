@@ -206,6 +206,18 @@ func (c *Campaign) getDetails() error {
 	return nil
 }
 
+// getBaseURL returns the Campaign's configured URL.
+// This is used to implement the TemplateContext interface.
+func (c *Campaign) getBaseURL() string {
+	return c.URL
+}
+
+// getFromAddress returns the Campaign's configured SMTP "From" address.
+// This is used to implement the TemplateContext interface.
+func (c *Campaign) getFromAddress() string {
+	return c.SMTP.FromAddress
+}
+
 // getCampaignStats returns a CampaignStats object for the campaign with the given campaign ID.
 // It also backfills numbers as appropriate with a running total, so that the values are aggregated.
 func getCampaignStats(cid int64) (CampaignStats, error) {
@@ -452,13 +464,15 @@ func PostCampaign(c *Campaign, uid int64) error {
 			}
 			resultMap[t.Email] = true
 			r := &Result{
-				Email:        t.Email,
-				Position:     t.Position,
+				BaseRecipient: BaseRecipient{
+					Email:     t.Email,
+					Position:  t.Position,
+					FirstName: t.FirstName,
+					LastName:  t.LastName,
+				},
 				Status:       STATUS_SCHEDULED,
 				CampaignId:   c.Id,
 				UserId:       c.UserId,
-				FirstName:    t.FirstName,
-				LastName:     t.LastName,
 				SendDate:     c.LaunchDate,
 				Reported:     false,
 				ModifiedDate: c.CreatedDate,

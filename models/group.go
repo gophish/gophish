@@ -46,14 +46,33 @@ type GroupTarget struct {
 // Target contains the fields needed for individual targets specified by the user
 // Groups contain 1..* Targets, but 1 Target may belong to 1..* Groups
 type Target struct {
-	Id        int64  `json:"-"`
+	Id int64 `json:"-"`
+	BaseRecipient
+}
+
+// BaseRecipient contains the fields for a single recipient. This is the base
+// struct used in members of groups and campaign results.
+type BaseRecipient struct {
+	Email     string `json:"email"`
 	FirstName string `json:"first_name"`
 	LastName  string `json:"last_name"`
-	Email     string `json:"email"`
 	Position  string `json:"position"`
 }
 
-// Returns the email address to use in the "To" header of the email
+// FormatAddress returns the email address to use in the "To" header of the email
+func (r *BaseRecipient) FormatAddress() string {
+	addr := r.Email
+	if r.FirstName != "" && r.LastName != "" {
+		a := &mail.Address{
+			Name:    fmt.Sprintf("%s %s", r.FirstName, r.LastName),
+			Address: r.Email,
+		}
+		addr = a.String()
+	}
+	return addr
+}
+
+// FormatAddress returns the email address to use in the "To" header of the email
 func (t *Target) FormatAddress() string {
 	addr := t.Email
 	if t.FirstName != "" && t.LastName != "" {
@@ -66,7 +85,7 @@ func (t *Target) FormatAddress() string {
 	return addr
 }
 
-// ErrNoEmailSpecified is thrown when no email is specified for the Target
+// ErrEmailNotSpecified is thrown when no email is specified for the Target
 var ErrEmailNotSpecified = errors.New("No email address specified")
 
 // ErrGroupNameNotSpecified is thrown when a group name is not specified
@@ -274,11 +293,12 @@ func insertTargetIntoGroup(t Target, gid int64) error {
 		return err
 	}
 	trans := db.Begin()
-	trans.Where(t).FirstOrCreate(&t)
+	err = trans.Where(t).FirstOrCreate(&t).Error
 	if err != nil {
 		log.WithFields(logrus.Fields{
 			"email": t.Email,
-		}).Error("Error adding target")
+		}).Error(err)
+		trans.Rollback()
 		return err
 	}
 	err = trans.Where("group_id=? and target_id=?", gid, t.Id).Find(&GroupTarget{}).Error
@@ -286,6 +306,7 @@ func insertTargetIntoGroup(t Target, gid int64) error {
 		err = trans.Save(&GroupTarget{GroupId: gid, TargetId: t.Id}).Error
 		if err != nil {
 			log.Error(err)
+			trans.Rollback()
 			return err
 		}
 	}
@@ -293,10 +314,12 @@ func insertTargetIntoGroup(t Target, gid int64) error {
 		log.WithFields(logrus.Fields{
 			"email": t.Email,
 		}).Error("Error adding many-many mapping")
+		trans.Rollback()
 		return err
 	}
 	err = trans.Commit().Error
 	if err != nil {
+		trans.Rollback()
 		log.Error("Error committing db changes")
 		return err
 	}

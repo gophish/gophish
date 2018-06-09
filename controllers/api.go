@@ -652,8 +652,9 @@ func API_Import_Site(w http.ResponseWriter, r *http.Request) {
 // API_Send_Test_Email sends a test email using the template name
 // and Target given.
 func API_Send_Test_Email(w http.ResponseWriter, r *http.Request) {
-	s := &models.SendTestEmailRequest{
+	s := &models.EmailRequest{
 		ErrorChan: make(chan error),
+		UserId:    ctx.Get(r, "user_id").(int64),
 	}
 	if r.Method != "POST" {
 		JSONResponse(w, models.Response{Success: false, Message: "Method not allowed"}, http.StatusBadRequest)
@@ -664,11 +665,8 @@ func API_Send_Test_Email(w http.ResponseWriter, r *http.Request) {
 		JSONResponse(w, models.Response{Success: false, Message: "Error decoding JSON Request"}, http.StatusBadRequest)
 		return
 	}
-	// Validate the given request
-	if err = s.Validate(); err != nil {
-		JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
-		return
-	}
+
+	storeRequest := false
 
 	// If a Template is not specified use a default
 	if s.Template.Name == "" {
@@ -678,17 +676,15 @@ func API_Send_Test_Email(w http.ResponseWriter, r *http.Request) {
 			"{{if .FirstName}} First Name: {{.FirstName}}\n{{end}}" +
 			"{{if .LastName}} Last Name: {{.LastName}}\n{{end}}" +
 			"{{if .Position}} Position: {{.Position}}\n{{end}}" +
-			"{{if .TrackingURL}} Tracking URL: {{.TrackingURL}}\n{{end}}" +
 			"\nNow go send some phish!"
 		t := models.Template{
 			Subject: "Default Email from Gophish",
 			Text:    text,
 		}
 		s.Template = t
-		// Try to lookup the Template by name
 	} else {
 		// Get the Template requested by name
-		s.Template, err = models.GetTemplateByName(s.Template.Name, ctx.Get(r, "user_id").(int64))
+		s.Template, err = models.GetTemplateByName(s.Template.Name, s.UserId)
 		if err == gorm.ErrRecordNotFound {
 			log.WithFields(logrus.Fields{
 				"template": s.Template.Name,
@@ -700,12 +696,32 @@ func API_Send_Test_Email(w http.ResponseWriter, r *http.Request) {
 			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
 			return
 		}
+		s.TemplateId = s.Template.Id
+		// We'll only save the test request to the database if there is a
+		// user-specified template to use.
+		storeRequest = true
+	}
+
+	if s.Page.Name != "" {
+		s.Page, err = models.GetPageByName(s.Page.Name, s.UserId)
+		if err == gorm.ErrRecordNotFound {
+			log.WithFields(logrus.Fields{
+				"page": s.Page.Name,
+			}).Error("Page does not exist")
+			JSONResponse(w, models.Response{Success: false, Message: models.ErrPageNotFound.Error()}, http.StatusBadRequest)
+			return
+		} else if err != nil {
+			log.Error(err)
+			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
+			return
+		}
+		s.PageId = s.Page.Id
 	}
 
 	// If a complete sending profile is provided use it
 	if err := s.SMTP.Validate(); err != nil {
 		// Otherwise get the SMTP requested by name
-		smtp, lookupErr := models.GetSMTPByName(s.SMTP.Name, ctx.Get(r, "user_id").(int64))
+		smtp, lookupErr := models.GetSMTPByName(s.SMTP.Name, s.UserId)
 		// If the Sending Profile doesn't exist, let's err on the side
 		// of caution and assume that the validation failure was more important.
 		if lookupErr != nil {
@@ -716,9 +732,25 @@ func API_Send_Test_Email(w http.ResponseWriter, r *http.Request) {
 		s.SMTP = smtp
 	}
 
+	// Validate the given request
+	if err = s.Validate(); err != nil {
+		JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
+		return
+	}
+
+	// Store the request if this wasn't the default template
+	if storeRequest {
+		err = models.PostEmailRequest(s)
+		if err != nil {
+			log.Error(err)
+			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
+			return
+		}
+	}
 	// Send the test email
 	err = Worker.SendTestEmail(s)
 	if err != nil {
+		log.Error(err)
 		JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
 		return
 	}

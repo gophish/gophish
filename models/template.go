@@ -1,9 +1,7 @@
 package models
 
 import (
-	"bytes"
 	"errors"
-	"html/template"
 	"time"
 
 	log "github.com/gophish/gophish/logger"
@@ -36,7 +34,6 @@ func (t *Template) Validate() error {
 	case t.Text == "" && t.HTML == "":
 		return ErrTemplateMissingParameter
 	}
-	var buff bytes.Buffer
 	// Test that the variables used in the template
 	// validate with no issues
 	td := struct {
@@ -47,31 +44,27 @@ func (t *Template) Validate() error {
 		From        string
 	}{
 		Result{
-			Email:     "foo@bar.com",
-			FirstName: "Foo",
-			LastName:  "Bar",
-			Position:  "Test",
+			BaseRecipient: BaseRecipient{
+				Email:     "foo@bar.com",
+				FirstName: "Foo",
+				LastName:  "Bar",
+				Position:  "Test",
+			},
 		},
 		"http://foo.bar",
 		"http://foo.bar/track",
 		"<img src='http://foo.bar/track",
 		"John Doe <foo@bar.com>",
 	}
-	tmpl, err := template.New("html_template").Parse(t.HTML)
+	_, err := ExecuteTemplate(t.HTML, td)
 	if err != nil {
 		return err
 	}
-	err = tmpl.Execute(&buff, td)
+	_, err = ExecuteTemplate(t.Text, td)
 	if err != nil {
 		return err
 	}
-
-	tmpl, err = template.New("text_template").Parse(t.Text)
-	if err != nil {
-		return err
-	}
-	err = tmpl.Execute(&buff, td)
-	return err
+	return nil
 }
 
 // GetTemplates returns the templates owned by the given user.

@@ -11,14 +11,16 @@ import (
 )
 
 func (s *ModelsSuite) TestEmailNotPresent(ch *check.C) {
-	req := &SendTestEmailRequest{}
+	req := &EmailRequest{}
 	ch.Assert(req.Validate(), check.Equals, ErrEmailNotSpecified)
 	req.Email = "test@example.com"
+	ch.Assert(req.Validate(), check.Equals, ErrFromAddressNotSpecified)
+	req.FromAddress = "from@example.com"
 	ch.Assert(req.Validate(), check.Equals, nil)
 }
 
 func (s *ModelsSuite) TestEmailRequestBackoff(ch *check.C) {
-	req := &SendTestEmailRequest{
+	req := &EmailRequest{
 		ErrorChan: make(chan error),
 	}
 	expected := errors.New("Temporary Error")
@@ -30,7 +32,7 @@ func (s *ModelsSuite) TestEmailRequestBackoff(ch *check.C) {
 }
 
 func (s *ModelsSuite) TestEmailRequestError(ch *check.C) {
-	req := &SendTestEmailRequest{
+	req := &EmailRequest{
 		ErrorChan: make(chan error),
 	}
 	expected := errors.New("Temporary Error")
@@ -42,7 +44,7 @@ func (s *ModelsSuite) TestEmailRequestError(ch *check.C) {
 }
 
 func (s *ModelsSuite) TestEmailRequestSuccess(ch *check.C) {
-	req := &SendTestEmailRequest{
+	req := &EmailRequest{
 		ErrorChan: make(chan error),
 	}
 	go func() {
@@ -62,15 +64,15 @@ func (s *ModelsSuite) TestEmailRequestGenerate(ch *check.C) {
 		Text:    "{{.Email}} - Text",
 		HTML:    "{{.Email}} - HTML",
 	}
-	target := Target{
-		FirstName: "First",
-		LastName:  "Last",
-		Email:     "firstlast@example.com",
-	}
-	req := &SendTestEmailRequest{
+	req := &EmailRequest{
 		SMTP:     smtp,
 		Template: template,
-		Target:   target,
+		BaseRecipient: BaseRecipient{
+			FirstName: "First",
+			LastName:  "Last",
+			Email:     "firstlast@example.com",
+		},
+		FromAddress: smtp.FromAddress,
 	}
 
 	msg := gomail.NewMessage()
@@ -104,23 +106,24 @@ func (s *ModelsSuite) TestEmailRequestURLTemplating(ch *check.C) {
 		Text:    "{{.URL}}",
 		HTML:    "{{.URL}}",
 	}
-	target := Target{
-		FirstName: "First",
-		LastName:  "Last",
-		Email:     "firstlast@example.com",
-	}
-	req := &SendTestEmailRequest{
+	req := &EmailRequest{
 		SMTP:     smtp,
 		Template: template,
-		Target:   target,
-		URL: "http://127.0.0.1/{{.Email}}",
+		URL:      "http://127.0.0.1/{{.Email}}",
+		BaseRecipient: BaseRecipient{
+			FirstName: "First",
+			LastName:  "Last",
+			Email:     "firstlast@example.com",
+		},
+		FromAddress: smtp.FromAddress,
+		RId:         fmt.Sprintf("%s-foobar", PreviewPrefix),
 	}
 
 	msg := gomail.NewMessage()
 	err = req.Generate(msg)
 	ch.Assert(err, check.Equals, nil)
 
-	expectedURL := fmt.Sprintf("http://127.0.0.1/%s", target.Email)
+	expectedURL := fmt.Sprintf("http://127.0.0.1/%s?%s=%s", req.Email, RecipientParameter, req.RId)
 
 	msgBuff := &bytes.Buffer{}
 	_, err = msg.WriteTo(msgBuff)
@@ -142,15 +145,15 @@ func (s *ModelsSuite) TestEmailRequestGenerateEmptySubject(ch *check.C) {
 		Text:    "{{.Email}} - Text",
 		HTML:    "{{.Email}} - HTML",
 	}
-	target := Target{
-		FirstName: "First",
-		LastName:  "Last",
-		Email:     "firstlast@example.com",
-	}
-	req := &SendTestEmailRequest{
+	req := &EmailRequest{
 		SMTP:     smtp,
 		Template: template,
-		Target:   target,
+		BaseRecipient: BaseRecipient{
+			FirstName: "First",
+			LastName:  "Last",
+			Email:     "firstlast@example.com",
+		},
+		FromAddress: smtp.FromAddress,
 	}
 
 	msg := gomail.NewMessage()
@@ -170,4 +173,45 @@ func (s *ModelsSuite) TestEmailRequestGenerateEmptySubject(ch *check.C) {
 	got, err := email.NewEmailFromReader(msgBuff)
 	ch.Assert(err, check.Equals, nil)
 	ch.Assert(got.Subject, check.Equals, expected.Subject)
+}
+
+func (s *ModelsSuite) TestPostSendTestEmailRequest(ch *check.C) {
+	smtp := SMTP{
+		FromAddress: "from@example.com",
+	}
+	template := Template{
+		Name:    "Test Template",
+		Subject: "",
+		Text:    "{{.Email}} - Text",
+		HTML:    "{{.Email}} - HTML",
+		UserId:  1,
+	}
+	err := PostTemplate(&template)
+	ch.Assert(err, check.Equals, nil)
+
+	page := Page{
+		Name:   "Test Page",
+		HTML:   "test",
+		UserId: 1,
+	}
+	err = PostPage(&page)
+	ch.Assert(err, check.Equals, nil)
+
+	req := &EmailRequest{
+		SMTP:       smtp,
+		TemplateId: template.Id,
+		PageId:     page.Id,
+		BaseRecipient: BaseRecipient{
+			FirstName: "First",
+			LastName:  "Last",
+			Email:     "firstlast@example.com",
+		},
+	}
+	err = PostEmailRequest(req)
+	ch.Assert(err, check.Equals, nil)
+
+	got, err := GetEmailRequestByResultId(req.RId)
+	ch.Assert(err, check.Equals, nil)
+	ch.Assert(got.RId, check.Equals, req.RId)
+	ch.Assert(got.Email, check.Equals, req.Email)
 }

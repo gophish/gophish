@@ -52,9 +52,11 @@ func buildCSVRequest(csvPayload string) (*http.Request, error) {
 
 func (s *UtilSuite) TestParseCSVEmail() {
 	expected := models.Target{
-		FirstName: "John",
-		LastName:  "Doe",
-		Email:     "johndoe@example.com",
+		BaseRecipient: models.BaseRecipient{
+			FirstName: "John",
+			LastName:  "Doe",
+			Email:     "johndoe@example.com",
+		},
 	}
 
 	csvPayload := fmt.Sprintf("%s,%s,<%s>", expected.FirstName, expected.LastName, expected.Email)

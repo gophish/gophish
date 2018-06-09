@@ -35,8 +35,8 @@ func (s *WorkerSuite) SetupTest() {
 	// Add a group
 	group := models.Group{Name: "Test Group"}
 	group.Targets = []models.Target{
-		models.Target{Email: "test1@example.com", FirstName: "First", LastName: "Example"},
-		models.Target{Email: "test2@example.com", FirstName: "Second", LastName: "Example"},
+		models.Target{BaseRecipient: models.BaseRecipient{Email: "test1@example.com", FirstName: "First", LastName: "Example"}},
+		models.Target{BaseRecipient: models.BaseRecipient{Email: "test2@example.com", FirstName: "Second", LastName: "Example"}},
 	}
 	group.UserId = 1
 	models.PostGroup(&group)

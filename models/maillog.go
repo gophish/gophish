@@ -1,17 +1,13 @@
 package models
 
 import (
-	"bytes"
 	"encoding/base64"
 	"errors"
 	"fmt"
 	"io"
 	"math"
 	"net/mail"
-	"net/url"
-	"path"
 	"strings"
-	"text/template"
 	"time"
 
 	"github.com/gophish/gomail"
@@ -136,18 +132,6 @@ func (m *MailLog) GetDialer() (mailer.Dialer, error) {
 	return c.SMTP.GetDialer()
 }
 
-// buildTemplate creates a templated string based on the provided
-// template body and data.
-func buildTemplate(text string, data interface{}) (string, error) {
-	buff := bytes.Buffer{}
-	tmpl, err := template.New("template").Parse(text)
-	if err != nil {
-		return buff.String(), err
-	}
-	err = tmpl.Execute(&buff, data)
-	return buff.String(), err
-}
-
 // Generate fills in the details of a gomail.Message instance with
 // the correct headers and body from the campaign and recipient listed in
 // the maillog. We accept the gomail.Message as an argument so that the caller
@@ -161,51 +145,26 @@ func (m *MailLog) Generate(msg *gomail.Message) error {
 	if err != nil {
 		return err
 	}
+
 	f, err := mail.ParseAddress(c.SMTP.FromAddress)
 	if err != nil {
 		return err
 	}
-	fn := f.Name
-	if fn == "" {
-		fn = f.Address
-	}
 	msg.SetAddressHeader("From", f.Address, f.Name)
-	campaignURL, err := buildTemplate(c.URL, r)
+
+	ptx, err := NewPhishingTemplateContext(&c, r.BaseRecipient, r.RId)
 	if err != nil {
 		return err
 	}
 
-	phishURL, _ := url.Parse(campaignURL)
-	q := phishURL.Query()
-	q.Set("rid", r.RId)
-	phishURL.RawQuery = q.Encode()
-
-	trackingURL, _ := url.Parse(campaignURL)
-	trackingURL.Path = path.Join(trackingURL.Path, "/track")
-	trackingURL.RawQuery = q.Encode()
-
-	td := struct {
-		Result
-		URL         string
-		TrackingURL string
-		Tracker     string
-		From        string
-	}{
-		r,
-		phishURL.String(),
-		trackingURL.String(),
-		"<img alt='' style='display: none' src='" + trackingURL.String() + "'/>",
-		fn,
-	}
-
 	// Parse the customHeader templates
 	for _, header := range c.SMTP.Headers {
-		key, err := buildTemplate(header.Key, td)
+		key, err := ExecuteTemplate(header.Key, ptx)
 		if err != nil {
 			log.Warn(err)
 		}
 
-		value, err := buildTemplate(header.Value, td)
+		value, err := ExecuteTemplate(header.Value, ptx)
 		if err != nil {
 			log.Warn(err)
 		}
@@ -215,7 +174,7 @@ func (m *MailLog) Generate(msg *gomail.Message) error {
 	}
 
 	// Parse remaining templates
-	subject, err := buildTemplate(c.Template.Subject, td)
+	subject, err := ExecuteTemplate(c.Template.Subject, ptx)
 	if err != nil {
 		log.Warn(err)
 	}
@@ -226,14 +185,14 @@ func (m *MailLog) Generate(msg *gomail.Message) error {
 
 	msg.SetHeader("To", r.FormatAddress())
 	if c.Template.Text != "" {
-		text, err := buildTemplate(c.Template.Text, td)
+		text, err := ExecuteTemplate(c.Template.Text, ptx)
 		if err != nil {
 			log.Warn(err)
 		}
 		msg.SetBody("text/plain", text)
 	}
 	if c.Template.HTML != "" {
-		html, err := buildTemplate(c.Template.HTML, td)
+		html, err := ExecuteTemplate(c.Template.HTML, ptx)
 		if err != nil {
 			log.Warn(err)
 		}

@@ -86,7 +86,7 @@ func (w *Worker) LaunchCampaign(c models.Campaign) {
 }
 
 // SendTestEmail sends a test email
-func (w *Worker) SendTestEmail(s *models.SendTestEmailRequest) error {
+func (w *Worker) SendTestEmail(s *models.EmailRequest) error {
 	go func() {
 		mailer.Mailer.Queue <- []mailer.Mail{s}
 	}()

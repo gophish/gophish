@@ -1,14 +1,10 @@
 package controllers
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
-	"html/template"
 	"net"
 	"net/http"
-	"net/mail"
-	"net/url"
 	"strings"
 
 	ctx "github.com/gophish/gophish/context"
@@ -50,6 +46,11 @@ func PhishTracker(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
+	// Check for a preview
+	if _, ok := ctx.Get(r, "result").(models.EmailRequest); ok {
+		http.ServeFile(w, r, "static/images/pixel.png")
+		return
+	}
 	rs := ctx.Get(r, "result").(models.Result)
 	d := ctx.Get(r, "details").(models.EventDetails)
 	err = rs.HandleEmailOpened(d)
@@ -68,6 +69,11 @@ func PhishReporter(w http.ResponseWriter, r *http.Request) {
 			log.Error(err)
 		}
 		http.NotFound(w, r)
+		return
+	}
+	// Check for a preview
+	if _, ok := ctx.Get(r, "result").(models.EmailRequest); ok {
+		w.WriteHeader(http.StatusNoContent)
 		return
 	}
 	rs := ctx.Get(r, "result").(models.Result)
@@ -92,6 +98,24 @@ func PhishHandler(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
+	var ptx models.PhishingTemplateContext
+	// Check for a preview
+	if preview, ok := ctx.Get(r, "result").(models.EmailRequest); ok {
+		ptx, err = models.NewPhishingTemplateContext(&preview, preview.BaseRecipient, preview.RId)
+		if err != nil {
+			log.Error(err)
+			http.NotFound(w, r)
+			return
+		}
+		p, err := models.GetPage(preview.PageId, preview.UserId)
+		if err != nil {
+			log.Error(err)
+			http.NotFound(w, r)
+			return
+		}
+		renderPhishResponse(w, r, ptx, p)
+		return
+	}
 	rs := ctx.Get(r, "result").(models.Result)
 	c := ctx.Get(r, "campaign").(models.Campaign)
 	d := ctx.Get(r, "details").(models.EventDetails)
@@ -112,49 +136,35 @@ func PhishHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Error(err)
 		}
-		// Redirect to the desired page
+	}
+	ptx, err = models.NewPhishingTemplateContext(&c, rs.BaseRecipient, rs.RId)
+	if err != nil {
+		log.Error(err)
+		http.NotFound(w, r)
+	}
+	renderPhishResponse(w, r, ptx, p)
+}
+
+// renderPhishResponse handles rendering the correct response to the phishing
+// connection. This usually involves writing out the page HTML or redirecting
+// the user to the correct URL.
+func renderPhishResponse(w http.ResponseWriter, r *http.Request, ptx models.PhishingTemplateContext, p models.Page) {
+	// If the request was a form submit and a redirect URL was specified, we
+	// should send the user to that URL
+	if r.Method == "POST" {
 		if p.RedirectURL != "" {
 			http.Redirect(w, r, p.RedirectURL, 302)
 			return
 		}
 	}
-	var htmlBuff bytes.Buffer
-	tmpl, err := template.New("html_template").Parse(p.HTML)
+	// Otherwise, we just need to write out the templated HTML
+	html, err := models.ExecuteTemplate(p.HTML, ptx)
 	if err != nil {
 		log.Error(err)
 		http.NotFound(w, r)
 		return
 	}
-	f, err := mail.ParseAddress(c.SMTP.FromAddress)
-	if err != nil {
-		log.Error(err)
-	}
-	fn := f.Name
-	if fn == "" {
-		fn = f.Address
-	}
-
-	phishURL, _ := url.Parse(c.URL)
-	q := phishURL.Query()
-	q.Set(models.RecipientParameter, rs.RId)
-	phishURL.RawQuery = q.Encode()
-
-	rsf := struct {
-		models.Result
-		URL  string
-		From string
-	}{
-		rs,
-		phishURL.String(),
-		fn,
-	}
-	err = tmpl.Execute(&htmlBuff, rsf)
-	if err != nil {
-		log.Error(err)
-		http.NotFound(w, r)
-		return
-	}
-	w.Write(htmlBuff.Bytes())
+	w.Write([]byte(html))
 }
 
 // RobotsHandler prevents search engines, etc. from indexing phishing materials
@@ -172,6 +182,15 @@ func setupContext(r *http.Request) (error, *http.Request) {
 	id := r.Form.Get(models.RecipientParameter)
 	if id == "" {
 		return ErrInvalidRequest, r
+	}
+	// Check to see if this is a preview or a real result
+	if strings.HasPrefix(id, models.PreviewPrefix) {
+		rs, err := models.GetEmailRequestByResultId(id)
+		if err != nil {
+			return err, r
+		}
+		r = ctx.Set(r, "result", rs)
+		return nil, r
 	}
 	rs, err := models.GetResult(id)
 	if err != nil {
