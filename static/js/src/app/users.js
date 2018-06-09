@@ -112,6 +112,31 @@ function edit(id) {
     })
 }
 
+var downloadCSVTemplate = function () {
+    var csvScope = [{
+        'First Name': 'Example',
+        'Last Name': 'User',
+        'Email': 'foobar@example.com',
+        'Position': 'Systems Administrator'
+    }]
+    var filename = 'group_template.csv'
+    var csvString = Papa.unparse(csvScope, {})
+    var csvData = new Blob([csvString], {
+        type: 'text/csv;charset=utf-8;'
+    });
+    if (navigator.msSaveBlob) {
+        navigator.msSaveBlob(csvData, filename);
+    } else {
+        var csvURL = window.URL.createObjectURL(csvData);
+        var dlLink = document.createElement('a');
+        dlLink.href = csvURL;
+        dlLink.setAttribute('download', filename)
+        document.body.appendChild(dlLink)
+        dlLink.click();
+        document.body.removeChild(dlLink)
+    }
+}
+
 function deleteGroup(id) {
     var group = groups.find(function (x) {
         return x.id === id
@@ -228,4 +253,5 @@ $(document).ready(function () {
     $("#modal").on("hide.bs.modal", function () {
         dismiss();
     });
+    $("#csv-template").click(downloadCSVTemplate)
 });

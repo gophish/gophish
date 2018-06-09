@@ -15,11 +15,19 @@ import (
 	"net/http"
 	"net/mail"
 	"os"
+	"regexp"
 	"time"
 
 	log "github.com/gophish/gophish/logger"
 	"github.com/gophish/gophish/models"
 	"github.com/jordan-wright/email"
+)
+
+var (
+	firstNameRegex = regexp.MustCompile(`(?i)first[\s_-]*name`)
+	lastNameRegex  = regexp.MustCompile(`(?i)last[\s_-]*name`)
+	emailRegex     = regexp.MustCompile(`(?i)email`)
+	positionRegex  = regexp.MustCompile(`(?i)position`)
 )
 
 // ParseMail takes in an HTTP Request and returns an Email object
@@ -68,13 +76,13 @@ func ParseCSV(r *http.Request) ([]models.Target, error) {
 		ps := ""
 		for i, v := range record {
 			switch {
-			case v == "First Name":
+			case firstNameRegex.MatchString(v):
 				fi = i
-			case v == "Last Name":
+			case lastNameRegex.MatchString(v):
 				li = i
-			case v == "Email":
+			case emailRegex.MatchString(v):
 				ei = i
-			case v == "Position":
+			case positionRegex.MatchString(v):
 				pi = i
 			}
 		}

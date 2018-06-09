@@ -371,7 +371,7 @@ p {
 }
 
 .ct-slice-donut.ct-slice-donut-clicked {
-    stroke: #F39C12!important;
+    stroke: #F39C12 !important;
 }
 
 .ct-slice-donut.ct-slice-donut-sending {
@@ -415,7 +415,6 @@ p {
     margin-top: -30px;
 }
 
-
 /* Handle the navbar collapse at < 1300px */
 
 @media (min-width: 768px) and (max-width: 1300px) {
@@ -434,7 +433,6 @@ p {
     }
 }
 
-
 /* Table Styling */
 
 .modal-content table {
@@ -452,7 +450,6 @@ p {
     font-size: 15px;
 }
 
-
 /* Sort Icons */
 
 table.dataTable thead .sorting:after,
@@ -461,8 +458,8 @@ table.dataTable thead .sorting_desc:after {
     font-family: 'FontAwesome' !important;
     position: relative !important;
     display: initial !important;
-    top: initial!important;
-    right: initial!important;
+    top: initial !important;
+    right: initial !important;
     left: 6px;
     color: #1abc9c;
 }
@@ -655,9 +652,9 @@ table.dataTable {
     color: #f39c12;
 }
 
-.color-reported{
+.color-reported {
     font-weight: bold;
-    color:#45d6ef;
+    color: #45d6ef;
 }
 
 .color-success {
@@ -671,4 +668,9 @@ table.dataTable {
 
 #resultsMapContainer {
     display: none;
+}
+
+#csv-template {
+    margin-left: 15px;
+    cursor: pointer;
 }
