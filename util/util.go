@@ -91,20 +91,20 @@ func ParseCSV(r *http.Request) ([]models.Target, error) {
 			if err == io.EOF {
 				break
 			}
-			if fi != -1 {
+			if fi != -1 && len(record) > fi {
 				fn = record[fi]
 			}
-			if li != -1 {
+			if li != -1 && len(record) > li {
 				ln = record[li]
 			}
-			if ei != -1 {
+			if ei != -1 && len(record) > ei {
 				csvEmail, err := mail.ParseAddress(record[ei])
 				if err != nil {
 					continue
 				}
 				ea = csvEmail.Address
 			}
-			if pi != -1 {
+			if pi != -1 && len(record) > pi {
 				ps = record[pi]
 			}
 			t := models.Target{
