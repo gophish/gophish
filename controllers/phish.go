@@ -6,7 +6,9 @@ import (
 	"net"
 	"net/http"
 	"strings"
+	"time"
 
+	"github.com/gophish/gophish/config"
 	ctx "github.com/gophish/gophish/context"
 	log "github.com/gophish/gophish/logger"
 	"github.com/gophish/gophish/models"
@@ -20,6 +22,21 @@ var ErrInvalidRequest = errors.New("Invalid request")
 // ErrCampaignComplete is thrown when an event is received for a campaign that
 // has already been marked as complete.
 var ErrCampaignComplete = errors.New("Event received on completed campaign")
+
+// TransparencyResponse is the JSON response provided when a third-party
+// makes a request to the transparency handler.
+type TransparencyResponse struct {
+	Server         string    `json:"server"`
+	ContactAddress string    `json:"contact_address"`
+	SendDate       time.Time `json:"send_date"`
+}
+
+// TransparencySuffix (when appended to a valid result ID), will cause Gophish
+// to return a transparency response.
+const TransparencySuffix = "+"
+
+// ServerName is the server type that is returned in the transparency response.
+const ServerName = "gophish"
 
 // CreatePhishingRouter creates the router that handles phishing connections.
 func CreatePhishingRouter() http.Handler {
@@ -52,7 +69,15 @@ func PhishTracker(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	rs := ctx.Get(r, "result").(models.Result)
+	rid := ctx.Get(r, "rid").(string)
 	d := ctx.Get(r, "details").(models.EventDetails)
+
+	// Check for a transparency request
+	if strings.HasSuffix(rid, TransparencySuffix) {
+		TransparencyHandler(w, r)
+		return
+	}
+
 	err = rs.HandleEmailOpened(d)
 	if err != nil {
 		log.Error(err)
@@ -77,7 +102,14 @@ func PhishReporter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	rs := ctx.Get(r, "result").(models.Result)
+	rid := ctx.Get(r, "rid").(string)
 	d := ctx.Get(r, "details").(models.EventDetails)
+
+	// Check for a transparency request
+	if strings.HasSuffix(rid, TransparencySuffix) {
+		TransparencyHandler(w, r)
+		return
+	}
 
 	err = rs.HandleEmailReport(d)
 	if err != nil {
@@ -117,8 +149,16 @@ func PhishHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	rs := ctx.Get(r, "result").(models.Result)
+	rid := ctx.Get(r, "rid").(string)
 	c := ctx.Get(r, "campaign").(models.Campaign)
 	d := ctx.Get(r, "details").(models.EventDetails)
+
+	// Check for a transparency request
+	if strings.HasSuffix(rid, TransparencySuffix) {
+		TransparencyHandler(w, r)
+		return
+	}
+
 	p, err := models.GetPage(c.PageId, c.UserId)
 	if err != nil {
 		log.Error(err)
@@ -172,6 +212,18 @@ func RobotsHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "User-agent: *\nDisallow: /")
 }
 
+// TransparencyHandler returns a TransparencyResponse for the provided result
+// and campaign.
+func TransparencyHandler(w http.ResponseWriter, r *http.Request) {
+	rs := ctx.Get(r, "result").(models.Result)
+	tr := &TransparencyResponse{
+		Server:         ServerName,
+		SendDate:       rs.SendDate,
+		ContactAddress: config.Conf.ContactAddress,
+	}
+	JSONResponse(w, tr, http.StatusOK)
+}
+
 // setupContext handles some of the administrative work around receiving a new request, such as checking the result ID, the campaign, etc.
 func setupContext(r *http.Request) (error, *http.Request) {
 	err := r.ParseForm()
@@ -179,10 +231,24 @@ func setupContext(r *http.Request) (error, *http.Request) {
 		log.Error(err)
 		return err, r
 	}
-	id := r.Form.Get(models.RecipientParameter)
-	if id == "" {
+	rid := r.Form.Get(models.RecipientParameter)
+	if rid == "" {
 		return ErrInvalidRequest, r
 	}
+	// Since we want to support the common case of adding a "+" to indicate a
+	// transparency request, we need to take care to handle the case where the
+	// request ends with a space, since a "+" is technically reserved for use
+	// as a URL encoding of a space.
+	if strings.HasSuffix(rid, " ") {
+		// We'll trim off the space
+		rid = strings.TrimRight(rid, " ")
+		// Then we'll add the transparency suffix
+		rid = fmt.Sprintf("%s%s", rid, TransparencySuffix)
+	}
+	// Finally, if this is a transparency request, we'll need to verify that
+	// a valid rid has been provided, so we'll look up the result with a
+	// trimmed parameter.
+	id := strings.TrimSuffix(rid, TransparencySuffix)
 	// Check to see if this is a preview or a real result
 	if strings.HasPrefix(id, models.PreviewPrefix) {
 		rs, err := models.GetEmailRequestByResultId(id)
@@ -226,6 +292,7 @@ func setupContext(r *http.Request) (error, *http.Request) {
 	d.Browser["address"] = ip
 	d.Browser["user-agent"] = r.Header.Get("User-Agent")
 
+	r = ctx.Set(r, "rid", rid)
 	r = ctx.Set(r, "result", rs)
 	r = ctx.Set(r, "campaign", c)
 	r = ctx.Set(r, "details", d)

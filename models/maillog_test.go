@@ -155,6 +155,7 @@ func (s *ModelsSuite) TestMailLogSuccess(ch *check.C) {
 		Time:       gotEvent.Time,
 	}
 	ch.Assert(gotEvent, check.DeepEquals, expectedEvent)
+	ch.Assert(result.SendDate, check.Equals, gotEvent.Time)
 
 	ms, err := GetMailLogsByCampaign(campaign.Id)
 	ch.Assert(err, check.Equals, nil)

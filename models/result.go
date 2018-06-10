@@ -62,6 +62,7 @@ func (r *Result) HandleEmailSent() error {
 	if err != nil {
 		return err
 	}
+	r.SendDate = event.Time
 	r.Status = EVENT_SENT
 	r.ModifiedDate = event.Time
 	return db.Save(r).Error
