@@ -64,12 +64,13 @@ function importSite() {
         modalError("No URL Specified!")
     } else {
         api.clone_site({
-            url: url,
-            include_resources: false
-        })
+                url: url,
+                include_resources: false
+            })
             .success(function (data) {
                 console.log($("#html_editor"))
                 $("#html_editor").val(data.html)
+                CKEDITOR.instances["html_editor"].setMode('wysiwyg')
                 $("#importSiteModal").modal("hide")
             })
             .error(function (data) {
@@ -186,7 +187,8 @@ $(document).ready(function () {
                 if (
                     this.$element[0] !== e.target && !this.$element.has(e.target).length
                     // CKEditor compatibility fix start.
-                    && !$(e.target).closest('.cke_dialog, .cke').length
+                    &&
+                    !$(e.target).closest('.cke_dialog, .cke').length
                     // CKEditor compatibility fix end.
                 ) {
                     this.$element.trigger('focus');

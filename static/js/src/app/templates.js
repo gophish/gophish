@@ -248,6 +248,11 @@ function importEmail() {
                 $("#text_editor").val(data.text)
                 $("#html_editor").val(data.html)
                 $("#subject").val(data.subject)
+                // If the HTML is provided, let's open that view in the editor
+                if (data.html) {
+                    CKEDITOR.instances["html_editor"].setMode('wysiwyg')
+                    $('.nav-tabs a[href="#html"]').click()
+                }
                 $("#importEmailModal").modal("hide")
             })
             .error(function (data) {
