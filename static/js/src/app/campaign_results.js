@@ -283,6 +283,79 @@ function replay(event_idx) {
     }
 }
 
+/**
+ * Returns an HTML string that displays the OS and browser that clicked the link
+ * or submitted credentials.
+ * 
+ * @param {object} event_details - The "details" parameter for a campaign
+ *  timeline event
+ * 
+ */
+var renderDevice = function (event_details) {
+    var ua = UAParser(details.browser['user-agent'])
+    var detailsString = '<div class="timeline-device-details">'
+
+    var deviceIcon = 'laptop'
+    if (ua.device.type) {
+        if (ua.device.type == 'tablet' || ua.device.type == 'mobile') {
+            deviceIcon = ua.device.type
+        }
+    }
+
+    var deviceVendor = ''
+    if (ua.device.vendor) {
+        deviceVendor = ua.device.vendor.toLowerCase()
+        if (deviceVendor == 'microsoft') deviceVendor = 'windows'
+    }
+
+    var deviceName = 'Unknown'
+    if (ua.os.name) {
+        deviceName = ua.os.name
+        if (deviceName == "Mac OS") {
+            deviceVendor = 'apple'
+        } else if (deviceName == "Windows") {
+            deviceVendor = 'windows'
+        }
+        if (ua.device.vendor && ua.device.model) {
+            deviceName = ua.device.vendor + ' ' + ua.device.model
+        }
+    }
+
+    if (ua.os.version) {
+        deviceName = deviceName + ' (OS Version: ' + ua.os.version + ')'
+    }
+
+    deviceString = '<div class="timeline-device-os"><span class="fa fa-stack">' +
+        '<i class="fa fa-' + escapeHtml(deviceIcon) + ' fa-stack-2x"></i>' +
+        '<i class="fa fa-vendor-icon fa-' + escapeHtml(deviceVendor) + ' fa-stack-1x"></i>' +
+        '</span> ' + escapeHtml(deviceName) + '</div>'
+
+    detailsString += deviceString
+
+    var deviceBrowser = 'Unknown'
+    var browserIcon = 'info-circle'
+    var browserVersion = ''
+
+    if (ua.browser && ua.browser.name) {
+        deviceBrowser = ua.browser.name
+        // Handle the "mobile safari" case
+        deviceBrowser = deviceBrowser.replace('Mobile ', '')
+        if (deviceBrowser) {
+            browserIcon = deviceBrowser.toLowerCase()
+            if (browserIcon == 'ie') browserIcon = 'internet-explorer'
+        }
+        browserVersion = '(Version: ' + ua.browser.version + ')'
+    }
+
+    var browserString = '<div class="timeline-device-browser"><span class="fa fa-stack">' +
+        '<i class="fa fa-' + escapeHtml(browserIcon) + ' fa-stack-1x"></i></span> ' +
+        deviceBrowser + ' ' + browserVersion + '</div>'
+
+    detailsString += browserString
+    detailsString += '</div>'
+    return detailsString
+}
+
 function renderTimeline(data) {
     record = {
         "first_name": data[2],
@@ -308,12 +381,18 @@ function renderTimeline(data) {
                 '    <div class="timeline-message">' + escapeHtml(event.message) +
                 '    <span class="timeline-date">' + moment.utc(event.time).local().format('MMMM Do YYYY h:mm:ss a') + '</span>'
             if (event.details) {
+                details = JSON.parse(event.details)
+                if (event.message == "Clicked Link" || event.message == "Submitted Data") {
+                    deviceView = renderDevice(details)
+                    if (deviceView) {
+                        results += deviceView
+                    }
+                }
                 if (event.message == "Submitted Data") {
                     results += '<div class="timeline-replay-button"><button onclick="replay(' + i + ')" class="btn btn-success">'
                     results += '<i class="fa fa-refresh"></i> Replay Credentials</button></div>'
                     results += '<div class="timeline-event-details"><i class="fa fa-caret-right"></i> View Details</div>'
                 }
-                details = JSON.parse(event.details)
                 if (details.payload) {
                     results += '<div class="timeline-event-results">'
                     results += '    <table class="table table-condensed table-bordered table-striped">'

@@ -23,7 +23,6 @@ gulp.task('vendorjs', function () {
             vendor_directory + 'jquery.js',
             vendor_directory + 'bootstrap.min.js',
             vendor_directory + 'moment.min.js',
-            vendor_directory + 'chartist.min.js',
             vendor_directory + 'papaparse.min.js',
             vendor_directory + 'd3.min.js',
             vendor_directory + 'topojson.min.js',
@@ -38,7 +37,8 @@ gulp.task('vendorjs', function () {
             vendor_directory + 'bootstrap-datetime.js',
             vendor_directory + 'select2.min.js',
             vendor_directory + 'core.min.js',
-            vendor_directory + 'highcharts.js'
+            vendor_directory + 'highcharts.js',
+            vendor_directory + 'ua-parser.min.js'
         ])
         .pipe(concat('vendor.js'))
         .pipe(rename({
