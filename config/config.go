@@ -40,6 +40,9 @@ var Conf Config
 // Version contains the current gophish version
 var Version = ""
 
+// ServerName is the server type that is returned in the transparency response.
+const ServerName = "gophish"
+
 // LoadConfig loads the configuration from the specified filepath
 func LoadConfig(filepath string) {
 	// Get the config file

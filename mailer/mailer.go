@@ -152,14 +152,12 @@ func sendMail(ctx context.Context, dialer Dialer, ms []Mail) {
 			break
 		}
 		message.Reset()
-
 		err = m.Generate(message)
 		if err != nil {
 			log.Warn(err)
 			m.Error(err)
 			continue
 		}
-
 		err = gomail.Send(sender, message)
 		if err != nil {
 			if te, ok := err.(*textproto.Error); ok {

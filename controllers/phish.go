@@ -35,9 +35,6 @@ type TransparencyResponse struct {
 // to return a transparency response.
 const TransparencySuffix = "+"
 
-// ServerName is the server type that is returned in the transparency response.
-const ServerName = "gophish"
-
 // CreatePhishingRouter creates the router that handles phishing connections.
 func CreatePhishingRouter() http.Handler {
 	router := mux.NewRouter()
@@ -217,7 +214,7 @@ func RobotsHandler(w http.ResponseWriter, r *http.Request) {
 func TransparencyHandler(w http.ResponseWriter, r *http.Request) {
 	rs := ctx.Get(r, "result").(models.Result)
 	tr := &TransparencyResponse{
-		Server:         ServerName,
+		Server:         config.ServerName,
 		SendDate:       rs.SendDate,
 		ContactAddress: config.Conf.ContactAddress,
 	}

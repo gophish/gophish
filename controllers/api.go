@@ -731,6 +731,7 @@ func API_Send_Test_Email(w http.ResponseWriter, r *http.Request) {
 		}
 		s.SMTP = smtp
 	}
+	s.FromAddress = s.SMTP.FromAddress
 
 	// Validate the given request
 	if err = s.Validate(); err != nil {

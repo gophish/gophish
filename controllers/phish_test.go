@@ -29,6 +29,7 @@ func (s *ControllersSuite) getFirstEmailRequest() models.EmailRequest {
 		UserId:        1,
 		BaseRecipient: campaign.Results[0].BaseRecipient,
 		SMTP:          campaign.SMTP,
+		FromAddress:   campaign.SMTP.FromAddress,
 	}
 	err := models.PostEmailRequest(&req)
 	s.Nil(err)
@@ -94,7 +95,7 @@ func (s *ControllersSuite) transparencyRequest(r models.Result, rid, path string
 	s.Nil(err)
 	s.Equal(tr.ContactAddress, config.Conf.ContactAddress)
 	s.Equal(tr.SendDate, r.SendDate)
-	s.Equal(tr.Server, ServerName)
+	s.Equal(tr.Server, config.ServerName)
 }
 
 func (s *ControllersSuite) TestOpenedPhishingEmail() {

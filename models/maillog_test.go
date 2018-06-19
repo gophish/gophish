@@ -8,10 +8,32 @@ import (
 	"net/textproto"
 	"time"
 
+	"github.com/gophish/gophish/config"
+
 	"github.com/gophish/gomail"
 	"github.com/jordan-wright/email"
 	"gopkg.in/check.v1"
 )
+
+func (s *ModelsSuite) emailFromFirstMailLog(campaign Campaign, ch *check.C) *email.Email {
+	result := campaign.Results[0]
+	m := &MailLog{}
+	err := db.Where("r_id=? AND campaign_id=?", result.RId, campaign.Id).
+		Find(m).Error
+	ch.Assert(err, check.Equals, nil)
+
+	msg := gomail.NewMessage()
+	err = m.Generate(msg)
+	ch.Assert(err, check.Equals, nil)
+
+	msgBuff := &bytes.Buffer{}
+	_, err = msg.WriteTo(msgBuff)
+	ch.Assert(err, check.Equals, nil)
+
+	got, err := email.NewEmailFromReader(msgBuff)
+	ch.Assert(err, check.Equals, nil)
+	return got
+}
 
 func (s *ModelsSuite) TestGetQueuedMailLogs(ch *check.C) {
 	campaign := s.createCampaign(ch)
@@ -188,30 +210,54 @@ func (s *ModelsSuite) TestGenerateMailLog(ch *check.C) {
 func (s *ModelsSuite) TestMailLogGenerate(ch *check.C) {
 	campaign := s.createCampaign(ch)
 	result := campaign.Results[0]
-	m := &MailLog{}
-	err := db.Where("r_id=? AND campaign_id=?", result.RId, campaign.Id).
-		Find(m).Error
-	ch.Assert(err, check.Equals, nil)
-
-	msg := gomail.NewMessage()
-	err = m.Generate(msg)
-	ch.Assert(err, check.Equals, nil)
-
 	expected := &email.Email{
 		Subject: fmt.Sprintf("%s - Subject", result.RId),
 		Text:    []byte(fmt.Sprintf("%s - Text", result.RId)),
 		HTML:    []byte(fmt.Sprintf("%s - HTML", result.RId)),
 	}
-
-	msgBuff := &bytes.Buffer{}
-	_, err = msg.WriteTo(msgBuff)
-	ch.Assert(err, check.Equals, nil)
-
-	got, err := email.NewEmailFromReader(msgBuff)
-	ch.Assert(err, check.Equals, nil)
+	got := s.emailFromFirstMailLog(campaign, ch)
 	ch.Assert(got.Subject, check.Equals, expected.Subject)
 	ch.Assert(string(got.Text), check.Equals, string(expected.Text))
 	ch.Assert(string(got.HTML), check.Equals, string(expected.HTML))
+}
+
+func (s *ModelsSuite) TestMailLogGenerateTransparencyHeaders(ch *check.C) {
+	config.Conf.ContactAddress = "test@test.com"
+	expectedHeaders := map[string]string{
+		"X-Mailer":          config.ServerName,
+		"X-Gophish-Contact": config.Conf.ContactAddress,
+	}
+	campaign := s.createCampaign(ch)
+	got := s.emailFromFirstMailLog(campaign, ch)
+	for k, v := range expectedHeaders {
+		ch.Assert(got.Headers.Get(k), check.Equals, v)
+	}
+}
+
+func (s *ModelsSuite) TestMailLogGenerateOverrideTransparencyHeaders(ch *check.C) {
+	expectedHeaders := map[string]string{
+		"X-Mailer":          "",
+		"X-Gophish-Contact": "",
+	}
+	smtp := SMTP{
+		Name:        "Test SMTP",
+		Host:        "1.1.1.1:25",
+		FromAddress: "Foo Bar <foo@example.com>",
+		UserId:      1,
+		Headers: []Header{
+			Header{Key: "X-Gophish-Contact", Value: ""},
+			Header{Key: "X-Mailer", Value: ""},
+		},
+	}
+	ch.Assert(PostSMTP(&smtp), check.Equals, nil)
+	campaign := s.createCampaignDependencies(ch)
+	campaign.SMTP = smtp
+
+	ch.Assert(PostCampaign(&campaign, campaign.UserId), check.Equals, nil)
+	got := s.emailFromFirstMailLog(campaign, ch)
+	for k, v := range expectedHeaders {
+		ch.Assert(got.Headers.Get(k), check.Equals, v)
+	}
 }
 
 func (s *ModelsSuite) TestUnlockAllMailLogs(ch *check.C) {
@@ -253,21 +299,7 @@ func (s *ModelsSuite) TestURLTemplateRendering(ch *check.C) {
 	result := campaign.Results[0]
 	expectedURL := fmt.Sprintf("http://127.0.0.1/%s/?%s=%s", result.Email, RecipientParameter, result.RId)
 
-	m := &MailLog{}
-	err := db.Where("r_id=? AND campaign_id=?", result.RId, campaign.Id).
-		Find(m).Error
-	ch.Assert(err, check.Equals, nil)
-
-	msg := gomail.NewMessage()
-	err = m.Generate(msg)
-	ch.Assert(err, check.Equals, nil)
-
-	msgBuff := &bytes.Buffer{}
-	_, err = msg.WriteTo(msgBuff)
-	ch.Assert(err, check.Equals, nil)
-
-	got, err := email.NewEmailFromReader(msgBuff)
-	ch.Assert(err, check.Equals, nil)
+	got := s.emailFromFirstMailLog(campaign, ch)
 	ch.Assert(got.Subject, check.Equals, expectedURL)
 	ch.Assert(string(got.Text), check.Equals, expectedURL)
 	ch.Assert(string(got.HTML), check.Equals, expectedURL)
@@ -281,28 +313,13 @@ func (s *ModelsSuite) TestMailLogGenerateEmptySubject(ch *check.C) {
 	campaign := s.createCampaignDependencies(ch, "") // specify empty subject
 	// Setup and "launch" our campaign
 	ch.Assert(PostCampaign(&campaign, campaign.UserId), check.Equals, nil)
-
 	result := campaign.Results[0]
-	m := &MailLog{}
-	err := db.Where("r_id=? AND campaign_id=?", result.RId, campaign.Id).
-		Find(m).Error
-	ch.Assert(err, check.Equals, nil)
-
-	msg := gomail.NewMessage()
-	err = m.Generate(msg)
-	ch.Assert(err, check.Equals, nil)
 
 	expected := &email.Email{
 		Subject: "",
 		Text:    []byte(fmt.Sprintf("%s - Text", result.RId)),
 		HTML:    []byte(fmt.Sprintf("%s - HTML", result.RId)),
 	}
-
-	msgBuff := &bytes.Buffer{}
-	_, err = msg.WriteTo(msgBuff)
-	ch.Assert(err, check.Equals, nil)
-
-	got, err := email.NewEmailFromReader(msgBuff)
-	ch.Assert(err, check.Equals, nil)
+	got := s.emailFromFirstMailLog(campaign, ch)
 	ch.Assert(got.Subject, check.Equals, expected.Subject)
 }
