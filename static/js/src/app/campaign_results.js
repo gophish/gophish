@@ -923,8 +923,9 @@ var show_sending = JSON.parse(localStorage.getItem('gophish.show_sending'))
 var show_email_opened = JSON.parse(localStorage.getItem('gophish.show_email_opened'))
 var show_clicked_link = JSON.parse(localStorage.getItem('gophish.show_clicked_link'))
 var show_submitted_data = JSON.parse(localStorage.getItem('gophish.show_submitted_data'))
+var show_error = JSON.parse(localStorage.getItem('gophish.show_error'))
 function checkStatus(status){
-    return ((show_scheduled && status=="Scheduled") || (show_sending && status=="Sending") || (show_email_opened && status=="Email Opened") || (show_clicked_link && status=="Clicked Link") || (show_submitted_data && status=="Submitted Data"))
+    return ((show_scheduled && status=="Scheduled") || (show_sending && status=="Sending") || (show_email_opened && status=="Email Opened") || (show_clicked_link && status=="Clicked Link") || (show_submitted_data && status=="Submitted Data") || (show_error && status=="Error"))
 }
 
 

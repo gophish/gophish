@@ -64,6 +64,12 @@ $(document).ready(function () {
     $("#show_submitted_data").on('change', function () {
         localStorage.setItem('gophish.show_submitted_data', JSON.stringify(this.checked))
     })
+
+    var show_error = localStorage.getItem('gophish.show_error')
+    $("#show_error").prop('checked', JSON.parse(show_error))
+    $("#show_error").on('change', function () {
+        localStorage.setItem('gophish.show_error', JSON.stringify(this.checked))
+    })
 })
 
 function toggleSettings(position){
