@@ -20,9 +20,9 @@ resource "aws_instance" "example" {
     yum install unzip -y
     su ec2-user
     cd /home/ec2-user/
-    wget https://github.com/gophish/gophish/releases/download/v0.6.0/gophish-v0.6.0-linux-64bit.zip
-    unzip gophish-v0.6.0-linux-64bit.zip
-    cd gophish-v0.6.0-linux-64bit
+    wget https://getgophish.com/releases/latest/linux/64 -O gophish-linux-64bit.zip
+    unzip gophish-linux-64bit.zip
+    cd gophish-linux-64bit
     sudo openssl req -newkey rsa:2048 -nodes -keyout gophish.key -x509 -days 365 -out gophish.crt -subj "/C=DE/ST=Example/L=Example/O=example/OU=Cyber"
     echo '{
       "admin_server" : {
