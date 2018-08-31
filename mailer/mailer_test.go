@@ -16,6 +16,12 @@ type MailerSuite struct {
 	suite.Suite
 }
 
+func packMails(ms []Mail) *MailBundle {
+	return &MailBundle{
+		Mails: ms,
+	}
+}
+
 func generateMessages(dialer Dialer) []Mail {
 	to := []string{"to@example.com"}
 
@@ -86,9 +92,10 @@ func (ms *MailerSuite) TestMailWorkerStart() {
 	})
 
 	messages := generateMessages(dialer)
+	bundle := packMails(messages)
 
 	// Send the campaign
-	mw.Queue <- messages
+	mw.Queue <- bundle
 
 	got := []*mockMessage{}
 
@@ -127,9 +134,10 @@ func (ms *MailerSuite) TestBackoff() {
 	})
 
 	messages := generateMessages(dialer)
+	bundle := packMails(messages)
 
 	// Send the campaign
-	mw.Queue <- messages
+	mw.Queue <- bundle
 
 	got := []*mockMessage{}
 
@@ -181,9 +189,10 @@ func (ms *MailerSuite) TestPermError() {
 	})
 
 	messages := generateMessages(dialer)
+	bundle := packMails(messages)
 
 	// Send the campaign
-	mw.Queue <- messages
+	mw.Queue <- bundle
 
 	got := []*mockMessage{}
 
@@ -240,9 +249,10 @@ func (ms *MailerSuite) TestUnknownError() {
 	})
 
 	messages := generateMessages(dialer)
+	bundle := packMails(messages)
 
 	// Send the campaign
-	mw.Queue <- messages
+	mw.Queue <- bundle
 
 	got := []*mockMessage{}
 
@@ -283,6 +293,45 @@ func (ms *MailerSuite) TestUnknownError() {
 	// Check that the email errored out appropriately
 	if !reflect.DeepEqual(message.err, expectedError) {
 		ms.T().Fatalf("Did not received expected error. Got %#v\nExpected %#v", message.err, expectedError)
+	}
+}
+
+func (ms *MailerSuite) TestsendDelayedMail() {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	mw := NewMailWorker()
+	go func(ctx context.Context) {
+		mw.Start(ctx)
+	}(ctx)
+
+	sender := newMockSender()
+	dialer := newMockDialer()
+	dialer.setDial(func() (Sender, error) {
+		return sender, nil
+	})
+
+	// can only use one mail based on new connection
+	messages := []Mail{generateMessages(dialer)[0]}
+	bundle := packMails(messages)
+	bundle.Delay = 2
+
+	// Send the campaign
+	mw.Queue <- bundle
+
+	got := []*mockMessage{}
+
+	idx := 0
+	for message := range sender.messageChan {
+		got = append(got, message)
+		original := messages[idx].(*mockMessage)
+		if original.from != message.from {
+			ms.T().Fatalf("Invalid message received. Expected %s, Got %s", original.from, message.from)
+		}
+		idx++
+	}
+	if len(got) != len(messages) {
+		ms.T().Fatalf("Unexpected number of messages received. Expected %d Got %d", len(messages), len(got))
 	}
 }
 
