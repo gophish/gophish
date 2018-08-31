@@ -1,6 +1,4 @@
-provider "aws" {
-  region     = "eu-central-1"
-}
+provider "aws" {}
 
 // details of the aws instance
 resource "aws_instance" "example" {
