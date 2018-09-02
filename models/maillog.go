@@ -38,12 +38,12 @@ type MailLog struct {
 
 // GenerateMailLog creates a new maillog for the given campaign and
 // result. It sets the initial send date to match the campaign's launch date.
-func GenerateMailLog(c *Campaign, r *Result) error {
+func GenerateMailLog(c *Campaign, r *Result, sendDate time.Time) error {
 	m := &MailLog{
 		UserId:     c.UserId,
 		CampaignId: c.Id,
 		RId:        r.RId,
-		SendDate:   c.LaunchDate,
+		SendDate:   sendDate,
 	}
 	err = db.Save(m).Error
 	return err

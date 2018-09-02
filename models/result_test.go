@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"net/mail"
 	"regexp"
 	"time"
@@ -55,6 +56,25 @@ func (s *ModelsSuite) TestResultScheduledStatus(ch *check.C) {
 	for _, r := range c.Results {
 		ch.Assert(r.Status, check.Equals, STATUS_SCHEDULED)
 		ch.Assert(r.ModifiedDate, check.Equals, c.CreatedDate)
+	}
+}
+
+func (s *ModelsSuite) TestResultVariableStatus(ch *check.C) {
+	c := s.createCampaignDependencies(ch)
+	c.LaunchDate = time.Now().UTC()
+	c.SendByDate = c.LaunchDate.Add(2 * time.Minute)
+	ch.Assert(PostCampaign(&c, c.UserId), check.Equals, nil)
+
+	// The campaign has a window smaller than our group size, so we expect some
+	// emails to be sent immediately, while others will be scheduled
+	for _, r := range c.Results {
+		if r.SendDate.Before(c.CreatedDate) || r.SendDate.Equal(c.CreatedDate) {
+			fmt.Println("SENDING")
+			ch.Assert(r.Status, check.Equals, STATUS_SENDING)
+		} else {
+			fmt.Println("SCHEDULED")
+			ch.Assert(r.Status, check.Equals, STATUS_SCHEDULED)
+		}
 	}
 }
 

@@ -62,8 +62,7 @@ func (w *Worker) Start() {
 				log.WithFields(logrus.Fields{
 					"num_emails": len(msc),
 				}).Info("Sending emails to mailer for processing")
-				mb := mailer.NewMailBundle(msc, c.SendDelay)
-				mailer.Mailer.Queue <- mb
+				mailer.Mailer.Queue <- msc
 			}(cid, msc)
 		}
 	}
@@ -80,18 +79,24 @@ func (w *Worker) LaunchCampaign(c models.Campaign) {
 	// This is required since you cannot pass a slice of values
 	// that implements an interface as a slice of that interface.
 	mailEntries := []mailer.Mail{}
+	currentTime := time.Now().UTC()
 	for _, m := range ms {
+		// Only send the emails scheduled to be sent for the past minute to
+		// respect the campaign scheduling options
+		if m.SendDate.After(currentTime) {
+			m.Unlock()
+			continue
+		}
 		mailEntries = append(mailEntries, m)
 	}
-	mailBundle := mailer.NewMailBundle(mailEntries, c.SendDelay)
-	mailer.Mailer.Queue <- mailBundle
+	mailer.Mailer.Queue <- mailEntries
 }
 
 // SendTestEmail sends a test email
 func (w *Worker) SendTestEmail(s *models.EmailRequest) error {
 	go func() {
 		ms := []mailer.Mail{s}
-		mailer.Mailer.Queue <- mailer.NewMailBundle(ms, 0)
+		mailer.Mailer.Queue <- ms
 	}()
 	return <-s.ErrorChan
 }

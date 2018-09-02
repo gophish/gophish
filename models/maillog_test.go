@@ -193,7 +193,7 @@ func (s *ModelsSuite) TestGenerateMailLog(ch *check.C) {
 	result := Result{
 		RId: "abc1234",
 	}
-	err := GenerateMailLog(&campaign, &result)
+	err := GenerateMailLog(&campaign, &result, campaign.LaunchDate)
 	ch.Assert(err, check.Equals, nil)
 
 	m := MailLog{}
