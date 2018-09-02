@@ -774,11 +774,13 @@ function load() {
                         {
                             className: "text-center",
                             "render": function (reported, type, row) {
-                                if (reported) {
-                                    return "<i class='fa fa-check-circle text-center text-success'></i>"
-                                } else {
+                                if (type == "display") {
+                                    if (reported) {
+                                        return "<i class='fa fa-check-circle text-center text-success'></i>"
+                                    }
                                     return "<i class='fa fa-times-circle text-center text-muted'></i>"
                                 }
+                                return reported
                             },
                             "targets": [7]
                         }
