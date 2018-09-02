@@ -357,14 +357,15 @@ var renderDevice = function (event_details) {
 }
 
 function renderTimeline(data) {
+    console.log(data)
     record = {
         "first_name": data[2],
         "last_name": data[3],
         "email": data[4],
         "position": data[5],
         "status": data[6],
-        "send_date": data[7],
-        "reported": data[8]
+        "reported": data[7],
+        "send_date": data[8]
     }
     results = '<div class="timeline col-sm-12 well well-lg">' +
         '<h6>Timeline for ' + escapeHtml(record.first_name) + ' ' + escapeHtml(record.last_name) +

@@ -17,6 +17,7 @@ type Campaign struct {
 	Name          string    `json:"name" sql:"not null"`
 	CreatedDate   time.Time `json:"created_date"`
 	LaunchDate    time.Time `json:"launch_date"`
+	SendByDate    time.Time `json:"send_by_date"`
 	CompletedDate time.Time `json:"completed_date"`
 	TemplateId    int64     `json:"-"`
 	Template      Template  `json:"template"`
@@ -52,6 +53,7 @@ type CampaignSummary struct {
 	Id            int64         `json:"id"`
 	CreatedDate   time.Time     `json:"created_date"`
 	LaunchDate    time.Time     `json:"launch_date"`
+	SendByDate    time.Time     `json:"send_by_date"`
 	CompletedDate time.Time     `json:"completed_date"`
 	Status        string        `json:"status"`
 	Name          string        `json:"name"`
@@ -120,6 +122,10 @@ var ErrPageNotFound = errors.New("Page not found")
 // ErrSMTPNotFound indicates a sending profile specified by the user does not exist in the database
 var ErrSMTPNotFound = errors.New("Sending profile not found")
 
+// ErrInvalidSendByDate indicates that the user specified a send by date that occurs before the
+// launch date
+var ErrInvalidSendByDate = errors.New("The launch date must be before the \"send emails by\" date")
+
 // RecipientParameter is the URL parameter that points to the result ID for a recipient.
 const RecipientParameter = "rid"
 
@@ -136,6 +142,8 @@ func (c *Campaign) Validate() error {
 		return ErrPageNotSpecified
 	case c.SMTP.Name == "":
 		return ErrSMTPNotSpecified
+	case !c.SendByDate.IsZero() && !c.LaunchDate.IsZero() && c.SendByDate.Before(c.LaunchDate):
+		return ErrInvalidSendByDate
 	}
 	return nil
 }
@@ -216,6 +224,27 @@ func (c *Campaign) getBaseURL() string {
 // This is used to implement the TemplateContext interface.
 func (c *Campaign) getFromAddress() string {
 	return c.SMTP.FromAddress
+}
+
+// generateSendDate creates a sendDate
+func (c *Campaign) generateSendDate(idx int, totalRecipients int) time.Time {
+	// If no send date is specified, just return the launch date
+	if c.SendByDate.IsZero() || c.SendByDate.Equal(c.LaunchDate) {
+		return c.LaunchDate
+	}
+	// Otherwise, we can calculate the range of minutes to send emails
+	// (since we only poll once per minute)
+	totalMinutes := c.SendByDate.Sub(c.LaunchDate).Minutes()
+
+	// Next, we can determine how many minutes should elapse between emails
+	minutesPerEmail := totalMinutes / float64(totalRecipients)
+
+	// Then, we can calculate the offset for this particular email
+	offset := int(minutesPerEmail * float64(idx))
+
+	// Finally, we can just add this offset to the launch date to determine
+	// when the email should be sent
+	return c.LaunchDate.Add(time.Duration(offset) * time.Minute)
 }
 
 // getCampaignStats returns a CampaignStats object for the campaign with the given campaign ID.
@@ -387,10 +416,16 @@ func PostCampaign(c *Campaign, uid int64) error {
 	} else {
 		c.LaunchDate = c.LaunchDate.UTC()
 	}
+	if !c.SendByDate.IsZero() {
+		c.SendByDate = c.SendByDate.UTC()
+	}
 	if c.LaunchDate.Before(c.CreatedDate) || c.LaunchDate.Equal(c.CreatedDate) {
 		c.Status = CAMPAIGN_IN_PROGRESS
 	}
 	// Check to make sure all the groups already exist
+	// Also, later we'll need to know the total number of recipients (counting
+	// duplicates is ok for now), so we'll do that here to save a loop.
+	totalRecipients := 0
 	for i, g := range c.Groups {
 		c.Groups[i], err = GetGroupByName(g.Name, uid)
 		if err == gorm.ErrRecordNotFound {
@@ -402,6 +437,7 @@ func PostCampaign(c *Campaign, uid int64) error {
 			log.Error(err)
 			return err
 		}
+		totalRecipients += len(c.Groups[i].Targets)
 	}
 	// Check to make sure the template exists
 	t, err := GetTemplateByName(c.Template.Name, uid)
@@ -454,6 +490,7 @@ func PostCampaign(c *Campaign, uid int64) error {
 	}
 	// Insert all the results
 	resultMap := make(map[string]bool)
+	recipientIndex := 0
 	for _, g := range c.Groups {
 		// Insert a result for each target in the group
 		for _, t := range g.Targets {
@@ -463,6 +500,7 @@ func PostCampaign(c *Campaign, uid int64) error {
 				continue
 			}
 			resultMap[t.Email] = true
+			sendDate := c.generateSendDate(recipientIndex, totalRecipients)
 			r := &Result{
 				BaseRecipient: BaseRecipient{
 					Email:     t.Email,
@@ -473,11 +511,11 @@ func PostCampaign(c *Campaign, uid int64) error {
 				Status:       STATUS_SCHEDULED,
 				CampaignId:   c.Id,
 				UserId:       c.UserId,
-				SendDate:     c.LaunchDate,
+				SendDate:     sendDate,
 				Reported:     false,
 				ModifiedDate: c.CreatedDate,
 			}
-			if c.Status == CAMPAIGN_IN_PROGRESS {
+			if r.SendDate.Before(c.CreatedDate) || r.SendDate.Equal(c.CreatedDate) {
 				r.Status = STATUS_SENDING
 			}
 			err = r.GenerateId()
@@ -492,11 +530,13 @@ func PostCampaign(c *Campaign, uid int64) error {
 				}).Error(err)
 			}
 			c.Results = append(c.Results, *r)
-			err = GenerateMailLog(c, r)
+			log.Infof("Creating maillog for %s to send at %s\n", r.Email, sendDate)
+			err = GenerateMailLog(c, r, sendDate)
 			if err != nil {
 				log.Error(err)
 				continue
 			}
+			recipientIndex++
 		}
 	}
 	err = db.Save(c).Error

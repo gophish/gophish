@@ -33,6 +33,10 @@ function launch() {
                     });
                 })
                 // Validate our fields
+                var send_by_date = $("#send_by_date").val()
+                if (send_by_date != "") {
+                    send_by_date = moment(send_by_date, "MM/DD/YYYY hh:mm a").utc().format()
+                }
                 campaign = {
                     name: $("#name").val(),
                     template: {
@@ -46,7 +50,8 @@ function launch() {
                         name: $("#profile").select2("data")[0].text
                     },
                     launch_date: moment($("#launch_date").val(), "MM/DD/YYYY hh:mm a").utc().format(),
-                    groups: groups
+                    send_by_date: send_by_date || null,
+                    groups: groups,
                 }
                 console.log("Launching campaign at time: " + campaign.launch_date)
                 // Submit the campaign
@@ -266,6 +271,13 @@ $(document).ready(function () {
         },
         "showTodayButton": true,
         "defaultDate": moment()
+    })
+    $("#send_by_date").datetimepicker({
+        "widgetPositioning": {
+            "vertical": "bottom"
+        },
+        "showTodayButton": true,
+        "useCurrent": false
     })
     // Setup multiple modals
     // Code based on http://miles-by-motorcycle.com/static/bootstrap-modal/index.html

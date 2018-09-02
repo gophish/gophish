@@ -79,7 +79,14 @@ func (w *Worker) LaunchCampaign(c models.Campaign) {
 	// This is required since you cannot pass a slice of values
 	// that implements an interface as a slice of that interface.
 	mailEntries := []mailer.Mail{}
+	currentTime := time.Now().UTC()
 	for _, m := range ms {
+		// Only send the emails scheduled to be sent for the past minute to
+		// respect the campaign scheduling options
+		if m.SendDate.After(currentTime) {
+			m.Unlock()
+			continue
+		}
 		mailEntries = append(mailEntries, m)
 	}
 	mailer.Mailer.Queue <- mailEntries
@@ -88,7 +95,8 @@ func (w *Worker) LaunchCampaign(c models.Campaign) {
 // SendTestEmail sends a test email
 func (w *Worker) SendTestEmail(s *models.EmailRequest) error {
 	go func() {
-		mailer.Mailer.Queue <- []mailer.Mail{s}
+		ms := []mailer.Mail{s}
+		mailer.Mailer.Queue <- ms
 	}()
 	return <-s.ErrorChan
 }

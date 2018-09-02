@@ -83,7 +83,6 @@ func (mw *MailWorker) Start(ctx context.Context) {
 			return
 		case ms := <-mw.Queue:
 			go func(ctx context.Context, ms []Mail) {
-				log.Infof("Mailer got %d mail to send", len(ms))
 				dialer, err := ms[0].GetDialer()
 				if err != nil {
 					errorMail(err, ms)
