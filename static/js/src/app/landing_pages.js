@@ -48,14 +48,38 @@ function dismiss() {
     $("#modal").modal('hide')
 }
 
-function deletePage(idx) {
-    if (confirm("Delete " + pages[idx].name + "?")) {
-        api.pageId.delete(pages[idx].id)
-            .success(function (data) {
-                successFlash(data.message)
-                load()
+var deletePage = function (idx) {
+    swal({
+        title: "Are you sure?",
+        text: "This will delete the landing page. This can't be undone!",
+        type: "warning",
+        animation: false,
+        showCancelButton: true,
+        confirmButtonText: "Delete " + escapeHtml(pages[idx].name),
+        confirmButtonColor: "#428bca",
+        reverseButtons: true,
+        allowOutsideClick: false,
+        preConfirm: function () {
+            return new Promise(function (resolve, reject) {
+                api.pageId.delete(pages[idx].id)
+                    .success(function (msg) {
+                        resolve()
+                    })
+                    .error(function (data) {
+                        reject(data.responseJSON.message)
+                    })
             })
-    }
+        }
+    }).then(function () {
+        swal(
+            'Landing Page Deleted!',
+            'This landing page has been deleted!',
+            'success'
+        );
+        $('button:contains("OK")').on('click', function () {
+            location.reload()
+        })
+    })
 }
 
 function importSite() {

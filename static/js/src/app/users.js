@@ -137,21 +137,45 @@ var downloadCSVTemplate = function () {
     }
 }
 
-function deleteGroup(id) {
+
+var deleteGroup = function (id) {
     var group = groups.find(function (x) {
         return x.id === id
     })
     if (!group) {
-        console.log('wat');
         return
     }
-    if (confirm("Delete " + group.name + "?")) {
-        api.groupId.delete(id)
-            .success(function (data) {
-                successFlash(data.message)
-                load()
+    swal({
+        title: "Are you sure?",
+        text: "This will delete the group. This can't be undone!",
+        type: "warning",
+        animation: false,
+        showCancelButton: true,
+        confirmButtonText: "Delete " + escapeHtml(group.name),
+        confirmButtonColor: "#428bca",
+        reverseButtons: true,
+        allowOutsideClick: false,
+        preConfirm: function () {
+            return new Promise(function (resolve, reject) {
+                api.groupId.delete(id)
+                    .success(function (msg) {
+                        resolve()
+                    })
+                    .error(function (data) {
+                        reject(data.responseJSON.message)
+                    })
             })
-    }
+        }
+    }).then(function () {
+        swal(
+            'Group Deleted!',
+            'This group has been deleted!',
+            'success'
+        );
+        $('button:contains("OK")').on('click', function () {
+            location.reload()
+        })
+    })
 }
 
 function addTarget(firstNameInput, lastNameInput, emailInput, positionInput) {

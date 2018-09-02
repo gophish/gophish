@@ -78,6 +78,40 @@ function dismiss() {
     $("#modal").modal('hide')
 }
 
+var deleteTemplate = function (idx) {
+    swal({
+        title: "Are you sure?",
+        text: "This will delete the template. This can't be undone!",
+        type: "warning",
+        animation: false,
+        showCancelButton: true,
+        confirmButtonText: "Delete " + escapeHtml(templates[idx].name),
+        confirmButtonColor: "#428bca",
+        reverseButtons: true,
+        allowOutsideClick: false,
+        preConfirm: function () {
+            return new Promise(function (resolve, reject) {
+                api.templateId.delete(templates[idx].id)
+                    .success(function (msg) {
+                        resolve()
+                    })
+                    .error(function (data) {
+                        reject(data.responseJSON.message)
+                    })
+            })
+        }
+    }).then(function () {
+        swal(
+            'Template Deleted!',
+            'This template has been deleted!',
+            'success'
+        );
+        $('button:contains("OK")').on('click', function () {
+            location.reload()
+        })
+    })
+}
+
 function deleteTemplate(idx) {
     if (confirm("Delete " + templates[idx].name + "?")) {
         api.templateId.delete(templates[idx].id)

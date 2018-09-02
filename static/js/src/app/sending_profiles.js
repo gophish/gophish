@@ -102,14 +102,39 @@ var dismissSendTestEmailModal = function () {
     $("#sendTestModalSubmit").html("<i class='fa fa-envelope'></i> Send")
 }
 
-function deleteProfile(idx) {
-    if (confirm("Delete " + profiles[idx].name + "?")) {
-        api.SMTPId.delete(profiles[idx].id)
-            .success(function (data) {
-                successFlash(data.message)
-                load()
+
+var deleteProfile = function (idx) {
+    swal({
+        title: "Are you sure?",
+        text: "This will delete the sending profile. This can't be undone!",
+        type: "warning",
+        animation: false,
+        showCancelButton: true,
+        confirmButtonText: "Delete " + escapeHtml(profiles[idx].name),
+        confirmButtonColor: "#428bca",
+        reverseButtons: true,
+        allowOutsideClick: false,
+        preConfirm: function () {
+            return new Promise(function (resolve, reject) {
+                api.SMTPId.delete(profiles[idx].id)
+                    .success(function (msg) {
+                        resolve()
+                    })
+                    .error(function (data) {
+                        reject(data.responseJSON.message)
+                    })
             })
-    }
+        }
+    }).then(function () {
+        swal(
+            'Sending Profile Deleted!',
+            'This sending profile has been deleted!',
+            'success'
+        );
+        $('button:contains("OK")').on('click', function () {
+            location.reload()
+        })
+    })
 }
 
 function edit(idx) {
@@ -259,7 +284,8 @@ $(document).ready(function () {
                 if (
                     this.$element[0] !== e.target && !this.$element.has(e.target).length
                     // CKEditor compatibility fix start.
-                    && !$(e.target).closest('.cke_dialog, .cke').length
+                    &&
+                    !$(e.target).closest('.cke_dialog, .cke').length
                     // CKEditor compatibility fix end.
                 ) {
                     this.$element.trigger('focus');
