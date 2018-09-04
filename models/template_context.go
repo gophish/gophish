@@ -23,6 +23,7 @@ type PhishingTemplateContext struct {
 	Tracker     string
 	TrackingURL string
 	RId         string
+	BaseURL     string
 	BaseRecipient
 }
 
@@ -37,22 +38,29 @@ func NewPhishingTemplateContext(ctx TemplateContext, r BaseRecipient, rid string
 	if fn == "" {
 		fn = f.Address
 	}
-	baseURL, err := ExecuteTemplate(ctx.getBaseURL(), r)
+	templateURL, err := ExecuteTemplate(ctx.getBaseURL(), r)
 	if err != nil {
 		return PhishingTemplateContext{}, err
 	}
 
-	phishURL, _ := url.Parse(baseURL)
+	// For the base URL, we'll reset the the path and the query
+	// This will create a URL in the form of http://example.com
+	baseURL, _ := url.Parse(templateURL)
+	baseURL.Path = ""
+	baseURL.RawQuery = ""
+
+	phishURL, _ := url.Parse(templateURL)
 	q := phishURL.Query()
 	q.Set(RecipientParameter, rid)
 	phishURL.RawQuery = q.Encode()
 
-	trackingURL, _ := url.Parse(baseURL)
+	trackingURL, _ := url.Parse(templateURL)
 	trackingURL.Path = path.Join(trackingURL.Path, "/track")
 	trackingURL.RawQuery = q.Encode()
 
 	return PhishingTemplateContext{
 		BaseRecipient: r,
+		BaseURL:       baseURL.String(),
 		URL:           phishURL.String(),
 		TrackingURL:   trackingURL.String(),
 		Tracker:       "<img alt='' style='display: none' src='" + trackingURL.String() + "'/>",
