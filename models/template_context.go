@@ -15,6 +15,20 @@ type TemplateContext interface {
 	getBaseURL() string
 }
 
+// ValidationContext is used for validating templates and pages
+type ValidationContext struct {
+	FromAddress string
+	BaseURL     string
+}
+
+func (vc ValidationContext) getFromAddress() string {
+	return vc.FromAddress
+}
+
+func (vc ValidationContext) getBaseURL() string {
+	return vc.BaseURL
+}
+
 // PhishingTemplateContext is the context that is sent to any template, such
 // as the email or landing page content.
 type PhishingTemplateContext struct {

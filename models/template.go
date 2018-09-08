@@ -36,31 +36,28 @@ func (t *Template) Validate() error {
 	}
 	// Test that the variables used in the template
 	// validate with no issues
-	td := struct {
-		Result
-		URL         string
-		TrackingURL string
-		Tracker     string
-		From        string
-	}{
-		Result{
-			BaseRecipient: BaseRecipient{
-				Email:     "foo@bar.com",
-				FirstName: "Foo",
-				LastName:  "Bar",
-				Position:  "Test",
-			},
-		},
-		"http://foo.bar",
-		"http://foo.bar/track",
-		"<img src='http://foo.bar/track",
-		"John Doe <foo@bar.com>",
+	vc := ValidationContext{
+		FromAddress: "foo@bar.com",
+		BaseURL:     "http://example.com",
 	}
-	_, err := ExecuteTemplate(t.HTML, td)
+	td := Result{
+		BaseRecipient: BaseRecipient{
+			Email:     "foo@bar.com",
+			FirstName: "Foo",
+			LastName:  "Bar",
+			Position:  "Test",
+		},
+		RId: "123456",
+	}
+	ptx, err := NewPhishingTemplateContext(vc, td.BaseRecipient, td.RId)
 	if err != nil {
 		return err
 	}
-	_, err = ExecuteTemplate(t.Text, td)
+	_, err = ExecuteTemplate(t.HTML, ptx)
+	if err != nil {
+		return err
+	}
+	_, err = ExecuteTemplate(t.Text, ptx)
 	if err != nil {
 		return err
 	}
