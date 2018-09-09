@@ -53,7 +53,6 @@ function launch() {
                     send_by_date: send_by_date || null,
                     groups: groups,
                 }
-                console.log("Launching campaign at time: " + campaign.launch_date)
                 // Submit the campaign
                 api.campaigns.post(campaign)
                     .success(function (data) {
@@ -185,10 +184,15 @@ function setupOptions() {
                     obj.text = obj.name
                     return obj
                 });
-                $("#template.form-control").select2({
+                var template_select = $("#template.form-control")
+                template_select.select2({
                     placeholder: "Select a Template",
                     data: template_s2,
                 });
+                if (templates.length === 1) {
+                    template_select.val(template_s2[0].id)
+                    template_select.trigger('change.select2')
+                }
             }
         });
     api.pages.get()
@@ -201,10 +205,15 @@ function setupOptions() {
                     obj.text = obj.name
                     return obj
                 });
-                $("#page.form-control").select2({
+                var page_select = $("#page.form-control")
+                page_select.select2({
                     placeholder: "Select a Landing Page",
                     data: page_s2,
                 });
+                if (pages.length === 1) {
+                    page_select.val(page_s2[0].id)
+                    page_select.trigger('change.select2')
+                }
             }
         });
     api.SMTP.get()
@@ -217,10 +226,15 @@ function setupOptions() {
                     obj.text = obj.name
                     return obj
                 });
-                $("#profile.form-control").select2({
+                var profile_select = $("#profile.form-control")
+                profile_select.select2({
                     placeholder: "Select a Sending Profile",
                     data: profile_s2,
-                });
+                }).select2("val", profile_s2[0]);
+                if (profiles.length === 1) {
+                    profile_select.val(profile_s2[0].id)
+                    profile_select.trigger('change.select2')
+                }
             }
         });
 }
@@ -325,8 +339,6 @@ $(document).ready(function () {
                     ]
                 });
                 $.each(campaigns, function (i, campaign) {
-                    console.log(campaign)
-                    console.log(campaign.created_date)
                     label = labels[campaign.status] || "label-default";
 
                     //section for tooltips on the status of a campaign to show some quick stats
