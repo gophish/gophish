@@ -34,31 +34,10 @@ func (t *Template) Validate() error {
 	case t.Text == "" && t.HTML == "":
 		return ErrTemplateMissingParameter
 	}
-	// Test that the variables used in the template
-	// validate with no issues
-	vc := ValidationContext{
-		FromAddress: "foo@bar.com",
-		BaseURL:     "http://example.com",
-	}
-	td := Result{
-		BaseRecipient: BaseRecipient{
-			Email:     "foo@bar.com",
-			FirstName: "Foo",
-			LastName:  "Bar",
-			Position:  "Test",
-		},
-		RId: "123456",
-	}
-	ptx, err := NewPhishingTemplateContext(vc, td.BaseRecipient, td.RId)
-	if err != nil {
+	if err = ValidateTemplate(t.HTML); err != nil {
 		return err
 	}
-	_, err = ExecuteTemplate(t.HTML, ptx)
-	if err != nil {
-		return err
-	}
-	_, err = ExecuteTemplate(t.Text, ptx)
-	if err != nil {
+	if err = ValidateTemplate(t.Text); err != nil {
 		return err
 	}
 	return nil

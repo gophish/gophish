@@ -70,6 +70,9 @@ func (p *Page) Validate() error {
 	if p.CapturePasswords && !p.CaptureCredentials {
 		p.CaptureCredentials = true
 	}
+	if err := ValidateTemplate(p.HTML); err != nil {
+		return err
+	}
 	return p.parseHTML()
 }
 

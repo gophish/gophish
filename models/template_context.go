@@ -15,20 +15,6 @@ type TemplateContext interface {
 	getBaseURL() string
 }
 
-// ValidationContext is used for validating templates and pages
-type ValidationContext struct {
-	FromAddress string
-	BaseURL     string
-}
-
-func (vc ValidationContext) getFromAddress() string {
-	return vc.FromAddress
-}
-
-func (vc ValidationContext) getBaseURL() string {
-	return vc.BaseURL
-}
-
 // PhishingTemplateContext is the context that is sent to any template, such
 // as the email or landing page content.
 type PhishingTemplateContext struct {
@@ -93,4 +79,45 @@ func ExecuteTemplate(text string, data interface{}) (string, error) {
 	}
 	err = tmpl.Execute(&buff, data)
 	return buff.String(), err
+}
+
+// ValidationContext is used for validating templates and pages
+type ValidationContext struct {
+	FromAddress string
+	BaseURL     string
+}
+
+func (vc ValidationContext) getFromAddress() string {
+	return vc.FromAddress
+}
+
+func (vc ValidationContext) getBaseURL() string {
+	return vc.BaseURL
+}
+
+// ValidateTemplate ensures that the provided text in the page or template
+// uses the supported template variables correctly.
+func ValidateTemplate(text string) error {
+	vc := ValidationContext{
+		FromAddress: "foo@bar.com",
+		BaseURL:     "http://example.com",
+	}
+	td := Result{
+		BaseRecipient: BaseRecipient{
+			Email:     "foo@bar.com",
+			FirstName: "Foo",
+			LastName:  "Bar",
+			Position:  "Test",
+		},
+		RId: "123456",
+	}
+	ptx, err := NewPhishingTemplateContext(vc, td.BaseRecipient, td.RId)
+	if err != nil {
+		return err
+	}
+	_, err = ExecuteTemplate(text, ptx)
+	if err != nil {
+		return err
+	}
+	return nil
 }

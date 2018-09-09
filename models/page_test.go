@@ -83,3 +83,37 @@ func (s *ModelsSuite) TestPostPage(c *check.C) {
 		c.Assert(ok, check.Equals, false)
 	})
 }
+
+func (s *ModelsSuite) TestPageValidation(c *check.C) {
+	html := `<html>
+			<head></head>
+			<body>{{.BaseURL}}</body>
+		  </html>`
+	p := Page{
+		HTML:        html,
+		RedirectURL: "http://example.com",
+	}
+	// Validate that a name is required
+	err := p.Validate()
+	c.Assert(err, check.Equals, ErrPageNameNotSpecified)
+
+	p.Name = "Test Page"
+
+	// Validate that CaptureCredentials is automatically set if somehow the
+	// user fails to set it, but does indicate that passwords should be
+	// captured
+	p.CapturePasswords = true
+	c.Assert(p.CaptureCredentials, check.Equals, false)
+	err = p.Validate()
+	c.Assert(err, check.Equals, nil)
+	c.Assert(p.CaptureCredentials, check.Equals, true)
+
+	// Validate that if the HTML contains an invalid template tag, that we
+	// catch it
+	p.HTML = `<html>
+		<head></head>
+		<body>{{.INVALIDTAG}}</body>
+	  </html>`
+	err = p.Validate()
+	c.Assert(err, check.NotNil)
+}
