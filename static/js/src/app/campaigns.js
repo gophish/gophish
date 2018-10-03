@@ -254,21 +254,24 @@ function copy(idx) {
                     placeholder: campaign.template.name
                 });
             } else {
-                $("#template").select2("val", campaign.template.id.toString());
+                $("#template").val(campaign.template.id.toString());
+                $("#template").trigger("change.select2")
             }
             if (!campaign.page.id) {
                 $("#page").select2({
                     placeholder: campaign.page.name
                 });
             } else {
-                $("#page").select2("val", campaign.page.id.toString());
+                $("#page").val(campaign.page.id.toString());
+                $("#page").trigger("change.select2")
             }
             if (!campaign.smtp.id) {
                 $("#profile").select2({
                     placeholder: campaign.smtp.name
                 });
             } else {
-                $("#profile").select2("val", campaign.smtp.id.toString());
+                $("#profile").val(campaign.smtp.id.toString());
+                $("#profile").trigger("change.select2")
             }
             $("#url").val(campaign.url)
         })
