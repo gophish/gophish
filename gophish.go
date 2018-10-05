@@ -41,6 +41,7 @@ import (
 	"github.com/gophish/gophish/controllers"
 	log "github.com/gophish/gophish/logger"
 	"github.com/gophish/gophish/mailer"
+	"github.com/gophish/gophish/migrations"
 	"github.com/gophish/gophish/models"
 	"github.com/gophish/gophish/util"
 	"github.com/gorilla/handlers"
@@ -71,14 +72,19 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	// Provide the option to disable the built-in mailer
-	if !*disableMailer {
-		go mailer.Mailer.Start(ctx)
+	// Run the database migrations to ensure the schema is up-to-date
+	err = migrations.Migrate()
+	if err != nil {
+		log.Fatal(err)
 	}
 	// Setup the global variables and settings
 	err = models.Setup()
 	if err != nil {
 		log.Fatal(err)
+	}
+	// Provide the option to disable the built-in mailer
+	if !*disableMailer {
+		go mailer.Mailer.Start(ctx)
 	}
 	// Unlock any maillogs that may have been locked for processing
 	// when Gophish was last shutdown.
