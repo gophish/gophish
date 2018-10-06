@@ -21,16 +21,21 @@ type PhishServer struct {
 	KeyPath   string `json:"key_path"`
 }
 
+// LoggingConfig represents configuration details for Gophish logging.
+type LoggingConfig struct {
+	Filename string `json:"filename"`
+}
+
 // Config represents the configuration information.
 type Config struct {
-	AdminConf      AdminServer `json:"admin_server"`
-	PhishConf      PhishServer `json:"phish_server"`
-	DBName         string      `json:"db_name"`
-	DBPath         string      `json:"db_path"`
-	MigrationsPath string      `json:"migrations_prefix"`
-	TestFlag       bool        `json:"test_flag"`
-	ContactAddress string      `json:"contact_address"`
-	LogFile        string      `json:"log_file"`
+	AdminConf      AdminServer   `json:"admin_server"`
+	PhishConf      PhishServer   `json:"phish_server"`
+	DBName         string        `json:"db_name"`
+	DBPath         string        `json:"db_path"`
+	MigrationsPath string        `json:"migrations_prefix"`
+	TestFlag       bool          `json:"test_flag"`
+	ContactAddress string        `json:"contact_address"`
+	Logging        LoggingConfig `json:"logging"`
 }
 
 // Conf contains the initialized configuration struct

@@ -15,5 +15,7 @@
 	"db_path": "gophish.db",
 	"migrations_prefix": "db/db_",
 	"contact_address": "",
-	"log_file": ""
+	"logging": {
+		"filename": ""
+	}
 }
