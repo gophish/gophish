@@ -14,5 +14,6 @@
 	"db_name": "sqlite3",
 	"db_path": "gophish.db",
 	"migrations_prefix": "db/db_",
-	"contact_address": ""
+	"contact_address": "",
+	"log_file": ""
 }

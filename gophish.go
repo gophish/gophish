@@ -65,8 +65,21 @@ func main() {
 	kingpin.Parse()
 
 	// Load the config
-	config.LoadConfig(*configPath)
+	err = config.LoadConfig(*configPath)
+	// Just warn if a contact address hasn't been configured
+	if err != nil {
+		log.Fatal(err)
+	}
+	if config.Conf.ContactAddress == "" {
+		log.Warnf("No contact address has been configured.")
+		log.Warnf("Please consider adding a contact_address entry in your config.json")
+	}
 	config.Version = string(version)
+
+	err = log.Setup()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
