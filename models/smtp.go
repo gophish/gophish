@@ -146,6 +146,7 @@ func GetSMTP(id int64, uid int64) (SMTP, error) {
 	err := db.Where("user_id=? and id=?", uid, id).Find(&s).Error
 	if err != nil {
 		log.Error(err)
+		return s, err
 	}
 	err = db.Where("smtp_id=?", s.Id).Find(&s.Headers).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
