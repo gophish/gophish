@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	"net/mail"
 	"regexp"
 	"time"
@@ -69,10 +68,8 @@ func (s *ModelsSuite) TestResultVariableStatus(ch *check.C) {
 	// emails to be sent immediately, while others will be scheduled
 	for _, r := range c.Results {
 		if r.SendDate.Before(c.CreatedDate) || r.SendDate.Equal(c.CreatedDate) {
-			fmt.Println("SENDING")
 			ch.Assert(r.Status, check.Equals, STATUS_SENDING)
 		} else {
-			fmt.Println("SCHEDULED")
 			ch.Assert(r.Status, check.Equals, STATUS_SCHEDULED)
 		}
 	}

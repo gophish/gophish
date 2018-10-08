@@ -34,12 +34,11 @@ type Campaign struct {
 
 // CampaignResults is a struct representing the results from a campaign
 type CampaignResults struct {
-	Id       int64    `json:"id"`
-	Name     string   `json:"name"`
-	Status   string   `json:"status"`
-	Reported string   `json:"reported"`
-	Results  []Result `json:"results, omitempty"`
-	Events   []Event  `json:"timeline,omitempty"`
+	Id      int64    `json:"id"`
+	Name    string   `json:"name"`
+	Status  string   `json:"status"`
+	Results []Result `json:"results, omitempty"`
+	Events  []Event  `json:"timeline,omitempty"`
 }
 
 // CampaignSummaries is a struct representing the overview of campaigns
