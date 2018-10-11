@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-	"text/template"
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
@@ -31,19 +30,6 @@ var Worker *worker.Worker
 func init() {
 	Worker = worker.New()
 	go Worker.Start()
-}
-
-// API (/api) provides access to api documentation
-func API(w http.ResponseWriter, r *http.Request) {
-	switch {
-	case r.Method == "GET":
-		templates := template.New("template")
-		_, err := templates.ParseFiles("templates/docs.html")
-		if err != nil {
-			log.Error(err)
-		}
-		template.Must(templates, err).ExecuteTemplate(w, "base", nil)
-	}
 }
 
 // API (/api/reset) resets a user's API key

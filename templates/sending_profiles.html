@@ -17,10 +17,13 @@
                 </li>
                 <li><a href="/settings">Settings</a>
                 </li>
-                <li><hr></li>
-                <li><a href="https://gophish.gitbooks.io/user-guide/content/">User Guide</a>
+                <li>
+                    <hr>
                 </li>
-                <li><a href="/api/">API Documentation</a>
+                <li>
+                    <a href="https://docs.getgophish.com/user-guide/">User Guide</a>
+                </li>
+                <li><a href="https://docs.getgophish.com/api-documentation/">API Documentation</a>
                 </li>
             </ul>
         </div>
@@ -32,7 +35,8 @@
     </h1>
     <div id="flashes" class="row"></div>
     <div class="row">
-        <button type="button" class="btn btn-primary" onclick="edit(-1)" data-toggle="modal" data-target="#modal"><i class="fa fa-plus"></i> New Profile</button>
+        <button type="button" class="btn btn-primary" onclick="edit(-1)" data-toggle="modal" data-target="#modal"><i
+                class="fa fa-plus"></i> New Profile</button>
     </div>
     &nbsp;
     <div id="loading">
@@ -64,27 +68,30 @@
         <div class="modal-content">
             <!-- New Template Modal -->
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="dismiss()"><span aria-hidden="true">&times;</span></button>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="dismiss()"><span
+                        aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="profileModalLabel">New Sending Profile</h4>
             </div>
             <div class="modal-body">
                 <div class="row" id="modal.flashes"></div>
                 <div class="form-group">
                     <label class="control-label" for="name">Name:</label>
-                    <input type="text" class="form-control" placeholder="Profile name" id="name" autofocus/>
+                    <input type="text" class="form-control" placeholder="Profile name" id="name" autofocus />
                     <label class="control-label" for="interface_type">Interface Type:</label>
-                    <input type="text" class="form-control" value="SMTP" id="interface_type" disabled/>
+                    <input type="text" class="form-control" value="SMTP" id="interface_type" disabled />
                     <label class="control-label" for="from">From:</label>
-                    <input type="text" class="form-control" placeholder="First Last <test@example.com>" id="from" required/>
+                    <input type="text" class="form-control" placeholder="First Last <test@example.com>" id="from"
+                        required />
                     <label class="control-label" for="host">Host:</label>
-                    <input type="text" class="form-control" placeholder="smtp.example.com:25" id="host" required/>
+                    <input type="text" class="form-control" placeholder="smtp.example.com:25" id="host" required />
                     <label class="control-label" for="username">Username:</label>
-                    <input type="text" class="form-control" placeholder="Username" id="username"/>
+                    <input type="text" class="form-control" placeholder="Username" id="username" />
                     <label class="control-label" for="password">Password:</label>
-                    <input type="password" class="form-control" placeholder="Password" id="password"/>
+                    <input type="password" class="form-control" placeholder="Password" id="password" />
                     <div class="checkbox checkbox-primary">
                         <input id="ignore_cert_errors" type="checkbox" checked>
-                        <label for="ignore_cert_errors">Ignore Certificate Errors <i class="fa fa-question-circle" data-toggle="tooltip" data-placement="right" title="Ignore common certificate errors such as self-signed certs (exposes you to MiTM attacks - use carefully!)"></i></label>
+                        <label for="ignore_cert_errors">Ignore Certificate Errors <i class="fa fa-question-circle"
+                                data-toggle="tooltip" data-placement="right" title="Ignore common certificate errors such as self-signed certs (exposes you to MiTM attacks - use carefully!)"></i></label>
                     </div>
                     <label class="control-label" for="headersForm">Email Headers:</label>
                     <form id="headersForm">
@@ -92,10 +99,11 @@
                             <input type="text" class="form-control" name="headerKey" id="headerKey" placeholder="X-Custom-Header">
                         </div>
                         <div class="col-md-4">
-                            <input type="text" class="form-control" name="headerValue" id="headerValue" placeholder="{{"{{"}}.URL{{"}}"}}-gophish">
+                            <input type="text" class="form-control" name="headerValue" id="headerValue" placeholder='{{"{{"}}.URL{{"}}"}}-gophish'>
                         </div>
                         <div class="col-md-2">
-                            <button class="btn btn-danger btn-headers" type="submit"><i class="fa fa-plus"></i> Add Custom Header</button>
+                            <button class="btn btn-danger btn-headers" type="submit"><i class="fa fa-plus"></i> Add
+                                Custom Header</button>
                         </div>
                     </form>
                     <br />
@@ -107,11 +115,12 @@
                                 <th>Value</th>
                                 <th class="no-sort"></th>
                             </tr>
-                        </thead>    
+                        </thead>
                         <tbody>
                         </tbody>
                     </table>
-                    <button type="button" data-toggle="modal" data-target="#sendTestEmailModal" class="btn btn-primary"><i class="fa fa-envelope"></i> Send Test Email</button>
+                    <button type="button" data-toggle="modal" data-target="#sendTestEmailModal" class="btn btn-primary"><i
+                            class="fa fa-envelope"></i> Send Test Email</button>
                 </div>
             </div>
             <div class="modal-footer">
@@ -153,12 +162,12 @@
             </div>
             <div class="modal-footer">
                 <button type="button" data-dismiss="modal" class="btn btn-default">Cancel</button>
-                <button type="button" class="btn btn-primary" id="sendTestModalSubmit" onclick="sendTestEmail()"><i class="fa fa-envelope"></i> Send</button>
+                <button type="button" class="btn btn-primary" id="sendTestModalSubmit" onclick="sendTestEmail()"><i
+                        class="fa fa-envelope"></i> Send</button>
             </div>
         </div>
     </div>
 </div>
-{{end}}
-{{define "scripts"}}
+{{end}} {{define "scripts"}}
 <script src="/js/dist/app/sending_profiles.min.js"></script>
 {{end}}
