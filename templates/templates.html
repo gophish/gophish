@@ -37,8 +37,8 @@
     </div>
     <div id="flashes" class="row"></div>
     <div class="row">
-        <button type="button" class="btn btn-primary" onclick="edit(-1)" data-toggle="modal" data-target="#modal"><i
-                class="fa fa-plus"></i> New Template</button>
+        <button type="button" class="btn btn-primary" onclick="edit(-1)" data-toggle="modal" data-backdrop="static"
+            data-target="#modal"><i class="fa fa-plus"></i> New Template</button>
     </div>
     &nbsp;
     <div id="loading">
@@ -81,7 +81,8 @@
                         autofocus />
                 </div>
                 <div class="form-group">
-                    <button class="btn btn-danger" data-toggle="modal" data-target="#importEmailModal"><i class="fa fa-envelope"></i>
+                    <button class="btn btn-danger" data-toggle="modal" data-backdrop="static" data-target="#importEmailModal"><i
+                            class="fa fa-envelope"></i>
                         Import Email</button>
                 </div>
                 <label class="control-label" for="subject">Subject:</label>

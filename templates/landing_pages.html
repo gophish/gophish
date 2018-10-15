@@ -35,8 +35,8 @@
     </h1>
     <div id="flashes" class="row"></div>
     <div class="row">
-        <button type="button" class="btn btn-primary" onclick="edit(-1)" data-toggle="modal" data-target="#modal"><i
-                class="fa fa-plus"></i> New Page</button>
+        <button type="button" class="btn btn-primary" onclick="edit(-1)" data-toggle="modal" data-backdrop="static"
+            data-target="#modal"><i class="fa fa-plus"></i> New Page</button>
     </div>
     &nbsp;
     <div id="loading">
@@ -78,7 +78,8 @@
                     <input type="text" class="form-control" placeholder="Page name" id="name" autofocus />
                 </div>
                 <div class="form-group">
-                    <button class="btn btn-danger" data-toggle="modal" data-target="#importSiteModal"><i class="fa fa-globe"></i>
+                    <button class="btn btn-danger" data-toggle="modal" data-backdrop="static" data-target="#importSiteModal"><i
+                            class="fa fa-globe"></i>
                         Import Site</button>
                 </div>
                 <!-- Nav tabs -->
