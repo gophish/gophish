@@ -190,7 +190,13 @@ func renderPhishResponse(w http.ResponseWriter, r *http.Request, ptx models.Phis
 	// should send the user to that URL
 	if r.Method == "POST" {
 		if p.RedirectURL != "" {
-			http.Redirect(w, r, p.RedirectURL, 302)
+			redirectURL, err := models.ExecuteTemplate(p.RedirectURL, ptx)
+			if err != nil {
+				log.Error(err)
+				http.NotFound(w, r)
+				return
+			}
+			http.Redirect(w, r, redirectURL, http.StatusFound)
 			return
 		}
 	}

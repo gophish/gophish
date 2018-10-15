@@ -116,4 +116,11 @@ func (s *ModelsSuite) TestPageValidation(c *check.C) {
 	  </html>`
 	err = p.Validate()
 	c.Assert(err, check.NotNil)
+
+	// Validate that if the RedirectURL contains an invalid template tag, that
+	// we catch it
+	p.HTML = "valid data"
+	p.RedirectURL = "http://example.com/{{.INVALIDTAG}}"
+	err = p.Validate()
+	c.Assert(err, check.NotNil)
 }

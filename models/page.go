@@ -73,6 +73,9 @@ func (p *Page) Validate() error {
 	if err := ValidateTemplate(p.HTML); err != nil {
 		return err
 	}
+	if err := ValidateTemplate(p.RedirectURL); err != nil {
+		return err
+	}
 	return p.parseHTML()
 }
 

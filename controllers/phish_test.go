@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 
 	"github.com/gophish/gophish/config"
 	"github.com/gophish/gophish/models"
@@ -228,4 +229,42 @@ func (s *ControllersSuite) TestTransparencyRequest() {
 	s.transparencyRequest(result, rid, "/")
 	s.transparencyRequest(result, rid, "/track")
 	s.transparencyRequest(result, rid, "/report")
+}
+
+func (s *ControllersSuite) TestRedirectTemplating() {
+	p := models.Page{
+		Name:        "Redirect Page",
+		HTML:        "<html>Test</html>",
+		UserId:      1,
+		RedirectURL: "http://example.com/{{.RId}}",
+	}
+	err := models.PostPage(&p)
+	s.Nil(err)
+	smtp, _ := models.GetSMTP(1, 1)
+	template, _ := models.GetTemplate(1, 1)
+	group, _ := models.GetGroup(1, 1)
+
+	campaign := models.Campaign{Name: "Redirect campaign"}
+	campaign.UserId = 1
+	campaign.Template = template
+	campaign.Page = p
+	campaign.SMTP = smtp
+	campaign.Groups = []models.Group{group}
+	err = models.PostCampaign(&campaign, campaign.UserId)
+	s.Nil(err)
+
+	client := http.Client{
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		},
+	}
+	result := campaign.Results[0]
+	resp, err := client.PostForm(fmt.Sprintf("%s/?%s=%s", ps.URL, models.RecipientParameter, result.RId), url.Values{"username": {"test"}, "password": {"test"}})
+	s.Nil(err)
+	defer resp.Body.Close()
+	s.Equal(http.StatusFound, resp.StatusCode)
+	expectedURL := fmt.Sprintf("http://example.com/%s", result.RId)
+	got, err := resp.Location()
+	s.Nil(err)
+	s.Equal(expectedURL, got.String())
 }
