@@ -92,7 +92,6 @@ function importSite() {
                 include_resources: false
             })
             .success(function (data) {
-                console.log($("#html_editor"))
                 $("#html_editor").val(data.html)
                 CKEDITOR.instances["html_editor"].setMode('wysiwyg')
                 $("#importSiteModal").modal("hide")

@@ -357,8 +357,8 @@ var renderDevice = function (event_details) {
 }
 
 function renderTimeline(data) {
-    console.log(data)
     record = {
+        "id": data[0],
         "first_name": data[2],
         "last_name": data[3],
         "email": data[4],
@@ -369,7 +369,8 @@ function renderTimeline(data) {
     }
     results = '<div class="timeline col-sm-12 well well-lg">' +
         '<h6>Timeline for ' + escapeHtml(record.first_name) + ' ' + escapeHtml(record.last_name) +
-        '</h6><span class="subtitle">Email: ' + escapeHtml(record.email) + '</span>' +
+        '</h6><span class="subtitle">Email: ' + escapeHtml(record.email) +
+        '<br>Result ID: ' + escapeHtml(record.id) + '</span>' +
         '<div class="timeline-graph col-sm-6">'
     $.each(campaign.timeline, function (i, event) {
         if (!event.email || event.email == record.email) {
