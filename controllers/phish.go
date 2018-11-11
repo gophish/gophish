@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"compress/gzip"
+	"context"
 	"errors"
 	"fmt"
 	"net"
@@ -8,10 +10,13 @@ import (
 	"strings"
 	"time"
 
+	"github.com/NYTimes/gziphandler"
 	"github.com/gophish/gophish/config"
 	ctx "github.com/gophish/gophish/context"
 	log "github.com/gophish/gophish/logger"
 	"github.com/gophish/gophish/models"
+	"github.com/gophish/gophish/util"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
 
@@ -35,8 +40,61 @@ type TransparencyResponse struct {
 // to return a transparency response.
 const TransparencySuffix = "+"
 
+// PhishingServerOption is a functional option that is used to configure the
+// the phishing server
+type PhishingServerOption func(*PhishingServer)
+
+// PhishingServer is an HTTP server that implements the campaign event
+// handlers, such as email open tracking, click tracking, and more.
+type PhishingServer struct {
+	server *http.Server
+	config config.PhishServer
+}
+
+// NewPhishingServer returns a new instance of the phishing server with
+// provided options applied.
+func NewPhishingServer(config config.PhishServer, options ...PhishingServerOption) *PhishingServer {
+	defaultServer := &http.Server{
+		ReadTimeout:  10 * time.Second,
+		WriteTimeout: 10 * time.Second,
+		Addr:         config.ListenURL,
+	}
+	ps := &PhishingServer{
+		server: defaultServer,
+		config: config,
+	}
+	for _, opt := range options {
+		opt(ps)
+	}
+	ps.registerRoutes()
+	return ps
+}
+
+// Start launches the phishing server, listening on the configured address.
+func (ps *PhishingServer) Start() error {
+	if ps.config.UseTLS {
+		err := util.CheckAndCreateSSL(ps.config.CertPath, ps.config.KeyPath)
+		if err != nil {
+			log.Fatal(err)
+			return err
+		}
+		log.Infof("Starting phishing server at https://%s", ps.config.ListenURL)
+		return ps.server.ListenAndServeTLS(ps.config.CertPath, ps.config.KeyPath)
+	}
+	// If TLS isn't configured, just listen on HTTP
+	log.Infof("Starting phishing server at http://%s", ps.config.ListenURL)
+	return ps.server.ListenAndServe()
+}
+
+// Shutdown attempts to gracefully shutdown the server.
+func (ps *PhishingServer) Shutdown() error {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+	defer cancel()
+	return ps.server.Shutdown(ctx)
+}
+
 // CreatePhishingRouter creates the router that handles phishing connections.
-func CreatePhishingRouter() http.Handler {
+func (ps *PhishingServer) registerRoutes() {
 	router := mux.NewRouter()
 	fileServer := http.FileServer(UnindexedFileSystem{http.Dir("./static/endpoint/")})
 	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", fileServer))
@@ -46,7 +104,14 @@ func CreatePhishingRouter() http.Handler {
 	router.HandleFunc("/{path:.*}/report", PhishReporter)
 	router.HandleFunc("/report", PhishReporter)
 	router.HandleFunc("/{path:.*}", PhishHandler)
-	return router
+
+	// Setup GZIP compression
+	gzipWrapper, _ := gziphandler.NewGzipLevelHandler(gzip.BestCompression)
+	phishHandler := gzipWrapper(router)
+
+	// Setup logging
+	phishHandler = handlers.CombinedLoggingHandler(log.Writer(), phishHandler)
+	ps.server.Handler = router
 }
 
 // PhishTracker tracks emails as they are opened, updating the status for the given Result

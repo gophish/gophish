@@ -17,23 +17,14 @@ import (
 	log "github.com/gophish/gophish/logger"
 	"github.com/gophish/gophish/models"
 	"github.com/gophish/gophish/util"
-	"github.com/gophish/gophish/worker"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	"github.com/jordan-wright/email"
 	"github.com/sirupsen/logrus"
 )
 
-// Worker is the worker that processes phishing events and updates campaigns.
-var Worker *worker.Worker
-
-func init() {
-	Worker = worker.New()
-	go Worker.Start()
-}
-
 // API (/api/reset) resets a user's API key
-func API_Reset(w http.ResponseWriter, r *http.Request) {
+func (as *AdminServer) API_Reset(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "POST":
 		u := ctx.Get(r, "user").(models.User)
@@ -49,7 +40,7 @@ func API_Reset(w http.ResponseWriter, r *http.Request) {
 
 // API_Campaigns returns a list of campaigns if requested via GET.
 // If requested via POST, API_Campaigns creates a new campaign and returns a reference to it.
-func API_Campaigns(w http.ResponseWriter, r *http.Request) {
+func (as *AdminServer) API_Campaigns(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "GET":
 		cs, err := models.GetCampaigns(ctx.Get(r, "user_id").(int64))
@@ -74,14 +65,14 @@ func API_Campaigns(w http.ResponseWriter, r *http.Request) {
 		// If the campaign is scheduled to launch immediately, send it to the worker.
 		// Otherwise, the worker will pick it up at the scheduled time
 		if c.Status == models.CAMPAIGN_IN_PROGRESS {
-			go Worker.LaunchCampaign(c)
+			go as.worker.LaunchCampaign(c)
 		}
 		JSONResponse(w, c, http.StatusCreated)
 	}
 }
 
 // API_Campaigns_Summary returns the summary for the current user's campaigns
-func API_Campaigns_Summary(w http.ResponseWriter, r *http.Request) {
+func (as *AdminServer) API_Campaigns_Summary(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "GET":
 		cs, err := models.GetCampaignSummaries(ctx.Get(r, "user_id").(int64))
@@ -96,7 +87,7 @@ func API_Campaigns_Summary(w http.ResponseWriter, r *http.Request) {
 
 // API_Campaigns_Id returns details about the requested campaign. If the campaign is not
 // valid, API_Campaigns_Id returns null.
-func API_Campaigns_Id(w http.ResponseWriter, r *http.Request) {
+func (as *AdminServer) API_Campaigns_Id(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.ParseInt(vars["id"], 0, 64)
 	c, err := models.GetCampaign(id, ctx.Get(r, "user_id").(int64))
@@ -120,7 +111,7 @@ func API_Campaigns_Id(w http.ResponseWriter, r *http.Request) {
 
 // API_Campaigns_Id_Results returns just the results for a given campaign to
 // significantly reduce the information returned.
-func API_Campaigns_Id_Results(w http.ResponseWriter, r *http.Request) {
+func (as *AdminServer) API_Campaigns_Id_Results(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.ParseInt(vars["id"], 0, 64)
 	cr, err := models.GetCampaignResults(id, ctx.Get(r, "user_id").(int64))
@@ -136,7 +127,7 @@ func API_Campaigns_Id_Results(w http.ResponseWriter, r *http.Request) {
 }
 
 // API_Campaigns_Id_Summary returns just the summary for a given campaign.
-func API_Campaign_Id_Summary(w http.ResponseWriter, r *http.Request) {
+func (as *AdminServer) API_Campaign_Id_Summary(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.ParseInt(vars["id"], 0, 64)
 	switch {
@@ -157,7 +148,7 @@ func API_Campaign_Id_Summary(w http.ResponseWriter, r *http.Request) {
 
 // API_Campaigns_Id_Complete effectively "ends" a campaign.
 // Future phishing emails clicked will return a simple "404" page.
-func API_Campaigns_Id_Complete(w http.ResponseWriter, r *http.Request) {
+func (as *AdminServer) API_Campaigns_Id_Complete(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.ParseInt(vars["id"], 0, 64)
 	switch {
@@ -173,7 +164,7 @@ func API_Campaigns_Id_Complete(w http.ResponseWriter, r *http.Request) {
 
 // API_Groups returns a list of groups if requested via GET.
 // If requested via POST, API_Groups creates a new group and returns a reference to it.
-func API_Groups(w http.ResponseWriter, r *http.Request) {
+func (as *AdminServer) API_Groups(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "GET":
 		gs, err := models.GetGroups(ctx.Get(r, "user_id").(int64))
@@ -208,7 +199,7 @@ func API_Groups(w http.ResponseWriter, r *http.Request) {
 }
 
 // API_Groups_Summary returns a summary of the groups owned by the current user.
-func API_Groups_Summary(w http.ResponseWriter, r *http.Request) {
+func (as *AdminServer) API_Groups_Summary(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "GET":
 		gs, err := models.GetGroupSummaries(ctx.Get(r, "user_id").(int64))
@@ -223,7 +214,7 @@ func API_Groups_Summary(w http.ResponseWriter, r *http.Request) {
 
 // API_Groups_Id returns details about the requested group.
 // If the group is not valid, API_Groups_Id returns null.
-func API_Groups_Id(w http.ResponseWriter, r *http.Request) {
+func (as *AdminServer) API_Groups_Id(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.ParseInt(vars["id"], 0, 64)
 	g, err := models.GetGroup(id, ctx.Get(r, "user_id").(int64))
@@ -261,7 +252,7 @@ func API_Groups_Id(w http.ResponseWriter, r *http.Request) {
 }
 
 // API_Groups_Id_Summary returns a summary of the groups owned by the current user.
-func API_Groups_Id_Summary(w http.ResponseWriter, r *http.Request) {
+func (as *AdminServer) API_Groups_Id_Summary(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "GET":
 		vars := mux.Vars(r)
@@ -276,7 +267,7 @@ func API_Groups_Id_Summary(w http.ResponseWriter, r *http.Request) {
 }
 
 // API_Templates handles the functionality for the /api/templates endpoint
-func API_Templates(w http.ResponseWriter, r *http.Request) {
+func (as *AdminServer) API_Templates(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "GET":
 		ts, err := models.GetTemplates(ctx.Get(r, "user_id").(int64))
@@ -319,7 +310,7 @@ func API_Templates(w http.ResponseWriter, r *http.Request) {
 }
 
 // API_Templates_Id handles the functions for the /api/templates/:id endpoint
-func API_Templates_Id(w http.ResponseWriter, r *http.Request) {
+func (as *AdminServer) API_Templates_Id(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.ParseInt(vars["id"], 0, 64)
 	t, err := models.GetTemplate(id, ctx.Get(r, "user_id").(int64))
@@ -359,7 +350,7 @@ func API_Templates_Id(w http.ResponseWriter, r *http.Request) {
 }
 
 // API_Pages handles requests for the /api/pages/ endpoint
-func API_Pages(w http.ResponseWriter, r *http.Request) {
+func (as *AdminServer) API_Pages(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "GET":
 		ps, err := models.GetPages(ctx.Get(r, "user_id").(int64))
@@ -396,7 +387,7 @@ func API_Pages(w http.ResponseWriter, r *http.Request) {
 
 // API_Pages_Id contains functions to handle the GET'ing, DELETE'ing, and PUT'ing
 // of a Page object
-func API_Pages_Id(w http.ResponseWriter, r *http.Request) {
+func (as *AdminServer) API_Pages_Id(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.ParseInt(vars["id"], 0, 64)
 	p, err := models.GetPage(id, ctx.Get(r, "user_id").(int64))
@@ -436,7 +427,7 @@ func API_Pages_Id(w http.ResponseWriter, r *http.Request) {
 }
 
 // API_SMTP handles requests for the /api/smtp/ endpoint
-func API_SMTP(w http.ResponseWriter, r *http.Request) {
+func (as *AdminServer) API_SMTP(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "GET":
 		ss, err := models.GetSMTPs(ctx.Get(r, "user_id").(int64))
@@ -473,7 +464,7 @@ func API_SMTP(w http.ResponseWriter, r *http.Request) {
 
 // API_SMTP_Id contains functions to handle the GET'ing, DELETE'ing, and PUT'ing
 // of a SMTP object
-func API_SMTP_Id(w http.ResponseWriter, r *http.Request) {
+func (as *AdminServer) API_SMTP_Id(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.ParseInt(vars["id"], 0, 64)
 	s, err := models.GetSMTP(id, ctx.Get(r, "user_id").(int64))
@@ -518,7 +509,7 @@ func API_SMTP_Id(w http.ResponseWriter, r *http.Request) {
 }
 
 // API_Import_Group imports a CSV of group members
-func API_Import_Group(w http.ResponseWriter, r *http.Request) {
+func (as *AdminServer) API_Import_Group(w http.ResponseWriter, r *http.Request) {
 	ts, err := util.ParseCSV(r)
 	if err != nil {
 		JSONResponse(w, models.Response{Success: false, Message: "Error parsing CSV"}, http.StatusInternalServerError)
@@ -530,7 +521,7 @@ func API_Import_Group(w http.ResponseWriter, r *http.Request) {
 
 // API_Import_Email allows for the importing of email.
 // Returns a Message object
-func API_Import_Email(w http.ResponseWriter, r *http.Request) {
+func (as *AdminServer) API_Import_Email(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		JSONResponse(w, models.Response{Success: false, Message: "Method not allowed"}, http.StatusBadRequest)
 		return
@@ -579,7 +570,7 @@ func API_Import_Email(w http.ResponseWriter, r *http.Request) {
 // API_Import_Site allows for the importing of HTML from a website
 // Without "include_resources" set, it will merely place a "base" tag
 // so that all resources can be loaded relative to the given URL.
-func API_Import_Site(w http.ResponseWriter, r *http.Request) {
+func (as *AdminServer) API_Import_Site(w http.ResponseWriter, r *http.Request) {
 	cr := cloneRequest{}
 	if r.Method != "POST" {
 		JSONResponse(w, models.Response{Success: false, Message: "Method not allowed"}, http.StatusBadRequest)
@@ -637,7 +628,7 @@ func API_Import_Site(w http.ResponseWriter, r *http.Request) {
 
 // API_Send_Test_Email sends a test email using the template name
 // and Target given.
-func API_Send_Test_Email(w http.ResponseWriter, r *http.Request) {
+func (as *AdminServer) API_Send_Test_Email(w http.ResponseWriter, r *http.Request) {
 	s := &models.EmailRequest{
 		ErrorChan: make(chan error),
 		UserId:    ctx.Get(r, "user_id").(int64),
@@ -735,7 +726,7 @@ func API_Send_Test_Email(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	// Send the test email
-	err = Worker.SendTestEmail(s)
+	err = as.worker.SendTestEmail(s)
 	if err != nil {
 		log.Error(err)
 		JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)

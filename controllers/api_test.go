@@ -11,7 +11,6 @@ import (
 
 	"github.com/gophish/gophish/config"
 	"github.com/gophish/gophish/models"
-	"github.com/gorilla/handlers"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -22,10 +21,10 @@ type ControllersSuite struct {
 }
 
 // as is the Admin Server for our API calls
-var as *httptest.Server = httptest.NewUnstartedServer(handlers.CombinedLoggingHandler(os.Stdout, CreateAdminRouter()))
+var as = httptest.NewUnstartedServer(NewAdminServer(config.Conf.AdminConf).server.Handler)
 
 // ps is the Phishing Server
-var ps *httptest.Server = httptest.NewUnstartedServer(handlers.CombinedLoggingHandler(os.Stdout, CreatePhishingRouter()))
+var ps = httptest.NewUnstartedServer(NewPhishingServer(config.Conf.PhishConf).server.Handler)
 
 func (s *ControllersSuite) SetupSuite() {
 	config.Conf.DBName = "sqlite3"
