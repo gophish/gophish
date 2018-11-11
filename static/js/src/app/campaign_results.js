@@ -518,7 +518,7 @@ var renderPieChart = function (chartopts) {
                         pie = chart.series[0],
                         left = chart.plotLeft + pie.center[0],
                         top = chart.plotTop + pie.center[1];
-                    this.innerText = rend.text(chartopts['data'][2].y, left, top).
+                    this.innerText = rend.text(chartopts['data'][0].count, left, top).
                     attr({
                         'text-anchor': 'middle',
                         'font-size': '24px',
@@ -529,7 +529,7 @@ var renderPieChart = function (chartopts) {
                 },
                 render: function () {
                     this.innerText.attr({
-                        text: chartopts['data'][2].y
+                        text: chartopts['data'][0].count
                     })
                 }
             }
@@ -866,15 +866,12 @@ function load() {
                     }
                     email_data.push({
                         name: status,
-                        y: Math.floor((count / campaign.results.length) * 100)
+                        y: Math.floor((count / campaign.results.length) * 100),
+                        count: count
                     })
                     email_data.push({
                         name: '',
                         y: 100 - Math.floor((count / campaign.results.length) * 100)
-                    })
-                    email_data.push({
-                        name: 'count',
-                        y: count
                     })
                     var chart = renderPieChart({
                         elemId: statusMapping[status] + '_chart',
