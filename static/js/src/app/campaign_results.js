@@ -677,15 +677,12 @@ function poll() {
                 }
                 email_data.push({
                     name: status,
-                    y: Math.floor((count / campaign.results.length) * 100)
+                    y: Math.floor((count / campaign.results.length) * 100),
+                    count: count
                 })
                 email_data.push({
                     name: '',
                     y: 100 - Math.floor((count / campaign.results.length) * 100)
-                })
-                email_data.push({
-                    name: 'count',
-                    y: count
                 })
                 var chart = $("#" + statusMapping[status] + "_chart").highcharts()
                 chart.series[0].update({
