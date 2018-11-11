@@ -46,6 +46,15 @@ func (p *Page) parseHTML() error {
 						input.RemoveAttr("name")
 					}
 				})
+			} else {
+				// If the user chooses to re-enable the capture passwords setting,
+				// we need to re-add the name attribute
+				inputs := f.Find("input")
+				inputs.Each(func(j int, input *goquery.Selection) {
+					if t, _ := input.Attr("type"); strings.EqualFold(t, "password") {
+						input.SetAttr("name", "password")
+					}
+				})
 			}
 		} else {
 			// Otherwise, remove the name from all

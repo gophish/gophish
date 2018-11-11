@@ -41,6 +41,7 @@ func (s *ModelsSuite) TestPostPage(c *check.C) {
 		c.Assert(ok, check.Equals, true)
 		c.Assert(u, check.Equals, "username")
 	})
+
 	// Check what happens when we don't capture passwords
 	p.CapturePasswords = false
 	p.HTML = html
@@ -55,7 +56,7 @@ func (s *ModelsSuite) TestPostPage(c *check.C) {
 		// Check the action has been set
 		a, _ := f.Attr("action")
 		c.Assert(a, check.Equals, "")
-		// Check the password still has a name
+		// Check the password name has been removed
 		_, ok := f.Find("input[type=\"password\"]").Attr("name")
 		c.Assert(ok, check.Equals, false)
 		// Check the username is still correct
@@ -63,7 +64,8 @@ func (s *ModelsSuite) TestPostPage(c *check.C) {
 		c.Assert(ok, check.Equals, true)
 		c.Assert(u, check.Equals, "username")
 	})
-	// Finally, check when we don't capture credentials
+
+	// Check when we don't capture credentials
 	p.CaptureCredentials = false
 	p.HTML = html
 	err = PutPage(&p)
@@ -75,12 +77,26 @@ func (s *ModelsSuite) TestPostPage(c *check.C) {
 		// Check the action has been set
 		a, _ := f.Attr("action")
 		c.Assert(a, check.Equals, "")
-		// Check the password still has a name
+		// Check the password name has been removed
 		_, ok := f.Find("input[type=\"password\"]").Attr("name")
 		c.Assert(ok, check.Equals, false)
-		// Check the username is still correct
+		// Check the username name has been removed
 		_, ok = f.Find("input").Attr("name")
 		c.Assert(ok, check.Equals, false)
+	})
+
+	// Finally, re-enable capturing passwords (ref: #1267)
+	p.CaptureCredentials = true
+	p.CapturePasswords = true
+	err = PutPage(&p)
+	c.Assert(err, check.Equals, nil)
+	d, err = goquery.NewDocumentFromReader(strings.NewReader(p.HTML))
+	c.Assert(err, check.Equals, nil)
+	forms = d.Find("form")
+	forms.Each(func(i int, f *goquery.Selection) {
+		// Check the password still has a name
+		_, ok := f.Find("input[type=\"password\"]").Attr("name")
+		c.Assert(ok, check.Equals, true)
 	})
 }
 
