@@ -17,6 +17,10 @@
                 </li>
                 <li class="active"><a href="/settings">Settings</a>
                 </li>
+                <li><a href="/people">People</a>
+                </li>
+                <li><a href="/roles">Roles</a>
+                </li>
                 <li>
                     <hr>
                 </li>
@@ -75,6 +79,13 @@
                     <label for="username" class="col-sm-2 control-label form-label">Username:</label>
                     <div class="col-md-6">
                         <input type="text" id="username" name="username" value="{{.User.Username}}" class="form-control" />
+                    </div>
+                </div>
+                <br />
+                 <div class="row">
+                    <label for="email" class="col-sm-2 control-label form-label">Email:</label>
+                    <div class="col-md-6">
+                        <input type="text" id="email" name="email" value="{{.User.Email}}" class="form-control" />
                     </div>
                 </div>
                 <br />

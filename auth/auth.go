@@ -2,10 +2,12 @@ package auth
 
 import (
 	"encoding/gob"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 
 	"crypto/rand"
 
@@ -64,8 +66,12 @@ func Login(r *http.Request) (bool, models.User, error) {
 // Register attempts to register the user given a request.
 func Register(r *http.Request) (bool, error) {
 	username := r.FormValue("username")
+	newEmail := r.FormValue("email")
 	newPassword := r.FormValue("password")
 	confirmPassword := r.FormValue("confirm_password")
+	role := r.FormValue("roles")
+	rid, _ := strconv.ParseInt(role, 10, 0)
+
 	u, err := models.GetUserByUsername(username)
 	// If the given username already exists, throw an error and return false
 	if err == nil {
@@ -79,6 +85,7 @@ func Register(r *http.Request) (bool, error) {
 	}
 
 	u = models.User{}
+	ur := models.UsersRole{}
 	// If we've made it here, we should have a valid username given
 	// Check that the passsword isn't blank
 	if newPassword == "" {
@@ -94,9 +101,18 @@ func Register(r *http.Request) (bool, error) {
 		return false, err
 	}
 	u.Username = username
+	u.Email = newEmail
 	u.Hash = string(h)
 	u.ApiKey = GenerateSecureKey()
 	err = models.PutUser(&u)
+
+	//Getting the inserted U after inserted
+	iu, err := models.GetUserByUsername(username)
+
+	ur.Uid = iu.Id
+	ur.Rid = rid
+
+	err = models.PutUserRoles(&ur)
 	return true, nil
 }
 
@@ -111,9 +127,15 @@ func GenerateSecureKey() string {
 
 func ChangePassword(r *http.Request) error {
 	u := ctx.Get(r, "user").(models.User)
-	currentPw := r.FormValue("current_password")
-	newPassword := r.FormValue("new_password")
-	confirmPassword := r.FormValue("confirm_new_password")
+	//currentPw := r.FormValue("current_password")
+	//newPassword := r.FormValue("new_password")
+	//confirmPassword := r.FormValue("confirm_new_password")
+
+	r.ParseForm()                               // Parses the request body
+	currentPw := r.Form.Get("current_password") // x will be "" if parameter is not set
+	newPassword := r.Form.Get("new_password")
+	confirmPassword := r.Form.Get("confirm_new_password")
+
 	// Check the current password
 	err := bcrypt.CompareHashAndPassword([]byte(u.Hash), []byte(currentPw))
 	if err != nil {
@@ -136,5 +158,63 @@ func ChangePassword(r *http.Request) error {
 	if err = models.PutUser(&u); err != nil {
 		return err
 	}
+	return nil
+}
+
+func ChangePasswordByadmin(r *http.Request) error {
+	u := ctx.Get(r, "user").(models.User)
+	type Usersdata struct {
+		Id                   int64  `json:"id"`
+		Username             string `json:"username"`
+		Email                string `json:"email" `
+		New_password         string `json:"new_password" `
+		Confirm_new_password string `json:"confirm_new_password" `
+		Role                 int64  `json:"role" `
+		Hash                 string `json:"-"`
+		ApiKey               string `json:"api_key"`
+	}
+
+	var ud = new(Usersdata)
+	err := json.NewDecoder(r.Body).Decode(&ud)
+
+	newPassword := ud.New_password
+	confirmPassword := ud.Confirm_new_password
+
+	u.Id = ud.Id
+	u.Email = ud.Email
+	u.Username = ud.Username
+	u.ApiKey = ud.ApiKey
+	// Check the current password
+
+	// Check that the new password isn't blank
+	if newPassword == "" {
+		return ErrEmptyPassword
+	}
+	// Check that new passwords match
+	if newPassword != confirmPassword {
+		return ErrPasswordMismatch
+	}
+	// Generate the new hash
+	h, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+	u.Hash = string(h)
+	if err = models.PutUser(&u); err != nil {
+		return err
+	}
+
+	ur := models.UsersRole{}
+	ur.Uid = ud.Id
+	ur.Rid = ud.Role
+
+	//first delete the users roles in update
+	if err = models.DeleteUserRoles(ur.Uid); err != nil {
+		return err
+	}
+
+	//Second save the user roles again
+	err = models.PutUserRoles(&ur)
+
 	return nil
 }

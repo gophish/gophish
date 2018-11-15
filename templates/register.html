@@ -46,6 +46,13 @@
             <h2 class="form-signin-heading">Please register below</h2>
             {{template "flashes" .Flashes}}
             <input type="text" name="username" class="form-control top-input" placeholder="Username" required autofocus/>
+            <input type="text" name="email" class="form-control top-input" placeholder="Email address" required autofocus/>
+            <select  name="roles" id= "roles" class="form-control top-input" required autofocus/>
+                <option value="">Select Roles</option>
+                <option value="0">Administrator</option>
+                <option value="1">Partner</option>
+                <option value="2">Customer</option>
+            </select>
             <input type="password" name="password" class="form-control middle-input" placeholder="Password" autocomplete="off" required/>
             <input type="password" name="confirm_password" class="form-control bottom-input" placeholder="Confirm Password" autocomplete="off" required/>
             <input type="hidden" name="csrf_token" value="{{.Token}}"/>

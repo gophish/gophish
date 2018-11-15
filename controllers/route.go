@@ -33,11 +33,17 @@ func CreateAdminRouter() http.Handler {
 	router.HandleFunc("/sending_profiles", Use(SendingProfiles, mid.RequireLogin))
 	router.HandleFunc("/register", Use(Register, mid.RequireLogin))
 	router.HandleFunc("/settings", Use(Settings, mid.RequireLogin))
+	router.HandleFunc("/people", Use(People, mid.RequireLogin))
+	router.HandleFunc("/roles", Use(Roles, mid.RequireLogin))
 	// Create the API routes
 	api := router.PathPrefix("/api").Subrouter()
 	api = api.StrictSlash(true)
 	api.HandleFunc("/reset", Use(API_Reset, mid.RequireAPIKey))
 	api.HandleFunc("/campaigns/", Use(API_Campaigns, mid.RequireAPIKey))
+	api.HandleFunc("/people", Use(API_Users, mid.RequireAPIKey))
+	api.HandleFunc("/roles", Use(API_Roles, mid.RequireAPIKey))
+	api.HandleFunc("/roles/{id:[0-9]+}", Use(API_Roles_Id, mid.RequireAPIKey))
+	api.HandleFunc("/people/{id:[0-9]+}", Use(API_Users_Id, mid.RequireAPIKey))
 	api.HandleFunc("/campaigns/summary", Use(API_Campaigns_Summary, mid.RequireAPIKey))
 	api.HandleFunc("/campaigns/{id:[0-9]+}", Use(API_Campaigns_Id, mid.RequireAPIKey))
 	api.HandleFunc("/campaigns/{id:[0-9]+}/results", Use(API_Campaigns_Id_Results, mid.RequireAPIKey))
@@ -140,6 +146,30 @@ func Campaigns(w http.ResponseWriter, r *http.Request) {
 		Token   string
 	}{Title: "Campaigns", User: ctx.Get(r, "user").(models.User), Token: csrf.Token(r)}
 	getTemplate(w, "campaigns").ExecuteTemplate(w, "base", params)
+}
+
+// People handles the default path and template execution
+func People(w http.ResponseWriter, r *http.Request) {
+	// Example of using session - will be removed.
+	params := struct {
+		User    models.User
+		Title   string
+		Flashes []interface{}
+		Token   string
+	}{Title: "People", User: ctx.Get(r, "user").(models.User), Token: csrf.Token(r)}
+	getTemplate(w, "people").ExecuteTemplate(w, "base", params)
+}
+
+// Roles handles the default path and template execution
+func Roles(w http.ResponseWriter, r *http.Request) {
+	// Example of using session - will be removed.
+	params := struct {
+		User    models.User
+		Title   string
+		Flashes []interface{}
+		Token   string
+	}{Title: "Roles", User: ctx.Get(r, "user").(models.User), Token: csrf.Token(r)}
+	getTemplate(w, "roles").ExecuteTemplate(w, "base", params)
 }
 
 // CampaignID handles the default path and template execution

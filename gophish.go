@@ -121,17 +121,17 @@ func main() {
 		}
 	}()
 	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		phishHandler := gziphandler.GzipHandler(controllers.CreatePhishingRouter())
-		if config.Conf.PhishConf.UseTLS { // use TLS for Phish web server if available
-			log.Infof("Starting phishing server at https://%s", config.Conf.PhishConf.ListenURL)
-			log.Info(http.ListenAndServeTLS(config.Conf.PhishConf.ListenURL, config.Conf.PhishConf.CertPath, config.Conf.PhishConf.KeyPath,
-				handlers.CombinedLoggingHandler(log.Writer(), phishHandler)))
-		} else {
-			log.Infof("Starting phishing server at http://%s", config.Conf.PhishConf.ListenURL)
-			log.Fatal(http.ListenAndServe(config.Conf.PhishConf.ListenURL, handlers.CombinedLoggingHandler(os.Stdout, phishHandler)))
-		}
-	}()
+	// go func() {
+	// 	defer wg.Done()
+	// 	phishHandler := gziphandler.GzipHandler(controllers.CreatePhishingRouter())
+	// 	if config.Conf.PhishConf.UseTLS { // use TLS for Phish web server if available
+	// 		log.Infof("Starting phishing server at https://%s", config.Conf.PhishConf.ListenURL)
+	// 		log.Info(http.ListenAndServeTLS(config.Conf.PhishConf.ListenURL, config.Conf.PhishConf.CertPath, config.Conf.PhishConf.KeyPath,
+	// 			handlers.CombinedLoggingHandler(log.Writer(), phishHandler)))
+	// 	} else {
+	// 		log.Infof("Starting phishing server at http://%s", config.Conf.PhishConf.ListenURL)
+	// 		log.Fatal(http.ListenAndServe(config.Conf.PhishConf.ListenURL, handlers.CombinedLoggingHandler(os.Stdout, phishHandler)))
+	// 	}
+	// }()
 	wg.Wait()
 }

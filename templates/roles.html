@@ -1,0 +1,160 @@
+{{define "body"}}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-3 col-md-2 sidebar">
+            <ul class="nav nav-sidebar">
+                <li>
+                    <a href="/">Dashboard</a>
+                </li>
+                <li >
+                    <a href="/campaigns">Campaigns</a>
+                </li>
+                <li>
+                    <a href="/users">Users &amp; Groups</a>
+                </li>
+                <li>
+                    <a href="/templates">Email Templates</a>
+                </li>
+                <li>
+                    <a href="/landing_pages">Landing Pages</a>
+                </li>
+                <li>
+                    <a href="/sending_profiles">Sending Profiles</a>
+                </li>
+                <li>
+                    <a href="/settings">Settings</a>
+                </li>
+                <li>
+                    <a href="/people">People</a>
+                </li>
+                  <li class="active">
+                    <a href="/roles" >Roles</a>
+                </li>
+                <li>
+                    <hr>
+                </li>
+                <li>
+                    <a href="https://docs.getgophish.com/user-guide/">User Guide</a>
+                </li>
+                <li>
+                    <a href="https://docs.getgophish.com/api-documentation/">API Documentation</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+    <div class="row">
+        <h1 class="page-header">
+            Roles
+        </h1>
+    </div>
+    <div id="flashes" class="row"></div>
+    <div class="row">
+        
+        <a href="/register" class="btn btn-primary">
+            <i class="fa fa-plus"></i> Add New Role</button>
+        </a>
+
+    </div>
+    &nbsp;
+    <div id="loading">
+        <i class="fa fa-spinner fa-spin fa-4x"></i>
+    </div>
+    <div id="emptyMessage" class="row" style="display:none;">
+        <div class="alert alert-info">
+            No roles found
+        </div>
+    </div>
+    <div class="row">
+        <table id="rolesTable" class="table" style="display:none;">
+            <thead>
+                <tr>
+                    
+                    <th class="col-md-3">Role</th>
+                    <th class="col-md-3">Weight</th>
+                   
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="dismiss()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="campaignModalLabel">Edit User</h4>
+            </div>
+            <div class="modal-body" id="modal_body">
+                <form id="settingsForm">
+                <div class="row" id="modal.flashes"></div>
+                <div class="form-group">
+                    <label for="name">Username:</label>
+                    <input type="text" id = 'username' name="username" class="form-control top-input" placeholder="Username" required autofocus/>
+                    <label class="control-label" for="template">Email</label>
+                    <input type="text" name="email" id = 'email' class="form-control top-input" placeholder="Email" required autofocus/>
+                    <label class="control-label" for="page">Current Password:</label>
+                    <input type="password" name="current_password" id = "curpassword" class="form-control middle-input" placeholder="Password" autocomplete="off" required />
+                    <label class="control-label" for="page">New Password:</label>
+                    <input type="password" name="new_password" id = "password" class="form-control middle-input" placeholder="Password" autocomplete="off" />
+                    <label class="control-label" for="page">Confirm Password:</label>
+                    <input type="password" name="confirm_new_password" id = "confirm_password" class="form-control bottom-input" placeholder="Confirm Password" autocomplete="off" />
+                    <input type="hidden" name="id" id = "hidden_uid" value="">
+                
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal" onclick="dismiss()">Close</button>
+                <button type="button" class="btn btn-primary" id="modalSubmit">Save User</button>
+            </div>
+        </form>
+        </div>
+    </div>
+</div>
+<!-- Send Test Email Modal -->
+<div class="modal" id="sendTestEmailModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <!-- New Email Modal -->
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="sendTestEmailModalTitle">Send Test Email</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" id="sendTestEmailModal.flashes"></div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <label class="control-label" for="to">Send Test Email to:</label>
+                    </div>
+                    <br>
+                    <div class="col-sm-2">
+                        <input type="text" class="form-control" placeholder="First Name" name="to_first_name">
+                    </div>
+                    <div class="col-sm-2">
+                        <input type="text" class="form-control" placeholder="Last Name" name="to_last_name">
+                    </div>
+                    <div class="col-sm-4">
+                        <input type="email" class="form-control" placeholder="Email" name="to_email" required>
+                    </div>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control" placeholder="Position" name="to_position">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" data-dismiss="modal" class="btn btn-default">Cancel</button>
+                <button type="button" class="btn btn-primary" id="sendTestModalSubmit" onclick="sendTestEmail()">
+                    <i class="fa fa-envelope"></i> Send</button>
+            </div>
+        </div>
+    </div>
+</div>
+{{end}} {{define "scripts"}}
+<script src="/js/dist/app/roles.min.js"></script>
+{{end}}
