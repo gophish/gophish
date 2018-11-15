@@ -8,8 +8,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/gophish/gophish/config"
-	"github.com/gophish/gophish/models"
+	"github.com/binodlamsal/gophish/config"
+	"github.com/binodlamsal/gophish/models"
 	"github.com/stretchr/testify/suite"
 )
 

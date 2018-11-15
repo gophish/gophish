@@ -11,9 +11,9 @@ import (
 
 	"crypto/rand"
 
-	ctx "github.com/gophish/gophish/context"
-	log "github.com/gophish/gophish/logger"
-	"github.com/gophish/gophish/models"
+	ctx "github.com/binodlamsal/gophish/context"
+	log "github.com/binodlamsal/gophish/logger"
+	"github.com/binodlamsal/gophish/models"
 	"github.com/gorilla/securecookie"
 	"github.com/gorilla/sessions"
 	"github.com/jinzhu/gorm"
@@ -172,6 +172,7 @@ func ChangePasswordByadmin(r *http.Request) error {
 		Role                 int64  `json:"role" `
 		Hash                 string `json:"-"`
 		ApiKey               string `json:"api_key"`
+		Partner              int64  `json:"partner" `
 	}
 
 	var ud = new(Usersdata)
@@ -184,6 +185,7 @@ func ChangePasswordByadmin(r *http.Request) error {
 	u.Email = ud.Email
 	u.Username = ud.Username
 	u.ApiKey = ud.ApiKey
+	u.Partner = ud.Partner
 	// Check the current password
 
 	// Check that the new password isn't blank

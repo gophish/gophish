@@ -8,7 +8,7 @@
   "author": "Jordan Wright",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/gophish/gophish/issues"
+    "url": "https://github.com/binodlamsal/gophish/issues"
   },
   "homepage": "https://getgophish.com",
   "devDependencies": {

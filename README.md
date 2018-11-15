@@ -1,4 +1,4 @@
-![gophish logo](https://raw.github.com/gophish/gophish/master/static/images/gophish_purple.png)
+![gophish logo](https://raw.github.com/binodlamsal/gophish/master/static/images/gophish_purple.png)
 
 Gophish
 =======
@@ -11,7 +11,7 @@ Gophish: Open-Source Phishing Toolkit
 
 ### Install
 
-Installation of Gophish is dead-simple - just download and extract the zip containing the [release for your system](https://github.com/gophish/gophish/releases/), and run the binary. Gophish has binary releases for Windows, Mac, and Linux platforms.
+Installation of Gophish is dead-simple - just download and extract the zip containing the [release for your system](https://github.com/binodlamsal/gophish/releases/), and run the binary. Gophish has binary releases for Windows, Mac, and Linux platforms.
 
 ### Building From Source
 **If you are building from source, please note that Gophish requires Go v1.8 or above!**
@@ -30,7 +30,7 @@ Documentation can be found on our [site](http://getgophish.com/documentation). F
 
 ### Issues
 
-Find a bug? Want more features? Find something missing in the documentation? Let us know! Please don't hesitate to [file an issue](https://github.com/gophish/gophish/issues/new) and we'll get right on it.
+Find a bug? Want more features? Find something missing in the documentation? Let us know! Please don't hesitate to [file an issue](https://github.com/binodlamsal/gophish/issues/new) and we'll get right on it.
 
 ### License
 ```

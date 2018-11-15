@@ -12,12 +12,12 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/gophish/gophish/auth"
-	ctx "github.com/gophish/gophish/context"
-	log "github.com/gophish/gophish/logger"
-	"github.com/gophish/gophish/models"
-	"github.com/gophish/gophish/util"
-	"github.com/gophish/gophish/worker"
+	"github.com/binodlamsal/gophish/auth"
+	ctx "github.com/binodlamsal/gophish/context"
+	log "github.com/binodlamsal/gophish/logger"
+	"github.com/binodlamsal/gophish/models"
+	"github.com/binodlamsal/gophish/util"
+	"github.com/binodlamsal/gophish/worker"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	"github.com/jordan-wright/email"
@@ -110,6 +110,20 @@ func API_Users(w http.ResponseWriter, r *http.Request) {
 		// 		go Worker.LaunchCampaign(c)
 		// 	}
 		// 	JSONResponse(w, c, http.StatusCreated)
+	}
+}
+
+// API_Campaigns returns a list of campaigns if requested via GET.
+// If requested via POST, API_Campaigns creates a new campaign and returns a reference to it.
+func API_User_Partners(w http.ResponseWriter, r *http.Request) {
+	switch {
+	case r.Method == "GET":
+		cs, err := models.GetUserPartners()
+		if err != nil {
+			log.Error(err)
+		}
+		JSONResponse(w, cs, http.StatusOK)
+
 	}
 }
 

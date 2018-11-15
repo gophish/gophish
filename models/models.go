@@ -8,8 +8,8 @@ import (
 	"bitbucket.org/liamstask/goose/lib/goose"
 
 	_ "github.com/go-sql-driver/mysql" // Blank import needed to import mysql
-	"github.com/gophish/gophish/config"
-	log "github.com/gophish/gophish/logger"
+	"github.com/binodlamsal/gophish/config"
+	log "github.com/binodlamsal/gophish/logger"
 	"github.com/jinzhu/gorm"
 	_ "github.com/mattn/go-sqlite3" // Blank import needed to import sqlite3
 )

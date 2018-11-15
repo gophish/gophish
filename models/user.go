@@ -5,6 +5,7 @@ type User struct {
 	Id       int64  `json:"id"`
 	Username string `json:"username" sql:"not null;unique"`
 	Email    string `json:"email" sql:"not null;unique"`
+	Partner  int64  `json:"partner" sql:"not null"`
 	Hash     string `json:"-"`
 	ApiKey   string `json:"api_key" sql:"not null;unique"`
 }
@@ -101,4 +102,12 @@ func DeleteUser(id int64) error {
 	// Delete the campaign
 	err = db.Delete(&User{Id: id}).Error
 	return err
+}
+
+//Returns all the partners from the database
+func GetUserPartners() ([]User, error) {
+
+	u := []User{}
+	err = db.Raw("SELECT * FROM users u LEFT JOIN users_role ur ON (u.id = ur.uid) where ur.rid = ?", 1).Scan(&u).Error
+	return u, err
 }

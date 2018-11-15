@@ -10,8 +10,8 @@ import (
 	"time"
 
 	"github.com/gophish/gomail"
-	log "github.com/gophish/gophish/logger"
-	"github.com/gophish/gophish/mailer"
+	log "github.com/binodlamsal/gophish/logger"
+	"github.com/binodlamsal/gophish/mailer"
 	"github.com/jinzhu/gorm"
 )
 

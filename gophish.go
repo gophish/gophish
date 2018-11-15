@@ -36,13 +36,13 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 
 	"github.com/NYTimes/gziphandler"
-	"github.com/gophish/gophish/auth"
-	"github.com/gophish/gophish/config"
-	"github.com/gophish/gophish/controllers"
-	log "github.com/gophish/gophish/logger"
-	"github.com/gophish/gophish/mailer"
-	"github.com/gophish/gophish/models"
-	"github.com/gophish/gophish/util"
+	"github.com/binodlamsal/gophish/auth"
+	"github.com/binodlamsal/gophish/config"
+	"github.com/binodlamsal/gophish/controllers"
+	log "github.com/binodlamsal/gophish/logger"
+	"github.com/binodlamsal/gophish/mailer"
+	"github.com/binodlamsal/gophish/models"
+	"github.com/binodlamsal/gophish/util"
 	"github.com/gorilla/handlers"
 )
 

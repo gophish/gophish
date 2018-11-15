@@ -8,10 +8,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gophish/gophish/config"
-	ctx "github.com/gophish/gophish/context"
-	log "github.com/gophish/gophish/logger"
-	"github.com/gophish/gophish/models"
+	"github.com/binodlamsal/gophish/config"
+	ctx "github.com/binodlamsal/gophish/context"
+	log "github.com/binodlamsal/gophish/logger"
+	"github.com/binodlamsal/gophish/models"
 	"github.com/gorilla/mux"
 )
 

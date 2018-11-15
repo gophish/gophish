@@ -9,8 +9,8 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/gophish/gophish/config"
-	"github.com/gophish/gophish/models"
+	"github.com/binodlamsal/gophish/config"
+	"github.com/binodlamsal/gophish/models"
 )
 
 func (s *ControllersSuite) getFirstCampaign() models.Campaign {

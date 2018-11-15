@@ -6,12 +6,12 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/gophish/gophish/auth"
-	"github.com/gophish/gophish/config"
-	ctx "github.com/gophish/gophish/context"
-	log "github.com/gophish/gophish/logger"
-	mid "github.com/gophish/gophish/middleware"
-	"github.com/gophish/gophish/models"
+	"github.com/binodlamsal/gophish/auth"
+	"github.com/binodlamsal/gophish/config"
+	ctx "github.com/binodlamsal/gophish/context"
+	log "github.com/binodlamsal/gophish/logger"
+	mid "github.com/binodlamsal/gophish/middleware"
+	"github.com/binodlamsal/gophish/models"
 	"github.com/gorilla/csrf"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
@@ -41,6 +41,7 @@ func CreateAdminRouter() http.Handler {
 	api.HandleFunc("/reset", Use(API_Reset, mid.RequireAPIKey))
 	api.HandleFunc("/campaigns/", Use(API_Campaigns, mid.RequireAPIKey))
 	api.HandleFunc("/people", Use(API_Users, mid.RequireAPIKey))
+	api.HandleFunc("/people/partner", Use(API_User_Partners, mid.RequireAPIKey))
 	api.HandleFunc("/roles", Use(API_Roles, mid.RequireAPIKey))
 	api.HandleFunc("/roles/{id:[0-9]+}", Use(API_Roles_Id, mid.RequireAPIKey))
 	api.HandleFunc("/people/{id:[0-9]+}", Use(API_Users_Id, mid.RequireAPIKey))
