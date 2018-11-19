@@ -31,6 +31,7 @@ func CreateAdminRouter() http.Handler {
 	router.HandleFunc("/users", Use(Users, mid.RequireLogin))
 	router.HandleFunc("/landing_pages", Use(LandingPages, mid.RequireLogin))
 	router.HandleFunc("/sending_profiles", Use(SendingProfiles, mid.RequireLogin))
+	router.HandleFunc("/our_domains", Use(SendingDomains, mid.RequireLogin))
 	router.HandleFunc("/register", Use(Register, mid.RequireLogin))
 	router.HandleFunc("/settings", Use(Settings, mid.RequireLogin))
 	router.HandleFunc("/people", Use(People, mid.RequireLogin))
@@ -59,6 +60,7 @@ func CreateAdminRouter() http.Handler {
 	api.HandleFunc("/pages/", Use(API_Pages, mid.RequireAPIKey))
 	api.HandleFunc("/pages/{id:[0-9]+}", Use(API_Pages_Id, mid.RequireAPIKey))
 	api.HandleFunc("/smtp/", Use(API_SMTP, mid.RequireAPIKey))
+	api.HandleFunc("/sendingdomains", Use(API_SMTP_domains, mid.RequireAPIKey))
 	api.HandleFunc("/smtp/{id:[0-9]+}", Use(API_SMTP_Id, mid.RequireAPIKey))
 	api.HandleFunc("/util/send_test_email", Use(API_Send_Test_Email, mid.RequireAPIKey))
 	api.HandleFunc("/import/group", Use(API_Import_Group, mid.RequireAPIKey))
@@ -231,6 +233,19 @@ func SendingProfiles(w http.ResponseWriter, r *http.Request) {
 		Token   string
 	}{Title: "Sending Profiles", User: ctx.Get(r, "user").(models.User), Token: csrf.Token(r)}
 	getTemplate(w, "sending_profiles").ExecuteTemplate(w, "base", params)
+}
+
+// Replancememnt of SendingProfiles by sendingdomains in our application a nornal user can use the profile/domains created by
+// the administrator handles the default path and template execution
+func SendingDomains(w http.ResponseWriter, r *http.Request) {
+	// Example of using session - will be removed.
+	params := struct {
+		User    models.User
+		Title   string
+		Flashes []interface{}
+		Token   string
+	}{Title: "Sending Domains", User: ctx.Get(r, "user").(models.User), Token: csrf.Token(r)}
+	getTemplate(w, "sending_domains").ExecuteTemplate(w, "base", params)
 }
 
 // Settings handles the changing of settings

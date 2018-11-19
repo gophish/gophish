@@ -188,20 +188,26 @@ func ChangePasswordByadmin(r *http.Request) error {
 	u.Partner = ud.Partner
 	// Check the current password
 
-	// Check that the new password isn't blank
-	if newPassword == "" {
-		return ErrEmptyPassword
+	// Check that new passwords match  //since this is going to do by admin no longer need to check
+	if newPassword != "" && confirmPassword != "" {
+
+		// Check that the new password isn't blank
+		if newPassword == "" {
+			return ErrEmptyPassword
+		}
+
+		if newPassword != confirmPassword {
+			return ErrPasswordMismatch
+		}
+
+		// Generate the new hash
+		h, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+		if err != nil {
+			return err
+		}
+		u.Hash = string(h)
 	}
-	// Check that new passwords match
-	if newPassword != confirmPassword {
-		return ErrPasswordMismatch
-	}
-	// Generate the new hash
-	h, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
-	if err != nil {
-		return err
-	}
-	u.Hash = string(h)
+
 	if err = models.PutUser(&u); err != nil {
 		return err
 	}

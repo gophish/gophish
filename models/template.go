@@ -16,6 +16,7 @@ type Template struct {
 	Subject      string       `json:"subject"`
 	Text         string       `json:"text"`
 	HTML         string       `json:"html" gorm:"column:html"`
+	RATING       int64        `json:"rating" gorm:"column:rating"`
 	ModifiedDate time.Time    `json:"modified_date"`
 	Attachments  []Attachment `json:"attachments"`
 }

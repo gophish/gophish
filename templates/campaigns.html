@@ -18,8 +18,10 @@
                 <li>
                     <a href="/landing_pages">Landing Pages</a>
                 </li>
-                <li>
+            <!--    <li>
                     <a href="/sending_profiles">Sending Profiles</a>
+                </li> -->
+                <li><a href="/our_domains">Our Domains</a>
                 </li>
                 <li>
                     <a href="/settings">Settings</a>
@@ -116,6 +118,28 @@
                                 <i class="fa fa-question-circle" data-toggle="tooltip" data-placement="right" title="If specified, Gophish will send emails evenly between the campaign launch and this date."></i>
                             </label>
                             <input type="text" class="form-control" id="send_by_date" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                        <strong> Business Hours</strong>
+                        </div>   
+                    </div>
+                    <div class="row">
+                        
+                        <div class="col-md-4">
+                            <label class="control-label" for="url">Start Time </label>
+                            <input type="text" class="form-control" id="start_time" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="control-label" for="url">End Time </label>
+                            <input type="text" class="form-control" id="end_time" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="control-label" for="url">Time Zone </label>
+                            <select type="text" class="form-control" id="time_zone" >
+                                <option val = "">Select Timezone</option>
+                            </select>
                         </div>
                     </div>
                     <label class="control-label" for="profile">Sending Profile:</label>

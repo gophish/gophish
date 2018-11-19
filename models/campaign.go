@@ -18,6 +18,9 @@ type Campaign struct {
 	CreatedDate   time.Time `json:"created_date"`
 	LaunchDate    time.Time `json:"launch_date"`
 	SendByDate    time.Time `json:"send_by_date"`
+	StartTime     string    `json:"start_time"`
+	EndTime       string    `json:"end_time"`
+	TimeZone      string    `json:"time_zone"`
 	CompletedDate time.Time `json:"completed_date"`
 	TemplateId    int64     `json:"-"`
 	Template      Template  `json:"template"`

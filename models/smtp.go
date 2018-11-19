@@ -9,9 +9,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gophish/gomail"
 	log "github.com/binodlamsal/gophish/logger"
 	"github.com/binodlamsal/gophish/mailer"
+	"github.com/gophish/gomail"
 	"github.com/jinzhu/gorm"
 )
 
@@ -238,4 +238,24 @@ func DeleteSMTP(id int64, uid int64) error {
 		log.Error(err)
 	}
 	return err
+}
+
+// GetSMTPs returns the SMTPs owned by the administrator. According to the beta requirement of the everycloud security awareness program
+// the noraml users can't add their own profiles, but everycloud will define the list of profiles required and it can be selected as the
+// our domains section
+func GetSMTPsByAdminRole(uid int64) ([]SMTP, error) {
+	ss := []SMTP{}
+	err = db.Raw("SELECT * FROM smtp s LEFT JOIN users_role ur ON (s.user_id = ur.uid) where ur.rid = ?", 0).Scan(&ss).Error
+	if err != nil {
+		log.Error(err)
+		return ss, err
+	}
+	for i := range ss {
+		err = db.Where("smtp_id=?", ss[i].Id).Find(&ss[i].Headers).Error
+		if err != nil && err != gorm.ErrRecordNotFound {
+			log.Error(err)
+			return ss, err
+		}
+	}
+	return ss, nil
 }

@@ -626,6 +626,18 @@ func API_SMTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// API_SMTP handles requests for the /api/smtp/domains endpoint
+func API_SMTP_domains(w http.ResponseWriter, r *http.Request) {
+	switch {
+	case r.Method == "GET":
+		ss, err := models.GetSMTPsByAdminRole(ctx.Get(r, "user_id").(int64))
+		if err != nil {
+			log.Error(err)
+		}
+		JSONResponse(w, ss, http.StatusOK)
+	}
+}
+
 // API_SMTP_Id contains functions to handle the GET'ing, DELETE'ing, and PUT'ing
 // of a SMTP object
 func API_SMTP_Id(w http.ResponseWriter, r *http.Request) {
