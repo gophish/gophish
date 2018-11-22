@@ -17,6 +17,7 @@ type Page struct {
 	HTML               string    `json:"html" gorm:"column:html"`
 	CaptureCredentials bool      `json:"capture_credentials" gorm:"column:capture_credentials"`
 	CapturePasswords   bool      `json:"capture_passwords" gorm:"column:capture_passwords"`
+	Public             bool      `json:"public" gorm:"column:public"`
 	RedirectURL        string    `json:"redirect_url" gorm:"column:redirect_url"`
 	ModifiedDate       time.Time `json:"modified_date"`
 }
@@ -82,7 +83,7 @@ func (p *Page) Validate() error {
 // GetPages returns the pages owned by the given user.
 func GetPages(uid int64) ([]Page, error) {
 	ps := []Page{}
-	err := db.Where("user_id=?", uid).Find(&ps).Error
+	err := db.Where("user_id=? OR public=?", uid, 1).Find(&ps).Error
 	if err != nil {
 		log.Error(err)
 		return ps, err

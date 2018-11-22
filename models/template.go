@@ -17,6 +17,7 @@ type Template struct {
 	Text         string       `json:"text"`
 	HTML         string       `json:"html" gorm:"column:html"`
 	RATING       int64        `json:"rating" gorm:"column:rating"`
+	Public       bool         `json:"public" gorm:"column:public"`
 	ModifiedDate time.Time    `json:"modified_date"`
 	Attachments  []Attachment `json:"attachments"`
 }
@@ -47,7 +48,7 @@ func (t *Template) Validate() error {
 // GetTemplates returns the templates owned by the given user.
 func GetTemplates(uid int64) ([]Template, error) {
 	ts := []Template{}
-	err := db.Where("user_id=?", uid).Find(&ts).Error
+	err := db.Where("user_id=? OR public=?", uid, 1).Find(&ts).Error
 	if err != nil {
 		log.Error(err)
 		return ts, err
