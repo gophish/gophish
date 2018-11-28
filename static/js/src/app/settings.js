@@ -21,6 +21,17 @@ $(document).ready(function () {
             })
         return false
     })
+	$("#addEncryptionKey").submit(function (e) {
+		 $.post("/settings", $(this).serialize())
+            .done(function (data) {
+                successFlash(data.message)
+            })
+            .fail(function (data) {
+                errorFlash(data.responseJSON.message)
+            })
+        return false
+	})
+	
     var use_map = localStorage.getItem('gophish.use_map')
     $("#use_map").prop('checked', JSON.parse(use_map))
     $("#use_map").on('change', function () {

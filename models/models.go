@@ -114,6 +114,7 @@ func Setup() error {
 			Username: "admin",
 			Hash:     "$2a$10$IYkPp0.QsM81lYYPrQx6W.U6oQGw7wMpozrKhKAHUBVL4mkm/EvAS", //gophish
 		}
+
 		initUser.ApiKey = generateSecureKey()
 		err = db.Save(&initUser).Error
 		if err != nil {

@@ -1,13 +1,12 @@
 package auth
 
 import (
+	"crypto/rand"
 	"encoding/gob"
 	"errors"
 	"fmt"
 	"io"
 	"net/http"
-
-	"crypto/rand"
 
 	ctx "github.com/gophish/gophish/context"
 	log "github.com/gophish/gophish/logger"
@@ -66,6 +65,7 @@ func Register(r *http.Request) (bool, error) {
 	username := r.FormValue("username")
 	newPassword := r.FormValue("password")
 	confirmPassword := r.FormValue("confirm_password")
+
 	u, err := models.GetUserByUsername(username)
 	// If the given username already exists, throw an error and return false
 	if err == nil {
@@ -88,6 +88,7 @@ func Register(r *http.Request) (bool, error) {
 	if newPassword != confirmPassword {
 		return false, ErrPasswordMismatch
 	}
+
 	// Let's create the password hash
 	h, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
 	if err != nil {
@@ -97,6 +98,10 @@ func Register(r *http.Request) (bool, error) {
 	u.Hash = string(h)
 	u.ApiKey = GenerateSecureKey()
 	err = models.PutUser(&u)
+	if err != nil {
+		log.Error(err)
+	}
+
 	return true, nil
 }
 

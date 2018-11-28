@@ -38,7 +38,8 @@
     <ul class="nav nav-tabs" role="tablist">
         <li class="active" role="mainSettings"><a href="#mainSettings" aria-controls="mainSettings" role="tab"
                 data-toggle="tab">Account Settings</a></li>
-        <li role="uiSettings"><a href="#uiSettings" aria-controls="uiSettings" role="tab" data-toggle="tab">UI Settings</a></li>
+        <li role="encryptionSettings"><a href="#encryptionSettings" aria-controls="encryptionSettings" role="tab" data-toggle="tab">Encryption Settings</a></li>
+		 <li role="uiSettings"><a href="#uiSettings" aria-controls="uiSettings" role="tab" data-toggle="tab">UI Settings</a></li>
     </ul>
     <!-- Tab Panes -->
     <div class="tab-content">
@@ -99,13 +100,37 @@
                             class="form-control" />
                     </div>
                 </div>
+				</br>
                 <input type="hidden" name="csrf_token" value="{{.Token}}" />
+				<input type="hidden" name="type" value="changePassword" />
                 <br />
                 <button class="btn btn-primary" type="submit"><i class="fa fa-save"></i> Save</button>
             </form>
             <br />
         </div>
-        <div role="tabpanel" class="tab-pane" id="uiSettings">
+        <div role="tabpanel" class="tab-pane" id="encryptionSettings">
+            <br />
+			<ul class="list-group">
+				<li class="list-group-item text-center"> Example public key sha256 </li>
+				<li class="list-group-item text-center"> Example public key sha256 </li>
+			</ul>
+			<br />
+		     <form id="addEncryptionKey">
+				 <div class="row">
+					<label for="public_key" class="col-sm-2 control-label form-label">Public key (PEM):</label>
+					<div class="col-md-6">
+	           			 <textarea type="text" id="public_key" name="public_key" class="form-control" placeholder="Public key" autocomplete="off"></textarea>
+					</div>
+				</div>
+				<br />
+				<input type="hidden" name="csrf_token" value="{{.Token}}" />
+				<input type="hidden" name="type" value="addEncryption" />
+				<br />
+
+				<button class="btn btn-primary" type="submit"><i class="fa fa-plus"></i> Add</button>
+			</form>
+        </div>
+		<div role="tabpanel" class="tab-pane" id="uiSettings">
             <br />
             <div class="checkbox checkbox-primary">
                 <input id="use_map" type="checkbox">

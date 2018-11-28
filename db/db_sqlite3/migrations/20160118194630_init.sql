@@ -2,6 +2,7 @@
 -- +goose Up
 -- SQL in section 'Up' is executed when this migration is applied
 CREATE TABLE IF NOT EXISTS "users" ("id" integer primary key autoincrement,"username" varchar(255) NOT NULL UNIQUE,"hash" varchar(255),"api_key" varchar(255) NOT NULL UNIQUE );
+CREATE TABLE IF NOT EXISTS "publickeys" ("id" integer primary key autoincrement, "owner_id" integer NOT NULL, "pub_key" varchar(3000) NOT NULL);
 CREATE TABLE IF NOT EXISTS "templates" ("id" integer primary key autoincrement,"user_id" bigint,"name" varchar(255),"subject" varchar(255),"text" varchar(255),"html" varchar(255),"modified_date" datetime );
 CREATE TABLE IF NOT EXISTS "targets" ("id" integer primary key autoincrement,"first_name" varchar(255),"last_name" varchar(255),"email" varchar(255),"position" varchar(255) );
 CREATE TABLE IF NOT EXISTS "smtp" ("smtp_id" integer primary key autoincrement,"campaign_id" bigint,"host" varchar(255),"username" varchar(255),"from_address" varchar(255) );
