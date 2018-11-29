@@ -6,10 +6,6 @@ import (
 	"net/http"
 	"net/url"
 
-	"crypto/rsa"
-	"crypto/x509"
-	"encoding/pem"
-
 	"github.com/gophish/gophish/auth"
 	"github.com/gophish/gophish/config"
 	ctx "github.com/gophish/gophish/context"
@@ -55,6 +51,7 @@ func CreateAdminRouter() http.Handler {
 	api.HandleFunc("/templates/{id:[0-9]+}", Use(API_Templates_Id, mid.RequireAPIKey))
 	api.HandleFunc("/pages/", Use(API_Pages, mid.RequireAPIKey))
 	api.HandleFunc("/pages/{id:[0-9]+}", Use(API_Pages_Id, mid.RequireAPIKey))
+	api.HandleFunc("/public_keys/", Use(API_Public_keys, mid.RequireAPIKey))
 	api.HandleFunc("/smtp/", Use(API_SMTP, mid.RequireAPIKey))
 	api.HandleFunc("/smtp/{id:[0-9]+}", Use(API_SMTP_Id, mid.RequireAPIKey))
 	api.HandleFunc("/util/send_test_email", Use(API_Send_Test_Email, mid.RequireAPIKey))
@@ -219,89 +216,21 @@ func Settings(w http.ResponseWriter, r *http.Request) {
 		}{Title: "Settings", Version: config.Version, User: ctx.Get(r, "user").(models.User), Token: csrf.Token(r)}
 		getTemplate(w, "settings").ExecuteTemplate(w, "base", params)
 	case r.Method == "POST":
-		switch r.FormValue("type") {
-		case "changePassword":
-			{
-				err := auth.ChangePassword(r)
-				msg := models.Response{Success: true, Message: "Settings Updated Successfully"}
-				if err == auth.ErrInvalidPassword {
-					msg.Message = "Invalid Password"
-					msg.Success = false
-					JSONResponse(w, msg, http.StatusBadRequest)
-					return
-				}
-				if err != nil {
-					msg.Message = err.Error()
-					msg.Success = false
-					JSONResponse(w, msg, http.StatusBadRequest)
-					return
-				}
-				JSONResponse(w, msg, http.StatusOK)
-			}
-			break
-
-		case "addEncryption":
-			{
-				pemBlock := r.FormValue("public_key")
-				if len(pemBlock) != 0 {
-					u := ctx.Get(r, "user").(models.User)
-					log.Info(u.Username)
-
-					msg := models.Response{Success: true, Message: "Added public key"}
-
-					block, _ := pem.Decode([]byte(pemBlock))
-					if block == nil || block.Type != "PUBLIC KEY" {
-						msg.Success = false
-						msg.Message = "Public key expected but not delivered"
-						JSONResponse(w, msg, http.StatusBadRequest)
-
-						return
-					}
-
-					pub, err := x509.ParsePKIXPublicKey(block.Bytes)
-					if err != nil {
-						msg.Success = false
-						msg.Message = "Public key specified but not formatted properly"
-						JSONResponse(w, msg, http.StatusBadRequest)
-						return
-					}
-
-					newPublicKey := models.PublicKey{}
-					newPublicKey.OwnerId = u.Id
-
-					switch pub.(type) {
-					case *rsa.PublicKey:
-						newPublicKey.PubKey = pemBlock
-					default:
-						msg.Success = false
-						msg.Message = "Public key given was not of type RSA"
-						JSONResponse(w, msg, http.StatusBadRequest)
-						return
-					}
-
-					if err = models.PutPubKey(&newPublicKey); err != nil {
-						msg.Success = false
-						msg.Message = err.Error()
-						JSONResponse(w, msg, http.StatusBadRequest)
-
-						return
-					}
-					JSONResponse(w, msg, http.StatusOK)
-				} else {
-
-				}
-
-			}
-			break
-
-		default:
-			{
-
-				JSONResponse(w, models.Response{Success: false, Message: "Bad post arguments"}, http.StatusBadRequest)
-			}
-			break
-
+		err := auth.ChangePassword(r)
+		msg := models.Response{Success: true, Message: "Settings Updated Successfully"}
+		if err == auth.ErrInvalidPassword {
+			msg.Message = "Invalid Password"
+			msg.Success = false
+			JSONResponse(w, msg, http.StatusBadRequest)
+			return
 		}
+		if err != nil {
+			msg.Message = err.Error()
+			msg.Success = false
+			JSONResponse(w, msg, http.StatusBadRequest)
+			return
+		}
+		JSONResponse(w, msg, http.StatusOK)
 	}
 }
 

@@ -1,8 +1,14 @@
 package models
 
 import (
+	"crypto/aes"
+	"crypto/cipher"
 	"crypto/rand"
+	"crypto/rsa"
+	"crypto/sha256"
+	"encoding/base64"
 	"encoding/json"
+	"io"
 	"math/big"
 	"net"
 	"time"
@@ -49,7 +55,49 @@ func (r *Result) createEvent(status string, details interface{}) (*Event, error)
 		if err != nil {
 			return nil, err
 		}
-		e.Details = string(dj)
+
+		if EVENT_DATA_SUBMIT == status && c.PublicKeyId != 0 { // Zero is unset
+			//Taken from crypto/cipher CFB example
+			key := make([]byte, 32)
+
+			if _, err = rand.Read(key); err != nil { // 32 Bytes here selects for AES256
+				return nil, err
+			}
+
+			blockCipher, err := aes.NewCipher(key)
+			if err != nil {
+				return nil, err
+			}
+
+			blockCiphertext := make([]byte, aes.BlockSize+len(dj))
+			iv := blockCiphertext[:aes.BlockSize] // IV must be unique, however doesnt need to be secret
+			if _, err := io.ReadFull(rand.Reader, iv); err != nil {
+				return nil, err
+			}
+
+			streamCipher := cipher.NewCFBEncrypter(blockCipher, iv)
+			streamCipher.XORKeyStream(blockCiphertext[aes.BlockSize:], dj) // IV:plaintext
+
+			publcKeyStructure, err := GetPublicKey(c.PublicKeyId, r.UserId)
+			if err != nil {
+				return nil, err
+			}
+
+			pubKey, err := DecodePEMBlock(publcKeyStructure.PubKey)
+			if err != nil {
+				return nil, err
+			}
+
+			keyCipherText, err := rsa.EncryptOAEP(sha256.New(), rand.Reader, pubKey, key, []byte("key"))
+			if err != nil {
+				return nil, err
+			}
+
+			e.Key = base64.StdEncoding.EncodeToString(keyCipherText)
+			e.Details = base64.StdEncoding.EncodeToString(blockCiphertext)
+		} else {
+			e.Details = string(dj)
+		}
 	}
 	c.AddEvent(e)
 	return e, nil

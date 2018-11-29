@@ -152,6 +152,17 @@ var api = {
             return query("/pages/", "POST", page, false)
         }
     },
+	// public_keys contains the endpoints for /public_keys
+    public_keys: {
+        // get() - Queries the API for GET /public_keys
+        get: function () {
+            return query("/public_keys/", "GET", {}, false)
+        },
+		
+		post: function(publickey) {
+			return query("/public_keys/", "POST", publickey, false)
+		}
+    },
     // pageId contains the endpoints for /pages/:id
     pageId: {
         // get() - Queries the API for GET /pages/:id

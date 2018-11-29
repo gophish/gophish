@@ -22,13 +22,18 @@ $(document).ready(function () {
         return false
     })
 	$("#addEncryptionKey").submit(function (e) {
-		 $.post("/settings", $(this).serialize())
-            .done(function (data) {
-                successFlash(data.message)
+		var pubkey = {}
+		pubkey.name = $("#friendly_name").val()
+		pubkey.pub_key = $("#public_key").val()
+
+		api.public_keys.post(pubkey)            
+		   .success(function (data) {
+                successFlash("Public key added successfully!")
             })
-            .fail(function (data) {
+            .error(function (data) {
                 errorFlash(data.responseJSON.message)
             })
+          
         return false
 	})
 	

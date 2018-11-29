@@ -435,6 +435,43 @@ func API_Pages_Id(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// API_Public_keys contains functions to handle the GET'ing
+// of a public key object
+func API_Public_keys(w http.ResponseWriter, r *http.Request) {
+	switch {
+	case r.Method == "GET":
+		ps, err := models.GetPublicKeys(ctx.Get(r, "user_id").(int64))
+		if err != nil {
+			log.Error(err)
+		}
+		JSONResponse(w, ps, http.StatusOK)
+
+	case r.Method == "POST":
+		p := models.PublicKey{}
+		// Put the request into a public key
+		err := json.NewDecoder(r.Body).Decode(&p)
+		if err != nil {
+			JSONResponse(w, models.Response{Success: false, Message: "Invalid request"}, http.StatusBadRequest)
+			return
+		}
+		// Check to make sure the name is unique
+		_, err = models.GetPublicKeyByName(p.FriendlyName, ctx.Get(r, "user_id").(int64))
+		if err != gorm.ErrRecordNotFound {
+			JSONResponse(w, models.Response{Success: false, Message: "Public key name already in use"}, http.StatusConflict)
+			log.Error(err)
+			return
+		}
+		p.UserId = ctx.Get(r, "user_id").(int64)
+		err = models.PostPublicKey(&p)
+		if err != nil {
+			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
+			return
+		}
+		JSONResponse(w, p, http.StatusCreated)
+
+	}
+}
+
 // API_SMTP handles requests for the /api/smtp/ endpoint
 func API_SMTP(w http.ResponseWriter, r *http.Request) {
 	switch {
