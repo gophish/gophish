@@ -80,8 +80,7 @@ func API_Campaigns(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// API_Campaigns returns a list of campaigns if requested via GET.
-// If requested via POST, API_Campaigns creates a new campaign and returns a reference to it.
+// API_Users returns a list of Users if requested via GET.
 func API_Users(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "GET":
@@ -90,31 +89,10 @@ func API_Users(w http.ResponseWriter, r *http.Request) {
 			log.Error(err)
 		}
 		JSONResponse(w, cs, http.StatusOK)
-		//POST: Create a new campaign and return it as JSON
-		// case r.Method == "POST":
-		// 	c := models.Campaign{}
-		// 	// Put the request into a campaign
-		// 	err := json.NewDecoder(r.Body).Decode(&c)
-		// 	if err != nil {
-		// 		JSONResponse(w, models.Response{Success: false, Message: "Invalid JSON structure"}, http.StatusBadRequest)
-		// 		return
-		// 	}
-		// 	err = models.PostCampaign(&c, ctx.Get(r, "user_id").(int64))
-		// 	if err != nil {
-		// 		JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
-		// 		return
-		// 	}
-		// 	// If the campaign is scheduled to launch immediately, send it to the worker.
-		// 	// Otherwise, the worker will pick it up at the scheduled time
-		// 	if c.Status == models.CAMPAIGN_IN_PROGRESS {
-		// 		go Worker.LaunchCampaign(c)
-		// 	}
-		// 	JSONResponse(w, c, http.StatusCreated)
 	}
 }
 
-// API_Campaigns returns a list of campaigns if requested via GET.
-// If requested via POST, API_Campaigns creates a new campaign and returns a reference to it.
+// API_User_Partners returns a list of User Partners if requested via GET.
 func API_User_Partners(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "GET":
@@ -123,12 +101,10 @@ func API_User_Partners(w http.ResponseWriter, r *http.Request) {
 			log.Error(err)
 		}
 		JSONResponse(w, cs, http.StatusOK)
-
 	}
 }
 
-// API_Campaigns returns a list of campaigns if requested via GET.
-// If requested via POST, API_Campaigns creates a new campaign and returns a reference to it.
+// API_Roles returns a list of roles if requested via GET
 func API_Roles(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "GET":
@@ -137,26 +113,6 @@ func API_Roles(w http.ResponseWriter, r *http.Request) {
 			log.Error(err)
 		}
 		JSONResponse(w, cs, http.StatusOK)
-		//POST: Create a new campaign and return it as JSON
-		// case r.Method == "POST":
-		// 	c := models.Campaign{}
-		// 	// Put the request into a campaign
-		// 	err := json.NewDecoder(r.Body).Decode(&c)
-		// 	if err != nil {
-		// 		JSONResponse(w, models.Response{Success: false, Message: "Invalid JSON structure"}, http.StatusBadRequest)
-		// 		return
-		// 	}
-		// 	err = models.PostCampaign(&c, ctx.Get(r, "user_id").(int64))
-		// 	if err != nil {
-		// 		JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
-		// 		return
-		// 	}
-		// 	// If the campaign is scheduled to launch immediately, send it to the worker.
-		// 	// Otherwise, the worker will pick it up at the scheduled time
-		// 	if c.Status == models.CAMPAIGN_IN_PROGRESS {
-		// 		go Worker.LaunchCampaign(c)
-		// 	}
-		// 	JSONResponse(w, c, http.StatusCreated)
 	}
 }
 
@@ -175,13 +131,6 @@ func API_Users_Id(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "GET":
 		JSONResponse(w, c, http.StatusOK)
-	// case r.Method == "DELETE":
-	// 	err = models.DeleteCampaign(id)
-	// 	if err != nil {
-	// 		JSONResponse(w, models.Response{Success: false, Message: "Error deleting campaign"}, http.StatusInternalServerError)
-	// 		return
-	// 	}
-	// 	JSONResponse(w, models.Response{Success: true, Message: "Campaign deleted successfully!"}, http.StatusOK)
 
 	case r.Method == "DELETE":
 		err = models.DeleteUser(id)
@@ -210,8 +159,8 @@ func API_Users_Id(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// API_Users_Id returns details about the requested User. If the User is not
-// valid, API_Users_Id returns null.
+// API_Roles_Id returns details about the requested User. If the User is not
+// valid, API_Roles_Id returns null.
 func API_Roles_Id(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
@@ -225,13 +174,6 @@ func API_Roles_Id(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "GET":
 		JSONResponse(w, c, http.StatusOK)
-		// case r.Method == "DELETE":
-		// 	err = models.DeleteCampaign(id)
-		// 	if err != nil {
-		// 		JSONResponse(w, models.Response{Success: false, Message: "Error deleting campaign"}, http.StatusInternalServerError)
-		// 		return
-		// 	}
-		// 	JSONResponse(w, models.Response{Success: true, Message: "Campaign deleted successfully!"}, http.StatusOK)
 	}
 }
 

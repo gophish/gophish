@@ -95,19 +95,26 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		Title   string
 		Flashes []interface{}
 		User    models.User
+		Roles   []models.Roles
 		Token   string
 	}{Title: "Register", Token: csrf.Token(r)}
 	session := ctx.Get(r, "session").(*sessions.Session)
 	switch {
 	case r.Method == "GET":
-		params.Flashes = session.Flashes()
-		session.Save(r, w)
-		templates := template.New("template")
-		_, err := templates.ParseFiles("templates/register.html", "templates/flashes.html")
+		rs, err := models.GetRoles(ctx.Get(r, "user_id").(int64))
 		if err != nil {
 			log.Error(err)
 		}
-		template.Must(templates, err).ExecuteTemplate(w, "base", params)
+		params.Flashes = session.Flashes()
+		params.Roles = rs
+		session.Save(r, w)
+		templates := template.New("template")
+
+		_, errs := templates.ParseFiles("templates/register.html", "templates/flashes.html")
+		if errs != nil {
+			log.Error(errs)
+		}
+		template.Must(templates, errs).ExecuteTemplate(w, "base", params)
 	case r.Method == "POST":
 		//Attempt to register
 		succ, err := auth.Register(r)
