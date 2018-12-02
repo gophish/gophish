@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+  
+    
+        <meta name="twitter:card" content="summary"/>
+    
+
+
+
+<meta name="twitter:title" content="Building Web Servers in Go"/>
+<meta name="twitter:description" content=""/>
+<meta name="twitter:site" content="@"/>
+
+
+
+  <meta property="og:title" content="Building Web Servers in Go &middot; Gophish - Blog" />
+  <meta property="og:site_name" content="Gophish - Blog" />
+  <meta property="og:url" content="https://getgophish.com/blog/post/2018-12-02-building-web-servers-in-go/" />
+
+  
+  
+  
+
+  
+  <meta property="og:description" content="" />
+  <meta property="og:type" content="article" />
+  <meta property="article:published_time" content="2018-12-02T16:00:00-06:00" />
+
+  
+  
+
+  <title>Building Web Servers in Go &middot; Gophish - Blog</title>
+
+  
+  <meta name="description" content="When I first set out to build Gophish 5 years ago, I used it as an opportunity to learn Golang.
+One of the things that makes Go so powerful is the batteries-inc" />
+  
+
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="shortcut icon" href="/blog/images/favicon.ico">
+  <link rel="apple-touch-icon" href="/blog/images/apple-touch-icon.png" />
+
+  <link rel="stylesheet" type="text/css" href="/blog/css/screen.css" />
+  <link rel="stylesheet" type="text/css" href="/blog/css/nav.css" />
+  <link href="https://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet">
+
+  
+
+  
+
+  
+  
+  <link href="/blog/index.xml" rel="alternate" type="application/rss+xml" title="Gophish - Blog" />
+  
+  
+  
+  <meta name="generator" content="Hugo 0.40.3" />
+
+  <link rel="canonical" href="https://getgophish.com/blog/post/2018-12-02-building-web-servers-in-go/" />
+
+  
+  
+    
+    <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "publisher": {
+        "@type": "Organization",
+        "name": ,
+        "logo": https://getgophish.com/blogimages/gophish_purple_logo.png
+    },
+    "author": {
+        "@type": "Person",
+        "name": ,
+        
+        "image": {
+            "@type": "ImageObject",
+            "url": https://getgophish.com/blogimages/gophish_purple_logo.png,
+            "width": 250,
+            "height": 250
+        }, 
+        
+        "url": ,
+        "sameAs": [
+            
+            
+             
+             
+             
+             
+             
+            
+        ]
+    },
+    "headline": Building Web Servers in Go,
+    "name": Building Web Servers in Go,
+    "wordCount": 1438,
+    "timeRequired": "PT7M",
+    "inLanguage": {
+      "@type": "Language",
+      "alternateName": en
+    },
+    "url": https://getgophish.com/blog/post/2018-12-02-building-web-servers-in-go/,
+    "datePublished": 2018-12-02T16:00Z,
+    "dateModified": 2018-12-02T16:00Z,
+    
+    
+    "description": ,
+    "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": https://getgophish.com/blog/post/2018-12-02-building-web-servers-in-go/
+    }
+}
+    </script>
+    
+
+
+  
+
+  
+  <script>
+    (function (i, s, o, g, r, a, m) {
+      i['GoogleAnalyticsObject'] = r;
+      i[r] = i[r] || function () {
+        (i[r].q = i[r].q || []).push(arguments)
+      }, i[r].l = 1 * new Date();
+      a = s.createElement(o),
+        m = s.getElementsByTagName(o)[0];
+      a.async = 1;
+      a.src = g;
+      m.parentNode.insertBefore(a, m)
+    })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+    ga('create', 'UA-47018345-1', 'auto');
+    ga('send', 'pageview');
+  </script>
+  
+
+  
+</head>
+
+<body class="nav-closed">
+
+  <div class="nav">
+    <h3 class="nav-title">Menu</h3>
+    <a href="#" class="nav-close">
+        <span class="hidden">Close</span>
+    </a>
+    <ul>
+        
+        
+        
+            
+            <li class="nav-opened" role="presentation">
+            	<a href="https://getgophish.com/">Home</a>
+            </li>
+        
+            
+            <li class="nav-opened" role="presentation">
+            	<a href="https://getgophish.com/documentation">Documentation</a>
+            </li>
+        
+            
+            <li class="nav-opened" role="presentation">
+            	<a href="https://github.com/gophish/gophish/issues">Support</a>
+            </li>
+        
+            
+            <li class="nav-opened" role="presentation">
+            	<a href="/blog/blog">Blog</a>
+            </li>
+        
+        
+    </ul>
+
+    
+    <a class="subscribe-button icon-feed" href="/blog/index.xml">Subscribe</a>
+    
+</div>
+<span class="nav-cover"></span>
+
+
+  <div class="site-wrapper">
+
+
+<header class="main-header post-head no-cover">
+  <nav class="main-nav clearfix">
+
+
+  
+      <a class="blog-logo" href="https://getgophish.com/blog"><img src="/blog/images/gophish_purple_logo.png" alt="Home" /></a>
+  
+  
+      <a class="menu-button" href="#"><span class="burger">&#9776;</span><span class="word">Menu</span></a>
+  
+  </nav>
+</header>
+
+
+
+<main class="content" role="main">
+
+
+
+
+  <article class="post post">
+
+    <header class="post-header">
+        <h1 class="post-title">Building Web Servers in Go</h1>
+        <small></small>
+
+        <section class="post-meta">
+        
+          <time class="post-date" datetime="2018-12-02T16:00:00-06:00">
+            Dec 2, 2018
+          </time>
+        
+         
+        </section>
+    </header>
+
+    <section class="post-content">
+      
+
+<p>When I first set out to build Gophish 5 years ago, I used it as an opportunity to learn Golang.</p>
+
+<p>One of the things that makes Go so powerful is the batteries-included standard library, which makes it a breeze to write servers. In this post, we&rsquo;ll walk through how to build web servers, starting from a basic <em>Hello World</em> and ending with a web server that:</p>
+
+<ul>
+<li><a href="#adding-let-s-encrypt">Uses Let&rsquo;s Encrypt for HTTPS</a></li>
+<li><a href="#adding-fancy-routes">Implements an API subrouter</a></li>
+<li><a href="#implementing-middleware">Implements middleware</a></li>
+<li><a href="#serving-static-files">Serves static files</a></li>
+<li><a href="#graceful-shutdown">Shuts down gracefully</a>
+<!-- more --></li>
+</ul>
+
+<p>If you just want the final code, you can find it in my <a href="https://github.com/jordan-wright/http-boilerplate">http-boilerplate</a> repo on Github.</p>
+
+<h3 id="hello-world">Hello World!</h3>
+
+<p>It&rsquo;s incredibly quick to create an HTTP server in Go. Here&rsquo;s a simple example that implements a single handler that returns &ldquo;Hello World!&rdquo;:</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#2838b0">package</span> main
+
+<span style="color:#2838b0">import</span> <span style="color:#888">(</span>
+	<span style="color:#b83838">&#34;fmt&#34;</span>
+	<span style="color:#b83838">&#34;net/http&#34;</span>
+<span style="color:#888">)</span>
+
+<span style="color:#2838b0;font-style:italic">func</span> main<span style="color:#888">()</span> <span style="color:#888">{</span>
+	http<span style="color:#888">.</span>HandleFunc<span style="color:#888">(</span><span style="color:#b83838">&#34;/&#34;</span><span style="color:#888">,</span> <span style="color:#2838b0;font-style:italic">func</span><span style="color:#888">(</span>w http<span style="color:#888">.</span>ResponseWriter<span style="color:#888">,</span> r <span style="color:#666">*</span>http<span style="color:#888">.</span>Request<span style="color:#888">)</span> <span style="color:#888">{</span>
+		fmt<span style="color:#888">.</span>Fprintf<span style="color:#888">(</span>w<span style="color:#888">,</span> <span style="color:#b83838">&#34;Hello World!&#34;</span><span style="color:#888">)</span>
+	<span style="color:#888">})</span>
+	http<span style="color:#888">.</span>ListenAndServe<span style="color:#888">(</span><span style="color:#b83838">&#34;:80&#34;</span><span style="color:#888">,</span> <span style="color:#444;font-style:italic">nil</span><span style="color:#888">)</span>
+<span style="color:#888">}</span></code></pre></div>
+<p>Running this and opening your browser to <code>http://localhost</code>, you&rsquo;ll see the &ldquo;Hello World!&rdquo; response.</p>
+
+<p>We&rsquo;ll build on this skeleton throughout the post, but before getting fancy, let&rsquo;s talk a little bit about how this works.</p>
+
+<h3 id="how-net-http-works">How <code>net/http</code> Works</h3>
+
+<p>This example uses the <a href="https://golang.org/pkg/net/http/"><code>net/http</code></a> package, which is the backbone for building HTTP clients and servers in Go. To better understand what we&rsquo;re building, we should very briefly cover three important concepts: <a href="https://golang.org/pkg/net/http/#Handler"><code>http.Handler</code></a>, <a href="https://golang.org/pkg/net/http/#ServeMux"><code>http.ServeMux</code></a>, and <a href="https://golang.org/pkg/net/http/#Server"><code>http.Server</code></a>.</p>
+
+<h4 id="http-handlers">HTTP Handlers</h4>
+
+<p>When a request is received, a <em>handler</em> processes it and writes out a response. Go implements handlers as an interface with the following signature:</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#2838b0;font-style:italic">type</span> Handler <span style="color:#2838b0;font-style:italic">interface</span> <span style="color:#888">{</span>
+        ServeHTTP<span style="color:#888">(</span>ResponseWriter<span style="color:#888">,</span> <span style="color:#666">*</span>Request<span style="color:#888">)</span>
+<span style="color:#888">}</span></code></pre></div>
+<p>Our first example uses the helper function <a href="https://golang.org/pkg/net/http/#HandleFunc"><code>http.HandleFunc</code></a>, which wraps a function that takes an <code>http.ResponseWriter</code> and <code>http.Request</code> in a <code>ServeHTTP</code> function so that it can be used as a handler.</p>
+
+<p>Having handlers as an interface is <strong>really</strong> powerful. For example, we&rsquo;ll see later on that implementing middleware is done by simply making a handler whose <code>ServeHTTP</code> does <em>something</em>, then calls another handler&rsquo;s <code>ServeHTTP</code> method.</p>
+
+<p>So handlers are responsible for processing requests, but how do we know which handler to use?</p>
+
+<h4 id="routing-requests">Routing Requests</h4>
+
+<p>To determine which handler should process a request, Go uses an HTTP multiplexer. Some libraries may call this a &ldquo;muxer&rdquo; or a &ldquo;router&rdquo;, but the idea is the same. A router determines which handler to execute based on the path received. In our example above, we&rsquo;re using the basic <a href="https://golang.org/pkg/net/http/#ServeMux">default multiplexer</a>.</p>
+
+<p>If you need more advanced routing support, you might consider using a third-party library. The <a href="https://github.com/gorilla/mux"><code>gorilla/mux</code></a> or <a href="https://github.com/go-chi/chi"><code>go-chi/chi</code></a> libraries are good alternatives that make it easy to set up middleware, wildcard routing, and more. And, most importantly, they work with the standard HTTP handlers which keeps things simple and easy to change later on.</p>
+
+<p><strong>Be careful when using complex web frameworks.</strong> These are typically very opinionated, and make it difficult to work with standard handlers. In my experience, the standard library mixed with a lightweight router is good enough for most applications.</p>
+
+<h4 id="processing-requests">Processing Requests</h4>
+
+<p>Finally, we need something that can listen for incoming connections, sending each request to the router so that it can be processed by the right handler. This is the <a href="https://golang.org/pkg/net/http/#Server"><code>http.Server</code></a>.</p>
+
+<p>As we&rsquo;ll see later, the server is responsible for all the connection handling. This includes things like handling TLS, if configured. In our example, the call to <a href="https://golang.org/pkg/net/http/#ListenAndServe"><code>http.ListenAndServe</code></a> uses the default HTTP server.</p>
+
+<p>With this background out of the way, let&rsquo;s dive into some more complex examples.</p>
+
+<h3 id="adding-let-s-encrypt">Adding Let&rsquo;s Encrypt</h3>
+
+<p>Our original example serves requests over HTTP. It&rsquo;s always recommended to use HTTPS, where possible, and fortunately Go makes that easy.</p>
+
+<p>If you already have a private key and certificate, you can change the server to use <a href="https://golang.org/pkg/net/http/#ListenAndServeTLS"><code>ListenAndServeTLS</code></a> and providing the correct filepaths:</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">http<span style="color:#888">.</span>ListenAndServeTLS<span style="color:#888">(</span><span style="color:#b83838">&#34;:443&#34;</span><span style="color:#888">,</span> <span style="color:#b83838">&#34;cert.pem&#34;</span><span style="color:#888">,</span> <span style="color:#b83838">&#34;key.pem&#34;</span><span style="color:#888">,</span> <span style="color:#444;font-style:italic">nil</span><span style="color:#888">)</span></code></pre></div>
+<p><strong>But we can do better.</strong></p>
+
+<p><a href="https://letsencrypt.org/">Let&rsquo;s Encrypt</a> is a free certificate authority that lets you renew certificates automatically. We can use the <a href="https://godoc.org/golang.org/x/crypto/acme/autocert"><code>autocert</code></a> package to configure our server with Let&rsquo;s Encrypt support.</p>
+
+<p>The easiest way to get this set up is to use the <a href="https://godoc.org/golang.org/x/crypto/acme/autocert#NewListener"><code>autocert.NewListener</code></a> helper with the <code>http.Serve</code> method. This gathers and renews the TLS certificates via Let&rsquo;s Encrypt, while letting the underlying HTTP server handle the requests:</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">http<span style="color:#888">.</span>Serve<span style="color:#888">(</span>autocert<span style="color:#888">.</span>NewListener<span style="color:#888">(</span><span style="color:#b83838">&#34;example.com&#34;</span><span style="color:#888">),</span> <span style="color:#444;font-style:italic">nil</span><span style="color:#888">)</span></code></pre></div>
+<p>Opening your browser to <code>https://example.com</code> will show the &ldquo;Hello World!&rdquo; response served over HTTPS.</p>
+
+<p>If you need more customization, you can create an instance of <a href="https://godoc.org/golang.org/x/crypto/acme/autocert#Manager"><code>autocert.Manager</code></a>. Then, you can create your own instance of <code>http.Server</code> (remember: we&rsquo;ve been using the default one so far) and add the manager as the server&rsquo;s <code>TLSConfig</code>:</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">m <span style="color:#666">:=</span> <span style="color:#666">&amp;</span>autocert<span style="color:#888">.</span>Manager<span style="color:#888">{</span>
+Cache<span style="color:#888">:</span>      autocert<span style="color:#888">.</span>DirCache<span style="color:#888">(</span><span style="color:#b83838">&#34;golang-autocert&#34;</span><span style="color:#888">),</span>
+Prompt<span style="color:#888">:</span>     autocert<span style="color:#888">.</span>AcceptTOS<span style="color:#888">,</span>
+HostPolicy<span style="color:#888">:</span> autocert<span style="color:#888">.</span>HostWhitelist<span style="color:#888">(</span><span style="color:#b83838">&#34;example.org&#34;</span><span style="color:#888">,</span> <span style="color:#b83838">&#34;www.example.org&#34;</span><span style="color:#888">),</span>
+<span style="color:#888">}</span>
+server <span style="color:#666">:=</span> <span style="color:#666">&amp;</span>http<span style="color:#888">.</span>Server<span style="color:#888">{</span>
+    Addr<span style="color:#888">:</span>      <span style="color:#b83838">&#34;:443&#34;</span><span style="color:#888">,</span>
+    TLSConfig<span style="color:#888">:</span> m<span style="color:#888">.</span>TLSConfig<span style="color:#888">(),</span>
+<span style="color:#888">}</span>
+server<span style="color:#888">.</span>ListenAndServeTLS<span style="color:#888">(</span><span style="color:#b83838">&#34;&#34;</span><span style="color:#888">,</span> <span style="color:#b83838">&#34;&#34;</span><span style="color:#888">)</span></code></pre></div>
+<p>Easy as that, we have full HTTPS support with free automatic certificate renewal. Now let&rsquo;s add some logic to our routes.</p>
+
+<h3 id="adding-fancy-routes">Adding ✨ Fancy ✨ Routes</h3>
+
+<p>The default router included with the standard library is good, but simple. It&rsquo;s common to want more complex logic, such as setting up subrouters, creating wildcard routes, and adding parameters or pattern matching into routes.</p>
+
+<p>This is where libraries like <a href="https://github.com/gorilla/mux"><code>gorilla/mux</code></a> and <a href="https://github.com/go-chi/chi"><code>go-chi/chi</code></a> can be useful. Here&rsquo;s an example of showing how to set up some very basic API routes using the <code>chi</code> library:</p>
+
+<p>First, assume we have a file called <code>api/v1/api.go</code> that contains the routes for our API:</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#888;font-style:italic">// HelloResponse is the JSON representation for a customized message
+</span><span style="color:#888;font-style:italic"></span><span style="color:#2838b0;font-style:italic">type</span> HelloResponse <span style="color:#2838b0;font-style:italic">struct</span> <span style="color:#888">{</span>
+	Message <span style="color:#2838b0;font-style:italic">string</span> <span style="color:#b83838">`json:&#34;message&#34;`</span>
+<span style="color:#888">}</span>
+
+<span style="color:#888;font-style:italic">// HelloName returns a personalized JSON message
+</span><span style="color:#888;font-style:italic"></span><span style="color:#2838b0;font-style:italic">func</span> HelloName<span style="color:#888">(</span>w http<span style="color:#888">.</span>ResponseWriter<span style="color:#888">,</span> r <span style="color:#666">*</span>http<span style="color:#888">.</span>Request<span style="color:#888">)</span> <span style="color:#888">{</span>
+	name <span style="color:#666">:=</span> chi<span style="color:#888">.</span>URLParam<span style="color:#888">(</span>r<span style="color:#888">,</span> <span style="color:#b83838">&#34;name&#34;</span><span style="color:#888">)</span>
+	response <span style="color:#666">:=</span> HelloResponse<span style="color:#888">{</span>
+		Message<span style="color:#888">:</span> fmt<span style="color:#888">.</span>Sprintf<span style="color:#888">(</span><span style="color:#b83838">&#34;Hello %s!&#34;</span><span style="color:#888">,</span> name<span style="color:#888">),</span>
+	<span style="color:#888">}</span>
+	jsonResponse<span style="color:#888">(</span>w<span style="color:#888">,</span> response<span style="color:#888">,</span> http<span style="color:#888">.</span>StatusOK<span style="color:#888">)</span>
+<span style="color:#888">}</span>
+
+<span style="color:#888;font-style:italic">// NewRouter returns an HTTP handler that implements the routes for the API
+</span><span style="color:#888;font-style:italic"></span><span style="color:#2838b0;font-style:italic">func</span> NewRouter<span style="color:#888">()</span> http<span style="color:#888">.</span>Handler <span style="color:#888">{</span>
+	r <span style="color:#666">:=</span> chi<span style="color:#888">.</span>NewRouter<span style="color:#888">()</span>
+	r<span style="color:#888">.</span>Get<span style="color:#888">(</span><span style="color:#b83838">&#34;/{name}&#34;</span><span style="color:#888">,</span> HelloName<span style="color:#888">)</span>
+	<span style="color:#2838b0">return</span> r
+<span style="color:#888">}</span></code></pre></div>
+<p>We can then mount this to our main router under the <code>api/v1/</code> prefix back in our main application:</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#888;font-style:italic">// NewRouter returns a new HTTP handler that implements the main server routes
+</span><span style="color:#888;font-style:italic"></span><span style="color:#2838b0;font-style:italic">func</span> NewRouter<span style="color:#888">()</span> http<span style="color:#888">.</span>Handler <span style="color:#888">{</span>
+	router <span style="color:#666">:=</span> chi<span style="color:#888">.</span>NewRouter<span style="color:#888">()</span>
+    router<span style="color:#888">.</span>Mount<span style="color:#888">(</span><span style="color:#b83838">&#34;/api/v1/&#34;</span><span style="color:#888">,</span> v1<span style="color:#888">.</span>NewRouter<span style="color:#888">())</span>
+    <span style="color:#2838b0">return</span> router
+<span style="color:#888">}</span>
+http<span style="color:#888">.</span>Serve<span style="color:#888">(</span>autocert<span style="color:#888">.</span>NewListener<span style="color:#888">(</span><span style="color:#b83838">&#34;example.com&#34;</span><span style="color:#888">),</span> NewRouter<span style="color:#888">())</span></code></pre></div>
+<p>Having the ability to organize routes or use advanced routing makes it easier to structure and maintain larger applications.</p>
+
+<h3 id="implementing-middleware">Implementing Middleware</h3>
+
+<p>Middleware is just wrapping an HTTP handler in another handler. This lets us implement authentication, logging, compression, and more.</p>
+
+<p>The pattern for middleware is straightfoward due to the simplicity of the <code>http.Handler</code> interface. We can just write a function that takes a handler and wraps it in another handler. Here&rsquo;s an example, showing how an authentication handler might be implemented:</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#2838b0;font-style:italic">func</span> RequireAuthentication<span style="color:#888">(</span>next http<span style="color:#888">.</span>Handler<span style="color:#888">)</span> http<span style="color:#888">.</span>Handler <span style="color:#888">{</span>
+    <span style="color:#2838b0">return</span> http<span style="color:#888">.</span>HanderFunc<span style="color:#888">(</span><span style="color:#2838b0;font-style:italic">func</span><span style="color:#888">(</span>w http<span style="color:#888">.</span>ResponseWriter<span style="color:#888">,</span> r <span style="color:#666">*</span>http<span style="color:#888">.</span>Request<span style="color:#888">)</span> <span style="color:#888">{</span>
+        <span style="color:#2838b0">if</span> <span style="color:#888">!</span>isAuthenticated<span style="color:#888">(</span>r<span style="color:#888">)</span> <span style="color:#888">{</span>
+            http<span style="color:#888">.</span>Redirect<span style="color:#888">(</span>w<span style="color:#888">,</span> r<span style="color:#888">,</span> <span style="color:#b83838">&#34;/login&#34;</span><span style="color:#888">,</span> http<span style="color:#888">.</span>StatusTemporaryRedirect<span style="color:#888">)</span>
+            <span style="color:#2838b0">return</span>
+        <span style="color:#888">}</span>
+        <span style="color:#888;font-style:italic">// Assuming authentication passed, run the original handler
+</span><span style="color:#888;font-style:italic"></span>        next<span style="color:#888">.</span>ServeHTTP<span style="color:#888">(</span>w<span style="color:#888">,</span> r<span style="color:#888">)</span>
+    <span style="color:#888">})</span>
+<span style="color:#888">}</span></code></pre></div>
+<p>Some third-party routers like <code>chi</code> provide useful middleware out-of-the-box.</p>
+
+<h3 id="serving-static-files">Serving Static Files</h3>
+
+<p>Golang has support in the standard library for serving static files, such as images, Javascript, and stylesheets. This is done by using a function, <a href="https://golang.org/pkg/net/http/#FileServer"><code>http.FileServer</code></a>, which returns a handler that serves files from a directory.</p>
+
+<p>Here&rsquo;s a simple example using our router from the previous example:</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#2838b0;font-style:italic">func</span> NewRouter<span style="color:#888">()</span> http<span style="color:#888">.</span>Handler <span style="color:#888">{</span>
+    router <span style="color:#666">:=</span> chi<span style="color:#888">.</span>NewRouter<span style="color:#888">()</span>
+    r<span style="color:#888">.</span>Get<span style="color:#888">(</span><span style="color:#b83838">&#34;/{name}&#34;</span><span style="color:#888">,</span> HelloName<span style="color:#888">)</span>
+
+	<span style="color:#888;font-style:italic">// Set up static file serving
+</span><span style="color:#888;font-style:italic"></span>	staticPath<span style="color:#888">,</span> _ <span style="color:#666">:=</span> filepath<span style="color:#888">.</span>Abs<span style="color:#888">(</span><span style="color:#b83838">&#34;../../static/&#34;</span><span style="color:#888">)</span>
+	fs <span style="color:#666">:=</span> http<span style="color:#888">.</span>FileServer<span style="color:#888">(</span>http<span style="color:#888">.</span>Dir<span style="color:#888">(</span>staticPath<span style="color:#888">))</span>
+    router<span style="color:#888">.</span>Handle<span style="color:#888">(</span><span style="color:#b83838">&#34;/*&#34;</span><span style="color:#888">,</span> fs<span style="color:#888">)</span>
+    
+    <span style="color:#2838b0">return</span> r</code></pre></div>
+<p><strong>Be careful!</strong> The default <a href="https://golang.org/pkg/net/http/#Dir"><code>http.Dir</code></a> filesystem used by Go lists the contents of directories if no <code>index.html</code> exists. This could expose sensitive information. I have a package called <a href="https://github.com/jordan-wright/unindexed"><code>unindexed</code></a> which can be used as a drop-in replacement to prevent this.</p>
+
+<h3 id="graceful-shutdown">Graceful Shutdown</h3>
+
+<p>Go version 1.8 introduced the ability to gracefully shutdown an HTTP server by calling the <a href="https://golang.org/pkg/net/http/#Server.Shutdown"><code>Shutdown()</code></a> method. We can use this by starting our server in a goroutine and listening on a channel for a signal interrupt (e.g. pressing CTRL+C). Once this is received, we can give the server a few seconds to gracefully shutdown.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">handler <span style="color:#666">:=</span> server<span style="color:#888">.</span>NewRouter<span style="color:#888">()</span>
+srv <span style="color:#666">:=</span> <span style="color:#666">&amp;</span>http<span style="color:#888">.</span>Server<span style="color:#888">{</span>
+    Handler<span style="color:#888">:</span> handler<span style="color:#888">,</span>
+<span style="color:#888">}</span>
+
+<span style="color:#2838b0">go</span> <span style="color:#2838b0;font-style:italic">func</span><span style="color:#888">()</span> <span style="color:#888">{</span>
+		srv<span style="color:#888">.</span>Serve<span style="color:#888">(</span>autocert<span style="color:#888">.</span>NewListener<span style="color:#888">(</span>domains<span style="color:#666">...</span><span style="color:#888">))</span>
+<span style="color:#888">}()</span>
+
+<span style="color:#888;font-style:italic">// Wait for an interrupt
+</span><span style="color:#888;font-style:italic"></span>c <span style="color:#666">:=</span> <span style="color:#388038">make</span><span style="color:#888">(</span><span style="color:#2838b0;font-style:italic">chan</span> os<span style="color:#888">.</span>Signal<span style="color:#888">,</span> <span style="color:#444">1</span><span style="color:#888">)</span>
+signal<span style="color:#888">.</span>Notify<span style="color:#888">(</span>c<span style="color:#888">,</span> os<span style="color:#888">.</span>Interrupt<span style="color:#888">)</span>
+<span style="color:#666">&lt;-</span>c
+
+<span style="color:#888;font-style:italic">// Attempt a graceful shutdown
+</span><span style="color:#888;font-style:italic"></span>ctx<span style="color:#888">,</span> cancel <span style="color:#666">:=</span> context<span style="color:#888">.</span>WithTimeout<span style="color:#888">(</span>context<span style="color:#888">.</span>Background<span style="color:#888">(),</span> <span style="color:#444">5</span><span style="color:#666">*</span>time<span style="color:#888">.</span>Second<span style="color:#888">)</span>
+<span style="color:#2838b0">defer</span> cancel<span style="color:#888">()</span>
+srv<span style="color:#888">.</span>Shutdown<span style="color:#888">(</span>ctx<span style="color:#888">)</span></code></pre></div>
+<h3 id="wrapping-up">Wrapping Up</h3>
+
+<p>The Go standard library is incredibly powerful. This post shows how we can take advantage of the flexible interfaces and built-in functionality to quickly create robust HTTP servers.</p>
+
+<p>While this is a great start, I recommend checking out <a href="https://blog.cloudflare.com/exposing-go-on-the-internet/">Cloudflare&rsquo;s post</a> on other precautions to take before exposing a Go HTTP server to the Internet. In the next part to this series, we&rsquo;ll walk through how to add context (such as a database connection) and configuration to our servers.</p>
+
+<p>If you&rsquo;re interested in seeing an example of these techniques that you can use for your own application, check out the <a href="https://github.com/jordan-wright/http-boilerplate">http-boilerplate</a> project on Github.</p>
+
+<p><strong>Finally, if you want to see these techniques (and more!) applied in a full product, be sure to check out <a href="https://github.com/gophish/gophish">Gophish</a> on Github.</strong></p>
+
+    </section>
+
+
+  <footer class="post-footer">
+
+
+    
+
+
+
+
+
+
+
+
+<figure class="author-image">
+    <a class="img" href="https://getgophish.com/blog" style="background-image: url(/blog/images/jordan-wright.jpg)"><span class="hidden">Jordan Wright's Picture</span></a>
+</figure>
+
+
+<section class="author">
+  <h4><a href="https://getgophish.com/blog">Jordan Wright</a></h4>
+  
+  <p>Read <a href="https://getgophish.com/blog">more posts</a> by this author.</p>
+  
+  <div class="author-meta">
+    
+    
+  </div>
+</section>
+
+
+
+
+    
+<section class="share">
+    <h4>Share this post</h4>
+    <a class="icon-twitter" style="font-size: 1.4em" href="https://twitter.com/share?text=Building%20Web%20Servers%20in%20Go&nbsp;-&nbsp;Gophish%20-%20Blog&amp;url=https%3a%2f%2fgetgophish.com%2fblog%2fpost%2f2018-12-02-building-web-servers-in-go%2f"
+        onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+        <span class="hidden">Twitter</span>
+    </a>
+    <a class="icon-facebook" style="font-size: 1.4em" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fgetgophish.com%2fblog%2fpost%2f2018-12-02-building-web-servers-in-go%2f"
+        onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+        <span class="hidden">Facebook</span>
+    </a>
+    <a class="icon-google-plus" style="font-size: 1.4em" href="https://plus.google.com/share?url=https%3a%2f%2fgetgophish.com%2fblog%2fpost%2f2018-12-02-building-web-servers-in-go%2f"
+        onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+        <span class="hidden">Google+</span>
+    </a>
+</section>
+
+
+    
+
+
+
+
+
+
+
+  </footer>
+</article>
+
+</main>
+
+
+  <aside class="read-next">
+  
+  
+      <a class="read-next-story prev" style="no-cover" href="/blog/post/database-migrations-in-go/">
+          <section class="post">
+              <h2>Handling Database Migrations in Go</h2>
+          </section>
+      </a>
+  
+</aside>
+
+
+
+    <footer class="site-footer clearfix">
+        <section class="copyright"><a href="">Gophish - Blog</a> </section>
+        
+        <section class="poweredby">Proudly generated by <a class="icon-hugo" href="http://gohugo.io">HUGO</a>, with <a class="icon-theme" href="https://github.com/vjeantet/hugo-theme-casper">Casper</a> theme</section>
+        
+    </footer>
+    </div>
+    <script type="text/javascript" src="/blog/js/jquery.js"></script>
+    <script type="text/javascript" src="/blog/js/jquery.fitvids.js"></script>
+    <script type="text/javascript" src="/blog/js/index.js"></script>
+    
+</body>
+</html>
+

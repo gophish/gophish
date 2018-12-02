@@ -7,7 +7,9 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Mon, 01 Feb 2016 07:00:00 -0600</lastBuildDate>
-    <atom:link href="https://getgophish.com/blog/tags/go/index.xml" rel="self" type="application/rss+xml" />
+    
+	<atom:link href="https://getgophish.com/blog/tags/go/index.xml" rel="self" type="application/rss+xml" />
+    
     
     <item>
       <title>Handling Database Migrations in Go</title>
@@ -15,126 +17,10 @@
       <pubDate>Mon, 01 Feb 2016 07:00:00 -0600</pubDate>
       
       <guid>https://getgophish.com/blog/post/database-migrations-in-go/</guid>
-      <description>
-
-&lt;h3 id=&#34;why-you-should-version-your-database:664f01dc60472cd080b34187311f6c6f&#34;&gt;Why You Should Version Your Database&lt;/h3&gt;
-
-&lt;blockquote&gt;
-&lt;p&gt;&amp;ldquo;I got my database schema correct on the first try.&amp;rdquo;&lt;/p&gt;
-
-&lt;p&gt;-No one ever.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;Like most big projects, gophish needed a way to automatically manage changes to our database schema. As new features were being added, we found ourselves in a situation that required us to add or modify columns and tables to store the new data.&lt;/p&gt;
-
-&lt;p&gt;In a hosted environment, this is no problem since we control the database and can make schema changes as we see fit. Gophish is different, in that it is software intentionally designed to run on the client&amp;rsquo;s machine. This means that as we rollout updates to gophish&amp;rsquo;s backend database, we need a way to easily update (or rollback!) changes to the database structure. A versioning system is a perfect fit, which introduces the idea of migrations.&lt;/p&gt;
-
-&lt;h4 id=&#34;what-is-a-migration:664f01dc60472cd080b34187311f6c6f&#34;&gt;What is a &lt;em&gt;Migration&lt;/em&gt;?&lt;/h4&gt;
-
-&lt;p&gt;A migration is nothing more than a set of SQL commands to make changes to a database. Every migration typically has two parts: how to apply the changes you want, and how to roll them back.&lt;/p&gt;
-
-&lt;p&gt;To version control our database, we can create a folder holding multiple migration files. Each file will have an identifier so we know which migration should be applied and in which order. Then, we can store which version our database is currently at in the database itself so if we ever add migrations in the future, we can tell where we left off.&lt;/p&gt;
-
-&lt;p&gt;There are tools that can automate this process for us. We settled on a well-known database migration tool called &lt;a href=&#34;https://bitbucket.org/liamstask/goose/&#34;&gt;&lt;code&gt;goose&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
-
-&lt;h3 id=&#34;introduction-to-goose:664f01dc60472cd080b34187311f6c6f&#34;&gt;Introduction to &lt;code&gt;goose&lt;/code&gt;&lt;/h3&gt;
-
-&lt;p&gt;We chose to go with &lt;a href=&#34;https://bitbucket.org/liamstask/goose/&#34;&gt;&lt;code&gt;goose&lt;/code&gt;&lt;/a&gt; since it seemed like a mature, fully-featured solution that would be easily integrated into our code. Goose typically works through the use of its command line tool aptly named &lt;code&gt;goose&lt;/code&gt;.&lt;/p&gt;
-
-&lt;p&gt;To set things up, we first need to create the following folder structure:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;| db/
-| | migrations/
-| `-dbconf.yml
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Our migrations will be stored in the &lt;code&gt;migrations&lt;/code&gt; folder as a series of SQL files. Before we can create migrations, we have to specify the configuration for &lt;code&gt;goose&lt;/code&gt; to use. This is found in the &lt;code&gt;dbconf.yml&lt;/code&gt; file. In our case, we used the following configuration:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;production:
-    driver: sqlite3 
-    open: gophish.db
-    dialect: sqlite3
-    import: github.com/mattn/go-sqlite3
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;This configuration specifies a single environment, &lt;code&gt;production&lt;/code&gt;, that manages a SQLite database.&lt;/p&gt;
-
-&lt;p&gt;Now that we have created our configuration file, we can start making our migrations. Unfortunately, this is where the hurdles began.&lt;/p&gt;
-
-&lt;h3 id=&#34;a-little-about-gophish:664f01dc60472cd080b34187311f6c6f&#34;&gt;A Little About Gophish&lt;/h3&gt;
-
-&lt;p&gt;Normally, migrations are something that is considered early on in the database creation process. Unfortunately, our schema was already defined and we had clients already running gophish. So, we needed to orchestrate &lt;code&gt;goose&lt;/code&gt; in such a way that we could create and apply our migrations without messing up any data that was already in the client&amp;rsquo;s databases.&lt;/p&gt;
-
-&lt;p&gt;The first step was creating the migrations. To handle this, we first created an empty migration file using the following:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;goose -env production create 0.1.2_browser_post sql
-goose: created ~\go\src\github.com\gophish\gophish\db\migrations\20160130184410_0.1.2_browser_post.sql
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;This command created a new empty SQL file in our migrations folder that looks like this:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;-- +goose Up
--- SQL in section &#39;Up&#39; is executed when this migration is applied
-
-
--- +goose Down
--- SQL section &#39;Down&#39; is executed when this migration is rolled back
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;For our first migration, we decided to baseline our schema to the current version. To do this, we simply exported our existing schema using the sqlite3 tool. That gave us all of our &lt;code&gt;CREATE TABLE&lt;/code&gt; statements that setup our tables and default data. We then copy/pasted those statements below the &lt;code&gt;-- +goose Up&lt;/code&gt; section of the migrations.&lt;/p&gt;
-
-&lt;p&gt;The one change we made was to add &lt;code&gt;IF NOT EXISTS&lt;/code&gt; to all of our table creation statements. This meant that if the client already had a database setup, this migration would be applied, but no changes would be made - exactly what we want.&lt;/p&gt;
-
-&lt;p&gt;The final step to create this migration was to add the rollback statements. Since this was creating the database, &lt;code&gt;DROP TABLE&lt;/code&gt; equivalent statements worked just fine. You can see our final migration file &lt;a href=&#34;https://raw.githubusercontent.com/gophish/gophish/master/db/migrations/20160118194630_init.sql&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;Now for the next hurdle. Traditionally, migrations work by creating a new migration file and running &lt;code&gt;goose up&lt;/code&gt;. Then, &lt;code&gt;goose&lt;/code&gt; will compare your database version with the migration files it finds. If there are migrations that need to be applied, it will apply them in order until you are at the current version.&lt;/p&gt;
-
-&lt;p&gt;While the &lt;code&gt;goose up&lt;/code&gt; command can work if we control the database, there&amp;rsquo;s simply no way that we can expect our users to install &lt;code&gt;goose&lt;/code&gt; and run &lt;code&gt;goose up&lt;/code&gt; every time we want to make a database change. Our goal has always been to make the lives of our users easier, so this simply wouldn&amp;rsquo;t work. This meant that we needed to handle the migrations in our code.&lt;/p&gt;
-
-&lt;p&gt;Fortunately for us, the &lt;code&gt;goose&lt;/code&gt; CLI wraps a rich library that we can use. We were able to integrate this directly into our &lt;code&gt;Setup()&lt;/code&gt; function to apply migrations automatically.&lt;/p&gt;
-
-&lt;p&gt;First, we created the &lt;code&gt;gooose.DBConf&lt;/code&gt; struct to hold the configuration (a programmatic copy of our &lt;code&gt;dbconf.yml&lt;/code&gt; file).&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-golang&#34;&gt;// Setup the goose configuration
-migrateConf := &amp;amp;goose.DBConf{
-	MigrationsDir: config.Conf.MigrationsPath,
-	Env:           &amp;quot;production&amp;quot;,
-	Driver: goose.DBDriver{
-		Name:    &amp;quot;sqlite3&amp;quot;,
-		OpenStr: config.Conf.DBPath,
-		Import:  &amp;quot;github.com/mattn/go-sqlite3&amp;quot;,
-		Dialect: &amp;amp;goose.Sqlite3Dialect{},
-	},
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Next, we need to figure out the latest database version supported by our migrations. This gives us the final &amp;ldquo;goal&amp;rdquo; migration that we want to upgrade to. We can do this via the function &lt;a href=&#34;https://godoc.org/bitbucket.org/liamstask/goose/lib/goose#GetMostRecentDBVersion&#34;&gt;&lt;code&gt;goose.GetMostRecentDBVersion&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-golang&#34;&gt;// Get the latest possible migration
-latest, err := goose.GetMostRecentDBVersion(migrateConf.MigrationsDir)
-if err != nil {
-	Logger.Println(err)
-	return err
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;And finally, we need to apply our migrations. &lt;code&gt;Goose&lt;/code&gt; has a function called &lt;a href=&#34;https://godoc.org/bitbucket.org/liamstask/goose/lib/goose#RunMigrationsOnDb&#34;&gt;&lt;code&gt;goose.RunMigrationsOnDb&lt;/code&gt;&lt;/a&gt; which expects an existing &lt;a href=&#34;https://golang.org/pkg/database/sql/#DB&#34;&gt;&lt;code&gt;sql.DB&lt;/code&gt;&lt;/a&gt; object. Since gophish uses the ORM &lt;a href=&#34;https://github.com/jinzhu/gorm&#34;&gt;&lt;code&gt;gorm&lt;/code&gt;&lt;/a&gt;, we already had a &lt;code&gt;sql.DB&lt;/code&gt; object already initialized that we could use to send to &lt;code&gt;goose&lt;/code&gt;. This was stored in the &lt;code&gt;db&lt;/code&gt; variable.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-golang&#34;&gt;// Migrate up to the latest version
-err = goose.RunMigrationsOnDb(migrateConf, migrateConf.MigrationsDir, latest, db.DB())
-if err != nil {
-	Logger.Println(err)
-	return err
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;That&amp;rsquo;s it! You can find our full &lt;code&gt;Setup()&lt;/code&gt; function &lt;a href=&#34;https://github.com/gophish/gophish/blob/master/models/models.go#L61&#34;&gt;here.&lt;/a&gt; To handle any additional migrations, all we need to do is run &lt;code&gt;goose create&lt;/code&gt; again, add the SQL that makes up the migration, and push out the new file. The next time clients update gophish and restart the executable, the database migrations will be applied automatically!&lt;/p&gt;
-
-&lt;p&gt;If this kind of stuff is interesting to you, and you want to see a full example of a web app written in Go, check out gophish by clicking below.&lt;/p&gt;
-
-&lt;a href=&#34;https://github.com/gophish/gophish&#34; class=&#34;btn&#34;&gt;Download gophish&lt;/a&gt;
-
-</description>
+      <description>&amp;ldquo;I got my database schema correct on the first try.&amp;rdquo;
+-No one ever.
+ Like most big projects, gophish needed a way to automatically manage changes to our database schema. As new features were being added, we found ourselves in a situation that required us to add or modify columns and tables to store the new data.
+In a hosted environment, this is no problem since we control the database and can make schema changes as we see fit.</description>
     </item>
     
   </channel>

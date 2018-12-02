@@ -1,0 +1,108 @@
+nav.breadcrumb{
+  margin-bottom:0px;
+}
+nav.breadcrumb li {
+  display: inline ;
+  font-size: 14px;
+    font-family: helvetica;
+}
+nav.breadcrumb li a {
+  text-decoration: none;  
+}
+nav.breadcrumb li a:after {
+  content: " >"; 
+}
+
+  nav.navpage {
+    font-size: 1em;
+    font-family: helvetica;
+    width: 100%;
+
+  }
+
+nav.navpage > ul  {
+  background: #efefef; 
+  background: linear-gradient(top, #efefef 0%, #bbbbbb 100%);  
+  background: -moz-linear-gradient(top, #efefef 0%, #bbbbbb 100%); 
+  background: -webkit-linear-gradient(top, #efefef 0%,#bbbbbb 100%); 
+  box-shadow: 0px 0px 90px rgba(0,0,0,0.15);
+  padding: 0 20px;
+  border-radius: 10px;  
+  list-style: none;
+  position: relative;
+  display: inline-table;
+  width: 100%;
+}
+nav.navpage  li {
+  list-style: none;
+}
+
+  nav.navpage:after {
+    content: ""; clear: both; display: block;
+  }
+
+nav.navpage  > ul >  li > a  {
+    font-weight: bold;
+    text-decoration: none;
+    font-size: 1.2em;
+    font-variant:  small-caps;
+}
+
+
+nav.navpage ul  {
+  padding-left: 0px;
+  margin-left: 0px;
+}
+nav.navpage ul ul li {
+  display: block;
+  margin-left: 30px;
+  line-height: 1.2em;
+}
+nav.navpage ul ul li a {
+  text-decoration: none
+}
+nav.navpage ul ul li a:hover {
+  text-decoration: underline;
+}
+nav.navpage ul ul li:after {
+  content: "";
+}
+
+nav.navpage ul ul li ul li{
+  display: block;
+  font-size: smaller;
+  margin-left: 30px;
+  line-height: 1.1em;
+}
+
+nav.navchildren{
+  margin-top: 0px;
+  background: #efefef; 
+  background: linear-gradient(top, #efefef 0%, #bbbbbb 100%);  
+  background: -moz-linear-gradient(top, #efefef 0%, #bbbbbb 100%); 
+  background: -webkit-linear-gradient(top, #efefef 0%,#bbbbbb 100%); 
+  box-shadow: 0px 0px 90px rgba(0,0,0,0.15);
+  padding: 0 20px;
+  border-radius: 10px;  
+  list-style: none;
+  position: relative;
+  display: inline-table;
+  width: 100%;
+}
+
+nav.navchildren li {
+  font-size: smaller;
+  line-height: 1.1em;
+  font-family: helvetica;
+  /*display: block;*/
+  
+}
+nav.navchildren a {
+  
+  line-height: 1.1em;
+  
+  text-decoration: none
+}
+nav.navchildren  a:hover {
+  text-decoration: underline;
+}

@@ -1,376 +1,432 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="en-us">
+
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gophish - Blog &middot; Gophish - Blog</title>
 
-    <meta name="description" content="">
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-    <meta name="generator" content="Hugo 0.15" />
-    <meta name="twitter:card" content="summary">
+  
+    <meta name="twitter:card" content="summary"/>
     
-    <meta name="twitter:title" content="Gophish - Blog &middot; Gophish - Blog">
-    <meta name="twitter:description" content="">
 
-    <meta property="og:type" content="article">
-    <meta property="og:title" content="Gophish - Blog &middot; Gophish - Blog">
-    <meta property="og:description" content="">
 
-    <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Oxygen:400,700' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.6.0/pure-min.css">
-    <!--[if lte IE 8]>
-        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.6.0/grids-responsive-old-ie-min.css">
-    <![endif]-->
-    <!--[if gt IE 8]><!-->
-        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.6.0/grids-responsive-min.css">
-    <!--<![endif]-->
 
-    <link rel="stylesheet" href="https://getgophish.com/blog/css/all.min.css">
-    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+<meta name="twitter:title" content="Gophish - Blog"/>
+<meta name="twitter:description" content=""/>
+<meta name="twitter:site" content="@"/>
 
-    <link rel="alternate" type="application/rss+xml" title="Gophish - Blog" href="https://getgophish.com/blog/index.xml" />
+
+
+  <meta property="og:title" content="Gophish - Blog &middot; Gophish - Blog" />
+  <meta property="og:site_name" content="Gophish - Blog" />
+  <meta property="og:url" content="https://getgophish.com/blog/" />
+
+  
+  
+  
+
+  
+  <meta property="og:type" content="website" />
+  <meta property="og:description" content="" />
+  
+
+  <title>Gophish - Blog &middot; Gophish - Blog</title>
+
+  
+  <meta name="description" content="" />
+  
+
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="shortcut icon" href="/blog/images/favicon.ico">
+  <link rel="apple-touch-icon" href="/blog/images/apple-touch-icon.png" />
+
+  <link rel="stylesheet" type="text/css" href="/blog/css/screen.css" />
+  <link rel="stylesheet" type="text/css" href="/blog/css/nav.css" />
+  <link href="https://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet">
+
+  
+
+  
+
+  
+  
+  <link href="/blog/index.xml" rel="alternate" type="application/rss+xml" title="Gophish - Blog" />
+  
+  
+  <link href="https://getgophish.com/blog/index.xml" rel="alternate" type="application/rss+xml" title="Gophish - Blog &middot; Gophish - Blog" />
+  
+  
+  <meta name="generator" content="Hugo 0.40.3" />
+
+  <link rel="canonical" href="https://getgophish.com/blog/" />
+
+  
+  
+    
+    <script type="application/ld+json">
+    {
+    "@context": "https://schema.org",
+    "@type": "Website",
+    "publisher": {
+        "@type": "Person",
+        "name": ,
+        
+        "image": {
+            "@type": "ImageObject",
+            "url": https://getgophish.com/blogimages/gophish_purple_logo.png,
+            "width": 250,
+            "height": 250
+        },
+        
+        "url": ,
+        "sameAs": [
+            
+            
+             
+             
+             
+             
+             
+            
+        ]
+    },
+    "url": https://getgophish.com/blog,
+    "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": https://getgophish.com/blog
+    },
+    "description": 
+}
+  </script>
+    
+
+
+  
+
+  
+  <script>
+    (function (i, s, o, g, r, a, m) {
+      i['GoogleAnalyticsObject'] = r;
+      i[r] = i[r] || function () {
+        (i[r].q = i[r].q || []).push(arguments)
+      }, i[r].l = 1 * new Date();
+      a = s.createElement(o),
+        m = s.getElementsByTagName(o)[0];
+      a.async = 1;
+      a.src = g;
+      m.parentNode.insertBefore(a, m)
+    })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+    ga('create', 'UA-47018345-1', 'auto');
+    ga('send', 'pageview');
+  </script>
+  
+
+  
 </head>
-<body>
 
+<body class="nav-closed">
 
-<div id="layout" class="pure-g">
-    <div class="sidebar pure-u-1 pure-u-md-1-4">
-    <div class="header">
-        <hgroup>
-            <h1 class="brand-title"><a href="https://getgophish.com/blog">Gophish - Blog</a></h1>
-            <h2 class="brand-tagline"></h2>
-        </hgroup>
-
-        <nav class="nav">
-            <ul class="nav-list">
-                
-                
-                <li class="nav-item">
-                    <a class="pure-button" href="http://getgophish.com"><i class="fa fa-home"></i> home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="pure-button" href="https://getgophish.com/blog/index.xml"><i class="fa fa-rss"></i> rss</a>
-                </li>
-            </ul>
-        </nav>
-    </div>
-</div>
-
-
-    <div class="content pure-u-1 pure-u-md-3-4">
-        <div>
+  <div class="nav">
+    <h3 class="nav-title">Menu</h3>
+    <a href="#" class="nav-close">
+        <span class="hidden">Close</span>
+    </a>
+    <ul>
+        
+        
+        
             
-            <div class="posts">
-                
-                <h1 class="content-subhead">01 Feb 2016, 07:00</h1>
-                <section class="post">
-                    <header class="post-header">
-
-                        <a href="https://getgophish.com/blog/post/database-migrations-in-go/" class="post-title">Handling Database Migrations in Go</a>
-
-                        <p class="post-meta">
-                            
-                            
-                        </p>
-                    </header>
-
-                    <div class="post-description">
-                        
-
-<h3 id="why-you-should-version-your-database:664f01dc60472cd080b34187311f6c6f">Why You Should Version Your Database</h3>
-
-<blockquote>
-<p>&ldquo;I got my database schema correct on the first try.&rdquo;</p>
-
-<p>-No one ever.</p>
-</blockquote>
-
-<p>Like most big projects, gophish needed a way to automatically manage changes to our database schema. As new features were being added, we found ourselves in a situation that required us to add or modify columns and tables to store the new data.</p>
-
-<p>In a hosted environment, this is no problem since we control the database and can make schema changes as we see fit. Gophish is different, in that it is software intentionally designed to run on the client&rsquo;s machine. This means that as we rollout updates to gophish&rsquo;s backend database, we need a way to easily update (or rollback!) changes to the database structure. A versioning system is a perfect fit, which introduces the idea of migrations.</p>
-
-<h4 id="what-is-a-migration:664f01dc60472cd080b34187311f6c6f">What is a <em>Migration</em>?</h4>
-
-<p>A migration is nothing more than a set of SQL commands to make changes to a database. Every migration typically has two parts: how to apply the changes you want, and how to roll them back.</p>
-
-<p>To version control our database, we can create a folder holding multiple migration files. Each file will have an identifier so we know which migration should be applied and in which order. Then, we can store which version our database is currently at in the database itself so if we ever add migrations in the future, we can tell where we left off.</p>
-
-<p>There are tools that can automate this process for us. We settled on a well-known database migration tool called <a href="https://bitbucket.org/liamstask/goose/"><code>goose</code></a>.</p>
-
-<h3 id="introduction-to-goose:664f01dc60472cd080b34187311f6c6f">Introduction to <code>goose</code></h3>
-
-<p>We chose to go with <a href="https://bitbucket.org/liamstask/goose/"><code>goose</code></a> since it seemed like a mature, fully-featured solution that would be easily integrated into our code. Goose typically works through the use of its command line tool aptly named <code>goose</code>.</p>
-
-<p>To set things up, we first need to create the following folder structure:</p>
-
-<pre><code>| db/
-| | migrations/
-| `-dbconf.yml
-</code></pre>
-
-<p>Our migrations will be stored in the <code>migrations</code> folder as a series of SQL files. Before we can create migrations, we have to specify the configuration for <code>goose</code> to use. This is found in the <code>dbconf.yml</code> file. In our case, we used the following configuration:</p>
-
-<pre><code>production:
-    driver: sqlite3 
-    open: gophish.db
-    dialect: sqlite3
-    import: github.com/mattn/go-sqlite3
-</code></pre>
-
-<p>This configuration specifies a single environment, <code>production</code>, that manages a SQLite database.</p>
-
-<p>Now that we have created our configuration file, we can start making our migrations. Unfortunately, this is where the hurdles began.</p>
-
-<h3 id="a-little-about-gophish:664f01dc60472cd080b34187311f6c6f">A Little About Gophish</h3>
-
-<p>Normally, migrations are something that is considered early on in the database creation process. Unfortunately, our schema was already defined and we had clients already running gophish. So, we needed to orchestrate <code>goose</code> in such a way that we could create and apply our migrations without messing up any data that was already in the client&rsquo;s databases.</p>
-
-<p>The first step was creating the migrations. To handle this, we first created an empty migration file using the following:</p>
-
-<pre><code>goose -env production create 0.1.2_browser_post sql
-goose: created ~\go\src\github.com\gophish\gophish\db\migrations\20160130184410_0.1.2_browser_post.sql
-</code></pre>
-
-<p>This command created a new empty SQL file in our migrations folder that looks like this:</p>
-
-<pre><code>-- +goose Up
--- SQL in section 'Up' is executed when this migration is applied
-
-
--- +goose Down
--- SQL section 'Down' is executed when this migration is rolled back
-</code></pre>
-
-<p>For our first migration, we decided to baseline our schema to the current version. To do this, we simply exported our existing schema using the sqlite3 tool. That gave us all of our <code>CREATE TABLE</code> statements that setup our tables and default data. We then copy/pasted those statements below the <code>-- +goose Up</code> section of the migrations.</p>
-
-<p>The one change we made was to add <code>IF NOT EXISTS</code> to all of our table creation statements. This meant that if the client already had a database setup, this migration would be applied, but no changes would be made - exactly what we want.</p>
-
-<p>The final step to create this migration was to add the rollback statements. Since this was creating the database, <code>DROP TABLE</code> equivalent statements worked just fine. You can see our final migration file <a href="https://raw.githubusercontent.com/gophish/gophish/master/db/migrations/20160118194630_init.sql">here</a>.</p>
-
-<p>Now for the next hurdle. Traditionally, migrations work by creating a new migration file and running <code>goose up</code>. Then, <code>goose</code> will compare your database version with the migration files it finds. If there are migrations that need to be applied, it will apply them in order until you are at the current version.</p>
-
-<p>While the <code>goose up</code> command can work if we control the database, there&rsquo;s simply no way that we can expect our users to install <code>goose</code> and run <code>goose up</code> every time we want to make a database change. Our goal has always been to make the lives of our users easier, so this simply wouldn&rsquo;t work. This meant that we needed to handle the migrations in our code.</p>
-
-<p>Fortunately for us, the <code>goose</code> CLI wraps a rich library that we can use. We were able to integrate this directly into our <code>Setup()</code> function to apply migrations automatically.</p>
-
-<p>First, we created the <code>gooose.DBConf</code> struct to hold the configuration (a programmatic copy of our <code>dbconf.yml</code> file).</p>
-
-<pre><code class="language-golang">// Setup the goose configuration
-migrateConf := &amp;goose.DBConf{
-	MigrationsDir: config.Conf.MigrationsPath,
-	Env:           &quot;production&quot;,
-	Driver: goose.DBDriver{
-		Name:    &quot;sqlite3&quot;,
-		OpenStr: config.Conf.DBPath,
-		Import:  &quot;github.com/mattn/go-sqlite3&quot;,
-		Dialect: &amp;goose.Sqlite3Dialect{},
-	},
-}
-</code></pre>
-
-<p>Next, we need to figure out the latest database version supported by our migrations. This gives us the final &ldquo;goal&rdquo; migration that we want to upgrade to. We can do this via the function <a href="https://godoc.org/bitbucket.org/liamstask/goose/lib/goose#GetMostRecentDBVersion"><code>goose.GetMostRecentDBVersion</code></a>.</p>
-
-<pre><code class="language-golang">// Get the latest possible migration
-latest, err := goose.GetMostRecentDBVersion(migrateConf.MigrationsDir)
-if err != nil {
-	Logger.Println(err)
-	return err
-}
-</code></pre>
-
-<p>And finally, we need to apply our migrations. <code>Goose</code> has a function called <a href="https://godoc.org/bitbucket.org/liamstask/goose/lib/goose#RunMigrationsOnDb"><code>goose.RunMigrationsOnDb</code></a> which expects an existing <a href="https://golang.org/pkg/database/sql/#DB"><code>sql.DB</code></a> object. Since gophish uses the ORM <a href="https://github.com/jinzhu/gorm"><code>gorm</code></a>, we already had a <code>sql.DB</code> object already initialized that we could use to send to <code>goose</code>. This was stored in the <code>db</code> variable.</p>
-
-<pre><code class="language-golang">// Migrate up to the latest version
-err = goose.RunMigrationsOnDb(migrateConf, migrateConf.MigrationsDir, latest, db.DB())
-if err != nil {
-	Logger.Println(err)
-	return err
-}
-</code></pre>
-
-<p>That&rsquo;s it! You can find our full <code>Setup()</code> function <a href="https://github.com/gophish/gophish/blob/master/models/models.go#L61">here.</a> To handle any additional migrations, all we need to do is run <code>goose create</code> again, add the SQL that makes up the migration, and push out the new file. The next time clients update gophish and restart the executable, the database migrations will be applied automatically!</p>
-
-<p>If this kind of stuff is interesting to you, and you want to see a full example of a web app written in Go, check out gophish by clicking below.</p>
-
-<a href="https://github.com/gophish/gophish" class="btn">Download gophish</a>
-
-
-                    </div>
-                </section>
-                
-                <h1 class="content-subhead">01 Feb 2016, 06:00</h1>
-                <section class="post">
-                    <header class="post-header">
-
-                        <a href="https://getgophish.com/blog/post/release-0.1.1/" class="post-title">Announcing gophish v0.1.1</a>
-
-                        <p class="post-meta">
-                            
-                            
-                        </p>
-                    </header>
-
-                    <div class="post-description">
-                        
-
-<img src="/blog/images/gophish_purple.png" alt="" class="pure-img" >
-
-<p><em>Tl;dr - Download the release <a href="https://github.com/gophish/gophish/releases">here</a></em></p>
-
-<h3 id="the-wait-is-over:1cea0120cd31cba0f7863bc47631176f"><strong>The wait is over!</strong></h3>
-
-<p>The gophish team is excited to announce our first public beta version of gophish - version 0.1.1! This blog post will be a short introduction into what gophish is, as well as some of the insanely awesome features we&rsquo;ve created.</p>
-
-<h3 id="what-is-gophish:1cea0120cd31cba0f7863bc47631176f">What is Gophish?</h3>
-
-<p>Gophish is a phishing framework that makes the simulation of real-world phishing attacks dead-simple. The idea behind gophish is simple – make industry-grade phishing training available to <em>everyone</em>.</p>
-
-<p>&ldquo;Available&rdquo; in this case means two things –</p>
-
-<ul>
-<li><strong>Affordable</strong> – Gophish is currently open-source software that is completely free for anyone to use.</li>
-<li><strong>Accessible</strong> – Gophish is written in the Go programming language. This has the benefit that gophish releases are compiled binaries with no dependencies. In a nutshell, this makes installation as simple as “download and run”!</li>
-</ul>
-
-<h3 id="time-for-features:1cea0120cd31cba0f7863bc47631176f">Time For Features</h3>
-
-<p>Ok, ok, enough with the intro. The idea of a phishing simulation platform isn&rsquo;t new. Let&rsquo;s take a look at some of the features that really set gophish apart and make it awesome.</p>
-
-<h4 id="hosted-on-prem:1cea0120cd31cba0f7863bc47631176f">Hosted On-Prem</h4>
-
-<p>There are many commercial offerings that provide phishing simulation/training. Unfortunately, these are SaaS solutions that require you to hand over your data to someone else.</p>
-
-<p>Gophish is different in that it is meant to be hosted in-house. This keeps you data where it belongs - with you.</p>
-
-<h4 id="download-run:1cea0120cd31cba0f7863bc47631176f">Download -&gt; Run</h4>
-
-<p>For the few existing in-house solutions that exist, setup can be a <em>huge pain</em> (looking at you, Ruby gems). Your time is too valuable to be spent wrestling with dependencies trying to create the perfect setup that somehow magically allows the program to run.</p>
-
-<p>Gophish was written in the Go programming language for this exact reason. To install gophish, all you have to do is download the zip file, extract the contents, and run the binary.</p>
-
-<p>By doing this, you just started two webservers, populated a database, and setup a background worker to handle sending the mails. Now, your time can be spent making campaigns. Easy peasy.</p>
-
-<h4 id="api-s-for-everything:1cea0120cd31cba0f7863bc47631176f">API&rsquo;s for <em>Everything</em>.</h4>
-
-<p>Gophish was built with automation first. This means that you can create scripts and clients that automate all the hard work for you. In addition to this, we keep up-to-date <a href="/documentation/api/">API docs</a> that describe each API endpoint in detail.</p>
-
-<h4 id="rock-solid-documentation:1cea0120cd31cba0f7863bc47631176f">Rock-Solid Documentation</h4>
-
-<p>Speaking of API docs, we take documentation very seriously. We take documentation seriously because we take our user experience seriously. If you can&rsquo;t find what you need to use and troubleshoot gophish, we&rsquo;ve failed. Just take a look at our comprehensive <a href="/documentation/Gophish%20User%20Guide.pdf">user guide</a>, <a href="/documentation/api/">API documentation</a>, and even <a href="http://godoc.org/github.com/gophish/gophish">fully documented code</a>.</p>
-
-<p>If you ever find something missing in our documentation, <a href="/support">we want to know!</a></p>
-
-<h4 id="beautiful-ui:1cea0120cd31cba0f7863bc47631176f">Beautiful UI</h4>
-
-<p>While the API is the core of gophish&rsquo;s functionality, we also provide a gorgeous admin UI. This UI is simply a wrapper on top of the underlying API. Nothing says more than screenshots:</p>
-
-<p><figure>
-    <img src="/blog/images/screenshots/login.png" alt="" class="blog-image" >
-    <figcap>Login Screen</figcap>
-</figure>
-
-<figure>
-    <img src="/blog/images/screenshots/new_group.png" alt="" class="blog-image" >
-    <figcap>Creating a New Group</figcap>
-</figure>
-
-<figure>
-    <img src="/blog/images/screenshots/new_template.png" alt="" class="blog-image" >
-    <figcap>Creating an Email Template</figcap>
-</figure>
-
-<figure>
-    <img src="/blog/images/screenshots/import_site.png" alt="" class="blog-image" >
-    <figcap>Importing a Site</figcap>
-</figure>
-
-<figure>
-    <img src="/blog/images/screenshots/campaign_results.png" alt="" class="blog-image" >
-    <figcap>Viewing Campaign Results</figcap>
-</figure>
-
-<figure>
-    <img src="/blog/images/screenshots/timeline.png" alt="" class="blog-image" >
-    <figcap>Viewing the Timeline for a Target</figcap>
-</figure>
-</p>
-
-<h3 id="take-gophish-for-a-spin:1cea0120cd31cba0f7863bc47631176f">Take Gophish for a Spin!</h3>
-
-<p>These features only scratch the surface when it comes to what makes gophish great, and we aren&rsquo;t anywhere near done yet. To explore these features for yourself, take gophish for a spin!</p>
-
-<p>We hope you enjoy gophish and are excited for all the new features that will be released soon! In the meantime, if you ever have any questions, comments, or issues, <a href="/support">we want to hear from you</a>!</p>
-
-<p>-The Gophish Team</p>
-
-<p><a href="https://github.com/gophish/gophish/releases" class="btn">Download gophish</a>
-</p>
-
-                    </div>
-                </section>
-                
-                <h1 class="content-subhead">07 Jan 2016, 22:05</h1>
-                <section class="post">
-                    <header class="post-header">
-
-                        <a href="https://getgophish.com/blog/post/hello-world/" class="post-title">Introducing gophish</a>
-
-                        <p class="post-meta">
-                            
-                            
-                        </p>
-                    </header>
-
-                    <div class="post-description">
-                        
-
-<h3 id="hello-world:aa77bbfd89a7b0ff10def205b9c08d51">Hello World!</h3>
-
-<p>This is the official blog for <a href="http://getgophish.com">gophish</a>, a phishing toolkit designed to make rock-solid security awareness training accessible to <em>everyone</em>.</p>
-
-<p>Check back here often to find information on gophish updates, how to leverage gophish in interesting ways to test the security of your organization, as well as general tips and tricks on securing your email infrastructure.</p>
-
-<p>The gophish team is excited to release the alpha version of gophish soon! In the meantime:</p>
-
-<pre><code>package main
-
-import &quot;fmt&quot;
-
-func main() {
-	fmt.Println(&quot;Hello world!&quot;)
-}
-</code></pre>
-
-                    </div>
-                </section>
-                
-            </div>
+            <li class="nav-opened" role="presentation">
+            	<a href="https://getgophish.com/">Home</a>
+            </li>
+        
+            
+            <li class="nav-opened" role="presentation">
+            	<a href="https://getgophish.com/documentation">Documentation</a>
+            </li>
+        
+            
+            <li class="nav-opened" role="presentation">
+            	<a href="https://github.com/gophish/gophish/issues">Support</a>
+            </li>
+        
+            
+            <li class="nav-opened" role="presentation">
+            	<a href="/blog/blog">Blog</a>
+            </li>
+        
+        
+    </ul>
+
+    
+    <a class="subscribe-button icon-feed" href="https://getgophish.com/blog/index.xml">Subscribe</a>
+    
+</div>
+<span class="nav-cover"></span>
+
+
+  <div class="site-wrapper">
+
+
+<header class="main-header no-cover">
+
+
+    <nav class="main-nav overlay clearfix">
+        
+            <a class="blog-logo" href="https://getgophish.com/blog/"><img src="/blog/images/gophish_purple_logo.png" alt="Blog Logo" /></a>
+        
+        
+            <a class="menu-button" href="#"><span class="burger">&#9776;</span><span class="word">Menu</span></a>
+        
+    </nav>
+    <div class="vertical">
+        <div class="main-header-content inner">
             
 
-            <div class="footer">
-    <div class="pure-menu pure-menu-horizontal pure-menu-open">
-        <ul>
-            <li>Powered by <a class="hugo" href="http://hugo.spf13.com/" target="_blank">hugo</a></li>
-        </ul>
-    </div>
-</div>
-<script src="https://getgophish.com/blog/js/all.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            <h1 class="page-title">Gophish - Blog</h1>
+            <h2 class="page-description"></h2>
         </div>
     </div>
-</div>
+    <a class="scroll-down icon-arrow-left" href="#content"><span class="hidden">Scroll Down</span></a>
+</header>
 
 
-<script>
-(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+<main id="content" class="content" role="main">
 
-ga('create', 'UA-47018345-1', 'auto');
-ga('send', 'pageview');
+    
+        
+    
+        
+    
+        
+    
+        
+    
 
-</script>
+    
+        
+            
+        
+    
 
+    
+    
+    
+
+    <div class="extra-pagination inner">
+        <nav class="pagination" role="navigation">
+	
+	<span class="page-number">Page 1 of 1</span>
+	
+</nav>
+
+    </div>
+
+    
+        <article class="post post">
+    <header class="post-header">
+        <h2 class="post-title"><a href="/blog/post/2018-12-02-building-web-servers-in-go/">Building Web Servers in Go</a></h2>
+    </header>
+    <section class="post-excerpt">
+        
+            <p>When I first set out to build Gophish 5 years ago, I used it as an opportunity to learn Golang.
+In this post, we&#39;ll use some of the lessons learned in this process, exploring how to build complex web servers from scratch using the powerful features of Go. <a class="read-more" href="/blog/post/2018-12-02-building-web-servers-in-go/">&raquo;</a></p>
+        
+    </section>
+    <footer class="post-meta">
+        
+
+        
+            
+            
+
+            
+            <img class="author-thumb" src="/blog/images/jordan-wright.jpg" alt="Author image" nopin="nopin" />
+            
+            
+            
+            Jordan Wright
+                 
+        
+
+        
+        <time class="post-date" datetime="2018-12-02T16:00:00-06:00">
+            2 Dec 2018
+        </time>
+    </footer>
+</article>
+
+    
+        <article class="post post">
+    <header class="post-header">
+        <h2 class="post-title"><a href="/blog/post/database-migrations-in-go/">Handling Database Migrations in Go</a></h2>
+    </header>
+    <section class="post-excerpt">
+        
+            <p>&ldquo;I got my database schema correct on the first try.&rdquo;
+-No one ever.
+ Like most big projects, gophish needed a way to automatically manage changes to our database schema. As new features were being added, we found ourselves in a situation that required us to add or modify columns and tables to store the new data.
+In a hosted environment, this is no problem since we control the database and can make schema changes as we see fit. <a class="read-more" href="/blog/post/database-migrations-in-go/">&raquo;</a></p>
+        
+    </section>
+    <footer class="post-meta">
+        
+
+        
+            
+            
+
+            
+            <img class="author-thumb" src="/blog/images/jordan-wright.jpg" alt="Author image" nopin="nopin" />
+            
+            
+            
+            Jordan Wright
+                 
+        
+
+        on
+            
+                <a href="https://getgophish.com/blog/tags/engineering/">#engineering</a>,
+            
+                <a href="https://getgophish.com/blog/tags/go/">#go</a>,
+            
+        
+        <time class="post-date" datetime="2016-02-01T07:00:00-06:00">
+            1 Feb 2016
+        </time>
+    </footer>
+</article>
+
+    
+        <article class="post post">
+    <header class="post-header">
+        <h2 class="post-title"><a href="/blog/post/release-0.1.1/">Announcing gophish v0.1.1</a></h2>
+    </header>
+    <section class="post-excerpt">
+        
+            <p>Tl;dr - Download the release here
+The wait is over! The gophish team is excited to announce our first public beta version of gophish - version 0.1.1! This blog post will be a short introduction into what gophish is, as well as some of the insanely awesome features we&rsquo;ve created.
+What is Gophish? Gophish is a phishing framework that makes the simulation of real-world phishing attacks dead-simple. The idea behind gophish is simple – make industry-grade phishing training available to everyone. <a class="read-more" href="/blog/post/release-0.1.1/">&raquo;</a></p>
+        
+    </section>
+    <footer class="post-meta">
+        
+
+        
+            
+            
+
+            
+            <img class="author-thumb" src="/blog/images/jordan-wright.jpg" alt="Author image" nopin="nopin" />
+            
+            
+            
+            Jordan Wright
+                 
+        
+
+        on
+            
+                <a href="https://getgophish.com/blog/tags/gophish/">#gophish</a>,
+            
+                <a href="https://getgophish.com/blog/tags/release/">#release</a>,
+            
+        
+        <time class="post-date" datetime="2016-02-01T06:00:00-06:00">
+            1 Feb 2016
+        </time>
+    </footer>
+</article>
+
+    
+        <article class="post post">
+    <header class="post-header">
+        <h2 class="post-title"><a href="/blog/post/hello-world/">Introducing gophish</a></h2>
+    </header>
+    <section class="post-excerpt">
+        
+            <p>Hello World! This is the official blog for gophish, a phishing toolkit designed to make rock-solid security awareness training accessible to everyone.
+Check back here often to find information on gophish updates, how to leverage gophish in interesting ways to test the security of your organization, as well as general tips and tricks on securing your email infrastructure.
+The gophish team is excited to release the alpha version of gophish soon! <a class="read-more" href="/blog/post/hello-world/">&raquo;</a></p>
+        
+    </section>
+    <footer class="post-meta">
+        
+
+        
+            
+            
+
+            
+            <img class="author-thumb" src="/blog/images/jordan-wright.jpg" alt="Author image" nopin="nopin" />
+            
+            
+            
+            Jordan Wright
+                 
+        
+
+        on
+            
+                <a href="https://getgophish.com/blog/tags/gophish/">#gophish</a>,
+            
+        
+        <time class="post-date" datetime="2016-01-07T22:05:58-06:00">
+            7 Jan 2016
+        </time>
+    </footer>
+</article>
+
+    
+
+    <nav class="pagination" role="navigation">
+	
+	<span class="page-number">Page 1 of 1</span>
+	
+</nav>
+
+
+
+</main>
+
+    <footer class="site-footer clearfix">
+        <section class="copyright"><a href="">Gophish - Blog</a> </section>
+        
+        <section class="poweredby">Proudly generated by <a class="icon-hugo" href="http://gohugo.io">HUGO</a>, with <a class="icon-theme" href="https://github.com/vjeantet/hugo-theme-casper">Casper</a> theme</section>
+        
+    </footer>
+    </div>
+    <script type="text/javascript" src="/blog/js/jquery.js"></script>
+    <script type="text/javascript" src="/blog/js/jquery.fitvids.js"></script>
+    <script type="text/javascript" src="/blog/js/index.js"></script>
+    
 </body>
 </html>
+

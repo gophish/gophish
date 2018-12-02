@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>https://getgophish.com/blog/</loc>
-    <lastmod>2016-02-01T07:00:00-06:00</lastmod>
-    <priority>0</priority>
+    <loc>https://getgophish.com/blog/post/2018-12-02-building-web-servers-in-go/</loc>
+    <lastmod>2018-12-02T16:00:00-06:00</lastmod>
   </url>
   
   <url>
@@ -20,6 +20,53 @@
   <url>
     <loc>https://getgophish.com/blog/post/hello-world/</loc>
     <lastmod>2016-01-07T22:05:58-06:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://getgophish.com/blog/categories/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://getgophish.com/blog/tags/engineering/</loc>
+    <lastmod>2016-02-01T07:00:00-06:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://getgophish.com/blog/tags/go/</loc>
+    <lastmod>2016-02-01T07:00:00-06:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://getgophish.com/blog/tags/gophish/</loc>
+    <lastmod>2016-02-01T06:00:00-06:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://getgophish.com/blog/</loc>
+    <lastmod>2018-12-02T16:00:00-06:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://getgophish.com/blog/post/</loc>
+    <lastmod>2018-12-02T16:00:00-06:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://getgophish.com/blog/tags/release/</loc>
+    <lastmod>2016-02-01T06:00:00-06:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://getgophish.com/blog/tags/</loc>
+    <lastmod>2016-02-01T07:00:00-06:00</lastmod>
+    <priority>0</priority>
   </url>
   
 </urlset>
