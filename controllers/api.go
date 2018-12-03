@@ -435,7 +435,7 @@ func API_Pages_Id(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// API_Public_keys contains functions to handle the GET'ing
+// API_Public_keys contains functions to handle the getting of all public keys related to this user, and adding of a new public key to user
 // of a public key object
 func API_Public_keys(w http.ResponseWriter, r *http.Request) {
 	switch {
@@ -470,6 +470,55 @@ func API_Public_keys(w http.ResponseWriter, r *http.Request) {
 		JSONResponse(w, p, http.StatusCreated)
 
 	}
+}
+
+// API_Public_keys contains functions to handle the GET'ing, DELETING'ing and PUT'ing
+// of a public key object
+func API_Public_keys_Id(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, _ := strconv.ParseInt(vars["id"], 0, 64)
+	p, err := models.GetPublicKey(id, ctx.Get(r, "user_id").(int64))
+	if err != nil {
+		JSONResponse(w, models.Response{Success: false, Message: "Public key not found"}, http.StatusNotFound)
+		return
+	}
+
+	switch {
+	case r.Method == "GET":
+		JSONResponse(w, p, http.StatusOK)
+
+	case r.Method == "DELETE":
+		err = models.DeletePublicKey(id, ctx.Get(r, "user_id").(int64))
+		if err != nil {
+			JSONResponse(w, models.Response{Success: false, Message: "Error deleting public key"}, http.StatusInternalServerError)
+			return
+		}
+		JSONResponse(w, models.Response{Success: true, Message: "Public key Deleted Successfully"}, http.StatusOK)
+	case r.Method == "PUT":
+		p = models.PublicKey{}
+		err = json.NewDecoder(r.Body).Decode(&p)
+		if err != nil {
+			log.Error(err)
+		}
+		if p.Id != id {
+			JSONResponse(w, models.Response{Success: false, Message: "/:id and /:public_key_id mismatch"}, http.StatusBadRequest)
+			return
+		}
+		err = p.Validate()
+		if err != nil {
+			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
+			return
+		}
+		p.UserId = ctx.Get(r, "user_id").(int64)
+		err = models.PutPublicKey(&p)
+		if err != nil {
+			JSONResponse(w, models.Response{Success: false, Message: "Error updating page"}, http.StatusInternalServerError)
+			return
+		}
+		JSONResponse(w, p, http.StatusOK)
+
+	}
+
 }
 
 // API_SMTP handles requests for the /api/smtp/ endpoint

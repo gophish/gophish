@@ -230,10 +230,6 @@ function setupOptions() {
                     placeholder: "Select a Public key",
                     data: public_keys_s2,
                 });
-                if (public_keys.length === 1) {
-                    public_keys_select.val(public_keys_s2[0].id)
-                    public_keys_select.trigger('change.select2')
-                }
             }
         });
     api.SMTP.get()

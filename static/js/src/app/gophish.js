@@ -162,7 +162,23 @@ var api = {
 		post: function(publickey) {
 			return query("/public_keys/", "POST", publickey, false)
 		}
+		
     },
+    // public_keys_id contains the endpoints for /public_keys/:id
+	public_keys_id: {
+		// get() - Queries the API for GET /public_keys/:id
+		get: function (id) {
+            return query("/public_keys/" + id, "GET", {}, false)
+        },
+        // put() - Puts a page to PUT /public_keys/:id
+        put: function (key) {
+            return query("/public_keys/" + key.id, "PUT", key, false)
+        },
+        // delete() - Deletes a page at DELETE /public_keys/:id
+        delete: function (id) {
+            return query("/public_keys/" + id, "DELETE", {}, false)
+        }
+	},
     // pageId contains the endpoints for /pages/:id
     pageId: {
         // get() - Queries the API for GET /pages/:id

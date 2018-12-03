@@ -76,6 +76,22 @@ func GetPublicKeyByName(n string, uid int64) (PublicKey, error) {
 	return p, err
 }
 
+// PutPublicKey edits an existing public key in the database.
+// Per the PUT Method RFC, it presumes all data for a public key is provided.
+func PutPublicKey(p *PublicKey) error {
+	err := p.Validate()
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+	err = db.Where("id=?", p.Id).Save(p).Error
+	if err != nil {
+		log.Error(err)
+	}
+
+	return err
+}
+
 // PostPublicKey creates a new publc key in the database.
 func PostPublicKey(p *PublicKey) error {
 	err := p.Validate()
@@ -90,6 +106,16 @@ func PostPublicKey(p *PublicKey) error {
 		log.Error(err)
 	}
 
+	return err
+}
+
+// DeletePublicKey deletes an existing Public key in the database.
+// An error is returned if a Public key with the given user id and public key id is not found.
+func DeletePublicKey(id int64, uid int64) error {
+	err = db.Where("user_id=?", uid).Delete(PublicKey{Id: id}).Error
+	if err != nil {
+		log.Error(err)
+	}
 	return err
 }
 

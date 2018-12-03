@@ -109,28 +109,36 @@
             <br />
         </div>
         <div role="tabpanel" class="tab-pane" id="encryptionSettings">
-			<br />
-		     <form id="addEncryptionKey">
-				 <div class="row">
-					<label for="friendly_name" class="col-sm-2 control-label form-label">Public key friendly name:</label>
-					<div class="col-md-6">
-	           			 <input type="text" id="friendly_name" name="friendly_name" class="form-control" placeholder="Friendly name" autocomplete="off"/>
-					</div>
+				</br>
+				 <button type="button" class="btn btn-primary" onclick="edit(-1)" data-toggle="modal" data-backdrop="static" data-target="#modal">
+           			 <i class="fa fa-plus"></i> New Public key
+				 </button>
+				</br>
+				 &nbsp;
+				  <div id="loading">
+				        <i class="fa fa-spinner fa-spin fa-4x"></i>
+				  </div>
+				
+				 <div id="emptyMessage" class="row" style="display:none;">
+				        <div class="alert alert-info">
+				            No public keys added yet. Let's add one!
+				        </div>
 				 </div>
-				<br />
-				 <div class="row">
-					<label for="public_key" class="col-sm-2 control-label form-label">Public key (PEM):</label>
-					<div class="col-md-6">
-	           			 <textarea type="text" id="public_key" name="public_key" class="form-control" placeholder="Public key" autocomplete="off"></textarea>
-					</div>
-				 </div>
-				<br />
-				<input type="hidden" name="csrf_token" value="{{.Token}}" />
-				<input type="hidden" name="type" value="addEncryption" />
-				<br />
 
-				<button class="btn btn-primary" type="submit"><i class="fa fa-plus"></i> Add</button>
-			</form>
+				 <div class="row" id="tableContainer" style="display:none;">
+				    <table id="publicKeysTable" class="table" >
+				         <thead>
+				             <tr>
+				                 <th>Name</th>
+				                 <th>Public key</th>
+				                 <th class="col-md-2 no-sort"></th>
+				             </tr>
+				         </thead>
+				         <tbody>
+				         </tbody>
+				    </table>
+				 </div>
+
         </div>
 		<div role="tabpanel" class="tab-pane" id="uiSettings">
             <br />
@@ -138,6 +146,35 @@
                 <input id="use_map" type="checkbox">
                 <label for="use_map">Show campaign results map</label>
             </div>
+        </div>
+    </div>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <!-- New Template Modal -->
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="dismiss()"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="templateModalLabel">New Public key</h4>
+            </div>
+			<form id="targetForm">
+	            <div class="modal-body">
+	                <div class="row" id="modal.flashes"></div>
+	                <label class="control-label" for="name">Friendly Name:</label>
+	                <div class="form-group">
+	                    <input type="text" class="form-control" ng-model="template.name" placeholder="Friendly public key name" id="friendly_name"
+	                        autofocus />
+	                </div>
+	
+	                <textarea rows="10" id="public_key" class="gophish-editor form-control" placeholder="Public key (RSA PEM)"></textarea>
+	            </div>
+	            <div class="modal-footer">
+	                <button type="button" data-dismiss="modal" class="btn btn-default" onclick="dismiss()">Cancel</button>
+	                <button type="button" class="btn btn-primary" id="modalSubmit">Save key</button>
+	            </div>
+			</form>
         </div>
     </div>
 </div>
