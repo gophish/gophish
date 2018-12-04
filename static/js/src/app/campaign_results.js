@@ -382,8 +382,8 @@ function renderTimeline(data) {
                 '    <i class="fa ' + statuses[event.message].icon + '"></i></div>' +
                 '    <div class="timeline-message">' + escapeHtml(event.message) +
                 '    <span class="timeline-date">' + moment.utc(event.time).local().format('MMMM Do YYYY h:mm:ss a') + '</span>'
-            if (event.details) {
-                details = JSON.parse(event.details)
+            if (event.details && event.key == "") {
+               	details = JSON.parse(event.details)
                 if (event.message == "Clicked Link" || event.message == "Submitted Data") {
                     deviceView = renderDevice(details)
                     if (deviceView) {
@@ -417,7 +417,11 @@ function renderTimeline(data) {
                     results += '<span class="label label-default">Error</span> ' + details.error
                     results += '</div>'
                 }
-            }
+            } else if(event.details && event.key != "") {
+				results += '<div class="timeline-event-details">Encrypted</div>'
+			}
+			
+			
             results += '</div></div>'
         }
     })
