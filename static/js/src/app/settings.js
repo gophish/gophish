@@ -32,7 +32,7 @@ function save(idx) {
 }
 
 function dismiss() {
-    $("#targetsTable").dataTable().DataTable().clear().draw()
+    $("#publicKeysTable").dataTable().DataTable().clear().draw()
     $("#friendly_name").val("")
 	$("#public_key").val("")
 	$("#modal").modal('hide')

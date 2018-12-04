@@ -36,12 +36,6 @@ func (p *PublicKey) Validate() error {
 	return err
 }
 
-// PutPublicKey adds public key
-func PutPubKey(p *PublicKey) error {
-	err := db.Save(p).Error
-	return err
-}
-
 // GetPublicKeys returns all public keys for given user (id)
 func GetPublicKeys(uid int64) ([]PublicKey, error) {
 	ps := []PublicKey{}
