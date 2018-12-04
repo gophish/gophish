@@ -488,6 +488,12 @@ func API_Public_keys_Id(w http.ResponseWriter, r *http.Request) {
 		JSONResponse(w, p, http.StatusOK)
 
 	case r.Method == "DELETE":
+		c, err := models.GetCampaignByPublicKey(id, ctx.Get(r, "user_id").(int64))
+		if err == nil {
+			log.Error("Could not delete public key as it was associated with a campaign")
+			JSONResponse(w, models.Response{Success: false, Message: "Public key associated with campaign " + c.Name}, http.StatusBadRequest)
+			return
+		}
 		err = models.DeletePublicKey(id, ctx.Get(r, "user_id").(int64))
 		if err != nil {
 			JSONResponse(w, models.Response{Success: false, Message: "Error deleting public key"}, http.StatusInternalServerError)

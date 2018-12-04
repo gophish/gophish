@@ -364,6 +364,18 @@ func GetCampaign(id int64, uid int64) (Campaign, error) {
 	return c, err
 }
 
+// GetCampaignByPublicKey returns the campaign, if it exists, specified by the given id and user_id.
+func GetCampaignByPublicKey(pub_key_id int64, uid int64) (Campaign, error) {
+	c := Campaign{}
+	err := db.Where("public_key_id = ?", pub_key_id).Where("user_id = ?", uid).Find(&c).Error
+	if err != nil {
+		log.Errorf("%s: campaign not found", err)
+		return c, err
+	}
+	err = c.getDetails()
+	return c, err
+}
+
 // GetCampaignResults returns just the campaign results for the given campaign
 func GetCampaignResults(id int64, uid int64) (CampaignResults, error) {
 	cr := CampaignResults{}
