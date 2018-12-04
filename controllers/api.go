@@ -177,6 +177,19 @@ func API_Roles_Id(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// API_Tags returns all the list of the tags for email templates and landing pages in the site
+func API_Tags(w http.ResponseWriter, r *http.Request) {
+
+	switch {
+	case r.Method == "GET":
+		cs, err := models.GetTags(ctx.Get(r, "user_id").(int64))
+		if err != nil {
+			log.Error(err)
+		}
+		JSONResponse(w, cs, http.StatusOK)
+	}
+}
+
 // API_Campaigns_Summary returns the summary for the current user's campaigns
 func API_Campaigns_Summary(w http.ResponseWriter, r *http.Request) {
 	switch {

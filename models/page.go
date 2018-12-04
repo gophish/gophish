@@ -14,6 +14,8 @@ type Page struct {
 	Id                 int64     `json:"id" gorm:"column:id; primary_key:yes"`
 	UserId             int64     `json:"-" gorm:"column:user_id"`
 	Name               string    `json:"name"`
+	TagsId             int64     `json:"tag" gorm:"column:tag"`
+	Tags               Tags      `json:"tags"`
 	HTML               string    `json:"html" gorm:"column:html"`
 	CaptureCredentials bool      `json:"capture_credentials" gorm:"column:capture_credentials"`
 	CapturePasswords   bool      `json:"capture_passwords" gorm:"column:capture_passwords"`
@@ -118,6 +120,16 @@ func PostPage(p *Page) error {
 		log.Error(err)
 		return err
 	}
+
+	tg, err := GetTagById(p.TagsId)
+
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+
+	p.Tags = tg
+
 	// Insert into the DB
 	err = db.Save(p).Error
 	if err != nil {

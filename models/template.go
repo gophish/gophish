@@ -17,9 +17,18 @@ type Template struct {
 	Text         string       `json:"text"`
 	HTML         string       `json:"html" gorm:"column:html"`
 	RATING       int64        `json:"rating" gorm:"column:rating"`
+	TagsId       int64        `json:"tag" gorm:"column:tag"`
+	Tags         Tags         `json:"tags"`
 	Public       bool         `json:"public" gorm:"column:public"`
 	ModifiedDate time.Time    `json:"modified_date"`
 	Attachments  []Attachment `json:"attachments"`
+}
+
+// Tags models hold the attributes for the categories of templates and landing pages
+type Tags struct {
+	Id     int64  `json:"id" gorm:"column:id; primary_key:yes"`
+	Name   string `json:"name"`
+	Weight int64  `json:"weight"`
 }
 
 // ErrTemplateNameNotSpecified is thrown when a template name is not specified
@@ -45,6 +54,16 @@ func (t *Template) Validate() error {
 	return nil
 }
 
+//Get tags by tag name
+func GetTagById(id int64) (Tags, error) {
+	t := Tags{}
+	err := db.Where("id=?", id).Find(&t).Error
+	if err != nil {
+		log.Error(err)
+	}
+	return t, err
+}
+
 // GetTemplates returns the templates owned by the given user.
 func GetTemplates(uid int64) ([]Template, error) {
 	ts := []Template{}
@@ -65,6 +84,13 @@ func GetTemplates(uid int64) ([]Template, error) {
 		}
 	}
 	return ts, err
+}
+
+// GetTags returns the all the tags from the database
+func GetTags(uid int64) ([]Tags, error) {
+	tg := []Tags{}
+	err := db.Order("id asc").Find(&tg).Error
+	return tg, err
 }
 
 // GetTemplate returns the template, if it exists, specified by the given id and user_id.
@@ -115,6 +141,16 @@ func PostTemplate(t *Template) error {
 	if err := t.Validate(); err != nil {
 		return err
 	}
+
+	tg, err := GetTagById(t.TagsId)
+
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+
+	t.Tags = tg
+
 	err = db.Save(t).Error
 	if err != nil {
 		log.Error(err)
