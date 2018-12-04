@@ -504,15 +504,10 @@ func API_Public_keys_Id(w http.ResponseWriter, r *http.Request) {
 			JSONResponse(w, models.Response{Success: false, Message: "/:id and /:public_key_id mismatch"}, http.StatusBadRequest)
 			return
 		}
-		err = p.Validate()
-		if err != nil {
-			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
-			return
-		}
 		p.UserId = ctx.Get(r, "user_id").(int64)
 		err = models.PutPublicKey(&p)
 		if err != nil {
-			JSONResponse(w, models.Response{Success: false, Message: "Error updating page"}, http.StatusInternalServerError)
+			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
 			return
 		}
 		JSONResponse(w, p, http.StatusOK)
@@ -585,11 +580,6 @@ func API_SMTP_Id(w http.ResponseWriter, r *http.Request) {
 		}
 		if s.Id != id {
 			JSONResponse(w, models.Response{Success: false, Message: "/:id and /:smtp_id mismatch"}, http.StatusBadRequest)
-			return
-		}
-		err = s.Validate()
-		if err != nil {
-			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
 			return
 		}
 		s.ModifiedDate = time.Now().UTC()

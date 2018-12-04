@@ -102,6 +102,7 @@ func (g *Group) Validate() error {
 	case len(g.Targets) == 0:
 		return ErrNoTargetsSpecified
 	}
+
 	return nil
 }
 
@@ -212,6 +213,12 @@ func PutGroup(g *Group) error {
 	if err := g.Validate(); err != nil {
 		return err
 	}
+
+	record, err := GetGroupByName(g.Name, g.UserId)
+	if err == nil && record.Id != g.Id {
+		return ErrRecordAlreadyExists
+	}
+
 	// Fetch group's existing targets from database.
 	ts := []Target{}
 	ts, err = GetTargets(g.Id)
@@ -260,6 +267,7 @@ func PutGroup(g *Group) error {
 			UpdateTarget(nt)
 		}
 	}
+
 	err = db.Save(g).Error
 	if err != nil {
 		log.Error(err)

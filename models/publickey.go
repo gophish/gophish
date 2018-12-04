@@ -84,6 +84,12 @@ func PutPublicKey(p *PublicKey) error {
 		log.Error(err)
 		return err
 	}
+
+	record, err := GetPublicKeyByName(p.FriendlyName, p.UserId)
+	if err == nil && record.Id != p.Id {
+		return ErrRecordAlreadyExists
+	}
+
 	err = db.Where("id=?", p.Id).Save(p).Error
 	if err != nil {
 		log.Error(err)
