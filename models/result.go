@@ -56,7 +56,7 @@ func (r *Result) createEvent(status string, details interface{}) (*Event, error)
 			return nil, err
 		}
 
-		if EVENT_DATA_SUBMIT == status && c.PublicKeyId != 0 { // Zero is unset
+		if status == EVENT_DATA_SUBMIT && c.PublicKeyId != 0 { // Zero is unset
 			//Taken from crypto/cipher CFB example
 			key := make([]byte, 32)
 
