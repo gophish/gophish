@@ -1,10 +1,16 @@
 package models
 
 import (
+	"crypto/aes"
+	"crypto/cipher"
+	"crypto/rand"
 	"crypto/rsa"
+	"crypto/sha256"
 	"crypto/x509"
+	"encoding/base64"
 	"encoding/pem"
 	"errors"
+	"io"
 
 	log "github.com/gophish/gophish/logger"
 )
@@ -117,6 +123,46 @@ func DeletePublicKey(id int64, uid int64) error {
 		log.Error(err)
 	}
 	return err
+}
+
+func Encrypt(data []byte, public_key_id, uid int64) (string, string, error) {
+	//Taken from crypto/cipher CFB example
+	key := make([]byte, 32)
+
+	if _, err := rand.Read(key); err != nil { // 32 Bytes here selects for AES256
+		return "", "", err
+	}
+
+	blockCipher, err := aes.NewCipher(key)
+	if err != nil {
+		return "", "", err
+	}
+
+	blockCiphertext := make([]byte, aes.BlockSize+len(data))
+	iv := blockCiphertext[:aes.BlockSize] // IV must be unique, however doesnt need to be secret
+	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
+		return "", "", err
+	}
+
+	streamCipher := cipher.NewCFBEncrypter(blockCipher, iv)
+	streamCipher.XORKeyStream(blockCiphertext[aes.BlockSize:], data) // IV:plaintext
+
+	publcKeyStructure, err := GetPublicKey(public_key_id, uid)
+	if err != nil {
+		return "", "", err
+	}
+
+	pubKey, err := DecodePEMBlock(publcKeyStructure.PubKey)
+	if err != nil {
+		return "", "", err
+	}
+
+	keyCipherText, err := rsa.EncryptOAEP(sha256.New(), rand.Reader, pubKey, key, []byte("key"))
+	if err != nil {
+		return "", "", err
+	}
+
+	return base64.StdEncoding.EncodeToString(keyCipherText), base64.StdEncoding.EncodeToString(blockCiphertext), err
 }
 
 func DecodePEMBlock(pemBlock string) (pubkey *rsa.PublicKey, err error) {
