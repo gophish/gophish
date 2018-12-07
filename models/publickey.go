@@ -21,6 +21,8 @@ var ErrFriendlyNameNotSpecified = errors.New("No friendly name specified")
 //The user did not enter a public key
 var ErrPublicKeyNotSpecified = errors.New("No public key specified")
 
+var ErrRecordAlreadyExists = errors.New("Record with same name already exists")
+
 // Public key contains the fields used for a Public key model
 type PublicKey struct {
 	Id           int64  `json:"id"`

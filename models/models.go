@@ -2,7 +2,6 @@ package models
 
 import (
 	"crypto/rand"
-	"errors"
 	"fmt"
 	"io"
 
