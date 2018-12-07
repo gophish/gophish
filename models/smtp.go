@@ -205,11 +205,6 @@ func PutSMTP(s *SMTP) error {
 		return err
 	}
 
-	record, err := GetSMTPByName(s.Name, s.UserId)
-	if err == nil && record.Id != s.Id {
-		return ErrRecordAlreadyExists
-	}
-
 	err = db.Where("id=?", s.Id).Save(s).Error
 	if err != nil {
 		log.Error(err)

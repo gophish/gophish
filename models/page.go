@@ -143,11 +143,6 @@ func PutPage(p *Page) error {
 		return err
 	}
 
-	record, err := GetGroupByName(p.Name, p.UserId)
-	if err == nil && record.Id != p.Id {
-		return ErrRecordAlreadyExists
-	}
-
 	err = db.Where("id=?", p.Id).Save(p).Error
 	if err != nil {
 		log.Error(err)

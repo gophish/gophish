@@ -138,11 +138,6 @@ func PutTemplate(t *Template) error {
 		return err
 	}
 
-	record, err := GetGroupByName(t.Name, t.UserId)
-	if err == nil && record.Id != t.Id {
-		return ErrRecordAlreadyExists
-	}
-
 	// Delete all attachments, and replace with new ones
 	err = db.Where("template_id=?", t.Id).Delete(&Attachment{}).Error
 	if err != nil && err != gorm.ErrRecordNotFound {

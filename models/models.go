@@ -18,8 +18,6 @@ import (
 var db *gorm.DB
 var err error
 
-var ErrRecordAlreadyExists = errors.New("Cannot save request as record with same name exists")
-
 const (
 	CAMPAIGN_IN_PROGRESS string = "In progress"
 	CAMPAIGN_QUEUED      string = "Queued"

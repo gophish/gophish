@@ -98,10 +98,6 @@ func Register(r *http.Request) (bool, error) {
 	u.Hash = string(h)
 	u.ApiKey = GenerateSecureKey()
 	err = models.PutUser(&u)
-	if err != nil {
-		log.Error(err)
-	}
-
 	return true, nil
 }
 
