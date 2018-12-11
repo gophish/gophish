@@ -1,50 +1,5 @@
 {{define "body"}}
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-sm-3 col-md-2 sidebar">
-            <ul class="nav nav-sidebar">
-                <li>
-                    <a href="/">Dashboard</a>
-                </li>
-                <li >
-                    <a href="/campaigns">Campaigns</a>
-                </li>
-                <li>
-                    <a href="/users">Users &amp; Groups</a>
-                </li>
-                <li>
-                    <a href="/templates">Email Templates</a>
-                </li>
-                <li>
-                    <a href="/landing_pages">Landing Pages</a>
-                </li>
-        <!--        <li>
-                    <a href="/sending_profiles">Sending Profiles</a>
-                </li> -->
-                <li>
-                    <a href="/our_domains">Our Domains</a>
-                </li> 
-                <li>
-                    <a href="/settings">Settings</a>
-                </li>
-                <li>
-                    <a href="/people">People</a>
-                </li>
-                  <li class="active">
-                    <a href="/roles" >Roles</a>
-                </li>
-                <li>
-                    <hr>
-                </li>
-                <!--        <li>
-                    <a href="https://docs.getgophish.com/user-guide/">User Guide</a>
-                </li>
-                <li><a href="https://docs.getgophish.com/api-documentation/">API Documentation</a>
-                </li> -->
-            </ul>
-        </div>
-    </div>
-</div>
+{{template "sidebar" .}}
 <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
     <div class="row">
         <h1 class="page-header">
@@ -53,8 +8,8 @@
     </div>
     <div id="flashes" class="row"></div>
     <div class="row">
-        
-        <a href="/register" class="btn btn-primary">
+
+        <a href="#" class="btn btn-primary" disabled>
             <i class="fa fa-plus"></i> Add New Role</button>
         </a>
 
@@ -72,10 +27,10 @@
         <table id="rolesTable" class="table" style="display:none;">
             <thead>
                 <tr>
-                    
+
                     <th class="col-md-3">Role</th>
                     <th class="col-md-3">Weight</th>
-                   
+
                 </tr>
             </thead>
             <tbody>
@@ -108,7 +63,7 @@
                     <label class="control-label" for="page">Confirm Password:</label>
                     <input type="password" name="confirm_new_password" id = "confirm_password" class="form-control bottom-input" placeholder="Confirm Password" autocomplete="off" />
                     <input type="hidden" name="id" id = "hidden_uid" value="">
-                
+
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal" onclick="dismiss()">Close</button>
                 <button type="button" class="btn btn-primary" id="modalSubmit">Save User</button>

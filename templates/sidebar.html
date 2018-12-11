@@ -1,0 +1,61 @@
+{{ define "sidebar" }}
+<div class="container-fluid">
+  <div class="row">
+      <div class="col-sm-3 col-md-2 sidebar">
+          <ul class="nav nav-sidebar">
+              <li {{if eq page "dashboard"}}class="active"{{end}}>
+                  <a href="/">Dashboard</a>
+              </li>
+              <li {{if eq page "campaigns"}}class="active"{{end}}>
+                  <a href="/campaigns">Campaigns</a>
+              </li>
+              <li {{if eq page "users"}}class="active"{{end}}>
+                  <a href="/users">Users &amp; Groups</a>
+              </li>
+              <li {{if eq page "templates"}}class="active"{{end}}>
+                  <a href="/templates">Email Templates</a>
+              </li>
+              <li {{if eq page "landing_pages"}}class="active"{{end}}>
+                  <a href="/landing_pages">Landing Pages</a>
+              </li>
+      <!--        <li>
+                  <a href="/sending_profiles">Sending Profiles</a>
+              </li> -->
+
+              {{if eq role "Administrator"}}
+              <li {{if eq page "sending_domains"}}class="active"{{end}}>
+                  <a href="/our_domains">Our Domains</a>
+              </li>
+              {{end}}
+
+
+              <li {{if eq page "settings"}}class="active"{{end}}>
+                  <a href="/settings">Settings</a>
+              </li>
+
+              {{if or (eq role "Administrator") (eq role "Partner") (eq role "Child User")}}
+              <li {{if eq page "people"}}class="active"{{end}}>
+                  <a href="/people">People</a>
+              </li>
+              {{end}}
+
+              {{if eq role "Administrator"}}
+              <li {{if eq page "roles"}}class="active"{{end}}>
+                  <a href="/roles">Roles</a>
+              </li>
+              {{end}}
+
+              <li>
+                  <hr>
+              </li>
+      <!--       <li>
+                  <a href="https://docs.getgophish.com/user-guide/">User Guide</a>
+              </li>
+              <li>
+                  <a href="https://docs.getgophish.com/api-documentation/">API Documentation</a>
+              </li> -->
+          </ul>
+      </div>
+  </div>
+</div>
+{{end}}

@@ -1,40 +1,5 @@
 {{define "body"}}
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-sm-3 col-md-2 sidebar">
-            <ul class="nav nav-sidebar">
-                <li><a href="/">Dashboard</a>
-                </li>
-                <li><a href="/campaigns">Campaigns</a>
-                </li>
-                <li><a href="/users">Users &amp; Groups</a>
-                </li>
-                <li><a href="/templates">Email Templates</a>
-                </li>
-                <li><a href="/landing_pages">Landing Pages</a>
-                </li>
-            <!--    <li><a href="/sending_profiles">Sending Profiles</a>
-                </li> -->
-                <li><a href="/our_domains">Our Domains</a>
-                </li>
-                <li class="active"><a href="/settings">Settings</a>
-                </li>
-                <li><a href="/people">People</a>
-                </li>
-                <li><a href="/roles">Roles</a>
-                </li>
-                <li>
-                    <hr>
-                </li>
-        <!--        <li>
-                    <a href="https://docs.getgophish.com/user-guide/">User Guide</a>
-                </li>
-                <li><a href="https://docs.getgophish.com/api-documentation/">API Documentation</a>
-                </li> -->
-            </ul>
-        </div>
-    </div>
-</div>
+{{template "sidebar" .}}
 <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
     <div class="row">
         <h1 class="page-header">Settings</h1>
@@ -57,6 +22,8 @@
                 </div>
             </div>
             <br />
+
+            {{if or (eq role "Administrator") (eq role "Partner") (eq role "Child User")}}
             <div class="row">
                 <label class="col-sm-2 control-label form-label">Register a New User</label>
                 <div class="col-md-6">
@@ -64,6 +31,8 @@
                 </div>
             </div>
             <br />
+            {{end}}
+
             <div class="row">
                 <label for="api_key" class="col-sm-2 control-label form-label">API Key:</label>
                 <div class="col-md-6">

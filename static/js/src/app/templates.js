@@ -1,393 +1,238 @@
-var templates = []
-var icons = {
-    "application/vnd.ms-excel": "fa-file-excel-o",
-    "text/plain": "fa-file-text-o",
-    "image/gif": "fa-file-image-o",
-    "image/png": "fa-file-image-o",
-    "application/pdf": "fa-file-pdf-o",
-    "application/x-zip-compressed": "fa-file-archive-o",
-    "application/x-gzip": "fa-file-archive-o",
-    "application/vnd.openxmlformats-officedocument.presentationml.presentation": "fa-file-powerpoint-o",
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "fa-file-word-o",
-    "application/octet-stream": "fa-file-o",
-    "application/x-msdownload": "fa-file-o"
-}
-
-// Save attempts to POST to /templates/
-function save(idx) {
-    var template = {
+function save(e) {
+    var t = {
         attachments: []
-    }
-    template.name = $("#name").val()
-    template.subject = $("#subject").val()
-    template.html = CKEDITOR.instances["html_editor"].getData();
-    // Fix the URL Scheme added by CKEditor (until we can remove it from the plugin)
-    template.html = template.html.replace(/https?:\/\/{{\.URL}}/gi, "{{.URL}}")
-    // If the "Add Tracker Image" checkbox is checked, add the tracker
-    if ($("#use_tracker_checkbox").prop("checked")) {
-        if (template.html.indexOf("{{.Tracker}}") == -1 &&
-            template.html.indexOf("{{.TrackingUrl}}") == -1) {
-            template.html = template.html.replace("</body>", "{{.Tracker}}</body>")
-        }
-    } else {
-        // Otherwise, remove the tracker
-        template.html = template.html.replace("{{.Tracker}}</body>", "</body>")
-    }
-    template.text = $("#text_editor").val()
-    // Add the attachments
-    $.each($("#attachmentsTable").DataTable().rows().data(), function (i, target) {
-        template.attachments.push({
-            name: unescapeHtml(target[1]),
-            content: target[3],
-            type: target[4],
-        })
-    })
+    };
 
-    if (idx != -1) {
-        template.id = templates[idx].id
-        api.templateId.put(template)
-            .success(function (data) {
-                successFlash("Template edited successfully!")
-                load()
-                dismiss()
-            })
-            .error(function (data) {
-                modalError(data.responseJSON.message)
-            })
-    } else {
-        // Submit the template
-        api.templates.post(template)
-            .success(function (data) {
-                successFlash("Template added successfully!")
-                load()
-                dismiss()
-            })
-            .error(function (data) {
-                modalError(data.responseJSON.message)
-            })
-    }
+    t.name = $("#name").val(), t.tag = parseInt($("#category").val()), t.public = $("#publicly_available").prop("checked"), t.subject = $("#subject").val(),  t.rating = parseInt($('input[name=stars]:checked').val()), t.html = CKEDITOR.instances.html_editor.getData(), t.html = t.html.replace(/https?:\/\/{{\.URL}}/gi, "{{.URL}}"), $("#use_tracker_checkbox").prop("checked") ? -1 == t.html.indexOf("{{.Tracker}}") && -1 == t.html.indexOf("{{.TrackingUrl}}") && (t.html = t.html.replace("</body>", "{{.Tracker}}</body>")) : t.html = t.html.replace("{{.Tracker}}</body>", "</body>"), t.text = $("#text_editor").val(), $.each($("#attachmentsTable").DataTable().rows().data(), function(e, a) {
+        t.attachments.push({
+            name: unescapeHtml(a[1]),
+            content: a[3],
+            type: a[4]
+        })
+    }), -1 != e ? (t.id = templates[e].id, api.templateId.put(t).success(function(e) {
+        successFlash("Template edited successfully!"), load(), dismiss()
+    }).error(function(e) {
+        modalError(e.responseJSON.message)
+    })) : api.templates.post(t).success(function(e) {
+        successFlash("Template added successfully!"), load(), dismiss()
+    }).error(function(e) {
+        modalError(e.responseJSON.message)
+    })
 }
 
 function dismiss() {
-    $("#modal\\.flashes").empty()
-    $("#attachmentsTable").dataTable().DataTable().clear().draw()
-    $("#name").val("")
-    $("#subject").val("")
-    $("#text_editor").val("")
-    $("#html_editor").val("")
-    $("#modal").modal('hide')
+    $("#modal\\.flashes").empty(), $("#attachmentsTable").dataTable().DataTable().clear().draw(), $("#name").val(""), $("#subject").val(""), $("#text_editor").val(""), $("#html_editor").val(""), $("#category").val(""), 
+    $("#modal").modal("hide")
 }
 
-var deleteTemplate = function (idx) {
-    swal({
-        title: "Are you sure?",
-        text: "This will delete the template. This can't be undone!",
-        type: "warning",
-        animation: false,
-        showCancelButton: true,
-        confirmButtonText: "Delete " + escapeHtml(templates[idx].name),
-        confirmButtonColor: "#428bca",
-        reverseButtons: true,
-        allowOutsideClick: false,
-        preConfirm: function () {
-            return new Promise(function (resolve, reject) {
-                api.templateId.delete(templates[idx].id)
-                    .success(function (msg) {
-                        resolve()
-                    })
-                    .error(function (data) {
-                        reject(data.responseJSON.message)
-                    })
-            })
-        }
-    }).then(function () {
-        swal(
-            'Template Deleted!',
-            'This template has been deleted!',
-            'success'
-        );
-        $('button:contains("OK")').on('click', function () {
-            location.reload()
-        })
+function deleteTemplate(e) {
+    confirm("Delete " + templates[e].name + "?") && api.templateId.delete(templates[e].id).success(function(e) {
+        successFlash(e.message), load()
     })
 }
 
-function deleteTemplate(idx) {
-    if (confirm("Delete " + templates[idx].name + "?")) {
-        api.templateId.delete(templates[idx].id)
-            .success(function (data) {
-                successFlash(data.message)
-                load()
-            })
-    }
-}
-
-function attach(files) {
+function attach(e) {
     attachmentsTable = $("#attachmentsTable").DataTable({
-        destroy: true,
-        "order": [
+        destroy: !0,
+        order: [
             [1, "asc"]
         ],
         columnDefs: [{
-            orderable: false,
+            orderable: !1,
             targets: "no-sort"
         }, {
             sClass: "datatable_hidden",
             targets: [3, 4]
         }]
-    });
-    $.each(files, function (i, file) {
-        var reader = new FileReader();
-        /* Make this a datatable */
-        reader.onload = function (e) {
-            var icon = icons[file.type] || "fa-file-o"
-            // Add the record to the modal
-            attachmentsTable.row.add([
-                '<i class="fa ' + icon + '"></i>',
-                escapeHtml(file.name),
-                '<span class="remove-row"><i class="fa fa-trash-o"></i></span>',
-                reader.result.split(",")[1],
-                file.type || "application/octet-stream"
-            ]).draw()
-        }
-        reader.onerror = function (e) {
+    }), $.each(e, function(e, t) {
+        var a = new FileReader;
+        a.onload = function(e) {
+            var o = icons[t.type] || "fa-file-o";
+            attachmentsTable.row.add(['<i class="fa ' + o + '"></i>', escapeHtml(t.name), '<span class="remove-row"><i class="fa fa-trash-o"></i></span>', a.result.split(",")[1], t.type || "application/octet-stream"]).draw()
+        }, a.onerror = function(e) {
             console.log(e)
-        }
-        reader.readAsDataURL(file)
+        }, a.readAsDataURL(t)
     })
 }
 
-function edit(idx) {
-    $("#modalSubmit").unbind('click').click(function () {
-        save(idx)
-    })
-    $("#attachmentUpload").unbind('click').click(function () {
+function edit(e) {
+    $("#modalSubmit").unbind("click").click(function() {
+        save(e)
+    }), $("#attachmentUpload").unbind("click").click(function() {
         this.value = null
-    })
-    $("#html_editor").ckeditor()
-    $("#attachmentsTable").show()
-    attachmentsTable = $('#attachmentsTable').DataTable({
-        destroy: true,
-        "order": [
+    }), $("#html_editor").ckeditor(), $("#attachmentsTable").show(), attachmentsTable = $("#attachmentsTable").DataTable({
+        destroy: !0,
+        order: [
             [1, "asc"]
         ],
         columnDefs: [{
-            orderable: false,
+            orderable: !1,
             targets: "no-sort"
         }, {
             sClass: "datatable_hidden",
             targets: [3, 4]
         }]
     });
-    var template = {
+    var t = {
         attachments: []
-    }
-    if (idx != -1) {
-        template = templates[idx]
-        $("#name").val(template.name)
-        $("#subject").val(template.subject)
-        $("#html_editor").val(template.html)
-        $("#text_editor").val(template.text)
-        $.each(template.attachments, function (i, file) {
-            var icon = icons[file.type] || "fa-file-o"
-            // Add the record to the modal
-            attachmentsTable.row.add([
-                '<i class="fa ' + icon + '"></i>',
-                escapeHtml(file.name),
-                '<span class="remove-row"><i class="fa fa-trash-o"></i></span>',
-                file.content,
-                file.type || "application/octet-stream"
-            ]).draw()
+    }; - 1 != e && (t = templates[e], console.log(t), $("#publicly_available").prop("checked", t.public), $("#name").val(t.name), $("#subject").val(t.subject), $("#html_editor").val(t.html), $("#text_editor").val(t.text), $.each(t.attachments, function(e, t) {
+        var a = icons[t.type] || "fa-file-o";
+        attachmentsTable.row.add(['<i class="fa ' + a + '"></i>', escapeHtml(t.name), '<span class="remove-row"><i class="fa fa-trash-o"></i></span>', t.content, t.type || "application/octet-stream"]).draw()
+    }), -1 != t.html.indexOf("{{.Tracker}}") ? $("#use_tracker_checkbox").prop("checked", !0) : $("#use_tracker_checkbox").prop("checked", !1)  
+    ),
+        
+        $(":radio").prop('checked', false);
+        $(":radio[value="+t.rating+"]").prop('checked', true);
+    
+    $("#attachmentsTable").unbind("click").on("click", "span>i.fa-trash-o", function() {
+        attachmentsTable.row($(this).parents("tr")).remove().draw()
+    })
+
+    //fill the categories by the API
+    $("#category").find('option').not(':first').remove();
+    api.tags.get().success(function(s) {
+        $.each(s, function(e, ss) {
+
+            var sel = '';
+            if(t.tag == ss.id){
+                sel = 'selected = "selected"';
+            }
+            
+            $('#category').append('<option value="'+ss.id+'"  '+sel+'>'+ss.name+'</option>')
         })
-        if (template.html.indexOf("{{.Tracker}}") != -1) {
-            $("#use_tracker_checkbox").prop("checked", true)
-        } else {
-            $("#use_tracker_checkbox").prop("checked", false)
-        }
-
-    }
-    // Handle Deletion
-    $("#attachmentsTable").unbind('click').on("click", "span>i.fa-trash-o", function () {
-        attachmentsTable.row($(this).parents('tr'))
-            .remove()
-            .draw();
     })
 }
 
-function copy(idx) {
-    $("#modalSubmit").unbind('click').click(function () {
+function copy(e) {
+    $("#modalSubmit").unbind("click").click(function() {
         save(-1)
-    })
-    $("#attachmentUpload").unbind('click').click(function () {
+    }), $("#attachmentUpload").unbind("click").click(function() {
         this.value = null
-    })
-    $("#html_editor").ckeditor()
-    $("#attachmentsTable").show()
-    attachmentsTable = $('#attachmentsTable').DataTable({
-        destroy: true,
-        "order": [
+    }), $("#html_editor").ckeditor(), $("#attachmentsTable").show(), attachmentsTable = $("#attachmentsTable").DataTable({
+        destroy: !0,
+        order: [
             [1, "asc"]
         ],
         columnDefs: [{
-            orderable: false,
+            orderable: !1,
             targets: "no-sort"
         }, {
             sClass: "datatable_hidden",
             targets: [3, 4]
         }]
     });
-    var template = {
+    var t = {
         attachments: []
-    }
-    template = templates[idx]
-    $("#name").val("Copy of " + template.name)
-    $("#subject").val(template.subject)
-    $("#html_editor").val(template.html)
-    $("#text_editor").val(template.text)
-    $.each(template.attachments, function (i, file) {
-        var icon = icons[file.type] || "fa-file-o"
-        // Add the record to the modal
-        attachmentsTable.row.add([
-            '<i class="fa ' + icon + '"></i>',
-            escapeHtml(file.name),
-            '<span class="remove-row"><i class="fa fa-trash-o"></i></span>',
-            file.content,
-            file.type || "application/octet-stream"
-        ]).draw()
-    })
-    // Handle Deletion
-    $("#attachmentsTable").unbind('click').on("click", "span>i.fa-trash-o", function () {
-        attachmentsTable.row($(this).parents('tr'))
-            .remove()
-            .draw();
-    })
-    if (template.html.indexOf("{{.Tracker}}") != -1) {
-        $("#use_tracker_checkbox").prop("checked", true)
-    } else {
-        $("#use_tracker_checkbox").prop("checked", false)
-    }
+    };
+    t = templates[e], $("#name").val("Copy of " + t.name), $("#subject").val(t.subject), $("#html_editor").val(t.html), $("#text_editor").val(t.text), 
+    
+    $(":radio").prop('checked', false);
+    $(":radio[value="+t.rating+"]").prop('checked', true);
+    
+    $.each(t.attachments, function(e, t) {
+        var a = icons[t.type] || "fa-file-o";
+        attachmentsTable.row.add(['<i class="fa ' + a + '"></i>', escapeHtml(t.name), '<span class="remove-row"><i class="fa fa-trash-o"></i></span>', t.content, t.type || "application/octet-stream"]).draw()
+    }), $("#attachmentsTable").unbind("click").on("click", "span>i.fa-trash-o", function() {
+        attachmentsTable.row($(this).parents("tr")).remove().draw()
+    }), -1 != t.html.indexOf("{{.Tracker}}") ? $("#use_tracker_checkbox").prop("checked", !0) : $("#use_tracker_checkbox").prop("checked", !1)
 }
 
 function importEmail() {
-    raw = $("#email_content").val()
-    convert_links = $("#convert_links_checkbox").prop("checked")
-    if (!raw) {
-        modalError("No Content Specified!")
-    } else {
-        api.import_email({
-                content: raw,
-                convert_links: convert_links
-            })
-            .success(function (data) {
-                $("#text_editor").val(data.text)
-                $("#html_editor").val(data.html)
-                $("#subject").val(data.subject)
-                // If the HTML is provided, let's open that view in the editor
-                if (data.html) {
-                    CKEDITOR.instances["html_editor"].setMode('wysiwyg')
-                    $('.nav-tabs a[href="#html"]').click()
-                }
-                $("#importEmailModal").modal("hide")
-            })
-            .error(function (data) {
-                modalError(data.responseJSON.message)
-            })
-    }
+    raw = $("#email_content").val(), convert_links = $("#convert_links_checkbox").prop("checked"), raw ? api.import_email({
+        content: raw,
+        convert_links: convert_links
+    }).success(function(e) {
+        $("#text_editor").val(e.text), $("#html_editor").val(e.html), $("#subject").val(e.subject), e.html && (CKEDITOR.instances.html_editor.setMode("wysiwyg"), $('.nav-tabs a[href="#html"]').click()), $("#importEmailModal").modal("hide")
+    }).error(function(e) {
+        modalError(e.responseJSON.message)
+    }) : modalError("No Content Specified!")
 }
 
 function load() {
-    $("#templateTable").hide()
-    $("#emptyMessage").hide()
-    $("#loading").show()
-    api.templates.get()
-        .success(function (ts) {
-            templates = ts
-            $("#loading").hide()
-            if (templates.length > 0) {
-                $("#templateTable").show()
-                templateTable = $("#templateTable").DataTable({
-                    destroy: true,
-                    columnDefs: [{
-                        orderable: false,
-                        targets: "no-sort"
-                    }]
-                });
-                templateTable.clear()
-                $.each(templates, function (i, template) {
-                    templateTable.row.add([
-                        escapeHtml(template.name),
-                        moment(template.modified_date).format('MMMM Do YYYY, h:mm:ss a'),
-                        "<div class='pull-right'><span data-toggle='modal' data-backdrop='static' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Edit Template' onclick='edit(" + i + ")'>\
-                    <i class='fa fa-pencil'></i>\
-                    </button></span>\
-		    <span data-toggle='modal' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Copy Template' onclick='copy(" + i + ")'>\
-                    <i class='fa fa-copy'></i>\
-                    </button></span>\
-                    <button class='btn btn-danger' data-toggle='tooltip' data-placement='left' title='Delete Template' onclick='deleteTemplate(" + i + ")'>\
-                    <i class='fa fa-trash-o'></i>\
-                    </button></div>"
-                    ]).draw()
-                })
-                $('[data-toggle="tooltip"]').tooltip()
-            } else {
-                $("#emptyMessage").show()
-            }
-        })
-        .error(function () {
-            $("#loading").hide()
-            errorFlash("Error fetching templates")
-        })
-}
+    $("#templateTable").hide(), $("#emptyMessage").hide(), $("#loading").show(), api.templates.get().success(function(e) {
+        templates = e, $("#loading").hide(), templates.length > 0 ? ($("#templateTable").show(), templateTable = $("#templateTable").DataTable({
+            destroy: !0,
+            columnDefs: [{
+                orderable: !1,
+                targets: "no-sort"
+            }]
+        }), templateTable.clear(), $.each(templates, function(e, t) {
 
-$(document).ready(function () {
-    // Setup multiple modals
-    // Code based on http://miles-by-motorcycle.com/static/bootstrap-modal/index.html
-    $('.modal').on('hidden.bs.modal', function (event) {
-        $(this).removeClass('fv-modal-stack');
-        $('body').data('fv_open_modals', $('body').data('fv_open_modals') - 1);
-    });
-    $('.modal').on('shown.bs.modal', function (event) {
-        // Keep track of the number of open modals
-        if (typeof ($('body').data('fv_open_modals')) == 'undefined') {
-            $('body').data('fv_open_modals', 0);
-        }
-        // if the z-index of this modal has been set, ignore.
-        if ($(this).hasClass('fv-modal-stack')) {
-            return;
-        }
-        $(this).addClass('fv-modal-stack');
-        // Increment the number of open modals
-        $('body').data('fv_open_modals', $('body').data('fv_open_modals') + 1);
-        // Setup the appropriate z-index
-        $(this).css('z-index', 1040 + (10 * $('body').data('fv_open_modals')));
-        $('.modal-backdrop').not('.fv-modal-stack').css('z-index', 1039 + (10 * $('body').data('fv_open_modals')));
-        $('.modal-backdrop').not('fv-modal-stack').addClass('fv-modal-stack');
-    });
-    $.fn.modal.Constructor.prototype.enforceFocus = function () {
-        $(document)
-            .off('focusin.bs.modal') // guard against infinite focus loop
-            .on('focusin.bs.modal', $.proxy(function (e) {
-                if (
-                    this.$element[0] !== e.target && !this.$element.has(e.target).length
-                    // CKEditor compatibility fix start.
-                    &&
-                    !$(e.target).closest('.cke_dialog, .cke').length
-                    // CKEditor compatibility fix end.
-                ) {
-                    this.$element.trigger('focus');
-                }
-            }, this));
-    };
-    // Scrollbar fix - https://stackoverflow.com/questions/19305821/multiple-modals-overlay
-    $(document).on('hidden.bs.modal', '.modal', function () {
-        $('.modal:visible').length && $(document.body).addClass('modal-open');
-    });
-    $('#modal').on('hidden.bs.modal', function (event) {
-        dismiss()
-    });
-    $("#importEmailModal").on('hidden.bs.modal', function (event) {
-        $("#email_content").val("")
+   
+
+            var rating = ''
+            if(t.rating == 5){
+                 rating = '<span> &#9733; &#9733; &#9733; &#9733; &#9733;</span>';
+            }if(t.rating == 4){
+                 rating = '<span> &#9733; &#9733; &#9733; &#9733; &#9734;</span>';
+            }if(t.rating == 3){
+                 rating = '<span> &#9733; &#9733; &#9733; &#9734; &#9734;</span>';
+            }if(t.rating == 2){
+                 rating = '<span> &#9733; &#9733; &#9734; &#9734; &#9734;</span>';
+            }if(t.rating == 1){
+                 rating = '<span> &#9733; &#9734; &#9734; &#9734; &#9734;</span>';
+            } 
+
+            templateTable.row.add([escapeHtml(t.name), rating, moment(t.modified_date).format("MMMM Do YYYY, h:mm:ss a"), "<div class='pull-right'><span data-toggle='modal' data-backdrop='static' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Edit Template' onclick='edit(" + e + ")'>                    <i class='fa fa-pencil'></i>                    </button></span>\t\t    <span data-toggle='modal' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Copy Template' onclick='copy(" + e + ")'>                    <i class='fa fa-copy'></i>                    </button></span>                    <button class='btn btn-danger' data-toggle='tooltip' data-placement='left' title='Delete Template' onclick='deleteTemplate(" + e + ")'>                    <i class='fa fa-trash-o'></i>                    </button></div>"]).draw()
+        }), $('[data-toggle="tooltip"]').tooltip()) : $("#emptyMessage").show()
+    }).error(function() {
+        $("#loading").hide(), errorFlash("Error fetching templates")
     })
-    load()
-
-})
+}
+var templates = [],
+    icons = {
+        "application/vnd.ms-excel": "fa-file-excel-o",
+        "text/plain": "fa-file-text-o",
+        "image/gif": "fa-file-image-o",
+        "image/png": "fa-file-image-o",
+        "application/pdf": "fa-file-pdf-o",
+        "application/x-zip-compressed": "fa-file-archive-o",
+        "application/x-gzip": "fa-file-archive-o",
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation": "fa-file-powerpoint-o",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "fa-file-word-o",
+        "application/octet-stream": "fa-file-o",
+        "application/x-msdownload": "fa-file-o"
+    },
+    deleteTemplate = function(e) {
+        swal({
+            title: "Are you sure?",
+            text: "This will delete the template. This can't be undone!",
+            type: "warning",
+            animation: !1,
+            showCancelButton: !0,
+            confirmButtonText: "Delete " + escapeHtml(templates[e].name),
+            confirmButtonColor: "#428bca",
+            reverseButtons: !0,
+            allowOutsideClick: !1,
+            preConfirm: function() {
+                return new Promise(function(t, a) {
+                    api.templateId.delete(templates[e].id).success(function(e) {
+                        t()
+                    }).error(function(e) {
+                        a(e.responseJSON.message)
+                    })
+                })
+            }
+        }).then(function() {
+            swal("Template Deleted!", "This template has been deleted!", "success"), $('button:contains("OK")').on("click", function() {
+                location.reload()
+            })
+        })
+    };
+$(document).ready(function() {
+    $(".modal").on("hidden.bs.modal", function(e) {
+        $(this).removeClass("fv-modal-stack"), $("body").data("fv_open_modals", $("body").data("fv_open_modals") - 1)
+    }), $(".modal").on("shown.bs.modal", function(e) {
+        void 0 === $("body").data("fv_open_modals") && $("body").data("fv_open_modals", 0), $(this).hasClass("fv-modal-stack") || ($(this).addClass("fv-modal-stack"), $("body").data("fv_open_modals", $("body").data("fv_open_modals") + 1), $(this).css("z-index", 1040 + 10 * $("body").data("fv_open_modals")), $(".modal-backdrop").not(".fv-modal-stack").css("z-index", 1039 + 10 * $("body").data("fv_open_modals")), $(".modal-backdrop").not("fv-modal-stack").addClass("fv-modal-stack"))
+    }), $.fn.modal.Constructor.prototype.enforceFocus = function() {
+        $(document).off("focusin.bs.modal").on("focusin.bs.modal", $.proxy(function(e) {
+            this.$element[0] === e.target || this.$element.has(e.target).length || $(e.target).closest(".cke_dialog, .cke").length || this.$element.trigger("focus")
+        }, this))
+    }, $(document).on("hidden.bs.modal", ".modal", function() {
+        $(".modal:visible").length && $(document.body).addClass("modal-open")
+    }), $("#modal").on("hidden.bs.modal", function(e) {
+        dismiss()
+    }), $("#importEmailModal").on("hidden.bs.modal", function(e) {
+        $("#email_content").val("")
+    }), load()
+});

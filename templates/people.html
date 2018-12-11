@@ -1,50 +1,5 @@
 {{define "body"}}
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-sm-3 col-md-2 sidebar">
-            <ul class="nav nav-sidebar">
-                <li>
-                    <a href="/">Dashboard</a>
-                </li>
-                <li >
-                    <a href="/campaigns">Campaigns</a>
-                </li>
-                <li>
-                    <a href="/users">Users &amp; Groups</a>
-                </li>
-                <li>
-                    <a href="/templates">Email Templates</a>
-                </li>
-                <li>
-                    <a href="/landing_pages">Landing Pages</a>
-                </li>
-                <li>
-        <!--            <a href="/sending_profiles">Sending Profiles</a>
-                </li> -->
-                <li><a href="/our_domains">Our Domains</a>
-                </li>
-                <li>
-                    <a href="/settings">Settings</a>
-                </li>
-                <li class="active">
-                    <a href="/people">People</a>
-                </li>
-                  <li>
-                    <a href="/roles">Roles</a>
-                </li>
-                <li>
-                    <hr>
-                </li>
-        <!--        <li>
-                    <a href="https://docs.getgophish.com/user-guide/">User Guide</a>
-                </li>
-                <li>
-                    <a href="https://docs.getgophish.com/api-documentation/">API Documentation</a>
-                </li> -->
-            </ul>
-        </div>
-    </div>
-</div>
+{{template "sidebar" .}}
 <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
     <div class="row">
         <h1 class="page-header">
@@ -53,7 +8,7 @@
     </div>
     <div id="flashes" class="row"></div>
     <div class="row">
-        
+
         <a href="/register" class="btn btn-primary">
             <i class="fa fa-plus"></i> Add New User</button>
         </a>
@@ -72,7 +27,7 @@
         <table id="peopleTable" class="table" style="display:none;">
             <thead>
                 <tr>
-                    
+
                     <th class="col-md-3">Username</th>
                     <th class="col-md-3">Email</th>
                     <th class="col-md-3">Roles</th>
@@ -102,19 +57,21 @@
                     <input type="text" id = 'username' name="username" class="form-control top-input" placeholder="Username" required autofocus/>
                     <label class="control-label" for="roles">Email</label>
                     <input type="text" name="email" id = 'email' class="form-control top-input" placeholder="Email" required autofocus/>
+
+                    {{if (or (eq .Role "Administrator") (eq .Role "Partner") (eq .Role "Child User"))}}
                     <label class="control-label" for="template">Roles</label>
-                    <select  name="roles" id = "roles" class="form-control top-input" required autofocus/>
+                    <select  name="roles" id = "roles" class="form-control top-input" required autofocus {{if or (eq .Role "Partner") (eq .Role "Child User")}}disabled{{end}}/>
                         <option value="">Select Roles</option>
-                    <!--    <option value="0">Administrator</option>
-                        <option value="1">Partner</option>
-                        <option value="2">Customer</option> -->
                     </select>
 
-                    <label class="control-label" for="template">Partner</label>
-                    <select  name="roles" id = "partner" class="form-control top-input"  autofocus/>
-                        <option value="">Select Partner</option>
-                        
-                    </select>
+                    <div id="partner-container">
+                        <label class="control-label" for="template">Partner</label>
+                        <select  name="partner" id = "partner" class="form-control top-input" {{if or (eq .Role "Partner") (eq .Role "Child User")}}disabled{{end}} autofocus>
+                            <option value="">Select Partner</option>
+                        </select>
+                    </div>
+                    {{end}}
+
                     <label class="control-label" for="page">Current Password:</label>
                     <input type="password" name="current_password" id = "curpassword" class="form-control middle-input" placeholder="Password" autocomplete="off" required />
                     <label class="control-label" for="page">New Password:</label>
@@ -124,7 +81,7 @@
                     <input type="hidden" name="id" id = "hidden_uid" value="">
                     <input type="hidden" name="hash" id = "hidden_hash" value="">
                     <input type="hidden" name="hash" id = "hidden_api_key" value="">
-                
+
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal" onclick="dismiss()">Close</button>
                 <button type="button" class="btn btn-primary" id="modalSubmit">Save User</button>
