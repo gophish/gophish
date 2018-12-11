@@ -85,7 +85,7 @@ func Register(r *http.Request) (bool, error) {
 	}
 
 	u = models.User{}
-	ur := models.UsersRole{}
+	ur := models.UserRole{}
 	// If we've made it here, we should have a valid username given
 	// Check that the passsword isn't blank
 	if newPassword == "" {
@@ -104,6 +104,24 @@ func Register(r *http.Request) (bool, error) {
 	u.Email = newEmail
 	u.Hash = string(h)
 	u.ApiKey = GenerateSecureKey()
+
+	currentUser := ctx.Get(r, "user").(models.User)
+	currentRole, err := models.GetUserRole(currentUser.Id)
+
+	if err != nil {
+		log.Error(err)
+	}
+
+	if currentRole.Is(models.Administrator) || currentRole.Is(models.Partner) {
+		if rid == models.Customer || rid == models.ChildUser {
+			u.Partner = ctx.Get(r, "user").(models.User).Id
+		}
+	} else if currentRole.Is(models.ChildUser) {
+		if rid == models.Customer {
+			u.Partner = currentUser.Partner
+		}
+	}
+
 	err = models.PutUser(&u)
 
 	//Getting the inserted U after inserted
@@ -112,7 +130,7 @@ func Register(r *http.Request) (bool, error) {
 	ur.Uid = iu.Id
 	ur.Rid = rid
 
-	err = models.PutUserRoles(&ur)
+	err = models.PutUserRole(&ur)
 	return true, nil
 }
 
@@ -186,6 +204,7 @@ func ChangePasswordByadmin(r *http.Request) error {
 	u.Username = ud.Username
 	u.ApiKey = ud.ApiKey
 	u.Partner = ud.Partner
+
 	// Check the current password
 
 	// Check that new passwords match  //since this is going to do by admin no longer need to check
@@ -208,11 +227,16 @@ func ChangePasswordByadmin(r *http.Request) error {
 		u.Hash = string(h)
 	}
 
+	// Unset partner for non-customers
+	if ud.Role != models.Customer && ud.Role != models.ChildUser {
+		u.Partner = 0
+	}
+
 	if err = models.PutUser(&u); err != nil {
 		return err
 	}
 
-	ur := models.UsersRole{}
+	ur := models.UserRole{}
 	ur.Uid = ud.Id
 	ur.Rid = ud.Role
 
@@ -222,7 +246,7 @@ func ChangePasswordByadmin(r *http.Request) error {
 	}
 
 	//Second save the user roles again
-	err = models.PutUserRoles(&ur)
+	err = models.PutUserRole(&ur)
 
 	return nil
 }

@@ -1,43 +1,25 @@
-// labels is a map of campaign statuses to
-// CSS classes
-var labels = {
-    "In progress": "label-primary",
-    "Queued": "label-info",
-    "Completed": "label-success",
-    "Emails Sent": "label-success",
-    "Error": "label-danger"
-}
-
-var campaigns = []
-var campaign = {}
-
-// Launch attempts to POST to /campaigns/
 function launch() {
+    console.log($("#start_time").val());
     swal({
         title: "Are you sure?",
         text: "This will schedule the campaign to be launched.",
         type: "question",
-        animation: false,
-        showCancelButton: true,
+        animation: !1,
+        showCancelButton: !0,
         confirmButtonText: "Launch",
         confirmButtonColor: "#428bca",
-        reverseButtons: true,
-        allowOutsideClick: false,
-        showLoaderOnConfirm: true,
-        preConfirm: function () {
-            return new Promise(function (resolve, reject) {
-                groups = []
-                $("#users").select2("data").forEach(function (group) {
+        reverseButtons: !0,
+        allowOutsideClick: !1,
+        showLoaderOnConfirm: !0,
+        preConfirm: function() {
+            return new Promise(function(e, a) {
+                groups = [], $("#users").select2("data").forEach(function(e) {
                     groups.push({
-                        name: group.text
-                    });
-                })
-                // Validate our fields
-                var send_by_date = $("#send_by_date").val()
-                if (send_by_date != "") {
-                    send_by_date = moment(send_by_date, "MM/DD/YYYY hh:mm a").utc().format()
-                }
-                campaign = {
+                        name: e.text
+                    })
+                });
+                var t = $("#send_by_date").val();
+                "" != t && (t = moment(t, "MM/DD/YYYY hh:mm a").utc().format()), campaign = {
                     name: $("#name").val(),
                     template: {
                         name: $("#template").select2("data")[0].text
@@ -50,37 +32,27 @@ function launch() {
                         name: $("#profile").select2("data")[0].text
                     },
                     launch_date: moment($("#launch_date").val(), "MM/DD/YYYY hh:mm a").utc().format(),
-                    send_by_date: send_by_date || null,
+                    send_by_date: t || null,
                     groups: groups,
-                }
-                // Submit the campaign
-                api.campaigns.post(campaign)
-                    .success(function (data) {
-                        resolve()
-                        campaign = data
-                    })
-                    .error(function (data) {
-                        $("#modal\\.flashes").empty().append("<div style=\"text-align:center\" class=\"alert alert-danger\">\
-            <i class=\"fa fa-exclamation-circle\"></i> " + data.responseJSON.message + "</div>")
-                        swal.close()
-                    })
+                    start_time: $("#start_time").val(),
+                    end_time: $("#end_time").val(),
+                    time_zone: $("#time_zone").val()
+                }, api.campaigns.post(campaign).success(function(a) {
+                    e(), campaign = a
+                }).error(function(e) {
+                    $("#modal\\.flashes").empty().append('<div style="text-align:center" class="alert alert-danger">            <i class="fa fa-exclamation-circle"></i> ' + e.responseJSON.message + "</div>"), swal.close()
+                })
             })
         }
-    }).then(function () {
-        swal(
-            'Campaign Scheduled!',
-            'This campaign has been scheduled for launch!',
-            'success'
-        );
-        $('button:contains("OK")').on('click', function () {
+    }).then(function() {
+        swal("Campaign Scheduled!", "This campaign has been scheduled for launch!", "success"), $('button:contains("OK")').on("click", function() {
             window.location = "/campaigns/" + campaign.id.toString()
         })
     })
 }
 
-// Attempts to send a test email by POSTing to /campaigns/
 function sendTestEmail() {
-    var test_email_request = {
+    var e = {
         template: {
             name: $("#template").select2("data")[0].text
         },
@@ -95,302 +67,174 @@ function sendTestEmail() {
         smtp: {
             name: $("#profile").select2("data")[0].text
         }
-    }
-    btnHtml = $("#sendTestModalSubmit").html()
-    $("#sendTestModalSubmit").html('<i class="fa fa-spinner fa-spin"></i> Sending')
-    // Send the test email
-    api.send_test_email(test_email_request)
-        .success(function (data) {
-            $("#sendTestEmailModal\\.flashes").empty().append("<div style=\"text-align:center\" class=\"alert alert-success\">\
-            <i class=\"fa fa-check-circle\"></i> Email Sent!</div>")
-            $("#sendTestModalSubmit").html(btnHtml)
-        })
-        .error(function (data) {
-            $("#sendTestEmailModal\\.flashes").empty().append("<div style=\"text-align:center\" class=\"alert alert-danger\">\
-            <i class=\"fa fa-exclamation-circle\"></i> " + data.responseJSON.message + "</div>")
-            $("#sendTestModalSubmit").html(btnHtml)
-        })
+    };
+    btnHtml = $("#sendTestModalSubmit").html(), $("#sendTestModalSubmit").html('<i class="fa fa-spinner fa-spin"></i> Sending'), api.send_test_email(e).success(function(e) {
+        $("#sendTestEmailModal\\.flashes").empty().append('<div style="text-align:center" class="alert alert-success">            <i class="fa fa-check-circle"></i> Email Sent!</div>'), $("#sendTestModalSubmit").html(btnHtml)
+    }).error(function(e) {
+        $("#sendTestEmailModal\\.flashes").empty().append('<div style="text-align:center" class="alert alert-danger">            <i class="fa fa-exclamation-circle"></i> ' + e.responseJSON.message + "</div>"), $("#sendTestModalSubmit").html(btnHtml)
+    })
 }
 
 function dismiss() {
-    $("#modal\\.flashes").empty();
-    $("#name").val("");
-    $("#template").val("").change();
-    $("#page").val("").change();
-    $("#url").val("");
-    $("#profile").val("").change();
-    $("#users").val("").change();
-    $("#modal").modal('hide');
+    $("#modal\\.flashes").empty(), $("#name").val(""), $("#template").val("").change(), $("#page").val("").change(), $("#url").val(""), $("#profile").val("").change(), $("#users").val("").change(), $("#modal").modal("hide")
 }
 
-function deleteCampaign(idx) {
+function deleteCampaign(e) {
     swal({
         title: "Are you sure?",
         text: "This will delete the campaign. This can't be undone!",
         type: "warning",
-        animation: false,
-        showCancelButton: true,
-        confirmButtonText: "Delete " + campaigns[idx].name,
+        animation: !1,
+        showCancelButton: !0,
+        confirmButtonText: "Delete " + campaigns[e].name,
         confirmButtonColor: "#428bca",
-        reverseButtons: true,
-        allowOutsideClick: false,
-        preConfirm: function () {
-            return new Promise(function (resolve, reject) {
-                api.campaignId.delete(campaigns[idx].id)
-                    .success(function (msg) {
-                        resolve()
-                    })
-                    .error(function (data) {
-                        reject(data.responseJSON.message)
-                    })
+        reverseButtons: !0,
+        allowOutsideClick: !1,
+        preConfirm: function() {
+            return new Promise(function(a, t) {
+                api.campaignId.delete(campaigns[e].id).success(function(e) {
+                    a()
+                }).error(function(e) {
+                    t(e.responseJSON.message)
+                })
             })
         }
-    }).then(function () {
-        swal(
-            'Campaign Deleted!',
-            'This campaign has been deleted!',
-            'success'
-        );
-        $('button:contains("OK")').on('click', function () {
+    }).then(function() {
+        swal("Campaign Deleted!", "This campaign has been deleted!", "success"), $('button:contains("OK")').on("click", function() {
             location.reload()
         })
     })
 }
 
 function setupOptions() {
-    api.groups.get()
-        .success(function (groups) {
-            if (groups.length == 0) {
-                modalError("No groups found!")
-                return false;
-            } else {
-                var group_s2 = $.map(groups, function (obj) {
-                    obj.text = obj.name
-                    return obj
-                });
-                $("#users.form-control").select2({
-                    placeholder: "Select Groups",
-                    data: group_s2,
-                });
-            }
+    api.groups.get().success(function(e) {
+        if (0 == e.length) return modalError("No groups found!"), !1;
+        var a = $.map(e, function(e) {
+            return e.text = e.name, e
         });
-    api.templates.get()
-        .success(function (templates) {
-            if (templates.length == 0) {
-                modalError("No templates found!")
-                return false
-            } else {
-                var template_s2 = $.map(templates, function (obj) {
-                    obj.text = obj.name
-                    return obj
-                });
-                var template_select = $("#template.form-control")
-                template_select.select2({
-                    placeholder: "Select a Template",
-                    data: template_s2,
-                });
-                if (templates.length === 1) {
-                    template_select.val(template_s2[0].id)
-                    template_select.trigger('change.select2')
-                }
-            }
-        });
-    api.pages.get()
-        .success(function (pages) {
-            if (pages.length == 0) {
-                modalError("No pages found!")
-                return false
-            } else {
-                var page_s2 = $.map(pages, function (obj) {
-                    obj.text = obj.name
-                    return obj
-                });
-                var page_select = $("#page.form-control")
-                page_select.select2({
-                    placeholder: "Select a Landing Page",
-                    data: page_s2,
-                });
-                if (pages.length === 1) {
-                    page_select.val(page_s2[0].id)
-                    page_select.trigger('change.select2')
-                }
-            }
-        });
-    api.SMTP.get()
-        .success(function (profiles) {
-            if (profiles.length == 0) {
-                modalError("No profiles found!")
-                return false
-            } else {
-                var profile_s2 = $.map(profiles, function (obj) {
-                    obj.text = obj.name
-                    return obj
-                });
-                var profile_select = $("#profile.form-control")
-                profile_select.select2({
-                    placeholder: "Select a Sending Profile",
-                    data: profile_s2,
-                }).select2("val", profile_s2[0]);
-                if (profiles.length === 1) {
-                    profile_select.val(profile_s2[0].id)
-                    profile_select.trigger('change.select2')
-                }
-            }
-        });
-}
-
-function edit(campaign) {
-    setupOptions();
-}
-
-function copy(idx) {
-    setupOptions();
-    // Set our initial values
-    api.campaignId.get(campaigns[idx].id)
-        .success(function (campaign) {
-            $("#name").val("Copy of " + campaign.name)
-            if (!campaign.template.id) {
-                $("#template").select2({
-                    placeholder: campaign.template.name
-                });
-            } else {
-                $("#template").val(campaign.template.id.toString());
-                $("#template").trigger("change.select2")
-            }
-            if (!campaign.page.id) {
-                $("#page").select2({
-                    placeholder: campaign.page.name
-                });
-            } else {
-                $("#page").val(campaign.page.id.toString());
-                $("#page").trigger("change.select2")
-            }
-            if (!campaign.smtp.id) {
-                $("#profile").select2({
-                    placeholder: campaign.smtp.name
-                });
-            } else {
-                $("#profile").val(campaign.smtp.id.toString());
-                $("#profile").trigger("change.select2")
-            }
-            $("#url").val(campaign.url)
+        $("#users.form-control").select2({
+            placeholder: "Select Groups",
+            data: a
         })
-        .error(function (data) {
-            $("#modal\\.flashes").empty().append("<div style=\"text-align:center\" class=\"alert alert-danger\">\
-            <i class=\"fa fa-exclamation-circle\"></i> " + data.responseJSON.message + "</div>")
-        })
+    }), api.templates.get().success(function(e) {
+        if (0 == e.length) return modalError("No templates found!"), !1;
+        var a = $.map(e, function(e) {
+                return e.text = e.name, e
+            }),
+            t = $("#template.form-control");
+        t.select2({
+            placeholder: "Select a Template",
+            data: a
+        }), 1 === e.length && (t.val(a[0].id), t.trigger("change.select2"))
+    }), api.pages.get().success(function(e) {
+        if (0 == e.length) return modalError("No pages found!"), !1;
+        var a = $.map(e, function(e) {
+                return e.text = e.name, e
+            }),
+            t = $("#page.form-control");
+        t.select2({
+            placeholder: "Select a Landing Page",
+            data: a
+        }), 1 === e.length && (t.val(a[0].id), t.trigger("change.select2"))
+    }), api.SMTP.domains().success(function(e) {
+        if (0 == e.length) return modalError("No profiles found!"), !1;
+        var a = $.map(e, function(e) {
+                return e.text = e.name, e
+            }),
+            t = $("#profile.form-control");
+        t.select2({
+            placeholder: "Select a Sending Profile",
+            data: a
+        }).select2("val", a[0]), 1 === e.length && (t.val(a[0].id), t.trigger("change.select2"))
+    })
 }
 
-$(document).ready(function () {
+function edit(e) {
+    setupOptions()
+}
+
+function copy(e) {
+    setupOptions(), api.campaignId.get(campaigns[e].id).success(function(e) {
+        $("#name").val("Copy of " + e.name), e.template.id ? ($("#template").val(e.template.id.toString()), $("#template").trigger("change.select2")) : $("#template").select2({
+            placeholder: e.template.name
+        }), e.page.id ? ($("#page").val(e.page.id.toString()), $("#page").trigger("change.select2")) : $("#page").select2({
+            placeholder: e.page.name
+        }), e.smtp.id ? ($("#profile").val(e.smtp.id.toString()), $("#profile").trigger("change.select2")) : $("#profile").select2({
+            placeholder: e.smtp.name
+        }), $("#url").val(e.url)
+    }).error(function(e) {
+        $("#modal\\.flashes").empty().append('<div style="text-align:center" class="alert alert-danger">            <i class="fa fa-exclamation-circle"></i> ' + e.responseJSON.message + "</div>")
+    })
+}
+var labels = {
+        "In progress": "label-primary",
+        Queued: "label-info",
+        Completed: "label-success",
+        "Emails Sent": "label-success",
+        Error: "label-danger"
+    },
+    campaigns = [],
+    campaign = {};
+$(document).ready(function() {
+
+    var timeZones = moment.tz.names();
+    $.each(timeZones, function(e, time) {
+        $("#time_zone").append("<option value = "+time+">"+time+"</option>");
+    })
+
     $("#launch_date").datetimepicker({
-        "widgetPositioning": {
-            "vertical": "bottom"
+        widgetPositioning: {
+            vertical: "bottom"
         },
-        "showTodayButton": true,
-        "defaultDate": moment()
-    })
-    $("#send_by_date").datetimepicker({
-        "widgetPositioning": {
-            "vertical": "bottom"
+        showTodayButton: !0,
+        defaultDate: moment()
+    }), $("#send_by_date").datetimepicker({
+        widgetPositioning: {
+            vertical: "bottom"
         },
-        "showTodayButton": true,
-        "useCurrent": false
-    })
-    // Setup multiple modals
-    // Code based on http://miles-by-motorcycle.com/static/bootstrap-modal/index.html
-    $('.modal').on('hidden.bs.modal', function (event) {
-        $(this).removeClass('fv-modal-stack');
-        $('body').data('fv_open_modals', $('body').data('fv_open_modals') - 1);
-    });
-    $('.modal').on('shown.bs.modal', function (event) {
-        // Keep track of the number of open modals
-        if (typeof ($('body').data('fv_open_modals')) == 'undefined') {
-            $('body').data('fv_open_modals', 0);
-        }
-        // if the z-index of this modal has been set, ignore.
-        if ($(this).hasClass('fv-modal-stack')) {
-            return;
-        }
-        $(this).addClass('fv-modal-stack');
-        // Increment the number of open modals
-        $('body').data('fv_open_modals', $('body').data('fv_open_modals') + 1);
-        // Setup the appropriate z-index
-        $(this).css('z-index', 1040 + (10 * $('body').data('fv_open_modals')));
-        $('.modal-backdrop').not('.fv-modal-stack').css('z-index', 1039 + (10 * $('body').data('fv_open_modals')));
-        $('.modal-backdrop').not('fv-modal-stack').addClass('fv-modal-stack');
-    });
-    // Scrollbar fix - https://stackoverflow.com/questions/19305821/multiple-modals-overlay
-    $(document).on('hidden.bs.modal', '.modal', function () {
-        $('.modal:visible').length && $(document.body).addClass('modal-open');
-    });
-    $('#modal').on('hidden.bs.modal', function (event) {
+        showTodayButton: !0,
+        useCurrent: !1
+    }), $("#start_time").datetimepicker({
+        format: 'LT',
+    }), $("#end_time").datetimepicker({
+        format: 'LT', 
+    }), $(".modal").on("hidden.bs.modal", function(e) {
+        $(this).removeClass("fv-modal-stack"), $("body").data("fv_open_modals", $("body").data("fv_open_modals") - 1)
+    }), $(".modal").on("shown.bs.modal", function(e) {
+        void 0 === $("body").data("fv_open_modals") && $("body").data("fv_open_modals", 0), $(this).hasClass("fv-modal-stack") || ($(this).addClass("fv-modal-stack"), $("body").data("fv_open_modals", $("body").data("fv_open_modals") + 1), $(this).css("z-index", 1040 + 10 * $("body").data("fv_open_modals")), $(".modal-backdrop").not(".fv-modal-stack").css("z-index", 1039 + 10 * $("body").data("fv_open_modals")), $(".modal-backdrop").not("fv-modal-stack").addClass("fv-modal-stack"))
+    }), $(document).on("hidden.bs.modal", ".modal", function() {
+        $(".modal:visible").length && $(document.body).addClass("modal-open")
+    }), $("#modal").on("hidden.bs.modal", function(e) {
         dismiss()
-    });
-    api.campaigns.summary()
-        .success(function (data) {
-            campaigns = data.campaigns
-            $("#loading").hide()
-            if (campaigns.length > 0) {
-                $("#campaignTable").show()
-                campaignTable = $("#campaignTable").DataTable({
-                    columnDefs: [{
-                        orderable: false,
-                        targets: "no-sort"
-                    }],
-                    order: [
-                        [1, "desc"]
-                    ]
-                });
-                $.each(campaigns, function (i, campaign) {
-                    label = labels[campaign.status] || "label-default";
+    }), api.campaigns.summary().success(function(e) {
 
-                    //section for tooltips on the status of a campaign to show some quick stats
-                    var launchDate;
-                    if (moment(campaign.launch_date).isAfter(moment())) {
-                        launchDate = "Scheduled to start: " + moment(campaign.launch_date).format('MMMM Do YYYY, h:mm:ss a')
-                        var quickStats = launchDate + "<br><br>" + "Number of recipients: " + campaign.stats.total
-                    } else {
-                        launchDate = "Launch Date: " + moment(campaign.launch_date).format('MMMM Do YYYY, h:mm:ss a')
-                        var quickStats = launchDate + "<br><br>" + "Number of recipients: " + campaign.stats.total + "<br><br>" + "Emails opened: " + campaign.stats.opened + "<br><br>" + "Emails clicked: " + campaign.stats.clicked + "<br><br>" + "Submitted Credentials: " + campaign.stats.submitted_data + "<br><br>" + "Errors : " + campaign.stats.error + "Reported : " + campaign.stats.reported
-                    }
+        campaigns = e.campaigns, $("#loading").hide(), campaigns.length > 0 ? ($("#campaignTable").show(), campaignTable = $("#campaignTable").DataTable({
+            columnDefs: [{
+                orderable: !1,
+                targets: "no-sort"
+            }],
+            order: [
+                [1, "desc"]
+            ]
+        }), 
 
-                    campaignTable.row.add([
-                        escapeHtml(campaign.name),
-                        moment(campaign.created_date).format('MMMM Do YYYY, h:mm:ss a'),
-                        "<span class=\"label " + label + "\" data-toggle=\"tooltip\" data-placement=\"right\" data-html=\"true\" title=\"" + quickStats + "\">" + campaign.status + "</span>",
-                        "<div class='pull-right'><a class='btn btn-primary' href='/campaigns/" + campaign.id + "' data-toggle='tooltip' data-placement='left' title='View Results'>\
-                    <i class='fa fa-bar-chart'></i>\
-                    </a>\
-            <span data-toggle='modal' data-backdrop='static' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Copy Campaign' onclick='copy(" + i + ")'>\
-                    <i class='fa fa-copy'></i>\
-                    </button></span>\
-                    <button class='btn btn-danger' onclick='deleteCampaign(" + i + ")' data-toggle='tooltip' data-placement='left' title='Delete Campaign'>\
-                    <i class='fa fa-trash-o'></i>\
-                    </button></div>"
-                    ]).draw()
-                    $('[data-toggle="tooltip"]').tooltip()
-                })
+        $.each(campaigns, function(e, a) {
+            label = labels[a.status] || "label-default";
+            var t;
+            if (moment(a.launch_date).isAfter(moment())) {
+                t = "Scheduled to start: " + moment(a.launch_date).format("MMMM Do YYYY, h:mm:ss a");
+                var n = t + "<br><br>Number of recipients: " + a.stats.total
             } else {
-                $("#emptyMessage").show()
+                t = "Launch Date: " + moment(a.launch_date).format("MMMM Do YYYY, h:mm:ss a");
+                var n = t + "<br><br>Number of recipients: " + a.stats.total + "<br><br>Emails opened: " + a.stats.opened + "<br><br>Emails clicked: " + a.stats.clicked + "<br><br>Submitted Credentials: " + a.stats.submitted_data + "<br><br>Errors : " + a.stats.error + "Reported : " + a.stats.reported
             }
+            campaignTable.row.add([escapeHtml(a.name), moment(a.created_date).format("MMMM Do YYYY, h:mm:ss a"), '<span class="label ' + label + '" data-toggle="tooltip" data-placement="right" data-html="true" title="' + n + '">' + a.status + "</span>", "<div class='pull-right'><a class='btn btn-primary' href='/campaigns/" + a.id + "' data-toggle='tooltip' data-placement='left' title='View Results'>                    <i class='fa fa-bar-chart'></i>                    </a>            <span data-toggle='modal' data-backdrop='static' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Copy Campaign' onclick='copy(" + e + ")'>                    <i class='fa fa-copy'></i>                    </button></span>                    <button class='btn btn-danger' onclick='deleteCampaign(" + e + ")' data-toggle='tooltip' data-placement='left' title='Delete Campaign'>                    <i class='fa fa-trash-o'></i>                    </button></div>"]).draw(), $('[data-toggle="tooltip"]').tooltip()
+        })) : $("#emptyMessage").show()
+    }).error(function() {
+        $("#loading").hide(), errorFlash("Error fetching campaigns")
+    }), $.fn.select2.defaults.set("width", "100%"), $.fn.select2.defaults.set("dropdownParent", $("#modal_body")), $.fn.select2.defaults.set("theme", "bootstrap"), $.fn.select2.defaults.set("sorter", function(e) {
+        return e.sort(function(e, a) {
+            return e.text.toLowerCase() > a.text.toLowerCase() ? 1 : e.text.toLowerCase() < a.text.toLowerCase() ? -1 : 0
         })
-        .error(function () {
-            $("#loading").hide()
-            errorFlash("Error fetching campaigns")
-        })
-    // Select2 Defaults
-    $.fn.select2.defaults.set("width", "100%");
-    $.fn.select2.defaults.set("dropdownParent", $("#modal_body"));
-    $.fn.select2.defaults.set("theme", "bootstrap");
-    $.fn.select2.defaults.set("sorter", function (data) {
-        return data.sort(function (a, b) {
-            if (a.text.toLowerCase() > b.text.toLowerCase()) {
-                return 1;
-            }
-            if (a.text.toLowerCase() < b.text.toLowerCase()) {
-                return -1;
-            }
-            return 0;
-        });
     })
-})
+});

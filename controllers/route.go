@@ -96,18 +96,34 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		Title   string
 		Flashes []interface{}
 		User    models.User
-		Roles   []models.Roles
+		Roles   models.Roles
+		Admin   bool
 		Token   string
-	}{Title: "Register", Token: csrf.Token(r)}
+	}{Title: "Register", Admin: false, Token: csrf.Token(r)}
+
 	session := ctx.Get(r, "session").(*sessions.Session)
+
 	switch {
 	case r.Method == "GET":
-		rs, err := models.GetRoles(ctx.Get(r, "user_id").(int64))
+		uid := ctx.Get(r, "user").(models.User).Id
+		role, err := models.GetUserRole(uid)
+
 		if err != nil {
 			log.Error(err)
 		}
+
+		if role.Is(models.Administrator) {
+			params.Admin = true
+		}
+
+		roles, err := models.GetRoles()
+
+		if err != nil {
+			log.Error(err)
+		}
+
 		params.Flashes = session.Flashes()
-		params.Roles = rs
+		params.Roles = roles.AvailableFor(role)
 		session.Save(r, w)
 		templates := template.New("template")
 
@@ -123,7 +139,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		if succ {
 			Flash(w, r, "success", "Registration successful!")
 			session.Save(r, w)
-			http.Redirect(w, r, "/login", 302)
+			http.Redirect(w, r, "/people", 302)
 			return
 		}
 		// Check the error
@@ -140,11 +156,19 @@ func Register(w http.ResponseWriter, r *http.Request) {
 func Base(w http.ResponseWriter, r *http.Request) {
 	params := struct {
 		User    models.User
+		Role    string
 		Title   string
 		Flashes []interface{}
 		Token   string
-	}{Title: "Dashboard", User: ctx.Get(r, "user").(models.User), Token: csrf.Token(r)}
-	getTemplate(w, "dashboard").ExecuteTemplate(w, "base", params)
+	}{Title: "Dashboard", User: ctx.Get(r, "user").(models.User), Role: "", Token: csrf.Token(r)}
+	role, err := models.GetUserRole(params.User.Id)
+
+	if err != nil {
+		log.Error(err)
+	}
+
+	params.Role = role.Name()
+	getTemplate(r, w, "dashboard").ExecuteTemplate(w, "base", params)
 }
 
 // Campaigns handles the default path and template execution
@@ -156,7 +180,7 @@ func Campaigns(w http.ResponseWriter, r *http.Request) {
 		Flashes []interface{}
 		Token   string
 	}{Title: "Campaigns", User: ctx.Get(r, "user").(models.User), Token: csrf.Token(r)}
-	getTemplate(w, "campaigns").ExecuteTemplate(w, "base", params)
+	getTemplate(r, w, "campaigns").ExecuteTemplate(w, "base", params)
 }
 
 // People handles the default path and template execution
@@ -164,11 +188,20 @@ func People(w http.ResponseWriter, r *http.Request) {
 	// Example of using session - will be removed.
 	params := struct {
 		User    models.User
+		Role    string
 		Title   string
 		Flashes []interface{}
 		Token   string
-	}{Title: "People", User: ctx.Get(r, "user").(models.User), Token: csrf.Token(r)}
-	getTemplate(w, "people").ExecuteTemplate(w, "base", params)
+	}{Title: "People", User: ctx.Get(r, "user").(models.User), Role: "", Token: csrf.Token(r)}
+
+	role, err := models.GetUserRole(params.User.Id)
+
+	if err != nil {
+		log.Error(err)
+	}
+
+	params.Role = role.Name()
+	getTemplate(r, w, "people").ExecuteTemplate(w, "base", params)
 }
 
 // Roles handles the default path and template execution
@@ -180,7 +213,7 @@ func Roles(w http.ResponseWriter, r *http.Request) {
 		Flashes []interface{}
 		Token   string
 	}{Title: "Roles", User: ctx.Get(r, "user").(models.User), Token: csrf.Token(r)}
-	getTemplate(w, "roles").ExecuteTemplate(w, "base", params)
+	getTemplate(r, w, "roles").ExecuteTemplate(w, "base", params)
 }
 
 // CampaignID handles the default path and template execution
@@ -192,7 +225,7 @@ func CampaignID(w http.ResponseWriter, r *http.Request) {
 		Flashes []interface{}
 		Token   string
 	}{Title: "Campaign Results", User: ctx.Get(r, "user").(models.User), Token: csrf.Token(r)}
-	getTemplate(w, "campaign_results").ExecuteTemplate(w, "base", params)
+	getTemplate(r, w, "campaign_results").ExecuteTemplate(w, "base", params)
 }
 
 // Templates handles the default path and template execution
@@ -204,7 +237,7 @@ func Templates(w http.ResponseWriter, r *http.Request) {
 		Flashes []interface{}
 		Token   string
 	}{Title: "Email Templates", User: ctx.Get(r, "user").(models.User), Token: csrf.Token(r)}
-	getTemplate(w, "templates").ExecuteTemplate(w, "base", params)
+	getTemplate(r, w, "templates").ExecuteTemplate(w, "base", params)
 }
 
 // Users handles the default path and template execution
@@ -216,7 +249,7 @@ func Users(w http.ResponseWriter, r *http.Request) {
 		Flashes []interface{}
 		Token   string
 	}{Title: "Users & Groups", User: ctx.Get(r, "user").(models.User), Token: csrf.Token(r)}
-	getTemplate(w, "users").ExecuteTemplate(w, "base", params)
+	getTemplate(r, w, "users").ExecuteTemplate(w, "base", params)
 }
 
 // LandingPages handles the default path and template execution
@@ -228,7 +261,7 @@ func LandingPages(w http.ResponseWriter, r *http.Request) {
 		Flashes []interface{}
 		Token   string
 	}{Title: "Landing Pages", User: ctx.Get(r, "user").(models.User), Token: csrf.Token(r)}
-	getTemplate(w, "landing_pages").ExecuteTemplate(w, "base", params)
+	getTemplate(r, w, "landing_pages").ExecuteTemplate(w, "base", params)
 }
 
 // SendingProfiles handles the default path and template execution
@@ -240,7 +273,7 @@ func SendingProfiles(w http.ResponseWriter, r *http.Request) {
 		Flashes []interface{}
 		Token   string
 	}{Title: "Sending Profiles", User: ctx.Get(r, "user").(models.User), Token: csrf.Token(r)}
-	getTemplate(w, "sending_profiles").ExecuteTemplate(w, "base", params)
+	getTemplate(r, w, "sending_profiles").ExecuteTemplate(w, "base", params)
 }
 
 // Replancememnt of SendingProfiles by sendingdomains in our application a nornal user can use the profile/domains created by
@@ -253,7 +286,7 @@ func SendingDomains(w http.ResponseWriter, r *http.Request) {
 		Flashes []interface{}
 		Token   string
 	}{Title: "Sending Domains", User: ctx.Get(r, "user").(models.User), Token: csrf.Token(r)}
-	getTemplate(w, "sending_domains").ExecuteTemplate(w, "base", params)
+	getTemplate(r, w, "sending_domains").ExecuteTemplate(w, "base", params)
 }
 
 // Settings handles the changing of settings
@@ -267,7 +300,7 @@ func Settings(w http.ResponseWriter, r *http.Request) {
 			Token   string
 			Version string
 		}{Title: "Settings", Version: config.Version, User: ctx.Get(r, "user").(models.User), Token: csrf.Token(r)}
-		getTemplate(w, "settings").ExecuteTemplate(w, "base", params)
+		getTemplate(r, w, "settings").ExecuteTemplate(w, "base", params)
 	case r.Method == "POST":
 		err := auth.ChangePassword(r)
 		msg := models.Response{Success: true, Message: "Settings Updated Successfully"}
@@ -373,12 +406,29 @@ func Clone(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, "No URL given.", http.StatusBadRequest)
 }
 
-func getTemplate(w http.ResponseWriter, tmpl string) *template.Template {
-	templates := template.New("template")
-	_, err := templates.ParseFiles("templates/base.html", "templates/"+tmpl+".html", "templates/flashes.html")
+func getTemplate(r *http.Request, w http.ResponseWriter, tmpl string) *template.Template {
+	templates := template.New("template").Funcs(template.FuncMap{
+		"page": func() string {
+			return tmpl
+		},
+
+		"role": func() string {
+			role, err := models.GetUserRole(ctx.Get(r, "user").(models.User).Id)
+
+			if err != nil {
+				log.Error(err)
+			}
+
+			return role.Name()
+		},
+	})
+
+	_, err := templates.ParseFiles("templates/base.html", "templates/"+tmpl+".html", "templates/flashes.html", "templates/sidebar.html")
+
 	if err != nil {
 		log.Error(err)
 	}
+
 	return template.Must(templates, err)
 }
 

@@ -82,13 +82,37 @@ func API_Campaigns(w http.ResponseWriter, r *http.Request) {
 
 // API_Users returns a list of Users if requested via GET.
 func API_Users(w http.ResponseWriter, r *http.Request) {
+	type userWithRole struct {
+		models.User
+		Role string `json:"role"`
+	}
+
+	type response []userWithRole
+	resp := response{}
+
 	switch {
 	case r.Method == "GET":
-		cs, err := models.GetUsers(ctx.Get(r, "user_id").(int64))
+		users, err := models.GetUsers(ctx.Get(r, "user_id").(int64))
+
 		if err != nil {
 			log.Error(err)
 		}
-		JSONResponse(w, cs, http.StatusOK)
+
+		for i := 0; i < len(users); i++ {
+			user := users[i]
+			var roleName string
+			role, err := models.GetUserRole(user.Id)
+
+			if err != nil {
+				roleName = "Unknown"
+			} else {
+				roleName = role.Name()
+			}
+
+			resp = append(resp, userWithRole{user, roleName})
+		}
+
+		JSONResponse(w, resp, http.StatusOK)
 	}
 }
 
@@ -108,7 +132,7 @@ func API_User_Partners(w http.ResponseWriter, r *http.Request) {
 func API_Roles(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "GET":
-		cs, err := models.GetRoles(ctx.Get(r, "user_id").(int64))
+		cs, err := models.GetRoles()
 		if err != nil {
 			log.Error(err)
 		}
@@ -165,7 +189,7 @@ func API_Roles_Id(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	id, _ := strconv.ParseInt(vars["id"], 0, 64)
-	c, err := models.GetUserRoles(id)
+	c, err := models.GetUserRole(id)
 	if err != nil {
 		log.Error(err)
 		JSONResponse(w, models.Response{Success: false, Message: "User not found"}, http.StatusNotFound)

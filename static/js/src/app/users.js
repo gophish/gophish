@@ -1,281 +1,151 @@
-var groups = []
-
-// Save attempts to POST or PUT to /groups/
-function save(id) {
-    var targets = []
-    $.each($("#targetsTable").DataTable().rows().data(), function (i, target) {
-        targets.push({
-            first_name: unescapeHtml(target[0]),
-            last_name: unescapeHtml(target[1]),
-            email: unescapeHtml(target[2]),
-            position: unescapeHtml(target[3])
+function save(e) {
+    var a = [];
+    $.each($("#targetsTable").DataTable().rows().data(), function(e, t) {
+        a.push({
+            first_name: unescapeHtml(t[0]),
+            last_name: unescapeHtml(t[1]),
+            email: unescapeHtml(t[2]),
+            position: unescapeHtml(t[3])
         })
-    })
-    var group = {
+    });
+    var t = {
         name: $("#name").val(),
-        targets: targets
-    }
-    // Submit the group
-    if (id != -1) {
-        // If we're just editing an existing group,
-        // we need to PUT /groups/:id
-        group.id = id
-        api.groupId.put(group)
-            .success(function (data) {
-                successFlash("Group updated successfully!")
-                load()
-                dismiss()
-                $("#modal").modal('hide')
-            })
-            .error(function (data) {
-                modalError(data.responseJSON.message)
-            })
-    } else {
-        // Else, if this is a new group, POST it
-        // to /groups
-        api.groups.post(group)
-            .success(function (data) {
-                successFlash("Group added successfully!")
-                load()
-                dismiss()
-                $("#modal").modal('hide')
-            })
-            .error(function (data) {
-                modalError(data.responseJSON.message)
-            })
-    }
+        targets: a
+    }; - 1 != e ? (t.id = e, api.groupId.put(t).success(function(e) {
+        successFlash("Group updated successfully!"), load(), dismiss(), $("#modal").modal("hide")
+    }).error(function(e) {
+        modalError(e.responseJSON.message)
+    })) : api.groups.post(t).success(function(e) {
+        successFlash("Group added successfully!"), load(), dismiss(), $("#modal").modal("hide")
+    }).error(function(e) {
+        modalError(e.responseJSON.message)
+    })
 }
 
 function dismiss() {
-    $("#targetsTable").dataTable().DataTable().clear().draw()
-    $("#name").val("")
-    $("#modal\\.flashes").empty()
+    $("#targetsTable").dataTable().DataTable().clear().draw(), $("#name").val(""), $("#modal\\.flashes").empty()
 }
 
-function edit(id) {
-    targets = $("#targetsTable").dataTable({
-        destroy: true, // Destroy any other instantiated table - http://datatables.net/manual/tech-notes/3#destroy
-        columnDefs: [{
-            orderable: false,
-            targets: "no-sort"
-        }]
-    })
-    $("#modalSubmit").unbind('click').click(function () {
-        save(id)
-    })
-    if (id == -1) {
-        var group = {}
-    } else {
-        api.groupId.get(id)
-            .success(function (group) {
-                $("#name").val(group.name)
-                $.each(group.targets, function (i, record) {
-                    targets.DataTable()
-                        .row.add([
-                            escapeHtml(record.first_name),
-                            escapeHtml(record.last_name),
-                            escapeHtml(record.email),
-                            escapeHtml(record.position),
-                            '<span style="cursor:pointer;"><i class="fa fa-trash-o"></i></span>'
-                        ]).draw()
-                });
-
-            })
-            .error(function () {
-                errorFlash("Error fetching group")
-            })
-    }
-    // Handle file uploads
+function edit(e) {
+    if (targets = $("#targetsTable").dataTable({
+            destroy: !0,
+            columnDefs: [{
+                orderable: !1,
+                targets: "no-sort"
+            }]
+        }), $("#modalSubmit").unbind("click").click(function() {
+            save(e)
+        }), -1 == e);
+    else api.groupId.get(e).success(function(e) {
+        $("#name").val(e.name), $.each(e.targets, function(e, a) {
+            targets.DataTable().row.add([escapeHtml(a.first_name), escapeHtml(a.last_name), escapeHtml(a.email), escapeHtml(a.position), '<span style="cursor:pointer;"><i class="fa fa-trash-o"></i></span>']).draw()
+        })
+    }).error(function() {
+        errorFlash("Error fetching group")
+    });
     $("#csvupload").fileupload({
         url: "/api/import/group?api_key=" + user.api_key,
         dataType: "json",
-        add: function (e, data) {
-            $("#modal\\.flashes").empty()
-            var acceptFileTypes = /(csv|txt)$/i;
-            var filename = data.originalFiles[0]['name']
-            if (filename && !acceptFileTypes.test(filename.split(".").pop())) {
-                modalError("Unsupported file extension (use .csv or .txt)")
-                return false;
-            }
-            data.submit();
+        add: function(e, a) {
+            $("#modal\\.flashes").empty();
+            var t = /(csv|txt)$/i,
+                s = a.originalFiles[0].name;
+            if (s && !t.test(s.split(".").pop())) return modalError("Unsupported file extension (use .csv or .txt)"), !1;
+            a.submit()
         },
-        done: function (e, data) {
-            $.each(data.result, function (i, record) {
-                addTarget(
-                    record.first_name,
-                    record.last_name,
-                    record.email,
-                    record.position);
-            });
-            targets.DataTable().draw();
+        done: function(e, a) {
+            $.each(a.result, function(e, a) {
+                addTarget(a.first_name, a.last_name, a.email, a.position)
+            }), targets.DataTable().draw()
         }
     })
 }
 
-var downloadCSVTemplate = function () {
-    var csvScope = [{
-        'First Name': 'Example',
-        'Last Name': 'User',
-        'Email': 'foobar@example.com',
-        'Position': 'Systems Administrator'
-    }]
-    var filename = 'group_template.csv'
-    var csvString = Papa.unparse(csvScope, {})
-    var csvData = new Blob([csvString], {
-        type: 'text/csv;charset=utf-8;'
-    });
-    if (navigator.msSaveBlob) {
-        navigator.msSaveBlob(csvData, filename);
-    } else {
-        var csvURL = window.URL.createObjectURL(csvData);
-        var dlLink = document.createElement('a');
-        dlLink.href = csvURL;
-        dlLink.setAttribute('download', filename)
-        document.body.appendChild(dlLink)
-        dlLink.click();
-        document.body.removeChild(dlLink)
-    }
-}
-
-
-var deleteGroup = function (id) {
-    var group = groups.find(function (x) {
-        return x.id === id
-    })
-    if (!group) {
-        return
-    }
-    swal({
-        title: "Are you sure?",
-        text: "This will delete the group. This can't be undone!",
-        type: "warning",
-        animation: false,
-        showCancelButton: true,
-        confirmButtonText: "Delete " + escapeHtml(group.name),
-        confirmButtonColor: "#428bca",
-        reverseButtons: true,
-        allowOutsideClick: false,
-        preConfirm: function () {
-            return new Promise(function (resolve, reject) {
-                api.groupId.delete(id)
-                    .success(function (msg) {
-                        resolve()
-                    })
-                    .error(function (data) {
-                        reject(data.responseJSON.message)
-                    })
-            })
-        }
-    }).then(function () {
-        swal(
-            'Group Deleted!',
-            'This group has been deleted!',
-            'success'
-        );
-        $('button:contains("OK")').on('click', function () {
-            location.reload()
-        })
-    })
-}
-
-function addTarget(firstNameInput, lastNameInput, emailInput, positionInput) {
-    // Create new data row.
-    var email = escapeHtml(emailInput).toLowerCase();
-    var newRow = [
-        escapeHtml(firstNameInput),
-        escapeHtml(lastNameInput),
-        email,
-        escapeHtml(positionInput),
-        '<span style="cursor:pointer;"><i class="fa fa-trash-o"></i></span>'
-    ];
-
-    // Check table to see if email already exists.
-    var targetsTable = targets.DataTable();
-    var existingRowIndex = targetsTable
-        .column(2, {
+function addTarget(e, a, t, s) {
+    var o = escapeHtml(t).toLowerCase(),
+        r = [escapeHtml(e), escapeHtml(a), o, escapeHtml(s), '<span style="cursor:pointer;"><i class="fa fa-trash-o"></i></span>'],
+        n = targets.DataTable(),
+        i = n.column(2, {
             order: "index"
-        }) // Email column has index of 2
-        .data()
-        .indexOf(email);
-    // Update or add new row as necessary.
-    if (existingRowIndex >= 0) {
-        targetsTable
-            .row(existingRowIndex, {
-                order: "index"
-            })
-            .data(newRow);
-    } else {
-        targetsTable.row.add(newRow);
-    }
+        }).data().indexOf(o);
+    i >= 0 ? n.row(i, {
+        order: "index"
+    }).data(r) : n.row.add(r)
 }
 
 function load() {
-    $("#groupTable").hide()
-    $("#emptyMessage").hide()
-    $("#loading").show()
-    api.groups.summary()
-        .success(function (response) {
-            $("#loading").hide()
-            if (response.total > 0) {
-                groups = response.groups
-                $("#emptyMessage").hide()
-                $("#groupTable").show()
-                var groupTable = $("#groupTable").DataTable({
-                    destroy: true,
-                    columnDefs: [{
-                        orderable: false,
-                        targets: "no-sort"
-                    }]
-                });
-                groupTable.clear();
-                $.each(groups, function (i, group) {
-                    groupTable.row.add([
-                        escapeHtml(group.name),
-                        escapeHtml(group.num_targets),
-                        moment(group.modified_date).format('MMMM Do YYYY, h:mm:ss a'),
-                        "<div class='pull-right'><button class='btn btn-primary' data-toggle='modal' data-backdrop='static' data-target='#modal' onclick='edit(" + group.id + ")'>\
-                    <i class='fa fa-pencil'></i>\
-                    </button>\
-                    <button class='btn btn-danger' onclick='deleteGroup(" + group.id + ")'>\
-                    <i class='fa fa-trash-o'></i>\
-                    </button></div>"
-                    ]).draw()
-                })
-            } else {
-                $("#emptyMessage").show()
-            }
-        })
-        .error(function () {
-            errorFlash("Error fetching groups")
-        })
+    $("#groupTable").hide(), $("#emptyMessage").hide(), $("#loading").show(), api.groups.summary().success(function(e) {
+        if ($("#loading").hide(), e.total > 0) {
+            groups = e.groups, $("#emptyMessage").hide(), $("#groupTable").show();
+            var a = $("#groupTable").DataTable({
+                destroy: !0,
+                columnDefs: [{
+                    orderable: !1,
+                    targets: "no-sort"
+                }]
+            });
+            a.clear(), $.each(groups, function(e, t) {
+                a.row.add([escapeHtml(t.name), escapeHtml(t.num_targets), moment(t.modified_date).format("MMMM Do YYYY, h:mm:ss a"), "<div class='pull-right'><button class='btn btn-primary' data-toggle='modal' data-backdrop='static' data-target='#modal' onclick='edit(" + t.id + ")'>                    <i class='fa fa-pencil'></i>                    </button>                    <button class='btn btn-danger' onclick='deleteGroup(" + t.id + ")'>                    <i class='fa fa-trash-o'></i>                    </button></div>"]).draw()
+            })
+        } else $("#emptyMessage").show()
+    }).error(function() {
+        errorFlash("Error fetching groups")
+    })
 }
-
-$(document).ready(function () {
-    load()
-    // Setup the event listeners
-    // Handle manual additions
-    $("#targetForm").submit(function () {
-        addTarget(
-            $("#firstName").val(),
-            $("#lastName").val(),
-            $("#email").val(),
-            $("#position").val());
-        targets.DataTable().draw();
-
-        // Reset user input.
-        $("#targetForm>div>input").val('');
-        $("#firstName").focus();
-        return false;
-    });
-    // Handle Deletion
-    $("#targetsTable").on("click", "span>i.fa-trash-o", function () {
-        targets.DataTable()
-            .row($(this).parents('tr'))
-            .remove()
-            .draw();
-    });
-    $("#modal").on("hide.bs.modal", function () {
-        dismiss();
-    });
-    $("#csv-template").click(downloadCSVTemplate)
+var groups = [],
+    downloadCSVTemplate = function() {
+        var e = [{
+                "First Name": "Example",
+                "Last Name": "User",
+                Email: "foobar@example.com",
+                Position: "Systems Administrator"
+            }],
+            a = Papa.unparse(e, {}),
+            t = new Blob([a], {
+                type: "text/csv;charset=utf-8;"
+            });
+        if (navigator.msSaveBlob) navigator.msSaveBlob(t, "group_template.csv");
+        else {
+            var s = window.URL.createObjectURL(t),
+                o = document.createElement("a");
+            o.href = s, o.setAttribute("download", "group_template.csv"), document.body.appendChild(o), o.click(), document.body.removeChild(o)
+        }
+    },
+    deleteGroup = function(e) {
+        var a = groups.find(function(a) {
+            return a.id === e
+        });
+        a && swal({
+            title: "Are you sure?",
+            text: "This will delete the group. This can't be undone!",
+            type: "warning",
+            animation: !1,
+            showCancelButton: !0,
+            confirmButtonText: "Delete " + escapeHtml(a.name),
+            confirmButtonColor: "#428bca",
+            reverseButtons: !0,
+            allowOutsideClick: !1,
+            preConfirm: function() {
+                return new Promise(function(a, t) {
+                    api.groupId.delete(e).success(function(e) {
+                        a()
+                    }).error(function(e) {
+                        t(e.responseJSON.message)
+                    })
+                })
+            }
+        }).then(function() {
+            swal("Group Deleted!", "This group has been deleted!", "success"), $('button:contains("OK")').on("click", function() {
+                location.reload()
+            })
+        })
+    };
+$(document).ready(function() {
+    load(), $("#targetForm").submit(function() {
+        return addTarget($("#firstName").val(), $("#lastName").val(), $("#email").val(), $("#position").val()), targets.DataTable().draw(), $("#targetForm>div>input").val(""), $("#firstName").focus(), !1
+    }), $("#targetsTable").on("click", "span>i.fa-trash-o", function() {
+        targets.DataTable().row($(this).parents("tr")).remove().draw()
+    }), $("#modal").on("hide.bs.modal", function() {
+        dismiss()
+    }), $("#csv-template").click(downloadCSVTemplate)
 });

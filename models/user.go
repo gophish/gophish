@@ -1,5 +1,14 @@
 package models
 
+// Roles
+const (
+	Administrator = 1
+	Partner       = 2
+	Customer      = 3
+	ChildUser     = 4
+	LMSUser       = 5
+)
+
 // User represents the user model for gophish.
 type User struct {
 	Id       int64  `json:"id"`
@@ -10,22 +19,72 @@ type User struct {
 	ApiKey   string `json:"api_key" sql:"not null;unique"`
 }
 
-// Roles represents the role model for gophish.
-type Roles struct {
+// Role represents the role model for gophish.
+type Role struct {
 	Rid    int64  `json:"rid"`
 	Name   string `json:"name" sql:"not null;unique"`
 	Weight string `json:"weight" sql:"not null;unique"`
 }
 
-// Roles represents the role model for gophish.
-type UsersRole struct {
+// UserRole represents the user role model for gophish.
+type UserRole struct {
 	Uid int64 `json:"uid"`
 	Rid int64 `json:"rid" sql:"not"`
 }
 
+// Roles is a list of roles
+type Roles []Role
+
+// UserRoles is a list of user roles
+type UserRoles []UserRole
+
+// AvailableFor returns roles which a user with the given role can create users with
+func (roles Roles) AvailableFor(role UserRole) Roles {
+	if role.Is(Administrator) {
+		return roles
+	}
+
+	if role.Is(Partner) {
+		return Roles{
+			Role{Rid: 3, Name: "Customer", Weight: "2"},
+			Role{Rid: 4, Name: "Child User", Weight: "3"},
+		}
+	}
+
+	if role.Is(ChildUser) {
+		return Roles{
+			Role{Rid: 3, Name: "Customer", Weight: "2"},
+		}
+	}
+
+	return Roles{}
+}
+
 // TableName specifies the database tablename for Gorm to use
-func (s UsersRole) TableName() string {
+func (ur UserRole) TableName() string {
 	return "users_role"
+}
+
+// Name returns this role's name
+func (ur UserRole) Name() string {
+	role := Role{}
+	err := db.Where("rid = ?", ur.Rid).First(&role).Error
+
+	if err != nil {
+		return "Unknown"
+	}
+
+	return role.Name
+}
+
+// Is tells if this role id matches the given one
+func (r Role) Is(rid int64) bool {
+	return r.Rid == rid
+}
+
+// Is tells if this user role id matches the given one
+func (ur UserRole) Is(rid int64) bool {
+	return ur.Rid == rid
 }
 
 // GetUser returns the user that the given id corresponds to. If no user is found, an
@@ -58,56 +117,76 @@ func PutUser(u *User) error {
 	return err
 }
 
-// PutRoles updates the given user
-func PutRoles(r *Roles) error {
+// PutRole updates role
+func PutRole(r *Role) error {
 	err := db.Save(r).Error
 	return err
 }
 
-// PutRoles updates the given user
-func PutUserRoles(ur *UsersRole) error {
+// PutUserRole updates role of the given user
+func PutUserRole(ur *UserRole) error {
 	err := db.Save(ur).Error
 	return err
 }
 
-// GetUsers returns the campaigns owned by the given user.
+// GetUsers returns the users owned by the given user.
 func GetUsers(uid int64) ([]User, error) {
-	u := []User{}
-	err := db.Order("id asc").Find(&u).Error
-	return u, err
+	users := []User{}
+	role, err := GetUserRole(uid)
+
+	if err != nil {
+		return users, err
+	}
+
+	if role.Is(Administrator) {
+		err = db.Order("id asc").Find(&users).Error
+	} else if role.Is(Partner) {
+		err = db.Where("partner = ?", uid).Order("id asc").Find(&users).Error
+	} else if role.Is(ChildUser) {
+		user, err := GetUser(uid)
+
+		if err != nil {
+			return users, err
+		}
+
+		err = db.Where("partner = ? and id <> ?", user.Partner, uid).Order("id asc").Find(&users).Error
+	}
+
+	return users, err
 }
 
-// GetRoles returns the roles set in the site.
-func GetRoles(uid int64) ([]Roles, error) {
-	r := []Roles{}
+// GetRoles returns all available roles
+func GetRoles() (Roles, error) {
+	r := Roles{}
 	err := db.Order("rid asc").Find(&r).Error
 	return r, err
 }
 
-// GetRoles returns the roles set in the site.
-func GetUserRoles(uid int64) ([]UsersRole, error) {
-	r := []UsersRole{}
+// GetUserRole returns a role assigned to the given uid
+func GetUserRole(uid int64) (UserRole, error) {
+	r := UserRole{}
 	err := db.Where("uid = ?", uid).First(&r).Error
 	return r, err
 }
 
-// GetRoles returns the roles set in the site.
+// DeleteUserRoles deletes all roles of a given uid
 func DeleteUserRoles(uid int64) error {
-	err = db.Delete(UsersRole{}, "uid = ?", uid).Error
+	err = db.Delete(UserRole{}, "uid = ?", uid).Error
 	return err
 }
 
-//Delete  the specified user
-func DeleteUser(id int64) error {
-	// Delete the campaign
-	err = db.Delete(&User{Id: id}).Error
-	return err
+// DeleteUser deletes the specified user
+func DeleteUser(uid int64) error {
+	if err := db.Delete(&User{Id: uid}).Error; err != nil {
+		return err
+	}
+
+	return DeleteUserRoles(uid)
 }
 
-//Returns all the partners from the database
+// GetUserPartners returns all the partners from the database
 func GetUserPartners() ([]User, error) {
-
 	u := []User{}
-	err = db.Raw("SELECT * FROM users u LEFT JOIN users_role ur ON (u.id = ur.uid) where ur.rid = ?", 1).Scan(&u).Error
+	err = db.Raw("SELECT * FROM users u LEFT JOIN users_role ur ON (u.id = ur.uid) where ur.rid in (?, ?)", 1, 2).Scan(&u).Error
 	return u, err
 }
