@@ -292,7 +292,8 @@ func TransparencyHandler(w http.ResponseWriter, r *http.Request) {
 	JSONResponse(w, tr, http.StatusOK)
 }
 
-// setupContext handles some of the administrative work around receiving a new request, such as checking the result ID, the campaign, etc.
+// setupContext handles some of the administrative work around receiving a new
+// request, such as checking the result ID, the campaign, etc.
 func setupContext(r *http.Request) (error, *http.Request) {
 	err := r.ParseForm()
 	if err != nil {

@@ -10,15 +10,22 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// Worker is the background worker that handles watching for new campaigns and sending emails appropriately.
-type Worker struct {
+// Worker is an interface that defines the operations needed for a background worker
+type Worker interface {
+	Start()
+	LaunchCampaign(c models.Campaign)
+	SendTestEmail(s *models.EmailRequest) error
+}
+
+// DefaultWorker is the background worker that handles watching for new campaigns and sending emails appropriately.
+type DefaultWorker struct {
 	mailer mailer.Mailer
 }
 
 // New creates a new worker object to handle the creation of campaigns
-func New(options ...func(*Worker) error) (*Worker, error) {
+func New(options ...func(Worker) error) (Worker, error) {
 	defaultMailer := mailer.NewMailWorker()
-	w := &Worker{
+	w := &DefaultWorker{
 		mailer: defaultMailer,
 	}
 	for _, opt := range options {
@@ -31,8 +38,8 @@ func New(options ...func(*Worker) error) (*Worker, error) {
 
 // WithMailer sets the mailer for a given worker.
 // By default, workers use a standard, default mailworker.
-func WithMailer(m mailer.Mailer) func(*Worker) error {
-	return func(w *Worker) error {
+func WithMailer(m mailer.Mailer) func(*DefaultWorker) error {
+	return func(w *DefaultWorker) error {
 		w.mailer = m
 		return nil
 	}
@@ -40,7 +47,7 @@ func WithMailer(m mailer.Mailer) func(*Worker) error {
 
 // Start launches the worker to poll the database every minute for any pending maillogs
 // that need to be processed.
-func (w *Worker) Start() {
+func (w *DefaultWorker) Start() {
 	log.Info("Background Worker Started Successfully - Waiting for Campaigns")
 	go w.mailer.Start(context.Background())
 	for t := range time.Tick(1 * time.Minute) {
@@ -91,7 +98,7 @@ func (w *Worker) Start() {
 }
 
 // LaunchCampaign starts a campaign
-func (w *Worker) LaunchCampaign(c models.Campaign) {
+func (w *DefaultWorker) LaunchCampaign(c models.Campaign) {
 	ms, err := models.GetMailLogsByCampaign(c.Id)
 	if err != nil {
 		log.Error(err)
@@ -115,7 +122,7 @@ func (w *Worker) LaunchCampaign(c models.Campaign) {
 }
 
 // SendTestEmail sends a test email
-func (w *Worker) SendTestEmail(s *models.EmailRequest) error {
+func (w *DefaultWorker) SendTestEmail(s *models.EmailRequest) error {
 	go func() {
 		ms := []mailer.Mail{s}
 		w.mailer.Queue(ms)

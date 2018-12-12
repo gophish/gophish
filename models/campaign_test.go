@@ -79,3 +79,29 @@ func (s *ModelsSuite) TestCampaignDateValidation(c *check.C) {
 	err = campaign.Validate()
 	c.Assert(err, check.Equals, ErrInvalidSendByDate)
 }
+
+func (s *ModelsSuite) TestLaunchCampaignMaillogStatus(c *check.C) {
+	// For the first test, ensure that campaigns created with the zero date
+	// (and therefore are set to launch immediately) have maillogs that are
+	// locked to prevent race conditions.
+	campaign := s.createCampaign(c)
+	ms, err := GetMailLogsByCampaign(campaign.Id)
+	c.Assert(err, check.Equals, nil)
+
+	for _, m := range ms {
+		c.Assert(m.Processing, check.Equals, true)
+	}
+
+	// Next, verify that campaigns scheduled in the future do not lock the
+	// maillogs so that they can be picked up by the background worker.
+	campaign = s.createCampaignDependencies(c)
+	campaign.Name = "New Campaign"
+	campaign.LaunchDate = time.Now().Add(1 * time.Hour)
+	c.Assert(PostCampaign(&campaign, campaign.UserId), check.Equals, nil)
+	ms, err = GetMailLogsByCampaign(campaign.Id)
+	c.Assert(err, check.Equals, nil)
+
+	for _, m := range ms {
+		c.Assert(m.Processing, check.Equals, false)
+	}
+}

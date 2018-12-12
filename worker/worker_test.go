@@ -9,7 +9,6 @@ import (
 // WorkerSuite is a suite of tests to cover API related functions
 type WorkerSuite struct {
 	suite.Suite
-	ApiKey string
 }
 
 func (s *WorkerSuite) SetupSuite() {
@@ -72,8 +71,4 @@ func (s *WorkerSuite) SetupTest() {
 	c.Groups = []models.Group{group}
 	models.PostCampaign(&c, c.UserId)
 	c.UpdateStatus(models.CAMPAIGN_EMAILS_SENT)
-}
-
-func (s *WorkerSuite) TestMailSendSuccess() {
-	// TODO
 }

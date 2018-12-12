@@ -3,7 +3,6 @@ package controllers
 import (
 	"compress/gzip"
 	"context"
-	"fmt"
 	"html/template"
 	"net/http"
 	"net/url"
@@ -32,12 +31,12 @@ type AdminServerOption func(*AdminServer)
 // handlers, including the dashboard and REST API.
 type AdminServer struct {
 	server *http.Server
-	worker *worker.Worker
+	worker worker.Worker
 	config config.AdminServer
 }
 
 // WithWorker is an option that sets the background worker.
-func WithWorker(w *worker.Worker) AdminServerOption {
+func WithWorker(w worker.Worker) AdminServerOption {
 	return func(as *AdminServer) {
 		as.worker = w
 	}
@@ -375,28 +374,6 @@ func (as *AdminServer) Logout(w http.ResponseWriter, r *http.Request) {
 	Flash(w, r, "success", "You have successfully logged out")
 	session.Save(r, w)
 	http.Redirect(w, r, "/login", 302)
-}
-
-// Preview allows for the viewing of page html in a separate browser window
-func (as *AdminServer) Preview(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "POST" {
-		http.Error(w, "Method not allowed", http.StatusBadRequest)
-		return
-	}
-	fmt.Fprintf(w, "%s", r.FormValue("html"))
-}
-
-// Clone takes a URL as a POST parameter and returns the site HTML
-func (as *AdminServer) Clone(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	if r.Method != "POST" {
-		http.Error(w, "Method not allowed", http.StatusBadRequest)
-		return
-	}
-	if url, ok := vars["url"]; ok {
-		log.Error(url)
-	}
-	http.Error(w, "No URL given.", http.StatusBadRequest)
 }
 
 func getTemplate(w http.ResponseWriter, tmpl string) *template.Template {

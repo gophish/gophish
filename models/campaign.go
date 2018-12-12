@@ -514,13 +514,15 @@ func PostCampaign(c *Campaign, uid int64) error {
 				Reported:     false,
 				ModifiedDate: c.CreatedDate,
 			}
-			if r.SendDate.Before(c.CreatedDate) || r.SendDate.Equal(c.CreatedDate) {
-				r.Status = STATUS_SENDING
-			}
 			err = r.GenerateId()
 			if err != nil {
 				log.Error(err)
 				continue
+			}
+			processing := false
+			if r.SendDate.Before(c.CreatedDate) || r.SendDate.Equal(c.CreatedDate) {
+				r.Status = STATUS_SENDING
+				processing = true
 			}
 			err = db.Save(r).Error
 			if err != nil {
@@ -530,7 +532,14 @@ func PostCampaign(c *Campaign, uid int64) error {
 			}
 			c.Results = append(c.Results, *r)
 			log.Infof("Creating maillog for %s to send at %s\n", r.Email, sendDate)
-			err = GenerateMailLog(c, r, sendDate)
+			m := &MailLog{
+				UserId:     c.UserId,
+				CampaignId: c.Id,
+				RId:        r.RId,
+				SendDate:   sendDate,
+				Processing: processing,
+			}
+			err = db.Save(m).Error
 			if err != nil {
 				log.Error(err)
 				continue
