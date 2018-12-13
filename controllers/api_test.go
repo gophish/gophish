@@ -105,14 +105,14 @@ func (s *ControllersSuite) TestRequireAPIKey() {
 	resp, err := http.Post(fmt.Sprintf("%s/api/import/site", as.URL), "application/json", nil)
 	s.Nil(err)
 	defer resp.Body.Close()
-	s.Equal(resp.StatusCode, http.StatusBadRequest)
+	s.Equal(resp.StatusCode, http.StatusUnauthorized)
 }
 
 func (s *ControllersSuite) TestInvalidAPIKey() {
 	resp, err := http.Get(fmt.Sprintf("%s/api/groups/?api_key=%s", as.URL, "bogus-api-key"))
 	s.Nil(err)
 	defer resp.Body.Close()
-	s.Equal(resp.StatusCode, http.StatusBadRequest)
+	s.Equal(resp.StatusCode, http.StatusUnauthorized)
 }
 
 func (s *ControllersSuite) TestBearerToken() {
