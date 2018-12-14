@@ -21,6 +21,7 @@ import (
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
+	"github.com/jordan-wright/unindexed"
 )
 
 // AdminServerOption is a functional option that is used to configure the
@@ -131,7 +132,7 @@ func (as *AdminServer) registerRoutes() {
 	api.HandleFunc("/import/site", as.API_Import_Site)
 
 	// Setup static file serving
-	router.PathPrefix("/").Handler(http.FileServer(UnindexedFileSystem{http.Dir("./static/")}))
+	router.PathPrefix("/").Handler(http.FileServer(unindexed.Dir("./static/")))
 
 	// Setup CSRF Protection
 	csrfHandler := csrf.Protect([]byte(auth.GenerateSecureKey()),
@@ -158,16 +159,29 @@ func Use(handler http.HandlerFunc, mid ...func(http.Handler) http.HandlerFunc) h
 	return handler
 }
 
+type templateParams struct {
+	Title   string
+	Flashes []interface{}
+	User    models.User
+	Token   string
+	Version string
+}
+
+// newTemplateParams returns the default template parameters for a user and
+// the CSRF token.
+func newTemplateParams(r *http.Request) templateParams {
+	return templateParams{
+		Token:   csrf.Token(r),
+		User:    ctx.Get(r, "user").(models.User),
+		Version: config.Version,
+	}
+}
+
 // Register creates a new user
 func (as *AdminServer) Register(w http.ResponseWriter, r *http.Request) {
 	// If it is a post request, attempt to register the account
 	// Now that we are all registered, we can log the user in
-	params := struct {
-		Title   string
-		Flashes []interface{}
-		User    models.User
-		Token   string
-	}{Title: "Register", Token: csrf.Token(r)}
+	params := templateParams{Title: "Register", Token: csrf.Token(r)}
 	session := ctx.Get(r, "session").(*sessions.Session)
 	switch {
 	case r.Method == "GET":
@@ -201,84 +215,50 @@ func (as *AdminServer) Register(w http.ResponseWriter, r *http.Request) {
 
 // Base handles the default path and template execution
 func (as *AdminServer) Base(w http.ResponseWriter, r *http.Request) {
-	params := struct {
-		User    models.User
-		Title   string
-		Flashes []interface{}
-		Token   string
-	}{Title: "Dashboard", User: ctx.Get(r, "user").(models.User), Token: csrf.Token(r)}
+	params := newTemplateParams(r)
+	params.Title = "Dashboard"
 	getTemplate(w, "dashboard").ExecuteTemplate(w, "base", params)
 }
 
 // Campaigns handles the default path and template execution
 func (as *AdminServer) Campaigns(w http.ResponseWriter, r *http.Request) {
-	// Example of using session - will be removed.
-	params := struct {
-		User    models.User
-		Title   string
-		Flashes []interface{}
-		Token   string
-	}{Title: "Campaigns", User: ctx.Get(r, "user").(models.User), Token: csrf.Token(r)}
+	params := newTemplateParams(r)
+	params.Title = "Campaigns"
 	getTemplate(w, "campaigns").ExecuteTemplate(w, "base", params)
 }
 
 // CampaignID handles the default path and template execution
 func (as *AdminServer) CampaignID(w http.ResponseWriter, r *http.Request) {
-	// Example of using session - will be removed.
-	params := struct {
-		User    models.User
-		Title   string
-		Flashes []interface{}
-		Token   string
-	}{Title: "Campaign Results", User: ctx.Get(r, "user").(models.User), Token: csrf.Token(r)}
+	params := newTemplateParams(r)
+	params.Title = "Campaign Results"
 	getTemplate(w, "campaign_results").ExecuteTemplate(w, "base", params)
 }
 
 // Templates handles the default path and template execution
 func (as *AdminServer) Templates(w http.ResponseWriter, r *http.Request) {
-	// Example of using session - will be removed.
-	params := struct {
-		User    models.User
-		Title   string
-		Flashes []interface{}
-		Token   string
-	}{Title: "Email Templates", User: ctx.Get(r, "user").(models.User), Token: csrf.Token(r)}
+	params := newTemplateParams(r)
+	params.Title = "Email Templates"
 	getTemplate(w, "templates").ExecuteTemplate(w, "base", params)
 }
 
 // Users handles the default path and template execution
 func (as *AdminServer) Users(w http.ResponseWriter, r *http.Request) {
-	// Example of using session - will be removed.
-	params := struct {
-		User    models.User
-		Title   string
-		Flashes []interface{}
-		Token   string
-	}{Title: "Users & Groups", User: ctx.Get(r, "user").(models.User), Token: csrf.Token(r)}
+	params := newTemplateParams(r)
+	params.Title = "Users & Groups"
 	getTemplate(w, "users").ExecuteTemplate(w, "base", params)
 }
 
 // LandingPages handles the default path and template execution
 func (as *AdminServer) LandingPages(w http.ResponseWriter, r *http.Request) {
-	// Example of using session - will be removed.
-	params := struct {
-		User    models.User
-		Title   string
-		Flashes []interface{}
-		Token   string
-	}{Title: "Landing Pages", User: ctx.Get(r, "user").(models.User), Token: csrf.Token(r)}
+	params := newTemplateParams(r)
+	params.Title = "Landing Pages"
 	getTemplate(w, "landing_pages").ExecuteTemplate(w, "base", params)
 }
 
 // SendingProfiles handles the default path and template execution
 func (as *AdminServer) SendingProfiles(w http.ResponseWriter, r *http.Request) {
-	// Example of using session - will be removed.
-	params := struct {
-		User    models.User
-		Title   string
-		Flashes []interface{}
-		Token   string
-	}{Title: "Sending Profiles", User: ctx.Get(r, "user").(models.User), Token: csrf.Token(r)}
+	params := newTemplateParams(r)
+	params.Title = "Sending Profiles"
 	getTemplate(w, "sending_profiles").ExecuteTemplate(w, "base", params)
 }
 
@@ -286,13 +266,8 @@ func (as *AdminServer) SendingProfiles(w http.ResponseWriter, r *http.Request) {
 func (as *AdminServer) Settings(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "GET":
-		params := struct {
-			User    models.User
-			Title   string
-			Flashes []interface{}
-			Token   string
-			Version string
-		}{Title: "Settings", Version: config.Version, User: ctx.Get(r, "user").(models.User), Token: csrf.Token(r)}
+		params := newTemplateParams(r)
+		params.Title = "Settings"
 		getTemplate(w, "settings").ExecuteTemplate(w, "base", params)
 	case r.Method == "POST":
 		err := auth.ChangePassword(r)
