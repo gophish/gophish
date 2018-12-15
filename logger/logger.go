@@ -18,10 +18,10 @@ func init() {
 }
 
 // Setup configures the logger based on options in the config.json.
-func Setup() error {
+func Setup(conf *config.Config) error {
 	Logger.SetLevel(logrus.InfoLevel)
 	// Set up logging to a file if specified in the config
-	logFile := config.Conf.Logging.Filename
+	logFile := conf.Logging.Filename
 	if logFile != "" {
 		f, err := os.OpenFile(logFile, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0644)
 		if err != nil {

@@ -58,25 +58,25 @@ func main() {
 	kingpin.Parse()
 
 	// Load the config
-	err = config.LoadConfig(*configPath)
+	conf, err := config.LoadConfig(*configPath)
 	// Just warn if a contact address hasn't been configured
 	if err != nil {
 		log.Fatal(err)
 	}
-	if config.Conf.ContactAddress == "" {
+	if conf.ContactAddress == "" {
 		log.Warnf("No contact address has been configured.")
 		log.Warnf("Please consider adding a contact_address entry in your config.json")
 	}
 	config.Version = string(version)
 
-	err = log.Setup()
+	err = log.Setup(conf)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// Provide the option to disable the built-in mailer
 	// Setup the global variables and settings
-	err = models.Setup()
+	err = models.Setup(conf)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -92,11 +92,11 @@ func main() {
 	if *disableMailer {
 		adminOptions = append(adminOptions, controllers.WithWorker(nil))
 	}
-	adminConfig := config.Conf.AdminConf
+	adminConfig := conf.AdminConf
 	adminServer := controllers.NewAdminServer(adminConfig, adminOptions...)
 	auth.Store.Options.Secure = adminConfig.UseTLS
 
-	phishConfig := config.Conf.PhishConf
+	phishConfig := conf.PhishConf
 	phishServer := controllers.NewPhishingServer(phishConfig)
 
 	go adminServer.Start()

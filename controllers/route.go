@@ -137,7 +137,7 @@ func (as *AdminServer) registerRoutes() {
 	// Setup CSRF Protection
 	csrfHandler := csrf.Protect([]byte(auth.GenerateSecureKey()),
 		csrf.FieldName("csrf_token"),
-		csrf.Secure(config.Conf.AdminConf.UseTLS))
+		csrf.Secure(as.config.UseTLS))
 	adminHandler := csrfHandler(router)
 	adminHandler = Use(adminHandler.ServeHTTP, mid.CSRFExceptions, mid.GetContext)
 

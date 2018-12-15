@@ -15,7 +15,7 @@ func (s *ModelsSuite) TestPostSMTP(c *check.C) {
 		FromAddress: "Foo Bar <foo@example.com>",
 		UserId:      1,
 	}
-	err = PostSMTP(&smtp)
+	err := PostSMTP(&smtp)
 	c.Assert(err, check.Equals, nil)
 	ss, err := GetSMTPs(1)
 	c.Assert(err, check.Equals, nil)
@@ -28,7 +28,7 @@ func (s *ModelsSuite) TestPostSMTPNoHost(c *check.C) {
 		FromAddress: "Foo Bar <foo@example.com>",
 		UserId:      1,
 	}
-	err = PostSMTP(&smtp)
+	err := PostSMTP(&smtp)
 	c.Assert(err, check.Equals, ErrHostNotSpecified)
 }
 
@@ -38,7 +38,7 @@ func (s *ModelsSuite) TestPostSMTPNoFrom(c *check.C) {
 		UserId: 1,
 		Host:   "1.1.1.1:25",
 	}
-	err = PostSMTP(&smtp)
+	err := PostSMTP(&smtp)
 	c.Assert(err, check.Equals, ErrFromAddressNotSpecified)
 }
 
@@ -53,7 +53,7 @@ func (s *ModelsSuite) TestPostSMTPValidHeader(c *check.C) {
 			Header{Key: "X-Mailer", Value: "gophish"},
 		},
 	}
-	err = PostSMTP(&smtp)
+	err := PostSMTP(&smtp)
 	c.Assert(err, check.Equals, nil)
 	ss, err := GetSMTPs(1)
 	c.Assert(err, check.Equals, nil)

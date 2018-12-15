@@ -228,7 +228,7 @@ func PutSMTP(s *SMTP) error {
 // An error is returned if a SMTP with the given user id and SMTP id is not found.
 func DeleteSMTP(id int64, uid int64) error {
 	// Delete all custom headers
-	err = db.Where("smtp_id=?", id).Delete(&Header{}).Error
+	err := db.Where("smtp_id=?", id).Delete(&Header{}).Error
 	if err != nil {
 		log.Error(err)
 		return err

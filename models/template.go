@@ -34,10 +34,10 @@ func (t *Template) Validate() error {
 	case t.Text == "" && t.HTML == "":
 		return ErrTemplateMissingParameter
 	}
-	if err = ValidateTemplate(t.HTML); err != nil {
+	if err := ValidateTemplate(t.HTML); err != nil {
 		return err
 	}
-	if err = ValidateTemplate(t.Text); err != nil {
+	if err := ValidateTemplate(t.Text); err != nil {
 		return err
 	}
 	return nil
@@ -113,7 +113,7 @@ func PostTemplate(t *Template) error {
 	if err := t.Validate(); err != nil {
 		return err
 	}
-	err = db.Save(t).Error
+	err := db.Save(t).Error
 	if err != nil {
 		log.Error(err)
 		return err
@@ -138,7 +138,7 @@ func PutTemplate(t *Template) error {
 		return err
 	}
 	// Delete all attachments, and replace with new ones
-	err = db.Where("template_id=?", t.Id).Delete(&Attachment{}).Error
+	err := db.Where("template_id=?", t.Id).Delete(&Attachment{}).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		log.Error(err)
 		return err
@@ -146,7 +146,7 @@ func PutTemplate(t *Template) error {
 	if err == gorm.ErrRecordNotFound {
 		err = nil
 	}
-	for i, _ := range t.Attachments {
+	for i := range t.Attachments {
 		t.Attachments[i].TemplateId = t.Id
 		err := db.Save(&t.Attachments[i]).Error
 		if err != nil {

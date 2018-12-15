@@ -45,8 +45,7 @@ func GenerateMailLog(c *Campaign, r *Result, sendDate time.Time) error {
 		RId:        r.RId,
 		SendDate:   sendDate,
 	}
-	err = db.Save(m).Error
-	return err
+	return db.Save(m).Error
 }
 
 // Backoff sets the MailLog SendDate to be the next entry in an exponential
@@ -160,8 +159,8 @@ func (m *MailLog) Generate(msg *gomail.Message) error {
 
 	// Add the transparency headers
 	msg.SetHeader("X-Mailer", config.ServerName)
-	if config.Conf.ContactAddress != "" {
-		msg.SetHeader("X-Gophish-Contact", config.Conf.ContactAddress)
+	if conf.ContactAddress != "" {
+		msg.SetHeader("X-Gophish-Contact", conf.ContactAddress)
 	}
 	// Parse the customHeader templates
 	for _, header := range c.SMTP.Headers {
@@ -260,6 +259,5 @@ func LockMailLogs(ms []*MailLog, lock bool) error {
 // in the database. This is intended to be called when Gophish is started
 // so that any previously locked maillogs can resume processing.
 func UnlockAllMailLogs() error {
-	err = db.Model(&MailLog{}).Update("processing", false).Error
-	return err
+	return db.Model(&MailLog{}).Update("processing", false).Error
 }
