@@ -11,41 +11,42 @@ import (
 
 	"github.com/gophish/gophish/config"
 	"github.com/gophish/gophish/models"
-	"github.com/gorilla/handlers"
 	"github.com/stretchr/testify/suite"
 )
 
 // ControllersSuite is a suite of tests to cover API related functions
 type ControllersSuite struct {
 	suite.Suite
-	ApiKey string
+	ApiKey      string
+	config      *config.Config
+	adminServer *httptest.Server
+	phishServer *httptest.Server
 }
 
-// as is the Admin Server for our API calls
-var as *httptest.Server = httptest.NewUnstartedServer(handlers.CombinedLoggingHandler(os.Stdout, CreateAdminRouter()))
-
-// ps is the Phishing Server
-var ps *httptest.Server = httptest.NewUnstartedServer(handlers.CombinedLoggingHandler(os.Stdout, CreatePhishingRouter()))
-
 func (s *ControllersSuite) SetupSuite() {
-	config.Conf.DBName = "sqlite3"
-	config.Conf.DBPath = ":memory:"
-	config.Conf.MigrationsPath = "../db/db_sqlite3/migrations/"
-	err := models.Setup()
+	conf := &config.Config{
+		DBName:         "sqlite3",
+		DBPath:         ":memory:",
+		MigrationsPath: "../db/db_sqlite3/migrations/",
+	}
+	err := models.Setup(conf)
 	if err != nil {
 		s.T().Fatalf("Failed creating database: %v", err)
 	}
+	s.config = conf
 	s.Nil(err)
 	// Setup the admin server for use in testing
-	as.Config.Addr = config.Conf.AdminConf.ListenURL
-	as.Start()
+	s.adminServer = httptest.NewUnstartedServer(NewAdminServer(s.config.AdminConf).server.Handler)
+	s.adminServer.Config.Addr = s.config.AdminConf.ListenURL
+	s.adminServer.Start()
 	// Get the API key to use for these tests
 	u, err := models.GetUser(1)
 	s.Nil(err)
 	s.ApiKey = u.ApiKey
 	// Start the phishing server
-	ps.Config.Addr = config.Conf.PhishConf.ListenURL
-	ps.Start()
+	s.phishServer = httptest.NewUnstartedServer(NewPhishingServer(s.config.PhishConf).server.Handler)
+	s.phishServer.Config.Addr = s.config.PhishConf.ListenURL
+	s.phishServer.Start()
 	// Move our cwd up to the project root for help with resolving
 	// static assets
 	err = os.Chdir("../")
@@ -103,21 +104,21 @@ func (s *ControllersSuite) SetupTest() {
 }
 
 func (s *ControllersSuite) TestRequireAPIKey() {
-	resp, err := http.Post(fmt.Sprintf("%s/api/import/site", as.URL), "application/json", nil)
+	resp, err := http.Post(fmt.Sprintf("%s/api/import/site", s.adminServer.URL), "application/json", nil)
 	s.Nil(err)
 	defer resp.Body.Close()
-	s.Equal(resp.StatusCode, http.StatusBadRequest)
+	s.Equal(resp.StatusCode, http.StatusUnauthorized)
 }
 
 func (s *ControllersSuite) TestInvalidAPIKey() {
-	resp, err := http.Get(fmt.Sprintf("%s/api/groups/?api_key=%s", as.URL, "bogus-api-key"))
+	resp, err := http.Get(fmt.Sprintf("%s/api/groups/?api_key=%s", s.adminServer.URL, "bogus-api-key"))
 	s.Nil(err)
 	defer resp.Body.Close()
-	s.Equal(resp.StatusCode, http.StatusBadRequest)
+	s.Equal(resp.StatusCode, http.StatusUnauthorized)
 }
 
 func (s *ControllersSuite) TestBearerToken() {
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s/api/groups/", as.URL), nil)
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/api/groups/", s.adminServer.URL), nil)
 	s.Nil(err)
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", s.ApiKey))
 	resp, err := http.DefaultClient.Do(req)
@@ -133,7 +134,7 @@ func (s *ControllersSuite) TestSiteImportBaseHref() {
 	}))
 	hr := fmt.Sprintf("<html><head><base href=\"%s\"/></head><body><img src=\"/test.png\"/>\n</body></html>", ts.URL)
 	defer ts.Close()
-	resp, err := http.Post(fmt.Sprintf("%s/api/import/site?api_key=%s", as.URL, s.ApiKey), "application/json",
+	resp, err := http.Post(fmt.Sprintf("%s/api/import/site?api_key=%s", s.adminServer.URL, s.ApiKey), "application/json",
 		bytes.NewBuffer([]byte(fmt.Sprintf(`
 			{
 				"url" : "%s",
@@ -150,8 +151,8 @@ func (s *ControllersSuite) TestSiteImportBaseHref() {
 
 func (s *ControllersSuite) TearDownSuite() {
 	// Tear down the admin and phishing servers
-	as.Close()
-	ps.Close()
+	s.adminServer.Close()
+	s.phishServer.Close()
 }
 
 func TestControllerSuite(t *testing.T) {

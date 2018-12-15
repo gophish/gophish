@@ -29,6 +29,13 @@ func (e *ErrMaxConnectAttempts) Error() string {
 	return errString
 }
 
+// Mailer is an interface that defines an object used to queue and
+// send mailer.Mail instances.
+type Mailer interface {
+	Start(ctx context.Context)
+	Queue([]Mail)
+}
+
 // Sender exposes the common operations required for sending email.
 type Sender interface {
 	Send(from string, to []string, msg io.WriterTo) error
@@ -50,27 +57,18 @@ type Mail interface {
 	GetDialer() (Dialer, error)
 }
 
-// Mailer is a global instance of the mailer that can
-// be used in applications. It is the responsibility of the application
-// to call Mailer.Start()
-var Mailer *MailWorker
-
-func init() {
-	Mailer = NewMailWorker()
-}
-
 // MailWorker is the worker that receives slices of emails
 // on a channel to send. It's assumed that every slice of emails received is meant
 // to be sent to the same server.
 type MailWorker struct {
-	Queue chan []Mail
+	queue chan []Mail
 }
 
 // NewMailWorker returns an instance of MailWorker with the mail queue
 // initialized.
 func NewMailWorker() *MailWorker {
 	return &MailWorker{
-		Queue: make(chan []Mail),
+		queue: make(chan []Mail),
 	}
 }
 
@@ -81,7 +79,7 @@ func (mw *MailWorker) Start(ctx context.Context) {
 		select {
 		case <-ctx.Done():
 			return
-		case ms := <-mw.Queue:
+		case ms := <-mw.queue:
 			go func(ctx context.Context, ms []Mail) {
 				dialer, err := ms[0].GetDialer()
 				if err != nil {
@@ -92,6 +90,11 @@ func (mw *MailWorker) Start(ctx context.Context) {
 			}(ctx, ms)
 		}
 	}
+}
+
+// Queue sends the provided mail to the internal queue for processing.
+func (mw *MailWorker) Queue(ms []Mail) {
+	mw.queue <- ms
 }
 
 // errorMail is a helper to handle erroring out a slice of Mail instances

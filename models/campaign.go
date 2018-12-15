@@ -165,7 +165,7 @@ func (c *Campaign) AddEvent(e *Event) error {
 // an error is returned. Otherwise, the attribute name is set to [Deleted],
 // indicating the user deleted the attribute (template, smtp, etc.)
 func (c *Campaign) getDetails() error {
-	err = db.Model(c).Related(&c.Results).Error
+	err := db.Model(c).Related(&c.Results).Error
 	if err != nil {
 		log.Warnf("%s: results not found for campaign", err)
 		return err
@@ -402,7 +402,8 @@ func GetQueuedCampaigns(t time.Time) ([]Campaign, error) {
 
 // PostCampaign inserts a campaign and all associated records into the database.
 func PostCampaign(c *Campaign, uid int64) error {
-	if err := c.Validate(); err != nil {
+	err := c.Validate()
+	if err != nil {
 		return err
 	}
 	// Fill in the details
@@ -514,13 +515,15 @@ func PostCampaign(c *Campaign, uid int64) error {
 				Reported:     false,
 				ModifiedDate: c.CreatedDate,
 			}
-			if r.SendDate.Before(c.CreatedDate) || r.SendDate.Equal(c.CreatedDate) {
-				r.Status = STATUS_SENDING
-			}
 			err = r.GenerateId()
 			if err != nil {
 				log.Error(err)
 				continue
+			}
+			processing := false
+			if r.SendDate.Before(c.CreatedDate) || r.SendDate.Equal(c.CreatedDate) {
+				r.Status = STATUS_SENDING
+				processing = true
 			}
 			err = db.Save(r).Error
 			if err != nil {
@@ -530,7 +533,14 @@ func PostCampaign(c *Campaign, uid int64) error {
 			}
 			c.Results = append(c.Results, *r)
 			log.Infof("Creating maillog for %s to send at %s\n", r.Email, sendDate)
-			err = GenerateMailLog(c, r, sendDate)
+			m := &MailLog{
+				UserId:     c.UserId,
+				CampaignId: c.Id,
+				RId:        r.RId,
+				SendDate:   sendDate,
+				Processing: processing,
+			}
+			err = db.Save(m).Error
 			if err != nil {
 				log.Error(err)
 				continue

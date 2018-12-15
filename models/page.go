@@ -148,7 +148,7 @@ func PutPage(p *Page) error {
 // DeletePage deletes an existing page in the database.
 // An error is returned if a page with the given user id and page id is not found.
 func DeletePage(id int64, uid int64) error {
-	err = db.Where("user_id=?", uid).Delete(Page{Id: id}).Error
+	err := db.Where("user_id=?", uid).Delete(Page{Id: id}).Error
 	if err != nil {
 		log.Error(err)
 	}

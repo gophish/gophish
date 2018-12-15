@@ -1,6 +1,7 @@
 package worker
 
 import (
+	"context"
 	"time"
 
 	log "github.com/gophish/gophish/logger"
@@ -9,18 +10,46 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// Worker is the background worker that handles watching for new campaigns and sending emails appropriately.
-type Worker struct{}
+// Worker is an interface that defines the operations needed for a background worker
+type Worker interface {
+	Start()
+	LaunchCampaign(c models.Campaign)
+	SendTestEmail(s *models.EmailRequest) error
+}
+
+// DefaultWorker is the background worker that handles watching for new campaigns and sending emails appropriately.
+type DefaultWorker struct {
+	mailer mailer.Mailer
+}
 
 // New creates a new worker object to handle the creation of campaigns
-func New() *Worker {
-	return &Worker{}
+func New(options ...func(Worker) error) (Worker, error) {
+	defaultMailer := mailer.NewMailWorker()
+	w := &DefaultWorker{
+		mailer: defaultMailer,
+	}
+	for _, opt := range options {
+		if err := opt(w); err != nil {
+			return nil, err
+		}
+	}
+	return w, nil
+}
+
+// WithMailer sets the mailer for a given worker.
+// By default, workers use a standard, default mailworker.
+func WithMailer(m mailer.Mailer) func(*DefaultWorker) error {
+	return func(w *DefaultWorker) error {
+		w.mailer = m
+		return nil
+	}
 }
 
 // Start launches the worker to poll the database every minute for any pending maillogs
 // that need to be processed.
-func (w *Worker) Start() {
+func (w *DefaultWorker) Start() {
 	log.Info("Background Worker Started Successfully - Waiting for Campaigns")
+	go w.mailer.Start(context.Background())
 	for t := range time.Tick(1 * time.Minute) {
 		ms, err := models.GetQueuedMailLogs(t.UTC())
 		if err != nil {
@@ -62,14 +91,14 @@ func (w *Worker) Start() {
 				log.WithFields(logrus.Fields{
 					"num_emails": len(msc),
 				}).Info("Sending emails to mailer for processing")
-				mailer.Mailer.Queue <- msc
+				w.mailer.Queue(msc)
 			}(cid, msc)
 		}
 	}
 }
 
 // LaunchCampaign starts a campaign
-func (w *Worker) LaunchCampaign(c models.Campaign) {
+func (w *DefaultWorker) LaunchCampaign(c models.Campaign) {
 	ms, err := models.GetMailLogsByCampaign(c.Id)
 	if err != nil {
 		log.Error(err)
@@ -89,14 +118,14 @@ func (w *Worker) LaunchCampaign(c models.Campaign) {
 		}
 		mailEntries = append(mailEntries, m)
 	}
-	mailer.Mailer.Queue <- mailEntries
+	w.mailer.Queue(mailEntries)
 }
 
 // SendTestEmail sends a test email
-func (w *Worker) SendTestEmail(s *models.EmailRequest) error {
+func (w *DefaultWorker) SendTestEmail(s *models.EmailRequest) error {
 	go func() {
 		ms := []mailer.Mail{s}
-		mailer.Mailer.Queue <- ms
+		w.mailer.Queue(ms)
 	}()
 	return <-s.ErrorChan
 }

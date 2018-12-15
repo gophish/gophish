@@ -9,17 +9,20 @@ import (
 // WorkerSuite is a suite of tests to cover API related functions
 type WorkerSuite struct {
 	suite.Suite
-	ApiKey string
+	config *config.Config
 }
 
 func (s *WorkerSuite) SetupSuite() {
-	config.Conf.DBName = "sqlite3"
-	config.Conf.DBPath = ":memory:"
-	config.Conf.MigrationsPath = "../db/db_sqlite3/migrations/"
-	err := models.Setup()
+	conf := &config.Config{
+		DBName:         "sqlite3",
+		DBPath:         ":memory:",
+		MigrationsPath: "../db/db_sqlite3/migrations/",
+	}
+	err := models.Setup(conf)
 	if err != nil {
 		s.T().Fatalf("Failed creating database: %v", err)
 	}
+	s.config = conf
 	s.Nil(err)
 }
 
@@ -31,7 +34,7 @@ func (s *WorkerSuite) TearDownTest() {
 }
 
 func (s *WorkerSuite) SetupTest() {
-	config.Conf.TestFlag = true
+	s.config.TestFlag = true
 	// Add a group
 	group := models.Group{Name: "Test Group"}
 	group.Targets = []models.Target{
@@ -72,8 +75,4 @@ func (s *WorkerSuite) SetupTest() {
 	c.Groups = []models.Group{group}
 	models.PostCampaign(&c, c.UserId)
 	c.UpdateStatus(models.CAMPAIGN_EMAILS_SENT)
-}
-
-func (s *WorkerSuite) TestMailSendSuccess() {
-	// TODO
 }

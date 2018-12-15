@@ -48,18 +48,18 @@ func (s *ConfigSuite) TestLoadConfig() {
 	_, err := s.ConfigFile.Write(validConfig)
 	s.Nil(err)
 	// Load the valid config
-	err = LoadConfig(s.ConfigFile.Name())
+	conf, err := LoadConfig(s.ConfigFile.Name())
 	s.Nil(err)
 
-	expectedConfig := Config{}
+	expectedConfig := &Config{}
 	err = json.Unmarshal(validConfig, &expectedConfig)
 	s.Nil(err)
 	expectedConfig.MigrationsPath = expectedConfig.MigrationsPath + expectedConfig.DBName
 	expectedConfig.TestFlag = false
-	s.Equal(expectedConfig, Conf)
+	s.Equal(expectedConfig, conf)
 
 	// Load an invalid config
-	err = LoadConfig("bogusfile")
+	conf, err = LoadConfig("bogusfile")
 	s.NotNil(err)
 }
 

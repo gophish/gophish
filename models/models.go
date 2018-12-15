@@ -15,7 +15,7 @@ import (
 )
 
 var db *gorm.DB
-var err error
+var conf *config.Config
 
 const (
 	CAMPAIGN_IN_PROGRESS string = "In progress"
@@ -78,12 +78,14 @@ func chooseDBDriver(name, openStr string) goose.DBDriver {
 
 // Setup initializes the Conn object
 // It also populates the Gophish Config object
-func Setup() error {
+func Setup(c *config.Config) error {
+	// Setup the package-scoped config
+	conf = c
 	// Setup the goose configuration
 	migrateConf := &goose.DBConf{
-		MigrationsDir: config.Conf.MigrationsPath,
+		MigrationsDir: conf.MigrationsPath,
 		Env:           "production",
-		Driver:        chooseDBDriver(config.Conf.DBName, config.Conf.DBPath),
+		Driver:        chooseDBDriver(conf.DBName, conf.DBPath),
 	}
 	// Get the latest possible migration
 	latest, err := goose.GetMostRecentDBVersion(migrateConf.MigrationsDir)
@@ -92,7 +94,7 @@ func Setup() error {
 		return err
 	}
 	// Open our database connection
-	db, err = gorm.Open(config.Conf.DBName, config.Conf.DBPath)
+	db, err = gorm.Open(conf.DBName, conf.DBPath)
 	db.LogMode(false)
 	db.SetLogger(log.Logger)
 	db.DB().SetMaxOpenConns(1)
