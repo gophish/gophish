@@ -568,6 +568,11 @@ func DeleteCampaign(id int64) error {
 		log.Error(err)
 		return err
 	}
+	err = db.Where("campaign_id=?", id).Delete(&MailLog{}).Error
+	if err != nil {
+		log.Error(err)
+		return err
+	}
 	// Delete the campaign
 	err = db.Delete(&Campaign{Id: id}).Error
 	if err != nil {

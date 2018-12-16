@@ -105,3 +105,17 @@ func (s *ModelsSuite) TestLaunchCampaignMaillogStatus(c *check.C) {
 		c.Assert(m.Processing, check.Equals, false)
 	}
 }
+
+func (s *ModelsSuite) TestDeleteCampaignAlsoDeletesMailLogs(c *check.C) {
+	campaign := s.createCampaign(c)
+	ms, err := GetMailLogsByCampaign(campaign.Id)
+	c.Assert(err, check.Equals, nil)
+	c.Assert(len(ms), check.Equals, len(campaign.Results))
+
+	err = DeleteCampaign(campaign.Id)
+	c.Assert(err, check.Equals, nil)
+
+	ms, err = GetMailLogsByCampaign(campaign.Id)
+	c.Assert(err, check.Equals, nil)
+	c.Assert(len(ms), check.Equals, 0)
+}
