@@ -12,10 +12,13 @@ import (
 	"github.com/gorilla/csrf"
 )
 
+// CSRFExemptPrefixes are a list of routes that are exempt from CSRF protection
 var CSRFExemptPrefixes = []string{
 	"/api",
 }
 
+// CSRFExceptions is a middleware that prevents CSRF checks on routes listed in
+// CSRFExemptPrefixes.
 func CSRFExceptions(handler http.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		for _, prefix := range CSRFExemptPrefixes {

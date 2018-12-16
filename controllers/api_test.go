@@ -17,7 +17,7 @@ import (
 // ControllersSuite is a suite of tests to cover API related functions
 type ControllersSuite struct {
 	suite.Suite
-	ApiKey      string
+	apiKey      string
 	config      *config.Config
 	adminServer *httptest.Server
 	phishServer *httptest.Server
@@ -42,7 +42,7 @@ func (s *ControllersSuite) SetupSuite() {
 	// Get the API key to use for these tests
 	u, err := models.GetUser(1)
 	s.Nil(err)
-	s.ApiKey = u.ApiKey
+	s.apiKey = u.ApiKey
 	// Start the phishing server
 	s.phishServer = httptest.NewUnstartedServer(NewPhishingServer(s.config.PhishConf).server.Handler)
 	s.phishServer.Config.Addr = s.config.PhishConf.ListenURL
@@ -100,7 +100,7 @@ func (s *ControllersSuite) SetupTest() {
 	c.SMTP = smtp
 	c.Groups = []models.Group{group}
 	models.PostCampaign(&c, c.UserId)
-	c.UpdateStatus(models.CAMPAIGN_EMAILS_SENT)
+	c.UpdateStatus(models.CampaignEmailsSent)
 }
 
 func (s *ControllersSuite) TestRequireAPIKey() {
@@ -120,7 +120,7 @@ func (s *ControllersSuite) TestInvalidAPIKey() {
 func (s *ControllersSuite) TestBearerToken() {
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/api/groups/", s.adminServer.URL), nil)
 	s.Nil(err)
-	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", s.ApiKey))
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", s.apiKey))
 	resp, err := http.DefaultClient.Do(req)
 	s.Nil(err)
 	defer resp.Body.Close()
@@ -134,7 +134,7 @@ func (s *ControllersSuite) TestSiteImportBaseHref() {
 	}))
 	hr := fmt.Sprintf("<html><head><base href=\"%s\"/></head><body><img src=\"/test.png\"/>\n</body></html>", ts.URL)
 	defer ts.Close()
-	resp, err := http.Post(fmt.Sprintf("%s/api/import/site?api_key=%s", s.adminServer.URL, s.ApiKey), "application/json",
+	resp, err := http.Post(fmt.Sprintf("%s/api/import/site?api_key=%s", s.adminServer.URL, s.apiKey), "application/json",
 		bytes.NewBuffer([]byte(fmt.Sprintf(`
 			{
 				"url" : "%s",

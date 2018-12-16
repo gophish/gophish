@@ -51,7 +51,7 @@ func GetTemplates(uid int64) ([]Template, error) {
 		log.Error(err)
 		return ts, err
 	}
-	for i, _ := range ts {
+	for i := range ts {
 		// Get Attachments
 		err = db.Where("template_id=?", ts[i].Id).Find(&ts[i].Attachments).Error
 		if err == nil && len(ts[i].Attachments) == 0 {

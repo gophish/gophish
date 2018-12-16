@@ -20,7 +20,7 @@ import (
 // attempt. This will give us a maximum send delay of 256 minutes, or about 4.2 hours.
 var MaxSendAttempts = 8
 
-// ErrMaxSendAttempts is thrown when the maximum number of sending attemps for a given
+// ErrMaxSendAttempts is thrown when the maximum number of sending attempts for a given
 // MailLog is exceeded.
 var ErrMaxSendAttempts = errors.New("max send attempts exceeded")
 

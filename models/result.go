@@ -58,12 +58,12 @@ func (r *Result) createEvent(status string, details interface{}) (*Event, error)
 // HandleEmailSent updates a Result to indicate that the email has been
 // successfully sent to the remote SMTP server
 func (r *Result) HandleEmailSent() error {
-	event, err := r.createEvent(EVENT_SENT, nil)
+	event, err := r.createEvent(EventSent, nil)
 	if err != nil {
 		return err
 	}
 	r.SendDate = event.Time
-	r.Status = EVENT_SENT
+	r.Status = EventSent
 	r.ModifiedDate = event.Time
 	return db.Save(r).Error
 }
@@ -71,11 +71,11 @@ func (r *Result) HandleEmailSent() error {
 // HandleEmailError updates a Result to indicate that there was an error when
 // attempting to send the email to the remote SMTP server.
 func (r *Result) HandleEmailError(err error) error {
-	event, err := r.createEvent(EVENT_SENDING_ERROR, EventError{Error: err.Error()})
+	event, err := r.createEvent(EventSendingError, EventError{Error: err.Error()})
 	if err != nil {
 		return err
 	}
-	r.Status = ERROR
+	r.Status = Error
 	r.ModifiedDate = event.Time
 	return db.Save(r).Error
 }
@@ -83,11 +83,11 @@ func (r *Result) HandleEmailError(err error) error {
 // HandleEmailBackoff updates a Result to indicate that the email received a
 // temporary error and needs to be retried
 func (r *Result) HandleEmailBackoff(err error, sendDate time.Time) error {
-	event, err := r.createEvent(EVENT_SENDING_ERROR, EventError{Error: err.Error()})
+	event, err := r.createEvent(EventSendingError, EventError{Error: err.Error()})
 	if err != nil {
 		return err
 	}
-	r.Status = STATUS_RETRY
+	r.Status = StatusRetry
 	r.SendDate = sendDate
 	r.ModifiedDate = event.Time
 	return db.Save(r).Error
@@ -96,16 +96,16 @@ func (r *Result) HandleEmailBackoff(err error, sendDate time.Time) error {
 // HandleEmailOpened updates a Result in the case where the recipient opened the
 // email.
 func (r *Result) HandleEmailOpened(details EventDetails) error {
-	event, err := r.createEvent(EVENT_OPENED, details)
+	event, err := r.createEvent(EventOpened, details)
 	if err != nil {
 		return err
 	}
 	// Don't update the status if the user already clicked the link
 	// or submitted data to the campaign
-	if r.Status == EVENT_CLICKED || r.Status == EVENT_DATA_SUBMIT {
+	if r.Status == EventClicked || r.Status == EventDataSubmit {
 		return nil
 	}
-	r.Status = EVENT_OPENED
+	r.Status = EventOpened
 	r.ModifiedDate = event.Time
 	return db.Save(r).Error
 }
@@ -113,16 +113,16 @@ func (r *Result) HandleEmailOpened(details EventDetails) error {
 // HandleClickedLink updates a Result in the case where the recipient clicked
 // the link in an email.
 func (r *Result) HandleClickedLink(details EventDetails) error {
-	event, err := r.createEvent(EVENT_CLICKED, details)
+	event, err := r.createEvent(EventClicked, details)
 	if err != nil {
 		return err
 	}
 	// Don't update the status if the user has already submitted data via the
 	// landing page form.
-	if r.Status == EVENT_DATA_SUBMIT {
+	if r.Status == EventDataSubmit {
 		return nil
 	}
-	r.Status = EVENT_CLICKED
+	r.Status = EventClicked
 	r.ModifiedDate = event.Time
 	return db.Save(r).Error
 }
@@ -130,11 +130,11 @@ func (r *Result) HandleClickedLink(details EventDetails) error {
 // HandleFormSubmit updates a Result in the case where the recipient submitted
 // credentials to the form on a Landing Page.
 func (r *Result) HandleFormSubmit(details EventDetails) error {
-	event, err := r.createEvent(EVENT_DATA_SUBMIT, details)
+	event, err := r.createEvent(EventDataSubmit, details)
 	if err != nil {
 		return err
 	}
-	r.Status = EVENT_DATA_SUBMIT
+	r.Status = EventDataSubmit
 	r.ModifiedDate = event.Time
 	return db.Save(r).Error
 }
@@ -142,7 +142,7 @@ func (r *Result) HandleFormSubmit(details EventDetails) error {
 // HandleEmailReport updates a Result in the case where they report a simulated
 // phishing email using the HTTP handler.
 func (r *Result) HandleEmailReport(details EventDetails) error {
-	event, err := r.createEvent(EVENT_REPORTED, details)
+	event, err := r.createEvent(EventReported, details)
 	if err != nil {
 		return err
 	}

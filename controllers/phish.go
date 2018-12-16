@@ -126,7 +126,7 @@ func (ps *PhishingServer) registerRoutes() {
 
 // TrackHandler tracks emails as they are opened, updating the status for the given Result
 func (ps *PhishingServer) TrackHandler(w http.ResponseWriter, r *http.Request) {
-	err, r := setupContext(r)
+	r, err := setupContext(r)
 	if err != nil {
 		// Log the error if it wasn't something we can safely ignore
 		if err != ErrInvalidRequest && err != ErrCampaignComplete {
@@ -159,7 +159,7 @@ func (ps *PhishingServer) TrackHandler(w http.ResponseWriter, r *http.Request) {
 
 // ReportHandler tracks emails as they are reported, updating the status for the given Result
 func (ps *PhishingServer) ReportHandler(w http.ResponseWriter, r *http.Request) {
-	err, r := setupContext(r)
+	r, err := setupContext(r)
 	if err != nil {
 		// Log the error if it wasn't something we can safely ignore
 		if err != ErrInvalidRequest && err != ErrCampaignComplete {
@@ -193,7 +193,7 @@ func (ps *PhishingServer) ReportHandler(w http.ResponseWriter, r *http.Request) 
 // PhishHandler handles incoming client connections and registers the associated actions performed
 // (such as clicked link, etc.)
 func (ps *PhishingServer) PhishHandler(w http.ResponseWriter, r *http.Request) {
-	err, r := setupContext(r)
+	r, err := setupContext(r)
 	if err != nil {
 		// Log the error if it wasn't something we can safely ignore
 		if err != ErrInvalidRequest && err != ErrCampaignComplete {
@@ -304,15 +304,15 @@ func (ps *PhishingServer) TransparencyHandler(w http.ResponseWriter, r *http.Req
 
 // setupContext handles some of the administrative work around receiving a new
 // request, such as checking the result ID, the campaign, etc.
-func setupContext(r *http.Request) (error, *http.Request) {
+func setupContext(r *http.Request) (*http.Request, error) {
 	err := r.ParseForm()
 	if err != nil {
 		log.Error(err)
-		return err, r
+		return r, err
 	}
 	rid := r.Form.Get(models.RecipientParameter)
 	if rid == "" {
-		return ErrInvalidRequest, r
+		return r, ErrInvalidRequest
 	}
 	// Since we want to support the common case of adding a "+" to indicate a
 	// transparency request, we need to take care to handle the case where the
@@ -332,28 +332,28 @@ func setupContext(r *http.Request) (error, *http.Request) {
 	if strings.HasPrefix(id, models.PreviewPrefix) {
 		rs, err := models.GetEmailRequestByResultId(id)
 		if err != nil {
-			return err, r
+			return r, err
 		}
 		r = ctx.Set(r, "result", rs)
-		return nil, r
+		return r, nil
 	}
 	rs, err := models.GetResult(id)
 	if err != nil {
-		return err, r
+		return r, err
 	}
 	c, err := models.GetCampaign(rs.CampaignId, rs.UserId)
 	if err != nil {
 		log.Error(err)
-		return err, r
+		return r, err
 	}
 	// Don't process events for completed campaigns
-	if c.Status == models.CAMPAIGN_COMPLETE {
-		return ErrCampaignComplete, r
+	if c.Status == models.CampaignComplete {
+		return r, ErrCampaignComplete
 	}
 	ip, _, err := net.SplitHostPort(r.RemoteAddr)
 	if err != nil {
 		log.Error(err)
-		return err, r
+		return r, err
 	}
 	// Respect X-Forwarded headers
 	if fips := r.Header.Get("X-Forwarded-For"); fips != "" {
@@ -375,5 +375,5 @@ func setupContext(r *http.Request) (error, *http.Request) {
 	r = ctx.Set(r, "result", rs)
 	r = ctx.Set(r, "campaign", c)
 	r = ctx.Set(r, "details", d)
-	return nil, r
+	return r, nil
 }

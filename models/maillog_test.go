@@ -90,7 +90,7 @@ func (s *ModelsSuite) TestMailLogBackoff(ch *check.C) {
 		result, err := GetResult(m.RId)
 		ch.Assert(err, check.Equals, nil)
 		ch.Assert(result.SendDate, check.Equals, expectedSendDate)
-		ch.Assert(result.Status, check.Equals, STATUS_RETRY)
+		ch.Assert(result.Status, check.Equals, StatusRetry)
 	}
 	// Get our updated campaign and check for the added event
 	campaign, err = GetCampaign(campaign.Id, int64(1))
@@ -123,7 +123,7 @@ func (s *ModelsSuite) TestMailLogError(ch *check.C) {
 	// Get our result and make sure the status is set correctly
 	result, err = GetResult(result.RId)
 	ch.Assert(err, check.Equals, nil)
-	ch.Assert(result.Status, check.Equals, ERROR)
+	ch.Assert(result.Status, check.Equals, Error)
 
 	// Get our updated campaign and check for the added event
 	campaign, err = GetCampaign(campaign.Id, int64(1))
@@ -138,7 +138,7 @@ func (s *ModelsSuite) TestMailLogError(ch *check.C) {
 	expectedEvent := Event{
 		Id:         gotEvent.Id,
 		Email:      result.Email,
-		Message:    EVENT_SENDING_ERROR,
+		Message:    EventSendingError,
 		CampaignId: campaign.Id,
 		Details:    string(ej),
 		Time:       gotEvent.Time,
@@ -165,7 +165,7 @@ func (s *ModelsSuite) TestMailLogSuccess(ch *check.C) {
 	// Get our result and make sure the status is set correctly
 	result, err = GetResult(result.RId)
 	ch.Assert(err, check.Equals, nil)
-	ch.Assert(result.Status, check.Equals, EVENT_SENT)
+	ch.Assert(result.Status, check.Equals, EventSent)
 
 	// Get our updated campaign and check for the added event
 	campaign, err = GetCampaign(campaign.Id, int64(1))
@@ -178,7 +178,7 @@ func (s *ModelsSuite) TestMailLogSuccess(ch *check.C) {
 	expectedEvent := Event{
 		Id:         gotEvent.Id,
 		Email:      result.Email,
-		Message:    EVENT_SENT,
+		Message:    EventSent,
 		CampaignId: campaign.Id,
 		Time:       gotEvent.Time,
 	}

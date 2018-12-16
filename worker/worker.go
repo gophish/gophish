@@ -81,8 +81,8 @@ func (w *DefaultWorker) Start() {
 					errorMail(err, msc)
 					return
 				}
-				if c.Status == models.CAMPAIGN_QUEUED {
-					err := c.UpdateStatus(models.CAMPAIGN_IN_PROGRESS)
+				if c.Status == models.CampaignQueued {
+					err := c.UpdateStatus(models.CampaignInProgress)
 					if err != nil {
 						log.Error(err)
 						return

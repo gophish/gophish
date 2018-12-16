@@ -74,5 +74,5 @@ func (s *WorkerSuite) SetupTest() {
 	c.SMTP = smtp
 	c.Groups = []models.Group{group}
 	models.PostCampaign(&c, c.UserId)
-	c.UpdateStatus(models.CAMPAIGN_EMAILS_SENT)
+	c.UpdateStatus(models.CampaignEmailsSent)
 }

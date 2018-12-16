@@ -102,22 +102,22 @@ func (s *ControllersSuite) transparencyRequest(r models.Result, rid, path string
 func (s *ControllersSuite) TestOpenedPhishingEmail() {
 	campaign := s.getFirstCampaign()
 	result := campaign.Results[0]
-	s.Equal(result.Status, models.STATUS_SENDING)
+	s.Equal(result.Status, models.StatusSending)
 
 	s.openEmail(result.RId)
 
 	campaign = s.getFirstCampaign()
 	result = campaign.Results[0]
 	lastEvent := campaign.Events[len(campaign.Events)-1]
-	s.Equal(result.Status, models.EVENT_OPENED)
-	s.Equal(lastEvent.Message, models.EVENT_OPENED)
+	s.Equal(result.Status, models.EventOpened)
+	s.Equal(lastEvent.Message, models.EventOpened)
 	s.Equal(result.ModifiedDate, lastEvent.Time)
 }
 
 func (s *ControllersSuite) TestReportedPhishingEmail() {
 	campaign := s.getFirstCampaign()
 	result := campaign.Results[0]
-	s.Equal(result.Status, models.STATUS_SENDING)
+	s.Equal(result.Status, models.StatusSending)
 
 	s.reportedEmail(result.RId)
 
@@ -125,14 +125,14 @@ func (s *ControllersSuite) TestReportedPhishingEmail() {
 	result = campaign.Results[0]
 	lastEvent := campaign.Events[len(campaign.Events)-1]
 	s.Equal(result.Reported, true)
-	s.Equal(lastEvent.Message, models.EVENT_REPORTED)
+	s.Equal(lastEvent.Message, models.EventReported)
 	s.Equal(result.ModifiedDate, lastEvent.Time)
 }
 
 func (s *ControllersSuite) TestClickedPhishingLinkAfterOpen() {
 	campaign := s.getFirstCampaign()
 	result := campaign.Results[0]
-	s.Equal(result.Status, models.STATUS_SENDING)
+	s.Equal(result.Status, models.StatusSending)
 
 	s.openEmail(result.RId)
 	s.clickLink(result.RId, campaign.Page.HTML)
@@ -140,8 +140,8 @@ func (s *ControllersSuite) TestClickedPhishingLinkAfterOpen() {
 	campaign = s.getFirstCampaign()
 	result = campaign.Results[0]
 	lastEvent := campaign.Events[len(campaign.Events)-1]
-	s.Equal(result.Status, models.EVENT_CLICKED)
-	s.Equal(lastEvent.Message, models.EVENT_CLICKED)
+	s.Equal(result.Status, models.EventClicked)
+	s.Equal(lastEvent.Message, models.EventClicked)
 	s.Equal(result.ModifiedDate, lastEvent.Time)
 }
 
@@ -165,12 +165,12 @@ func (s *ControllersSuite) TestInvalidRecipientID() {
 func (s *ControllersSuite) TestCompletedCampaignClick() {
 	campaign := s.getFirstCampaign()
 	result := campaign.Results[0]
-	s.Equal(result.Status, models.STATUS_SENDING)
+	s.Equal(result.Status, models.StatusSending)
 	s.openEmail(result.RId)
 
 	campaign = s.getFirstCampaign()
 	result = campaign.Results[0]
-	s.Equal(result.Status, models.EVENT_OPENED)
+	s.Equal(result.Status, models.EventOpened)
 
 	models.CompleteCampaign(campaign.Id, 1)
 	s.openEmail404(result.RId)
@@ -178,7 +178,7 @@ func (s *ControllersSuite) TestCompletedCampaignClick() {
 
 	campaign = s.getFirstCampaign()
 	result = campaign.Results[0]
-	s.Equal(result.Status, models.EVENT_OPENED)
+	s.Equal(result.Status, models.EventOpened)
 }
 
 func (s *ControllersSuite) TestRobotsHandler() {
