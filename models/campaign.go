@@ -591,6 +591,12 @@ func CompleteCampaign(id int64, uid int64) error {
 	if err != nil {
 		return err
 	}
+	// Delete any maillogs still set to be sent out, preventing future emails
+	err = db.Where("campaign_id=?", id).Delete(&MailLog{}).Error
+	if err != nil {
+		log.Error(err)
+		return err
+	}
 	// Don't overwrite original completed time
 	if c.Status == CampaignComplete {
 		return nil
