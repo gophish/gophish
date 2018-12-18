@@ -1,0 +1,51 @@
+#!/bin/bash
+
+if [ ! -e VERSION ];
+then
+  echo "There is no VERSION file in cwd - copying defaults from snap installation folder"
+  /bin/cp $SNAP/VERSION .
+fi
+
+if [ ! -e config.json ];
+then
+  echo "There is no config file in cwd - copying defaults from snap installation folder"
+  /bin/cp $SNAP/config.json .
+fi
+
+if [ ! -d db ];
+then
+  echo "There is no db directory in cwd - copying defaults from snap installation folder"
+  /bin/cp -r $SNAP/db .
+fi
+
+if [ ! -e LICENSE ];
+then
+  echo "There is no LICENSE file in cwd - copying defaults from snap installation folder"
+  /bin/cp $SNAP/LICENSE .
+fi
+
+if [ ! -d meta ];
+then
+  echo "There is no meta directory in cwd - copying defaults from snap installation folder"
+  /bin/cp -r $SNAP/meta .
+fi
+
+if [ ! -e README.md ];
+then
+  echo "There is no README.md file in cwd - copying defaults from snap installation folder"
+  /bin/cp $SNAP/README.md .
+fi
+
+if [ ! -d static ];
+then
+  echo "There is no static directory in cwd - copying defaults from snap installation folder"
+  /bin/cp -r $SNAP/static .
+fi
+
+if [ ! -d templates ];
+then
+  echo "There is no templates directory in cwd - copying defaults from snap installation folder"
+  /bin/cp -r $SNAP/templates .
+fi
+
+$SNAP/gophish

@@ -1,0 +1,24 @@
+name: gophish
+version: '1.0'
+summary: Open-Source Phishing Toolkit
+description: |
+  Open-Source Phishing Toolkit.
+grade: stable
+confinement: strict
+base: core18
+parts:
+  gophish:
+    plugin: dump
+    source: https://github.com/gophish/gophish/releases/download/0.7.1/gophish-v0.7.1-linux-64bit.zip
+  integration:
+    plugin: dump
+    source: scripts
+apps:
+  gophish:
+    command: goph
+    daemon: simple
+    restart-condition: on-abnormal
+    plugs:
+      - home
+      - network
+      - network-bind
