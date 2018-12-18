@@ -95,6 +95,23 @@ func RequireAPIKey(handler http.Handler) http.HandlerFunc {
 	}
 }
 
+// RequireRoles enforces user role id to be one among the given role ids
+func RequireRoles(rids []int64) func(http.Handler) http.HandlerFunc {
+	return func(handler http.Handler) http.HandlerFunc {
+		return func(w http.ResponseWriter, r *http.Request) {
+			uid := ctx.Get(r, "user").(models.User).Id
+			role, err := models.GetUserRole(uid)
+
+			if err != nil || !role.IsOneOf(rids) {
+				JSONError(w, 403, "Access denied")
+				return
+			}
+
+			handler.ServeHTTP(w, r)
+		}
+	}
+}
+
 // RequireLogin is a simple middleware which checks to see if the user is currently logged in.
 // If not, the function returns a 302 redirect to the login page.
 func RequireLogin(handler http.Handler) http.HandlerFunc {

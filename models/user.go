@@ -87,6 +87,17 @@ func (ur UserRole) Is(rid int64) bool {
 	return ur.Rid == rid
 }
 
+// IsOneOf tells if this user role id is among the given role ids
+func (ur UserRole) IsOneOf(rids []int64) bool {
+	for _, rid := range rids {
+		if ur.Rid == rid {
+			return true
+		}
+	}
+
+	return false
+}
+
 // GetUser returns the user that the given id corresponds to. If no user is found, an
 // error is thrown.
 func GetUser(id int64) (User, error) {
