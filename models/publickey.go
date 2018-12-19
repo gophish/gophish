@@ -120,7 +120,7 @@ func PostPublicKey(p *PublicKey) error {
 // DeletePublicKey deletes an existing Public key in the database.
 // An error is returned if a Public key with the given user id and public key id is not found.
 func DeletePublicKey(id int64, uid int64) error {
-	err = db.Where("user_id=?", uid).Delete(PublicKey{Id: id}).Error
+	err := db.Where("user_id=?", uid).Delete(PublicKey{Id: id}).Error
 	if err != nil {
 		log.Error(err)
 	}

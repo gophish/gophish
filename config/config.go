@@ -38,9 +38,6 @@ type Config struct {
 	Logging        LoggingConfig `json:"logging"`
 }
 
-// Conf contains the initialized configuration struct
-var Conf Config
-
 // Version contains the current gophish version
 var Version = ""
 
@@ -48,19 +45,20 @@ var Version = ""
 const ServerName = "gophish"
 
 // LoadConfig loads the configuration from the specified filepath
-func LoadConfig(filepath string) error {
+func LoadConfig(filepath string) (*Config, error) {
 	// Get the config file
 	configFile, err := ioutil.ReadFile(filepath)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	err = json.Unmarshal(configFile, &Conf)
+	config := &Config{}
+	err = json.Unmarshal(configFile, config)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	// Choosing the migrations directory based on the database used.
-	Conf.MigrationsPath = Conf.MigrationsPath + Conf.DBName
+	config.MigrationsPath = config.MigrationsPath + config.DBName
 	// Explicitly set the TestFlag to false to prevent config.json overrides
-	Conf.TestFlag = false
-	return nil
+	config.TestFlag = false
+	return config, nil
 }

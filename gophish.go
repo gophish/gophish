@@ -26,24 +26,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 import (
-	"compress/gzip"
-	"context"
 	"io/ioutil"
-	"net/http"
 	"os"
-	"sync"
+	"os/signal"
 
 	"gopkg.in/alecthomas/kingpin.v2"
 
-	"github.com/NYTimes/gziphandler"
 	"github.com/gophish/gophish/auth"
 	"github.com/gophish/gophish/config"
 	"github.com/gophish/gophish/controllers"
 	log "github.com/gophish/gophish/logger"
-	"github.com/gophish/gophish/mailer"
 	"github.com/gophish/gophish/models"
-	"github.com/gophish/gophish/util"
-	"github.com/gorilla/handlers"
 )
 
 var (
@@ -65,31 +58,25 @@ func main() {
 	kingpin.Parse()
 
 	// Load the config
-	err = config.LoadConfig(*configPath)
+	conf, err := config.LoadConfig(*configPath)
 	// Just warn if a contact address hasn't been configured
 	if err != nil {
 		log.Fatal(err)
 	}
-	if config.Conf.ContactAddress == "" {
+	if conf.ContactAddress == "" {
 		log.Warnf("No contact address has been configured.")
 		log.Warnf("Please consider adding a contact_address entry in your config.json")
 	}
 	config.Version = string(version)
 
-	err = log.Setup()
+	err = log.Setup(conf)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
 	// Provide the option to disable the built-in mailer
-	if !*disableMailer {
-		go mailer.Mailer.Start(ctx)
-	}
 	// Setup the global variables and settings
-	err = models.Setup()
+	err = models.Setup(conf)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -99,39 +86,27 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	wg := &sync.WaitGroup{}
-	wg.Add(1)
-	// Start the web servers
-	go func() {
-		defer wg.Done()
-		gzipWrapper, _ := gziphandler.NewGzipLevelHandler(gzip.BestCompression)
-		adminHandler := gzipWrapper(controllers.CreateAdminRouter())
-		auth.Store.Options.Secure = config.Conf.AdminConf.UseTLS
-		if config.Conf.AdminConf.UseTLS { // use TLS for Admin web server if available
-			err := util.CheckAndCreateSSL(config.Conf.AdminConf.CertPath, config.Conf.AdminConf.KeyPath)
-			if err != nil {
-				log.Fatal(err)
-			}
-			log.Infof("Starting admin server at https://%s", config.Conf.AdminConf.ListenURL)
-			log.Info(http.ListenAndServeTLS(config.Conf.AdminConf.ListenURL, config.Conf.AdminConf.CertPath, config.Conf.AdminConf.KeyPath,
-				handlers.CombinedLoggingHandler(log.Writer(), adminHandler)))
-		} else {
-			log.Infof("Starting admin server at http://%s", config.Conf.AdminConf.ListenURL)
-			log.Info(http.ListenAndServe(config.Conf.AdminConf.ListenURL, handlers.CombinedLoggingHandler(os.Stdout, adminHandler)))
-		}
-	}()
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		phishHandler := gziphandler.GzipHandler(controllers.CreatePhishingRouter())
-		if config.Conf.PhishConf.UseTLS { // use TLS for Phish web server if available
-			log.Infof("Starting phishing server at https://%s", config.Conf.PhishConf.ListenURL)
-			log.Info(http.ListenAndServeTLS(config.Conf.PhishConf.ListenURL, config.Conf.PhishConf.CertPath, config.Conf.PhishConf.KeyPath,
-				handlers.CombinedLoggingHandler(log.Writer(), phishHandler)))
-		} else {
-			log.Infof("Starting phishing server at http://%s", config.Conf.PhishConf.ListenURL)
-			log.Fatal(http.ListenAndServe(config.Conf.PhishConf.ListenURL, handlers.CombinedLoggingHandler(os.Stdout, phishHandler)))
-		}
-	}()
-	wg.Wait()
+
+	// Create our servers
+	adminOptions := []controllers.AdminServerOption{}
+	if *disableMailer {
+		adminOptions = append(adminOptions, controllers.WithWorker(nil))
+	}
+	adminConfig := conf.AdminConf
+	adminServer := controllers.NewAdminServer(adminConfig, adminOptions...)
+	auth.Store.Options.Secure = adminConfig.UseTLS
+
+	phishConfig := conf.PhishConf
+	phishServer := controllers.NewPhishingServer(phishConfig)
+
+	go adminServer.Start()
+	go phishServer.Start()
+
+	// Handle graceful shutdown
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	<-c
+	log.Info("CTRL+C Received... Gracefully shutting down servers")
+	adminServer.Shutdown()
+	phishServer.Shutdown()
 }

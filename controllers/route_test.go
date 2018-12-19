@@ -10,7 +10,7 @@ import (
 )
 
 func (s *ControllersSuite) TestLoginCSRF() {
-	resp, err := http.PostForm(fmt.Sprintf("%s/login", as.URL),
+	resp, err := http.PostForm(fmt.Sprintf("%s/login", s.adminServer.URL),
 		url.Values{
 			"username": {"admin"},
 			"password": {"gophish"},
@@ -21,7 +21,7 @@ func (s *ControllersSuite) TestLoginCSRF() {
 }
 
 func (s *ControllersSuite) TestInvalidCredentials() {
-	resp, err := http.Get(fmt.Sprintf("%s/login", as.URL))
+	resp, err := http.Get(fmt.Sprintf("%s/login", s.adminServer.URL))
 	s.Equal(err, nil)
 	s.Equal(resp.StatusCode, http.StatusOK)
 
@@ -32,7 +32,7 @@ func (s *ControllersSuite) TestInvalidCredentials() {
 	s.Equal(ok, true)
 
 	client := &http.Client{}
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s/login", as.URL), strings.NewReader(url.Values{
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/login", s.adminServer.URL), strings.NewReader(url.Values{
 		"username":   {"admin"},
 		"password":   {"invalid"},
 		"csrf_token": {token},
@@ -48,7 +48,7 @@ func (s *ControllersSuite) TestInvalidCredentials() {
 }
 
 func (s *ControllersSuite) TestSuccessfulLogin() {
-	resp, err := http.Get(fmt.Sprintf("%s/login", as.URL))
+	resp, err := http.Get(fmt.Sprintf("%s/login", s.adminServer.URL))
 	s.Equal(err, nil)
 	s.Equal(resp.StatusCode, http.StatusOK)
 
@@ -59,7 +59,7 @@ func (s *ControllersSuite) TestSuccessfulLogin() {
 	s.Equal(ok, true)
 
 	client := &http.Client{}
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s/login", as.URL), strings.NewReader(url.Values{
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/login", s.adminServer.URL), strings.NewReader(url.Values{
 		"username":   {"admin"},
 		"password":   {"gophish"},
 		"csrf_token": {token},
@@ -76,7 +76,7 @@ func (s *ControllersSuite) TestSuccessfulLogin() {
 
 func (s *ControllersSuite) TestSuccessfulRedirect() {
 	next := "/campaigns"
-	resp, err := http.Get(fmt.Sprintf("%s/login", as.URL))
+	resp, err := http.Get(fmt.Sprintf("%s/login", s.adminServer.URL))
 	s.Equal(err, nil)
 	s.Equal(resp.StatusCode, http.StatusOK)
 
@@ -91,7 +91,7 @@ func (s *ControllersSuite) TestSuccessfulRedirect() {
 			return http.ErrUseLastResponse
 		},
 	}
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s/login?next=%s", as.URL, next), strings.NewReader(url.Values{
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/login?next=%s", s.adminServer.URL, next), strings.NewReader(url.Values{
 		"username":   {"admin"},
 		"password":   {"gophish"},
 		"csrf_token": {token},

@@ -37,7 +37,13 @@ func (s *ModelsSuite) emailFromFirstMailLog(campaign Campaign, ch *check.C) *ema
 
 func (s *ModelsSuite) TestGetQueuedMailLogs(ch *check.C) {
 	campaign := s.createCampaign(ch)
-	ms, err := GetQueuedMailLogs(campaign.LaunchDate)
+	// By default, for campaigns with no launch date, the maillogs are set as
+	// being processed. We need to unlock them first.
+	ms, err := GetMailLogsByCampaign(campaign.Id)
+	ch.Assert(err, check.Equals, nil)
+	err = LockMailLogs(ms, false)
+	ch.Assert(err, check.Equals, nil)
+	ms, err = GetQueuedMailLogs(campaign.LaunchDate)
 	ch.Assert(err, check.Equals, nil)
 	got := make(map[string]*MailLog)
 	for _, m := range ms {
@@ -84,7 +90,7 @@ func (s *ModelsSuite) TestMailLogBackoff(ch *check.C) {
 		result, err := GetResult(m.RId)
 		ch.Assert(err, check.Equals, nil)
 		ch.Assert(result.SendDate, check.Equals, expectedSendDate)
-		ch.Assert(result.Status, check.Equals, STATUS_RETRY)
+		ch.Assert(result.Status, check.Equals, StatusRetry)
 	}
 	// Get our updated campaign and check for the added event
 	campaign, err = GetCampaign(campaign.Id, int64(1))
@@ -117,7 +123,7 @@ func (s *ModelsSuite) TestMailLogError(ch *check.C) {
 	// Get our result and make sure the status is set correctly
 	result, err = GetResult(result.RId)
 	ch.Assert(err, check.Equals, nil)
-	ch.Assert(result.Status, check.Equals, ERROR)
+	ch.Assert(result.Status, check.Equals, Error)
 
 	// Get our updated campaign and check for the added event
 	campaign, err = GetCampaign(campaign.Id, int64(1))
@@ -132,7 +138,7 @@ func (s *ModelsSuite) TestMailLogError(ch *check.C) {
 	expectedEvent := Event{
 		Id:         gotEvent.Id,
 		Email:      result.Email,
-		Message:    EVENT_SENDING_ERROR,
+		Message:    EventSendingError,
 		CampaignId: campaign.Id,
 		Details:    string(ej),
 		Time:       gotEvent.Time,
@@ -159,7 +165,7 @@ func (s *ModelsSuite) TestMailLogSuccess(ch *check.C) {
 	// Get our result and make sure the status is set correctly
 	result, err = GetResult(result.RId)
 	ch.Assert(err, check.Equals, nil)
-	ch.Assert(result.Status, check.Equals, EVENT_SENT)
+	ch.Assert(result.Status, check.Equals, EventSent)
 
 	// Get our updated campaign and check for the added event
 	campaign, err = GetCampaign(campaign.Id, int64(1))
@@ -172,7 +178,7 @@ func (s *ModelsSuite) TestMailLogSuccess(ch *check.C) {
 	expectedEvent := Event{
 		Id:         gotEvent.Id,
 		Email:      result.Email,
-		Message:    EVENT_SENT,
+		Message:    EventSent,
 		CampaignId: campaign.Id,
 		Time:       gotEvent.Time,
 	}
@@ -222,10 +228,10 @@ func (s *ModelsSuite) TestMailLogGenerate(ch *check.C) {
 }
 
 func (s *ModelsSuite) TestMailLogGenerateTransparencyHeaders(ch *check.C) {
-	config.Conf.ContactAddress = "test@test.com"
+	s.config.ContactAddress = "test@test.com"
 	expectedHeaders := map[string]string{
 		"X-Mailer":          config.ServerName,
-		"X-Gophish-Contact": config.Conf.ContactAddress,
+		"X-Gophish-Contact": s.config.ContactAddress,
 	}
 	campaign := s.createCampaign(ch)
 	got := s.emailFromFirstMailLog(campaign, ch)
@@ -263,12 +269,6 @@ func (s *ModelsSuite) TestMailLogGenerateOverrideTransparencyHeaders(ch *check.C
 func (s *ModelsSuite) TestUnlockAllMailLogs(ch *check.C) {
 	campaign := s.createCampaign(ch)
 	ms, err := GetMailLogsByCampaign(campaign.Id)
-	ch.Assert(err, check.Equals, nil)
-	for _, m := range ms {
-		ch.Assert(m.Processing, check.Equals, false)
-	}
-	err = LockMailLogs(ms, true)
-	ms, err = GetMailLogsByCampaign(campaign.Id)
 	ch.Assert(err, check.Equals, nil)
 	for _, m := range ms {
 		ch.Assert(m.Processing, check.Equals, true)

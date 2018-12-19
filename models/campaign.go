@@ -39,7 +39,7 @@ type CampaignResults struct {
 	Id      int64    `json:"id"`
 	Name    string   `json:"name"`
 	Status  string   `json:"status"`
-	Results []Result `json:"results, omitempty"`
+	Results []Result `json:"results,omitempty"`
 	Events  []Event  `json:"timeline,omitempty"`
 }
 
@@ -171,7 +171,7 @@ func (c *Campaign) AddEvent(e *Event) error {
 // an error is returned. Otherwise, the attribute name is set to [Deleted],
 // indicating the user deleted the attribute (template, smtp, etc.)
 func (c *Campaign) getDetails() error {
-	err = db.Model(c).Related(&c.Results).Error
+	err := db.Model(c).Related(&c.Results).Error
 	if err != nil {
 		log.Warnf("%s: results not found for campaign", err)
 		return err
@@ -261,11 +261,11 @@ func getCampaignStats(cid int64) (CampaignStats, error) {
 	if err != nil {
 		return s, err
 	}
-	query.Where("status=?", EVENT_DATA_SUBMIT).Count(&s.SubmittedData)
+	query.Where("status=?", EventDataSubmit).Count(&s.SubmittedData)
 	if err != nil {
 		return s, err
 	}
-	query.Where("status=?", EVENT_CLICKED).Count(&s.ClickedLink)
+	query.Where("status=?", EventClicked).Count(&s.ClickedLink)
 	if err != nil {
 		return s, err
 	}
@@ -275,19 +275,19 @@ func getCampaignStats(cid int64) (CampaignStats, error) {
 	}
 	// Every submitted data event implies they clicked the link
 	s.ClickedLink += s.SubmittedData
-	err = query.Where("status=?", EVENT_OPENED).Count(&s.OpenedEmail).Error
+	err = query.Where("status=?", EventOpened).Count(&s.OpenedEmail).Error
 	if err != nil {
 		return s, err
 	}
 	// Every clicked link event implies they opened the email
 	s.OpenedEmail += s.ClickedLink
-	err = query.Where("status=?", EVENT_SENT).Count(&s.EmailsSent).Error
+	err = query.Where("status=?", EventSent).Count(&s.EmailsSent).Error
 	if err != nil {
 		return s, err
 	}
 	// Every opened email event implies the email was sent
 	s.EmailsSent += s.OpenedEmail
-	err = query.Where("status=?", ERROR).Count(&s.Error).Error
+	err = query.Where("status=?", Error).Count(&s.Error).Error
 	return s, err
 }
 
@@ -404,7 +404,7 @@ func GetCampaignResults(id int64, uid int64) (CampaignResults, error) {
 func GetQueuedCampaigns(t time.Time) ([]Campaign, error) {
 	cs := []Campaign{}
 	err := db.Where("launch_date <= ?", t).
-		Where("status = ?", CAMPAIGN_QUEUED).Find(&cs).Error
+		Where("status = ?", CampaignQueued).Find(&cs).Error
 	if err != nil {
 		log.Error(err)
 	}
@@ -420,14 +420,15 @@ func GetQueuedCampaigns(t time.Time) ([]Campaign, error) {
 
 // PostCampaign inserts a campaign and all associated records into the database.
 func PostCampaign(c *Campaign, uid int64) error {
-	if err := c.Validate(); err != nil {
+	err := c.Validate()
+	if err != nil {
 		return err
 	}
 	// Fill in the details
 	c.UserId = uid
 	c.CreatedDate = time.Now().UTC()
 	c.CompletedDate = time.Time{}
-	c.Status = CAMPAIGN_QUEUED
+	c.Status = CampaignQueued
 	if c.LaunchDate.IsZero() {
 		c.LaunchDate = c.CreatedDate
 	} else {
@@ -437,7 +438,7 @@ func PostCampaign(c *Campaign, uid int64) error {
 		c.SendByDate = c.SendByDate.UTC()
 	}
 	if c.LaunchDate.Before(c.CreatedDate) || c.LaunchDate.Equal(c.CreatedDate) {
-		c.Status = CAMPAIGN_IN_PROGRESS
+		c.Status = CampaignInProgress
 	}
 	// Check to make sure all the groups already exist
 	// Also, later we'll need to know the total number of recipients (counting
@@ -550,20 +551,22 @@ func PostCampaign(c *Campaign, uid int64) error {
 					FirstName: t.FirstName,
 					LastName:  t.LastName,
 				},
-				Status:       STATUS_SCHEDULED,
+				Status:       StatusScheduled,
 				CampaignId:   c.Id,
 				UserId:       c.UserId,
 				SendDate:     sendDate,
 				Reported:     false,
 				ModifiedDate: c.CreatedDate,
 			}
-			if r.SendDate.Before(c.CreatedDate) || r.SendDate.Equal(c.CreatedDate) {
-				r.Status = STATUS_SENDING
-			}
 			err = r.GenerateId()
 			if err != nil {
 				log.Error(err)
 				continue
+			}
+			processing := false
+			if r.SendDate.Before(c.CreatedDate) || r.SendDate.Equal(c.CreatedDate) {
+				r.Status = StatusSending
+				processing = true
 			}
 			err = db.Save(r).Error
 			if err != nil {
@@ -573,7 +576,14 @@ func PostCampaign(c *Campaign, uid int64) error {
 			}
 			c.Results = append(c.Results, *r)
 			log.Infof("Creating maillog for %s to send at %s\n", r.Email, sendDate)
-			err = GenerateMailLog(c, r, sendDate)
+			m := &MailLog{
+				UserId:     c.UserId,
+				CampaignId: c.Id,
+				RId:        r.RId,
+				SendDate:   sendDate,
+				Processing: processing,
+			}
+			err = db.Save(m).Error
 			if err != nil {
 				log.Error(err)
 				continue
@@ -601,6 +611,11 @@ func DeleteCampaign(id int64) error {
 		log.Error(err)
 		return err
 	}
+	err = db.Where("campaign_id=?", id).Delete(&MailLog{}).Error
+	if err != nil {
+		log.Error(err)
+		return err
+	}
 	// Delete the campaign
 	err = db.Delete(&Campaign{Id: id}).Error
 	if err != nil {
@@ -619,13 +634,19 @@ func CompleteCampaign(id int64, uid int64) error {
 	if err != nil {
 		return err
 	}
+	// Delete any maillogs still set to be sent out, preventing future emails
+	err = db.Where("campaign_id=?", id).Delete(&MailLog{}).Error
+	if err != nil {
+		log.Error(err)
+		return err
+	}
 	// Don't overwrite original completed time
-	if c.Status == CAMPAIGN_COMPLETE {
+	if c.Status == CampaignComplete {
 		return nil
 	}
 	// Mark the campaign as complete
 	c.CompletedDate = time.Now().UTC()
-	c.Status = CAMPAIGN_COMPLETE
+	c.Status = CampaignComplete
 	err = db.Where("id=? and user_id=?", id, uid).Save(&c).Error
 	if err != nil {
 		log.Error(err)

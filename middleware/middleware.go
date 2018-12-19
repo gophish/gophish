@@ -12,10 +12,13 @@ import (
 	"github.com/gorilla/csrf"
 )
 
+// CSRFExemptPrefixes are a list of routes that are exempt from CSRF protection
 var CSRFExemptPrefixes = []string{
 	"/api",
 }
 
+// CSRFExceptions is a middleware that prevents CSRF checks on routes listed in
+// CSRFExemptPrefixes.
 func CSRFExceptions(handler http.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		for _, prefix := range CSRFExemptPrefixes {
@@ -60,8 +63,10 @@ func GetContext(handler http.Handler) http.HandlerFunc {
 	}
 }
 
-func RequireAPIKey(handler http.Handler) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+// RequireAPIKey ensures that a valid API key is set as either the api_key GET
+// parameter, or a Bearer token.
+func RequireAPIKey(handler http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		if r.Method == "OPTIONS" {
 			w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
@@ -81,18 +86,18 @@ func RequireAPIKey(handler http.Handler) http.HandlerFunc {
 			}
 		}
 		if ak == "" {
-			JSONError(w, 400, "API Key not set")
+			JSONError(w, http.StatusUnauthorized, "API Key not set")
 			return
 		}
 		u, err := models.GetUserByAPIKey(ak)
 		if err != nil {
-			JSONError(w, 400, "Invalid API Key")
+			JSONError(w, http.StatusUnauthorized, "Invalid API Key")
 			return
 		}
 		r = ctx.Set(r, "user_id", u.Id)
 		r = ctx.Set(r, "api_key", ak)
 		handler.ServeHTTP(w, r)
-	}
+	})
 }
 
 // RequireLogin is a simple middleware which checks to see if the user is currently logged in.
@@ -104,7 +109,7 @@ func RequireLogin(handler http.Handler) http.HandlerFunc {
 		} else {
 			q := r.URL.Query()
 			q.Set("next", r.URL.Path)
-			http.Redirect(w, r, fmt.Sprintf("/login?%s", q.Encode()), 302)
+			http.Redirect(w, r, fmt.Sprintf("/login?%s", q.Encode()), http.StatusTemporaryRedirect)
 		}
 	}
 }
