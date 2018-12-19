@@ -156,10 +156,10 @@ func GetSMTP(id int64, uid int64) (SMTP, error) {
 	return s, err
 }
 
-// GetSMTPByName returns the SMTP, if it exists, specified by the given name and user_id.
-func GetSMTPByName(n string, uid int64) (SMTP, error) {
+// GetSMTPByName returns the SMTP, if it exists, specified by the given name
+func GetSMTPByName(n string) (SMTP, error) {
 	s := SMTP{}
-	err := db.Where("user_id=? and name=?", uid, n).Find(&s).Error
+	err := db.Where("name=?", n).Find(&s).Error
 	if err != nil {
 		log.Error(err)
 		return s, err
@@ -240,12 +240,10 @@ func DeleteSMTP(id int64, uid int64) error {
 	return err
 }
 
-// GetSMTPs returns the SMTPs owned by the administrator. According to the beta requirement of the everycloud security awareness program
-// the noraml users can't add their own profiles, but everycloud will define the list of profiles required and it can be selected as the
-// our domains section
-func GetSMTPsByAdminRole(uid int64) ([]SMTP, error) {
+// GetAllSMTPs returns all SMTPs
+func GetAllSMTPs() ([]SMTP, error) {
 	ss := []SMTP{}
-	err = db.Raw("SELECT * FROM smtp s LEFT JOIN users_role ur ON (s.user_id = ur.uid) where ur.rid = ?", 0).Scan(&ss).Error
+	err = db.Find(&ss).Error
 	if err != nil {
 		log.Error(err)
 		return ss, err

@@ -468,7 +468,7 @@ func PostCampaign(c *Campaign, uid int64) error {
 	c.Page = p
 	c.PageId = p.Id
 	// Check to make sure the sending profile exists
-	s, err := GetSMTPByName(c.SMTP.Name, uid)
+	s, err := GetSMTPByName(c.SMTP.Name)
 	if err == gorm.ErrRecordNotFound {
 		log.WithFields(logrus.Fields{
 			"smtp": s.Name,

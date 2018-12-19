@@ -588,7 +588,7 @@ func API_SMTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		// Check to make sure the name is unique
-		_, err = models.GetSMTPByName(s.Name, ctx.Get(r, "user_id").(int64))
+		_, err = models.GetSMTPByName(s.Name)
 		if err != gorm.ErrRecordNotFound {
 			JSONResponse(w, models.Response{Success: false, Message: "SMTP name already in use"}, http.StatusConflict)
 			log.Error(err)
@@ -609,11 +609,11 @@ func API_SMTP(w http.ResponseWriter, r *http.Request) {
 func API_SMTP_domains(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "GET":
-		ss, err := models.GetSMTPsByAdminRole(ctx.Get(r, "user_id").(int64))
+		ss, err := models.GetAllSMTPs()
 		if err != nil {
 			log.Error(err)
 		}
-		JSONResponse(w, ss, http.StatusOK)
+		JSONResponse(w, prepare(ss, r), http.StatusOK)
 	}
 }
 
@@ -853,7 +853,7 @@ func API_Send_Test_Email(w http.ResponseWriter, r *http.Request) {
 	// If a complete sending profile is provided use it
 	if err := s.SMTP.Validate(); err != nil {
 		// Otherwise get the SMTP requested by name
-		smtp, lookupErr := models.GetSMTPByName(s.SMTP.Name, s.UserId)
+		smtp, lookupErr := models.GetSMTPByName(s.SMTP.Name)
 		// If the Sending Profile doesn't exist, let's err on the side
 		// of caution and assume that the validation failure was more important.
 		if lookupErr != nil {
@@ -902,6 +902,35 @@ func JSONResponse(w http.ResponseWriter, d interface{}, c int) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(c)
 	fmt.Fprintf(w, "%s", dj)
+}
+
+// prepare filters out sensitive fields based on user role
+func prepare(data interface{}, r *http.Request) interface{} {
+	uid := ctx.Get(r, "user_id").(int64)
+	role, err := models.GetUserRole(uid)
+
+	if err != nil {
+		return nil
+	}
+
+	if smtps, ok := data.([]models.SMTP); ok {
+		if role.Is(models.Administrator) {
+			return smtps
+		}
+
+		resp := []map[string]interface{}{}
+
+		for _, smtp := range smtps {
+			resp = append(resp, map[string]interface{}{
+				"id":   smtp.Id,
+				"name": smtp.Name,
+			})
+		}
+
+		return resp
+	}
+
+	return data
 }
 
 type cloneRequest struct {
