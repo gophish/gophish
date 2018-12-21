@@ -402,7 +402,7 @@ body {
     -webkit-font-feature-settings: 'kern'1;
     -moz-font-feature-settings: 'kern'1;
     -o-font-feature-settings: 'kern'1;
-    text-rendering: geometricPrecision;
+    text-rendering: optimizeLegibility;
 }
 
 ::-moz-selection {
@@ -426,7 +426,7 @@ h6 {
     line-height: 1.15em;
     margin: 0 0 0.4em 0;
     font-family: "Open Sans", sans-serif;
-    text-rendering: geometricPrecision;
+    text-rendering: optimizeLegibility;
 }
 
 h1 {
@@ -473,7 +473,7 @@ dl {
     -moz-font-feature-settings: 'liga'1, 'onum'1, 'kern'1;
     -o-font-feature-settings: 'liga'1, 'onum'1, 'kern'1;
     margin: 0 0 1.75em 0;
-    text-rendering: geometricPrecision;
+    text-rendering: optimizeLegibility;
 }
 
 ol,
