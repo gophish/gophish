@@ -187,3 +187,38 @@ func CheckAndCreateSSL(cp string, kp string) error {
 	log.Info("TLS Certificate Generation complete")
 	return nil
 }
+
+// IsLocalBusinessTime tells if the given UTC time is within the given business hours
+// defined in "AM/PM" format (tz time zone is also taken into account)
+func IsLocalBusinessTime(utcTime time.Time, startTime string, endTime string, tz string) bool {
+	var loc *time.Location
+	var err error
+
+	if tz != "" {
+		loc, err = time.LoadLocation(tz)
+
+		if err != nil {
+			log.Warnf("%s: couldn't parse time-zone (assuming UTC instead)", err)
+			loc, _ = time.LoadLocation("UTC")
+		}
+	} else {
+		loc, _ = time.LoadLocation("UTC")
+	}
+
+	yearAndDate := utcTime.Format("2006-01-02")
+	sTime, err := time.ParseInLocation("2006-01-02 3:04 PM", yearAndDate+" "+startTime, loc)
+
+	if err != nil {
+		log.Warnf("%s: couldn't parse start time", err)
+		return false
+	}
+
+	eTime, err := time.ParseInLocation("2006-01-02 3:04 PM", yearAndDate+" "+endTime, loc)
+
+	if err != nil {
+		log.Warnf("%s: couldn't parse end time", err)
+		return false
+	}
+
+	return utcTime.After(sTime.UTC()) && utcTime.Before(eTime.UTC())
+}

@@ -10,10 +10,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gophish/gomail"
 	"github.com/binodlamsal/gophish/config"
 	log "github.com/binodlamsal/gophish/logger"
 	"github.com/binodlamsal/gophish/mailer"
+	"github.com/binodlamsal/gophish/util"
+	"github.com/gophish/gomail"
 )
 
 // MaxSendAttempts set to 8 since we exponentially backoff after each failed send
@@ -35,6 +36,9 @@ type MailLog struct {
 	SendAttempt int       `json:"send_attempt"`
 	Processing  bool      `json:"-"`
 }
+
+// MailLogs is a list of MailLog's
+type MailLogs []*MailLog
 
 // GenerateMailLog creates a new maillog for the given campaign and
 // result. It sets the initial send date to match the campaign's launch date.
@@ -223,15 +227,62 @@ func (m *MailLog) Generate(msg *gomail.Message) error {
 	return nil
 }
 
+// IsTimeToSend tells if this e-mail should be sent right now,
+// current UTC time (t) and campaign business hours (if any) are taken into account
+func (m *MailLog) IsTimeToSend(t time.Time) bool {
+	c := Campaign{}
+
+	if db.Where("id = ?", m.CampaignId).First(&c).Error != nil {
+		log.Errorf("%s: campaign not found", err)
+		return false
+	}
+
+	if m.SendDate.Before(t) {
+		if c.StartTime != "" && c.EndTime != "" && c.TimeZone != "" {
+			if !util.IsLocalBusinessTime(t, c.StartTime, c.EndTime, c.TimeZone) {
+				return false
+			}
+		}
+
+		return true
+	}
+
+	return false
+}
+
+// WithinBusinessHours returns mail logs with "send_date" within respective campaign's business hours
+func (mls MailLogs) WithinBusinessHours(t time.Time) MailLogs {
+	selectedMailLogs := MailLogs{}
+
+	for _, ml := range mls {
+		c := Campaign{}
+
+		if db.Where("id = ?", ml.CampaignId).First(&c).Error != nil {
+			log.Errorf("%s: campaign not found", err)
+			continue
+		}
+
+		if c.StartTime != "" && c.EndTime != "" && c.TimeZone != "" {
+			if !util.IsLocalBusinessTime(t, c.StartTime, c.EndTime, c.TimeZone) {
+				continue
+			}
+		}
+
+		selectedMailLogs = append(selectedMailLogs, ml)
+	}
+
+	return selectedMailLogs
+}
+
 // GetQueuedMailLogs returns the mail logs that are queued up for the given minute.
-func GetQueuedMailLogs(t time.Time) ([]*MailLog, error) {
-	ms := []*MailLog{}
+func GetQueuedMailLogs(t time.Time) (MailLogs, error) {
+	ms := MailLogs{}
 	err := db.Where("send_date <= ? AND processing = ?", t, false).
 		Find(&ms).Error
 	if err != nil {
 		log.Warn(err)
 	}
-	return ms, err
+	return ms.WithinBusinessHours(t), err
 }
 
 // GetMailLogsByCampaign returns all of the mail logs for a given campaign.
