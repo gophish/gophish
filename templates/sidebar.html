@@ -45,6 +45,12 @@
               </li>
               {{end}}
 
+              {{if eq role "Administrator"}}
+              <li {{if eq page "categories"}}class="active"{{end}}>
+                  <a href="/categories">Categories</a>
+              </li>
+              {{end}}
+
               <li>
                   <hr>
               </li>

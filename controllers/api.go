@@ -203,7 +203,6 @@ func API_Roles_Id(w http.ResponseWriter, r *http.Request) {
 
 // API_Tags returns all the list of the tags for email templates and landing pages in the site
 func API_Tags(w http.ResponseWriter, r *http.Request) {
-
 	switch {
 	case r.Method == "GET":
 		cs, err := models.GetTags(ctx.Get(r, "user_id").(int64))
@@ -211,6 +210,55 @@ func API_Tags(w http.ResponseWriter, r *http.Request) {
 			log.Error(err)
 		}
 		JSONResponse(w, cs, http.StatusOK)
+
+	case r.Method == "POST":
+		t := models.Tags{}
+		// Put the request into a page
+		err := json.NewDecoder(r.Body).Decode(&t)
+		if err != nil {
+			JSONResponse(w, models.Response{Success: false, Message: "Invalid request"}, http.StatusBadRequest)
+			return
+		}
+		err = models.PostTags(&t)
+		if err != nil {
+			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
+			return
+		}
+		JSONResponse(w, t, http.StatusCreated)
+	}
+}
+
+func API_Tags_Single(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, _ := strconv.ParseInt(vars["id"], 0, 64)
+	c, err := models.GetTagById(id)
+	if err != nil {
+		log.Error(err)
+		JSONResponse(w, models.Response{Success: false, Message: "Tag not found"}, http.StatusNotFound)
+		return
+	}
+	switch {
+	case r.Method == "GET":
+		JSONResponse(w, c, http.StatusOK)
+	case r.Method == "PUT":
+		t := models.Tags{}
+		err = json.NewDecoder(r.Body).Decode(&t)
+		if err != nil {
+			log.Error(err)
+		}
+		err = models.PutTags(&t)
+		if err != nil {
+			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
+			return
+		}
+		JSONResponse(w, t, http.StatusOK)
+	case r.Method == "DELETE":
+		err = models.DeleteTags(id)
+		if err != nil {
+			JSONResponse(w, models.Response{Success: false, Message: "Error deleting campaign"}, http.StatusInternalServerError)
+			return
+		}
+		JSONResponse(w, models.Response{Success: true, Message: "Campaign deleted successfully!"}, http.StatusOK)
 	}
 }
 
