@@ -83,13 +83,16 @@ func (w *Worker) LaunchCampaign(c models.Campaign) {
 	for _, m := range ms {
 		// Only send the emails scheduled to be sent for the past minute to
 		// respect the campaign scheduling options
-		if m.SendDate.After(currentTime) {
+		if !m.IsTimeToSend(currentTime) {
 			m.Unlock()
 			continue
 		}
 		mailEntries = append(mailEntries, m)
 	}
-	mailer.Mailer.Queue <- mailEntries
+
+	if len(mailEntries) > 0 {
+		mailer.Mailer.Queue <- mailEntries
+	}
 }
 
 // SendTestEmail sends a test email
