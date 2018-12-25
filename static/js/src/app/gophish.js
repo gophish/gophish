@@ -15,6 +15,7 @@ function query(e, t, n, r) {
         url: "/api" + e + "?api_key=" + user.api_key,
         async: r,
         method: t,
+        type : t,
         data: JSON.stringify(n),
         dataType: "json",
         contentType: "application/json"
@@ -120,12 +121,21 @@ var capitalize = function(e) {
                 return query("/templates/", "POST", e, !1)
             }
         },
-        tags: {
+        phishtags: {
             get: function() {
-                return query("/tags/", "GET", {}, !1)
+                return query("/phishtags/", "GET", {}, !1)
             },
             post: function(e) {
-                return query("/tags/", "POST", e, !1)
+                return query("/phishtags/", "POST", e, !1)
+            },
+            single: function(e) {
+                return query("/phishtagssingle/" + e, "GET", {}, !1)
+            },
+            put: function(e) {
+                return query("/phishtagssingle/" + e.id, "PUT", e, !1)
+            },
+            delete: function(e) {
+                return query("/phishtagssingle/" + e, "DELETE", e, !1)
             }
         },
         templateId: {

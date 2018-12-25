@@ -32,6 +32,7 @@ func CreateAdminRouter() http.Handler {
 	router.HandleFunc("/landing_pages", Use(LandingPages, mid.RequireLogin))
 	router.HandleFunc("/sending_profiles", Use(SendingProfiles, mid.RequireRoles([]int64{models.Administrator}), mid.RequireLogin))
 	router.HandleFunc("/our_domains", Use(SendingDomains, mid.RequireRoles([]int64{models.Administrator}), mid.RequireLogin))
+	router.HandleFunc("/categories", Use(PhishingCategories, mid.RequireRoles([]int64{models.Administrator}), mid.RequireLogin))
 	router.HandleFunc("/register", Use(Register, mid.RequireRoles([]int64{models.Administrator, models.Partner, models.ChildUser}), mid.RequireLogin))
 	router.HandleFunc("/settings", Use(Settings, mid.RequireLogin))
 	router.HandleFunc("/people", Use(People, mid.RequireRoles([]int64{models.Administrator, models.Partner, models.ChildUser}), mid.RequireLogin))
@@ -46,7 +47,8 @@ func CreateAdminRouter() http.Handler {
 	api.HandleFunc("/roles", Use(API_Roles, mid.RequireRoles([]int64{models.Administrator, models.Partner}), mid.RequireAPIKey))
 	api.HandleFunc("/roles/{id:[0-9]+}", Use(API_Roles_Id, mid.RequireAPIKey))
 	api.HandleFunc("/people/{id:[0-9]+}", Use(API_Users_Id, mid.RequireAPIKey))
-	api.HandleFunc("/tags", Use(API_Tags, mid.RequireAPIKey))
+	api.HandleFunc("/phishtags/", Use(API_Tags, mid.RequireAPIKey))
+	api.HandleFunc("/phishtagssingle/{id:[0-9]+}", Use(API_Tags_Single, mid.RequireAPIKey))
 	api.HandleFunc("/campaigns/summary", Use(API_Campaigns_Summary, mid.RequireAPIKey))
 	api.HandleFunc("/campaigns/{id:[0-9]+}", Use(API_Campaigns_Id, mid.RequireAPIKey))
 	api.HandleFunc("/campaigns/{id:[0-9]+}/results", Use(API_Campaigns_Id_Results, mid.RequireAPIKey))
@@ -287,6 +289,19 @@ func SendingDomains(w http.ResponseWriter, r *http.Request) {
 		Token   string
 	}{Title: "Sending Domains", User: ctx.Get(r, "user").(models.User), Token: csrf.Token(r)}
 	getTemplate(r, w, "sending_domains").ExecuteTemplate(w, "base", params)
+}
+
+// Replancememnt of SendingProfiles by sendingdomains in our application a nornal user can use the profile/domains created by
+// the administrator handles the default path and template execution
+func PhishingCategories(w http.ResponseWriter, r *http.Request) {
+	// Example of using session - will be removed.
+	params := struct {
+		User    models.User
+		Title   string
+		Flashes []interface{}
+		Token   string
+	}{Title: "Phishing Categories", User: ctx.Get(r, "user").(models.User), Token: csrf.Token(r)}
+	getTemplate(r, w, "phishing_categories").ExecuteTemplate(w, "base", params)
 }
 
 // Settings handles the changing of settings

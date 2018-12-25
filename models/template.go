@@ -93,6 +93,25 @@ func GetTags(uid int64) ([]Tags, error) {
 	return tg, err
 }
 
+// PostTemplate creates a new template in the database.
+func PostTags(t *Tags) error {
+	// Insert into the DB
+	if t.Name == "" {
+		return errors.New("Tag name is not specified")
+	}
+	if t.Weight == 0 {
+		return errors.New("Weight is not specified")
+	}
+
+	err = db.Save(t).Error
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+
+	return nil
+}
+
 // GetTemplate returns the template, if it exists, specified by the given id and user_id.
 func GetTemplate(id int64, uid int64) (Template, error) {
 	t := Template{}
@@ -202,6 +221,18 @@ func PutTemplate(t *Template) error {
 	return nil
 }
 
+// PutTags edits an existing tag in the database.
+// Per the PUT Method RFC, it presumes all data for tag is provided.
+func PutTags(t *Tags) error {
+	// Save final template
+	err = db.Where("id=?", t.Id).Save(t).Error
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+	return nil
+}
+
 // DeleteTemplate deletes an existing template in the database.
 // An error is returned if a template with the given user id and template id is not found.
 func DeleteTemplate(id int64, uid int64) error {
@@ -214,6 +245,18 @@ func DeleteTemplate(id int64, uid int64) error {
 
 	// Finally, delete the template itself
 	err = db.Where("user_id=?", uid).Delete(Template{Id: id}).Error
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+	return nil
+}
+
+// DeleteTags deletes an existing tag in the database.
+// An error is returned if a template with the given user id and tag id is not found.
+func DeleteTags(id int64) error {
+	// Finally, delete the template itself
+	err := db.Delete(Tags{Id: id}).Error
 	if err != nil {
 		log.Error(err)
 		return err

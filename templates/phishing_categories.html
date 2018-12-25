@@ -1,0 +1,64 @@
+{{define "body"}}
+{{template "sidebar" .}}
+<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+    <h1 class="page-header">
+        Phishing Categories
+    </h1>
+    <div id="flashes" class="row"></div>
+    <div class="row">
+        <button type="button" class="btn btn-primary" onclick="edit(-1)" data-toggle="modal" data-backdrop="static"
+            data-target="#modal"><i class="fa fa-plus"></i> New Category</button>
+    </div>
+    &nbsp;
+    <div id="loading">
+        <i class="fa fa-spinner fa-spin fa-4x"></i>
+    </div>
+    <div id="emptyMessage" class="row" style="display:none;">
+        <div class="alert alert-info">
+            No categories created yet. Let's create one!
+        </div>
+    </div>
+    <div class="row">
+        <table id="categoriesTable" class="table" style="display:none;">
+            <thead>
+                <tr>
+                    <th class="col-md-4">Name</th>
+                    <th>Weight</th>
+                    <th class="col-md-2 no-sort"></th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <!-- New Template Modal -->
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="dismiss()"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="profileModalLabel">New Category</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" id="modal.flashes"></div>
+                <div class="form-group">
+                    <label class="control-label" for="name">Name:</label>
+                    <input type="text" class="form-control" placeholder="Phishing category name" id="name" autofocus />
+                    <label class="control-label" for="interface_type">Weight:</label>
+                    <input type="text" class="form-control" placeholder="Numeric weight" value="" id="weight" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" data-dismiss="modal" class="btn btn-default" onclick="dismiss()">Cancel</button>
+                <button type="button" class="btn btn-primary" id="modalSubmit">Save Category</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{end}} {{define "scripts"}}
+<script src="/js/dist/app/phishing_category.min.js"></script>
+{{end}}
