@@ -1,6 +1,6 @@
 -- +goose Up
 -- SQL in section 'Up' is executed when this migration is applied
-UPDATE results
+UPDATE `results`
 SET status = "Submitted Data"
 WHERE id IN (
         SELECT results_tmp.id
@@ -10,7 +10,7 @@ WHERE id IN (
                 AND results_tmp.email = events.email
                 AND results_tmp.campaign_id = events.campaign_id);
 
-UPDATE results
+UPDATE `results`
 SET status = "Clicked Link"
 WHERE id IN (
         SELECT results_tmp.id
