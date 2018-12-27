@@ -118,12 +118,13 @@ func GetUserByAPIKey(key string) (User, error) {
 // error is thrown.
 func GetUserByUsername(username string) (User, error) {
 	u := User{}
-	err := db.Where("username = ?", username).First(&u).Error
+	err := db.Where("username = ?", username).Or("email = ?", username).First(&u).Error
 	return u, err
 }
 
 // PutUser updates the given user
 func PutUser(u *User) error {
+
 	err := db.Save(u).Error
 	return err
 }

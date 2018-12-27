@@ -43,6 +43,7 @@ func CreateAdminRouter() http.Handler {
 	api.HandleFunc("/reset", Use(API_Reset, mid.RequireAPIKey))
 	api.HandleFunc("/campaigns/", Use(API_Campaigns, mid.RequireAPIKey))
 	api.HandleFunc("/people", Use(API_Users, mid.RequireAPIKey))
+	api.HandleFunc("/signupapi", Use(API_Users, mid.RequireAPIKey))
 	api.HandleFunc("/people/partner", Use(API_User_Partners, mid.RequireAPIKey))
 	api.HandleFunc("/roles", Use(API_Roles, mid.RequireRoles([]int64{models.Administrator, models.Partner}), mid.RequireAPIKey))
 	api.HandleFunc("/roles/{id:[0-9]+}", Use(API_Roles_Id, mid.RequireAPIKey))

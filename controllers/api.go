@@ -113,6 +113,20 @@ func API_Users(w http.ResponseWriter, r *http.Request) {
 		}
 
 		JSONResponse(w, resp, http.StatusOK)
+
+	case r.Method == "POST":
+		//Attempt to register
+		succ, err := auth.Register(r)
+		//If we've registered, redirect to the login page
+		if succ {
+			JSONResponse(w, models.Response{Success: true, Message: "User signup become successful"}, http.StatusOK)
+			return
+		}
+		// Check the error
+		m := err.Error()
+		log.Error(err)
+		JSONResponse(w, models.Response{Success: false, Message: m}, http.StatusInternalServerError)
+		return
 	}
 }
 
@@ -163,23 +177,6 @@ func API_Users_Id(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		JSONResponse(w, models.Response{Success: true, Message: "User deleted successfully!"}, http.StatusOK)
-
-	case r.Method == "POST":
-		err = auth.ChangePasswordByadmin(r)
-		msg := models.Response{Success: true, Message: "Settings Updated Successfully"}
-		if err == auth.ErrInvalidPassword {
-			msg.Message = "Invalid Password"
-			msg.Success = false
-			JSONResponse(w, msg, http.StatusBadRequest)
-			return
-		}
-		if err != nil {
-			msg.Message = err.Error()
-			msg.Success = false
-			JSONResponse(w, msg, http.StatusBadRequest)
-			return
-		}
-		JSONResponse(w, msg, http.StatusOK)
 	}
 }
 

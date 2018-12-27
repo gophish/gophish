@@ -70,6 +70,8 @@ func Register(r *http.Request) (bool, error) {
 	newPassword := r.FormValue("password")
 	confirmPassword := r.FormValue("confirm_password")
 	role := r.FormValue("roles")
+	api := r.FormValue("api")
+
 	rid, _ := strconv.ParseInt(role, 10, 0)
 
 	u, err := models.GetUserByUsername(username)
@@ -105,20 +107,22 @@ func Register(r *http.Request) (bool, error) {
 	u.Hash = string(h)
 	u.ApiKey = GenerateSecureKey()
 
-	currentUser := ctx.Get(r, "user").(models.User)
-	currentRole, err := models.GetUserRole(currentUser.Id)
+	if api != "1" {
+		currentUser := ctx.Get(r, "user").(models.User)
+		currentRole, err := models.GetUserRole(currentUser.Id)
 
-	if err != nil {
-		log.Error(err)
-	}
-
-	if currentRole.Is(models.Administrator) || currentRole.Is(models.Partner) {
-		if rid == models.Customer || rid == models.ChildUser {
-			u.Partner = ctx.Get(r, "user").(models.User).Id
+		if err != nil {
+			log.Error(err)
 		}
-	} else if currentRole.Is(models.ChildUser) {
-		if rid == models.Customer {
-			u.Partner = currentUser.Partner
+
+		if currentRole.Is(models.Administrator) || currentRole.Is(models.Partner) {
+			if rid == models.Customer || rid == models.ChildUser {
+				u.Partner = ctx.Get(r, "user").(models.User).Id
+			}
+		} else if currentRole.Is(models.ChildUser) {
+			if rid == models.Customer {
+				u.Partner = currentUser.Partner
+			}
 		}
 	}
 
