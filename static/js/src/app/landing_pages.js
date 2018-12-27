@@ -229,5 +229,20 @@ $(document).ready(function () {
         $("#capture_passwords").toggle()
         $("#redirect_url").toggle()
     })
+    CKEDITOR.on('dialogDefinition', function (ev) {
+        // Take the dialog name and its definition from the event data.
+        var dialogName = ev.data.name;
+        var dialogDefinition = ev.data.definition;
+
+        // Check if the definition is from the dialog window you are interested in (the "Link" dialog window).
+        if (dialogName == 'link') {
+            dialogDefinition.minWidth = 500
+            dialogDefinition.minHeight = 100
+
+            // Remove the linkType field
+            var infoTab = dialogDefinition.getContents('info');
+            infoTab.get('linkType').hidden = true;
+        }
+    });
     load()
 })
