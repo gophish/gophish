@@ -5,6 +5,7 @@
 */
 var pages = []
 
+
 // Save attempts to POST to /templates/
 function save(idx) {
     var page = {}
@@ -107,6 +108,7 @@ function edit(idx) {
         save(idx)
     })
     $("#html_editor").ckeditor()
+    setupAutocomplete(CKEDITOR.instances["html_editor"])
     var page = {}
     if (idx != -1) {
         page = pages[idx]
@@ -244,5 +246,6 @@ $(document).ready(function () {
             infoTab.get('linkType').hidden = true;
         }
     });
+
     load()
 })

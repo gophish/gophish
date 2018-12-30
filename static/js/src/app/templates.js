@@ -165,6 +165,7 @@ function edit(idx) {
         this.value = null
     })
     $("#html_editor").ckeditor()
+    setupAutocomplete(CKEDITOR.instances["html_editor"])
     $("#attachmentsTable").show()
     attachmentsTable = $('#attachmentsTable').DataTable({
         destroy: true,

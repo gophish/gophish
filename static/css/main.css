@@ -714,3 +714,11 @@ table.dataTable {
 .cke_chrome {
     border-top: 0 !important;
 }
+
+.cke_autocomplete_panel {
+    width: 400px !important;
+}
+
+.cke_autocomplete_panel>li {
+    padding: 10px 5px !important;
+}
