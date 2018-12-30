@@ -35,7 +35,7 @@ function launch() {
                 // Validate our fields
                 var send_by_date = $("#send_by_date").val()
                 if (send_by_date != "") {
-                    send_by_date = moment(send_by_date, "MM/DD/YYYY hh:mm a").utc().format()
+                    send_by_date = moment(send_by_date, "MMMM Do YYYY, h:mm a").utc().format()
                 }
                 campaign = {
                     name: $("#name").val(),
@@ -49,7 +49,7 @@ function launch() {
                     smtp: {
                         name: $("#profile").select2("data")[0].text
                     },
-                    launch_date: moment($("#launch_date").val(), "MM/DD/YYYY hh:mm a").utc().format(),
+                    launch_date: moment($("#launch_date").val(), "MMMM Do YYYY, h:mm a").utc().format(),
                     send_by_date: send_by_date || null,
                     groups: groups,
                 }
@@ -287,14 +287,16 @@ $(document).ready(function () {
             "vertical": "bottom"
         },
         "showTodayButton": true,
-        "defaultDate": moment()
+        "defaultDate": moment(),
+        "format": "MMMM Do YYYY, h:mm a"
     })
     $("#send_by_date").datetimepicker({
         "widgetPositioning": {
             "vertical": "bottom"
         },
         "showTodayButton": true,
-        "useCurrent": false
+        "useCurrent": false,
+        "format": "MMMM Do YYYY, h:mm a"
     })
     // Setup multiple modals
     // Code based on http://miles-by-motorcycle.com/static/bootstrap-modal/index.html
