@@ -196,7 +196,7 @@ func PostGroup(g *Group) error {
 		return err
 	}
 	// Insert the group into the DB
-	err = db.Save(g).Error
+	err := db.Save(g).Error
 	if err != nil {
 		log.Error(err)
 		return err
@@ -214,7 +214,7 @@ func PutGroup(g *Group) error {
 	}
 	// Fetch group's existing targets from database.
 	ts := []Target{}
-	ts, err = GetTargets(g.Id)
+	ts, err := GetTargets(g.Id)
 	if err != nil {
 		log.WithFields(logrus.Fields{
 			"group_id": g.Id,
@@ -234,7 +234,7 @@ func PutGroup(g *Group) error {
 		}
 		// If the target does not exist in the group any longer, we delete it
 		if !tExists {
-			err = db.Where("group_id=? and target_id=?", g.Id, t.Id).Delete(&GroupTarget{}).Error
+			err := db.Where("group_id=? and target_id=?", g.Id, t.Id).Delete(&GroupTarget{}).Error
 			if err != nil {
 				log.WithFields(logrus.Fields{
 					"email": t.Email,
@@ -286,14 +286,14 @@ func DeleteGroup(g *Group) error {
 }
 
 func insertTargetIntoGroup(t Target, gid int64) error {
-	if _, err = mail.ParseAddress(t.Email); err != nil {
+	if _, err := mail.ParseAddress(t.Email); err != nil {
 		log.WithFields(logrus.Fields{
 			"email": t.Email,
 		}).Error("Invalid email")
 		return err
 	}
 	trans := db.Begin()
-	err = trans.Where(t).FirstOrCreate(&t).Error
+	err := trans.Where(t).FirstOrCreate(&t).Error
 	if err != nil {
 		log.WithFields(logrus.Fields{
 			"email": t.Email,

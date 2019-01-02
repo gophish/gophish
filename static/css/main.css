@@ -421,13 +421,16 @@ p {
     .navbar-collapse.collapse {
         display: none !important;
     }
+
     .navbar-collapse.collapse.in {
         display: block !important;
     }
+
     .navbar-header .collapse,
     .navbar-toggle {
         display: block !important;
     }
+
     .navbar-header {
         float: none !important;
     }
@@ -706,4 +709,16 @@ table.dataTable {
 #csv-template {
     margin-left: 15px;
     cursor: pointer;
+}
+
+.cke_chrome {
+    border-top: 0 !important;
+}
+
+.cke_autocomplete_panel {
+    width: 400px !important;
+}
+
+.cke_autocomplete_panel>li {
+    padding: 10px 5px !important;
 }

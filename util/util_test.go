@@ -18,10 +18,12 @@ type UtilSuite struct {
 }
 
 func (s *UtilSuite) SetupSuite() {
-	config.Conf.DBName = "sqlite3"
-	config.Conf.DBPath = ":memory:"
-	config.Conf.MigrationsPath = "../db/db_sqlite3/migrations/"
-	err := models.Setup()
+	conf := &config.Config{
+		DBName:         "sqlite3",
+		DBPath:         ":memory:",
+		MigrationsPath: "../db/db_sqlite3/migrations/",
+	}
+	err := models.Setup(conf)
 	if err != nil {
 		s.T().Fatalf("Failed creating database: %v", err)
 	}

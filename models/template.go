@@ -34,34 +34,10 @@ func (t *Template) Validate() error {
 	case t.Text == "" && t.HTML == "":
 		return ErrTemplateMissingParameter
 	}
-	// Test that the variables used in the template
-	// validate with no issues
-	td := struct {
-		Result
-		URL         string
-		TrackingURL string
-		Tracker     string
-		From        string
-	}{
-		Result{
-			BaseRecipient: BaseRecipient{
-				Email:     "foo@bar.com",
-				FirstName: "Foo",
-				LastName:  "Bar",
-				Position:  "Test",
-			},
-		},
-		"http://foo.bar",
-		"http://foo.bar/track",
-		"<img src='http://foo.bar/track",
-		"John Doe <foo@bar.com>",
-	}
-	_, err := ExecuteTemplate(t.HTML, td)
-	if err != nil {
+	if err := ValidateTemplate(t.HTML); err != nil {
 		return err
 	}
-	_, err = ExecuteTemplate(t.Text, td)
-	if err != nil {
+	if err := ValidateTemplate(t.Text); err != nil {
 		return err
 	}
 	return nil
@@ -75,7 +51,7 @@ func GetTemplates(uid int64) ([]Template, error) {
 		log.Error(err)
 		return ts, err
 	}
-	for i, _ := range ts {
+	for i := range ts {
 		// Get Attachments
 		err = db.Where("template_id=?", ts[i].Id).Find(&ts[i].Attachments).Error
 		if err == nil && len(ts[i].Attachments) == 0 {
@@ -137,7 +113,7 @@ func PostTemplate(t *Template) error {
 	if err := t.Validate(); err != nil {
 		return err
 	}
-	err = db.Save(t).Error
+	err := db.Save(t).Error
 	if err != nil {
 		log.Error(err)
 		return err
@@ -162,7 +138,7 @@ func PutTemplate(t *Template) error {
 		return err
 	}
 	// Delete all attachments, and replace with new ones
-	err = db.Where("template_id=?", t.Id).Delete(&Attachment{}).Error
+	err := db.Where("template_id=?", t.Id).Delete(&Attachment{}).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		log.Error(err)
 		return err
@@ -170,7 +146,7 @@ func PutTemplate(t *Template) error {
 	if err == gorm.ErrRecordNotFound {
 		err = nil
 	}
-	for i, _ := range t.Attachments {
+	for i := range t.Attachments {
 		t.Attachments[i].TemplateId = t.Id
 		err := db.Save(&t.Attachments[i]).Error
 		if err != nil {

@@ -33,6 +33,10 @@ function launch() {
                     });
                 })
                 // Validate our fields
+                var send_by_date = $("#send_by_date").val()
+                if (send_by_date != "") {
+                    send_by_date = moment(send_by_date, "MMMM Do YYYY, h:mm a").utc().format()
+                }
                 campaign = {
                     name: $("#name").val(),
                     template: {
@@ -45,10 +49,10 @@ function launch() {
                     smtp: {
                         name: $("#profile").select2("data")[0].text
                     },
-                    launch_date: moment($("#launch_date").val(), "MM/DD/YYYY hh:mm a").utc().format(),
-                    groups: groups
+                    launch_date: moment($("#launch_date").val(), "MMMM Do YYYY, h:mm a").utc().format(),
+                    send_by_date: send_by_date || null,
+                    groups: groups,
                 }
-                console.log("Launching campaign at time: " + campaign.launch_date)
                 // Submit the campaign
                 api.campaigns.post(campaign)
                     .success(function (data) {
@@ -180,10 +184,15 @@ function setupOptions() {
                     obj.text = obj.name
                     return obj
                 });
-                $("#template.form-control").select2({
+                var template_select = $("#template.form-control")
+                template_select.select2({
                     placeholder: "Select a Template",
                     data: template_s2,
                 });
+                if (templates.length === 1) {
+                    template_select.val(template_s2[0].id)
+                    template_select.trigger('change.select2')
+                }
             }
         });
     api.pages.get()
@@ -196,10 +205,15 @@ function setupOptions() {
                     obj.text = obj.name
                     return obj
                 });
-                $("#page.form-control").select2({
+                var page_select = $("#page.form-control")
+                page_select.select2({
                     placeholder: "Select a Landing Page",
                     data: page_s2,
                 });
+                if (pages.length === 1) {
+                    page_select.val(page_s2[0].id)
+                    page_select.trigger('change.select2')
+                }
             }
         });
     api.SMTP.get()
@@ -212,10 +226,15 @@ function setupOptions() {
                     obj.text = obj.name
                     return obj
                 });
-                $("#profile.form-control").select2({
+                var profile_select = $("#profile.form-control")
+                profile_select.select2({
                     placeholder: "Select a Sending Profile",
                     data: profile_s2,
-                });
+                }).select2("val", profile_s2[0]);
+                if (profiles.length === 1) {
+                    profile_select.val(profile_s2[0].id)
+                    profile_select.trigger('change.select2')
+                }
             }
         });
 }
@@ -235,21 +254,24 @@ function copy(idx) {
                     placeholder: campaign.template.name
                 });
             } else {
-                $("#template").select2("val", campaign.template.id.toString());
+                $("#template").val(campaign.template.id.toString());
+                $("#template").trigger("change.select2")
             }
             if (!campaign.page.id) {
                 $("#page").select2({
                     placeholder: campaign.page.name
                 });
             } else {
-                $("#page").select2("val", campaign.page.id.toString());
+                $("#page").val(campaign.page.id.toString());
+                $("#page").trigger("change.select2")
             }
             if (!campaign.smtp.id) {
                 $("#profile").select2({
                     placeholder: campaign.smtp.name
                 });
             } else {
-                $("#profile").select2("val", campaign.smtp.id.toString());
+                $("#profile").val(campaign.smtp.id.toString());
+                $("#profile").trigger("change.select2")
             }
             $("#url").val(campaign.url)
         })
@@ -265,7 +287,16 @@ $(document).ready(function () {
             "vertical": "bottom"
         },
         "showTodayButton": true,
-        "defaultDate": moment()
+        "defaultDate": moment(),
+        "format": "MMMM Do YYYY, h:mm a"
+    })
+    $("#send_by_date").datetimepicker({
+        "widgetPositioning": {
+            "vertical": "bottom"
+        },
+        "showTodayButton": true,
+        "useCurrent": false,
+        "format": "MMMM Do YYYY, h:mm a"
     })
     // Setup multiple modals
     // Code based on http://miles-by-motorcycle.com/static/bootstrap-modal/index.html
@@ -313,8 +344,6 @@ $(document).ready(function () {
                     ]
                 });
                 $.each(campaigns, function (i, campaign) {
-                    console.log(campaign)
-                    console.log(campaign.created_date)
                     label = labels[campaign.status] || "label-default";
 
                     //section for tooltips on the status of a campaign to show some quick stats
@@ -334,7 +363,7 @@ $(document).ready(function () {
                         "<div class='pull-right'><a class='btn btn-primary' href='/campaigns/" + campaign.id + "' data-toggle='tooltip' data-placement='left' title='View Results'>\
                     <i class='fa fa-bar-chart'></i>\
                     </a>\
-            <span data-toggle='modal' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Copy Campaign' onclick='copy(" + i + ")'>\
+            <span data-toggle='modal' data-backdrop='static' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Copy Campaign' onclick='copy(" + i + ")'>\
                     <i class='fa fa-copy'></i>\
                     </button></span>\
                     <button class='btn btn-danger' onclick='deleteCampaign(" + i + ")' data-toggle='tooltip' data-placement='left' title='Delete Campaign'>\

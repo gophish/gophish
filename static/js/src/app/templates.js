@@ -78,6 +78,40 @@ function dismiss() {
     $("#modal").modal('hide')
 }
 
+var deleteTemplate = function (idx) {
+    swal({
+        title: "Are you sure?",
+        text: "This will delete the template. This can't be undone!",
+        type: "warning",
+        animation: false,
+        showCancelButton: true,
+        confirmButtonText: "Delete " + escapeHtml(templates[idx].name),
+        confirmButtonColor: "#428bca",
+        reverseButtons: true,
+        allowOutsideClick: false,
+        preConfirm: function () {
+            return new Promise(function (resolve, reject) {
+                api.templateId.delete(templates[idx].id)
+                    .success(function (msg) {
+                        resolve()
+                    })
+                    .error(function (data) {
+                        reject(data.responseJSON.message)
+                    })
+            })
+        }
+    }).then(function () {
+        swal(
+            'Template Deleted!',
+            'This template has been deleted!',
+            'success'
+        );
+        $('button:contains("OK")').on('click', function () {
+            location.reload()
+        })
+    })
+}
+
 function deleteTemplate(idx) {
     if (confirm("Delete " + templates[idx].name + "?")) {
         api.templateId.delete(templates[idx].id)
@@ -131,6 +165,7 @@ function edit(idx) {
         this.value = null
     })
     $("#html_editor").ckeditor()
+    setupAutocomplete(CKEDITOR.instances["html_editor"])
     $("#attachmentsTable").show()
     attachmentsTable = $('#attachmentsTable').DataTable({
         destroy: true,
@@ -283,7 +318,7 @@ function load() {
                     templateTable.row.add([
                         escapeHtml(template.name),
                         moment(template.modified_date).format('MMMM Do YYYY, h:mm:ss a'),
-                        "<div class='pull-right'><span data-toggle='modal' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Edit Template' onclick='edit(" + i + ")'>\
+                        "<div class='pull-right'><span data-toggle='modal' data-backdrop='static' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Edit Template' onclick='edit(" + i + ")'>\
                     <i class='fa fa-pencil'></i>\
                     </button></span>\
 		    <span data-toggle='modal' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Copy Template' onclick='copy(" + i + ")'>\
@@ -354,6 +389,21 @@ $(document).ready(function () {
     $("#importEmailModal").on('hidden.bs.modal', function (event) {
         $("#email_content").val("")
     })
+    CKEDITOR.on('dialogDefinition', function (ev) {
+        // Take the dialog name and its definition from the event data.
+        var dialogName = ev.data.name;
+        var dialogDefinition = ev.data.definition;
+
+        // Check if the definition is from the dialog window you are interested in (the "Link" dialog window).
+        if (dialogName == 'link') {
+            dialogDefinition.minWidth = 500
+            dialogDefinition.minHeight = 100
+
+            // Remove the linkType field
+            var infoTab = dialogDefinition.getContents('info');
+            infoTab.get('linkType').hidden = true;
+        }
+    });
     load()
 
 })
