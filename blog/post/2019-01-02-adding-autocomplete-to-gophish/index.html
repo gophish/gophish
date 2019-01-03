@@ -246,7 +246,7 @@ panic: runtime error: invalid memory address or nil pointer dereference
 
 <p>Before going into the specifics of how this works, let’s talk a bit about the editor used for Gophish.</p>
 
-<h2 id="the-editor-that-powers-gophish">The Editor that Powers Gophish</h2>
+<h3 id="the-editor-that-powers-gophish">The Editor that Powers Gophish</h3>
 
 <p>When creating Gophish, I had a bit of a unique need. Most WYSIWYG editors focus on editing the <em>content</em> of a document, but I needed to be able to work with entire HTML documents.</p>
 
@@ -258,7 +258,7 @@ panic: runtime error: invalid memory address or nil pointer dereference
 
 <p>It had been a while since I upgraded the version of CKEditor used by Gophish, so after applying the latest CKEditor 4 version, I was ready to focus on autocomplete.</p>
 
-<h2 id="adding-autocomplete">Adding Autocomplete</h2>
+<h3 id="adding-autocomplete">Adding Autocomplete</h3>
 
 <p>With our upgrade, we got the ability to use some new plugins, including one that implements <a href="https://ckeditor.com/docs/ckeditor4/latest/examples/autocomplete.html">autocomplete</a>. We can use this to add autocomplete for the various template tags that Gophish provides.</p>
 
@@ -279,7 +279,7 @@ panic: runtime error: invalid memory address or nil pointer dereference
 
 <p>I won’t dive into every function, since many of them are near-verbatim from the documentation. It is, however, worth pointing out what we had to do differently.</p>
 
-<h3 id="updating-the-match-pattern">Updating the Match Pattern</h3>
+<h4 id="updating-the-match-pattern">Updating the Match Pattern</h4>
 
 <p>Golang template tags (and, by extension, Gophish template tags) are defined using the <code>{{.Variable}}</code> syntax, which is different than the autocomplete example which uses a <code>[[variable]]</code> syntax. This means we had to adjust the pattern we used to match text:</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#888;font-style:italic">// Matches everything after &#34;{{.&#34;
@@ -287,7 +287,7 @@ panic: runtime error: invalid memory address or nil pointer dereference
 </code></pre></div>
 <p>You’ll notice that the pattern includes <code>\.?</code>, which means to match zero or one “.” characters. This was a little touch, since I wanted matches to appear as soon as the user typed “{{“. Having a leading “.” Is something that, from what I can tell, is a bit unique to Golang and is tricky to remember, so this lets us get around that.</p>
 
-<h3 id="returning-the-output">Returning the Output</h3>
+<h4 id="returning-the-output">Returning the Output</h4>
 
 <p>Once we get our text, show the user the matching options, and one is selected, we need to add the tag to the editor. This is done by providing an <a href="https://ckeditor.com/docs/ckeditor4/latest/api/CKEDITOR_plugins_autocomplete_configDefinition.html#property-outputTemplate"><code>outputTemplate</code></a>, and uses CKEditor’s own template syntax.</p>
 
@@ -304,7 +304,7 @@ panic: runtime error: invalid memory address or nil pointer dereference
 </code></pre></div>
 <p>It&rsquo;s not ideal, but it works!</p>
 
-<h2 id="wrapping-up">Wrapping Up</h2>
+<h3 id="wrapping-up">Wrapping Up</h3>
 
 <p>With all the logic finished up, I just added some minor style tweaks and we’re off to the races!</p>
 
