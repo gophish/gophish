@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+  
+    
+        <meta name="twitter:card" content="summary"/>
+    
+
+
+
+<meta name="twitter:title" content="Adding Autocomplete to Gophish"/>
+<meta name="twitter:description" content=""/>
+<meta name="twitter:site" content="@"/>
+
+
+
+  <meta property="og:title" content="Adding Autocomplete to Gophish &middot; Gophish - Blog" />
+  <meta property="og:site_name" content="Gophish - Blog" />
+  <meta property="og:url" content="https://getgophish.com/blog/post/2019-01-02-adding-autocomplete-to-gophish/" />
+
+  
+  
+  
+
+  
+  <meta property="og:description" content="" />
+  <meta property="og:type" content="article" />
+  <meta property="article:published_time" content="2019-01-02T20:05:00-06:00" />
+
+  
+  
+
+  <title>Adding Autocomplete to Gophish &middot; Gophish - Blog</title>
+
+  
+  <meta name="description" content="Gophish provides powerful template tags making it easy to create customized emails and landing pages. Sometimes, however, it can be difficult to remember the ex" />
+  
+
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="shortcut icon" href="/blog/images/favicon.ico">
+  <link rel="apple-touch-icon" href="/blog/images/apple-touch-icon.png" />
+
+  <link rel="stylesheet" type="text/css" href="/blog/css/screen.css" />
+  <link rel="stylesheet" type="text/css" href="/blog/css/nav.css" />
+  <link href="https://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet">
+
+  
+
+  
+
+  
+  
+  <link href="/blog/index.xml" rel="alternate" type="application/rss+xml" title="Gophish - Blog" />
+  
+  
+  
+  <meta name="generator" content="Hugo 0.40.3" />
+
+  <link rel="canonical" href="https://getgophish.com/blog/post/2019-01-02-adding-autocomplete-to-gophish/" />
+
+  
+  
+    
+    <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "publisher": {
+        "@type": "Organization",
+        "name": ,
+        "logo": https://getgophish.com/blogimages/gophish_purple_logo.png
+    },
+    "author": {
+        "@type": "Person",
+        "name": ,
+        
+        "image": {
+            "@type": "ImageObject",
+            "url": https://getgophish.com/blogimages/gophish_purple_logo.png,
+            "width": 250,
+            "height": 250
+        }, 
+        
+        "url": ,
+        "sameAs": [
+            
+            
+             
+             
+             
+             
+             
+            
+        ]
+    },
+    "headline": Adding Autocomplete to Gophish,
+    "name": Adding Autocomplete to Gophish,
+    "wordCount": 907,
+    "timeRequired": "PT5M",
+    "inLanguage": {
+      "@type": "Language",
+      "alternateName": en
+    },
+    "url": https://getgophish.com/blog/post/2019-01-02-adding-autocomplete-to-gophish/,
+    "datePublished": 2019-01-02T20:05Z,
+    "dateModified": 2019-01-02T20:05Z,
+    
+    
+    "description": ,
+    "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": https://getgophish.com/blog/post/2019-01-02-adding-autocomplete-to-gophish/
+    }
+}
+    </script>
+    
+
+
+  
+
+  
+  <script>
+    (function (i, s, o, g, r, a, m) {
+      i['GoogleAnalyticsObject'] = r;
+      i[r] = i[r] || function () {
+        (i[r].q = i[r].q || []).push(arguments)
+      }, i[r].l = 1 * new Date();
+      a = s.createElement(o),
+        m = s.getElementsByTagName(o)[0];
+      a.async = 1;
+      a.src = g;
+      m.parentNode.insertBefore(a, m)
+    })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+    ga('create', 'UA-47018345-1', 'auto');
+    ga('send', 'pageview');
+  </script>
+  
+
+  
+</head>
+
+<body class="nav-closed">
+
+  <div class="nav">
+    <h3 class="nav-title">Menu</h3>
+    <a href="#" class="nav-close">
+        <span class="hidden">Close</span>
+    </a>
+    <ul>
+        
+        
+        
+            
+            <li class="nav-opened" role="presentation">
+            	<a href="https://getgophish.com/">Home</a>
+            </li>
+        
+            
+            <li class="nav-opened" role="presentation">
+            	<a href="https://getgophish.com/documentation">Documentation</a>
+            </li>
+        
+            
+            <li class="nav-opened" role="presentation">
+            	<a href="https://github.com/gophish/gophish/issues">Support</a>
+            </li>
+        
+            
+            <li class="nav-opened" role="presentation">
+            	<a href="/blog/blog">Blog</a>
+            </li>
+        
+        
+    </ul>
+
+    
+    <a class="subscribe-button icon-feed" href="/blog/index.xml">Subscribe</a>
+    
+</div>
+<span class="nav-cover"></span>
+
+
+  <div class="site-wrapper">
+
+
+<header class="main-header post-head no-cover">
+  <nav class="main-nav clearfix">
+
+
+  
+      <a class="blog-logo" href="https://getgophish.com/blog"><img src="/blog/images/gophish_purple_logo.png" alt="Home" /></a>
+  
+  
+      <a class="menu-button" href="#"><span class="burger">&#9776;</span><span class="word">Menu</span></a>
+  
+  </nav>
+</header>
+
+
+
+<main class="content" role="main">
+
+
+
+
+  <article class="post post">
+
+    <header class="post-header">
+        <h1 class="post-title">Adding Autocomplete to Gophish</h1>
+        <small></small>
+
+        <section class="post-meta">
+        
+          <time class="post-date" datetime="2019-01-02T20:05:00-06:00">
+            Jan 2, 2019
+          </time>
+        
+         
+        </section>
+    </header>
+
+    <section class="post-content">
+      
+
+<p>Gophish provides powerful template tags making it easy to create customized emails and landing pages. Sometimes, however, it can be difficult to remember the exact syntax and what template tags are supported.</p>
+
+<p>I&rsquo;ve had <a href="https://github.com/gophish/gophish/search?q=template+crash&amp;unscoped_q=template+crash&amp;type=Issues">multiple issues filed</a> that are the result of incorrect tags being used. Generally, the crash looks something like this:</p>
+
+<pre><code>worker.go:90: template: html_template:6: function &quot;Name&quot; not defined
+panic: runtime error: invalid memory address or nil pointer dereference [recovered]
+panic: runtime error: invalid memory address or nil pointer dereference
+[signal 0xb code=0x1 addr=0x10 pc=0x61a4a5]
+</code></pre>
+
+<p>The error from <code>template</code> suggests that a certain function, <code>Name</code> wasn’t defined. In this case, the author likely used <code>{{.Name}}</code>, while only <code>{{.FirstName}}</code> and <code>{{.LastName}}</code> currently exist.</p>
+
+<p>And I can’t blame them! It’s a pain to go to the <a href="https://docs.getgophish.com/user-guide/template-reference">template reference</a> every time you want to create a new landing page or email template. I’ve tried to add better error handling to catch this when the HTML is submitted, but we can do even better by adding autocomplete that appears when you try to use a template tag.</p>
+
+<p>Before going into the specifics of how this works, let’s talk a bit about the editor used for Gophish.</p>
+
+<h2 id="the-editor-that-powers-gophish">The Editor that Powers Gophish</h2>
+
+<p>When creating Gophish, I had a bit of a unique need. Most WYSIWYG editors focus on editing the <em>content</em> of a document, but I needed to be able to work with entire HTML documents.</p>
+
+<p>At the time, the only editor I could find that could do this was <a href="[CKEditor 4 documentation](https://ckeditor.com/docs/ckeditor4/latest/)">CKEditor</a>. The interface was clean, and it had the ability to <a href="[Editing Complete HTML Pages - CKEditor 4 Documentation](https://ckeditor.com/docs/ckeditor4/latest/examples/fullpage.html)">work with entire HTML documents</a> by setting the <code>fullPage</code> attribute in the configuration, which essentially causes CKEditor to orchestrate an iframe with your HTML content.</p>
+
+<blockquote>
+<p><strong>Note</strong> - I’m limited to using CKEditor 4, since version 5 moves away from the ability to edit full pages, instead focusing on a better document editing experience. Fortunately, CKEditor 4 seems to still be under active development.</p>
+</blockquote>
+
+<p>It had been a while since I upgraded the version of CKEditor used by Gophish, so after applying the latest CKEditor 4 version, I was ready to focus on autocomplete.</p>
+
+<h2 id="adding-autocomplete">Adding Autocomplete</h2>
+
+<p>With our upgrade, we got the ability to use some new plugins, including one that implements <a href="[Autocomplete - CKEditor 4 Documentation](https://ckeditor.com/docs/ckeditor4/latest/examples/autocomplete.html)">autocomplete</a>. We can use this to add autocomplete for the various template tags that Gophish provides.</p>
+
+<p>First, we need to define <a href="[Template Reference - Gophish User Guide](https://docs.getgophish.com/user-guide/template-reference)">the template tags</a> in a variable:</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#2838b0;font-style:italic">var</span> TEMPLATE_TAGS <span style="color:#666">=</span> <span style="color:#888">[{</span>
+        id<span style="color:#666">:</span> <span style="color:#444">1</span><span style="color:#888">,</span>
+        name<span style="color:#666">:</span> <span style="color:#b83838">&#39;RId&#39;</span><span style="color:#888">,</span>
+        description<span style="color:#666">:</span> <span style="color:#b83838">&#39;The unique ID for the recipient.&#39;</span>
+    <span style="color:#888">},</span>
+    <span style="color:#888">{</span>
+        id<span style="color:#666">:</span> <span style="color:#444">2</span><span style="color:#888">,</span>
+        name<span style="color:#666">:</span> <span style="color:#b83838">&#39;FirstName&#39;</span><span style="color:#888">,</span>
+        description<span style="color:#666">:</span> <span style="color:#b83838">&#39;The recipient\&#39;s first name.&#39;</span>
+    <span style="color:#888">},</span>
+    <span style="color:#888">...</span>
+</code></pre></div>
+<p>With the valid template tags defined, we can start implementing the functions as described in CKEditor’s <a href="https://ckeditor.com/docs/ckeditor4/latest/guide/dev_autocomplete.html#implementing-custom-autocomplete">autocomplete documentation</a>.</p>
+
+<p>I won’t dive into every function, since many of them are near-verbatim from the documentation. It is, however, worth pointing out what we had to do differently.</p>
+
+<h3 id="updating-the-match-pattern">Updating the Match Pattern</h3>
+
+<p>Golang template tags (and, by extension, Gophish template tags) are defined using the <code>{{.Variable}}</code> syntax, which is different than the autocomplete example which uses a <code>[[variable]]</code> syntax. This means we had to adjust the pattern we used to match text:</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#888;font-style:italic">// Matches everything after &#34;{{.&#34;
+</span><span style="color:#888;font-style:italic"></span><span style="color:#2838b0;font-style:italic">var</span> pattern <span style="color:#666">=</span> <span style="color:#a848a8">/\{{2}\.?([A-z]|\})*$/</span><span style="color:#888">,</span>
+</code></pre></div>
+<p>You’ll notice that the pattern includes <code>\.?</code>, which means to match zero or one “.” characters. This was a little touch, since I wanted matches to appear as soon as the user typed “{{“. Having a leading “.” Is something that, from what I can tell, is a bit unique to Golang and is tricky to remember, so this lets us get around that.</p>
+
+<h3 id="returning-the-output">Returning the Output</h3>
+
+<p>Once we get our text, show the user the matching options, and one is selected, we need to add the tag to the editor. This is done by providing an <a href="[Class ConfigDefinition (CKEDITOR.plugins.autocomplete.configDefinition) - CKEditor 4 API docs](https://ckeditor.com/docs/ckeditor4/latest/api/CKEDITOR_plugins_autocomplete_configDefinition.html#property-outputTemplate)"><code>outputTemplate</code></a>, and uses CKEditor’s own template syntax.</p>
+
+<p>This causes a problem, since CKEditor’s templates do <a href="[ckeditor-dev/template.js at 53fcf89e546d494b473b6ca058d6fc9558df9cd6 · ckeditor/ckeditor-dev · GitHub](https://github.com/ckeditor/ckeditor-dev/blob/53fcf89e546d494b473b6ca058d6fc9558df9cd6/core/template.js#L12)">simple regex checks</a> looking for the <code>{variable}</code> syntax, which clashes with our own template variables. Basically, we can’t tell CKEditor that we actually want to insert braces, not get a value from a variable.</p>
+
+<p>To get around this, I took a fairly naive approach, which is to define my <code>outputTemplate</code> using the <code>[[variable]]</code> syntax, replacing the brackets with braces when the value is actually returned:</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript">outputTemplate <span style="color:#666">=</span> <span style="color:#b83838">&#39;[[.{name}]]&#39;</span><span style="color:#888">;</span>
+<span style="color:#888;font-style:italic">// Skipping some lines...
+</span><span style="color:#888;font-style:italic"></span>autocomplete<span style="color:#888">.</span>getHtmlToInsert <span style="color:#666">=</span> <span style="color:#2838b0;font-style:italic">function</span> <span style="color:#888">(</span>item<span style="color:#888">)</span> <span style="color:#888">{</span>
+    <span style="color:#2838b0;font-style:italic">var</span> parsedTemplate <span style="color:#666">=</span> <span style="color:#2838b0">this</span><span style="color:#888">.</span>outputTemplate<span style="color:#888">.</span>output<span style="color:#888">(</span>item<span style="color:#888">);</span>
+    parsedTemplate <span style="color:#666">=</span> parsedTemplate<span style="color:#888">.</span>replace<span style="color:#888">(</span><span style="color:#b83838">&#34;[[&#34;</span><span style="color:#888">,</span> <span style="color:#b83838">&#34;{{&#34;</span><span style="color:#888">).</span>replace<span style="color:#888">(</span><span style="color:#b83838">&#34;]]&#34;</span><span style="color:#888">,</span> <span style="color:#b83838">&#34;}}&#34;</span><span style="color:#888">)</span>
+    <span style="color:#2838b0">return</span> parsedTemplate
+<span style="color:#888">}</span>
+</code></pre></div>
+<p>It&rsquo;s not ideal, but it works!</p>
+
+<h2 id="wrapping-up">Wrapping Up</h2>
+
+<p>With all the logic finished up, I just added some minor style tweaks and we’re off to the races!</p>
+
+<p>Here’s a demo showing what the final result looks like:</p>
+
+<img src="/blog/images/autocomplete.gif" alt="" class="pure-img" >
+
+<p>While this is a great start, it’s unfortunately not perfect. For one thing, it doesn’t work in source mode - a limitation put in place by CKEditor.</p>
+
+<p>The other issue is that the <code>enter</code> and <code>tab</code> keys don’t work for selecting a result from the drop down. This is a <a href="[Autocomplete dropdown isn’t focused after going to wysiwig mode · Issue #2196 · ckeditor/ckeditor-dev · GitHub](https://github.com/ckeditor/ckeditor-dev/issues/2196)">known bug</a> that occurs when you switch from the source code view in the editor to the WYSIWYG view. Since we start in the source view, this will always be the case. Hopefully this bug will be fixed in a later release.</p>
+
+<p>Minor issues aside, autocomplete is a great example of making things “just work”, which is one of my biggest goals with Gophish. I want to make it as easy as possible to use the software, and this change makes it easy to use all the power of template variables without the hassle of remembering them.</p>
+
+<p>Enjoy!</p>
+
+    </section>
+
+
+  <footer class="post-footer">
+
+
+    
+
+
+
+
+
+
+
+
+<figure class="author-image">
+    <a class="img" href="https://getgophish.com/blog" style="background-image: url(/blog/images/jordan-wright.jpg)"><span class="hidden">Jordan Wright's Picture</span></a>
+</figure>
+
+
+<section class="author">
+  <h4><a href="https://getgophish.com/blog">Jordan Wright</a></h4>
+  
+  <p>Read <a href="https://getgophish.com/blog">more posts</a> by this author.</p>
+  
+  <div class="author-meta">
+    
+    
+  </div>
+</section>
+
+
+
+
+    
+<section class="share">
+    <h4>Share this post</h4>
+    <a class="icon-twitter" style="font-size: 1.4em" href="https://twitter.com/share?text=Adding%20Autocomplete%20to%20Gophish&nbsp;-&nbsp;Gophish%20-%20Blog&amp;url=https%3a%2f%2fgetgophish.com%2fblog%2fpost%2f2019-01-02-adding-autocomplete-to-gophish%2f"
+        onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+        <span class="hidden">Twitter</span>
+    </a>
+    <a class="icon-facebook" style="font-size: 1.4em" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fgetgophish.com%2fblog%2fpost%2f2019-01-02-adding-autocomplete-to-gophish%2f"
+        onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+        <span class="hidden">Facebook</span>
+    </a>
+    <a class="icon-google-plus" style="font-size: 1.4em" href="https://plus.google.com/share?url=https%3a%2f%2fgetgophish.com%2fblog%2fpost%2f2019-01-02-adding-autocomplete-to-gophish%2f"
+        onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+        <span class="hidden">Google+</span>
+    </a>
+</section>
+
+
+    
+
+
+
+
+
+
+
+  </footer>
+</article>
+
+</main>
+
+
+  <aside class="read-next">
+  
+  
+      <a class="read-next-story prev" style="no-cover" href="/blog/post/2018-12-02-building-web-servers-in-go/">
+          <section class="post">
+              <h2>Building Web Servers in Go</h2>
+          </section>
+      </a>
+  
+</aside>
+
+
+
+    <footer class="site-footer clearfix">
+        <section class="copyright"><a href="">Gophish - Blog</a> </section>
+        
+        <section class="poweredby">Proudly generated by <a class="icon-hugo" href="http://gohugo.io">HUGO</a>, with <a class="icon-theme" href="https://github.com/vjeantet/hugo-theme-casper">Casper</a> theme</section>
+        
+    </footer>
+    </div>
+    <script type="text/javascript" src="/blog/js/jquery.js"></script>
+    <script type="text/javascript" src="/blog/js/jquery.fitvids.js"></script>
+    <script type="text/javascript" src="/blog/js/index.js"></script>
+    
+</body>
+</html>
+

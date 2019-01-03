@@ -6,10 +6,21 @@
     <description>Recent content on Gophish - Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 02 Dec 2018 16:00:00 -0600</lastBuildDate>
+    <lastBuildDate>Wed, 02 Jan 2019 20:05:00 -0600</lastBuildDate>
     
 	<atom:link href="https://getgophish.com/blog/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Adding Autocomplete to Gophish</title>
+      <link>https://getgophish.com/blog/post/2019-01-02-adding-autocomplete-to-gophish/</link>
+      <pubDate>Wed, 02 Jan 2019 20:05:00 -0600</pubDate>
+      
+      <guid>https://getgophish.com/blog/post/2019-01-02-adding-autocomplete-to-gophish/</guid>
+      <description>Gophish provides powerful template tags making it easy to create customized emails and landing pages. Sometimes, however, it can be difficult to remember the exact syntax and what template tags are supported.
+I&amp;rsquo;ve had multiple issues filed that are the result of incorrect tags being used. Generally, the crash looks something like this:
+worker.go:90: template: html_template:6: function &amp;quot;Name&amp;quot; not defined panic: runtime error: invalid memory address or nil pointer dereference [recovered] panic: runtime error: invalid memory address or nil pointer dereference [signal 0xb code=0x1 addr=0x10 pc=0x61a4a5]  The error from template suggests that a certain function, Name wasn’t defined.</description>
+    </item>
     
     <item>
       <title>Building Web Servers in Go</title>
