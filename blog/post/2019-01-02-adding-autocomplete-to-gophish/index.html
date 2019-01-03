@@ -250,7 +250,7 @@ panic: runtime error: invalid memory address or nil pointer dereference
 
 <p>When creating Gophish, I had a bit of a unique need. Most WYSIWYG editors focus on editing the <em>content</em> of a document, but I needed to be able to work with entire HTML documents.</p>
 
-<p>At the time, the only editor I could find that could do this was <a href="[CKEditor 4 documentation](https://ckeditor.com/docs/ckeditor4/latest/)">CKEditor</a>. The interface was clean, and it had the ability to <a href="[Editing Complete HTML Pages - CKEditor 4 Documentation](https://ckeditor.com/docs/ckeditor4/latest/examples/fullpage.html)">work with entire HTML documents</a> by setting the <code>fullPage</code> attribute in the configuration, which essentially causes CKEditor to orchestrate an iframe with your HTML content.</p>
+<p>At the time, the only editor I could find that could do this was <a href="https://ckeditor.com/docs/ckeditor4/latest/">CKEditor</a>. The interface was clean, and it had the ability to <a href="https://ckeditor.com/docs/ckeditor4/latest/examples/fullpage.html">work with entire HTML documents</a> by setting the <code>fullPage</code> attribute in the configuration, which essentially causes CKEditor to orchestrate an iframe with your HTML content.</p>
 
 <blockquote>
 <p><strong>Note</strong> - I’m limited to using CKEditor 4, since version 5 moves away from the ability to edit full pages, instead focusing on a better document editing experience. Fortunately, CKEditor 4 seems to still be under active development.</p>
@@ -260,9 +260,9 @@ panic: runtime error: invalid memory address or nil pointer dereference
 
 <h2 id="adding-autocomplete">Adding Autocomplete</h2>
 
-<p>With our upgrade, we got the ability to use some new plugins, including one that implements <a href="[Autocomplete - CKEditor 4 Documentation](https://ckeditor.com/docs/ckeditor4/latest/examples/autocomplete.html)">autocomplete</a>. We can use this to add autocomplete for the various template tags that Gophish provides.</p>
+<p>With our upgrade, we got the ability to use some new plugins, including one that implements <a href="https://ckeditor.com/docs/ckeditor4/latest/examples/autocomplete.html">autocomplete</a>. We can use this to add autocomplete for the various template tags that Gophish provides.</p>
 
-<p>First, we need to define <a href="[Template Reference - Gophish User Guide](https://docs.getgophish.com/user-guide/template-reference)">the template tags</a> in a variable:</p>
+<p>First, we need to define <a href="https://docs.getgophish.com/user-guide/template-reference">the template tags</a> in a variable:</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#2838b0;font-style:italic">var</span> TEMPLATE_TAGS <span style="color:#666">=</span> <span style="color:#888">[{</span>
         id<span style="color:#666">:</span> <span style="color:#444">1</span><span style="color:#888">,</span>
         name<span style="color:#666">:</span> <span style="color:#b83838">&#39;RId&#39;</span><span style="color:#888">,</span>
@@ -289,9 +289,9 @@ panic: runtime error: invalid memory address or nil pointer dereference
 
 <h3 id="returning-the-output">Returning the Output</h3>
 
-<p>Once we get our text, show the user the matching options, and one is selected, we need to add the tag to the editor. This is done by providing an <a href="[Class ConfigDefinition (CKEDITOR.plugins.autocomplete.configDefinition) - CKEditor 4 API docs](https://ckeditor.com/docs/ckeditor4/latest/api/CKEDITOR_plugins_autocomplete_configDefinition.html#property-outputTemplate)"><code>outputTemplate</code></a>, and uses CKEditor’s own template syntax.</p>
+<p>Once we get our text, show the user the matching options, and one is selected, we need to add the tag to the editor. This is done by providing an <a href="https://ckeditor.com/docs/ckeditor4/latest/api/CKEDITOR_plugins_autocomplete_configDefinition.html#property-outputTemplate"><code>outputTemplate</code></a>, and uses CKEditor’s own template syntax.</p>
 
-<p>This causes a problem, since CKEditor’s templates do <a href="[ckeditor-dev/template.js at 53fcf89e546d494b473b6ca058d6fc9558df9cd6 · ckeditor/ckeditor-dev · GitHub](https://github.com/ckeditor/ckeditor-dev/blob/53fcf89e546d494b473b6ca058d6fc9558df9cd6/core/template.js#L12)">simple regex checks</a> looking for the <code>{variable}</code> syntax, which clashes with our own template variables. Basically, we can’t tell CKEditor that we actually want to insert braces, not get a value from a variable.</p>
+<p>This causes a problem, since CKEditor’s templates do <a href="https://github.com/ckeditor/ckeditor-dev/blob/53fcf89e546d494b473b6ca058d6fc9558df9cd6/core/template.js#L12">simple regex checks</a> looking for the <code>{variable}</code> syntax, which clashes with our own template variables. Basically, we can’t tell CKEditor that we actually want to insert braces, not get a value from a variable.</p>
 
 <p>To get around this, I took a fairly naive approach, which is to define my <code>outputTemplate</code> using the <code>[[variable]]</code> syntax, replacing the brackets with braces when the value is actually returned:</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript">outputTemplate <span style="color:#666">=</span> <span style="color:#b83838">&#39;[[.{name}]]&#39;</span><span style="color:#888">;</span>
@@ -314,7 +314,7 @@ panic: runtime error: invalid memory address or nil pointer dereference
 
 <p>While this is a great start, it’s unfortunately not perfect. For one thing, it doesn’t work in source mode - a limitation put in place by CKEditor.</p>
 
-<p>The other issue is that the <code>enter</code> and <code>tab</code> keys don’t work for selecting a result from the drop down. This is a <a href="[Autocomplete dropdown isn’t focused after going to wysiwig mode · Issue #2196 · ckeditor/ckeditor-dev · GitHub](https://github.com/ckeditor/ckeditor-dev/issues/2196)">known bug</a> that occurs when you switch from the source code view in the editor to the WYSIWYG view. Since we start in the source view, this will always be the case. Hopefully this bug will be fixed in a later release.</p>
+<p>The other issue is that the <code>enter</code> and <code>tab</code> keys don’t work for selecting a result from the drop down. This is a <a href="https://github.com/ckeditor/ckeditor-dev/issues/2196">known bug</a> that occurs when you switch from the source code view in the editor to the WYSIWYG view. Since we start in the source view, this will always be the case. Hopefully this bug will be fixed in a later release.</p>
 
 <p>Minor issues aside, autocomplete is a great example of making things “just work”, which is one of my biggest goals with Gophish. I want to make it as easy as possible to use the software, and this change makes it easy to use all the power of template variables without the hassle of remembering them.</p>
 
