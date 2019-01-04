@@ -2344,3 +2344,9 @@ body:not(.post-template) .post-title {
     max-width: 100% !important;
     margin-bottom: 1.75em;
 }
+
+.twitter-tweet {
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 1.75em !important;
+}

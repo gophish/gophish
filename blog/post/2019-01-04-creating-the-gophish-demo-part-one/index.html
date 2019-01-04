@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+  
+    
+        <meta name="twitter:card" content="summary"/>
+    
+
+
+
+<meta name="twitter:title" content="Creating the Gophish Demo: Part One"/>
+<meta name="twitter:description" content=""/>
+<meta name="twitter:site" content="@"/>
+
+
+
+  <meta property="og:title" content="Creating the Gophish Demo: Part One &middot; Gophish - Blog" />
+  <meta property="og:site_name" content="Gophish - Blog" />
+  <meta property="og:url" content="https://getgophish.com/blog/post/2019-01-04-creating-the-gophish-demo-part-one/" />
+
+  
+  
+  
+
+  
+  <meta property="og:description" content="" />
+  <meta property="og:type" content="article" />
+  <meta property="article:published_time" content="2019-01-04T07:30:00-06:00" />
+
+  
+  
+
+  <title>Creating the Gophish Demo: Part One &middot; Gophish - Blog</title>
+
+  
+  <meta name="description" content="When I first talked about Gophish at BSides SATX nearly 3 years ago, I wanted to demonstrate how quick it was to get up and running. I asked the audience to tim" />
+  
+
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="shortcut icon" href="/blog/images/favicon.ico">
+  <link rel="apple-touch-icon" href="/blog/images/apple-touch-icon.png" />
+
+  <link rel="stylesheet" type="text/css" href="/blog/css/screen.css" />
+  <link rel="stylesheet" type="text/css" href="/blog/css/nav.css" />
+  <link href="https://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet">
+
+  
+
+  
+
+  
+  
+  <link href="/blog/index.xml" rel="alternate" type="application/rss+xml" title="Gophish - Blog" />
+  
+  
+  
+  <meta name="generator" content="Hugo 0.40.3" />
+
+  <link rel="canonical" href="https://getgophish.com/blog/post/2019-01-04-creating-the-gophish-demo-part-one/" />
+
+  
+  
+    
+    <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "publisher": {
+        "@type": "Organization",
+        "name": ,
+        "logo": https://getgophish.com/blogimages/gophish_purple_logo.png
+    },
+    "author": {
+        "@type": "Person",
+        "name": ,
+        
+        "image": {
+            "@type": "ImageObject",
+            "url": https://getgophish.com/blogimages/gophish_purple_logo.png,
+            "width": 250,
+            "height": 250
+        }, 
+        
+        "url": ,
+        "sameAs": [
+            
+            
+             
+             
+             
+             
+             
+            
+        ]
+    },
+    "headline": Creating the Gophish Demo: Part One,
+    "name": Creating the Gophish Demo: Part One,
+    "wordCount": 992,
+    "timeRequired": "PT5M",
+    "inLanguage": {
+      "@type": "Language",
+      "alternateName": en
+    },
+    "url": https://getgophish.com/blog/post/2019-01-04-creating-the-gophish-demo-part-one/,
+    "datePublished": 2019-01-04T07:30Z,
+    "dateModified": 2019-01-04T07:30Z,
+    
+    
+    "description": ,
+    "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": https://getgophish.com/blog/post/2019-01-04-creating-the-gophish-demo-part-one/
+    }
+}
+    </script>
+    
+
+
+  
+
+  
+  <script>
+    (function (i, s, o, g, r, a, m) {
+      i['GoogleAnalyticsObject'] = r;
+      i[r] = i[r] || function () {
+        (i[r].q = i[r].q || []).push(arguments)
+      }, i[r].l = 1 * new Date();
+      a = s.createElement(o),
+        m = s.getElementsByTagName(o)[0];
+      a.async = 1;
+      a.src = g;
+      m.parentNode.insertBefore(a, m)
+    })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+    ga('create', 'UA-47018345-1', 'auto');
+    ga('send', 'pageview');
+  </script>
+  
+
+  
+</head>
+
+<body class="nav-closed">
+
+  <div class="nav">
+    <h3 class="nav-title">Menu</h3>
+    <a href="#" class="nav-close">
+        <span class="hidden">Close</span>
+    </a>
+    <ul>
+        
+        
+        
+            
+            <li class="nav-opened" role="presentation">
+            	<a href="https://getgophish.com/">Home</a>
+            </li>
+        
+            
+            <li class="nav-opened" role="presentation">
+            	<a href="https://getgophish.com/documentation">Documentation</a>
+            </li>
+        
+            
+            <li class="nav-opened" role="presentation">
+            	<a href="https://github.com/gophish/gophish/issues">Support</a>
+            </li>
+        
+            
+            <li class="nav-opened" role="presentation">
+            	<a href="/blog/blog">Blog</a>
+            </li>
+        
+        
+    </ul>
+
+    
+    <a class="subscribe-button icon-feed" href="/blog/index.xml">Subscribe</a>
+    
+</div>
+<span class="nav-cover"></span>
+
+
+  <div class="site-wrapper">
+
+
+<header class="main-header post-head no-cover">
+  <nav class="main-nav clearfix">
+
+
+  
+      <a class="blog-logo" href="https://getgophish.com/blog"><img src="/blog/images/gophish_purple_logo.png" alt="Home" /></a>
+  
+  
+      <a class="menu-button" href="#"><span class="burger">&#9776;</span><span class="word">Menu</span></a>
+  
+  </nav>
+</header>
+
+
+
+<main class="content" role="main">
+
+
+
+
+  <article class="post post">
+
+    <header class="post-header">
+        <h1 class="post-title">Creating the Gophish Demo: Part One</h1>
+        <small></small>
+
+        <section class="post-meta">
+        
+          <time class="post-date" datetime="2019-01-04T07:30:00-06:00">
+            Jan 4, 2019
+          </time>
+        
+         
+        </section>
+    </header>
+
+    <section class="post-content">
+      
+
+<p>When I first talked about Gophish at BSides SATX nearly 3 years ago, I wanted to demonstrate how quick it was to get up and running. I asked the audience to time me as I did a live installation on a fresh server, which took exactly 30 seconds.</p>
+
+<p>Not bad.</p>
+
+<p>I’ve always wanted Gophish to be easy and quick to install. It’s an example of building <strong>empathy</strong> into security tools, since the people using Gophish likely don’t have time to work through a long installation process. In fact, this is why I wrote it in Go! The ability to just download and run a binary was a game changer compared to previous phishing frameworks.</p>
+
+<p>But sometimes people want to play around with Gophish without the time commitment it takes to set up and launch a test campaign. This is why I’ve wanted to create the ability for people to download and run a demo instance of Gophish with generated fake data. And, like normal installation, I wanted this to be easy. Specifically, I wanted to make it possible with a single command that could fit in a tweet.</p>
+
+<p>I’m happy to announce that it finally happened.
+<!--more --></p>
+
+<blockquote class="twitter-tweet"><p lang="en" dir="ltr">Want to play with Gophish? Now you can create a demo instance with a fake campaign already set up - all with just a single command 🔥:<br><br>docker run -ti -p 3333:3333 --rm gophish/demo<br><br>Enjoy! <a href="https://t.co/1OMzrEcSSe">pic.twitter.com/1OMzrEcSSe</a></p>&mdash; Jordan Wright (@jw_sec) <a href="https://twitter.com/jw_sec/status/1079928489812414464?ref_src=twsrc%5Etfw">January 1, 2019</a></blockquote>
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+
+<p>These next two posts dive into how I created this demo, which you can find <a href="https://github.com/gophish/demo">on Github.</a> This post focuses on how I wrote a script to generate a live (but fake) campaign. In the next part, I’ll detail how I leveraged Docker to make the demo work in a single command.</p>
+
+<h3 id="generating-the-data">Generating the Data</h3>
+
+<p>The Gophish demo started as a script I wrote to load fake data into a Gophish installation. This helped me reproduce various issues that were reported via Github.</p>
+
+<p>This script used the <a href="https://github.com/gophish/api-client-python">Gophish Python API client</a> to interact with the Gophish API. To start, I needed to create groups, an email template, a landing page, and a sending profile.</p>
+
+<p>A key challenge when creating the demo is that I wanted the data to appear realistic.  To do this, I relied on the Python <code>faker</code> library to generate users and the devices used to generate fake events.</p>
+
+<p>The <code>faker</code> library creates fake data using a number of <em><a href="https://faker.readthedocs.io/en/master/providers.html">providers</a></em>, with each provider knowing how to generate a certain kind of data. For example, the <a href="https://faker.readthedocs.io/en/master/providers/faker.providers.profile.html"><code>profile</code></a> provider generates data for a fake online profile, including a name, email address, username, and more.</p>
+
+<p>To use <code>faker</code>, we first created an instance of the <code>faker.Faker</code> generator which makes it easy to access various providers:</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#2838b0">from</span> <span style="color:#289870">faker</span> <span style="color:#2838b0">import</span> Faker
+fake <span style="color:#666">=</span> Faker<span style="color:#888">()</span></code></pre></div>
+<p>We could then generate fake data. For example, here’s how we’re creating users in a group:</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">targets <span style="color:#666">=</span> <span style="color:#888">[]</span>
+<span style="color:#2838b0">for</span> i <span style="color:#a848a8">in</span> <span style="color:#388038">range</span><span style="color:#888">(</span><span style="color:#444">0</span><span style="color:#888">,</span> num_members<span style="color:#888">):</span>
+    first_name <span style="color:#666">=</span> fake<span style="color:#666">.</span>first_name<span style="color:#888">()</span>
+    last_name <span style="color:#666">=</span> fake<span style="color:#666">.</span>last_name<span style="color:#888">()</span>
+    email <span style="color:#666">=</span> <span style="color:#b83838">&#39;{}.{}@example.com&#39;</span><span style="color:#666">.</span>format<span style="color:#888">(</span>first_name<span style="color:#888">,</span> last_name<span style="color:#888">)</span>
+    targets<span style="color:#666">.</span>append<span style="color:#888">(</span>
+        User<span style="color:#888">(</span>first_name<span style="color:#666">=</span>first_name<span style="color:#888">,</span> last_name<span style="color:#666">=</span>last_name<span style="color:#888">,</span> email<span style="color:#666">=</span>email<span style="color:#888">))</span>
+group <span style="color:#666">=</span> Group<span style="color:#888">(</span>name<span style="color:#666">=</span><span style="color:#b83838">&#39;Test Group&#39;</span><span style="color:#888">,</span> targets<span style="color:#666">=</span>targets<span style="color:#888">)</span>
+group <span style="color:#666">=</span> api<span style="color:#666">.</span>groups<span style="color:#666">.</span>post<span style="color:#888">(</span>group<span style="color:#888">)</span></code></pre></div>
+<blockquote>
+<p><strong>Note</strong>: I created the email manually since the <code>profile</code> generator creates a random email that isn’t related at all to the user’s name.</p>
+</blockquote>
+
+<h3 id="sending-campaign-emails">Sending Campaign Emails</h3>
+
+<p>A requirement I had for the demo was that it needed to actually send the campaign emails. Well, <em>sort of</em>. I really just wanted to stay away from mocking Gophish events through something like manually creating database entries, since that:</p>
+
+<ul>
+<li>Creates more work</li>
+<li>Can result in an inaccurate experience using the demo</li>
+</ul>
+
+<p>So I want to send emails but I don’t want to <em>actually</em> send emails. To do this, I wanted to stand up a local SMTP server that acted as a black hole. From Gophish’s perspective, emails were sent successfully when in reality they were just discarded.</p>
+
+<p>To do this, I relied on the <a href="https://aiosmtpd.readthedocs.io/en/latest/"><code>aiosmtpd</code></a> Python library. The library works by creating a <code>Controller</code> which knows how to handle SMTP connections via a handler. For our use case, we can rely on the built-in <code>Sink</code> handler. From <a href="https://aiosmtpd.readthedocs.io/en/latest/aiosmtpd/docs/handlers.html#built-in-handlers">the docs</a>:</p>
+
+<blockquote>
+<p><code>Sink</code> - this class just consumes and discards messages. It’s essentially the “no op” handler.</p>
+</blockquote>
+
+<p>Here’s an example showing how to create and start the local SMTP server:</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#2838b0">from</span> <span style="color:#289870">aiosmtpd.handlers</span> <span style="color:#2838b0">import</span> Sink
+<span style="color:#2838b0">from</span> <span style="color:#289870">aiosmtpd.controller</span> <span style="color:#2838b0">import</span> Controller
+
+smtp <span style="color:#666">=</span> Controller<span style="color:#888">(</span>Sink<span style="color:#888">(),</span> hostname<span style="color:#666">=</span><span style="color:#b83838">&#39;127.0.0.1&#39;</span><span style="color:#888">)</span>
+smtp<span style="color:#666">.</span>start<span style="color:#888">()</span></code></pre></div>
+<p>I can then create the sending profile in Gophish using the <code>smtp.hostname</code> and <code>smtp.port</code>.</p>
+
+<p>With all the dependencies created, the campaign launched, and the emails sent, it’s time to generate some fake events.</p>
+
+<h3 id="generating-fake-events">Generating Fake Events</h3>
+
+<p>Gophish tracks campaign events by generating a unique ID for every recipient, called the <code>rid</code>. To generate fake events, I used the API to gather the created <code>rid</code>s, making a series of HTTP requests to simulate emails being opened, links being clicked, data being submitted, and emails being reported.</p>
+
+<p>I also wanted a way to show off the device details section of the campaign results that we recently added:</p>
+
+<img src="/blog/images/gophish_demo_device.png" alt="" class="pure-img" >
+
+<p>To do this, I again relied on the <code>faker</code> library, using a call to <code>faker.user_agent()</code> to get a fake user agent:</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#666">&gt;&gt;&gt;</span> fake<span style="color:#666">.</span>user_agent<span style="color:#888">()</span>
+<span style="color:#b83838">&#39;Mozilla/5.0 (X11; Linux i686) AppleWebKit/5321 (KHTML, like Gecko) Chrome/19.0.898.0 Safari/5321&#39;</span></code></pre></div>
+<p>Finally, I wanted the data being submitted to appear reasonably realistic. This gave one last opportunity to use <code>faker</code> to generate possible passwords to submit to Gophish:</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#666">&gt;&gt;&gt;</span> fake<span style="color:#666">.</span>password<span style="color:#888">()</span>
+<span style="color:#b83838">&#39;+Yjt4*fd39&#39;</span>
+<span style="color:#666">&gt;&gt;&gt;</span> fake<span style="color:#666">.</span>password<span style="color:#888">()</span>
+<span style="color:#b83838">&#39;D*b1!NdJ&amp;T&#39;</span></code></pre></div>
+<img src="/blog/images/gophish_demo_credentials.png" alt="" class="pure-img" >
+
+<h3 id="enjoy">Enjoy!</h3>
+
+<p>With this demo, like with Gophish itself, it’s important to me to do the little things right, even if it’s sometimes tricky to do so. That said, I’m really excited about this first pass at the demo, since it gives people the opportunity to explore the features Gophish has to offer without having to launch an entire campaign.</p>
+
+<p>In the next post, I’ll talk about how I was able to turn this campaign generation script into a full-blown demo that can be run in a single command. As always, please don’t hesitate to file issues for the demo <a href="https://github.com/gophish/demo">on Github</a> and, in the meantime, enjoy using Gophish!</p>
+
+    </section>
+
+
+  <footer class="post-footer">
+
+
+    
+
+
+
+
+
+
+
+
+<figure class="author-image">
+    <a class="img" href="https://getgophish.com/blog" style="background-image: url(/blog/images/jordan-wright.jpg)"><span class="hidden">Jordan Wright's Picture</span></a>
+</figure>
+
+
+<section class="author">
+  <h4><a href="https://getgophish.com/blog">Jordan Wright</a></h4>
+  
+  <p>Read <a href="https://getgophish.com/blog">more posts</a> by this author.</p>
+  
+  <div class="author-meta">
+    
+    
+  </div>
+</section>
+
+
+
+
+    
+<section class="share">
+    <h4>Share this post</h4>
+    <a class="icon-twitter" style="font-size: 1.4em" href="https://twitter.com/share?text=Creating%20the%20Gophish%20Demo%3a%20Part%20One&nbsp;-&nbsp;Gophish%20-%20Blog&amp;url=https%3a%2f%2fgetgophish.com%2fblog%2fpost%2f2019-01-04-creating-the-gophish-demo-part-one%2f"
+        onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+        <span class="hidden">Twitter</span>
+    </a>
+    <a class="icon-facebook" style="font-size: 1.4em" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fgetgophish.com%2fblog%2fpost%2f2019-01-04-creating-the-gophish-demo-part-one%2f"
+        onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+        <span class="hidden">Facebook</span>
+    </a>
+    <a class="icon-google-plus" style="font-size: 1.4em" href="https://plus.google.com/share?url=https%3a%2f%2fgetgophish.com%2fblog%2fpost%2f2019-01-04-creating-the-gophish-demo-part-one%2f"
+        onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+        <span class="hidden">Google+</span>
+    </a>
+</section>
+
+
+    
+
+
+
+
+
+
+
+  </footer>
+</article>
+
+</main>
+
+
+  <aside class="read-next">
+  
+  
+      <a class="read-next-story prev" style="no-cover" href="/blog/post/2019-01-02-adding-autocomplete-to-gophish/">
+          <section class="post">
+              <h2>Adding Autocomplete to Gophish</h2>
+          </section>
+      </a>
+  
+</aside>
+
+
+
+<footer class="site-footer clearfix">
+    
+    <section class="poweredby">Proudly generated by <a class="icon-hugo" href="http://gohugo.io">HUGO</a>, with <a
+            class="icon-theme" href="https://github.com/vjeantet/hugo-theme-casper">Casper</a> theme</section>
+    
+</footer>
+</div>
+<script type="text/javascript" src="/blog/js/jquery.js"></script>
+<script type="text/javascript" src="/blog/js/jquery.fitvids.js"></script>
+<script type="text/javascript" src="/blog/js/index.js"></script>
+
+</body>
+
+</html>
