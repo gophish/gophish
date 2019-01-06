@@ -165,6 +165,7 @@ function edit(idx) {
         this.value = null
     })
     $("#html_editor").ckeditor()
+    setupAutocomplete(CKEDITOR.instances["html_editor"])
     $("#attachmentsTable").show()
     attachmentsTable = $('#attachmentsTable').DataTable({
         destroy: true,
@@ -388,6 +389,21 @@ $(document).ready(function () {
     $("#importEmailModal").on('hidden.bs.modal', function (event) {
         $("#email_content").val("")
     })
+    CKEDITOR.on('dialogDefinition', function (ev) {
+        // Take the dialog name and its definition from the event data.
+        var dialogName = ev.data.name;
+        var dialogDefinition = ev.data.definition;
+
+        // Check if the definition is from the dialog window you are interested in (the "Link" dialog window).
+        if (dialogName == 'link') {
+            dialogDefinition.minWidth = 500
+            dialogDefinition.minHeight = 100
+
+            // Remove the linkType field
+            var infoTab = dialogDefinition.getContents('info');
+            infoTab.get('linkType').hidden = true;
+        }
+    });
     load()
 
 })
