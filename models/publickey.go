@@ -39,7 +39,7 @@ func (p *PublicKey) Validate() error {
 		return ErrPublicKeyNotSpecified
 	}
 
-	_, err := DecodePEMBlock(p.PubKey)
+	_, err := DecodePublicKeyPEMBlock(p.PubKey)
 
 	return err
 }
@@ -154,7 +154,7 @@ func Encrypt(data []byte, public_key_id, uid int64) (string, string, error) {
 		return "", "", err
 	}
 
-	pubKey, err := DecodePEMBlock(publcKeyStructure.PubKey)
+	pubKey, err := DecodePublicKeyPEMBlock(publcKeyStructure.PubKey)
 	if err != nil {
 		return "", "", err
 	}
@@ -167,7 +167,38 @@ func Encrypt(data []byte, public_key_id, uid int64) (string, string, error) {
 	return base64.StdEncoding.EncodeToString(keyCipherText), base64.StdEncoding.EncodeToString(blockCiphertext), err
 }
 
-func DecodePEMBlock(pemBlock string) (pubkey *rsa.PublicKey, err error) {
+func Decrypt(privKey *rsa.PrivateKey, key string, ciphertext string) (string, error) {
+
+	encryptedSymmetricKey, err := base64.StdEncoding.DecodeString(key)
+	if err != nil {
+		return "", err
+	}
+
+	symmetricKey, err := rsa.DecryptOAEP(sha256.New(), rand.Reader, privKey, encryptedSymmetricKey, []byte("key"))
+	if err != nil {
+		return "", err
+	}
+
+	IVandEventCipherText, err := base64.StdEncoding.DecodeString(ciphertext)
+	if err != nil {
+		return "", err
+	}
+
+	iv := IVandEventCipherText[:aes.BlockSize]
+	cipherText := IVandEventCipherText[aes.BlockSize:]
+
+	blockCipher, err := aes.NewCipher(symmetricKey)
+	if err != nil {
+		return "", err
+	}
+
+	streamCipher := cipher.NewCFBDecrypter(blockCipher, iv)
+	streamCipher.XORKeyStream(cipherText, cipherText)
+
+	return string(cipherText), nil
+}
+
+func DecodePublicKeyPEMBlock(pemBlock string) (pubkey *rsa.PublicKey, err error) {
 	block, _ := pem.Decode([]byte(pemBlock))
 	if block == nil || block.Type != "PUBLIC KEY" {
 		return nil, errors.New("Block was not public key")
@@ -184,5 +215,18 @@ func DecodePEMBlock(pemBlock string) (pubkey *rsa.PublicKey, err error) {
 	default:
 		return nil, errors.New("Not RSA public key")
 	}
+}
 
+func DecodePrivateKeyPEMBlock(pemBlock string) (privkey *rsa.PrivateKey, err error) {
+	block, _ := pem.Decode([]byte(pemBlock))
+	if block == nil || block.Type != "RSA PRIVATE KEY" {
+		return nil, errors.New("Block was not private key")
+	}
+
+	priv, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	return priv, nil
 }

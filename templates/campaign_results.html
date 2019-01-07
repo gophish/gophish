@@ -60,7 +60,7 @@
                         <a href="#" onclick="exportAsCSV('results')">Results</a>
                     </li>
                     <li>
-                        <a href="#" onclick="exportAsCSV('events')">Raw Events</a>
+                        <a href="#" onclick="checkForNecessaryDecrypt()">Raw Events</a>
                     </li>
                 </ul>
             </div>
@@ -124,6 +124,35 @@
     </div>
     <div id="flashes" class="row"></div>
 </div>
+<!-- Private key entry modal -->
+<div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <!-- New Template Modal -->
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="dismiss()"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="templateModalLabel">Campaign Private Key</h4>
+            </div>
+			<form>
+	            <div class="modal-body">
+	                <div class="row" id="modal.flashes"></div>
+					  <div class="checkbox checkbox-primary">
+              			  <input id="decrypt_results" type="checkbox">
+                		  <label class="control-label" for="decrypt_results">Decrypt before downloading?</label>
+           			 </div>
+					 <div id="privateKeyArea">
+				    	<textarea rows="10" id="private_key" class="gophish-editor form-control" placeholder="Private key (RSA PEM)" autofocus></textarea>
+					</div>
+	            </div>
+	            <div class="modal-footer">
+					<button type="button" class="btn btn-primary" onclick="getDecryptedEvents()">Download</button>
+	                <button type="button" data-dismiss="modal" class="btn btn-danger">Cancel</button>
+	            </div>
+			</form>
+        </div>
+    </div>
+</div>
 {{end}} {{define "scripts"}}
-<script src="/js/dist/app/campaign_results.min.js"></script>
+<script src="/js/src/dist/campaign_results.min.js"></script>
 {{end}}

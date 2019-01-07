@@ -76,6 +76,10 @@ var api = {
         results: function (id) {
             return query("/campaigns/" + id + "/results", "GET", {}, true)
         },
+		// decrypted_results() - Posts to the API a private key which the server can then decrypt results with before returning them
+		decrypted_results: function(id, args) {
+			 return query("/campaigns/" + id + "/results", "POST", args, true)
+		},
         // complete() - Completes a campaign at POST /campaigns/:id/complete
         complete: function (id) {
             return query("/campaigns/" + id + "/complete", "GET", {}, true)
