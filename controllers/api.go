@@ -140,7 +140,6 @@ func (as *AdminServer) APICampaignResults(w http.ResponseWriter, r *http.Request
 			JSONResponse(w, models.Response{Success: false, Message: "Invalid JSON structure"}, http.StatusBadRequest)
 			return
 		}
-		log.Info("PrivKey: \"", priv.PrivateKey, "\"")
 		privateKey, err := models.DecodePrivateKeyPEMBlock(priv.PrivateKey)
 		if err != nil {
 			log.Error(err)
@@ -157,7 +156,7 @@ func (as *AdminServer) APICampaignResults(w http.ResponseWriter, r *http.Request
 				cr.Events[i].Details, err = models.Decrypt(privateKey, k, c)
 				if err != nil {
 					JSONResponse(w, models.Response{Success: false, Message: "Failed to decrypt detaill. Possibly key provided was incorrect."}, http.StatusBadRequest)
-					break
+					return
 				}
 			}
 		}
