@@ -3,6 +3,11 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>https://getgophish.com/blog/post/2019-01-06-gophish-in-2019/</loc>
+    <lastmod>2019-01-06T21:00:00-06:00</lastmod>
+  </url>
+  
+  <url>
     <loc>https://getgophish.com/blog/post/2019-01-04-creating-the-gophish-demo-part-one/</loc>
     <lastmod>2019-01-04T07:30:00-06:00</lastmod>
   </url>
@@ -57,13 +62,13 @@
   
   <url>
     <loc>https://getgophish.com/blog/</loc>
-    <lastmod>2019-01-04T07:30:00-06:00</lastmod>
+    <lastmod>2019-01-06T21:00:00-06:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>https://getgophish.com/blog/post/</loc>
-    <lastmod>2019-01-04T07:30:00-06:00</lastmod>
+    <lastmod>2019-01-06T21:00:00-06:00</lastmod>
     <priority>0</priority>
   </url>
   

@@ -6,10 +6,21 @@
     <description>Recent content in Posts on Gophish - Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 04 Jan 2019 07:30:00 -0600</lastBuildDate>
+    <lastBuildDate>Sun, 06 Jan 2019 21:00:00 -0600</lastBuildDate>
     
 	<atom:link href="https://getgophish.com/blog/post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Where Gophish is Going in 2019</title>
+      <link>https://getgophish.com/blog/post/2019-01-06-gophish-in-2019/</link>
+      <pubDate>Sun, 06 Jan 2019 21:00:00 -0600</pubDate>
+      
+      <guid>https://getgophish.com/blog/post/2019-01-06-gophish-in-2019/</guid>
+      <description>When people ask me what my long-term plans are for Gophish, I’ve historically pointed them to the Github issues, saying that I usually work out of what’s there. It’s not a great answer, I know.
+This year, I wanted to try something different. I have big plans for Gophish in 2019, and I’m excited to share some of them here.
+Refactoring the Frontend When I started making Gophish, there really weren’t many mature Javascript frameworks around.</description>
+    </item>
     
     <item>
       <title>Creating the Gophish Demo: Part One</title>
