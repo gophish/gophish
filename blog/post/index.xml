@@ -6,10 +6,20 @@
     <description>Recent content in Posts on Gophish - Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 06 Jan 2019 21:00:00 -0600</lastBuildDate>
+    <lastBuildDate>Fri, 11 Jan 2019 07:00:00 -0600</lastBuildDate>
     
 	<atom:link href="https://getgophish.com/blog/post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Creating the Gophish Demo: Part Two</title>
+      <link>https://getgophish.com/blog/post/2019-01-11-creating-the-gophish-demo-part-two/</link>
+      <pubDate>Fri, 11 Jan 2019 07:00:00 -0600</pubDate>
+      
+      <guid>https://getgophish.com/blog/post/2019-01-11-creating-the-gophish-demo-part-two/</guid>
+      <description>In the previous post, I showed how I created a script to generate a realistic but fake campaign within Gophish. This is a great start to a demo, but still put the burden on the user to download and install Gophish first. Then, they’d have to delete everything manually if they wanted to remove the fake campaign.
+My goal for the demo was to have everything self-contained. I wanted Gophish itself to be downloaded and run automatically.</description>
+    </item>
     
     <item>
       <title>Where Gophish is Going in 2019</title>

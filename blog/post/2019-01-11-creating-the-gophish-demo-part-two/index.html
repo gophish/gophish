@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+  
+    
+        <meta name="twitter:card" content="summary"/>
+    
+
+
+
+<meta name="twitter:title" content="Creating the Gophish Demo: Part Two"/>
+<meta name="twitter:description" content=""/>
+<meta name="twitter:site" content="@"/>
+
+
+
+  <meta property="og:title" content="Creating the Gophish Demo: Part Two &middot; Gophish - Blog" />
+  <meta property="og:site_name" content="Gophish - Blog" />
+  <meta property="og:url" content="https://getgophish.com/blog/post/2019-01-11-creating-the-gophish-demo-part-two/" />
+
+  
+  
+  
+
+  
+  <meta property="og:description" content="" />
+  <meta property="og:type" content="article" />
+  <meta property="article:published_time" content="2019-01-11T07:00:00-06:00" />
+
+  
+  
+
+  <title>Creating the Gophish Demo: Part Two &middot; Gophish - Blog</title>
+
+  
+  <meta name="description" content="In the previous post, I showed how I created a script to generate a realistic but fake campaign within Gophish. This is a great start to a demo, but still put t" />
+  
+
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="shortcut icon" href="/blog/images/favicon.ico">
+  <link rel="apple-touch-icon" href="/blog/images/apple-touch-icon.png" />
+
+  <link rel="stylesheet" type="text/css" href="/blog/css/screen.css" />
+  <link rel="stylesheet" type="text/css" href="/blog/css/nav.css" />
+  <link href="https://fonts.googleapis.com/css?family=Lora:400,700" rel="stylesheet">
+
+  
+
+  
+
+  
+  
+  <link href="/blog/index.xml" rel="alternate" type="application/rss+xml" title="Gophish - Blog" />
+  
+  
+  
+  <meta name="generator" content="Hugo 0.40.3" />
+
+  <link rel="canonical" href="https://getgophish.com/blog/post/2019-01-11-creating-the-gophish-demo-part-two/" />
+
+  
+  
+    
+    <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "publisher": {
+        "@type": "Organization",
+        "name": ,
+        "logo": https://getgophish.com/blogimages/gophish_purple_logo.png
+    },
+    "author": {
+        "@type": "Person",
+        "name": ,
+        
+        "image": {
+            "@type": "ImageObject",
+            "url": https://getgophish.com/blogimages/gophish_purple_logo.png,
+            "width": 250,
+            "height": 250
+        }, 
+        
+        "url": ,
+        "sameAs": [
+            
+            
+             
+             
+             
+             
+             
+            
+        ]
+    },
+    "headline": Creating the Gophish Demo: Part Two,
+    "name": Creating the Gophish Demo: Part Two,
+    "wordCount": 790,
+    "timeRequired": "PT4M",
+    "inLanguage": {
+      "@type": "Language",
+      "alternateName": en
+    },
+    "url": https://getgophish.com/blog/post/2019-01-11-creating-the-gophish-demo-part-two/,
+    "datePublished": 2019-01-11T07:00Z,
+    "dateModified": 2019-01-11T07:00Z,
+    
+    
+    "description": ,
+    "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": https://getgophish.com/blog/post/2019-01-11-creating-the-gophish-demo-part-two/
+    }
+}
+    </script>
+    
+
+
+  
+
+  
+  <script>
+    (function (i, s, o, g, r, a, m) {
+      i['GoogleAnalyticsObject'] = r;
+      i[r] = i[r] || function () {
+        (i[r].q = i[r].q || []).push(arguments)
+      }, i[r].l = 1 * new Date();
+      a = s.createElement(o),
+        m = s.getElementsByTagName(o)[0];
+      a.async = 1;
+      a.src = g;
+      m.parentNode.insertBefore(a, m)
+    })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+    ga('create', 'UA-47018345-1', 'auto');
+    ga('send', 'pageview');
+  </script>
+  
+
+  
+</head>
+
+<body class="nav-closed">
+
+  <div class="nav">
+    <h3 class="nav-title">Menu</h3>
+    <a href="#" class="nav-close">
+        <span class="hidden">Close</span>
+    </a>
+    <ul>
+        
+        
+        
+            
+            <li class="nav-opened" role="presentation">
+            	<a href="https://getgophish.com/">Home</a>
+            </li>
+        
+            
+            <li class="nav-opened" role="presentation">
+            	<a href="https://getgophish.com/documentation">Documentation</a>
+            </li>
+        
+            
+            <li class="nav-opened" role="presentation">
+            	<a href="https://github.com/gophish/gophish/issues">Support</a>
+            </li>
+        
+            
+            <li class="nav-opened" role="presentation">
+            	<a href="/blog/blog">Blog</a>
+            </li>
+        
+        
+    </ul>
+
+    
+    <a class="subscribe-button icon-feed" href="/blog/index.xml">Subscribe</a>
+    
+</div>
+<span class="nav-cover"></span>
+
+
+  <div class="site-wrapper">
+
+
+<header class="main-header post-head no-cover">
+  <nav class="main-nav clearfix">
+
+
+  
+      <a class="blog-logo" href="https://getgophish.com/blog"><img src="/blog/images/gophish_purple_logo.png" alt="Home" /></a>
+  
+  
+      <a class="menu-button" href="#"><span class="burger">&#9776;</span><span class="word">Menu</span></a>
+  
+  </nav>
+</header>
+
+
+
+<main class="content" role="main">
+
+
+
+
+  <article class="post post">
+
+    <header class="post-header">
+        <h1 class="post-title">Creating the Gophish Demo: Part Two</h1>
+        <small></small>
+
+        <section class="post-meta">
+        
+          <time class="post-date" datetime="2019-01-11T07:00:00-06:00">
+            Jan 11, 2019
+          </time>
+        
+         
+        </section>
+    </header>
+
+    <section class="post-content">
+      
+
+<p>In the <a href="https://getgophish.com/blog/post/2019-01-04-creating-the-gophish-demo-part-one/">previous post</a>, I showed how I created a script to generate a realistic but fake campaign within Gophish. This is a great start to a demo, but still put the burden on the user to download and install Gophish first. Then, they’d have to delete everything manually if they wanted to remove the fake campaign.</p>
+
+<p>My goal for the demo was to have everything self-contained. I wanted Gophish itself to be downloaded and run automatically. I wanted the script to execute, adding a fake campaign without any work from the user. I wanted everything to be cleaned up when the user was done with the demo.</p>
+
+<p>Oh, and I wanted it all to happen in a single command.</p>
+
+<p>This post talks about how I managed to get everything working seamlessly in a single <code>docker run</code> command that could fit in a tweet:</p>
+
+<blockquote class="twitter-tweet"><p lang="en" dir="ltr">Want to play with Gophish? Now you can create a demo instance with a fake campaign already set up - all with just a single command 🔥:<br><br>docker run -ti -p 3333:3333 --rm gophish/demo<br><br>Enjoy! <a href="https://t.co/1OMzrEcSSe">pic.twitter.com/1OMzrEcSSe</a></p>&mdash; Jordan Wright (@jw_sec) <a href="https://twitter.com/jw_sec/status/1079928489812414464?ref_src=twsrc%5Etfw">January 1, 2019</a></blockquote>
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+
+<h3 id="building-the-container">Building the Container</h3>
+
+<p>I opted to use Docker for the demo, largely because it lets me abstract away all the hard work of setting up the demo into a container image.</p>
+
+<p>Since I wanted everything to fit in a single command, I couldn’t use something like <code>docker-compose</code>. Instead, I needed to get everything working together in a single container, which posed a few challenges.</p>
+
+<p>Here’s the high-level steps I needed to do to make the demo work:</p>
+
+<ul>
+<li>Download and launch Gophish</li>
+<li>Get the API key that’s generated when the database is created</li>
+<li>Launch the <code>create_demo.py</code> script with the retrieved API key</li>
+</ul>
+
+<p>Here’s a flow chart showing what this process looks like:</p>
+
+<p><img src="/blog/images/gophish_demo_flow.png" alt="" /></p>
+
+<p>This made things a bit more difficult, since Docker encourages you to keep containers limited to a single process or application. This is gently enforced by only exposing a single entrypoint in an image.</p>
+
+<p>To make this work, I first wrapped the demo script in a separate bash script to help set things up. I then used <code>supervisord</code> to launch Gophish and the demo script as services so that they could both run in the same container.</p>
+
+<p>Both of these had their own challenges, so it’s worth covering each in a bit more detail.</p>
+
+<h3 id="wrapping-the-demo-script">Wrapping the Demo Script</h3>
+
+<p>The <code>create_demo.py</code> script assumes Gophish is already running, and requires a valid API key to interact with the Gophish API. This presented a challenge, since I knew there wasn’t a guarantee that Gophish would be ready by the time <code>create_demo.py</code> was launched.</p>
+
+<p>To solve this, I wrapped the script in a bash script that first waited for the <code>gophish.db</code> file to exist, indicating that Gophish was running:</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#b04040">DATABASE</span><span style="color:#666">=</span>/usr/src/gophish/gophish.db
+
+<span style="color:#888;font-style:italic"># Wait for the gophish.db file to exist
+</span><span style="color:#888;font-style:italic"></span><span style="color:#2838b0">until</span> <span style="color:#666">[</span> -f <span style="color:#b04040">$DATABASE</span> <span style="color:#666">]</span><span style="color:#888">;</span> <span style="color:#2838b0">do</span>
+  &gt;<span style="color:#888">&amp;</span><span style="color:#444">2</span> <span style="color:#388038">echo</span> <span style="color:#b83838">&#34;Waiting for database&#34;</span>
+  sleep <span style="color:#444">1</span>
+<span style="color:#2838b0">done</span></code></pre></div>
+<p>Once the database was created, I used the same technique to wait for the API key to be generated and added. I could the  grab the API key using a simple SQL command:</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#888;font-style:italic"># Get the API key
+</span><span style="color:#888;font-style:italic"></span><span style="color:#388038">export</span> <span style="color:#b04040">API_KEY</span><span style="color:#666">=</span><span style="color:#2838b0">$(</span>sqlite3 <span style="color:#b04040">$DATABASE</span> <span style="color:#b83838">&#39;select api_key from users limit 1&#39;</span><span style="color:#2838b0">)</span><span style="color:#888">;</span></code></pre></div>
+<p>Finally, I can run the demo!</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#888;font-style:italic"># Launch the demo
+</span><span style="color:#888;font-style:italic"></span>python create_demo.py --api-key<span style="color:#666">=</span><span style="color:#b04040">$API_KEY</span></code></pre></div>
+<p>With the details of how I wanted to execute <code>create_demo.py</code> out of the way, I needed to actually launch the script and Gophish. This is where Supervisord comes in.</p>
+
+<h3 id="setting-up-supervisord">Setting up Supervisord</h3>
+
+<p><a href="http://supervisord.org/">Supervisord</a> makes it easy to manage processes as if they were services. For example, it handles launching applications and restarting them if they crash.</p>
+
+<p>Supervisord is set up using a <a href="http://supervisord.org/configuration.html">configuration file</a> called <code>supervisord.conf</code>. The configuration is divided into sections, with a section for global configuration, as well as sections for each program you want to launch.</p>
+
+<p>In our case, I had two programs I wanted to launch: Gophish itself, and the demo script. For Gophish, I configured Supervisord to start the process automatically, and restart it if it were to crash for whatever reason:</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ini" data-lang="ini"><span style="color:#2838b0">[program:gophish]</span>
+<span style="color:#388038">command</span><span style="color:#666">=</span><span style="color:#b83838">/usr/src/gophish/gophish</span>
+<span style="color:#388038">directory</span><span style="color:#666">=</span><span style="color:#b83838">/usr/src/gophish/</span>
+<span style="color:#388038">autostart</span><span style="color:#666">=</span><span style="color:#b83838">true</span>
+<span style="color:#388038">autorestart</span><span style="color:#666">=</span><span style="color:#b83838">true</span></code></pre></div>
+<p>The demo script is similar, except I only wanted to run it once so I set the <code>autorestart</code> parameter to <code>false</code>. I also set up logging to <code>stdout</code> so that the logs could be viewed when <code>docker run</code> is executed:</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ini" data-lang="ini"><span style="color:#2838b0">[program:demo]</span>
+<span style="color:#388038">command</span><span style="color:#666">=</span><span style="color:#b83838">/usr/src/gophish-demo/run_demo.sh</span>
+<span style="color:#388038">directory</span><span style="color:#666">=</span><span style="color:#b83838">/usr/src/gophish-demo/</span>
+<span style="color:#388038">autostart</span><span style="color:#666">=</span><span style="color:#b83838">true</span>
+<span style="color:#388038">autorestart</span><span style="color:#666">=</span><span style="color:#b83838">false</span>
+<span style="color:#388038">stdout_logfile</span><span style="color:#666">=</span><span style="color:#b83838">/dev/stdout</span>
+<span style="color:#388038">stdout_logfile_maxbytes</span><span style="color:#666">=</span><span style="color:#b83838">0</span>
+<span style="color:#388038">stderr_logfile</span><span style="color:#666">=</span><span style="color:#b83838">/dev/stderr</span>
+<span style="color:#388038">stderr_logfile_maxbytes</span><span style="color:#666">=</span><span style="color:#b83838">0</span></code></pre></div>
+<h3 id="that-s-it">That’s it!</h3>
+
+<p>All that was left was to build the image using <code>docker build -t gophish/demo:latest</code> and push it to Docker Hub!</p>
+
+<p>While there were some hurdles to overcome, I’m really happy with how this demo turned out. I’m excited that more people will get to play around with all the powerful features Gophish has to offer- all with a single command.</p>
+
+<p>Enjoy!</p>
+
+    </section>
+
+
+  <footer class="post-footer">
+
+
+    
+
+
+
+
+
+
+
+
+<figure class="author-image">
+    <a class="img" href="https://getgophish.com/blog" style="background-image: url(/blog/images/jordan-wright.jpg)"><span class="hidden">Jordan Wright's Picture</span></a>
+</figure>
+
+
+<section class="author">
+  <h4><a href="https://getgophish.com/blog">Jordan Wright</a></h4>
+  
+  <p>Read <a href="https://getgophish.com/blog">more posts</a> by this author.</p>
+  
+  <div class="author-meta">
+    
+    
+  </div>
+</section>
+
+
+
+
+    
+<section class="share">
+    <h4>Share this post</h4>
+    <a class="icon-twitter" style="font-size: 1.4em" href="https://twitter.com/share?text=Creating%20the%20Gophish%20Demo%3a%20Part%20Two&nbsp;-&nbsp;Gophish%20-%20Blog&amp;url=https%3a%2f%2fgetgophish.com%2fblog%2fpost%2f2019-01-11-creating-the-gophish-demo-part-two%2f"
+        onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+        <span class="hidden">Twitter</span>
+    </a>
+    <a class="icon-facebook" style="font-size: 1.4em" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fgetgophish.com%2fblog%2fpost%2f2019-01-11-creating-the-gophish-demo-part-two%2f"
+        onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+        <span class="hidden">Facebook</span>
+    </a>
+    <a class="icon-google-plus" style="font-size: 1.4em" href="https://plus.google.com/share?url=https%3a%2f%2fgetgophish.com%2fblog%2fpost%2f2019-01-11-creating-the-gophish-demo-part-two%2f"
+        onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+        <span class="hidden">Google+</span>
+    </a>
+</section>
+
+
+    
+
+
+
+
+
+
+
+  </footer>
+</article>
+
+</main>
+
+
+  <aside class="read-next">
+  
+  
+      <a class="read-next-story prev" style="no-cover" href="/blog/post/2019-01-06-gophish-in-2019/">
+          <section class="post">
+              <h2>Where Gophish is Going in 2019</h2>
+          </section>
+      </a>
+  
+</aside>
+
+
+
+<footer class="site-footer clearfix">
+    
+    <section class="poweredby">Proudly generated by <a class="icon-hugo" href="http://gohugo.io">HUGO</a>, with <a
+            class="icon-theme" href="https://github.com/vjeantet/hugo-theme-casper">Casper</a> theme</section>
+    
+</footer>
+</div>
+<script type="text/javascript" src="/blog/js/jquery.js"></script>
+<script type="text/javascript" src="/blog/js/jquery.fitvids.js"></script>
+<script type="text/javascript" src="/blog/js/index.js"></script>
+
+</body>
+
+</html>
