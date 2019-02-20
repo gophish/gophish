@@ -121,7 +121,7 @@ func (ps *PhishingServer) registerRoutes() {
 
 	// Setup logging
 	phishHandler = handlers.CombinedLoggingHandler(log.Writer(), phishHandler)
-	ps.server.Handler = router
+	ps.server.Handler = phishHandler
 }
 
 // TrackHandler tracks emails as they are opened, updating the status for the given Result
