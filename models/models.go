@@ -111,10 +111,17 @@ func Setup(c *config.Config) error {
 	// Create the admin user if it doesn't exist
 	var userCount int64
 	db.Model(&User{}).Count(&userCount)
+	adminRole, err := GetRoleBySlug(RoleAdmin)
+	if err != nil {
+		log.Error(err)
+		return err
+	}
 	if userCount == 0 {
 		initUser := User{
 			Username: "admin",
 			Hash:     "$2a$10$IYkPp0.QsM81lYYPrQx6W.U6oQGw7wMpozrKhKAHUBVL4mkm/EvAS", //gophish
+			Role:     adminRole,
+			RoleID:   adminRole.ID,
 		}
 		initUser.ApiKey = generateSecureKey()
 		err = db.Save(&initUser).Error

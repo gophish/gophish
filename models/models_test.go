@@ -17,10 +17,16 @@ type ModelsSuite struct {
 var _ = check.Suite(&ModelsSuite{})
 
 func (s *ModelsSuite) SetUpSuite(c *check.C) {
+	/*
+		conf := &config.Config{
+			DBName:         "sqlite3",
+			DBPath:         ":memory:",
+			MigrationsPath: "../db/db_sqlite3/migrations/",
+		}*/
 	conf := &config.Config{
-		DBName:         "sqlite3",
-		DBPath:         ":memory:",
-		MigrationsPath: "../db/db_sqlite3/migrations/",
+		DBName:         "mysql",
+		DBPath:         "root:gophish@(:3306)/gophish?charset=utf8&parseTime=True&loc=UTC",
+		MigrationsPath: "../db/db_mysql/migrations/",
 	}
 	s.config = conf
 	err := Setup(conf)

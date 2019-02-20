@@ -16,7 +16,7 @@
     <link href='https://fonts.googleapis.com/css?family=Roboto:700,500' rel='stylesheet' type='text/css'>
     <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300,600,700' rel='stylesheet' type='text/css'>
     <script>
-    {{if .User}}
+        {{if .User}}
     var user = {
         api_key : {{ .User.ApiKey }},
         username : {{ .User.Username }}
@@ -62,7 +62,7 @@
                         <div class="btn-group" id="navbar-dropdown">
                             <a class="btn btn-primary" href="/settings"><i class="fa fa-user"></i> {{.User.Username}}</a>
                             <a class="btn btn-primary dropdown-toggle" href="/logout">
-                                    <i class="fa fa-sign-out"></i>
+                                <i class="fa fa-sign-out"></i>
                             </a>
                         </div>
                         {{else}}
@@ -75,6 +75,7 @@
             </div>
         </div>
     </div>
+    {{template "nav" .}}
     {{template "body" .}}
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="/js/dist/vendor.min.js"></script>

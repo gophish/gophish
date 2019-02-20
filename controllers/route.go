@@ -103,12 +103,13 @@ func (as *AdminServer) registerRoutes() {
 	router.HandleFunc("/users", Use(as.Users, mid.RequireLogin))
 	router.HandleFunc("/landing_pages", Use(as.LandingPages, mid.RequireLogin))
 	router.HandleFunc("/sending_profiles", Use(as.SendingProfiles, mid.RequireLogin))
-	router.HandleFunc("/register", Use(as.Register, mid.RequireLogin))
 	router.HandleFunc("/settings", Use(as.Settings, mid.RequireLogin))
+	router.HandleFunc("/register", Use(as.Register, mid.RequireLogin, mid.RequirePermission(models.PermissionModifySystem)))
 	// Create the API routes
 	api := router.PathPrefix("/api").Subrouter()
 	api = api.StrictSlash(true)
 	api.Use(mid.RequireAPIKey)
+	api.Use(mid.EnforceViewOnly)
 	api.HandleFunc("/reset", as.APIReset)
 	api.HandleFunc("/campaigns/", as.APICampaigns)
 	api.HandleFunc("/campaigns/summary", as.APICampaignsSummary)
@@ -160,20 +161,24 @@ func Use(handler http.HandlerFunc, mid ...func(http.Handler) http.HandlerFunc) h
 }
 
 type templateParams struct {
-	Title   string
-	Flashes []interface{}
-	User    models.User
-	Token   string
-	Version string
+	Title        string
+	Flashes      []interface{}
+	User         models.User
+	Token        string
+	Version      string
+	ModifySystem bool
 }
 
 // newTemplateParams returns the default template parameters for a user and
 // the CSRF token.
 func newTemplateParams(r *http.Request) templateParams {
+	user := ctx.Get(r, "user").(models.User)
+	modifySystem, _ := user.HasPermission(models.PermissionModifySystem)
 	return templateParams{
-		Token:   csrf.Token(r),
-		User:    ctx.Get(r, "user").(models.User),
-		Version: config.Version,
+		Token:        csrf.Token(r),
+		User:         user,
+		ModifySystem: modifySystem,
+		Version:      config.Version,
 	}
 }
 
@@ -354,7 +359,7 @@ func (as *AdminServer) Logout(w http.ResponseWriter, r *http.Request) {
 
 func getTemplate(w http.ResponseWriter, tmpl string) *template.Template {
 	templates := template.New("template")
-	_, err := templates.ParseFiles("templates/base.html", "templates/"+tmpl+".html", "templates/flashes.html")
+	_, err := templates.ParseFiles("templates/base.html", "templates/nav.html", "templates/"+tmpl+".html", "templates/flashes.html")
 	if err != nil {
 		log.Error(err)
 	}
