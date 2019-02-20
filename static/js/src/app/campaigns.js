@@ -354,13 +354,11 @@ $(document).ready(function () {
                         [1, "desc"]
                     ]
                 });
-                campaignTable = campaignTableOriginal
-                $.each(campaigns, function(i, campaign) {
-                if(campaign.status != "Completed") {
-			campaignTable = campaignTableOriginal
-		} else {
-			campaignTable = campaignTableArchive
-		}
+                $.each(campaigns, function (i, campaign) {
+                    campaignTable = campaignTableOriginal
+                    if (campaign.status === "Completed") {
+                        campaignTable = campaignTableArchive
+                    }
 
                     label = labels[campaign.status] || "label-default";
 
