@@ -334,7 +334,9 @@ $(document).ready(function () {
             $("#loading").hide()
             if (campaigns.length > 0) {
                 $("#campaignTable").show()
-                campaignTable = $("#campaignTable").DataTable({
+                $("#campaignTableArchive").show()
+
+                campaignTableOriginal = $("#campaignTable").DataTable({
                     columnDefs: [{
                         orderable: false,
                         targets: "no-sort"
@@ -343,7 +345,23 @@ $(document).ready(function () {
                         [1, "desc"]
                     ]
                 });
-                $.each(campaigns, function (i, campaign) {
+                campaignTableArchive = $("#campaignTableArchive").DataTable({
+                    columnDefs: [{
+                        orderable: false,
+                        targets: "no-sort"
+                    }],
+                    order: [
+                        [1, "desc"]
+                    ]
+                });
+                campaignTable = campaignTableOriginal
+                $.each(campaigns, function(i, campaign) {
+                if(campaign.status != "Completed") {
+			campaignTable = campaignTableOriginal
+		} else {
+			campaignTable = campaignTableArchive
+		}
+
                     label = labels[campaign.status] || "label-default";
 
                     //section for tooltips on the status of a campaign to show some quick stats

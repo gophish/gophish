@@ -12,6 +12,18 @@
             <i class="fa fa-plus"></i> New Campaign</button>
     </div>
     &nbsp;
+
+ <ul class="nav nav-tabs" role="tablist">
+                <li class="active" role="activeCampaigns"><a href="#activeCampaigns" aria-controls="activeCampaigns" role="tab" data-toggle="tab">Active Campaigns</a></li>
+                <li role="archivedCampaigns"><a href="#archivedCampaigns" aria-controls="archivedCampaigns" role="tab" data-toggle="tab">Archived Campaigns</a></li>
+           <!-- <li><a href="#plugins" aria-controls="profile" role="tab" data-toggle="tab">Plugins</a></li>
+                <li><a href="#demographics" aria-controls="settings" role="tab" data-toggle="tab">Demographics</a></li>-->
+            </ul>
+</br>
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane active" id="activeCampaigns">
+    <div id="flashes" class="row"></div>
+    &nbsp;
     <div id="loading">
         <i class="fa fa-spinner fa-spin fa-4x"></i>
     </div>
@@ -22,6 +34,30 @@
     </div>
     <div class="row">
         <table id="campaignTable" class="table" style="display:none;">
+            <thead>
+                <tr>
+                    <th class="col-md-3">Name</th>
+                    <th class="col-md-4">Created Date</th>
+                    <th class="col-md-2">Status</th>
+                    <th class="col-md-3 no-sort"></th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+<div role="tabpanel"  class="tab-pane" id="archivedCampaigns">
+</br>
+    <div id="flashes2" class="row"></div>
+    <div id="emptyMessage" class="row" style="display:none;">
+</br>
+        <div class="alert alert-info">
+            No archived campaigns!
+        </div>
+    </div>
+    <div class="row">
+        <table id="campaignTableArchive" class="table" style="display:none;">
             <thead>
                 <tr>
                     <th class="col-md-3">Name</th>
