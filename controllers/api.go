@@ -23,7 +23,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// APIReset (/api/reset) resets a user's API key
+// APIReset (/api/reset) resets the currently authenticated user's API key
 func (as *AdminServer) APIReset(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "POST":

@@ -192,9 +192,8 @@ func (s *ModelsSuite) TestMailLogSuccess(ch *check.C) {
 
 func (s *ModelsSuite) TestGenerateMailLog(ch *check.C) {
 	campaign := Campaign{
-		Id:         1,
-		UserId:     1,
-		LaunchDate: time.Now().UTC(),
+		Id:     1,
+		UserId: 1,
 	}
 	result := Result{
 		RId: "abc1234",
