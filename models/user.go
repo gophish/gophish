@@ -18,6 +18,13 @@ func GetUser(id int64) (User, error) {
 	return u, err
 }
 
+// GetUsers returns the users registered in Gophish
+func GetUsers() ([]User, error) {
+	us := []User{}
+	err := db.Preload("Role").Find(&us).Error
+	return us, err
+}
+
 // GetUserByAPIKey returns the user that the given API Key corresponds to. If no user is found, an
 // error is thrown.
 func GetUserByAPIKey(key string) (User, error) {
@@ -37,5 +44,11 @@ func GetUserByUsername(username string) (User, error) {
 // PutUser updates the given user
 func PutUser(u *User) error {
 	err := db.Save(u).Error
+	return err
+}
+
+// DeleteUser deletes the given user
+func DeleteUser(id int64) error {
+	err := db.Where("id=?").Delete(&User{}).Error
 	return err
 }

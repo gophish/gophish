@@ -127,6 +127,8 @@ func (as *AdminServer) registerRoutes() {
 	api.HandleFunc("/pages/{id:[0-9]+}", as.APIPage)
 	api.HandleFunc("/smtp/", as.APISendingProfiles)
 	api.HandleFunc("/smtp/{id:[0-9]+}", as.APISendingProfile)
+	api.HandleFunc("/users/", Use(as.APIUsers, mid.RequirePermission(models.PermissionModifySystem)))
+	api.HandleFunc("/users/{id:[0-9]+}", Use(as.APIUser))
 	api.HandleFunc("/util/send_test_email", as.APISendTestEmail)
 	api.HandleFunc("/import/group", as.APIImportGroup)
 	api.HandleFunc("/import/email", as.APIImportEmail)

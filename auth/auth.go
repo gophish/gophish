@@ -109,6 +109,15 @@ func GenerateSecureKey() string {
 	return fmt.Sprintf("%x", k)
 }
 
+// NewHash hashes the provided password and returns the hash as a string
+func NewHash(pass string) (string, error) {
+	hash, err := bcrypt.GenerateFromPassword([]byte(pass), bcrypt.DefaultCost)
+	if err != nil {
+		return "", err
+	}
+	return string(hash), nil
+}
+
 // ChangePassword verifies the current password provided in the request and,
 // if it's valid, changes the password for the authenticated user.
 func ChangePassword(r *http.Request) error {
