@@ -10,6 +10,7 @@ CREATE TABLE smtp(
 	user_id bigint,
 	interface_type varchar(255),
 	name varchar(255),
+	spoofed_hostname varchar(255),
 	host varchar(255),
 	username varchar(255),
 	password varchar(255),
