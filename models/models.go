@@ -109,7 +109,7 @@ func Setup(c *config.Config) error {
 		i += 1
 
 		time.Sleep(5 * time.Second)
-		log.Warning("waiting for database to be up...")
+		log.Error("waiting for database to be up...")
 	}
 	db.LogMode(false)
 	db.SetLogger(log.Logger)
