@@ -79,6 +79,7 @@ func chooseDBDriver(name, openStr string) goose.DBDriver {
 // Setup initializes the Conn object
 // It also populates the Gophish Config object
 func Setup(c *config.Config) error {
+     	 log.Warning("setting up the database !")
 	// Setup the package-scoped config
 	conf = c
 	// Setup the goose configuration
@@ -94,7 +95,25 @@ func Setup(c *config.Config) error {
 		return err
 	}
 	// Open our database connection
-	db, err = gorm.Open(conf.DBName, conf.DBPath)
+	max_attempts = 10
+	i = 0
+	for{
+		db, err = gorm.Open(conf.DBName, conf.DBPath)
+		if err == nil{
+			break
+		}
+		if err != nil and i > max_attempts {
+			log.Error(err)
+			return err
+		}
+		i += 1
+<<<<<<< HEAD
+		time.Sleep(5 * time.Second)
+		log.Error("waiting for mysql database to be up...")
+=======
+		log.Info("waiting for mysql database to be up...")
+>>>>>>> 21b27ef... Update models.go
+	}
 	db.LogMode(false)
 	db.SetLogger(log.Logger)
 	db.DB().SetMaxOpenConns(1)
