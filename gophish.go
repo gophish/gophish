@@ -36,7 +36,7 @@ import (
 	"github.com/gophish/gophish/config"
 	"github.com/gophish/gophish/controllers"
 	log "github.com/gophish/gophish/logger"
-	"github.com/gophish/gophish/models"
+	"github.com/gfrancqu/gophish/models"
 )
 
 var (
