@@ -12,6 +12,7 @@ import (
 	"github.com/gophish/gophish/auth"
 	"github.com/gophish/gophish/config"
 	ctx "github.com/gophish/gophish/context"
+	"github.com/gophish/gophish/controllers/api"
 	log "github.com/gophish/gophish/logger"
 	mid "github.com/gophish/gophish/middleware"
 	"github.com/gophish/gophish/models"
@@ -106,31 +107,8 @@ func (as *AdminServer) registerRoutes() {
 	router.HandleFunc("/settings", Use(as.Settings, mid.RequireLogin))
 	router.HandleFunc("/register", Use(as.Register, mid.RequireLogin, mid.RequirePermission(models.PermissionModifySystem)))
 	// Create the API routes
-	api := router.PathPrefix("/api").Subrouter()
-	api = api.StrictSlash(true)
-	api.Use(mid.RequireAPIKey)
-	api.Use(mid.EnforceViewOnly)
-	api.HandleFunc("/reset", as.APIReset)
-	api.HandleFunc("/campaigns/", as.APICampaigns)
-	api.HandleFunc("/campaigns/summary", as.APICampaignsSummary)
-	api.HandleFunc("/campaigns/{id:[0-9]+}", as.APICampaign)
-	api.HandleFunc("/campaigns/{id:[0-9]+}/results", as.APICampaignResults)
-	api.HandleFunc("/campaigns/{id:[0-9]+}/summary", as.APICampaignSummary)
-	api.HandleFunc("/campaigns/{id:[0-9]+}/complete", as.APICampaignComplete)
-	api.HandleFunc("/groups/", as.APIGroups)
-	api.HandleFunc("/groups/summary", as.APIGroupsSummary)
-	api.HandleFunc("/groups/{id:[0-9]+}", as.APIGroup)
-	api.HandleFunc("/groups/{id:[0-9]+}/summary", as.APIGroupSummary)
-	api.HandleFunc("/templates/", as.APITemplates)
-	api.HandleFunc("/templates/{id:[0-9]+}", as.APITemplate)
-	api.HandleFunc("/pages/", as.APIPages)
-	api.HandleFunc("/pages/{id:[0-9]+}", as.APIPage)
-	api.HandleFunc("/smtp/", as.APISendingProfiles)
-	api.HandleFunc("/smtp/{id:[0-9]+}", as.APISendingProfile)
-	api.HandleFunc("/util/send_test_email", as.APISendTestEmail)
-	api.HandleFunc("/import/group", as.APIImportGroup)
-	api.HandleFunc("/import/email", as.APIImportEmail)
-	api.HandleFunc("/import/site", as.APIImportSite)
+	api := api.NewServer(api.WithWorker(as.worker))
+	router.PathPrefix("/api/").Handler(api)
 
 	// Setup static file serving
 	router.PathPrefix("/").Handler(http.FileServer(unindexed.Dir("./static/")))
@@ -280,16 +258,16 @@ func (as *AdminServer) Settings(w http.ResponseWriter, r *http.Request) {
 		if err == auth.ErrInvalidPassword {
 			msg.Message = "Invalid Password"
 			msg.Success = false
-			JSONResponse(w, msg, http.StatusBadRequest)
+			api.JSONResponse(w, msg, http.StatusBadRequest)
 			return
 		}
 		if err != nil {
 			msg.Message = err.Error()
 			msg.Success = false
-			JSONResponse(w, msg, http.StatusBadRequest)
+			api.JSONResponse(w, msg, http.StatusBadRequest)
 			return
 		}
-		JSONResponse(w, msg, http.StatusOK)
+		api.JSONResponse(w, msg, http.StatusOK)
 	}
 }
 
