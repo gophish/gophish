@@ -28,15 +28,14 @@ type LoggingConfig struct {
 
 // Config represents the configuration information.
 type Config struct {
-	AdminConf               AdminServer   `json:"admin_server"`
-	PhishConf               PhishServer   `json:"phish_server"`
-	DBName                  string        `json:"db_name"`
-	DBPath                  string        `json:"db_path"`
-	MaxDBConnectionAttempts int           `json:"db_max_connection_attempts"`
-	MigrationsPath          string        `json:"migrations_prefix"`
-	TestFlag                bool          `json:"test_flag"`
-	ContactAddress          string        `json:"contact_address"`
-	Logging                 LoggingConfig `json:"logging"`
+	AdminConf      AdminServer   `json:"admin_server"`
+	PhishConf      PhishServer   `json:"phish_server"`
+	DBName         string        `json:"db_name"`
+	DBPath         string        `json:"db_path"`
+	MigrationsPath string        `json:"migrations_prefix"`
+	TestFlag       bool          `json:"test_flag"`
+	ContactAddress string        `json:"contact_address"`
+	Logging        LoggingConfig `json:"logging"`
 }
 
 // Version contains the current gophish version
