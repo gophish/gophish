@@ -18,8 +18,6 @@ import (
 var db *gorm.DB
 var conf *config.Config
 
-const DefaultMaxDatabaseConnectionAttempts int = 3
-
 const (
 	CampaignInProgress string = "In progress"
 	CampaignQueued     string = "Queued"
@@ -97,11 +95,6 @@ func Setup(c *config.Config) error {
 		return err
 	}
 	// Open our database connection
-	// Open our database connection
-	var max_attempts = DefaultMaxDatabaseConnectionAttempts
-	if conf.MaxDBConnectionAttempts != 0 {
-		max_attempts = conf.MaxDBConnectionAttempts
-	}
 	i := 0
 	for {
 		log.Warn("waiting for database to be up...")
@@ -109,7 +102,7 @@ func Setup(c *config.Config) error {
 		if err == nil {
 			break
 		}
-		if err != nil && i >= max_attempts {
+		if err != nil && i >= conf.MaxDBConnectionAttempts {
 			log.Error(err)
 			return err
 		}
