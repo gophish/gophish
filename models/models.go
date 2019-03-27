@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 	"time"
-	
+
 	"bitbucket.org/liamstask/goose/lib/goose"
 
 	_ "github.com/go-sql-driver/mysql" // Blank import needed to import mysql
@@ -17,6 +17,8 @@ import (
 
 var db *gorm.DB
 var conf *config.Config
+
+const DefaultMaxDatabaseConnectionAttempts int = 3
 
 const (
 	CampaignInProgress string = "In progress"
@@ -95,21 +97,25 @@ func Setup(c *config.Config) error {
 		return err
 	}
 	// Open our database connection
-	max_attempts := 10
+	// Open our database connection
+	var max_attempts = DefaultMaxDatabaseConnectionAttempts
+	if conf.MaxDBConnectionAttempts != 0 {
+		max_attempts = conf.MaxDBConnectionAttempts
+	}
 	i := 0
-	for{
+	for {
+		log.Warn("waiting for database to be up...")
 		db, err = gorm.Open(conf.DBName, conf.DBPath)
-		if err == nil{
+		if err == nil {
 			break
 		}
-		if err != nil && i > max_attempts {
+		if err != nil && i >= max_attempts {
 			log.Error(err)
 			return err
 		}
 		i += 1
 
 		time.Sleep(5 * time.Second)
-		log.Error("waiting for database to be up...")
 	}
 	db.LogMode(false)
 	db.SetLogger(log.Logger)
