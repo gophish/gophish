@@ -99,7 +99,6 @@ func Setup(c *config.Config) error {
 	// Open our database connection
 	i := 0
 	for {
-		log.Warn("waiting for database to be up...")
 		db, err = gorm.Open(conf.DBName, conf.DBPath)
 		if err == nil {
 			break
@@ -109,7 +108,7 @@ func Setup(c *config.Config) error {
 			return err
 		}
 		i += 1
-
+		log.Warn("waiting for database to be up...")
 		time.Sleep(5 * time.Second)
 	}
 	db.LogMode(false)
