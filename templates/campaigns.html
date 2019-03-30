@@ -1,42 +1,4 @@
 {{define "body"}}
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-sm-3 col-md-2 sidebar">
-            <ul class="nav nav-sidebar">
-                <li>
-                    <a href="/">Dashboard</a>
-                </li>
-                <li class="active">
-                    <a href="/campaigns">Campaigns</a>
-                </li>
-                <li>
-                    <a href="/users">Users &amp; Groups</a>
-                </li>
-                <li>
-                    <a href="/templates">Email Templates</a>
-                </li>
-                <li>
-                    <a href="/landing_pages">Landing Pages</a>
-                </li>
-                <li>
-                    <a href="/sending_profiles">Sending Profiles</a>
-                </li>
-                <li>
-                    <a href="/settings">Settings</a>
-                </li>
-                <li>
-                    <hr>
-                </li>
-                <li>
-                    <a href="https://docs.getgophish.com/user-guide/">User Guide</a>
-                </li>
-                <li>
-                    <a href="https://docs.getgophish.com/api-documentation/">API Documentation</a>
-                </li>
-            </ul>
-        </div>
-    </div>
-</div>
 <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
     <div class="row">
         <h1 class="page-header">
@@ -50,27 +12,64 @@
             <i class="fa fa-plus"></i> New Campaign</button>
     </div>
     &nbsp;
-    <div id="loading">
-        <i class="fa fa-spinner fa-spin fa-4x"></i>
-    </div>
-    <div id="emptyMessage" class="row" style="display:none;">
-        <div class="alert alert-info">
-            No campaigns created yet. Let's create one!
+
+    <ul class="nav nav-tabs" role="tablist">
+        <li class="active" role="activeCampaigns"><a href="#activeCampaigns" aria-controls="activeCampaigns" role="tab"
+                data-toggle="tab">Active Campaigns</a></li>
+        <li role="archivedCampaigns"><a href="#archivedCampaigns" aria-controls="archivedCampaigns" role="tab"
+                data-toggle="tab">Archived Campaigns</a></li>
+    </ul>
+    </br>
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane active" id="activeCampaigns">
+            <div id="flashes" class="row"></div>
+            &nbsp;
+            <div id="loading">
+                <i class="fa fa-spinner fa-spin fa-4x"></i>
+            </div>
+            <div id="emptyMessage" class="row" style="display:none;">
+                <div class="alert alert-info">
+                    No campaigns created yet. Let's create one!
+                </div>
+            </div>
+            <div class="row">
+                <table id="campaignTable" class="table" style="display:none;">
+                    <thead>
+                        <tr>
+                            <th class="col-md-3">Name</th>
+                            <th class="col-md-4">Created Date</th>
+                            <th class="col-md-2">Status</th>
+                            <th class="col-md-3 no-sort"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </div>
-    <div class="row">
-        <table id="campaignTable" class="table" style="display:none;">
-            <thead>
-                <tr>
-                    <th class="col-md-3">Name</th>
-                    <th class="col-md-4">Created Date</th>
-                    <th class="col-md-2">Status</th>
-                    <th class="col-md-3 no-sort"></th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
+        <div role="tabpanel" class="tab-pane" id="archivedCampaigns">
+            </br>
+            <div id="emptyMessage" class="row" style="display:none;">
+                </br>
+                <div class="alert alert-info">
+                    No archived campaigns.
+                </div>
+            </div>
+            <div class="row">
+                <table id="campaignTableArchive" class="table" style="display:none;">
+                    <thead>
+                        <tr>
+                            <th class="col-md-3">Name</th>
+                            <th class="col-md-4">Created Date</th>
+                            <th class="col-md-2">Status</th>
+                            <th class="col-md-3 no-sort"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
 <!-- Modal -->

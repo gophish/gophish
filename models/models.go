@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"fmt"
 	"io"
+	"time"
 
 	"bitbucket.org/liamstask/goose/lib/goose"
 
@@ -16,6 +17,8 @@ import (
 
 var db *gorm.DB
 var conf *config.Config
+
+const MaxDatabaseConnectionAttempts int = 10
 
 const (
 	CampaignInProgress string = "In progress"
@@ -94,7 +97,20 @@ func Setup(c *config.Config) error {
 		return err
 	}
 	// Open our database connection
-	db, err = gorm.Open(conf.DBName, conf.DBPath)
+	i := 0
+	for {
+		db, err = gorm.Open(conf.DBName, conf.DBPath)
+		if err == nil {
+			break
+		}
+		if err != nil && i >= MaxDatabaseConnectionAttempts {
+			log.Error(err)
+			return err
+		}
+		i += 1
+		log.Warn("waiting for database to be up...")
+		time.Sleep(5 * time.Second)
+	}
 	db.LogMode(false)
 	db.SetLogger(log.Logger)
 	db.DB().SetMaxOpenConns(1)
@@ -111,10 +127,17 @@ func Setup(c *config.Config) error {
 	// Create the admin user if it doesn't exist
 	var userCount int64
 	db.Model(&User{}).Count(&userCount)
+	adminRole, err := GetRoleBySlug(RoleAdmin)
+	if err != nil {
+		log.Error(err)
+		return err
+	}
 	if userCount == 0 {
 		initUser := User{
 			Username: "admin",
 			Hash:     "$2a$10$IYkPp0.QsM81lYYPrQx6W.U6oQGw7wMpozrKhKAHUBVL4mkm/EvAS", //gophish
+			Role:     adminRole,
+			RoleID:   adminRole.ID,
 		}
 
 		initUser.ApiKey = generateSecureKey()

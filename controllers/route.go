@@ -12,6 +12,7 @@ import (
 	"github.com/gophish/gophish/auth"
 	"github.com/gophish/gophish/config"
 	ctx "github.com/gophish/gophish/context"
+	"github.com/gophish/gophish/controllers/api"
 	log "github.com/gophish/gophish/logger"
 	mid "github.com/gophish/gophish/middleware"
 	"github.com/gophish/gophish/models"
@@ -103,36 +104,11 @@ func (as *AdminServer) registerRoutes() {
 	router.HandleFunc("/users", Use(as.Users, mid.RequireLogin))
 	router.HandleFunc("/landing_pages", Use(as.LandingPages, mid.RequireLogin))
 	router.HandleFunc("/sending_profiles", Use(as.SendingProfiles, mid.RequireLogin))
-	router.HandleFunc("/register", Use(as.Register, mid.RequireLogin))
 	router.HandleFunc("/settings", Use(as.Settings, mid.RequireLogin))
-	// Create the API routes
-	api := router.PathPrefix("/api").Subrouter()
-	api = api.StrictSlash(true)
+	router.HandleFunc("/register", Use(as.Register, mid.RequireLogin, mid.RequirePermission(models.PermissionModifySystem)))
 
-	api.Use(mid.RequireAPIKey)
-	api.HandleFunc("/reset", as.APIReset)
-	api.HandleFunc("/campaigns/", as.APICampaigns)
-	api.HandleFunc("/campaigns/summary", as.APICampaignsSummary)
-	api.HandleFunc("/campaigns/{id:[0-9]+}", as.APICampaign)
-	api.HandleFunc("/campaigns/{id:[0-9]+}/results", as.APICampaignResults)
-	api.HandleFunc("/campaigns/{id:[0-9]+}/summary", as.APICampaignSummary)
-	api.HandleFunc("/campaigns/{id:[0-9]+}/complete", as.APICampaignComplete)
-	api.HandleFunc("/groups/", as.APIGroups)
-	api.HandleFunc("/groups/summary", as.APIGroupsSummary)
-	api.HandleFunc("/groups/{id:[0-9]+}", as.APIGroup)
-	api.HandleFunc("/groups/{id:[0-9]+}/summary", as.APIGroupSummary)
-	api.HandleFunc("/templates/", as.APITemplates)
-	api.HandleFunc("/templates/{id:[0-9]+}", as.APITemplate)
-	api.HandleFunc("/pages/", as.APIPages)
-	api.HandleFunc("/pages/{id:[0-9]+}", as.APIPage)
-	api.HandleFunc("/public_keys/", as.APIPublicKeys)
-	api.HandleFunc("/public_keys/{id:[0-9]+}", as.APIPublicKey)
-	api.HandleFunc("/smtp/", as.APISendingProfiles)
-	api.HandleFunc("/smtp/{id:[0-9]+}", as.APISendingProfile)
-	api.HandleFunc("/util/send_test_email", as.APISendTestEmail)
-	api.HandleFunc("/import/group", as.APIImportGroup)
-	api.HandleFunc("/import/email", as.APIImportEmail)
-	api.HandleFunc("/import/site", as.APIImportSite)
+	api := api.NewServer(api.WithWorker(as.worker))
+	router.PathPrefix("/api/").Handler(api)
 
 	// Setup static file serving
 	router.PathPrefix("/").Handler(http.FileServer(unindexed.Dir("./static/")))
@@ -163,20 +139,24 @@ func Use(handler http.HandlerFunc, mid ...func(http.Handler) http.HandlerFunc) h
 }
 
 type templateParams struct {
-	Title   string
-	Flashes []interface{}
-	User    models.User
-	Token   string
-	Version string
+	Title        string
+	Flashes      []interface{}
+	User         models.User
+	Token        string
+	Version      string
+	ModifySystem bool
 }
 
 // newTemplateParams returns the default template parameters for a user and
 // the CSRF token.
 func newTemplateParams(r *http.Request) templateParams {
+	user := ctx.Get(r, "user").(models.User)
+	modifySystem, _ := user.HasPermission(models.PermissionModifySystem)
 	return templateParams{
-		Token:   csrf.Token(r),
-		User:    ctx.Get(r, "user").(models.User),
-		Version: config.Version,
+		Token:        csrf.Token(r),
+		User:         user,
+		ModifySystem: modifySystem,
+		Version:      config.Version,
 	}
 }
 
@@ -278,16 +258,16 @@ func (as *AdminServer) Settings(w http.ResponseWriter, r *http.Request) {
 		if err == auth.ErrInvalidPassword {
 			msg.Message = "Invalid Password"
 			msg.Success = false
-			JSONResponse(w, msg, http.StatusBadRequest)
+			api.JSONResponse(w, msg, http.StatusBadRequest)
 			return
 		}
 		if err != nil {
 			msg.Message = err.Error()
 			msg.Success = false
-			JSONResponse(w, msg, http.StatusBadRequest)
+			api.JSONResponse(w, msg, http.StatusBadRequest)
 			return
 		}
-		JSONResponse(w, msg, http.StatusOK)
+		api.JSONResponse(w, msg, http.StatusOK)
 	}
 }
 
@@ -357,7 +337,7 @@ func (as *AdminServer) Logout(w http.ResponseWriter, r *http.Request) {
 
 func getTemplate(w http.ResponseWriter, tmpl string) *template.Template {
 	templates := template.New("template")
-	_, err := templates.ParseFiles("templates/base.html", "templates/"+tmpl+".html", "templates/flashes.html")
+	_, err := templates.ParseFiles("templates/base.html", "templates/nav.html", "templates/"+tmpl+".html", "templates/flashes.html")
 	if err != nil {
 		log.Error(err)
 	}

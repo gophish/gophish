@@ -1,4 +1,4 @@
-package controllers
+package api
 
 import (
 	"bytes"
@@ -14,20 +14,18 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-// ControllersSuite is a suite of tests to cover API related functions
-type ControllersSuite struct {
+type APISuite struct {
 	suite.Suite
-	apiKey      string
-	config      *config.Config
-	adminServer *httptest.Server
-	phishServer *httptest.Server
+	apiKey    string
+	config    *config.Config
+	apiServer *Server
 }
 
-func (s *ControllersSuite) SetupSuite() {
+func (s *APISuite) SetupSuite() {
 	conf := &config.Config{
 		DBName:         "sqlite3",
 		DBPath:         ":memory:",
-		MigrationsPath: "../db/db_sqlite3/migrations/",
+		MigrationsPath: "../../db/db_sqlite3/migrations/",
 	}
 	err := models.Setup(conf)
 	if err != nil {
@@ -35,32 +33,25 @@ func (s *ControllersSuite) SetupSuite() {
 	}
 	s.config = conf
 	s.Nil(err)
-	// Setup the admin server for use in testing
-	s.adminServer = httptest.NewUnstartedServer(NewAdminServer(s.config.AdminConf).server.Handler)
-	s.adminServer.Config.Addr = s.config.AdminConf.ListenURL
-	s.adminServer.Start()
 	// Get the API key to use for these tests
 	u, err := models.GetUser(1)
 	s.Nil(err)
 	s.apiKey = u.ApiKey
-	// Start the phishing server
-	s.phishServer = httptest.NewUnstartedServer(NewPhishingServer(s.config.PhishConf).server.Handler)
-	s.phishServer.Config.Addr = s.config.PhishConf.ListenURL
-	s.phishServer.Start()
 	// Move our cwd up to the project root for help with resolving
 	// static assets
 	err = os.Chdir("../")
 	s.Nil(err)
+	s.apiServer = NewServer()
 }
 
-func (s *ControllersSuite) TearDownTest() {
+func (s *APISuite) TearDownTest() {
 	campaigns, _ := models.GetCampaigns(1)
 	for _, campaign := range campaigns {
 		models.DeleteCampaign(campaign.Id)
 	}
 }
 
-func (s *ControllersSuite) SetupTest() {
+func (s *APISuite) SetupTest() {
 	// Add a group
 	group := models.Group{Name: "Test Group"}
 	group.Targets = []models.Target{
@@ -103,58 +94,29 @@ func (s *ControllersSuite) SetupTest() {
 	c.UpdateStatus(models.CampaignEmailsSent)
 }
 
-func (s *ControllersSuite) TestRequireAPIKey() {
-	resp, err := http.Post(fmt.Sprintf("%s/api/import/site", s.adminServer.URL), "application/json", nil)
-	s.Nil(err)
-	defer resp.Body.Close()
-	s.Equal(resp.StatusCode, http.StatusUnauthorized)
-}
-
-func (s *ControllersSuite) TestInvalidAPIKey() {
-	resp, err := http.Get(fmt.Sprintf("%s/api/groups/?api_key=%s", s.adminServer.URL, "bogus-api-key"))
-	s.Nil(err)
-	defer resp.Body.Close()
-	s.Equal(resp.StatusCode, http.StatusUnauthorized)
-}
-
-func (s *ControllersSuite) TestBearerToken() {
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s/api/groups/", s.adminServer.URL), nil)
-	s.Nil(err)
-	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", s.apiKey))
-	resp, err := http.DefaultClient.Do(req)
-	s.Nil(err)
-	defer resp.Body.Close()
-	s.Equal(resp.StatusCode, http.StatusOK)
-}
-
-func (s *ControllersSuite) TestSiteImportBaseHref() {
+func (s *APISuite) TestSiteImportBaseHref() {
 	h := "<html><head></head><body><img src=\"/test.png\"/></body></html>"
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, h)
 	}))
 	hr := fmt.Sprintf("<html><head><base href=\"%s\"/></head><body><img src=\"/test.png\"/>\n</body></html>", ts.URL)
 	defer ts.Close()
-	resp, err := http.Post(fmt.Sprintf("%s/api/import/site?api_key=%s", s.adminServer.URL, s.apiKey), "application/json",
+	req := httptest.NewRequest(http.MethodPost, "/api/import/site",
 		bytes.NewBuffer([]byte(fmt.Sprintf(`
 			{
 				"url" : "%s",
 				"include_resources" : false
 			}
 		`, ts.URL))))
-	s.Nil(err)
-	defer resp.Body.Close()
+	req.Header.Set("Content-Type", "application/json")
+	response := httptest.NewRecorder()
+	s.apiServer.ImportSite(response, req)
 	cs := cloneResponse{}
-	err = json.NewDecoder(resp.Body).Decode(&cs)
+	err := json.NewDecoder(response.Body).Decode(&cs)
 	s.Nil(err)
 	s.Equal(cs.HTML, hr)
 }
 
-func (s *ControllersSuite) TearDownSuite() {
-	// Tear down the admin and phishing servers
-	s.adminServer.Close()
-	s.phishServer.Close()
-}
-
-func TestControllerSuite(t *testing.T) {
-	suite.Run(t, new(ControllersSuite))
+func TestAPISuite(t *testing.T) {
+	suite.Run(t, new(APISuite))
 }
