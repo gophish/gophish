@@ -81,7 +81,23 @@
             <br />
             <div class="checkbox checkbox-primary">
                 <input id="use_map" type="checkbox">
-                <label for="use_map">Show campaign results map</label>
+                <label for="use_map" style="margin-bottom:10px;">Show Only Below </label><br>
+                <input id="hide_table" type="checkbox">
+                <label for="hide_table" style="margin-bottom:10px;">Show only selected options below for large campaigns</label><br>
+                <div style="display:grid;margin-left:20px;" id="additonalOptions">
+                    <input id="show_scheduled" type="checkbox">
+                    <label for="show_scheduled">Scheduled</label>
+                    <input id="show_sending" type="checkbox">
+                    <label for="show_sending">Sending</label>
+                    <input id="show_email_opened" type="checkbox">
+                    <label for="show_email_opened">Email Opened</label>
+                    <input id="show_clicked_link" type="checkbox">
+                    <label for="show_clicked_link">Clicked Link</label>
+                    <input id="show_submitted_data" type="checkbox">
+                    <label for="show_submitted_data">Submited Data</label>
+                    <input id="show_error" type="checkbox">
+                    <label for="show_error">Error</label>
+                </div>
             </div>
         </div>
     </div>

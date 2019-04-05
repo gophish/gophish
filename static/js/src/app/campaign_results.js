@@ -286,10 +286,10 @@ function replay(event_idx) {
 /**
  * Returns an HTML string that displays the OS and browser that clicked the link
  * or submitted credentials.
- * 
+ *
  * @param {object} event_details - The "details" parameter for a campaign
  *  timeline event
- * 
+ *
  */
 var renderDevice = function (event_details) {
     var ua = UAParser(details.browser['user-agent'])
@@ -600,8 +600,8 @@ var updateMap = function (results) {
 
 /**
  * Creates a status label for use in the results datatable
- * @param {string} status 
- * @param {moment(datetime)} send_date 
+ * @param {string} status
+ * @param {moment(datetime)} send_date
  */
 function createStatusLabel(status, send_date) {
     var label = statuses[status].label || "label-default";
@@ -723,6 +723,8 @@ function poll() {
 function load() {
     campaign.id = window.location.pathname.split('/').slice(-1)[0]
     var use_map = JSON.parse(localStorage.getItem('gophish.use_map'))
+
+    var hide_table = JSON.parse(localStorage.getItem('gophish.hide_table'))
     api.campaignId.results(campaign.id)
         .success(function (c) {
             campaign = c
@@ -795,17 +797,20 @@ function load() {
                     email_series_data[k] = 0
                 });
                 $.each(campaign.results, function (i, result) {
-                    resultsTable.row.add([
-                        result.id,
-                        "<i id=\"caret\" class=\"fa fa-caret-right\"></i>",
-                        escapeHtml(result.first_name) || "",
-                        escapeHtml(result.last_name) || "",
-                        escapeHtml(result.email) || "",
-                        escapeHtml(result.position) || "",
-                        result.status,
-                        result.reported,
-                        moment(result.send_date).format('MMMM Do YYYY, h:mm:ss a')
-                    ])
+                    showItem = checkStatus(result.status)
+                    if(!hide_table || (hide_table && campaign.results.length<4500) || showItem){
+                        resultsTable.row.add([
+                            result.id,
+                            "<i id=\"caret\" class=\"fa fa-caret-right\"></i>",
+                            escapeHtml(result.first_name) || "",
+                            escapeHtml(result.last_name) || "",
+                            escapeHtml(result.email) || "",
+                            escapeHtml(result.position) || "",
+                            result.status,
+                            result.reported,
+                            moment(result.send_date).format('MMMM Do YYYY, h:mm:ss a')
+                        ])
+                    }
                     email_series_data[result.status]++;
                     if (result.reported) {
                         email_series_data['Email Reported']++
@@ -918,6 +923,16 @@ function refresh() {
     clearTimeout(setRefresh)
     setRefresh = setTimeout(refresh, 60000)
 };
+
+var show_scheduled = JSON.parse(localStorage.getItem('gophish.show_scheduled'))
+var show_sending = JSON.parse(localStorage.getItem('gophish.show_sending'))
+var show_email_opened = JSON.parse(localStorage.getItem('gophish.show_email_opened'))
+var show_clicked_link = JSON.parse(localStorage.getItem('gophish.show_clicked_link'))
+var show_submitted_data = JSON.parse(localStorage.getItem('gophish.show_submitted_data'))
+var show_error = JSON.parse(localStorage.getItem('gophish.show_error'))
+function checkStatus(status){
+    return ((show_scheduled && status=="Scheduled") || (show_sending && status=="Sending") || (show_email_opened && status=="Email Opened") || (show_clicked_link && status=="Clicked Link") || (show_submitted_data && status=="Submitted Data") || (show_error && status=="Error"))
+}
 
 
 
