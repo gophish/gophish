@@ -46,6 +46,15 @@ func (p *Page) parseHTML() error {
 						input.RemoveAttr("name")
 					}
 				})
+			} else {
+				// If the user chooses to re-enable the capture passwords setting,
+				// we need to re-add the name attribute
+				inputs := f.Find("input")
+				inputs.Each(func(j int, input *goquery.Selection) {
+					if t, _ := input.Attr("type"); strings.EqualFold(t, "password") {
+						input.SetAttr("name", "password")
+					}
+				})
 			}
 		} else {
 			// Otherwise, remove the name from all
@@ -69,6 +78,12 @@ func (p *Page) Validate() error {
 	// we automatically capture credentials
 	if p.CapturePasswords && !p.CaptureCredentials {
 		p.CaptureCredentials = true
+	}
+	if err := ValidateTemplate(p.HTML); err != nil {
+		return err
+	}
+	if err := ValidateTemplate(p.RedirectURL); err != nil {
+		return err
 	}
 	return p.parseHTML()
 }
@@ -133,7 +148,7 @@ func PutPage(p *Page) error {
 // DeletePage deletes an existing page in the database.
 // An error is returned if a page with the given user id and page id is not found.
 func DeletePage(id int64, uid int64) error {
-	err = db.Where("user_id=?", uid).Delete(Page{Id: id}).Error
+	err := db.Where("user_id=?", uid).Delete(Page{Id: id}).Error
 	if err != nil {
 		log.Error(err)
 	}

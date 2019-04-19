@@ -88,7 +88,7 @@ func (ms *MailerSuite) TestMailWorkerStart() {
 	messages := generateMessages(dialer)
 
 	// Send the campaign
-	mw.Queue <- messages
+	mw.Queue(messages)
 
 	got := []*mockMessage{}
 
@@ -129,7 +129,7 @@ func (ms *MailerSuite) TestBackoff() {
 	messages := generateMessages(dialer)
 
 	// Send the campaign
-	mw.Queue <- messages
+	mw.Queue(messages)
 
 	got := []*mockMessage{}
 
@@ -183,7 +183,7 @@ func (ms *MailerSuite) TestPermError() {
 	messages := generateMessages(dialer)
 
 	// Send the campaign
-	mw.Queue <- messages
+	mw.Queue(messages)
 
 	got := []*mockMessage{}
 
@@ -242,7 +242,7 @@ func (ms *MailerSuite) TestUnknownError() {
 	messages := generateMessages(dialer)
 
 	// Send the campaign
-	mw.Queue <- messages
+	mw.Queue(messages)
 
 	got := []*mockMessage{}
 

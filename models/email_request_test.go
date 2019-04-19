@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/gophish/gomail"
+	"github.com/gophish/gophish/config"
 	"github.com/jordan-wright/email"
 	check "gopkg.in/check.v1"
 )
@@ -25,7 +26,7 @@ func (s *ModelsSuite) TestEmailRequestBackoff(ch *check.C) {
 	}
 	expected := errors.New("Temporary Error")
 	go func() {
-		err = req.Backoff(expected)
+		err := req.Backoff(expected)
 		ch.Assert(err, check.Equals, nil)
 	}()
 	ch.Assert(<-req.ErrorChan, check.Equals, expected)
@@ -37,7 +38,7 @@ func (s *ModelsSuite) TestEmailRequestError(ch *check.C) {
 	}
 	expected := errors.New("Temporary Error")
 	go func() {
-		err = req.Error(expected)
+		err := req.Error(expected)
 		ch.Assert(err, check.Equals, nil)
 	}()
 	ch.Assert(<-req.ErrorChan, check.Equals, expected)
@@ -48,7 +49,7 @@ func (s *ModelsSuite) TestEmailRequestSuccess(ch *check.C) {
 		ErrorChan: make(chan error),
 	}
 	go func() {
-		err = req.Success()
+		err := req.Success()
 		ch.Assert(err, check.Equals, nil)
 	}()
 	ch.Assert(<-req.ErrorChan, check.Equals, nil)
@@ -75,8 +76,14 @@ func (s *ModelsSuite) TestEmailRequestGenerate(ch *check.C) {
 		FromAddress: smtp.FromAddress,
 	}
 
+	s.config.ContactAddress = "test@test.com"
+	expectedHeaders := map[string]string{
+		"X-Mailer":          config.ServerName,
+		"X-Gophish-Contact": s.config.ContactAddress,
+	}
+
 	msg := gomail.NewMessage()
-	err = req.Generate(msg)
+	err := req.Generate(msg)
 	ch.Assert(err, check.Equals, nil)
 
 	expected := &email.Email{
@@ -94,6 +101,9 @@ func (s *ModelsSuite) TestEmailRequestGenerate(ch *check.C) {
 	ch.Assert(got.Subject, check.Equals, expected.Subject)
 	ch.Assert(string(got.Text), check.Equals, string(expected.Text))
 	ch.Assert(string(got.HTML), check.Equals, string(expected.HTML))
+	for k, v := range expectedHeaders {
+		ch.Assert(got.Headers.Get(k), check.Equals, v)
+	}
 }
 
 func (s *ModelsSuite) TestEmailRequestURLTemplating(ch *check.C) {
@@ -120,7 +130,7 @@ func (s *ModelsSuite) TestEmailRequestURLTemplating(ch *check.C) {
 	}
 
 	msg := gomail.NewMessage()
-	err = req.Generate(msg)
+	err := req.Generate(msg)
 	ch.Assert(err, check.Equals, nil)
 
 	expectedURL := fmt.Sprintf("http://127.0.0.1/%s?%s=%s", req.Email, RecipientParameter, req.RId)
@@ -157,7 +167,7 @@ func (s *ModelsSuite) TestEmailRequestGenerateEmptySubject(ch *check.C) {
 	}
 
 	msg := gomail.NewMessage()
-	err = req.Generate(msg)
+	err := req.Generate(msg)
 	ch.Assert(err, check.Equals, nil)
 
 	expected := &email.Email{

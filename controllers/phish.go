@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"compress/gzip"
+	"context"
 	"errors"
 	"fmt"
 	"net"
@@ -8,11 +10,16 @@ import (
 	"strings"
 	"time"
 
+	"github.com/NYTimes/gziphandler"
 	"github.com/gophish/gophish/config"
 	ctx "github.com/gophish/gophish/context"
+	"github.com/gophish/gophish/controllers/api"
 	log "github.com/gophish/gophish/logger"
 	"github.com/gophish/gophish/models"
+	"github.com/gophish/gophish/util"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
+	"github.com/jordan-wright/unindexed"
 )
 
 // ErrInvalidRequest is thrown when a request with an invalid structure is
@@ -35,26 +42,92 @@ type TransparencyResponse struct {
 // to return a transparency response.
 const TransparencySuffix = "+"
 
-// ServerName is the server type that is returned in the transparency response.
-const ServerName = "gophish"
+// PhishingServerOption is a functional option that is used to configure the
+// the phishing server
+type PhishingServerOption func(*PhishingServer)
 
-// CreatePhishingRouter creates the router that handles phishing connections.
-func CreatePhishingRouter() http.Handler {
-	router := mux.NewRouter()
-	fileServer := http.FileServer(UnindexedFileSystem{http.Dir("./static/endpoint/")})
-	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", fileServer))
-	router.HandleFunc("/track", PhishTracker)
-	router.HandleFunc("/robots.txt", RobotsHandler)
-	router.HandleFunc("/{path:.*}/track", PhishTracker)
-	router.HandleFunc("/{path:.*}/report", PhishReporter)
-	router.HandleFunc("/report", PhishReporter)
-	router.HandleFunc("/{path:.*}", PhishHandler)
-	return router
+// PhishingServer is an HTTP server that implements the campaign event
+// handlers, such as email open tracking, click tracking, and more.
+type PhishingServer struct {
+	server         *http.Server
+	config         config.PhishServer
+	contactAddress string
 }
 
-// PhishTracker tracks emails as they are opened, updating the status for the given Result
-func PhishTracker(w http.ResponseWriter, r *http.Request) {
-	err, r := setupContext(r)
+// NewPhishingServer returns a new instance of the phishing server with
+// provided options applied.
+func NewPhishingServer(config config.PhishServer, options ...PhishingServerOption) *PhishingServer {
+	defaultServer := &http.Server{
+		ReadTimeout:  10 * time.Second,
+		WriteTimeout: 10 * time.Second,
+		Addr:         config.ListenURL,
+	}
+	ps := &PhishingServer{
+		server: defaultServer,
+		config: config,
+	}
+	for _, opt := range options {
+		opt(ps)
+	}
+	ps.registerRoutes()
+	return ps
+}
+
+// WithContactAddress sets the contact address used by the transparency
+// handlers
+func WithContactAddress(addr string) PhishingServerOption {
+	return func(ps *PhishingServer) {
+		ps.contactAddress = addr
+	}
+}
+
+// Start launches the phishing server, listening on the configured address.
+func (ps *PhishingServer) Start() error {
+	if ps.config.UseTLS {
+		err := util.CheckAndCreateSSL(ps.config.CertPath, ps.config.KeyPath)
+		if err != nil {
+			log.Fatal(err)
+			return err
+		}
+		log.Infof("Starting phishing server at https://%s", ps.config.ListenURL)
+		return ps.server.ListenAndServeTLS(ps.config.CertPath, ps.config.KeyPath)
+	}
+	// If TLS isn't configured, just listen on HTTP
+	log.Infof("Starting phishing server at http://%s", ps.config.ListenURL)
+	return ps.server.ListenAndServe()
+}
+
+// Shutdown attempts to gracefully shutdown the server.
+func (ps *PhishingServer) Shutdown() error {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+	defer cancel()
+	return ps.server.Shutdown(ctx)
+}
+
+// CreatePhishingRouter creates the router that handles phishing connections.
+func (ps *PhishingServer) registerRoutes() {
+	router := mux.NewRouter()
+	fileServer := http.FileServer(unindexed.Dir("./static/endpoint/"))
+	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", fileServer))
+	router.HandleFunc("/track", ps.TrackHandler)
+	router.HandleFunc("/robots.txt", ps.RobotsHandler)
+	router.HandleFunc("/{path:.*}/track", ps.TrackHandler)
+	router.HandleFunc("/{path:.*}/report", ps.ReportHandler)
+	router.HandleFunc("/report", ps.ReportHandler)
+	router.HandleFunc("/{path:.*}", ps.PhishHandler)
+
+	// Setup GZIP compression
+	gzipWrapper, _ := gziphandler.NewGzipLevelHandler(gzip.BestCompression)
+	phishHandler := gzipWrapper(router)
+
+	// Setup logging
+	phishHandler = handlers.CombinedLoggingHandler(log.Writer(), phishHandler)
+	ps.server.Handler = phishHandler
+}
+
+// TrackHandler tracks emails as they are opened, updating the status for the given Result
+func (ps *PhishingServer) TrackHandler(w http.ResponseWriter, r *http.Request) {
+	r, err := setupContext(r)
 	if err != nil {
 		// Log the error if it wasn't something we can safely ignore
 		if err != ErrInvalidRequest && err != ErrCampaignComplete {
@@ -74,7 +147,7 @@ func PhishTracker(w http.ResponseWriter, r *http.Request) {
 
 	// Check for a transparency request
 	if strings.HasSuffix(rid, TransparencySuffix) {
-		TransparencyHandler(w, r)
+		ps.TransparencyHandler(w, r)
 		return
 	}
 
@@ -85,9 +158,9 @@ func PhishTracker(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "static/images/pixel.png")
 }
 
-// PhishReporter tracks emails as they are reported, updating the status for the given Result
-func PhishReporter(w http.ResponseWriter, r *http.Request) {
-	err, r := setupContext(r)
+// ReportHandler tracks emails as they are reported, updating the status for the given Result
+func (ps *PhishingServer) ReportHandler(w http.ResponseWriter, r *http.Request) {
+	r, err := setupContext(r)
 	if err != nil {
 		// Log the error if it wasn't something we can safely ignore
 		if err != ErrInvalidRequest && err != ErrCampaignComplete {
@@ -107,7 +180,7 @@ func PhishReporter(w http.ResponseWriter, r *http.Request) {
 
 	// Check for a transparency request
 	if strings.HasSuffix(rid, TransparencySuffix) {
-		TransparencyHandler(w, r)
+		ps.TransparencyHandler(w, r)
 		return
 	}
 
@@ -120,8 +193,8 @@ func PhishReporter(w http.ResponseWriter, r *http.Request) {
 
 // PhishHandler handles incoming client connections and registers the associated actions performed
 // (such as clicked link, etc.)
-func PhishHandler(w http.ResponseWriter, r *http.Request) {
-	err, r := setupContext(r)
+func (ps *PhishingServer) PhishHandler(w http.ResponseWriter, r *http.Request) {
+	r, err := setupContext(r)
 	if err != nil {
 		// Log the error if it wasn't something we can safely ignore
 		if err != ErrInvalidRequest && err != ErrCampaignComplete {
@@ -155,7 +228,7 @@ func PhishHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Check for a transparency request
 	if strings.HasSuffix(rid, TransparencySuffix) {
-		TransparencyHandler(w, r)
+		ps.TransparencyHandler(w, r)
 		return
 	}
 
@@ -193,7 +266,13 @@ func renderPhishResponse(w http.ResponseWriter, r *http.Request, ptx models.Phis
 	// should send the user to that URL
 	if r.Method == "POST" {
 		if p.RedirectURL != "" {
-			http.Redirect(w, r, p.RedirectURL, 302)
+			redirectURL, err := models.ExecuteTemplate(p.RedirectURL, ptx)
+			if err != nil {
+				log.Error(err)
+				http.NotFound(w, r)
+				return
+			}
+			http.Redirect(w, r, redirectURL, http.StatusFound)
 			return
 		}
 	}
@@ -208,32 +287,33 @@ func renderPhishResponse(w http.ResponseWriter, r *http.Request, ptx models.Phis
 }
 
 // RobotsHandler prevents search engines, etc. from indexing phishing materials
-func RobotsHandler(w http.ResponseWriter, r *http.Request) {
+func (ps *PhishingServer) RobotsHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "User-agent: *\nDisallow: /")
 }
 
 // TransparencyHandler returns a TransparencyResponse for the provided result
 // and campaign.
-func TransparencyHandler(w http.ResponseWriter, r *http.Request) {
+func (ps *PhishingServer) TransparencyHandler(w http.ResponseWriter, r *http.Request) {
 	rs := ctx.Get(r, "result").(models.Result)
 	tr := &TransparencyResponse{
-		Server:         ServerName,
+		Server:         config.ServerName,
 		SendDate:       rs.SendDate,
-		ContactAddress: config.Conf.ContactAddress,
+		ContactAddress: ps.contactAddress,
 	}
-	JSONResponse(w, tr, http.StatusOK)
+	api.JSONResponse(w, tr, http.StatusOK)
 }
 
-// setupContext handles some of the administrative work around receiving a new request, such as checking the result ID, the campaign, etc.
-func setupContext(r *http.Request) (error, *http.Request) {
+// setupContext handles some of the administrative work around receiving a new
+// request, such as checking the result ID, the campaign, etc.
+func setupContext(r *http.Request) (*http.Request, error) {
 	err := r.ParseForm()
 	if err != nil {
 		log.Error(err)
-		return err, r
+		return r, err
 	}
 	rid := r.Form.Get(models.RecipientParameter)
 	if rid == "" {
-		return ErrInvalidRequest, r
+		return r, ErrInvalidRequest
 	}
 	// Since we want to support the common case of adding a "+" to indicate a
 	// transparency request, we need to take care to handle the case where the
@@ -253,28 +333,28 @@ func setupContext(r *http.Request) (error, *http.Request) {
 	if strings.HasPrefix(id, models.PreviewPrefix) {
 		rs, err := models.GetEmailRequestByResultId(id)
 		if err != nil {
-			return err, r
+			return r, err
 		}
 		r = ctx.Set(r, "result", rs)
-		return nil, r
+		return r, nil
 	}
 	rs, err := models.GetResult(id)
 	if err != nil {
-		return err, r
+		return r, err
 	}
 	c, err := models.GetCampaign(rs.CampaignId, rs.UserId)
 	if err != nil {
 		log.Error(err)
-		return err, r
+		return r, err
 	}
 	// Don't process events for completed campaigns
-	if c.Status == models.CAMPAIGN_COMPLETE {
-		return ErrCampaignComplete, r
+	if c.Status == models.CampaignComplete {
+		return r, ErrCampaignComplete
 	}
 	ip, _, err := net.SplitHostPort(r.RemoteAddr)
 	if err != nil {
 		log.Error(err)
-		return err, r
+		return r, err
 	}
 	// Respect X-Forwarded headers
 	if fips := r.Header.Get("X-Forwarded-For"); fips != "" {
@@ -296,5 +376,5 @@ func setupContext(r *http.Request) (error, *http.Request) {
 	r = ctx.Set(r, "result", rs)
 	r = ctx.Set(r, "campaign", c)
 	r = ctx.Set(r, "details", d)
-	return nil, r
+	return r, nil
 }

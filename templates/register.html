@@ -45,10 +45,12 @@
             <img id="logo" src="/images/logo_purple.png" />
             <h2 class="form-signin-heading">Please register below</h2>
             {{template "flashes" .Flashes}}
-            <input type="text" name="username" class="form-control top-input" placeholder="Username" required autofocus/>
-            <input type="password" name="password" class="form-control middle-input" placeholder="Password" autocomplete="off" required/>
-            <input type="password" name="confirm_password" class="form-control bottom-input" placeholder="Confirm Password" autocomplete="off" required/>
-            <input type="hidden" name="csrf_token" value="{{.Token}}"/>
+            <input type="text" name="username" class="form-control top-input" placeholder="Username" required autofocus />
+            <input type="password" name="password" class="form-control middle-input" placeholder="Password"
+                autocomplete="off" required />
+            <input type="password" name="confirm_password" class="form-control bottom-input" placeholder="Confirm Password"
+                autocomplete="off" required />
+            <input type="hidden" name="csrf_token" value="{{.Token}}" />
             <button class="btn btn-lg btn-primary btn-block" type="submit">Register</button>
         </form>
     </div>

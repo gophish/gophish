@@ -12,10 +12,13 @@ import (
 	"github.com/gorilla/csrf"
 )
 
+// CSRFExemptPrefixes are a list of routes that are exempt from CSRF protection
 var CSRFExemptPrefixes = []string{
 	"/api",
 }
 
+// CSRFExceptions is a middleware that prevents CSRF checks on routes listed in
+// CSRFExemptPrefixes.
 func CSRFExceptions(handler http.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		for _, prefix := range CSRFExemptPrefixes {
@@ -60,8 +63,10 @@ func GetContext(handler http.Handler) http.HandlerFunc {
 	}
 }
 
-func RequireAPIKey(handler http.Handler) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+// RequireAPIKey ensures that a valid API key is set as either the api_key GET
+// parameter, or a Bearer token.
+func RequireAPIKey(handler http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		if r.Method == "OPTIONS" {
 			w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
@@ -81,21 +86,22 @@ func RequireAPIKey(handler http.Handler) http.HandlerFunc {
 			}
 		}
 		if ak == "" {
-			JSONError(w, 400, "API Key not set")
+			JSONError(w, http.StatusUnauthorized, "API Key not set")
 			return
 		}
 		u, err := models.GetUserByAPIKey(ak)
 		if err != nil {
-			JSONError(w, 400, "Invalid API Key")
+			JSONError(w, http.StatusUnauthorized, "Invalid API Key")
 			return
 		}
+		r = ctx.Set(r, "user", u)
 		r = ctx.Set(r, "user_id", u.Id)
 		r = ctx.Set(r, "api_key", ak)
 		handler.ServeHTTP(w, r)
-	}
+	})
 }
 
-// RequireLogin is a simple middleware which checks to see if the user is currently logged in.
+// RequireLogin checks to see if the user is currently logged in.
 // If not, the function returns a 302 redirect to the login page.
 func RequireLogin(handler http.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -104,7 +110,51 @@ func RequireLogin(handler http.Handler) http.HandlerFunc {
 		} else {
 			q := r.URL.Query()
 			q.Set("next", r.URL.Path)
-			http.Redirect(w, r, fmt.Sprintf("/login?%s", q.Encode()), 302)
+			http.Redirect(w, r, fmt.Sprintf("/login?%s", q.Encode()), http.StatusTemporaryRedirect)
+		}
+	}
+}
+
+// EnforceViewOnly is a global middleware that limits the ability to edit
+// objects to accounts with the PermissionModifyObjects permission.
+func EnforceViewOnly(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// If the request is for any non-GET HTTP method, e.g. POST, PUT,
+		// or DELETE, we need to ensure the user has the appropriate
+		// permission.
+		if r.Method != http.MethodGet && r.Method != http.MethodHead && r.Method != http.MethodOptions {
+			user := ctx.Get(r, "user").(models.User)
+			access, err := user.HasPermission(models.PermissionModifyObjects)
+			if err != nil {
+				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+				return
+			}
+			if !access {
+				http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+				return
+			}
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
+// RequirePermission checks to see if the user has the requested permission
+// before executing the handler. If the request is unauthorized, a JSONError
+// is returned.
+func RequirePermission(perm string) func(http.Handler) http.HandlerFunc {
+	return func(next http.Handler) http.HandlerFunc {
+		return func(w http.ResponseWriter, r *http.Request) {
+			user := ctx.Get(r, "user").(models.User)
+			access, err := user.HasPermission(perm)
+			if err != nil {
+				JSONError(w, http.StatusInternalServerError, err.Error())
+				return
+			}
+			if !access {
+				JSONError(w, http.StatusForbidden, http.StatusText(http.StatusForbidden))
+				return
+			}
+			next.ServeHTTP(w, r)
 		}
 	}
 }

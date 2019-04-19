@@ -1,42 +1,4 @@
 {{define "body"}}
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-sm-3 col-md-2 sidebar">
-            <ul class="nav nav-sidebar">
-                <li>
-                    <a href="/">Dashboard</a>
-                </li>
-                <li>
-                    <a href="/campaigns">Campaigns</a>
-                </li>
-                <li class="active">
-                    <a href="/users">Users &amp; Groups</a>
-                </li>
-                <li>
-                    <a href="/templates">Email Templates</a>
-                </li>
-                <li>
-                    <a href="/landing_pages">Landing Pages</a>
-                </li>
-                <li>
-                    <a href="/sending_profiles">Sending Profiles</a>
-                </li>
-                <li>
-                    <a href="/settings">Settings</a>
-                </li>
-                <li>
-                    <hr>
-                </li>
-                <li>
-                    <a href="https://gophish.gitbooks.io/user-guide/content/">User Guide</a>
-                </li>
-                <li>
-                    <a href="/api/">API Documentation</a>
-                </li>
-            </ul>
-        </div>
-    </div>
-</div>
 <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
     <div class="row">
         <h1 class="page-header">
@@ -45,7 +7,8 @@
     </div>
     <div id="flashes" class="row"></div>
     <div class="row">
-        <button type="button" class="btn btn-primary" onclick="edit(-1)" data-toggle="modal" data-target="#modal">
+        <button type="button" class="btn btn-primary" onclick="edit(-1)" data-toggle="modal" data-backdrop="static"
+            data-target="#modal">
             <i class="fa fa-plus"></i> New Group</button>
     </div>
     &nbsp;
@@ -86,10 +49,12 @@
                 <div class="row" id="modal.flashes"></div>
                 <label class="control-label" for="name">Name:</label>
                 <div class="form-group">
-                    <input type="text" class="form-control" ng-model="group.name" placeholder="Group name" id="name" autofocus/>
+                    <input type="text" class="form-control" ng-model="group.name" placeholder="Group name" id="name"
+                        autofocus />
                 </div>
                 <div class="form-group">
-                    <span class="btn btn-danger btn-file" data-toggle="tooltip" data-placement="right" title="Supports CSV files" id="fileUpload">
+                    <span class="btn btn-danger btn-file" data-toggle="tooltip" data-placement="right" title="Supports CSV files"
+                        id="fileUpload">
                         <i class="fa fa-plus"></i> Bulk Import Users
                         <input type="file" id="csvupload" multiple>
                     </span>
@@ -125,8 +90,8 @@
                             <th>Email</th>
                             <th>Position</th>
                             <th class="no-sort"></th>
-                            <tbody>
-                            </tbody>
+                    <tbody>
+                    </tbody>
                 </table>
             </div>
             <div class="modal-footer">

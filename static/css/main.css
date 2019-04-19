@@ -421,13 +421,16 @@ p {
     .navbar-collapse.collapse {
         display: none !important;
     }
+
     .navbar-collapse.collapse.in {
         display: block !important;
     }
+
     .navbar-header .collapse,
     .navbar-toggle {
         display: block !important;
     }
+
     .navbar-header {
         float: none !important;
     }
@@ -578,6 +581,39 @@ td.details-control {
     display: none;
 }
 
+.timeline-device-details {
+    font-size: .8em;
+    margin-top: 10px;
+}
+
+.timeline-device-os>span.fa-stack {
+    font-size: .8em;
+}
+
+.timeline-device-browser>span.fa-stack {
+    font-size: .8em;
+}
+
+.timeline-device-browser>span.fa-stack>i.fa-stack-1x {
+    font-size: 1.5em;
+}
+
+i.fa-vendor-icon {
+    font-size: .6em;
+}
+
+i.fa-tablet+i.fa-vendor-icon {
+    top: -2px;
+}
+
+i.fa-tablet+i.fa-vendor-icon {
+    top: -2px;
+}
+
+i.fa-laptop+i.fa-vendor-icon {
+    top: -2px;
+}
+
 .tooltip-inner {
     width: 300px !important;
 }
@@ -673,4 +709,16 @@ table.dataTable {
 #csv-template {
     margin-left: 15px;
     cursor: pointer;
+}
+
+.cke_chrome {
+    border-top: 0 !important;
+}
+
+.cke_autocomplete_panel {
+    width: 400px !important;
+}
+
+.cke_autocomplete_panel>li {
+    padding: 10px 5px !important;
 }

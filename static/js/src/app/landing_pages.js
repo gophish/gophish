@@ -5,6 +5,7 @@
 */
 var pages = []
 
+
 // Save attempts to POST to /templates/
 function save(idx) {
     var page = {}
@@ -48,14 +49,38 @@ function dismiss() {
     $("#modal").modal('hide')
 }
 
-function deletePage(idx) {
-    if (confirm("Delete " + pages[idx].name + "?")) {
-        api.pageId.delete(pages[idx].id)
-            .success(function (data) {
-                successFlash(data.message)
-                load()
+var deletePage = function (idx) {
+    swal({
+        title: "Are you sure?",
+        text: "This will delete the landing page. This can't be undone!",
+        type: "warning",
+        animation: false,
+        showCancelButton: true,
+        confirmButtonText: "Delete " + escapeHtml(pages[idx].name),
+        confirmButtonColor: "#428bca",
+        reverseButtons: true,
+        allowOutsideClick: false,
+        preConfirm: function () {
+            return new Promise(function (resolve, reject) {
+                api.pageId.delete(pages[idx].id)
+                    .success(function (msg) {
+                        resolve()
+                    })
+                    .error(function (data) {
+                        reject(data.responseJSON.message)
+                    })
             })
-    }
+        }
+    }).then(function () {
+        swal(
+            'Landing Page Deleted!',
+            'This landing page has been deleted!',
+            'success'
+        );
+        $('button:contains("OK")').on('click', function () {
+            location.reload()
+        })
+    })
 }
 
 function importSite() {
@@ -64,12 +89,12 @@ function importSite() {
         modalError("No URL Specified!")
     } else {
         api.clone_site({
-            url: url,
-            include_resources: false
-        })
+                url: url,
+                include_resources: false
+            })
             .success(function (data) {
-                console.log($("#html_editor"))
                 $("#html_editor").val(data.html)
+                CKEDITOR.instances["html_editor"].setMode('wysiwyg')
                 $("#importSiteModal").modal("hide")
             })
             .error(function (data) {
@@ -83,6 +108,7 @@ function edit(idx) {
         save(idx)
     })
     $("#html_editor").ckeditor()
+    setupAutocomplete(CKEDITOR.instances["html_editor"])
     var page = {}
     if (idx != -1) {
         page = pages[idx]
@@ -133,7 +159,7 @@ function load() {
                     pagesTable.row.add([
                         escapeHtml(page.name),
                         moment(page.modified_date).format('MMMM Do YYYY, h:mm:ss a'),
-                        "<div class='pull-right'><span data-toggle='modal' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Edit Page' onclick='edit(" + i + ")'>\
+                        "<div class='pull-right'><span data-toggle='modal' data-backdrop='static' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Edit Page' onclick='edit(" + i + ")'>\
                     <i class='fa fa-pencil'></i>\
                     </button></span>\
 		    <span data-toggle='modal' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Copy Page' onclick='copy(" + i + ")'>\
@@ -186,7 +212,8 @@ $(document).ready(function () {
                 if (
                     this.$element[0] !== e.target && !this.$element.has(e.target).length
                     // CKEditor compatibility fix start.
-                    && !$(e.target).closest('.cke_dialog, .cke').length
+                    &&
+                    !$(e.target).closest('.cke_dialog, .cke').length
                     // CKEditor compatibility fix end.
                 ) {
                     this.$element.trigger('focus');
@@ -204,5 +231,21 @@ $(document).ready(function () {
         $("#capture_passwords").toggle()
         $("#redirect_url").toggle()
     })
+    CKEDITOR.on('dialogDefinition', function (ev) {
+        // Take the dialog name and its definition from the event data.
+        var dialogName = ev.data.name;
+        var dialogDefinition = ev.data.definition;
+
+        // Check if the definition is from the dialog window you are interested in (the "Link" dialog window).
+        if (dialogName == 'link') {
+            dialogDefinition.minWidth = 500
+            dialogDefinition.minHeight = 100
+
+            // Remove the linkType field
+            var infoTab = dialogDefinition.getContents('info');
+            infoTab.get('linkType').hidden = true;
+        }
+    });
+
     load()
 })

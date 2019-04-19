@@ -10,15 +10,20 @@ import (
 // Hook up gocheck into the "go test" runner.
 func Test(t *testing.T) { check.TestingT(t) }
 
-type ModelsSuite struct{}
+type ModelsSuite struct {
+	config *config.Config
+}
 
 var _ = check.Suite(&ModelsSuite{})
 
 func (s *ModelsSuite) SetUpSuite(c *check.C) {
-	config.Conf.DBName = "sqlite3"
-	config.Conf.DBPath = ":memory:"
-	config.Conf.MigrationsPath = "../db/db_sqlite3/migrations/"
-	err := Setup()
+	conf := &config.Config{
+		DBName:         "sqlite3",
+		DBPath:         ":memory:",
+		MigrationsPath: "../db/db_sqlite3/migrations/",
+	}
+	s.config = conf
+	err := Setup(conf)
 	if err != nil {
 		c.Fatalf("Failed creating database: %v", err)
 	}
@@ -47,6 +52,8 @@ func (s *ModelsSuite) createCampaignDependencies(ch *check.C, optional ...string
 	group.Targets = []Target{
 		Target{BaseRecipient: BaseRecipient{Email: "test1@example.com", FirstName: "First", LastName: "Example"}},
 		Target{BaseRecipient: BaseRecipient{Email: "test2@example.com", FirstName: "Second", LastName: "Example"}},
+		Target{BaseRecipient: BaseRecipient{Email: "test3@example.com", FirstName: "Second", LastName: "Example"}},
+		Target{BaseRecipient: BaseRecipient{Email: "test4@example.com", FirstName: "Second", LastName: "Example"}},
 	}
 	group.UserId = 1
 	ch.Assert(PostGroup(&group), check.Equals, nil)

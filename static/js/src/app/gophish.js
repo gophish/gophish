@@ -212,6 +212,15 @@ var api = {
 
 // Register our moment.js datatables listeners
 $(document).ready(function () {
+    // Setup nav highlighting
+    var path = location.pathname;
+    $('.nav-sidebar li').each(function () {
+        var $this = $(this);
+        // if the current path is like this link, make it active
+        if ($this.find("a").attr('href') === path) {
+            $this.addClass('active');
+        }
+    })
     $.fn.dataTable.moment('MMMM Do YYYY, h:mm:ss a');
     // Setup tooltips
     $('[data-toggle="tooltip"]').tooltip()

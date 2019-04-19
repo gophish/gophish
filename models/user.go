@@ -6,13 +6,15 @@ type User struct {
 	Username string `json:"username" sql:"not null;unique"`
 	Hash     string `json:"-"`
 	ApiKey   string `json:"api_key" sql:"not null;unique"`
+	Role     Role   `json:"role" gorm:"association_autoupdate:false;association_autocreate:false"`
+	RoleID   int64  `json:"-"`
 }
 
 // GetUser returns the user that the given id corresponds to. If no user is found, an
 // error is thrown.
 func GetUser(id int64) (User, error) {
 	u := User{}
-	err := db.Where("id=?", id).First(&u).Error
+	err := db.Preload("Role").Where("id=?", id).First(&u).Error
 	return u, err
 }
 
@@ -20,7 +22,7 @@ func GetUser(id int64) (User, error) {
 // error is thrown.
 func GetUserByAPIKey(key string) (User, error) {
 	u := User{}
-	err := db.Where("api_key = ?", key).First(&u).Error
+	err := db.Preload("Role").Where("api_key = ?", key).First(&u).Error
 	return u, err
 }
 
@@ -28,7 +30,7 @@ func GetUserByAPIKey(key string) (User, error) {
 // error is thrown.
 func GetUserByUsername(username string) (User, error) {
 	u := User{}
-	err := db.Where("username = ?", username).First(&u).Error
+	err := db.Preload("Role").Where("username = ?", username).First(&u).Error
 	return u, err
 }
 

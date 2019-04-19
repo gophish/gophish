@@ -283,19 +283,94 @@ function replay(event_idx) {
     }
 }
 
+/**
+ * Returns an HTML string that displays the OS and browser that clicked the link
+ * or submitted credentials.
+ * 
+ * @param {object} event_details - The "details" parameter for a campaign
+ *  timeline event
+ * 
+ */
+var renderDevice = function (event_details) {
+    var ua = UAParser(details.browser['user-agent'])
+    var detailsString = '<div class="timeline-device-details">'
+
+    var deviceIcon = 'laptop'
+    if (ua.device.type) {
+        if (ua.device.type == 'tablet' || ua.device.type == 'mobile') {
+            deviceIcon = ua.device.type
+        }
+    }
+
+    var deviceVendor = ''
+    if (ua.device.vendor) {
+        deviceVendor = ua.device.vendor.toLowerCase()
+        if (deviceVendor == 'microsoft') deviceVendor = 'windows'
+    }
+
+    var deviceName = 'Unknown'
+    if (ua.os.name) {
+        deviceName = ua.os.name
+        if (deviceName == "Mac OS") {
+            deviceVendor = 'apple'
+        } else if (deviceName == "Windows") {
+            deviceVendor = 'windows'
+        }
+        if (ua.device.vendor && ua.device.model) {
+            deviceName = ua.device.vendor + ' ' + ua.device.model
+        }
+    }
+
+    if (ua.os.version) {
+        deviceName = deviceName + ' (OS Version: ' + ua.os.version + ')'
+    }
+
+    deviceString = '<div class="timeline-device-os"><span class="fa fa-stack">' +
+        '<i class="fa fa-' + escapeHtml(deviceIcon) + ' fa-stack-2x"></i>' +
+        '<i class="fa fa-vendor-icon fa-' + escapeHtml(deviceVendor) + ' fa-stack-1x"></i>' +
+        '</span> ' + escapeHtml(deviceName) + '</div>'
+
+    detailsString += deviceString
+
+    var deviceBrowser = 'Unknown'
+    var browserIcon = 'info-circle'
+    var browserVersion = ''
+
+    if (ua.browser && ua.browser.name) {
+        deviceBrowser = ua.browser.name
+        // Handle the "mobile safari" case
+        deviceBrowser = deviceBrowser.replace('Mobile ', '')
+        if (deviceBrowser) {
+            browserIcon = deviceBrowser.toLowerCase()
+            if (browserIcon == 'ie') browserIcon = 'internet-explorer'
+        }
+        browserVersion = '(Version: ' + ua.browser.version + ')'
+    }
+
+    var browserString = '<div class="timeline-device-browser"><span class="fa fa-stack">' +
+        '<i class="fa fa-' + escapeHtml(browserIcon) + ' fa-stack-1x"></i></span> ' +
+        deviceBrowser + ' ' + browserVersion + '</div>'
+
+    detailsString += browserString
+    detailsString += '</div>'
+    return detailsString
+}
+
 function renderTimeline(data) {
     record = {
+        "id": data[0],
         "first_name": data[2],
         "last_name": data[3],
         "email": data[4],
         "position": data[5],
         "status": data[6],
-        "send_date": data[7],
-        "reported": data[8]
+        "reported": data[7],
+        "send_date": data[8]
     }
     results = '<div class="timeline col-sm-12 well well-lg">' +
         '<h6>Timeline for ' + escapeHtml(record.first_name) + ' ' + escapeHtml(record.last_name) +
-        '</h6><span class="subtitle">Email: ' + escapeHtml(record.email) + '</span>' +
+        '</h6><span class="subtitle">Email: ' + escapeHtml(record.email) +
+        '<br>Result ID: ' + escapeHtml(record.id) + '</span>' +
         '<div class="timeline-graph col-sm-6">'
     $.each(campaign.timeline, function (i, event) {
         if (!event.email || event.email == record.email) {
@@ -308,12 +383,18 @@ function renderTimeline(data) {
                 '    <div class="timeline-message">' + escapeHtml(event.message) +
                 '    <span class="timeline-date">' + moment.utc(event.time).local().format('MMMM Do YYYY h:mm:ss a') + '</span>'
             if (event.details) {
+                details = JSON.parse(event.details)
+                if (event.message == "Clicked Link" || event.message == "Submitted Data") {
+                    deviceView = renderDevice(details)
+                    if (deviceView) {
+                        results += deviceView
+                    }
+                }
                 if (event.message == "Submitted Data") {
                     results += '<div class="timeline-replay-button"><button onclick="replay(' + i + ')" class="btn btn-success">'
                     results += '<i class="fa fa-refresh"></i> Replay Credentials</button></div>'
                     results += '<div class="timeline-event-details"><i class="fa fa-caret-right"></i> View Details</div>'
                 }
-                details = JSON.parse(event.details)
                 if (details.payload) {
                     results += '<div class="timeline-event-results">'
                     results += '    <table class="table table-condensed table-bordered table-striped">'
@@ -437,7 +518,7 @@ var renderPieChart = function (chartopts) {
                         pie = chart.series[0],
                         left = chart.plotLeft + pie.center[0],
                         top = chart.plotTop + pie.center[1];
-                    this.innerText = rend.text(chartopts['data'][0].y, left, top).
+                    this.innerText = rend.text(chartopts['data'][0].count, left, top).
                     attr({
                         'text-anchor': 'middle',
                         'font-size': '24px',
@@ -448,7 +529,7 @@ var renderPieChart = function (chartopts) {
                 },
                 render: function () {
                     this.innerText.attr({
-                        text: chartopts['data'][0].y
+                        text: chartopts['data'][0].count
                     })
                 }
             }
@@ -472,7 +553,7 @@ var renderPieChart = function (chartopts) {
                 if (this.key == undefined) {
                     return false
                 }
-                return '<span style="color:' + this.color + '">\u25CF</span>' + this.point.name + ': <b>' + this.y + '</b><br/>'
+                return '<span style="color:' + this.color + '">\u25CF</span>' + this.point.name + ': <b>' + this.y + '%</b><br/>'
             }
         },
         series: [{
@@ -596,11 +677,12 @@ function poll() {
                 }
                 email_data.push({
                     name: status,
-                    y: count
+                    y: Math.floor((count / campaign.results.length) * 100),
+                    count: count
                 })
                 email_data.push({
                     name: '',
-                    y: campaign.results.length - count
+                    y: 100 - Math.floor((count / campaign.results.length) * 100)
                 })
                 var chart = $("#" + statusMapping[status] + "_chart").highcharts()
                 chart.series[0].update({
@@ -694,11 +776,13 @@ function load() {
                         {
                             className: "text-center",
                             "render": function (reported, type, row) {
-                                if (reported) {
-                                    return "<i class='fa fa-check-circle text-center text-success'></i>"
-                                } else {
+                                if (type == "display") {
+                                    if (reported) {
+                                        return "<i class='fa fa-check-circle text-center text-success'></i>"
+                                    }
                                     return "<i class='fa fa-times-circle text-center text-muted'></i>"
                                 }
+                                return reported
                             },
                             "targets": [7]
                         }
@@ -779,11 +863,12 @@ function load() {
                     }
                     email_data.push({
                         name: status,
-                        y: count
+                        y: Math.floor((count / campaign.results.length) * 100),
+                        count: count
                     })
                     email_data.push({
                         name: '',
-                        y: campaign.results.length - count
+                        y: 100 - Math.floor((count / campaign.results.length) * 100)
                     })
                     var chart = renderPieChart({
                         elemId: statusMapping[status] + '_chart',

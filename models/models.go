@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"fmt"
 	"io"
+	"time"
 
 	"bitbucket.org/liamstask/goose/lib/goose"
 
@@ -15,28 +16,30 @@ import (
 )
 
 var db *gorm.DB
-var err error
+var conf *config.Config
+
+const MaxDatabaseConnectionAttempts int = 10
 
 const (
-	CAMPAIGN_IN_PROGRESS string = "In progress"
-	CAMPAIGN_QUEUED      string = "Queued"
-	CAMPAIGN_CREATED     string = "Created"
-	CAMPAIGN_EMAILS_SENT string = "Emails Sent"
-	CAMPAIGN_COMPLETE    string = "Completed"
-	EVENT_SENT           string = "Email Sent"
-	EVENT_SENDING_ERROR  string = "Error Sending Email"
-	EVENT_OPENED         string = "Email Opened"
-	EVENT_CLICKED        string = "Clicked Link"
-	EVENT_DATA_SUBMIT    string = "Submitted Data"
-	EVENT_REPORTED       string = "Email Reported"
-	EVENT_PROXY_REQUEST  string = "Proxied request"
-	STATUS_SUCCESS       string = "Success"
-	STATUS_QUEUED        string = "Queued"
-	STATUS_SENDING       string = "Sending"
-	STATUS_UNKNOWN       string = "Unknown"
-	STATUS_SCHEDULED     string = "Scheduled"
-	STATUS_RETRY         string = "Retrying"
-	ERROR                string = "Error"
+	CampaignInProgress string = "In progress"
+	CampaignQueued     string = "Queued"
+	CampaignCreated    string = "Created"
+	CampaignEmailsSent string = "Emails Sent"
+	CampaignComplete   string = "Completed"
+	EventSent          string = "Email Sent"
+	EventSendingError  string = "Error Sending Email"
+	EventOpened        string = "Email Opened"
+	EventClicked       string = "Clicked Link"
+	EventDataSubmit    string = "Submitted Data"
+	EventReported      string = "Email Reported"
+	EventProxyRequest  string = "Proxied request"
+	StatusSuccess      string = "Success"
+	StatusQueued       string = "Queued"
+	StatusSending      string = "Sending"
+	StatusUnknown      string = "Unknown"
+	StatusScheduled    string = "Scheduled"
+	StatusRetry        string = "Retrying"
+	Error              string = "Error"
 )
 
 // Flash is used to hold flash information for use in templates.
@@ -78,12 +81,14 @@ func chooseDBDriver(name, openStr string) goose.DBDriver {
 
 // Setup initializes the Conn object
 // It also populates the Gophish Config object
-func Setup() error {
+func Setup(c *config.Config) error {
+	// Setup the package-scoped config
+	conf = c
 	// Setup the goose configuration
 	migrateConf := &goose.DBConf{
-		MigrationsDir: config.Conf.MigrationsPath,
+		MigrationsDir: conf.MigrationsPath,
 		Env:           "production",
-		Driver:        chooseDBDriver(config.Conf.DBName, config.Conf.DBPath),
+		Driver:        chooseDBDriver(conf.DBName, conf.DBPath),
 	}
 	// Get the latest possible migration
 	latest, err := goose.GetMostRecentDBVersion(migrateConf.MigrationsDir)
@@ -92,7 +97,20 @@ func Setup() error {
 		return err
 	}
 	// Open our database connection
-	db, err = gorm.Open(config.Conf.DBName, config.Conf.DBPath)
+	i := 0
+	for {
+		db, err = gorm.Open(conf.DBName, conf.DBPath)
+		if err == nil {
+			break
+		}
+		if err != nil && i >= MaxDatabaseConnectionAttempts {
+			log.Error(err)
+			return err
+		}
+		i += 1
+		log.Warn("waiting for database to be up...")
+		time.Sleep(5 * time.Second)
+	}
 	db.LogMode(false)
 	db.SetLogger(log.Logger)
 	db.DB().SetMaxOpenConns(1)
@@ -109,10 +127,17 @@ func Setup() error {
 	// Create the admin user if it doesn't exist
 	var userCount int64
 	db.Model(&User{}).Count(&userCount)
+	adminRole, err := GetRoleBySlug(RoleAdmin)
+	if err != nil {
+		log.Error(err)
+		return err
+	}
 	if userCount == 0 {
 		initUser := User{
 			Username: "admin",
 			Hash:     "$2a$10$IYkPp0.QsM81lYYPrQx6W.U6oQGw7wMpozrKhKAHUBVL4mkm/EvAS", //gophish
+			Role:     adminRole,
+			RoleID:   adminRole.ID,
 		}
 		initUser.ApiKey = generateSecureKey()
 		err = db.Save(&initUser).Error

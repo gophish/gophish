@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 
 	"github.com/gophish/gophish/config"
 	"github.com/gophish/gophish/models"
@@ -29,6 +30,7 @@ func (s *ControllersSuite) getFirstEmailRequest() models.EmailRequest {
 		UserId:        1,
 		BaseRecipient: campaign.Results[0].BaseRecipient,
 		SMTP:          campaign.SMTP,
+		FromAddress:   campaign.SMTP.FromAddress,
 	}
 	err := models.PostEmailRequest(&req)
 	s.Nil(err)
@@ -36,7 +38,7 @@ func (s *ControllersSuite) getFirstEmailRequest() models.EmailRequest {
 }
 
 func (s *ControllersSuite) openEmail(rid string) {
-	resp, err := http.Get(fmt.Sprintf("%s/track?%s=%s", ps.URL, models.RecipientParameter, rid))
+	resp, err := http.Get(fmt.Sprintf("%s/track?%s=%s", s.phishServer.URL, models.RecipientParameter, rid))
 	s.Nil(err)
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
@@ -47,19 +49,19 @@ func (s *ControllersSuite) openEmail(rid string) {
 }
 
 func (s *ControllersSuite) reportedEmail(rid string) {
-	resp, err := http.Get(fmt.Sprintf("%s/report?%s=%s", ps.URL, models.RecipientParameter, rid))
+	resp, err := http.Get(fmt.Sprintf("%s/report?%s=%s", s.phishServer.URL, models.RecipientParameter, rid))
 	s.Nil(err)
 	s.Equal(resp.StatusCode, http.StatusNoContent)
 }
 
 func (s *ControllersSuite) reportEmail404(rid string) {
-	resp, err := http.Get(fmt.Sprintf("%s/report?%s=%s", ps.URL, models.RecipientParameter, rid))
+	resp, err := http.Get(fmt.Sprintf("%s/report?%s=%s", s.phishServer.URL, models.RecipientParameter, rid))
 	s.Nil(err)
 	s.Equal(resp.StatusCode, http.StatusNotFound)
 }
 
 func (s *ControllersSuite) openEmail404(rid string) {
-	resp, err := http.Get(fmt.Sprintf("%s/track?%s=%s", ps.URL, models.RecipientParameter, rid))
+	resp, err := http.Get(fmt.Sprintf("%s/track?%s=%s", s.phishServer.URL, models.RecipientParameter, rid))
 	s.Nil(err)
 	defer resp.Body.Close()
 	s.Nil(err)
@@ -67,7 +69,7 @@ func (s *ControllersSuite) openEmail404(rid string) {
 }
 
 func (s *ControllersSuite) clickLink(rid string, expectedHTML string) {
-	resp, err := http.Get(fmt.Sprintf("%s/?%s=%s", ps.URL, models.RecipientParameter, rid))
+	resp, err := http.Get(fmt.Sprintf("%s/?%s=%s", s.phishServer.URL, models.RecipientParameter, rid))
 	s.Nil(err)
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
@@ -77,7 +79,7 @@ func (s *ControllersSuite) clickLink(rid string, expectedHTML string) {
 }
 
 func (s *ControllersSuite) clickLink404(rid string) {
-	resp, err := http.Get(fmt.Sprintf("%s/?%s=%s", ps.URL, models.RecipientParameter, rid))
+	resp, err := http.Get(fmt.Sprintf("%s/?%s=%s", s.phishServer.URL, models.RecipientParameter, rid))
 	s.Nil(err)
 	defer resp.Body.Close()
 	s.Nil(err)
@@ -85,37 +87,37 @@ func (s *ControllersSuite) clickLink404(rid string) {
 }
 
 func (s *ControllersSuite) transparencyRequest(r models.Result, rid, path string) {
-	resp, err := http.Get(fmt.Sprintf("%s%s?%s=%s", ps.URL, path, models.RecipientParameter, rid))
+	resp, err := http.Get(fmt.Sprintf("%s%s?%s=%s", s.phishServer.URL, path, models.RecipientParameter, rid))
 	s.Nil(err)
 	defer resp.Body.Close()
 	s.Equal(resp.StatusCode, http.StatusOK)
 	tr := &TransparencyResponse{}
 	err = json.NewDecoder(resp.Body).Decode(tr)
 	s.Nil(err)
-	s.Equal(tr.ContactAddress, config.Conf.ContactAddress)
+	s.Equal(tr.ContactAddress, s.config.ContactAddress)
 	s.Equal(tr.SendDate, r.SendDate)
-	s.Equal(tr.Server, ServerName)
+	s.Equal(tr.Server, config.ServerName)
 }
 
 func (s *ControllersSuite) TestOpenedPhishingEmail() {
 	campaign := s.getFirstCampaign()
 	result := campaign.Results[0]
-	s.Equal(result.Status, models.STATUS_SENDING)
+	s.Equal(result.Status, models.StatusSending)
 
 	s.openEmail(result.RId)
 
 	campaign = s.getFirstCampaign()
 	result = campaign.Results[0]
 	lastEvent := campaign.Events[len(campaign.Events)-1]
-	s.Equal(result.Status, models.EVENT_OPENED)
-	s.Equal(lastEvent.Message, models.EVENT_OPENED)
+	s.Equal(result.Status, models.EventOpened)
+	s.Equal(lastEvent.Message, models.EventOpened)
 	s.Equal(result.ModifiedDate, lastEvent.Time)
 }
 
 func (s *ControllersSuite) TestReportedPhishingEmail() {
 	campaign := s.getFirstCampaign()
 	result := campaign.Results[0]
-	s.Equal(result.Status, models.STATUS_SENDING)
+	s.Equal(result.Status, models.StatusSending)
 
 	s.reportedEmail(result.RId)
 
@@ -123,14 +125,14 @@ func (s *ControllersSuite) TestReportedPhishingEmail() {
 	result = campaign.Results[0]
 	lastEvent := campaign.Events[len(campaign.Events)-1]
 	s.Equal(result.Reported, true)
-	s.Equal(lastEvent.Message, models.EVENT_REPORTED)
+	s.Equal(lastEvent.Message, models.EventReported)
 	s.Equal(result.ModifiedDate, lastEvent.Time)
 }
 
 func (s *ControllersSuite) TestClickedPhishingLinkAfterOpen() {
 	campaign := s.getFirstCampaign()
 	result := campaign.Results[0]
-	s.Equal(result.Status, models.STATUS_SENDING)
+	s.Equal(result.Status, models.StatusSending)
 
 	s.openEmail(result.RId)
 	s.clickLink(result.RId, campaign.Page.HTML)
@@ -138,17 +140,17 @@ func (s *ControllersSuite) TestClickedPhishingLinkAfterOpen() {
 	campaign = s.getFirstCampaign()
 	result = campaign.Results[0]
 	lastEvent := campaign.Events[len(campaign.Events)-1]
-	s.Equal(result.Status, models.EVENT_CLICKED)
-	s.Equal(lastEvent.Message, models.EVENT_CLICKED)
+	s.Equal(result.Status, models.EventClicked)
+	s.Equal(lastEvent.Message, models.EventClicked)
 	s.Equal(result.ModifiedDate, lastEvent.Time)
 }
 
 func (s *ControllersSuite) TestNoRecipientID() {
-	resp, err := http.Get(fmt.Sprintf("%s/track", ps.URL))
+	resp, err := http.Get(fmt.Sprintf("%s/track", s.phishServer.URL))
 	s.Nil(err)
 	s.Equal(resp.StatusCode, http.StatusNotFound)
 
-	resp, err = http.Get(ps.URL)
+	resp, err = http.Get(s.phishServer.URL)
 	s.Nil(err)
 	s.Equal(resp.StatusCode, http.StatusNotFound)
 }
@@ -163,12 +165,12 @@ func (s *ControllersSuite) TestInvalidRecipientID() {
 func (s *ControllersSuite) TestCompletedCampaignClick() {
 	campaign := s.getFirstCampaign()
 	result := campaign.Results[0]
-	s.Equal(result.Status, models.STATUS_SENDING)
+	s.Equal(result.Status, models.StatusSending)
 	s.openEmail(result.RId)
 
 	campaign = s.getFirstCampaign()
 	result = campaign.Results[0]
-	s.Equal(result.Status, models.EVENT_OPENED)
+	s.Equal(result.Status, models.EventOpened)
 
 	models.CompleteCampaign(campaign.Id, 1)
 	s.openEmail404(result.RId)
@@ -176,12 +178,12 @@ func (s *ControllersSuite) TestCompletedCampaignClick() {
 
 	campaign = s.getFirstCampaign()
 	result = campaign.Results[0]
-	s.Equal(result.Status, models.EVENT_OPENED)
+	s.Equal(result.Status, models.EventOpened)
 }
 
 func (s *ControllersSuite) TestRobotsHandler() {
 	expected := []byte("User-agent: *\nDisallow: /\n")
-	resp, err := http.Get(fmt.Sprintf("%s/robots.txt", ps.URL))
+	resp, err := http.Get(fmt.Sprintf("%s/robots.txt", s.phishServer.URL))
 	s.Nil(err)
 	s.Equal(resp.StatusCode, http.StatusOK)
 	defer resp.Body.Close()
@@ -227,4 +229,42 @@ func (s *ControllersSuite) TestTransparencyRequest() {
 	s.transparencyRequest(result, rid, "/")
 	s.transparencyRequest(result, rid, "/track")
 	s.transparencyRequest(result, rid, "/report")
+}
+
+func (s *ControllersSuite) TestRedirectTemplating() {
+	p := models.Page{
+		Name:        "Redirect Page",
+		HTML:        "<html>Test</html>",
+		UserId:      1,
+		RedirectURL: "http://example.com/{{.RId}}",
+	}
+	err := models.PostPage(&p)
+	s.Nil(err)
+	smtp, _ := models.GetSMTP(1, 1)
+	template, _ := models.GetTemplate(1, 1)
+	group, _ := models.GetGroup(1, 1)
+
+	campaign := models.Campaign{Name: "Redirect campaign"}
+	campaign.UserId = 1
+	campaign.Template = template
+	campaign.Page = p
+	campaign.SMTP = smtp
+	campaign.Groups = []models.Group{group}
+	err = models.PostCampaign(&campaign, campaign.UserId)
+	s.Nil(err)
+
+	client := http.Client{
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		},
+	}
+	result := campaign.Results[0]
+	resp, err := client.PostForm(fmt.Sprintf("%s/?%s=%s", s.phishServer.URL, models.RecipientParameter, result.RId), url.Values{"username": {"test"}, "password": {"test"}})
+	s.Nil(err)
+	defer resp.Body.Close()
+	s.Equal(http.StatusFound, resp.StatusCode)
+	expectedURL := fmt.Sprintf("http://example.com/%s", result.RId)
+	got, err := resp.Location()
+	s.Nil(err)
+	s.Equal(expectedURL, got.String())
 }

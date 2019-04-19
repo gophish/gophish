@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/gophish/gomail"
+	"github.com/gophish/gophish/config"
 	log "github.com/gophish/gophish/logger"
 	"github.com/gophish/gophish/mailer"
 )
@@ -84,7 +85,6 @@ func PostEmailRequest(s *EmailRequest) error {
 		return err
 	}
 	s.RId = fmt.Sprintf("%s%s", PreviewPrefix, rid)
-	s.FromAddress = s.SMTP.FromAddress
 	return db.Save(&s).Error
 }
 
@@ -119,6 +119,12 @@ func (s *EmailRequest) Generate(msg *gomail.Message) error {
 		return err
 	}
 	s.URL = url
+
+	// Add the transparency headers
+	msg.SetHeader("X-Mailer", config.ServerName)
+	if conf.ContactAddress != "" {
+		msg.SetHeader("X-Gophish-Contact", conf.ContactAddress)
+	}
 
 	// Parse the customHeader templates
 	for _, header := range s.SMTP.Headers {

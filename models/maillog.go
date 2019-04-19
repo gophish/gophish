@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/gophish/gomail"
+	"github.com/gophish/gophish/config"
 	log "github.com/gophish/gophish/logger"
 	"github.com/gophish/gophish/mailer"
 )
@@ -19,7 +20,7 @@ import (
 // attempt. This will give us a maximum send delay of 256 minutes, or about 4.2 hours.
 var MaxSendAttempts = 8
 
-// ErrMaxSendAttempts is thrown when the maximum number of sending attemps for a given
+// ErrMaxSendAttempts is thrown when the maximum number of sending attempts for a given
 // MailLog is exceeded.
 var ErrMaxSendAttempts = errors.New("max send attempts exceeded")
 
@@ -37,15 +38,14 @@ type MailLog struct {
 
 // GenerateMailLog creates a new maillog for the given campaign and
 // result. It sets the initial send date to match the campaign's launch date.
-func GenerateMailLog(c *Campaign, r *Result) error {
+func GenerateMailLog(c *Campaign, r *Result, sendDate time.Time) error {
 	m := &MailLog{
 		UserId:     c.UserId,
 		CampaignId: c.Id,
 		RId:        r.RId,
-		SendDate:   c.LaunchDate,
+		SendDate:   sendDate,
 	}
-	err = db.Save(m).Error
-	return err
+	return db.Save(m).Error
 }
 
 // Backoff sets the MailLog SendDate to be the next entry in an exponential
@@ -157,6 +157,11 @@ func (m *MailLog) Generate(msg *gomail.Message) error {
 		return err
 	}
 
+	// Add the transparency headers
+	msg.SetHeader("X-Mailer", config.ServerName)
+	if conf.ContactAddress != "" {
+		msg.SetHeader("X-Gophish-Contact", conf.ContactAddress)
+	}
 	// Parse the customHeader templates
 	for _, header := range c.SMTP.Headers {
 		key, err := ExecuteTemplate(header.Key, ptx)
@@ -254,6 +259,5 @@ func LockMailLogs(ms []*MailLog, lock bool) error {
 // in the database. This is intended to be called when Gophish is started
 // so that any previously locked maillogs can resume processing.
 func UnlockAllMailLogs() error {
-	err = db.Model(&MailLog{}).Update("processing", false).Error
-	return err
+	return db.Model(&MailLog{}).Update("processing", false).Error
 }

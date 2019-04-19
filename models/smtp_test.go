@@ -3,6 +3,8 @@ package models
 import (
 	"fmt"
 
+	"github.com/jinzhu/gorm"
+
 	check "gopkg.in/check.v1"
 )
 
@@ -13,7 +15,7 @@ func (s *ModelsSuite) TestPostSMTP(c *check.C) {
 		FromAddress: "Foo Bar <foo@example.com>",
 		UserId:      1,
 	}
-	err = PostSMTP(&smtp)
+	err := PostSMTP(&smtp)
 	c.Assert(err, check.Equals, nil)
 	ss, err := GetSMTPs(1)
 	c.Assert(err, check.Equals, nil)
@@ -26,7 +28,7 @@ func (s *ModelsSuite) TestPostSMTPNoHost(c *check.C) {
 		FromAddress: "Foo Bar <foo@example.com>",
 		UserId:      1,
 	}
-	err = PostSMTP(&smtp)
+	err := PostSMTP(&smtp)
 	c.Assert(err, check.Equals, ErrHostNotSpecified)
 }
 
@@ -36,7 +38,7 @@ func (s *ModelsSuite) TestPostSMTPNoFrom(c *check.C) {
 		UserId: 1,
 		Host:   "1.1.1.1:25",
 	}
-	err = PostSMTP(&smtp)
+	err := PostSMTP(&smtp)
 	c.Assert(err, check.Equals, ErrFromAddressNotSpecified)
 }
 
@@ -51,7 +53,7 @@ func (s *ModelsSuite) TestPostSMTPValidHeader(c *check.C) {
 			Header{Key: "X-Mailer", Value: "gophish"},
 		},
 	}
-	err = PostSMTP(&smtp)
+	err := PostSMTP(&smtp)
 	c.Assert(err, check.Equals, nil)
 	ss, err := GetSMTPs(1)
 	c.Assert(err, check.Equals, nil)
@@ -73,4 +75,9 @@ func (s *ModelsSuite) TestSMTPGetDialer(ch *check.C) {
 	ch.Assert(dialer.Port, check.Equals, port)
 	ch.Assert(dialer.TLSConfig.ServerName, check.Equals, smtp.Host)
 	ch.Assert(dialer.TLSConfig.InsecureSkipVerify, check.Equals, smtp.IgnoreCertErrors)
+}
+
+func (s *ModelsSuite) TestGetInvalidSMTP(ch *check.C) {
+	_, err := GetSMTP(-1, 1)
+	ch.Assert(err, check.Equals, gorm.ErrRecordNotFound)
 }

@@ -109,6 +109,8 @@ func GenerateSecureKey() string {
 	return fmt.Sprintf("%x", k)
 }
 
+// ChangePassword verifies the current password provided in the request and,
+// if it's valid, changes the password for the authenticated user.
 func ChangePassword(r *http.Request) error {
 	u := ctx.Get(r, "user").(models.User)
 	currentPw := r.FormValue("current_password")
