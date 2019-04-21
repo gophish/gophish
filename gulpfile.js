@@ -17,8 +17,7 @@ var gulp = require('gulp'),
     dest_js_directory = 'static/js/dist/',
     dest_css_directory = 'static/css/dist/';
 
-gulp.task('vendorjs', function () {
-    // Vendor minifying / concat
+vendorjs = function () {
     return gulp.src([
             vendor_directory + 'jquery.js',
             vendor_directory + 'bootstrap.min.js',
@@ -46,11 +45,11 @@ gulp.task('vendorjs', function () {
         }))
         .pipe(uglify())
         .pipe(gulp.dest(dest_js_directory));
-})
+}
 
-gulp.task('scripts', function () {
+scripts = function () {
     // Gophish app files
-    gulp.src(app_directory)
+    return gulp.src(app_directory)
         .pipe(rename({
             suffix: '.min'
         }))
@@ -58,9 +57,9 @@ gulp.task('scripts', function () {
             console.log(e);
         }))
         .pipe(gulp.dest(dest_js_directory + 'app/'));
-})
+}
 
-gulp.task('styles', function () {
+styles = function () {
     return gulp.src([
             css_directory + 'bootstrap.min.css',
             css_directory + 'main.css',
@@ -80,8 +79,10 @@ gulp.task('styles', function () {
         }))
         .pipe(concat('gophish.css'))
         .pipe(gulp.dest(dest_css_directory));
-})
+}
 
-gulp.task('build', ['vendorjs', 'scripts', 'styles']);
-
-gulp.task('default', ['build']);
+exports.vendorjs = vendorjs
+exports.scripts = scripts
+exports.styles = styles
+exports.build = gulp.parallel(vendorjs, scripts, styles)
+exports.default = exports.build
