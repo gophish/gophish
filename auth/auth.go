@@ -32,18 +32,22 @@ var Store = sessions.NewCookieStore(
 	[]byte(securecookie.GenerateRandomKey(64)), //Signing key
 	[]byte(securecookie.GenerateRandomKey(32)))
 
+// TODO: DELETE THIS ---
 // ErrInvalidPassword is thrown when a user provides an incorrect password.
 var ErrInvalidPassword = errors.New("Invalid Password")
 
 // ErrEmptyPassword is thrown when a user provides a blank password to the register
 // or change password functions
-var ErrEmptyPassword = errors.New("Password cannot be blank")
+var ErrPasswordMismatch = errors.New("Password cannot be blank")
 
-// ErrPasswordMismatch is thrown when a user provides passwords that do not match
-var ErrPasswordMismatch = errors.New("Passwords must match")
+// ErrEmptyPassword is thrown when a user provides a blank password to the register
+// or change password functions
+var ErrEmptyPassword = errors.New("No password provided")
 
 // ErrUsernameTaken is thrown when a user attempts to register a username that is taken.
 var ErrUsernameTaken = errors.New("Username already taken")
+
+// --------
 
 // Login attempts to login the user given a request.
 func Login(r *http.Request) (bool, models.User, error) {
@@ -100,8 +104,7 @@ func Register(r *http.Request) (bool, error) {
 	return true, nil
 }
 
-// GenerateSecureKey creates a secure key to use
-// as an API key
+// GenerateSecureKey creates a secure key to use as an API key
 func GenerateSecureKey() string {
 	// Inspired from gorilla/securecookie
 	k := make([]byte, 32)
@@ -109,7 +112,8 @@ func GenerateSecureKey() string {
 	return fmt.Sprintf("%x", k)
 }
 
-// NewHash hashes the provided password and returns the hash as a string
+// NewHash hashes the provided password and returns the bcrypt hash (using the
+// default 10 rounds) as a string.
 func NewHash(pass string) (string, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(pass), bcrypt.DefaultCost)
 	if err != nil {
@@ -136,7 +140,7 @@ func ChangePassword(r *http.Request) error {
 	}
 	// Check that new passwords match
 	if newPassword != confirmPassword {
-		return ErrPasswordMismatch
+		return models.ErrPasswordMismatch
 	}
 	// Generate the new hash
 	h, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)

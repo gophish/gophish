@@ -95,17 +95,17 @@ func (as *AdminServer) Shutdown() error {
 func (as *AdminServer) registerRoutes() {
 	router := mux.NewRouter()
 	// Base Front-end routes
-	router.HandleFunc("/", Use(as.Base, mid.RequireLogin))
+	router.HandleFunc("/", mid.Use(as.Base, mid.RequireLogin))
 	router.HandleFunc("/login", as.Login)
-	router.HandleFunc("/logout", Use(as.Logout, mid.RequireLogin))
-	router.HandleFunc("/campaigns", Use(as.Campaigns, mid.RequireLogin))
-	router.HandleFunc("/campaigns/{id:[0-9]+}", Use(as.CampaignID, mid.RequireLogin))
-	router.HandleFunc("/templates", Use(as.Templates, mid.RequireLogin))
-	router.HandleFunc("/users", Use(as.Users, mid.RequireLogin))
-	router.HandleFunc("/landing_pages", Use(as.LandingPages, mid.RequireLogin))
-	router.HandleFunc("/sending_profiles", Use(as.SendingProfiles, mid.RequireLogin))
-	router.HandleFunc("/settings", Use(as.Settings, mid.RequireLogin))
-	router.HandleFunc("/register", Use(as.Register, mid.RequireLogin, mid.RequirePermission(models.PermissionModifySystem)))
+	router.HandleFunc("/logout", mid.Use(as.Logout, mid.RequireLogin))
+	router.HandleFunc("/campaigns", mid.Use(as.Campaigns, mid.RequireLogin))
+	router.HandleFunc("/campaigns/{id:[0-9]+}", mid.Use(as.CampaignID, mid.RequireLogin))
+	router.HandleFunc("/templates", mid.Use(as.Templates, mid.RequireLogin))
+	router.HandleFunc("/users", mid.Use(as.Users, mid.RequireLogin))
+	router.HandleFunc("/landing_pages", mid.Use(as.LandingPages, mid.RequireLogin))
+	router.HandleFunc("/sending_profiles", mid.Use(as.SendingProfiles, mid.RequireLogin))
+	router.HandleFunc("/settings", mid.Use(as.Settings, mid.RequireLogin))
+	router.HandleFunc("/register", mid.Use(as.Register, mid.RequireLogin, mid.RequirePermission(models.PermissionModifySystem)))
 	// Create the API routes
 	api := api.NewServer(api.WithWorker(as.worker))
 	router.PathPrefix("/api/").Handler(api)
@@ -118,7 +118,7 @@ func (as *AdminServer) registerRoutes() {
 		csrf.FieldName("csrf_token"),
 		csrf.Secure(as.config.UseTLS))
 	adminHandler := csrfHandler(router)
-	adminHandler = Use(adminHandler.ServeHTTP, mid.CSRFExceptions, mid.GetContext)
+	adminHandler = mid.Use(adminHandler.ServeHTTP, mid.CSRFExceptions, mid.GetContext)
 
 	// Setup GZIP compression
 	gzipWrapper, _ := gziphandler.NewGzipLevelHandler(gzip.BestCompression)
@@ -127,15 +127,6 @@ func (as *AdminServer) registerRoutes() {
 	// Setup logging
 	adminHandler = handlers.CombinedLoggingHandler(log.Writer(), adminHandler)
 	as.server.Handler = adminHandler
-}
-
-// Use allows us to stack middleware to process the request
-// Example taken from https://github.com/gorilla/mux/pull/36#issuecomment-25849172
-func Use(handler http.HandlerFunc, mid ...func(http.Handler) http.HandlerFunc) http.HandlerFunc {
-	for _, m := range mid {
-		handler = m(handler)
-	}
-	return handler
 }
 
 type templateParams struct {

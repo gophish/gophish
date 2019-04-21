@@ -49,6 +49,6 @@ func PutUser(u *User) error {
 
 // DeleteUser deletes the given user
 func DeleteUser(id int64) error {
-	err := db.Where("id=?").Delete(&User{}).Error
+	err := db.Where("id=?", id).Delete(&User{}).Error
 	return err
 }

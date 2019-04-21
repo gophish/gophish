@@ -31,6 +31,15 @@ func CSRFExceptions(handler http.Handler) http.HandlerFunc {
 	}
 }
 
+// Use allows us to stack middleware to process the request
+// Example taken from https://github.com/gorilla/mux/pull/36#issuecomment-25849172
+func Use(handler http.HandlerFunc, mid ...func(http.Handler) http.HandlerFunc) http.HandlerFunc {
+	for _, m := range mid {
+		handler = m(handler)
+	}
+	return handler
+}
+
 // GetContext wraps each request in a function which fills in the context for a given request.
 // This includes setting the User and Session keys and values as necessary for use in later functions.
 func GetContext(handler http.Handler) http.HandlerFunc {
