@@ -89,9 +89,9 @@ function edit(id) {
     $("#csvupload").fileupload({
         url: "/api/import/group",
         dataType: "json",
-	beforeSend : function( xhr ) {
-	    xhr.setRequestHeader( 'Authorization', 'Bearer ' + user.api_key );
-	},
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader('Authorization', 'Bearer ' + user.api_key);
+        },
         add: function (e, data) {
             $("#modal\\.flashes").empty()
             var acceptFileTypes = /(csv|txt)$/i;

@@ -23,9 +23,9 @@ function query(endpoint, method, data, async) {
         data: JSON.stringify(data),
         dataType: "json",
         contentType: "application/json",
-	beforeSend : function( xhr ) {
-	    xhr.setRequestHeader( 'Authorization', 'Bearer ' + user.api_key );
-	}
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader('Authorization', 'Bearer ' + user.api_key);
+        }
     })
 }
 
