@@ -1,16 +1,13 @@
 package models
 
 import (
-	"crypto/rand"
 	"crypto/tls"
 	"errors"
-	"math/big"
 	"net/mail"
 	"os"
 	"strconv"
 	"strings"
 	"time"
-	"fmt"
 
 	"github.com/gophish/gomail"
 	log "github.com/gophish/gophish/logger"
@@ -187,26 +184,9 @@ func PostSMTP(s *SMTP) error {
 		log.Error(err)
 	}
 	// Save custom headers
-	var messageIdHeaderExists = false
 	for i := range s.Headers {
 		s.Headers[i].SMTPId = s.Id
-		if s.Headers[i].Key == "Message-ID" {
-			messageIdHeaderExists = true
-		}
 		err := db.Save(&s.Headers[i]).Error
-		if err != nil {
-			log.Error(err)
-			return err
-		}
-	}
-	if messageIdHeaderExists == false {
-		randomNumber, err := generateMessageId()
-		if err != nil {
-			log.Error(err)
-			return err
-		}
-		messageId := fmt.Sprintf("%s-%s%s", randomNumber, "{{.Rid}}", s.FromAddress)
-		err = db.Save(&Header{0, s.Id, "Message-ID", messageId}).Error
 		if err != nil {
 			log.Error(err)
 			return err
@@ -233,26 +213,10 @@ func PutSMTP(s *SMTP) error {
 		log.Error(err)
 		return err
 	}
-	var messageIdHeaderExists = false
+	// Save custom headers
 	for i := range s.Headers {
 		s.Headers[i].SMTPId = s.Id
-		if s.Headers[i].Key == "Message-ID" {
-			messageIdHeaderExists = true
-		}
 		err := db.Save(&s.Headers[i]).Error
-		if err != nil {
-			log.Error(err)
-			return err
-		}
-	}
-	if messageIdHeaderExists == false {
-		randomNumber, err := generateMessageId()
-		if err != nil {
-			log.Error(err)
-			return err
-		}
-		messageId := fmt.Sprintf("%s-%s%s", randomNumber, "{{.Rid}}", s.FromAddress)
-		err = db.Save(&Header{0, s.Id, "Message-ID", messageId}).Error
 		if err != nil {
 			log.Error(err)
 			return err
@@ -275,18 +239,4 @@ func DeleteSMTP(id int64, uid int64) error {
 		log.Error(err)
 	}
 	return err
-}
-
-func generateMessageId() (string, error) {
-	const alphaNum = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-	k := make([]byte, 32)
-	for i := range k {
-		idx, err := rand.Int(rand.Reader, big.NewInt(int64(len(alphaNum))))
-		if err != nil {
-			return "", err
-		}
-		k[i] = alphaNum[idx.Int64()]
-	}
-	log.Info(string(k))
-	return string(k), nil
 }
