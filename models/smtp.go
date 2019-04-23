@@ -213,6 +213,7 @@ func PutSMTP(s *SMTP) error {
 		log.Error(err)
 		return err
 	}
+	// Save custom headers
 	for i := range s.Headers {
 		s.Headers[i].SMTPId = s.Id
 		err := db.Save(&s.Headers[i]).Error

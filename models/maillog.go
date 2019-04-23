@@ -1,12 +1,15 @@
 package models
 
 import (
+	"crypto/rand"
 	"encoding/base64"
 	"errors"
 	"fmt"
 	"io"
 	"math"
+	"math/big"
 	"net/mail"
+	"os"
 	"strings"
 	"time"
 
@@ -162,6 +165,14 @@ func (m *MailLog) Generate(msg *gomail.Message) error {
 	if conf.ContactAddress != "" {
 		msg.SetHeader("X-Gophish-Contact", conf.ContactAddress)
 	}
+
+	// Add Message-Id header as described in RFC 2822.
+	messageID, err := m.generateMessageID()
+	if err != nil {
+		return err
+	}
+	msg.SetHeader("Message-Id", messageID)
+
 	// Parse the customHeader templates
 	for _, header := range c.SMTP.Headers {
 		key, err := ExecuteTemplate(header.Key, ptx)
@@ -260,4 +271,31 @@ func LockMailLogs(ms []*MailLog, lock bool) error {
 // so that any previously locked maillogs can resume processing.
 func UnlockAllMailLogs() error {
 	return db.Model(&MailLog{}).Update("processing", false).Error
+}
+
+var maxBigInt = big.NewInt(math.MaxInt64)
+
+// generateMessageID generates and returns a string suitable for an RFC 2822
+// compliant Message-ID, e.g.:
+// <1444789264909237300.3464.1819418242800517193@DESKTOP01>
+//
+// The following parameters are used to generate a Message-ID:
+// - The nanoseconds since Epoch
+// - The calling PID
+// - A cryptographically random int64
+// - The sending hostname
+func (m *MailLog) generateMessageID() (string, error) {
+	t := time.Now().UnixNano()
+	pid := os.Getpid()
+	rint, err := rand.Int(rand.Reader, maxBigInt)
+	if err != nil {
+		return "", err
+	}
+	h, err := os.Hostname()
+	// If we can't get the hostname, we'll use localhost
+	if err != nil {
+		h = "localhost.localdomain"
+	}
+	msgid := fmt.Sprintf("<%d.%d.%d@%s>", t, pid, rint, h)
+	return msgid, nil
 }
