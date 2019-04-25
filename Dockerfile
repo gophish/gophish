@@ -9,7 +9,7 @@ RUN go build
 
 
 # setup run image
-FROM debian:latest
+FROM debian:stable-slim
 
 RUN apt-get update && \
     apt-get install --no-install-recommends -y \
