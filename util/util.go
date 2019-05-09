@@ -86,6 +86,9 @@ func ParseCSV(r *http.Request) ([]models.Target, error) {
 				pi = i
 			}
 		}
+		if fi == -1 && li == -1 && ei == -1 && pi == -1 {
+			continue
+		}
 		for {
 			record, err := reader.Read()
 			if err == io.EOF {
