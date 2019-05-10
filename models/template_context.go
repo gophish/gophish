@@ -78,6 +78,7 @@ func ExecuteTemplate(text string, data interface{}) (string, error) {
 	buff := bytes.Buffer{}
 	funcMap := template.FuncMap{
 		"date": time.Parse,
+		"duration": time.ParseDuration,
 		"location": time.LoadLocation,
 	}
 	tmpl, err := template.New("template").Funcs(funcMap).Parse(text)
