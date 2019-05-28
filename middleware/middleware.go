@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/gophish/gophish/auth"
 	ctx "github.com/gophish/gophish/context"
 	"github.com/gophish/gophish/models"
 	"github.com/gorilla/csrf"
@@ -52,7 +51,7 @@ func GetContext(handler http.Handler) http.HandlerFunc {
 		}
 		// Set the context appropriately here.
 		// Set the session
-		session, _ := auth.Store.Get(r, "gophish")
+		session, _ := Store.Get(r, "gophish")
 		// Put the session in the context so that we can
 		// reuse the values in different handlers
 		r = ctx.Set(r, "session", session)

@@ -1,36 +1,16 @@
 package auth
 
 import (
-	"encoding/gob"
 	"errors"
-	"fmt"
-	"io"
 	"net/http"
-
-	"crypto/rand"
 
 	ctx "github.com/gophish/gophish/context"
 	log "github.com/gophish/gophish/logger"
 	"github.com/gophish/gophish/models"
-	"github.com/gorilla/securecookie"
-	"github.com/gorilla/sessions"
+	"github.com/gophish/gophish/util"
 	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
 )
-
-//init registers the necessary models to be saved in the session later
-func init() {
-	gob.Register(&models.User{})
-	gob.Register(&models.Flash{})
-	Store.Options.HttpOnly = true
-	// This sets the maxAge to 5 days for all cookies
-	Store.MaxAge(86400 * 5)
-}
-
-// Store contains the session information for the request
-var Store = sessions.NewCookieStore(
-	[]byte(securecookie.GenerateRandomKey(64)), //Signing key
-	[]byte(securecookie.GenerateRandomKey(32)))
 
 // TODO: DELETE THIS ---
 // ErrInvalidPassword is thrown when a user provides an incorrect password.
@@ -99,27 +79,9 @@ func Register(r *http.Request) (bool, error) {
 	}
 	u.Username = username
 	u.Hash = string(h)
-	u.ApiKey = GenerateSecureKey()
+	u.ApiKey = util.GenerateSecureKey()
 	err = models.PutUser(&u)
 	return true, nil
-}
-
-// GenerateSecureKey creates a secure key to use as an API key
-func GenerateSecureKey() string {
-	// Inspired from gorilla/securecookie
-	k := make([]byte, 32)
-	io.ReadFull(rand.Reader, k)
-	return fmt.Sprintf("%x", k)
-}
-
-// NewHash hashes the provided password and returns the bcrypt hash (using the
-// default 10 rounds) as a string.
-func NewHash(pass string) (string, error) {
-	hash, err := bcrypt.GenerateFromPassword([]byte(pass), bcrypt.DefaultCost)
-	if err != nil {
-		return "", err
-	}
-	return string(hash), nil
 }
 
 // ChangePassword verifies the current password provided in the request and,
@@ -140,7 +102,7 @@ func ChangePassword(r *http.Request) error {
 	}
 	// Check that new passwords match
 	if newPassword != confirmPassword {
-		return models.ErrPasswordMismatch
+		return ErrPasswordMismatch
 	}
 	// Generate the new hash
 	h, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)

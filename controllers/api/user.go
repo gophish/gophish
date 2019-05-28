@@ -6,9 +6,10 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/gophish/gophish/auth"
 	ctx "github.com/gophish/gophish/context"
+	log "github.com/gophish/gophish/logger"
 	"github.com/gophish/gophish/models"
+	"github.com/gophish/gophish/util"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 )
@@ -26,6 +27,10 @@ var ErrEmptyUsername = errors.New("No username provided")
 // ErrEmptyRole is throws when no role is provided when creating or modifying a user.
 var ErrEmptyRole = errors.New("No role specified")
 
+// ErrInsufficientPermission is thrown when a user attempts to change an
+// attribute (such as the role) for which they don't have permission.
+var ErrInsufficientPermission = errors.New("Permission denied")
+
 // userRequest is the payload which represents the creation of a new user.
 type userRequest struct {
 	Username string `json:"username"`
@@ -41,10 +46,10 @@ func (ur *userRequest) Validate(existingUser *models.User) error {
 		return ErrEmptyRole
 	}
 	// Verify that the username isn't already taken. We consider two cases:
-	// * We creating a new user, in which case any match is a conflict
+	// * We're creating a new user, in which case any match is a conflict
 	// * We're modifying a user, in which case any match with a different ID is
 	//   a conflict.
-	possibleConflict, err := GetUserByUsername(ur.Username)
+	possibleConflict, err := models.GetUserByUsername(ur.Username)
 	if err == nil {
 		if existingUser == nil {
 			return ErrUsernameTaken
@@ -85,10 +90,10 @@ func (as *Server) Users(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if ur.Password == "" {
-			JSONResponse(w, models.Response{Success: false, Message: ErrEmptyPassword}, http.StatusBadRequest)
+			JSONResponse(w, models.Response{Success: false, Message: ErrEmptyPassword.Error()}, http.StatusBadRequest)
 			return
 		}
-		hash, err := auth.NewHash(ur.Password)
+		hash, err := util.NewHash(ur.Password)
 		if err != nil {
 			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
 			return
@@ -101,7 +106,7 @@ func (as *Server) Users(w http.ResponseWriter, r *http.Request) {
 		user := models.User{
 			Username: ur.Username,
 			Hash:     hash,
-			ApiKey:   auth.GenerateSecureKey(),
+			ApiKey:   util.GenerateSecureKey(),
 			Role:     role,
 			RoleID:   role.ID,
 		}
@@ -124,12 +129,12 @@ func (as *Server) User(w http.ResponseWriter, r *http.Request) {
 	// If the user doesn't have ModifySystem permissions, we need to verify
 	// that they're only taking action on their account.
 	currentUser := ctx.Get(r, "user").(models.User)
-	ok, err := currentUser.HasPermission(models.PermissionModifySystem)
+	hasSystem, err := currentUser.HasPermission(models.PermissionModifySystem)
 	if err != nil {
 		JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
 		return
 	}
-	if !ok && currentUser.Id != id {
+	if !hasSystem && currentUser.Id != id {
 		JSONResponse(w, models.Response{Success: false, Message: http.StatusText(http.StatusForbidden)}, http.StatusForbidden)
 		return
 	}
@@ -152,15 +157,24 @@ func (as *Server) User(w http.ResponseWriter, r *http.Request) {
 		ur := &userRequest{}
 		err = json.NewDecoder(r.Body).Decode(ur)
 		if err != nil {
+			log.Errorf("error decoding user request: %v", err)
 			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
 			return
 		}
-		err = ur.Validate(existingUser)
+		err = ur.Validate(&existingUser)
 		if err != nil {
+			log.Errorf("invalid user request received: %v", err)
 			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
 			return
 		}
 		existingUser.Username = ur.Username
+		// Only users with the ModifySystem permission are able to update a
+		// user's role. This prevents a privilege escalation letting users
+		// upgrade their own account.
+		if !hasSystem && ur.Role != existingUser.Role.Slug {
+			JSONResponse(w, models.Response{Success: false, Message: ErrInsufficientPermission.Error()}, http.StatusBadRequest)
+			return
+		}
 		role, err := models.GetRoleBySlug(ur.Role)
 		if err != nil {
 			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
@@ -172,8 +186,12 @@ func (as *Server) User(w http.ResponseWriter, r *http.Request) {
 		// managing the user's account, and making a simple change like
 		// updating the username or role. However, if it _is_ provided, we'll
 		// update the stored hash.
+		//
+		// Note that we don't force the current password to be provided. The
+		// assumption here is that the API key is a proper bearer token proving
+		// authenticated access to the account.
 		if ur.Password != "" {
-			hash, err := auth.NewHash(ur.Password)
+			hash, err := util.NewHash(ur.Password)
 			if err != nil {
 				JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
 				return
@@ -185,6 +203,6 @@ func (as *Server) User(w http.ResponseWriter, r *http.Request) {
 			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
 			return
 		}
-		JSONResponse(w, user, http.StatusOK)
+		JSONResponse(w, existingUser, http.StatusOK)
 	}
 }

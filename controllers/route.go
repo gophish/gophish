@@ -114,7 +114,7 @@ func (as *AdminServer) registerRoutes() {
 	router.PathPrefix("/").Handler(http.FileServer(unindexed.Dir("./static/")))
 
 	// Setup CSRF Protection
-	csrfHandler := csrf.Protect([]byte(auth.GenerateSecureKey()),
+	csrfHandler := csrf.Protect([]byte(util.GenerateSecureKey()),
 		csrf.FieldName("csrf_token"),
 		csrf.Secure(as.config.UseTLS))
 	adminHandler := csrfHandler(router)
