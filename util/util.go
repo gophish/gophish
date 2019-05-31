@@ -21,6 +21,7 @@ import (
 	log "github.com/gophish/gophish/logger"
 	"github.com/gophish/gophish/models"
 	"github.com/jordan-wright/email"
+	"golang.org/x/crypto/bcrypt"
 )
 
 var (
@@ -189,4 +190,22 @@ func CheckAndCreateSSL(cp string, kp string) error {
 
 	log.Info("TLS Certificate Generation complete")
 	return nil
+}
+
+// GenerateSecureKey creates a secure key to use as an API key
+func GenerateSecureKey() string {
+	// Inspired from gorilla/securecookie
+	k := make([]byte, 32)
+	io.ReadFull(rand.Reader, k)
+	return fmt.Sprintf("%x", k)
+}
+
+// NewHash hashes the provided password and returns the bcrypt hash (using the
+// default 10 rounds) as a string.
+func NewHash(pass string) (string, error) {
+	hash, err := bcrypt.GenerateFromPassword([]byte(pass), bcrypt.DefaultCost)
+	if err != nil {
+		return "", err
+	}
+	return string(hash), nil
 }

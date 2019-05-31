@@ -32,6 +32,7 @@ function query(endpoint, method, data, async) {
 function escapeHtml(text) {
     return $("<div/>").text(text).html()
 }
+window.escapeHtml = escapeHtml
 
 function unescapeHtml(html) {
     return $("<div/>").html(html).text()
@@ -196,6 +197,32 @@ var api = {
             return query("/smtp/" + id, "DELETE", {}, false)
         }
     },
+    // users contains the endpoints for /users
+    users: {
+        // get() - Queries the API for GET /users
+        get: function () {
+            return query("/users/", "GET", {}, true)
+        },
+        // post() - Posts a user to POST /users
+        post: function (user) {
+            return query("/users/", "POST", user, true)
+        }
+    },
+    // userId contains the endpoints for /users/:id
+    userId: {
+        // get() - Queries the API for GET /users/:id
+        get: function (id) {
+            return query("/users/" + id, "GET", {}, true)
+        },
+        // put() - Puts a user to PUT /users/:id
+        put: function (user) {
+            return query("/users/" + user.id, "PUT", user, true)
+        },
+        // delete() - Deletes a user at DELETE /users/:id
+        delete: function (id) {
+            return query("/users/" + id, "DELETE", {}, true)
+        }
+    },
     // import handles all of the "import" functions in the api
     import_email: function (req) {
         return query("/import/email", "POST", req, false)
@@ -212,6 +239,7 @@ var api = {
         return query("/reset", "POST", {}, true)
     }
 }
+window.api = api
 
 // Register our moment.js datatables listeners
 $(document).ready(function () {

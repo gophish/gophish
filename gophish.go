@@ -32,10 +32,10 @@ import (
 
 	"gopkg.in/alecthomas/kingpin.v2"
 
-	"github.com/gophish/gophish/auth"
 	"github.com/gophish/gophish/config"
 	"github.com/gophish/gophish/controllers"
 	log "github.com/gophish/gophish/logger"
+	"github.com/gophish/gophish/middleware"
 	"github.com/gophish/gophish/models"
 )
 
@@ -94,7 +94,7 @@ func main() {
 	}
 	adminConfig := conf.AdminConf
 	adminServer := controllers.NewAdminServer(adminConfig, adminOptions...)
-	auth.Store.Options.Secure = adminConfig.UseTLS
+	middleware.Store.Options.Secure = adminConfig.UseTLS
 
 	phishConfig := conf.PhishConf
 	phishServer := controllers.NewPhishingServer(phishConfig)

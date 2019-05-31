@@ -48,7 +48,7 @@ const (
 // Role represents a user role within Gophish. Each user has a single role
 // which maps to a set of permissions.
 type Role struct {
-	ID          int64        `json:"id"`
+	ID          int64        `json:"-"`
 	Slug        string       `json:"slug"`
 	Name        string       `json:"name"`
 	Description string       `json:"description"`

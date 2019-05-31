@@ -19,6 +19,7 @@ type APISuite struct {
 	apiKey    string
 	config    *config.Config
 	apiServer *Server
+	admin     models.User
 }
 
 func (s *APISuite) SetupSuite() {
@@ -37,6 +38,7 @@ func (s *APISuite) SetupSuite() {
 	u, err := models.GetUser(1)
 	s.Nil(err)
 	s.apiKey = u.ApiKey
+	s.admin = u
 	// Move our cwd up to the project root for help with resolving
 	// static assets
 	err = os.Chdir("../")
@@ -48,6 +50,15 @@ func (s *APISuite) TearDownTest() {
 	campaigns, _ := models.GetCampaigns(1)
 	for _, campaign := range campaigns {
 		models.DeleteCampaign(campaign.Id)
+	}
+	// Cleanup all users except the original admin
+	users, _ := models.GetUsers()
+	for _, user := range users {
+		if user.Id == 1 {
+			continue
+		}
+		err := models.DeleteUser(user.Id)
+		s.Nil(err)
 	}
 }
 

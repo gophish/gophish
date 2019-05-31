@@ -702,6 +702,10 @@ table.dataTable {
     background-color: #37485a;
 }
 
+.nav-badge {
+    margin-top: 5px;
+}
+
 #resultsMapContainer {
     display: none;
 }

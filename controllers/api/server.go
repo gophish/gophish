@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	mid "github.com/gophish/gophish/middleware"
+	"github.com/gophish/gophish/models"
 	"github.com/gophish/gophish/worker"
 	"github.com/gorilla/mux"
 )
@@ -64,6 +65,8 @@ func (as *Server) registerRoutes() {
 	router.HandleFunc("/pages/{id:[0-9]+}", as.Page)
 	router.HandleFunc("/smtp/", as.SendingProfiles)
 	router.HandleFunc("/smtp/{id:[0-9]+}", as.SendingProfile)
+	router.HandleFunc("/users/", mid.Use(as.Users, mid.RequirePermission(models.PermissionModifySystem)))
+	router.HandleFunc("/users/{id:[0-9]+}", mid.Use(as.User))
 	router.HandleFunc("/util/send_test_email", as.SendTestEmail)
 	router.HandleFunc("/import/group", as.ImportGroup)
 	router.HandleFunc("/import/email", as.ImportEmail)
