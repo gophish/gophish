@@ -1,9 +1,3 @@
-import {
-    api,
-    escapeHtml
-} from './gophish'
-
-
 let users = []
 
 // Save attempts to POST or PUT to /users/

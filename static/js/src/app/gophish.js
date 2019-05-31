@@ -17,18 +17,22 @@ function modalError(message) {
 
 function query(endpoint, method, data, async) {
     return $.ajax({
-        url: "/api" + endpoint + "?api_key=" + user.api_key,
+        url: "/api" + endpoint,
         async: async,
         method: method,
         data: JSON.stringify(data),
         dataType: "json",
-        contentType: "application/json"
+        contentType: "application/json",
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader('Authorization', 'Bearer ' + user.api_key);
+        }
     })
 }
 
-export function escapeHtml(text) {
+function escapeHtml(text) {
     return $("<div/>").text(text).html()
 }
+window.escapeHtml = escapeHtml
 
 function unescapeHtml(html) {
     return $("<div/>").html(html).text()
@@ -46,7 +50,7 @@ var capitalize = function (string) {
 /*
 Define our API Endpoints
 */
-export var api = {
+var api = {
     // campaigns contains the endpoints for /campaigns
     campaigns: {
         // get() - Queries the API for GET /campaigns
@@ -235,6 +239,7 @@ export var api = {
         return query("/reset", "POST", {}, true)
     }
 }
+window.api = api
 
 // Register our moment.js datatables listeners
 $(document).ready(function () {
