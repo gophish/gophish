@@ -12,6 +12,9 @@
   },
   "homepage": "https://getgophish.com",
   "devDependencies": {
+    "@babel/core": "^7.4.5",
+    "@babel/preset-env": "^7.4.5",
+    "babel-loader": "^8.0.6",
     "clean-css": "^3.4.23",
     "gulp": "^3.9.1",
     "gulp-clean-css": "^2.3.2",
@@ -23,6 +26,8 @@
     "gulp-util": "^3.0.8",
     "gulp-wrap": "^0.13.0",
     "jshint": "^2.9.4",
-    "jshint-stylish": "^2.2.1"
+    "jshint-stylish": "^2.2.1",
+    "webpack": "^4.32.2",
+    "webpack-cli": "^3.3.2"
   }
 }

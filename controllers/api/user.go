@@ -149,9 +149,10 @@ func (as *Server) User(w http.ResponseWriter, r *http.Request) {
 	case r.Method == "DELETE":
 		err = models.DeleteUser(id)
 		if err != nil {
-			JSONResponse(w, models.Response{Success: false, Message: "Error deleting user"}, http.StatusInternalServerError)
+			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
 			return
 		}
+		log.Infof("Deleted user account for %s", existingUser.Username)
 		JSONResponse(w, models.Response{Success: true, Message: "User deleted Successfully!"}, http.StatusOK)
 	case r.Method == "PUT":
 		ur := &userRequest{}
@@ -179,6 +180,15 @@ func (as *Server) User(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
 			return
+		}
+		// If our user is trying to change the role of an admin, we need to
+		// ensure that it isn't the last user account with the Admin role.
+		if existingUser.Role.Slug == models.RoleAdmin && existingUser.Role.ID != role.ID {
+			err = models.EnsureEnoughAdmins()
+			if err != nil {
+				JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
+				return
+			}
 		}
 		existingUser.Role = role
 		existingUser.RoleID = role.ID

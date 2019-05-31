@@ -5,29 +5,20 @@ import (
 	"net/http"
 
 	ctx "github.com/gophish/gophish/context"
-	log "github.com/gophish/gophish/logger"
 	"github.com/gophish/gophish/models"
-	"github.com/gophish/gophish/util"
-	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
 )
 
-// TODO: DELETE THIS ---
 // ErrInvalidPassword is thrown when a user provides an incorrect password.
 var ErrInvalidPassword = errors.New("Invalid Password")
 
-// ErrEmptyPassword is thrown when a user provides a blank password to the register
+// ErrPasswordMismatch is thrown when a user provides a blank password to the register
 // or change password functions
 var ErrPasswordMismatch = errors.New("Password cannot be blank")
 
 // ErrEmptyPassword is thrown when a user provides a blank password to the register
 // or change password functions
 var ErrEmptyPassword = errors.New("No password provided")
-
-// ErrUsernameTaken is thrown when a user attempts to register a username that is taken.
-var ErrUsernameTaken = errors.New("Username already taken")
-
-// --------
 
 // Login attempts to login the user given a request.
 func Login(r *http.Request) (bool, models.User, error) {
@@ -43,45 +34,6 @@ func Login(r *http.Request) (bool, models.User, error) {
 		return false, models.User{}, ErrInvalidPassword
 	}
 	return true, u, nil
-}
-
-// Register attempts to register the user given a request.
-func Register(r *http.Request) (bool, error) {
-	username := r.FormValue("username")
-	newPassword := r.FormValue("password")
-	confirmPassword := r.FormValue("confirm_password")
-	u, err := models.GetUserByUsername(username)
-	// If the given username already exists, throw an error and return false
-	if err == nil {
-		return false, ErrUsernameTaken
-	}
-
-	// If we have an error which is not simply indicating that no user was found, report it
-	if err != nil && err != gorm.ErrRecordNotFound {
-		log.Warn(err)
-		return false, err
-	}
-
-	u = models.User{}
-	// If we've made it here, we should have a valid username given
-	// Check that the passsword isn't blank
-	if newPassword == "" {
-		return false, ErrEmptyPassword
-	}
-	// Make sure passwords match
-	if newPassword != confirmPassword {
-		return false, ErrPasswordMismatch
-	}
-	// Let's create the password hash
-	h, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
-	if err != nil {
-		return false, err
-	}
-	u.Username = username
-	u.Hash = string(h)
-	u.ApiKey = util.GenerateSecureKey()
-	err = models.PutUser(&u)
-	return true, nil
 }
 
 // ChangePassword verifies the current password provided in the request and,

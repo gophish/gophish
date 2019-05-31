@@ -43,7 +43,7 @@ func (s *APISuite) TestGetUsers() {
 	// We only expect one user
 	s.Equal(1, len(got))
 	// And it should be the admin user
-	s.Equal(s.admin.ApiKey, got[0].ApiKey)
+	s.Equal(s.admin.Id, got[0].Id)
 }
 
 func (s *APISuite) TestCreateUser() {
@@ -185,9 +185,4 @@ func (s *APISuite) TestModifyWithExistingUsername() {
 	err = json.NewDecoder(w.Body).Decode(got)
 	s.Nil(err)
 	s.Equal(got.Message, expected.Message)
-}
-
-// TestValidateUserRequest tests various user validation
-func (s *APISuite) TestValidateUserRequest() {
-
 }

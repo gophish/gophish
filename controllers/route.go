@@ -101,11 +101,11 @@ func (as *AdminServer) registerRoutes() {
 	router.HandleFunc("/campaigns", mid.Use(as.Campaigns, mid.RequireLogin))
 	router.HandleFunc("/campaigns/{id:[0-9]+}", mid.Use(as.CampaignID, mid.RequireLogin))
 	router.HandleFunc("/templates", mid.Use(as.Templates, mid.RequireLogin))
-	router.HandleFunc("/users", mid.Use(as.Users, mid.RequireLogin))
+	router.HandleFunc("/groups", mid.Use(as.Groups, mid.RequireLogin))
 	router.HandleFunc("/landing_pages", mid.Use(as.LandingPages, mid.RequireLogin))
 	router.HandleFunc("/sending_profiles", mid.Use(as.SendingProfiles, mid.RequireLogin))
 	router.HandleFunc("/settings", mid.Use(as.Settings, mid.RequireLogin))
-	router.HandleFunc("/register", mid.Use(as.Register, mid.RequireLogin, mid.RequirePermission(models.PermissionModifySystem)))
+	router.HandleFunc("/users", mid.Use(as.UserManagement, mid.RequirePermission(models.PermissionModifySystem), mid.RequireLogin))
 	// Create the API routes
 	api := api.NewServer(api.WithWorker(as.worker))
 	router.PathPrefix("/api/").Handler(api)
@@ -151,42 +151,6 @@ func newTemplateParams(r *http.Request) templateParams {
 	}
 }
 
-// Register creates a new user
-func (as *AdminServer) Register(w http.ResponseWriter, r *http.Request) {
-	// If it is a post request, attempt to register the account
-	// Now that we are all registered, we can log the user in
-	params := templateParams{Title: "Register", Token: csrf.Token(r)}
-	session := ctx.Get(r, "session").(*sessions.Session)
-	switch {
-	case r.Method == "GET":
-		params.Flashes = session.Flashes()
-		session.Save(r, w)
-		templates := template.New("template")
-		_, err := templates.ParseFiles("templates/register.html", "templates/flashes.html")
-		if err != nil {
-			log.Error(err)
-		}
-		template.Must(templates, err).ExecuteTemplate(w, "base", params)
-	case r.Method == "POST":
-		//Attempt to register
-		succ, err := auth.Register(r)
-		//If we've registered, redirect to the login page
-		if succ {
-			Flash(w, r, "success", "Registration successful!")
-			session.Save(r, w)
-			http.Redirect(w, r, "/login", 302)
-			return
-		}
-		// Check the error
-		m := err.Error()
-		log.Error(err)
-		Flash(w, r, "danger", m)
-		session.Save(r, w)
-		http.Redirect(w, r, "/register", 302)
-		return
-	}
-}
-
 // Base handles the default path and template execution
 func (as *AdminServer) Base(w http.ResponseWriter, r *http.Request) {
 	params := newTemplateParams(r)
@@ -215,11 +179,11 @@ func (as *AdminServer) Templates(w http.ResponseWriter, r *http.Request) {
 	getTemplate(w, "templates").ExecuteTemplate(w, "base", params)
 }
 
-// Users handles the default path and template execution
-func (as *AdminServer) Users(w http.ResponseWriter, r *http.Request) {
+// Groups handles the default path and template execution
+func (as *AdminServer) Groups(w http.ResponseWriter, r *http.Request) {
 	params := newTemplateParams(r)
 	params.Title = "Users & Groups"
-	getTemplate(w, "users").ExecuteTemplate(w, "base", params)
+	getTemplate(w, "groups").ExecuteTemplate(w, "base", params)
 }
 
 // LandingPages handles the default path and template execution
@@ -260,6 +224,14 @@ func (as *AdminServer) Settings(w http.ResponseWriter, r *http.Request) {
 		}
 		api.JSONResponse(w, msg, http.StatusOK)
 	}
+}
+
+// UserManagement is an admin-only handler that allows for the registration
+// and management of user accounts within Gophish.
+func (as *AdminServer) UserManagement(w http.ResponseWriter, r *http.Request) {
+	params := newTemplateParams(r)
+	params.Title = "User Management"
+	getTemplate(w, "users").ExecuteTemplate(w, "base", params)
 }
 
 // Login handles the authentication flow for a user. If credentials are valid,
