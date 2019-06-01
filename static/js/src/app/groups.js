@@ -258,6 +258,12 @@ $(document).ready(function () {
     // Setup the event listeners
     // Handle manual additions
     $("#targetForm").submit(function () {
+        // Validate the form data
+        var targetForm = document.getElementById("targetForm")
+        if (!targetForm.checkValidity()) {
+            targetForm.reportValidity()
+            return
+        }
         addTarget(
             $("#firstName").val(),
             $("#lastName").val(),
