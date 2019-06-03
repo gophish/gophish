@@ -77,7 +77,7 @@ func NewPhishingTemplateContext(ctx TemplateContext, r BaseRecipient, rid string
 func ExecuteTemplate(text string, data interface{}) (string, error) {
 	buff := bytes.Buffer{}
 	funcMap := template.FuncMap{
-		"date": time.Parse,
+		"date":     time.Parse,
 		"duration": time.ParseDuration,
 		"location": time.LoadLocation,
 	}
