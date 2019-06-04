@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"path"
 	"text/template"
+	"time"
 )
 
 // TemplateContext is an interface that allows both campaigns and email
@@ -24,6 +25,7 @@ type PhishingTemplateContext struct {
 	TrackingURL string
 	RId         string
 	BaseURL     string
+	Now         time.Time
 	BaseRecipient
 }
 
@@ -66,6 +68,7 @@ func NewPhishingTemplateContext(ctx TemplateContext, r BaseRecipient, rid string
 		Tracker:       "<img alt='' style='display: none' src='" + trackingURL.String() + "'/>",
 		From:          fn,
 		RId:           rid,
+		Now:           time.Now(),
 	}, nil
 }
 
@@ -73,7 +76,12 @@ func NewPhishingTemplateContext(ctx TemplateContext, r BaseRecipient, rid string
 // template body and data.
 func ExecuteTemplate(text string, data interface{}) (string, error) {
 	buff := bytes.Buffer{}
-	tmpl, err := template.New("template").Parse(text)
+	funcMap := template.FuncMap{
+		"date":     time.Parse,
+		"duration": time.ParseDuration,
+		"location": time.LoadLocation,
+	}
+	tmpl, err := template.New("template").Funcs(funcMap).Parse(text)
 	if err != nil {
 		return buff.String(), err
 	}
