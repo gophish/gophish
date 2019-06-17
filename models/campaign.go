@@ -411,7 +411,7 @@ func GetQueuedComplete(t time.Time) ([]Campaign, error) {
 	if err != nil {
 		log.Error(err)
 	}
-	log.Infof("Found %d Campaigns to complete\n", len(cs))
+	log.Debugf("Found %d Campaigns to complete\n", len(cs))
 	for i := range cs {
 		err = cs[i].getDetails()
 		if err != nil {
