@@ -92,7 +92,7 @@ func (s *ModelsSuite) TestCampaignDateValidation(c *check.C) {
 	campaign.LaunchDate = time.Now().UTC()
 	campaign.CompletedDate = campaign.LaunchDate.Add(-1 * time.Minute)
 	err = campaign.Validate()
-	c.Assert(err, check.Equals, ErrInvalidSendByDate)
+	c.Assert(err, check.Equals, ErrInvalidCompletedDate)
 }
 
 func (s *ModelsSuite) TestLaunchCampaignMaillogStatus(c *check.C) {
