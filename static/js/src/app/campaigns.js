@@ -37,6 +37,10 @@ function launch() {
                 if (send_by_date != "") {
                     send_by_date = moment(send_by_date, "MMMM Do YYYY, h:mm a").utc().format()
                 }
+                var completed_date = $("#completed_date").val()
+                if (completed_date != ""){
+                    completed_date = moment(completed_date, "MMMM Do YYYY, h:mm a").utc().format()
+                }
                 campaign = {
                     name: $("#name").val(),
                     template: {
@@ -51,6 +55,7 @@ function launch() {
                     },
                     launch_date: moment($("#launch_date").val(), "MMMM Do YYYY, h:mm a").utc().format(),
                     send_by_date: send_by_date || null,
+                    completed_date: completed_date || null,
                     groups: groups,
                 }
                 // Submit the campaign
@@ -291,6 +296,14 @@ $(document).ready(function () {
         "format": "MMMM Do YYYY, h:mm a"
     })
     $("#send_by_date").datetimepicker({
+        "widgetPositioning": {
+            "vertical": "bottom"
+        },
+        "showTodayButton": true,
+        "useCurrent": false,
+        "format": "MMMM Do YYYY, h:mm a"
+    })
+    $("#completed_date").datetimepicker({
         "widgetPositioning": {
             "vertical": "bottom"
         },
