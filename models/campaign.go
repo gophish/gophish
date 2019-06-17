@@ -436,7 +436,6 @@ func PostCampaign(c *Campaign, uid int64) error {
 		return err
 	}
 	// Fill in the details
-	log.Errorf("Camp: ?", c.CompletedDate)
 	c.UserId = uid
 	c.CreatedDate = time.Now().UTC()
 	if !c.CompletedDate.IsZero() {
