@@ -286,10 +286,10 @@ function replay(event_idx) {
 /**
  * Returns an HTML string that displays the OS and browser that clicked the link
  * or submitted credentials.
- * 
+ *
  * @param {object} event_details - The "details" parameter for a campaign
  *  timeline event
- * 
+ *
  */
 var renderDevice = function (event_details) {
     var ua = UAParser(details.browser['user-agent'])
@@ -600,8 +600,8 @@ var updateMap = function (results) {
 
 /**
  * Creates a status label for use in the results datatable
- * @param {string} status 
- * @param {moment(datetime)} send_date 
+ * @param {string} status
+ * @param {moment(datetime)} send_date
  */
 function createStatusLabel(status, send_date) {
     var label = statuses[status].label || "label-default";
@@ -732,6 +732,13 @@ function load() {
                 $("#campaignResults").show()
                 // Set the title
                 $("#page-title").text("Results for " + c.name)
+                if (moment(c.completed_date).isAfter(moment(c.launch_date)) && c.status != "Completed"){
+                    completeDate = moment(c.completed_date).format('MMMM Do YYYY, h:mm:ss a')
+                    $("#complete-date").text("Schedule To Complete: " + completeDate)
+                } else {
+                    $("#complete-date").text("")
+                }
+
                 if (c.status == "Completed") {
                     $('#complete_button')[0].disabled = true;
                     $('#complete_button').text('Completed!');
