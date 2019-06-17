@@ -125,6 +125,10 @@ var ErrSMTPNotFound = errors.New("Sending profile not found")
 // launch date
 var ErrInvalidSendByDate = errors.New("The launch date must be before the \"send emails by\" date")
 
+// ErrInvalidCompletedDate indicates that the user specified a complete date that occurs before the
+// launch date
+var ErrInvalidCompletedDate = errors.New("The launch date must be before the \"completion  date\" date")
+
 // RecipientParameter is the URL parameter that points to the result ID for a recipient.
 const RecipientParameter = "rid"
 
@@ -143,6 +147,8 @@ func (c *Campaign) Validate() error {
 		return ErrSMTPNotSpecified
 	case !c.SendByDate.IsZero() && !c.LaunchDate.IsZero() && c.SendByDate.Before(c.LaunchDate):
 		return ErrInvalidSendByDate
+	case !c.CompletedDate.IsZero() && !c.LaunchDate.IsZero() && c.CompletedDate.Before(c.LaunchDate):
+		return ErrInvalidCompletedDate
 	}
 	return nil
 }
