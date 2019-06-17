@@ -400,6 +400,27 @@ func GetQueuedCampaigns(t time.Time) ([]Campaign, error) {
 	return cs, err
 }
 
+// GetQueuedComplete returns the campaigns that are queued up for this given minute
+func GetQueuedComplete(t time.Time) ([]Campaign, error) {
+	cs := []Campaign{}
+	s := 60 * time.Second
+	tStart := t.Round(s)
+	tEnd := tStart.Add(time.Second * time.Duration(59))
+	err := db.Where("completed_date BETWEEN ? AND ?", tStart, tEnd).
+		Where("status = ?", CampaignInProgress).Find(&cs).Error
+	if err != nil {
+		log.Error(err)
+	}
+	log.Infof("Found %d Campaigns to complete\n", len(cs))
+	for i := range cs {
+		err = cs[i].getDetails()
+		if err != nil {
+			log.Error(err)
+		}
+	}
+	return cs, err
+}
+
 // PostCampaign inserts a campaign and all associated records into the database.
 func PostCampaign(c *Campaign, uid int64) error {
 	err := c.Validate()
@@ -407,9 +428,14 @@ func PostCampaign(c *Campaign, uid int64) error {
 		return err
 	}
 	// Fill in the details
+	log.Errorf("Camp: ?", c.CompletedDate)
 	c.UserId = uid
 	c.CreatedDate = time.Now().UTC()
-	c.CompletedDate = time.Time{}
+	if !c.CompletedDate.IsZero() {
+		c.CompletedDate = c.CompletedDate.UTC()
+	} else {
+		c.CompletedDate = time.Time{}.UTC()
+	}
 	c.Status = CampaignQueued
 	if c.LaunchDate.IsZero() {
 		c.LaunchDate = c.CreatedDate
