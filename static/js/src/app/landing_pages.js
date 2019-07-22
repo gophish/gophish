@@ -10,6 +10,7 @@ var pages = []
 function save(idx) {
     var page = {}
     page.name = $("#name").val()
+    page.description = $("#description").val()
     editor = CKEDITOR.instances["html_editor"]
     page.html = editor.getData()
     page.capture_credentials = $("#capture_credentials_checkbox").prop("checked")
@@ -40,6 +41,7 @@ function save(idx) {
 function dismiss() {
     $("#modal\\.flashes").empty()
     $("#name").val("")
+    $("#description").val("")
     $("#html_editor").val("")
     $("#url").val("")
     $("#redirect_url_input").val("")
@@ -113,6 +115,7 @@ function edit(idx) {
     if (idx != -1) {
         page = pages[idx]
         $("#name").val(page.name)
+        $("#description").val(page.description)
         $("#html_editor").val(page.html)
         $("#capture_credentials_checkbox").prop("checked", page.capture_credentials)
         $("#capture_passwords_checkbox").prop("checked", page.capture_passwords)
@@ -131,6 +134,7 @@ function copy(idx) {
     $("#html_editor").ckeditor()
     var page = pages[idx]
     $("#name").val("Copy of " + page.name)
+    $("#description").val(page.description)
     $("#html_editor").val(page.html)
 }
 

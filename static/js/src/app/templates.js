@@ -19,6 +19,7 @@ function save(idx) {
         attachments: []
     }
     template.name = $("#name").val()
+    template.description = $("#description").val()
     template.subject = $("#subject").val()
     template.html = CKEDITOR.instances["html_editor"].getData();
     // Fix the URL Scheme added by CKEditor (until we can remove it from the plugin)
@@ -72,6 +73,7 @@ function dismiss() {
     $("#modal\\.flashes").empty()
     $("#attachmentsTable").dataTable().DataTable().clear().draw()
     $("#name").val("")
+    $("#description").val("")
     $("#subject").val("")
     $("#text_editor").val("")
     $("#html_editor").val("")
@@ -186,6 +188,7 @@ function edit(idx) {
     if (idx != -1) {
         template = templates[idx]
         $("#name").val(template.name)
+        $("#description").val(template.description)
         $("#subject").val(template.subject)
         $("#html_editor").val(template.html)
         $("#text_editor").val(template.text)
@@ -242,6 +245,7 @@ function copy(idx) {
     }
     template = templates[idx]
     $("#name").val("Copy of " + template.name)
+    $("#description").val(template.description)
     $("#subject").val(template.subject)
     $("#html_editor").val(template.html)
     $("#text_editor").val(template.text)
