@@ -42,6 +42,16 @@ var TEMPLATE_TAGS = [{
         id: 9,
         name: 'BaseURL',
         description: 'The base URL with the path and rid parameter stripped. Useful for making links to static files.'
+    },
+    {
+        id: 10,
+        name: 'Now',
+        description: 'The current date and time, as converted to a string by Go, without formatting.'
+    },
+    {
+        id: 11,
+        name: 'Now.Format "01/02/2006 3:04 PM (MST)"',
+        description: 'The current date and time with custom formatting. Accepts a Go date format string as an argument.'
     }
 ];
 

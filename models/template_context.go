@@ -2,12 +2,17 @@ package models
 
 import (
 	"bytes"
+	"html"
 	"net/mail"
 	"net/url"
 	"path"
+	"regexp"
 	"text/template"
 	"time"
 )
+
+// Regular expression to detect template expressions
+var templateRegex = regexp.MustCompile(`\{{2}[^\}]+\}{2}`)
 
 // TemplateContext is an interface that allows both campaigns and email
 // requests to have a PhishingTemplateContext generated for them.
@@ -75,6 +80,10 @@ func NewPhishingTemplateContext(ctx TemplateContext, r BaseRecipient, rid string
 // ExecuteTemplate creates a templated string based on the provided
 // template body and data.
 func ExecuteTemplate(text string, data interface{}) (string, error) {
+	// Unescape template tags that were escaped by CKEditor
+	text = templateRegex.ReplaceAllStringFunc(text, func(match string) string {
+		return html.UnescapeString(match)
+	})
 	buff := bytes.Buffer{}
 	funcMap := template.FuncMap{
 		"date":     time.Parse,
