@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io"
 	"net/mail"
+	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/gophish/gomail"
@@ -173,14 +175,18 @@ func (s *EmailRequest) Generate(msg *gomail.Message) error {
 	}
 	// Attach the files
 	for _, a := range s.Template.Attachments {
-		msg.Attach(func(a Attachment) (string, gomail.FileSetting, gomail.FileSetting) {
-			h := map[string][]string{"Content-ID": {fmt.Sprintf("<%s>", a.Name)}}
-			return a.Name, gomail.SetCopyFunc(func(w io.Writer) error {
-				decoder := base64.NewDecoder(base64.StdEncoding, strings.NewReader(a.Content))
+		copyFunc := gomail.SetCopyFunc(func(c Attachment) func(w io.Writer) error {
+			return func(w io.Writer) error {
+				decoder := base64.NewDecoder(base64.StdEncoding, strings.NewReader(c.Content))
 				_, err = io.Copy(w, decoder)
 				return err
-			}), gomail.SetHeader(h)
+			}
 		}(a))
+		if sort.SearchStrings(EmbeddedFileExtensions, filepath.Ext(a.Name)) < len(EmbeddedFileExtensions) {
+			msg.Embed(a.Name, copyFunc)
+		} else {
+			msg.Attach(a.Name, copyFunc)
+		}
 	}
 
 	return nil
