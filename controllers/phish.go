@@ -197,7 +197,6 @@ func (ps *PhishingServer) ReportHandler(w http.ResponseWriter, r *http.Request) 
 func (ps *PhishingServer) PhishHandler(w http.ResponseWriter, r *http.Request) {
 	r, err := setupContext(r)
 	if err != nil {
-		w.Header().Set("X-Server", config.ServerName) // Useful for checking if this is a GoPhish server (e.g. for campaign reporting plugins)
 		// Log the error if it wasn't something we can safely ignore
 		if err != ErrInvalidRequest && err != ErrCampaignComplete {
 			log.Error(err)
@@ -205,6 +204,7 @@ func (ps *PhishingServer) PhishHandler(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
+	w.Header().Set("X-Server", config.ServerName) // Useful for checking if this is a GoPhish server (e.g. for campaign reporting plugins)
 	var ptx models.PhishingTemplateContext
 	// Check for a preview
 	if preview, ok := ctx.Get(r, "result").(models.EmailRequest); ok {
