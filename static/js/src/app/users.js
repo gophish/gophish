@@ -19,7 +19,7 @@ const save = (id) => {
         user.id = id
         api.userId.put(user)
             .success(function (data) {
-                successFlash(`User ${user.username} updated successfully!`)
+                successFlash("User " + escapeHtml(user.username) + " updated successfully!")
                 load()
                 dismiss()
                 $("#modal").modal('hide')
@@ -32,7 +32,7 @@ const save = (id) => {
         // to /user
         api.users.post(user)
             .success(function (data) {
-                successFlash(`User ${user.username} registered successfully!`)
+                successFlash("User " + escapeHtml(user.username) + " registered successfully!")
                 load()
                 dismiss()
                 $("#modal").modal('hide')
@@ -79,7 +79,7 @@ const deleteUser = (id) => {
     }
     swal({
         title: "Are you sure?",
-        text: `This will delete the account for ${user.username} as well as all of the objects they have created.\n\nThis can't be undone!`,
+        text: "This will delete the account for " + escapeHtml(user.username) + " as well as all of the objects they have created.\n\nThis can't be undone!",
         type: "warning",
         animation: false,
         showCancelButton: true,
@@ -101,7 +101,7 @@ const deleteUser = (id) => {
     }).then(function () {
         swal(
             'User Deleted!',
-            `The user account for ${user.username} and all associated objects have been deleted!`,
+            "The user account for " + escapeHtml(user.username) + " and all associated objects have been deleted!",
             'success'
         );
         $('button:contains("OK")').on('click', function () {
