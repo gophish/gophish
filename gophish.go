@@ -80,6 +80,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	// Unlock any maillogs that may have been locked for processing
 	// when Gophish was last shutdown.
 	err = models.UnlockAllMailLogs()
@@ -99,8 +100,11 @@ func main() {
 	phishConfig := conf.PhishConf
 	phishServer := controllers.NewPhishingServer(phishConfig)
 
+	imapMonitor := controllers.NewImapMonitor(conf)
+
 	go adminServer.Start()
 	go phishServer.Start()
+	go imapMonitor.Start()
 
 	// Handle graceful shutdown
 	c := make(chan os.Signal, 1)
@@ -109,4 +113,6 @@ func main() {
 	log.Info("CTRL+C Received... Gracefully shutting down servers")
 	adminServer.Shutdown()
 	phishServer.Shutdown()
+	imapMonitor.Shutdown()
+
 }

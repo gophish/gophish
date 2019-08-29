@@ -1,4 +1,5 @@
 $(document).ready(function () {
+    $('[data-toggle="tooltip"]').tooltip();
     $("#apiResetForm").submit(function (e) {
         api.reset()
             .success(function (response) {
@@ -21,7 +22,8 @@ $(document).ready(function () {
             })
         return false
     })
-    $("#imapForm").submit(function (e) {
+    //$("#imapForm").submit(function (e) {
+    $("#savesettings").click(function() {
         var imapSettings = {}
         imapSettings.host = $("#imaphost").val()
         imapSettings.port = $("#imapport").val()
@@ -30,9 +32,21 @@ $(document).ready(function () {
         imapSettings.enabled = $('#use_imap').prop('checked')
         imapSettings.tls = $('#use_tls').prop('checked')
 
-        //To avoid unmarshalling error in controllers/api/imap.go. It would fail gracefully, but with a generic error. 
-        if (imapSettings.port == ""){
+        //Advanced settings
+        imapSettings.folder = $("#folder").val()
+        imapSettings.restrict_domain = $("#restrictdomain").val()
+        imapSettings.delete_campaign = $('#deletecampaign').prop('checked')
+
+        
+        //To avoid unmarshalling error in controllers/api/imap.go. It would fail gracefully, but with a generic error.
+        if (imapSettings.host == ""){
             errorFlash("No IMAP Host specified")
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+            return false
+        }
+        if (imapSettings.port == ""){
+            errorFlash("No IMAP Port specified")
             document.body.scrollTop = 0;
             document.documentElement.scrollTop = 0;
             return false
@@ -52,6 +66,9 @@ $(document).ready(function () {
                     errorFlash("Unable to update IMAP settings.")
                 }
             })
+            .success(function (data){
+                loadIMAPSettings()
+            })
             .fail(function (data) {
                 errorFlash(data.responseJSON.message)
             })
@@ -59,10 +76,47 @@ $(document).ready(function () {
                 document.body.scrollTop = 0;
                 document.documentElement.scrollTop = 0;
             })
+        
         return false
     })
 
     $("#testimap").click(function() {
+
+        // Query test imap server endpoint
+        var server = {}
+        server.host = $("#imaphost").val()
+        server.port = $("#imapport").val()
+        server.username = $("#imapusername").val()
+        server.password = $("#imappassword").val()
+        server.tls = $('#use_tls').prop('checked')
+
+        //To avoid unmarshalling error in controllers/api/imap.go. It would fail gracefully, but with a generic error. 
+        if (server.host == ""){
+            errorFlash("No IMAP Host specified")
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+            return false
+        }
+        if (server.port == ""){
+            errorFlash("No IMAP Port specified")
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+            return false
+        }
+        if (isNaN(server.port) || server.port <1 || server.port > 65535  ){
+            errorFlash("Invalid IMAP Port")
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+            return false
+        }
+
+        var reshow = false
+        if ($("#advancedarea").is(":visible")) {
+            reshow = true
+        }
+        $("#advancedarea").hide("slow");
+        $("html, body").animate({ scrollTop: $(document).height() }, 1000);
+
         var oldHTML = $("#testimap").html();
         // Disable inputs and change button text
         $("#imaphost").attr("disabled", true);
@@ -73,14 +127,6 @@ $(document).ready(function () {
         $("#use_tls").attr("disabled", true);
         $("#testimap").attr("disabled", true);
         $("#testimap").html("<i class='fa fa-circle-o-notch fa-spin'></i> Testing...");
-
-        // Query test imap server endpoint
-        var server = {}
-        server.host = $("#imaphost").val()
-        server.port = $("#imapport").val()
-        server.username = $("#imapusername").val()
-        server.password = $("#imappassword").val()
-        server.tls = $('#use_tls').prop('checked')
         
         //api.IMAP.test(server).done(function() { // When using this API approach the button text does not change, and the inputs aren't disabled. I don't know why.
         query("/imap/test", "POST", server, true).done(function(data) { //  so using this direct query() approach for now
@@ -127,6 +173,10 @@ $(document).ready(function () {
             $("#use_tls").attr("disabled", false);
             $("#testimap").attr("disabled", false);
             $("#testimap").html(oldHTML);
+
+            if (reshow == true){
+                $("#advancedarea").show("slow");
+            }
           });
 
       }); //end testclick
@@ -135,15 +185,47 @@ $(document).ready(function () {
         loadIMAPSettings()
     })
 
+    $("#advanced").click(function() {
+        $("#advancedarea").toggle("slow");
+        $("html, body").animate({ scrollTop: $(document).height() }, 1000);
+    })
+
+    function lastLoginTicker(){
+
+        if ($("#lastlogin").is(":visible") && $('#use_imap').prop('checked') == true) {
+            api.IMAP.get()
+            .success(function (imap) {
+                if (imap.length > 0){
+                    $('#lastlogin').val(imap[0].last_login_friendly)
+                }
+            })  
+        }
+    }
+
     function loadIMAPSettings(){
         api.IMAP.get()
         .success(function (imap) {
-            $("#imapusername").val(imap.username)
-            $("#imaphost").val(imap.host)
-            $("#imapport").val(imap.port)
-            $("#imappassword").val(imap.password)
-            $('#use_tls').prop('checked', imap.tls)
-            $('#use_imap').prop('checked', imap.enabled)
+            if (imap.length == 0){
+                $('#lastlogindiv').hide()
+            } else {
+                imap = imap[0]
+                if (imap.enabled == false){
+                    $('#lastlogindiv').hide()
+                } else {
+                    $('#lastlogindiv').show()
+                }
+                $("#imapusername").val(imap.username)
+                $("#imaphost").val(imap.host)
+                $("#imapport").val(imap.port)
+                $("#imappassword").val(imap.password)
+                $('#use_tls').prop('checked', imap.tls)
+                $('#use_imap').prop('checked', imap.enabled)
+                $("#folder").val(imap.folder)
+                $("#restrictdomain").val(imap.restrict_domain)
+                $('#deletecampaign').prop('checked', imap.delete_campaign)
+                $('#lastlogin').val(imap.last_login_friendly)
+            }  
+
         })
         .error(function () {
             errorFlash("Error fetching IMAP settings")
@@ -157,5 +239,10 @@ $(document).ready(function () {
     })
 
     loadIMAPSettings()
+    setInterval(function() {
+        lastLoginTicker()
+    }, 1000);
+
+    
 
 })

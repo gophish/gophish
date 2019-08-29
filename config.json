@@ -17,5 +17,6 @@
 	"contact_address": "",
 	"logging": {
 		"filename": ""
-	}
+	},
+	"imap_freq": 60
 }

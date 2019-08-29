@@ -152,10 +152,62 @@
                     
                 </div>
             </div>
-            <br />
 
-            <button class="btn btn-primary" type="submit"><i class="fa fa-save"></i> Save</button>
+             <!-- Advanced Settings-->
+            <div id="advancedarea" style="display: none;">
+                <hr>
+                <div class="row">
+                <label for="folder" class="col-sm-2 control-label form-label">Folder:</label>
+                    <div class="col-md-6">
+                        <input type="text" id="folder" name="folder" placeholder="Leave blank for default of INBOX."
+                            class="form-control" />
+                    </div>
+                </div>
+                <br />
+        
+                <div class="row">
+                    <label for="restrictdomain" class="col-sm-2 control-label form-label" data-toggle="tooltip" title="Only check emails reported from the supplied domain.">Restrict to domain:</label>
+                    <div class="col-md-6">
+                        <input type="text" id="restrictdomain" name="restrictdomain" placeholder="e.g. widgets.com. Leave blank for all domains."
+                            class="form-control" />
+                    </div>
+                </div>
+                <br />
+                
+                <div class="row">
+                    <label for="deletecampaign" class="col-sm-2 control-label form-label" data-toggle="tooltip" title="Delete campaign emails after they've been reported.">Delete campaigns:</label>
+                    <div class="col-md-6">
+                        <div class="checkbox checkbox-primary">
+                            <input id="deletecampaign" type="checkbox">
+                            <label for="deletecampaign"></label>
+                        </div>
+                        
+                    </div>
+                </div>
+                <br />
+        
+                <div class="row" id="lastlogindiv">
+                <label for="lastlogin" class="col-sm-2 control-label form-label">Last succesful login:</label>
+                <div class="col-md-6">
+                    <input type="text" id="lastlogin" name="lastlogin" placeholder="Checking..." disabled
+                        class="form-control border-0" />
+                    </div>
+                </div>
+                <br />
+
+            </div>
+
+            <div class="row">
+                <label for="advancedsettings" class="col-sm-2 control-label form-label"></label>
+                <div class="col-md-6 text-right">
+                    <button class="btn-xs btn-link" id="advanced" type="button">Advanced Settings</button>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" id ="savesettings" type="button"><i class="fa fa-save"></i> Save</button>
             <button class="btn btn-primary" id="testimap" type="button"><i class="fa fa-wrench"></i> Test Settings</button>
+
+
         </form>
         </div>
         <!-- Reporting Settings End -->

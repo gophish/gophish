@@ -13,14 +13,19 @@ import (
 // IMAP contains the attributes needed to handle logging into an IMAP server to check
 // for reported emails
 type IMAP struct {
-	UserId       int64     `json:"-" gorm:"column:user_id"`
-	Enabled      bool      `json:"enabled"`
-	Host         string    `json:"host"`
-	Port         uint16    `json:"port,string"`
-	Username     string    `json:"username"`
-	Password     string    `json:"password"`
-	TLS          bool      `json:"tls"`
-	ModifiedDate time.Time `json:"modified_date"`
+	UserId            int64     `json:"-" gorm:"column:user_id"`
+	Enabled           bool      `json:"enabled"`
+	Host              string    `json:"host"`
+	Port              uint16    `json:"port,string,omitempty"`
+	Username          string    `json:"username"`
+	Password          string    `json:"password"`
+	TLS               bool      `json:"tls"`
+	Folder            string    `json:"folder"`
+	RestrictDomain    string    `json:"restrict_domain"`
+	DeleteCampaign    bool      `json:"delete_campaign"`
+	LastLogin         time.Time `json:"last_login,omitempty"`
+	LastLoginFriendly string    `json:"last_login_friendly,omitonempty"`
+	ModifiedDate      time.Time `json:"modified_date"`
 }
 
 // ErrIMAPHostNotSpecified is thrown when there is no Host specified
@@ -63,6 +68,11 @@ func (s *IMAP) Validate() error {
 		return ErrIMAPPasswordNotSpecified
 	}
 
+	// Set the default value for Folder
+	if s.Folder == "" {
+		s.Folder = "INBOX"
+	}
+
 	// Make sure s.Host is an IP or hostname. NB will fail if unable to resolve the hostname.s
 	ip := net.ParseIP(s.Host)
 	_, err := net.LookupHost(s.Host)
@@ -78,9 +88,11 @@ func (s *IMAP) Validate() error {
 }
 
 // GetIMAP returns the IMAP server owned by the given user.
-func GetIMAP(uid int64) (IMAP, error) {
-	ss := IMAP{}
-	err := db.Where("user_id=?", uid).Find(&ss).Error
+func GetIMAP(uid int64) ([]IMAP, error) {
+	ss := []IMAP{}
+	count := 0
+	err := db.Where("user_id=?", uid).Find(&ss).Count(&count).Error
+
 	if err != nil {
 		log.Error(err)
 		return ss, err
@@ -88,13 +100,14 @@ func GetIMAP(uid int64) (IMAP, error) {
 	return ss, nil
 }
 
-// PostIMAP creates a new IMAP in the database.
+// PostIMAP updates IMAP settings for a user in the database.
 func PostIMAP(s *IMAP, uid int64) error {
 	err := s.Validate()
 	if err != nil {
 		log.Error(err)
 		return err
 	}
+
 	//Delete old entry. TODO: Save settings and if fails to Save below replace with original
 	err = DeleteIMAP(uid)
 	if err != nil {
@@ -105,7 +118,7 @@ func PostIMAP(s *IMAP, uid int64) error {
 	// Insert new settings into the DB
 	err = db.Save(s).Error
 	if err != nil {
-		log.Error(err)
+		log.Error("Bad things happened here ", err.Error())
 	}
 	return err
 }
@@ -121,17 +134,44 @@ func DeleteIMAP(uid int64) error {
 
 // TestIMAP tests supplied IMAP settings by connecting to the server
 func TestIMAP(s *IMAP) error {
+
+	err := s.Validate()
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+
 	s.Host = s.Host + ":" + strconv.Itoa(int(s.Port)) //Append port
 	mailSettings := eazye.MailboxInfo{
 		Host:   s.Host,
 		TLS:    s.TLS,
 		User:   s.Username,
 		Pwd:    s.Password,
-		Folder: "INBOX"}
+		Folder: s.Folder}
 
-	err := eazye.ValidateSettings(mailSettings)
+	err = eazye.ValidateMailboxInfo(mailSettings)
 	if err != nil {
 		log.Error(err.Error())
+	}
+	return err
+}
+
+// GetEnabledIMAPs returns IMAP settings that are currently marked as enabled
+// This is used by the imapMonitor service that runs on server startup.
+func GetEnabledIMAPs() ([]IMAP, error) {
+	ss := []IMAP{}
+	err := db.Where("enabled=true").Find(&ss).Error
+	if err != nil {
+		log.Error(err)
+		return ss, err
+	}
+	return ss, nil
+}
+
+func SuccessfulLogin(s *IMAP) error {
+	err := db.Model(&s).Update("last_login", time.Now()).Error
+	if err != nil {
+		log.Error(err)
 	}
 	return err
 }

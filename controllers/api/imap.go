@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/dustin/go-humanize"
 	ctx "github.com/gophish/gophish/context"
 	log "github.com/gophish/gophish/logger"
 	"github.com/gophish/gophish/models"
@@ -37,11 +38,18 @@ func (as *Server) ImapServer(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "GET":
 		ss, err := models.GetIMAP(ctx.Get(r, "user_id").(int64))
-		//err := models.DeleteIMAP(ctx.Get(r, "user_id").(int64))
 		if err != nil {
 			log.Error(err)
 		}
-		//JSONResponse(w, models.Response{Success: true, Message: "IMAP Deleted Successfully"}, http.StatusOK)
+		if len(ss) > 0 {
+			ss[0].LastLoginFriendly = humanize.Time(ss[0].LastLogin)
+			delta := time.Now().Sub(ss[0].LastLogin).Hours() // Default value if never logged in is "0001-01-01T00:00:00Z"
+			if delta > 87600 {
+				ss[0].LastLoginFriendly = "Never" //Well, either Never or > 10 years ago.
+			}
+
+		}
+
 		JSONResponse(w, ss, http.StatusOK)
 	//POST: Update database
 	case r.Method == "POST":
@@ -60,27 +68,5 @@ func (as *Server) ImapServer(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		JSONResponse(w, models.Response{Success: true, Message: "Successfully saved IMAP settings."}, http.StatusCreated)
-	}
-}
-
-// IMAPProfile contains functions to handle the GET'ing, DELETE'ing, and PUT'ing
-// of an IMAP object (Used to be SendingProfile)
-func (as *Server) IMAPProfile(w http.ResponseWriter, r *http.Request) {
-	//vars := mux.Vars(r)
-	s, err := models.GetIMAP(ctx.Get(r, "user_id").(int64))
-	if err != nil {
-		JSONResponse(w, models.Response{Success: false, Message: "IMAP not found"}, http.StatusNotFound)
-		return
-	}
-	switch {
-	case r.Method == "GET":
-		JSONResponse(w, s, http.StatusOK)
-	case r.Method == "DELETE":
-		err = models.DeleteIMAP(ctx.Get(r, "user_id").(int64))
-		if err != nil {
-			JSONResponse(w, models.Response{Success: false, Message: "Error deleting IMAP"}, http.StatusInternalServerError)
-			return
-		}
-		JSONResponse(w, models.Response{Success: true, Message: "IMAP Deleted Successfully"}, http.StatusOK)
 	}
 }
