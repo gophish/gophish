@@ -48,6 +48,8 @@ func (as *Server) registerRoutes() {
 	router := root.PathPrefix("/api/").Subrouter()
 	router.Use(mid.RequireAPIKey)
 	router.Use(mid.EnforceViewOnly)
+	router.HandleFunc("/imap/", as.ImapServer)
+	router.HandleFunc("/imap/test", as.ImapServerTest)
 	router.HandleFunc("/reset", as.Reset)
 	router.HandleFunc("/campaigns/", as.Campaigns)
 	router.HandleFunc("/campaigns/summary", as.CampaignsSummary)

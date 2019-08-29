@@ -10,6 +10,8 @@
                 data-toggle="tab">Account Settings</a></li>
         <li role="uiSettings"><a href="#uiSettings" aria-controls="uiSettings" role="tab" data-toggle="tab">UI
                 Settings</a></li>
+        <li role="reportingSettings"><a href="#reportingSettings" aria-controls="reportingSettings" role="tab" id="reporttab"
+            data-toggle="tab">Reporting Settings</a></li>
     </ul>
     <!-- Tab Panes -->
     <div class="tab-content">
@@ -82,6 +84,81 @@
                 <label for="use_map">Show campaign results map</label>
             </div>
         </div>
+        <!-- Reporting Settings Begin -->
+        <div role="tabpanel" class="tab-pane" id="reportingSettings">
+            <form id="imapForm" >
+            <br />
+            <div class="row">
+                <div>
+                    Monitor an IMAP account for emails reported by users.
+                </div>
+             </div>
+            <br />
+
+            <div class="row">
+                <div class="checkbox checkbox-primary">
+                    <input id="use_imap" type="checkbox">
+                    <label for="use_imap">Enable Email Account Monitoring</label>
+                </div>
+             </div>
+            <br />
+
+
+            
+            <div class="row">
+                <label for="imaphost" class="col-sm-2 control-label form-label">IMAP Host:</label>
+                <div class="col-md-6">
+                    <input type="text" id="imaphost" name="imaphost" placeholder="imap.example.com"
+                        class="form-control" />
+                </div>
+            </div>
+            <br />
+
+            <div class="row">
+                <label for="imapport" class="col-sm-2 control-label form-label">IMAP Port:</label>
+                <div class="col-md-6">
+                    <input type="text" id="imapport" name="imapport" placeholder="993"
+                        class="form-control" />
+                </div>
+            </div>
+            <br />
+
+            <div class="row">
+                <label for="imapusername" class="col-sm-2 control-label form-label">IMAP Username:</label>
+                <div class="col-md-6">
+                    <input type="text" id="imapusername" name="imapusername" placeholder="Username"
+                        class="form-control" />
+                </div>
+            </div>
+            <br />
+
+            <div class="row">
+                <label for="imappassword" class="col-sm-2 control-label form-label">IMAP Password:</label>
+                <div class="col-md-6">
+                    <input type="password" id="imappassword" name="imappassword" placeholder="Password" autocomplete="off"
+                        class="form-control" />
+                </div>
+            </div>
+            <br />
+
+
+            <div class="row">
+                <label for="use_tls" class="col-sm-2 control-label form-label">Use TLS:</label>
+                <div class="col-md-6">
+                    <div class="checkbox checkbox-primary">
+                        <input id="use_tls" type="checkbox">
+                        <label for="use_tls"></label>
+                    </div>
+                    
+                </div>
+            </div>
+            <br />
+
+            <button class="btn btn-primary" type="submit"><i class="fa fa-save"></i> Save</button>
+            <button class="btn btn-primary" id="testimap" type="button"><i class="fa fa-wrench"></i> Test Settings</button>
+        </form>
+        </div>
+        <!-- Reporting Settings End -->
     </div>
 </div>
 {{end}} {{define "scripts"}}
