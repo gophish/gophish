@@ -104,7 +104,7 @@ var dismissSendTestEmailModal = function () {
 
 
 var deleteProfile = function (idx) {
-    Swal.fire({
+    swal({
         title: "Are you sure?",
         text: "This will delete the sending profile. This can't be undone!",
         type: "warning",
@@ -125,14 +125,12 @@ var deleteProfile = function (idx) {
                     })
             })
         }
-    }).then(function (result) {
-        if (result.value){
-            Swal.fire(
-                'Sending Profile Deleted!',
-                'This sending profile has been deleted!',
-                'success'
-            );
-        }
+    }).then(function () {
+        swal(
+            'Sending Profile Deleted!',
+            'This sending profile has been deleted!',
+            'success'
+        );
         $('button:contains("OK")').on('click', function () {
             location.reload()
         })

@@ -13,7 +13,7 @@ var campaign = {}
 
 // Launch attempts to POST to /campaigns/
 function launch() {
-    Swal.fire({
+    swal({
         title: "Are you sure?",
         text: "This will schedule the campaign to be launched.",
         type: "question",
@@ -66,14 +66,12 @@ function launch() {
                     })
             })
         }
-    }).then(function (result) {
-        if (result.value){
-            Swal.fire(
-                'Campaign Scheduled!',
-                'This campaign has been scheduled for launch!',
-                'success'
-            );
-        }
+    }).then(function () {
+        swal(
+            'Campaign Scheduled!',
+            'This campaign has been scheduled for launch!',
+            'success'
+        );
         $('button:contains("OK")').on('click', function () {
             window.location = "/campaigns/" + campaign.id.toString()
         })
@@ -126,7 +124,7 @@ function dismiss() {
 }
 
 function deleteCampaign(idx) {
-    Swal.fire({
+    swal({
         title: "Are you sure?",
         text: "This will delete the campaign. This can't be undone!",
         type: "warning",
@@ -147,14 +145,12 @@ function deleteCampaign(idx) {
                     })
             })
         }
-    }).then(function (result) {
-        if (result.value){
-            Swal.fire(
-                'Campaign Deleted!',
-                'This campaign has been deleted!',
-                'success'
-            );
-        }
+    }).then(function () {
+        swal(
+            'Campaign Deleted!',
+            'This campaign has been deleted!',
+            'success'
+        );
         $('button:contains("OK")').on('click', function () {
             location.reload()
         })
@@ -170,10 +166,8 @@ function setupOptions() {
             } else {
                 var group_s2 = $.map(groups, function (obj) {
                     obj.text = obj.name
-                    obj.title = obj.targets.length + " targets"
                     return obj
                 });
-                console.log(group_s2)
                 $("#users.form-control").select2({
                     placeholder: "Select Groups",
                     data: group_s2,

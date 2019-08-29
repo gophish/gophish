@@ -148,7 +148,7 @@ var deleteGroup = function (id) {
     if (!group) {
         return
     }
-    Swal.fire({
+    swal({
         title: "Are you sure?",
         text: "This will delete the group. This can't be undone!",
         type: "warning",
@@ -169,14 +169,12 @@ var deleteGroup = function (id) {
                     })
             })
         }
-    }).then(function (result) {
-        if (result.value){
-            Swal.fire(
-                'Group Deleted!',
-                'This group has been deleted!',
-                'success'
-            );
-        }
+    }).then(function () {
+        swal(
+            'Group Deleted!',
+            'This group has been deleted!',
+            'success'
+        );
         $('button:contains("OK")').on('click', function () {
             location.reload()
         })
