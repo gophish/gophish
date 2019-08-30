@@ -52,6 +52,7 @@ func (w *DefaultWorker) Start() {
 	go w.mailer.Start(context.Background())
 	for t := range time.Tick(1 * time.Minute) {
 		ms, err := models.GetQueuedMailLogs(t.UTC())
+		cs, err := models.GetQueuedComplete(t.UTC())
 		if err != nil {
 			log.Error(err)
 			continue
@@ -93,6 +94,25 @@ func (w *DefaultWorker) Start() {
 				}).Info("Sending emails to mailer for processing")
 				w.mailer.Queue(msc)
 			}(cid, msc)
+		}
+
+		for cid, cmp := range cs {
+			go func(cid int64, cmp models.Campaign) {
+				cid = cmp.Id
+				uid := cmp.UserId
+				c, err := models.GetCampaign(cid, uid)
+				if err != nil {
+					log.Error(err)
+					return
+				}
+				if c.Status == models.CampaignInProgress {
+					err := models.CompleteCampaign(cid, uid)
+					if err != nil {
+						log.Error(err)
+						return
+					}
+				}
+			}(int64(cid), cmp)
 		}
 	}
 }

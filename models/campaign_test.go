@@ -78,6 +78,21 @@ func (s *ModelsSuite) TestCampaignDateValidation(c *check.C) {
 	campaign.SendByDate = campaign.LaunchDate.Add(-1 * time.Minute)
 	err = campaign.Validate()
 	c.Assert(err, check.Equals, ErrInvalidSendByDate)
+
+	// If the completed date is greater than the launch date, then there's no
+	//problem
+	campaign = s.createCampaignDependencies(c)
+	campaign.LaunchDate = time.Now().UTC()
+	campaign.CompletedDate = campaign.LaunchDate.Add(1 * time.Minute)
+	err = campaign.Validate()
+	c.Assert(err, check.Equals, nil)
+
+	// If the completed date is less than the launch date, then there's an issue
+	campaign = s.createCampaignDependencies(c)
+	campaign.LaunchDate = time.Now().UTC()
+	campaign.CompletedDate = campaign.LaunchDate.Add(-1 * time.Minute)
+	err = campaign.Validate()
+	c.Assert(err, check.Equals, ErrInvalidCompletedDate)
 }
 
 func (s *ModelsSuite) TestLaunchCampaignMaillogStatus(c *check.C) {

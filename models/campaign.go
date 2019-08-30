@@ -34,11 +34,13 @@ type Campaign struct {
 
 // CampaignResults is a struct representing the results from a campaign
 type CampaignResults struct {
-	Id      int64    `json:"id"`
-	Name    string   `json:"name"`
-	Status  string   `json:"status"`
-	Results []Result `json:"results,omitempty"`
-	Events  []Event  `json:"timeline,omitempty"`
+	Id            int64     `json:"id"`
+	Name          string    `json:"name"`
+	LaunchDate    time.Time `json:"launch_date"`
+	CompletedDate time.Time `json:"completed_date"`
+	Status        string    `json:"status"`
+	Results       []Result  `json:"results,omitempty"`
+	Events        []Event   `json:"timeline,omitempty"`
 }
 
 // CampaignSummaries is a struct representing the overview of campaigns
@@ -125,6 +127,10 @@ var ErrSMTPNotFound = errors.New("Sending profile not found")
 // launch date
 var ErrInvalidSendByDate = errors.New("The launch date must be before the \"send emails by\" date")
 
+// ErrInvalidCompletedDate indicates that the user specified a complete date that occurs before the
+// launch date
+var ErrInvalidCompletedDate = errors.New("The launch date must be before the \"completion  date\" date")
+
 // RecipientParameter is the URL parameter that points to the result ID for a recipient.
 const RecipientParameter = "rid"
 
@@ -143,6 +149,8 @@ func (c *Campaign) Validate() error {
 		return ErrSMTPNotSpecified
 	case !c.SendByDate.IsZero() && !c.LaunchDate.IsZero() && c.SendByDate.Before(c.LaunchDate):
 		return ErrInvalidSendByDate
+	case !c.CompletedDate.IsZero() && !c.LaunchDate.IsZero() && c.CompletedDate.Before(c.LaunchDate):
+		return ErrInvalidCompletedDate
 	}
 	return nil
 }
@@ -400,6 +408,27 @@ func GetQueuedCampaigns(t time.Time) ([]Campaign, error) {
 	return cs, err
 }
 
+// GetQueuedComplete returns the campaigns that are queued up for this given minute
+func GetQueuedComplete(t time.Time) ([]Campaign, error) {
+	cs := []Campaign{}
+	s := 60 * time.Second
+	tStart := t.Round(s)
+	tEnd := tStart.Add(time.Second * time.Duration(59))
+	err := db.Where("completed_date BETWEEN ? AND ?", tStart, tEnd).
+		Where("status = ?", CampaignInProgress).Find(&cs).Error
+	if err != nil {
+		log.Error(err)
+	}
+	log.Debugf("Found %d Campaigns to complete\n", len(cs))
+	for i := range cs {
+		err = cs[i].getDetails()
+		if err != nil {
+			log.Error(err)
+		}
+	}
+	return cs, err
+}
+
 // PostCampaign inserts a campaign and all associated records into the database.
 func PostCampaign(c *Campaign, uid int64) error {
 	err := c.Validate()
@@ -409,7 +438,11 @@ func PostCampaign(c *Campaign, uid int64) error {
 	// Fill in the details
 	c.UserId = uid
 	c.CreatedDate = time.Now().UTC()
-	c.CompletedDate = time.Time{}
+	if !c.CompletedDate.IsZero() {
+		c.CompletedDate = c.CompletedDate.UTC()
+	} else {
+		c.CompletedDate = time.Time{}.UTC()
+	}
 	c.Status = CampaignQueued
 	if c.LaunchDate.IsZero() {
 		c.LaunchDate = c.CreatedDate
