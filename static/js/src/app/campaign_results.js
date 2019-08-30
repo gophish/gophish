@@ -125,7 +125,7 @@ function dismiss() {
 
 // Deletes a campaign after prompting the user
 function deleteCampaign() {
-    swal({
+    Swal.fire({
         title: "Are you sure?",
         text: "This will delete the campaign. This can't be undone!",
         type: "warning",
@@ -147,12 +147,14 @@ function deleteCampaign() {
                     })
             })
         }
-    }).then(function () {
-        swal(
-            'Campaign Deleted!',
-            'This campaign has been deleted!',
-            'success'
-        );
+    }).then(function (result) {
+        if(result.value){
+            Swal.fire(
+                'Campaign Deleted!',
+                'This campaign has been deleted!',
+                'success'
+            );
+        }
         $('button:contains("OK")').on('click', function () {
             location.href = '/campaigns'
         })
@@ -161,7 +163,7 @@ function deleteCampaign() {
 
 // Completes a campaign after prompting the user
 function completeCampaign() {
-    swal({
+    Swal.fire({
         title: "Are you sure?",
         text: "Gophish will stop processing events for this campaign",
         type: "warning",
@@ -183,15 +185,17 @@ function completeCampaign() {
                     })
             })
         }
-    }).then(function () {
-        swal(
-            'Campaign Completed!',
-            'This campaign has been completed!',
-            'success'
-        );
-        $('#complete_button')[0].disabled = true;
-        $('#complete_button').text('Completed!')
-        doPoll = false;
+    }).then(function (result) {
+        if (result.value){
+            Swal.fire(
+                'Campaign Completed!',
+                'This campaign has been completed!',
+                'success'
+            );
+            $('#complete_button')[0].disabled = true;
+            $('#complete_button').text('Completed!')
+            doPoll = false;
+        }
     })
 }
 
@@ -253,7 +257,7 @@ function replay(event_idx) {
     })
     /* Ensure we know where to send the user */
     // Prompt for the URL
-    swal({
+    Swal.fire({
         title: 'Where do you want the credentials submitted to?',
         input: 'text',
         showCancelButton: true,
@@ -269,8 +273,10 @@ function replay(event_idx) {
             });
         }
     }).then(function (result) {
-        url = result
-        submitForm()
+        if (result.value){
+            url = result.value
+            submitForm()
+        }
     })
     return
     submitForm()

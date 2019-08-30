@@ -13,7 +13,7 @@ var campaign = {}
 
 // Launch attempts to POST to /campaigns/
 function launch() {
-    swal({
+    Swal.fire({
         title: "Are you sure?",
         text: "This will schedule the campaign to be launched.",
         type: "question",
@@ -62,16 +62,18 @@ function launch() {
                     .error(function (data) {
                         $("#modal\\.flashes").empty().append("<div style=\"text-align:center\" class=\"alert alert-danger\">\
             <i class=\"fa fa-exclamation-circle\"></i> " + data.responseJSON.message + "</div>")
-                        swal.close()
+                        Swal.close()
                     })
             })
         }
-    }).then(function () {
-        swal(
-            'Campaign Scheduled!',
-            'This campaign has been scheduled for launch!',
-            'success'
-        );
+    }).then(function (result) {
+        if (result.value){
+            Swal.fire(
+                'Campaign Scheduled!',
+                'This campaign has been scheduled for launch!',
+                'success'
+            );
+        }
         $('button:contains("OK")').on('click', function () {
             window.location = "/campaigns/" + campaign.id.toString()
         })
@@ -124,7 +126,7 @@ function dismiss() {
 }
 
 function deleteCampaign(idx) {
-    swal({
+    Swal.fire({
         title: "Are you sure?",
         text: "This will delete the campaign. This can't be undone!",
         type: "warning",
@@ -145,12 +147,14 @@ function deleteCampaign(idx) {
                     })
             })
         }
-    }).then(function () {
-        swal(
-            'Campaign Deleted!',
-            'This campaign has been deleted!',
-            'success'
-        );
+    }).then(function (result) {
+        if (result.value){
+            Swal.fire(
+                'Campaign Deleted!',
+                'This campaign has been deleted!',
+                'success'
+            );
+        }
         $('button:contains("OK")').on('click', function () {
             location.reload()
         })
@@ -166,8 +170,10 @@ function setupOptions() {
             } else {
                 var group_s2 = $.map(groups, function (obj) {
                     obj.text = obj.name
+                    obj.title = obj.targets.length + " targets"
                     return obj
                 });
+                console.log(group_s2)
                 $("#users.form-control").select2({
                     placeholder: "Select Groups",
                     data: group_s2,

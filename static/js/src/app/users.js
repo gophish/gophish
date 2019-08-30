@@ -77,7 +77,7 @@ const deleteUser = (id) => {
     if (!user) {
         return
     }
-    swal({
+    Swal.fire({
         title: "Are you sure?",
         text: "This will delete the account for " + escapeHtml(user.username) + " as well as all of the objects they have created.\n\nThis can't be undone!",
         type: "warning",
@@ -97,13 +97,18 @@ const deleteUser = (id) => {
                         reject(data.responseJSON.message)
                     })
             })
+            .catch(error => {
+                Swal.showValidationMessage(error)
+              })
         }
-    }).then(function () {
-        swal(
-            'User Deleted!',
-            "The user account for " + escapeHtml(user.username) + " and all associated objects have been deleted!",
-            'success'
-        );
+    }).then(function (result) {
+        if (result.value){
+            Swal.fire(
+                'User Deleted!',
+                "The user account for " + escapeHtml(user.username) + " and all associated objects have been deleted!",
+                'success'
+            );
+        }
         $('button:contains("OK")').on('click', function () {
             location.reload()
         })
