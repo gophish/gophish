@@ -1,9 +1,6 @@
 package auth
 
 import (
-	"crypto/rand"
-	"encoding/gob"
-
 	"errors"
 	"net/http"
 
