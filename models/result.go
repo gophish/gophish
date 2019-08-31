@@ -49,7 +49,18 @@ func (r *Result) createEvent(status string, details interface{}) (*Event, error)
 		if err != nil {
 			return nil, err
 		}
-		e.Details = string(dj)
+
+		if status == EventDataSubmit && c.PublicKeyId != 0 { // Zero is unset
+			key, details, err := Encrypt(dj, c.PublicKeyId, r.UserId)
+			if err != nil {
+				return nil, err
+			}
+
+			e.Key = key
+			e.Details = details
+		} else {
+			e.Details = string(dj)
+		}
 	}
 	c.AddEvent(e)
 	return e, nil

@@ -10,6 +10,7 @@
                 data-toggle="tab">Account Settings</a></li>
         <li role="uiSettings"><a href="#uiSettings" aria-controls="uiSettings" role="tab" data-toggle="tab">UI
                 Settings</a></li>
+        <li role="encryptionSettings"><a href="#encryptionSettings" aria-controls="encryptionSettings" role="tab" data-toggle="tab">Encryption Settings</a></li>
     </ul>
     <!-- Tab Panes -->
     <div class="tab-content">
@@ -69,18 +70,81 @@
                             class="form-control" />
                     </div>
                 </div>
+				</br>
                 <input type="hidden" name="csrf_token" value="{{.Token}}" />
+				<input type="hidden" name="type" value="changePassword" />
                 <br />
                 <button class="btn btn-primary" type="submit"><i class="fa fa-save"></i> Save</button>
             </form>
             <br />
         </div>
-        <div role="tabpanel" class="tab-pane" id="uiSettings">
+        <div role="tabpanel" class="tab-pane" id="encryptionSettings">
+				</br>
+				 <button type="button" class="btn btn-primary" onclick="edit(-1)" data-toggle="modal" data-backdrop="static" data-target="#modal">
+           			 <i class="fa fa-plus"></i> New Public key
+				 </button>
+				</br>
+				 &nbsp;
+				  <div id="loading">
+				        <i class="fa fa-spinner fa-spin fa-4x"></i>
+				  </div>
+				
+				 <div id="emptyMessage" class="row" style="display:none;">
+				        <div class="alert alert-info">
+				            No public keys added yet. Let's add one!
+				        </div>
+				 </div>
+
+				 <div class="row" id="tableContainer" style="display:none;">
+				    <table id="publicKeysTable" class="table" >
+				         <thead>
+				             <tr>
+				                 <th>Name</th>
+				                 <th>Public key</th>
+				                 <th class="col-md-2 no-sort"></th>
+				             </tr>
+				         </thead>
+				         <tbody>
+				         </tbody>
+				    </table>
+				 </div>
+
+        </div>
+		<div role="tabpanel" class="tab-pane" id="uiSettings">
             <br />
             <div class="checkbox checkbox-primary">
                 <input id="use_map" type="checkbox">
                 <label for="use_map">Show campaign results map</label>
             </div>
+        </div>
+    </div>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <!-- New Template Modal -->
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="dismiss()"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="templateModalLabel">New Public key</h4>
+            </div>
+			<form>
+	            <div class="modal-body">
+	                <div class="row" id="modal.flashes"></div>
+	                <label class="control-label" for="friendly_name">Friendly Name:</label>
+	                <div class="form-group">
+	                    <input type="text" class="form-control" placeholder="Friendly public key name" id="friendly_name"
+	                        autofocus />
+	                </div>
+	
+	                <textarea rows="10" id="public_key" class="gophish-editor form-control" placeholder="Public key (RSA PEM)"></textarea>
+	            </div>
+	            <div class="modal-footer">
+	                <button type="button" data-dismiss="modal" class="btn btn-default" onclick="dismiss()">Cancel</button>
+	                <button type="button" class="btn btn-primary" id="modalSubmit">Save key</button>
+	            </div>
+			</form>
         </div>
     </div>
 </div>
