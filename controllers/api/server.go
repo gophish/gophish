@@ -70,6 +70,7 @@ func (as *Server) registerRoutes() {
 	router.HandleFunc("/util/send_test_email", as.SendTestEmail)
 	router.HandleFunc("/import/group", as.ImportGroup)
 	router.HandleFunc("/import/email", as.ImportEmail)
+	router.HandleFunc("/import/emailfile", as.ImportEmailFile)
 	router.HandleFunc("/import/site", as.ImportSite)
 	as.handler = router
 }
