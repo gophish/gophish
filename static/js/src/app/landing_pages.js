@@ -50,7 +50,7 @@ function dismiss() {
 }
 
 var deletePage = function (idx) {
-    swal({
+    Swal.fire({
         title: "Are you sure?",
         text: "This will delete the landing page. This can't be undone!",
         type: "warning",
@@ -71,12 +71,14 @@ var deletePage = function (idx) {
                     })
             })
         }
-    }).then(function () {
-        swal(
-            'Landing Page Deleted!',
-            'This landing page has been deleted!',
-            'success'
-        );
+    }).then(function (result) {
+        if (result.value){
+            Swal.fire(
+                'Landing Page Deleted!',
+                'This landing page has been deleted!',
+                'success'
+            );
+        }
         $('button:contains("OK")').on('click', function () {
             location.reload()
         })

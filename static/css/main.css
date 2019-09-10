@@ -1,3 +1,7 @@
+.swal2-popup {
+    font-size: 1.6rem !important;
+  }
+
 .nav-tabs {
     cursor: pointer;
 }
