@@ -39,6 +39,7 @@ function launch() {
                 }
                 campaign = {
                     name: $("#name").val(),
+                    description: $("#description").val(),
                     template: {
                         name: $("#template").select2("data")[0].text
                     },
@@ -117,6 +118,7 @@ function sendTestEmail() {
 function dismiss() {
     $("#modal\\.flashes").empty();
     $("#name").val("");
+    $("#description").val("");
     $("#template").val("").change();
     $("#page").val("").change();
     $("#url").val("");
@@ -255,6 +257,7 @@ function copy(idx) {
     api.campaignId.get(campaigns[idx].id)
         .success(function (campaign) {
             $("#name").val("Copy of " + campaign.name)
+            $("#description").val(campaign.description)
             if (!campaign.template.id) {
                 $("#template").select2({
                     placeholder: campaign.template.name

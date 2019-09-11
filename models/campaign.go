@@ -15,6 +15,7 @@ type Campaign struct {
 	Id            int64     `json:"id"`
 	UserId        int64     `json:"-"`
 	Name          string    `json:"name" sql:"not null"`
+	Description   string    `json:"description"`
 	CreatedDate   time.Time `json:"created_date"`
 	LaunchDate    time.Time `json:"launch_date"`
 	SendByDate    time.Time `json:"send_by_date"`

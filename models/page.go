@@ -14,6 +14,7 @@ type Page struct {
 	Id                 int64     `json:"id" gorm:"column:id; primary_key:yes"`
 	UserId             int64     `json:"-" gorm:"column:user_id"`
 	Name               string    `json:"name"`
+	Description        string    `json:"description"`
 	HTML               string    `json:"html" gorm:"column:html"`
 	CaptureCredentials bool      `json:"capture_credentials" gorm:"column:capture_credentials"`
 	CapturePasswords   bool      `json:"capture_passwords" gorm:"column:capture_passwords"`
