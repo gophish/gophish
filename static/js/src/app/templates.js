@@ -79,7 +79,7 @@ function dismiss() {
 }
 
 var deleteTemplate = function (idx) {
-    swal({
+    Swal.fire({
         title: "Are you sure?",
         text: "This will delete the template. This can't be undone!",
         type: "warning",
@@ -100,12 +100,14 @@ var deleteTemplate = function (idx) {
                     })
             })
         }
-    }).then(function () {
-        swal(
-            'Template Deleted!',
-            'This template has been deleted!',
-            'success'
-        );
+    }).then(function (result) {
+        if(result.value) {
+            Swal.fire(
+                'Template Deleted!',
+                'This template has been deleted!',
+                'success'
+            );
+        }
         $('button:contains("OK")').on('click', function () {
             location.reload()
         })
