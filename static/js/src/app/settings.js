@@ -131,13 +131,13 @@ $(document).ready(function () {
         //api.IMAP.test(server).done(function() { // When using this API approach the button text does not change, and the inputs aren't disabled. I don't know why.
         query("/imap/test", "POST", server, true).done(function(data) { //  so using this direct query() approach for now
             if (data.success == true) {
-                swal({
+                Swal.fire({
                     title: "Success",
                     text: "Logged into <b>" + $("#imaphost").val() + "</b>",
                     type: "success",
                 })
             } else {
-                swal({
+                Swal.fire({
                     title: "Failed!",
                     text: "Unable to login to <b>" + $("#imaphost").val() + "</b>.",
                     type: "error",
@@ -147,7 +147,7 @@ $(document).ready(function () {
                     confirmButtonColor: "#428bca",
                     allowOutsideClick: false,
                     preConfirm: function () {
-                        swal({
+                        Swal.fire({
                           title: "Error:",
                           text: data.message,
                         })
