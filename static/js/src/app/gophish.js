@@ -225,8 +225,8 @@ var api = {
         post: function(e) {
             return query("/imap/", "POST", e, !1)
         },
-        test: function(e) {
-            return query("/imap/test", "POST", e, true)
+        validate: function(e) {
+            return query("/imap/validate", "POST", e, true)
         }
     },
     // users contains the endpoints for /users

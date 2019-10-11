@@ -80,9 +80,9 @@ $(document).ready(function () {
         return false
     })
 
-    $("#testimap").click(function() {
+    $("#validateimap").click(function() {
 
-        // Query test imap server endpoint
+        // Query validate imap server endpoint
         var server = {}
         server.host = $("#imaphost").val()
         server.port = $("#imapport").val()
@@ -117,7 +117,7 @@ $(document).ready(function () {
         $("#advancedarea").hide("slow");
         $("html, body").animate({ scrollTop: $(document).height() }, 1000);
 
-        var oldHTML = $("#testimap").html();
+        var oldHTML = $("#validateimap").html();
         // Disable inputs and change button text
         $("#imaphost").attr("disabled", true);
         $("#imapport").attr("disabled", true);
@@ -125,39 +125,38 @@ $(document).ready(function () {
         $("#imappassword").attr("disabled", true);
         $("#use_imap").attr("disabled", true);
         $("#use_tls").attr("disabled", true);
-        $("#testimap").attr("disabled", true);
-        $("#testimap").html("<i class='fa fa-circle-o-notch fa-spin'></i> Testing...");
+        $("#validateimap").attr("disabled", true);
+        $("#validateimap").html("<i class='fa fa-circle-o-notch fa-spin'></i> Testing...");
         
-        //api.IMAP.test(server).done(function() { // When using this API approach the button text does not change, and the inputs aren't disabled. I don't know why.
-        query("/imap/test", "POST", server, true).done(function(data) { //  so using this direct query() approach for now
+        //api.IMAP.validate(server).done(function() { // When using this API approach the button text does not change, and the inputs aren't disabled. I don't know why.
+        query("/imap/validate", "POST", server, true).done(function(data) { //  so using this direct query() approach for now
             if (data.success == true) {
                 Swal.fire({
                     title: "Success",
-                    text: "Logged into <b>" + $("#imaphost").val() + "</b>",
+                    html: "Logged into <b>" + $("#imaphost").val() + "</b>",
                     type: "success",
                 })
             } else {
                 Swal.fire({
                     title: "Failed!",
-                    text: "Unable to login to <b>" + $("#imaphost").val() + "</b>.",
+                    html: "Unable to login to <b>" + $("#imaphost").val() + "</b>.",
                     type: "error",
                     showCancelButton: true,
                     cancelButtonText: "Close",
                     confirmButtonText: "More Info",
                     confirmButtonColor: "#428bca",
                     allowOutsideClick: false,
-                    preConfirm: function () {
-                        Swal.fire({
-                          title: "Error:",
-                          text: data.message,
-                        })
-                    }
-                })
+                }).then((result) => {
+                    Swal.fire({
+                        title: "Error:",
+                        text: data.message,
+                      })
+                  })
             }
             
           })
           .fail(function() {
-            swal({
+            Swal.fire({
                 title: "Failed!",
                 text: "An unecpected error occured.",
                 type: "error",
@@ -171,8 +170,8 @@ $(document).ready(function () {
             $("#imappassword").attr("disabled", false);
             $("#use_imap").attr("disabled", false);
             $("#use_tls").attr("disabled", false);
-            $("#testimap").attr("disabled", false);
-            $("#testimap").html(oldHTML);
+            $("#validateimap").attr("disabled", false);
+            $("#validateimap").html(oldHTML);
 
             if (reshow == true){
                 $("#advancedarea").show("slow");

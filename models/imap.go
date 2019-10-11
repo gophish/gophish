@@ -132,8 +132,8 @@ func DeleteIMAP(uid int64) error {
 	return err
 }
 
-// TestIMAP tests supplied IMAP settings by connecting to the server
-func TestIMAP(s *IMAP) error {
+// ValidateIMAP validates supplied IMAP settings by connecting to the server
+func ValidateIMAP(s *IMAP) error {
 
 	err := s.Validate()
 	if err != nil {

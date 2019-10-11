@@ -11,8 +11,8 @@ import (
 	"github.com/gophish/gophish/models"
 )
 
-// ImapServerTest handles requests for the /api/imapserver/test endpoint
-func (as *Server) ImapServerTest(w http.ResponseWriter, r *http.Request) {
+// ImapServerValidate handles requests for the /api/imapserver/validate endpoint
+func (as *Server) ImapServerValidate(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "GET":
 		JSONResponse(w, models.Response{Success: false, Message: "Only POSTs allowed"}, http.StatusBadRequest)
@@ -24,7 +24,7 @@ func (as *Server) ImapServerTest(w http.ResponseWriter, r *http.Request) {
 			JSONResponse(w, models.Response{Success: false, Message: "Invalid request"}, http.StatusBadRequest)
 			return
 		}
-		err = models.TestIMAP(&s)
+		err = models.ValidateIMAP(&s)
 		if err != nil {
 			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusOK)
 			return
