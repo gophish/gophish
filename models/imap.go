@@ -10,6 +10,8 @@ import (
 	log "github.com/gophish/gophish/logger"
 )
 
+const DefaultIMAPFolder = "INBOX"
+
 // IMAP contains the attributes needed to handle logging into an IMAP server to check
 // for reported emails
 type IMAP struct {
@@ -70,7 +72,7 @@ func (s *IMAP) Validate() error {
 
 	// Set the default value for Folder
 	if s.Folder == "" {
-		s.Folder = "INBOX"
+		s.Folder = DefaultIMAPFolder
 	}
 
 	// Make sure s.Host is an IP or hostname. NB will fail if unable to resolve the hostname.s
@@ -108,7 +110,7 @@ func PostIMAP(s *IMAP, uid int64) error {
 		return err
 	}
 
-	//Delete old entry. TODO: Save settings and if fails to Save below replace with original
+	// Delete old entry. TODO: Save settings and if fails to Save below replace with original
 	err = DeleteIMAP(uid)
 	if err != nil {
 		log.Error(err)
@@ -141,7 +143,7 @@ func ValidateIMAP(s *IMAP) error {
 		return err
 	}
 
-	s.Host = s.Host + ":" + strconv.Itoa(int(s.Port)) //Append port
+	s.Host = s.Host + ":" + strconv.Itoa(int(s.Port)) // Append port
 	mailSettings := eazye.MailboxInfo{
 		Host:   s.Host,
 		TLS:    s.TLS,

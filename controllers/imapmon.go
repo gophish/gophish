@@ -32,7 +32,7 @@ type ImapMonitor struct {
 	checkFreq int
 }
 
-// PeriodicIMAPMonitor will periodically check the database for
+// PeriodicIMAPMonitor will periodically check the database for IMAP instances to login to and check for campaigns
 func PeriodicIMAPMonitor(ctx context.Context, im *ImapMonitor) {
 
 	for {
@@ -48,7 +48,7 @@ func PeriodicIMAPMonitor(ctx context.Context, im *ImapMonitor) {
 			var wg sync.WaitGroup
 			wg.Add(len(imaps))
 			for _, i := range imaps {
-				//We launch a goroutine for each IMAP account. In the future should use some more sophisticated worker/queues
+				// We launch a goroutine for each IMAP account. In the future should use some more sophisticated worker/queues
 				go checkForNewEmails(i, &wg, im.reportURL)
 			}
 			wg.Wait()
@@ -58,8 +58,7 @@ func PeriodicIMAPMonitor(ctx context.Context, im *ImapMonitor) {
 
 }
 
-// NewImapMonitor returns a new instanfe of the ImapMonitor
-//func NewImapMonitor(configP config.PhishServer, configA *config.Config) *ImapMonitor {
+// NewImapMonitor returns a new instance of the ImapMonitor
 func NewImapMonitor(config *config.Config) *ImapMonitor {
 	// Make sure database connection exists. Not sure why I have to do this here, but
 	//  otherwise db is <nil> when calling models.GetEnabledIMAPs()
@@ -82,7 +81,7 @@ func NewImapMonitor(config *config.Config) *ImapMonitor {
 // Start launches the IMAP campaign monitor
 func (im *ImapMonitor) Start() error {
 	log.Info("Starting IMAP monitor")
-	ctx, cancel := context.WithCancel(context.Background()) //ctx is the derivedContext
+	ctx, cancel := context.WithCancel(context.Background()) // ctx is the derivedContext
 	im.cancel = cancel
 	go PeriodicIMAPMonitor(ctx, im)
 	return nil
@@ -106,11 +105,11 @@ func checkForNewEmails(im models.IMAP, wg *sync.WaitGroup, reportURL string) {
 		Pwd:    im.Password,
 		Folder: im.Folder}
 
-	//Make sure server ends with a trailing slash
+	// Make sure server ends with a trailing slash
 	if reportURL[len(reportURL)-1:] != "/" {
 		reportURL = reportURL + "/"
 	}
-	//Set http timeout to 10 seconds, or routine may hang
+	// Set http timeout to 10 seconds, or routine may hang
 	var netClient = &http.Client{
 		Timeout: time.Second * 10,
 	}
@@ -120,15 +119,15 @@ func checkForNewEmails(im models.IMAP, wg *sync.WaitGroup, reportURL string) {
 		log.Error(err)
 		return
 	}
-	//Update last_succesful_login here via im.Host
+	// Update last_succesful_login here via im.Host
 	err = models.SuccessfulLogin(&im)
 
 	if len(msgs) > 0 {
 		var reportingFailed []uint32 // UIDs of emails that were unable to be reported to phishing server, mark as unread
-		var campaignEmails []uint32  //UIDs of campaign emails. If deleteCampaignEmails is true, we will delete these
+		var campaignEmails []uint32  // UIDs of campaign emails. If deleteCampaignEmails is true, we will delete these
 		for _, m := range msgs {
-			//Check if sender is from company's domain, if enabled. TODO: Make this an IMAP filter
-			if im.RestrictDomain != "" { //e.g domainResitct = widgets.com
+			// Check if sender is from company's domain, if enabled. TODO: Make this an IMAP filter
+			if im.RestrictDomain != "" { // e.g domainResitct = widgets.com
 				splitEmail := strings.Split(m.From.Address, "@")
 				senderDomain := splitEmail[len(splitEmail)-1]
 				if senderDomain != im.RestrictDomain {
@@ -137,7 +136,7 @@ func checkForNewEmails(im models.IMAP, wg *sync.WaitGroup, reportURL string) {
 				}
 			}
 
-			body := string(append(m.Text, m.HTML...)) //Empty body is being returned for emails forwarded from ProtonMail. Need to investigate more. Perhaps it's being attached, and eazye doesn't support attachments.
+			body := string(append(m.Text, m.HTML...)) // Empty body is being returned for emails forwarded from ProtonMail. Need to investigate more. Perhaps it's being attached, and eazye doesn't support attachments.
 			rid := goPhishRegex.FindString(body)
 
 			if rid != "" {

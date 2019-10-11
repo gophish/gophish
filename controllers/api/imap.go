@@ -45,13 +45,13 @@ func (as *Server) ImapServer(w http.ResponseWriter, r *http.Request) {
 			ss[0].LastLoginFriendly = humanize.Time(ss[0].LastLogin)
 			delta := time.Now().Sub(ss[0].LastLogin).Hours() // Default value if never logged in is "0001-01-01T00:00:00Z"
 			if delta > 87600 {
-				ss[0].LastLoginFriendly = "Never" //Well, either Never or > 10 years ago.
+				ss[0].LastLoginFriendly = "Never" // Well, either Never or > 10 years ago.
 			}
 
 		}
 
 		JSONResponse(w, ss, http.StatusOK)
-	//POST: Update database
+	// POST: Update database
 	case r.Method == "POST":
 		s := models.IMAP{}
 		// Put the request into a page
