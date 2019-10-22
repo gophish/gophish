@@ -12,7 +12,6 @@ CREATE TABLE IF NOT EXISTS `group_targets` (group_id bigint,target_id bigint );
 CREATE TABLE IF NOT EXISTS `events` (id integer primary key auto_increment,campaign_id bigint,email varchar(255),time datetime,message varchar(255) );
 CREATE TABLE IF NOT EXISTS `campaigns` (id integer primary key auto_increment,user_id bigint,name varchar(255) NOT NULL ,created_date datetime,completed_date datetime,template_id bigint,page_id bigint,status varchar(255),url varchar(255) );
 CREATE TABLE IF NOT EXISTS `attachments` (id integer primary key auto_increment,template_id bigint,content text,type varchar(255),name varchar(255) );
-CREATE TABLE IF NOT EXISTS `imap` (user_id bigint,host varchar(255),port int,username varchar(255),password varchar(255),modified_date datetime,tls boolean,enabled boolean,folder varchar(255,restrict_domain varchar(255),delete_campaign boolean,last_login datetime,last_login_friendly varchar(255)));
 
 -- +goose Down
 -- SQL section 'Down' is executed when this migration is rolled back
@@ -27,4 +26,3 @@ DROP TABLE `smtp`;
 DROP TABLE `targets`;
 DROP TABLE `templates`;
 DROP TABLE `users`;
-DROP TABLE `imap`;
