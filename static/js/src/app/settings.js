@@ -34,6 +34,7 @@ $(document).ready(function () {
 
         //Advanced settings
         imapSettings.folder = $("#folder").val()
+        imapSettings.imap_freq = $("#imapfreq").val()
         imapSettings.restrict_domain = $("#restrictdomain").val()
         imapSettings.delete_campaign = $('#deletecampaign').prop('checked')
 
@@ -56,6 +57,9 @@ $(document).ready(function () {
             document.body.scrollTop = 0;
             document.documentElement.scrollTop = 0;
             return false
+        }
+        if (imapSettings.imap_freq == ""){
+            imapSettings.imap_freq = "60"
         }
 
         //api.IMAP.post(imapSettings).done(function (data) { // When using this API approach we get an error in the logs "http: TLS handshake error from 127.0.0.1:53858: remote error: tls: unknown certificate"
@@ -223,6 +227,7 @@ $(document).ready(function () {
                 $("#restrictdomain").val(imap.restrict_domain)
                 $('#deletecampaign').prop('checked', imap.delete_campaign)
                 $('#lastlogin').val(imap.last_login_friendly)
+                $('#imapfreq').val(imap.imap_freq)
             }  
 
         })

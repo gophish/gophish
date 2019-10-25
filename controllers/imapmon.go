@@ -12,7 +12,6 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
-	"sync"
 	"time"
 
 	log "github.com/gophish/gophish/logger"
@@ -25,37 +24,74 @@ import (
 // Pattern for GoPhish emails e.g ?rid=AbC123
 var goPhishRegex = regexp.MustCompile("(\\?rid=[A-Za-z0-9]{7})")
 
-// ImapMonitor is a worker that monitors IMAP serverd for reported campaign emails
+// ImapMonitor is a worker that monitors IMAP servers for reported campaign emails
 type ImapMonitor struct {
 	cancel    func()
 	reportURL string
-	checkFreq int
 }
 
-// PeriodicIMAPMonitor will periodically check the database for IMAP instances to login to and check for campaigns
-func PeriodicIMAPMonitor(ctx context.Context, im *ImapMonitor) {
+// ImapMonitor.start() checks for campaign emails
+// As each account can have its own polling frequency set we need to run one Go routine for
+// each, as well as keeping an eye on newly created user accounts.
+func (im *ImapMonitor) start(ctx context.Context) {
+
+	usermap := make(map[int64]int) // Keep track of running go routines, one per user. We assume incrementing non-repeating UIDs (for the case where users are deleted and re-added).
 
 	for {
 		select {
 		case <-ctx.Done():
 			return
 		default:
-			imaps, err := models.GetEnabledIMAPs()
+			dbusers, err := models.GetUsers() //Slice of all user ids. Each user gets their own IMAP monitor routine.
 			if err != nil {
 				log.Error(err)
 				break
 			}
-			var wg sync.WaitGroup
-			wg.Add(len(imaps))
-			for _, i := range imaps {
-				// We launch a goroutine for each IMAP account. In the future should use some more sophisticated worker/queues
-				go checkForNewEmails(i, &wg, im.reportURL)
+			for _, dbuser := range dbusers {
+				if _, ok := usermap[dbuser.Id]; !ok { // If we don't currently have a running Go routine for this user, start one.
+					log.Info("Starting new IMAP monitor for user ", dbuser.Username)
+					usermap[dbuser.Id] = 1
+					go monitorIMAP(dbuser.Id, ctx, im.reportURL)
+				}
 			}
-			wg.Wait()
-			time.Sleep(time.Duration(im.checkFreq) * time.Second)
+			time.Sleep(10 * time.Second) // Every ten seconds we check if a new user has been created
 		}
 	}
+}
 
+// monitorIMAP will continuously login to the IMAP settings associated to the supplied user id (if the user account has IMAP settings, and they're enabled.)
+// It also verifies the user account exists, and returns if not (for the case of a user being deleted).
+func monitorIMAP(uid int64, ctx context.Context, reportURL string) {
+
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		default:
+			// 1. Check if user exists, if not, return.
+			_, err := models.GetUser(uid)
+			if err != nil { // Not sure if there's a better way to determine user existence via id.
+				log.Info("User ", uid, " seems to have been deleted. Stopping IMAP monitor for this user.")
+				return
+			}
+			// 2. Check if user has IMAP settings.
+			imapSettings, err := models.GetIMAP(uid)
+			if err != nil {
+				log.Error(err)
+				break
+			}
+			if len(imapSettings) > 0 {
+				im := imapSettings[0]
+				// 3. Check if IMAP is enabled
+				if im.Enabled {
+					log.Debug("Checking IMAP for user ", uid, ": ", im.Username, "@", im.Host)
+					checkForNewEmails(im, reportURL)
+					time.Sleep((time.Duration(im.IMAPFreq) - 10) * time.Second) // Subtract 10 to compensate for the default sleep of 10 at the bottom
+				}
+			}
+		}
+		time.Sleep(10 * time.Second)
+	}
 }
 
 // NewImapMonitor returns a new instance of the ImapMonitor
@@ -73,31 +109,30 @@ func NewImapMonitor(config *config.Config) *ImapMonitor {
 
 	im := &ImapMonitor{
 		reportURL: reportURL,
-		checkFreq: config.IMAPFreq,
 	}
 	return im
 }
 
 // Start launches the IMAP campaign monitor
 func (im *ImapMonitor) Start() error {
-	log.Info("Starting IMAP monitor")
+	log.Info("Starting IMAP monitor manager")
 	ctx, cancel := context.WithCancel(context.Background()) // ctx is the derivedContext
 	im.cancel = cancel
-	go PeriodicIMAPMonitor(ctx, im)
+	go im.start(ctx)
 	return nil
 }
 
 // Shutdown attempts to gracefully shutdown the IMAP monitor.
 func (im *ImapMonitor) Shutdown() error {
-	log.Info("Shutting down IMAP monitor")
+	log.Info("Shutting down IMAP monitor manager")
 	im.cancel()
 	return nil
 }
 
 // checkForNewEmails logs into an IMAP account and checks unread emails
 //  for the rid campaign identifier.
-func checkForNewEmails(im models.IMAP, wg *sync.WaitGroup, reportURL string) {
-	defer wg.Done()
+func checkForNewEmails(im models.IMAP, reportURL string) {
+
 	mailSettings := eazye.MailboxInfo{
 		Host:   im.Host,
 		TLS:    im.TLS,

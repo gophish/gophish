@@ -37,7 +37,6 @@ type Config struct {
 	TestFlag       bool          `json:"test_flag"`
 	ContactAddress string        `json:"contact_address"`
 	Logging        LoggingConfig `json:"logging"`
-	IMAPFreq       int           `json:"imap_freq"`
 }
 
 // Version contains the current gophish version

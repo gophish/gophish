@@ -11,6 +11,7 @@ import (
 )
 
 const DefaultIMAPFolder = "INBOX"
+const DefaultIMAPFreq = 60 // Every 60 seconds
 
 // IMAP contains the attributes needed to handle logging into an IMAP server to check
 // for reported emails
@@ -26,8 +27,9 @@ type IMAP struct {
 	RestrictDomain    string    `json:"restrict_domain"`
 	DeleteCampaign    bool      `json:"delete_campaign"`
 	LastLogin         time.Time `json:"last_login,omitempty"`
-	LastLoginFriendly string    `json:"last_login_friendly,omitonempty"`
+	LastLoginFriendly string    `json:"last_login_friendly,omitempty"`
 	ModifiedDate      time.Time `json:"modified_date"`
+	IMAPFreq          uint32    `json:"imap_freq,string,omitempty"`
 }
 
 // ErrIMAPHostNotSpecified is thrown when there is no Host specified
@@ -51,6 +53,8 @@ var ErrIMAPUsernameNotSpecified = errors.New("No Username specified")
 // ErrIMAPPasswordNotSpecified is thrown when there is no Password specified
 // in the IMAP configuration
 var ErrIMAPPasswordNotSpecified = errors.New("No Password specified")
+
+var ErrInvalidIMAPFreq = errors.New("Invalid polling frequency.")
 
 // TableName specifies the database tablename for Gorm to use
 func (s IMAP) TableName() string {
@@ -86,6 +90,13 @@ func (s *IMAP) Validate() error {
 	if s.Port < 1 || s.Port > 65535 {
 		return ErrInvalidIMAPPort
 	}
+
+	// Make sure the polling frequency is between every 30 seconds and every year
+	// If not set it to the default
+	if s.IMAPFreq < 30 || s.IMAPFreq > 31540000 {
+		s.IMAPFreq = DefaultIMAPFreq
+	}
+
 	return nil
 }
 
