@@ -36,7 +36,7 @@ $(document).ready(function () {
         imapSettings.folder = $("#folder").val()
         imapSettings.imap_freq = $("#imapfreq").val()
         imapSettings.restrict_domain = $("#restrictdomain").val()
-        imapSettings.delete_campaign = $('#deletecampaign').prop('checked')
+        imapSettings.delete_reported_campaign_email = $('#deletecampaign').prop('checked')
 
         
         //To avoid unmarshalling error in controllers/api/imap.go. It would fail gracefully, but with a generic error.
@@ -225,7 +225,7 @@ $(document).ready(function () {
                 $('#use_imap').prop('checked', imap.enabled)
                 $("#folder").val(imap.folder)
                 $("#restrictdomain").val(imap.restrict_domain)
-                $('#deletecampaign').prop('checked', imap.delete_campaign)
+                $('#deletecampaign').prop('checked', imap.delete_reported_campaign_email)
                 $('#lastlogin').val(imap.last_login_friendly)
                 $('#imapfreq').val(imap.imap_freq)
             }  

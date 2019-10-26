@@ -16,20 +16,20 @@ const DefaultIMAPFreq = 60 // Every 60 seconds
 // IMAP contains the attributes needed to handle logging into an IMAP server to check
 // for reported emails
 type IMAP struct {
-	UserId            int64     `json:"-" gorm:"column:user_id"`
-	Enabled           bool      `json:"enabled"`
-	Host              string    `json:"host"`
-	Port              uint16    `json:"port,string,omitempty"`
-	Username          string    `json:"username"`
-	Password          string    `json:"password"`
-	TLS               bool      `json:"tls"`
-	Folder            string    `json:"folder"`
-	RestrictDomain    string    `json:"restrict_domain"`
-	DeleteCampaign    bool      `json:"delete_campaign"`
-	LastLogin         time.Time `json:"last_login,omitempty"`
-	LastLoginFriendly string    `json:"last_login_friendly,omitempty"`
-	ModifiedDate      time.Time `json:"modified_date"`
-	IMAPFreq          uint32    `json:"imap_freq,string,omitempty"`
+	UserId                      int64     `json:"-" gorm:"column:user_id"`
+	Enabled                     bool      `json:"enabled"`
+	Host                        string    `json:"host"`
+	Port                        uint16    `json:"port,string,omitempty"`
+	Username                    string    `json:"username"`
+	Password                    string    `json:"password"`
+	TLS                         bool      `json:"tls"`
+	Folder                      string    `json:"folder"`
+	RestrictDomain              string    `json:"restrict_domain"`
+	DeleteReportedCampaignEmail bool      `json:"delete_reported_campaign_email"`
+	LastLogin                   time.Time `json:"last_login,omitempty"`
+	LastLoginFriendly           string    `json:"last_login_friendly,omitempty"`
+	ModifiedDate                time.Time `json:"modified_date"`
+	IMAPFreq                    uint32    `json:"imap_freq,string,omitempty"`
 }
 
 // ErrIMAPHostNotSpecified is thrown when there is no Host specified

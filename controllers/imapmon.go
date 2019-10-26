@@ -159,7 +159,7 @@ func checkForNewEmails(im models.IMAP, reportURL string) {
 
 	if len(msgs) > 0 {
 		var reportingFailed []uint32 // UIDs of emails that were unable to be reported to phishing server, mark as unread
-		var campaignEmails []uint32  // UIDs of campaign emails. If deleteCampaignEmails is true, we will delete these
+		var campaignEmails []uint32  // UIDs of campaign emails. If DeleteReportedCampaignEmail is true, we will delete these
 		for _, m := range msgs {
 			// Check if sender is from company's domain, if enabled. TODO: Make this an IMAP filter
 			if im.RestrictDomain != "" { // e.g domainResitct = widgets.com
@@ -184,7 +184,7 @@ func checkForNewEmails(im models.IMAP, reportURL string) {
 
 				} else {
 					if response.StatusCode == 204 {
-						if im.DeleteCampaign == true {
+						if im.DeleteReportedCampaignEmail == true {
 							campaignEmails = append(campaignEmails, m.UID)
 						}
 						log.Debugf("User '%s' reported GoPhish campaign email with subject '%s'\n", m.From, m.Subject)
@@ -202,7 +202,7 @@ func checkForNewEmails(im models.IMAP, reportURL string) {
 					log.Error("Unable to mark emails as unread: ", err.Error())
 				}
 			}
-			if im.DeleteCampaign == true && len(campaignEmails) > 0 {
+			if im.DeleteReportedCampaignEmail == true && len(campaignEmails) > 0 {
 				fmt.Printf("Deleting %d campaign emails\n", len(campaignEmails))
 				log.Debugf("Deleting %d campaign emails\n", len(campaignEmails))
 				err := eazye.DeleteEmails(mailSettings, campaignEmails) // Delete GoPhish campaign emails.
