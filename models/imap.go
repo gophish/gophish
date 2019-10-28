@@ -143,18 +143,6 @@ func DeleteIMAP(uid int64) error {
 	return err
 }
 
-// GetEnabledIMAPs returns IMAP settings that are currently marked as enabled
-// This is used by the imapMonitor service that runs on server startup.
-func GetEnabledIMAPs() ([]IMAP, error) {
-	ss := []IMAP{}
-	err := db.Where("enabled=true").Find(&ss).Error
-	if err != nil {
-		log.Error(err)
-		return ss, err
-	}
-	return ss, nil
-}
-
 func SuccessfulLogin(s *IMAP) error {
 	err := db.Model(&s).Update("last_login", time.Now()).Error
 	if err != nil {

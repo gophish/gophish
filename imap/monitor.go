@@ -95,12 +95,7 @@ func monitorIMAP(uid int64, ctx context.Context, reportURL string) {
 
 // NewMonitor returns a new instance of imap.Monitor
 func NewMonitor(config *config.Config) *Monitor {
-	// Make sure database connection exists. Not sure why I have to do this here, but
-	//  otherwise db is <nil> when calling models.GetEnabledIMAPs()
-	err := models.Setup(config)
-	if err != nil {
-		log.Fatal(err)
-	}
+
 	reportURL := "http://" + config.PhishConf.ListenURL
 	if config.PhishConf.UseTLS {
 		reportURL = "https://" + config.PhishConf.ListenURL
