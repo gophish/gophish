@@ -62,8 +62,7 @@ $(document).ready(function () {
             imapSettings.imap_freq = "60"
         }
 
-        //api.IMAP.post(imapSettings).done(function (data) { // When using this API approach we get an error in the logs "http: TLS handshake error from 127.0.0.1:53858: remote error: tls: unknown certificate"
-        query("/imap/", "POST", imapSettings, true).done(function (data) { //  so using this direct query() approach for now
+        api.IMAP.post(imapSettings).done(function (data) {
                 if (data.success == true) {
                     successFlashFade("Successfully updated IMAP settings.", 2)
                 } else {
@@ -132,8 +131,7 @@ $(document).ready(function () {
         $("#validateimap").attr("disabled", true);
         $("#validateimap").html("<i class='fa fa-circle-o-notch fa-spin'></i> Testing...");
         
-        //api.IMAP.validate(server).done(function() { // When using this API approach the button text does not change, and the inputs aren't disabled. I don't know why.
-        query("/imap/validate", "POST", server, true).done(function(data) { //  so using this direct query() approach for now
+        api.IMAP.validate(server).done(function(data) {
             if (data.success == true) {
                 Swal.fire({
                     title: "Success",
