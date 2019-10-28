@@ -34,6 +34,7 @@ import (
 
 	"github.com/gophish/gophish/config"
 	"github.com/gophish/gophish/controllers"
+	"github.com/gophish/gophish/imap"
 	log "github.com/gophish/gophish/logger"
 	"github.com/gophish/gophish/middleware"
 	"github.com/gophish/gophish/models"
@@ -100,7 +101,7 @@ func main() {
 	phishConfig := conf.PhishConf
 	phishServer := controllers.NewPhishingServer(phishConfig)
 
-	imapMonitor := controllers.NewImapMonitor(conf)
+	imapMonitor := imap.NewMonitor(conf)
 
 	go adminServer.Start()
 	go phishServer.Start()

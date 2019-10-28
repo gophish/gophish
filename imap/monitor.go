@@ -1,4 +1,4 @@
-package controllers
+package imap
 
 /* TODO:
 *		 - Have a counter per config for number of consecutive login errors and backoff (e.g if supplied creds are incorrect)
@@ -16,7 +16,6 @@ import (
 
 	log "github.com/gophish/gophish/logger"
 
-	"github.com/glennzw/eazye"
 	"github.com/gophish/gophish/config"
 	"github.com/gophish/gophish/models"
 )
@@ -24,16 +23,16 @@ import (
 // Pattern for GoPhish emails e.g ?rid=AbC123
 var goPhishRegex = regexp.MustCompile("(\\?rid=[A-Za-z0-9]{7})")
 
-// ImapMonitor is a worker that monitors IMAP servers for reported campaign emails
-type ImapMonitor struct {
+// Monitor is a worker that monitors IMAP servers for reported campaign emails
+type Monitor struct {
 	cancel    func()
 	reportURL string
 }
 
-// ImapMonitor.start() checks for campaign emails
+// Monitor.start() checks for campaign emails
 // As each account can have its own polling frequency set we need to run one Go routine for
 // each, as well as keeping an eye on newly created user accounts.
-func (im *ImapMonitor) start(ctx context.Context) {
+func (im *Monitor) start(ctx context.Context) {
 
 	usermap := make(map[int64]int) // Keep track of running go routines, one per user. We assume incrementing non-repeating UIDs (for the case where users are deleted and re-added).
 
@@ -94,8 +93,8 @@ func monitorIMAP(uid int64, ctx context.Context, reportURL string) {
 	}
 }
 
-// NewImapMonitor returns a new instance of the ImapMonitor
-func NewImapMonitor(config *config.Config) *ImapMonitor {
+// NewMonitor returns a new instance of imap.Monitor
+func NewMonitor(config *config.Config) *Monitor {
 	// Make sure database connection exists. Not sure why I have to do this here, but
 	//  otherwise db is <nil> when calling models.GetEnabledIMAPs()
 	err := models.Setup(config)
@@ -107,14 +106,14 @@ func NewImapMonitor(config *config.Config) *ImapMonitor {
 		reportURL = "https://" + config.PhishConf.ListenURL
 	}
 
-	im := &ImapMonitor{
+	im := &Monitor{
 		reportURL: reportURL,
 	}
 	return im
 }
 
 // Start launches the IMAP campaign monitor
-func (im *ImapMonitor) Start() error {
+func (im *Monitor) Start() error {
 	log.Info("Starting IMAP monitor manager")
 	ctx, cancel := context.WithCancel(context.Background()) // ctx is the derivedContext
 	im.cancel = cancel
@@ -123,7 +122,7 @@ func (im *ImapMonitor) Start() error {
 }
 
 // Shutdown attempts to gracefully shutdown the IMAP monitor.
-func (im *ImapMonitor) Shutdown() error {
+func (im *Monitor) Shutdown() error {
 	log.Info("Shutting down IMAP monitor manager")
 	im.cancel()
 	return nil
@@ -133,7 +132,7 @@ func (im *ImapMonitor) Shutdown() error {
 //  for the rid campaign identifier.
 func checkForNewEmails(im models.IMAP, reportURL string) {
 
-	mailSettings := eazye.MailboxInfo{
+	mailSettings := MailboxInfo{
 		Host:   im.Host,
 		TLS:    im.TLS,
 		User:   im.Username,
@@ -149,7 +148,7 @@ func checkForNewEmails(im models.IMAP, reportURL string) {
 		Timeout: time.Second * 10,
 	}
 
-	msgs, err := eazye.GetUnread(mailSettings, true, false)
+	msgs, err := GetUnread(mailSettings, true, false)
 	if err != nil {
 		log.Error(err)
 		return
@@ -197,7 +196,7 @@ func checkForNewEmails(im models.IMAP, reportURL string) {
 			}
 			if len(reportingFailed) > 0 {
 				log.Debugf("Marking %d emails as unread as failed to report\n", len(reportingFailed))
-				err := eazye.MarkAsUnread(mailSettings, reportingFailed) // Set emails as unread that we failed to report to GoPhish
+				err := MarkAsUnread(mailSettings, reportingFailed) // Set emails as unread that we failed to report to GoPhish
 				if err != nil {
 					log.Error("Unable to mark emails as unread: ", err.Error())
 				}
@@ -205,7 +204,7 @@ func checkForNewEmails(im models.IMAP, reportURL string) {
 			if im.DeleteReportedCampaignEmail == true && len(campaignEmails) > 0 {
 				fmt.Printf("Deleting %d campaign emails\n", len(campaignEmails))
 				log.Debugf("Deleting %d campaign emails\n", len(campaignEmails))
-				err := eazye.DeleteEmails(mailSettings, campaignEmails) // Delete GoPhish campaign emails.
+				err := DeleteEmails(mailSettings, campaignEmails) // Delete GoPhish campaign emails.
 				if err != nil {
 					log.Error("Failed to delete emails: ", err.Error())
 				}

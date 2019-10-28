@@ -7,6 +7,7 @@ import (
 
 	"github.com/dustin/go-humanize"
 	ctx "github.com/gophish/gophish/context"
+	"github.com/gophish/gophish/imap"
 	log "github.com/gophish/gophish/logger"
 	"github.com/gophish/gophish/models"
 )
@@ -24,7 +25,7 @@ func (as *Server) ImapServerValidate(w http.ResponseWriter, r *http.Request) {
 			JSONResponse(w, models.Response{Success: false, Message: "Invalid request"}, http.StatusBadRequest)
 			return
 		}
-		err = models.ValidateIMAP(&s)
+		err = imap.ValidateIMAP(&s)
 		if err != nil {
 			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusOK)
 			return

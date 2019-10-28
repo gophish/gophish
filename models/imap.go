@@ -3,10 +3,8 @@ package models
 import (
 	"errors"
 	"net"
-	"strconv"
 	"time"
 
-	"github.com/glennzw/eazye"
 	log "github.com/gophish/gophish/logger"
 )
 
@@ -141,30 +139,6 @@ func DeleteIMAP(uid int64) error {
 	err := db.Where("user_id=?", uid).Delete(&IMAP{}).Error
 	if err != nil {
 		log.Error(err)
-	}
-	return err
-}
-
-// ValidateIMAP validates supplied IMAP settings by connecting to the server
-func ValidateIMAP(s *IMAP) error {
-
-	err := s.Validate()
-	if err != nil {
-		log.Error(err)
-		return err
-	}
-
-	s.Host = s.Host + ":" + strconv.Itoa(int(s.Port)) // Append port
-	mailSettings := eazye.MailboxInfo{
-		Host:   s.Host,
-		TLS:    s.TLS,
-		User:   s.Username,
-		Pwd:    s.Password,
-		Folder: s.Folder}
-
-	err = eazye.ValidateMailboxInfo(mailSettings)
-	if err != nil {
-		log.Error(err.Error())
 	}
 	return err
 }
