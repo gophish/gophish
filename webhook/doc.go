@@ -29,4 +29,4 @@ THE SOFTWARE.
 // to be launched.
 // If a campaign is found, it gathers the maillogs associated with the campaign and
 // sends them to the mailer package to be processed.
-package worker
+package webhook

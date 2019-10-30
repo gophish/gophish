@@ -71,11 +71,8 @@ func (as *Server) registerRoutes() {
 	router.HandleFunc("/import/group", as.ImportGroup)
 	router.HandleFunc("/import/email", as.ImportEmail)
 	router.HandleFunc("/import/site", as.ImportSite)
-
-	// TODO
-  router.HandleFunc("/webhooks", as.Webhooks)
-
-
+  router.HandleFunc("/webhook", as.Webhook, mid.Use(as.Users, mid.RequirePermission(models.PermissionModifySystem)))
+  router.HandleFunc("/webhook/ping", as.PingWebhook, mid.Use(as.Users, mid.RequirePermission(models.PermissionModifySystem)))
 	as.handler = router
 }
 
