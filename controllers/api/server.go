@@ -71,6 +71,11 @@ func (as *Server) registerRoutes() {
 	router.HandleFunc("/import/group", as.ImportGroup)
 	router.HandleFunc("/import/email", as.ImportEmail)
 	router.HandleFunc("/import/site", as.ImportSite)
+
+	// TODO
+  router.HandleFunc("/webhooks", as.Webhooks)
+
+
 	as.handler = router
 }
 
