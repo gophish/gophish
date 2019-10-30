@@ -12,7 +12,8 @@
                 <li>
                     <a href="/groups">Users &amp; Groups</a>
                 </li>
-                <li> <a href="/templates">Email Templates</a>
+                <li>
+                    <a href="/templates">Email Templates</a>
                 </li>
                 <li>
                     <a href="/landing_pages">Landing Pages</a>
@@ -26,6 +27,11 @@
                 {{if .ModifySystem}}
                 <li>
                     <a href="/users">User Management<span class="nav-badge badge pull-right">Admin</span></a>
+                </li>
+                {{end}}
+                {{if .ModifySystem}}
+                <li>
+                    <a href="/webhook">Webhook<span class="nav-badge badge pull-right">Admin</span></a>
                 </li>
                 {{end}}
                 <li>

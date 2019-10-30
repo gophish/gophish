@@ -106,6 +106,7 @@ func (as *AdminServer) registerRoutes() {
 	router.HandleFunc("/sending_profiles", mid.Use(as.SendingProfiles, mid.RequireLogin))
 	router.HandleFunc("/settings", mid.Use(as.Settings, mid.RequireLogin))
 	router.HandleFunc("/users", mid.Use(as.UserManagement, mid.RequirePermission(models.PermissionModifySystem), mid.RequireLogin))
+	router.HandleFunc("/webhook", mid.Use(as.Webhook, mid.RequirePermission(models.PermissionModifySystem), mid.RequireLogin))
 	// Create the API routes
 	api := api.NewServer(api.WithWorker(as.worker))
 	router.PathPrefix("/api/").Handler(api)
@@ -232,6 +233,14 @@ func (as *AdminServer) UserManagement(w http.ResponseWriter, r *http.Request) {
 	params := newTemplateParams(r)
 	params.Title = "User Management"
 	getTemplate(w, "users").ExecuteTemplate(w, "base", params)
+}
+
+// Webhook is an admin-only handler that allows for the registration
+// and management of user accounts within Gophish.
+func (as *AdminServer) Webhook(w http.ResponseWriter, r *http.Request) {
+	params := newTemplateParams(r)
+	params.Title = "Webhook"
+	getTemplate(w, "webhook").ExecuteTemplate(w, "base", params)
 }
 
 // Login handles the authentication flow for a user. If credentials are valid,

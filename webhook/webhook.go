@@ -5,7 +5,7 @@ type Webhook struct {
 }
 
 func (whook *Webhook) Send(server string, secret []byte, data interface{}) error {
-  
+  resp, err := http.Post(server, ???)
 }
 
 
