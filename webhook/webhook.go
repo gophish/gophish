@@ -4,6 +4,9 @@ type Webhook struct {
   client *http.Client
 }
 
+//TODO
+
+
 func (whook *Webhook) Send(server string, secret []byte, data interface{}) error {
   jsonData, err := json.Marshal(data)
   if err != nil {
@@ -16,15 +19,15 @@ func (whook *Webhook) Send(server string, secret []byte, data interface{}) error
 
   req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
 
-  //TODO
-  sign := ""
-  req.Header.Set("X-Gophish-Signature", sign)
+  signat := sign(data)
+  req.Header.Set("X-Gophish-Signature", signat)
   req.Header.Set("Content-Type", "application/json")
 
   client := &http.Client{}
   resp, err := client.Do(req)
   if err != nil {
-    panic(err)
+    http.Error(w, "Error sending request", http.StatusInternalServerError)
+    log.Error(err)
   }
   defer resp.Body.Close()
 
@@ -61,4 +64,8 @@ func (as *Server) Ping(w http.ResponseWriter, r *http.Request) {
 
 
   }
+}
+
+func sign(data interface{}) {
+  return "TODO"
 }
