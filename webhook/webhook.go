@@ -12,11 +12,6 @@ func (whook *Webhook) Send(server string, secret []byte, data interface{}) error
   }
 
 
-              w.Header().Set("Content-Type", "application/json")
-              w.WriteHeader(c)
-              fmt.Fprintf(w, "%s", dj)
-
-
 
 
   req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
