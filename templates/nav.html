@@ -28,6 +28,11 @@
                     <a href="/users">User Management<span class="nav-badge badge pull-right">Admin</span></a>
                 </li>
                 {{end}}
+                {{if .ModifySystem}}
+                <li>
+                    <a href="/webhooks">Webhooks<span class="nav-badge badge pull-right">Admin</span></a>
+                </li>
+                {{end}}
                 <li>
                     <hr>
                 </li>
