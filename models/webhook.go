@@ -1,7 +1,7 @@
 package models
 
 import (
-  "errors"
+  // "errors"
 
   log "github.com/gophish/gophish/logger"
 )
@@ -17,20 +17,19 @@ func GetWebhook(id int64, uid int64) (Webhook, error) {
   err := db.Where("user_id=? and id=?", uid, id).Find(&wh).Error
   if err != nil {
     log.Error(err)
-    return t, err
   }
-  return wh, nil
+  return wh, err
 }
 
-// GetUsers returns the users registered in Gophish
 func GetWebhooks(uid int64) ([]Webhook, error) {
-  wh_s := []Webhook{}
-  err := db.Where("user_id=?", uid).Find(&wh_s).Error
+  whs := []Webhook{}
+  err := db.Where("user_id=?", uid).Find(&whs).Error
   if err != nil {
-  log.Error(err)
-    return gs, err
+    log.Error(err)
   }
-  return wh_s, nil
+  return whs, nil
 }
 
-
+func UpdateWebhook(wh Webhook) error {
+  return nil
+}

@@ -3,12 +3,10 @@ package api
 //TODO
 
 import (
-  // "encoding/json"
-  // "errors"
   "net/http"
 
+  ctx "github.com/gophish/gophish/context"
   "github.com/gophish/gophish/models"
-  // "github.com/gorilla/mux"
 )
 
 
@@ -16,12 +14,12 @@ import (
 func (as *Server) Webhooks(w http.ResponseWriter, r *http.Request) {
   switch {
   case r.Method == "GET":
-    wh_s, err := models.GetWebhooks()
+    whs, err := models.GetWebhooks(ctx.Get(r, "user_id").(int64))
     if err != nil {
       JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
       return
     }
-    JSONResponse(w, wh_s, http.StatusOK)
+    JSONResponse(w, whs, http.StatusOK)
     return
   }
 }
