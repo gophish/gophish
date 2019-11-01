@@ -7,9 +7,10 @@ import (
 )
 
 type Webhook struct {
-  Id    int64  `json:"id"`
-  Title string `json:"url"`
-  Url   string `json:"url"`
+  Id     int64  `json:"id"`
+  Title  string `json:"title"`
+  Url    string `json:"url"`
+  Secret string `json:"secret"`
 }
 
 func GetWebhook(id int64, uid int64) (Webhook, error) {
