@@ -1,5 +1,12 @@
 package webhook
 
+import (
+  "crypto/hmac"
+  "crypto/sha256"
+  "encoding/hex"
+  "time"
+)
+
 const DefaultTimeoutSeconds = 10
 
 type Webhook struct {
@@ -21,7 +28,8 @@ func (wh *Webhook) Send(server string, secret []byte, data interface{}) error {
 
   req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
 
-  signat := sign(data)
+  ts := int32(time.Now().Unix())
+  signat := sign(ts, data)
   req.Header.Set("X-Gophish-Signature", signat)
   req.Header.Set("Content-Type", "application/json")
 
@@ -39,6 +47,14 @@ func (wh *Webhook) Send(server string, secret []byte, data interface{}) error {
 
 }
 
-func (wh *Webhook) sign(data interface{}) {
-  return "TODO"
+
+//TODO
+func (wh *Webhook) sign(data interface{}, ts int32) {
+  //TODO: add timestamp
+  // data2 := fmt.Sprintf("%s__%s", data, ts) 
+  data2 := data
+
+  hash1 := hmac.New(sha256.New, []byte(wh.Secret))
+  hash1.Write(byte[](data2))
+  return hex.EncodeToString(hash1.Sum(nil))
 }
