@@ -26,10 +26,10 @@ func (wh *Webhook) Send(server string, secret []byte, data interface{}) error {
 
 
 
-  req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
+  req, err := http.NewRequest("POST", wh.Url, bytes.NewBuffer(jsonData))
 
   ts := int32(time.Now().Unix())
-  signat := sign(ts, data)
+  signat := sign(data, ts)
   req.Header.Set("X-Gophish-Signature", signat)
   req.Header.Set("Content-Type", "application/json")
 
