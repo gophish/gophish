@@ -24,7 +24,7 @@ func (as *Server) Webhooks(w http.ResponseWriter, r *http.Request) {
   }
 }
 
-func (as *Server) PingWebhook(w http.ResponseWriter, r *http.Request) {
+func (as *Server) ValidateWebhook(w http.ResponseWriter, r *http.Request) {
   // vars := mux.Vars(r)
   // id, _ := strconv.ParseInt(vars["id"], 0, 64)
 

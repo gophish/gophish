@@ -1,5 +1,7 @@
 package webhook
 
+const DefaultTimeoutSeconds = 10
+
 type Webhook struct {
   client *http.Client
 }
@@ -7,7 +9,7 @@ type Webhook struct {
 //TODO
 
 
-func (whook *Webhook) Send(server string, secret []byte, data interface{}) error {
+func (wh *Webhook) Send(server string, secret []byte, data interface{}) error {
   jsonData, err := json.Marshal(data)
   if err != nil {
     http.Error(w, "Error converting data parameter to JSON", http.StatusInternalServerError)
@@ -37,6 +39,6 @@ func (whook *Webhook) Send(server string, secret []byte, data interface{}) error
 
 }
 
-func sign(data interface{}) {
+func (wh *Webhook) sign(data interface{}) {
   return "TODO"
 }
