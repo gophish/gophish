@@ -3,7 +3,6 @@ package models
 import (
   // "errors"
 
-  log "github.com/gophish/gophish/logger"
 )
 
 type Webhook struct {
@@ -30,7 +29,7 @@ func UpdateWebhook(wh *Webhook) error {
   return err
 }
 
-func DeleteWebhook(wh *Webhook) error {
-  err = db.Where("id=?", id).Delete(&Webhook{}).Error
+func DeleteWebhook(id int32) error {
+  err := db.Where("id=?", id).Delete(&Webhook{}).Error
   return err
 }
