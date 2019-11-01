@@ -15,7 +15,4 @@ const load = () => {
 
 $(document).ready(function () {
     load()
-
-
-
 });

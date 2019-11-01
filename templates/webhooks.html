@@ -1,14 +1,39 @@
 {{define "body"}}
 <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-    <div class="row">
-        <h1 class="page-header">
-            {{.Title}}
-        </h1>
-    </div>
+    <h1 class="page-header">
+        {{.Title}}
+    </h1>
     <div id="flashes" class="row"></div>
+
+    &nbsp;
+    <!-- TODO - loading -->
+
+
     <div class="row">
-      webhooks content
+        <label for="api_key" class="col-sm-2 control-label form-label">Title:</label>
+        <div class="col-md-6">
+            <input type="text" id="api_key" onclick="this.select();" value="title1"
+                class="form-control" />
+        </div>
+
     </div>
+    <div class="row">
+        <label for="api_key" class="col-sm-2 control-label form-label">Url:</label>
+        <div class="col-md-6">
+            <input type="text" id="api_key" onclick="this.select();" value="https://example.com/test1"
+                class="form-control" />
+        </div>
+        <form id="apiResetForm">
+            <button class="btn btn-primary"><i class="fa fa-refresh" type="submit"></i> Ping</button>
+            <input type="hidden" name="csrf_token" value="{{.Token}}" />
+        </form>
+    </div>
+
+
+    <input type="hidden" name="csrf_token" value="{{.Token}}" />
+    <br />
+    <button class="btn btn-primary" type="submit"><i class="fa fa-save"></i> Save</button>
+
 </div>
 {{end}} {{define "scripts"}}
 <!-- TODO replace with "min" -->
