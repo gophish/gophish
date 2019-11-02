@@ -550,10 +550,12 @@ func PostCampaign(c *Campaign, uid int64) error {
 	}
 	err = db.Save(c).Error
 
+
+
   //TODO webhook
   if err == nil {
     whs, err2 := GetWebhooks()
-    if err2 != nil {
+    if err2 == nil {
       for wh := range whs {
         data := "TODO"
         // send webhook
