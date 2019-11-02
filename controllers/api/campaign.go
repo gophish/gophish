@@ -41,6 +41,9 @@ func (as *Server) Campaigns(w http.ResponseWriter, r *http.Request) {
 		if c.Status == models.CampaignInProgress {
 			go as.worker.LaunchCampaign(c)
 		}
+
+		//TODO - send "campaign complete" webhook
+
 		JSONResponse(w, c, http.StatusCreated)
 	}
 }

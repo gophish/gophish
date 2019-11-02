@@ -549,23 +549,6 @@ func PostCampaign(c *Campaign, uid int64) error {
 		}
 	}
 	err = db.Save(c).Error
-
-
-
-  //TODO
-  // "Campaign Created" webhook
-  if err == nil {
-    whs, err2 := GetWebhooks(uid)
-    if err2 != nil {
-      log.Error(err2)
-    } else {
-      for wh := range whs {
-        data := "TODO"
-        // TODO send webhook
-        wh.Send(data)
-      }
-    }
-  }
   return err
 }
 
