@@ -10,6 +10,9 @@ type Webhook struct {
   Title  string `json:"title"`
   Url    string `json:"url"`
   Secret string `json:"secret"`
+
+  //TODO
+  //add UserId ?
 }
 
 //TODO sort out "user_id"

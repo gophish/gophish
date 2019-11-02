@@ -45,15 +45,16 @@ func (as *Server) Campaigns(w http.ResponseWriter, r *http.Request) {
     //TODO
     // send "Campaign Created" webhook
     whs, err2 := GetWebhooks(ctx.Get(r, "user_id").(int64))
-    if err2 != nil {
-      log.Error(err2)
-    } else {
+    if err2 == nil {
       for wh := range whs {
         data := "TODO"
         // TODO send webhook
         wh.Send(data)
       }
+    } else {
+      log.Error(err2)
     }
+
 
 
 		JSONResponse(w, c, http.StatusCreated)
