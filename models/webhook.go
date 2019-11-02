@@ -12,9 +12,12 @@ type Webhook struct {
   Secret string `json:"secret"`
 }
 
-func GetWebhooks() ([]Webhook, error) {
+//TODO sort out "user_id"
+
+
+func GetWebhooks(uid int64) ([]Webhook, error) {
   whs := []Webhook{}
-  err := db.Find(&whs).Error
+  err := db.Where("user_id=?", uid).Find(&whs).Error
   return whs, err
 }
 
@@ -29,7 +32,7 @@ func UpdateWebhook(wh *Webhook) error {
   return err
 }
 
-func DeleteWebhook(id int32) error {
+func DeleteWebhook(id int64) error {
   err := db.Where("id=?", id).Delete(&Webhook{}).Error
   return err
 }
