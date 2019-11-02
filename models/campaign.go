@@ -607,9 +607,6 @@ func CompleteCampaign(id int64, uid int64) error {
 	err = db.Where("id=? and user_id=?", id, uid).Save(&c).Error
 	if err != nil {
 		log.Error(err)
-	} else {
-    // TODO
-    // "Campaign Completed" webhook
 	}
 	return err
 }
