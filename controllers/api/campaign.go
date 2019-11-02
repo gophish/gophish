@@ -44,9 +44,9 @@ func (as *Server) Campaigns(w http.ResponseWriter, r *http.Request) {
 
     //TODO
     // send "Campaign Created" webhook
-    whs, err2 := GetWebhooks(ctx.Get(r, "user_id").(int64))
+    whs, err2 := models.GetWebhooks()
     if err2 == nil {
-      for wh := range whs {
+      for _, wh := range whs {
         data := "TODO"
         // TODO send webhook
         wh.Send(data)

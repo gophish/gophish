@@ -4,15 +4,17 @@ package api
 
 import (
   "net/http"
+  "strconv"
 
-  ctx "github.com/gophish/gophish/context"
   "github.com/gophish/gophish/models"
+  "github.com/gorilla/mux"
+  log "github.com/gophish/gophish/logger"
 )
 
 func (as *Server) Webhooks(w http.ResponseWriter, r *http.Request) {
   switch {
   case r.Method == "GET":
-    whs, err := models.GetWebhooks(ctx.Get(r, "user_id").(int64)) //TODO with "user_id" ?
+    whs, err := models.GetWebhooks()
     if err != nil {
       log.Error(err)
       JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
