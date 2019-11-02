@@ -42,7 +42,19 @@ func (as *Server) Campaigns(w http.ResponseWriter, r *http.Request) {
 			go as.worker.LaunchCampaign(c)
 		}
 
-		//TODO - send "campaign complete" webhook
+    //TODO
+    // send "Campaign Created" webhook
+    whs, err2 := GetWebhooks(ctx.Get(r, "user_id").(int64))
+    if err2 != nil {
+      log.Error(err2)
+    } else {
+      for wh := range whs {
+        data := "TODO"
+        // TODO send webhook
+        wh.Send(data)
+      }
+    }
+
 
 		JSONResponse(w, c, http.StatusCreated)
 	}
@@ -135,6 +147,10 @@ func (as *Server) CampaignComplete(w http.ResponseWriter, r *http.Request) {
 			JSONResponse(w, models.Response{Success: false, Message: "Error completing campaign"}, http.StatusInternalServerError)
 			return
 		}
+
+    //TODO send "CampaignComplete" webhook
+
+
 		JSONResponse(w, models.Response{Success: true, Message: "Campaign completed successfully!"}, http.StatusOK)
 	}
 }
