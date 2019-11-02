@@ -9,8 +9,6 @@ import (
   "github.com/gophish/gophish/models"
 )
 
-
-
 func (as *Server) Webhooks(w http.ResponseWriter, r *http.Request) {
   switch {
   case r.Method == "GET":
@@ -35,6 +33,7 @@ func (as *Server) ValidateWebhook(w http.ResponseWriter, r *http.Request) {
   }
   err = wh.Send("") //TODO empty data
   if err != nil {
+    log.Error(err)
     JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadGateway)
     return
   }

@@ -10,17 +10,11 @@ type Webhook struct {
   Title  string `json:"title"`
   Url    string `json:"url"`
   Secret string `json:"secret"`
-
-  //TODO
-  //add UserId ?
 }
 
-//TODO sort out "user_id"
-
-
-func GetWebhooks(uid int64) ([]Webhook, error) {
+func GetWebhooks() ([]Webhook, error) {
   whs := []Webhook{}
-  err := db.Where("user_id=?", uid).Find(&whs).Error
+  err := db.Find(&whs).Error
   return whs, err
 }
 
