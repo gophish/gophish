@@ -38,17 +38,22 @@ func (wh *Webhook) Send(server string, secret []byte, data interface{}) error {
     log.Error(errMsg)
     return errors.New(errMsg)
   }
+  return nil
 }
 
 
 //TODO
-func (wh *Webhook) sign(data interface{}, ts int32) {
+func (wh *Webhook) sign(data interface{}, ts int32) (string, error) {
 
   //TODO: add timestamp
   // data2 := fmt.Sprintf("%s__%s", data, ts) 
   data2 := data
 
   hash1 := hmac.New(sha256.New, []byte(wh.Secret))
-  hash1.Write(byte[](data2))
-  return hex.EncodeToString(hash1.Sum(nil))
+  _, err := hash1.Write(byte[](data2))
+  if err != nil {
+    return "", err
+  }
+  hexStr := hex.EncodeToString(hash1.Sum(nil))
+  return hexStr, nil
 }

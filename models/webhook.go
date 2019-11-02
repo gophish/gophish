@@ -12,7 +12,7 @@ type Webhook struct {
   Secret string `json:"secret"`
 }
 
-func GetWebhooks(uid int64) ([]Webhook, error) {
+func GetWebhooks() ([]Webhook, error) {
   whs := []Webhook{}
   err := db.Find(&whs).Error
   return whs, err

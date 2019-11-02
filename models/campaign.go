@@ -549,7 +549,18 @@ func PostCampaign(c *Campaign, uid int64) error {
 		}
 	}
 	err = db.Save(c).Error
-	return err
+
+  //TODO webhook
+  if err == nil {
+    whs, err2 := GetWebhooks()
+    if err2 != nil {
+      for wh := range whs {
+        data := "TODO"
+        // send webhook
+      }
+    }
+  }
+  return err
 }
 
 //DeleteCampaign deletes the specified campaign
