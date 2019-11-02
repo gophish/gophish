@@ -7,7 +7,10 @@ import (
   "time"
 )
 
-const DefaultTimeoutSeconds = 10
+const (
+  DefaultTimeoutSeconds = 10
+  MinHttpStatusErrorCode = 400
+)
 
 type Webhook struct {
   client *http.Client
@@ -16,7 +19,7 @@ type Webhook struct {
 //TODO
 
 
-func (wh *Webhook) Send(server string, secret []byte, data interface{}) error {
+func (wh *Webhook) Send(data interface{}) error {
   jsonData, err := json.Marshal(data)
   if err != nil {
     log.Error(err)
@@ -24,16 +27,16 @@ func (wh *Webhook) Send(server string, secret []byte, data interface{}) error {
   }
   req, err := http.NewRequest("POST", wh.Url, bytes.NewBuffer(jsonData))
   ts := int32(time.Now().Unix())
-  signat := sign(data, ts)
+  signat := wh.sign(data, ts)
   req.Header.Set("X-Gophish-Signature", signat)
-  req.Header.Set("Content-Type", "application/json") //TODO - in json?
+  req.Header.Set("Content-Type", "application/json")
   resp, err := wh.client.Do(req)
   if err != nil {
     log.Error(err)
     return err
   }
   defer resp.Body.Close()
-  if resp.Status >= 400 {
+  if resp.Status >= MinHttpStatusErrorCode {
     errMsg := fmt.Sprintf("http status of response: %d", resp.Status)
     log.Error(errMsg)
     return errors.New(errMsg)
