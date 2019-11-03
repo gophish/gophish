@@ -224,10 +224,10 @@ var api = {
         }
     },
     webhooks: {
-        get: function (id) {
+        get: function() {
             return query("/webhooks/", "GET", {}, false)
         },
-        post: function (webhook) {
+        post: function(webhook) {
             return query("/webhooks/", "POST", webhook, false)
         },
     },
