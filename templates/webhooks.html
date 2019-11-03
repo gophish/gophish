@@ -20,49 +20,49 @@
             </tbody>
         </table>
     </div>
-
-
-    <!-- TODO move to a modal dialog -->
-
-    <br />
-    <br />
-    <br />
-    <br />
-    <br />
-    <div class="row">
-        <label for="title" class="col-sm-2 control-label form-label">Title:</label>
-        <div class="col-md-6">
-            <input type="text" id="title" onclick="this.select();" value="title1"
-                class="form-control" />
-        </div>
-    </div>
-
-    <div class="row">
-        <label for="secret" class="col-sm-2 control-label form-label">Secret:</label>
-        <div class="col-md-6">
-            <input type="text" id="secret" onclick="this.select();" value="fdsfdsfdsafds"
-                class="form-control" />
-        </div>
-    </div>
-
-    <div class="row">
-        <label for="url" class="col-sm-2 control-label form-label">Url:</label>
-        <div class="col-md-6">
-            <input type="text" id="url" onclick="this.select();" value="https://example.com/test1"
-                class="form-control" />
-        </div>
-        <form id="apiTestWebhookForm">
-            <button class="btn btn-primary"><i class="fa fa-refresh" type="submit"></i> Send test webhook</button>
-            <input type="hidden" name="csrf_token" value="{{.Token}}" />
-        </form>
-    </div>
-
-    <form id="webhooksForm">
-        <input type="hidden" name="csrf_token" value="{{.Token}}" />
-        <br />
-        <button class="btn btn-primary" type="submit"><i class="fa fa-save"></i> Save</button>
-    </form>
 </div>
+
+
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="groupModalLabel">Add or Edit Webhook</h4>
+            </div>
+            <div class="modal-body" id="modal_body">
+                <div class="row" id="modal.flashes"></div>
+                <label class="control-label" for="webhookTitle">Title:</label>
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="Title" id="webhookTitle" autofocus />
+                </div>
+
+                <label class="control-label" for="url">Url:</label>
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="Url" id="url" />
+                </div>
+
+                <label class="control-label" for="password">Secret:</label>
+                <div class="form-group">
+                    <input type="password" class="form-control" placeholder="Secret" id="secret" required />
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="modalSubmit">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 {{end}} {{define "scripts"}}
 <!-- TODO replace with "min" -->
 <script src="/js/src/app/webhooks.js"></script>
