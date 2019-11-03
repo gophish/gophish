@@ -33,11 +33,11 @@ func (as *Server) ValidateWebhook(w http.ResponseWriter, r *http.Request) {
     JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
     return
   }
-  err = wh.Send("") //TODO empty data
-  if err != nil {
-    log.Error(err)
-    JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadGateway)
-    return
-  }
+  // err = wh.Send("") //TODO empty data
+  // if err != nil {
+  //   log.Error(err)
+  //   JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadGateway)
+  //   return
+  // }
   JSONResponse(w, wh, http.StatusOK)
 }

@@ -44,16 +44,17 @@ func (as *Server) Campaigns(w http.ResponseWriter, r *http.Request) {
 
     //TODO
     // send "Campaign Created" webhook
-    whs, err2 := models.GetWebhooks()
-    if err2 == nil {
-      for _, wh := range whs {
-        data := "TODO"
-        // TODO send webhook
-        wh.Send(data)
-      }
-    } else {
-      log.Error(err2)
-    }
+    
+    // whs, err2 := models.GetWebhooks()
+    // if err2 == nil {
+    //   for _, wh := range whs {
+    //     data := "TODO"
+    //     // TODO send webhook
+    //     // wh.Send(data)
+    //   }
+    // } else {
+    //   log.Error(err2)
+    // }
 
 
 

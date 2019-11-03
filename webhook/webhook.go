@@ -47,11 +47,8 @@ func (wh *Webhook) Send(data interface{}) error {
 
 //TODO
 func (wh *Webhook) sign(data interface{}, ts int32) (string, error) {
-
-  //TODO: add timestamp
-  // data2 := fmt.Sprintf("%s__%s", data, ts) 
+  // data2 := fmt.Sprintf("%s__%s", data, ts) //TODO: add timestamp
   data2 := data
-
   hash1 := hmac.New(sha256.New, []byte(wh.Secret))
   _, err := hash1.Write(byte[](data2))
   if err != nil {

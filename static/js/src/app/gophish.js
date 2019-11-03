@@ -223,7 +223,6 @@ var api = {
             return query("/users/" + id, "DELETE", {}, true)
         }
     },
-
     webhooks: {
         get: function (id) {
             return query("/webhooks/", "GET", {}, false)
@@ -234,14 +233,17 @@ var api = {
     },
     webhookId: {
         get: function (id) {
-            return query("/webhooks/" + id, "GET", {}, false)
+            return query(`/webhooks/${id}`, "GET", {}, false)
         },
         post: function (webhook) {
-            return query("/webhooks/" + webhook.id, "POST", webhook, false)
+            return query(`/webhooks/${webhook.id}`, "POST", webhook, false)
         },
         delete: function (id) {
-            return query("/webhooks/" + id, "DELETE", {}, false)
-        }
+            return query(`/webhooks/${id}`, "DELETE", {}, false)
+        },
+        validate: function (id) {
+            return query(`/webhooks/${id}/validate`, "POST", {}, false)
+        },
     },
     // import handles all of the "import" functions in the api
     import_email: function (req) {

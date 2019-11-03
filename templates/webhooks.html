@@ -5,8 +5,24 @@
     </h1>
     <div id="flashes" class="row"></div>
     &nbsp;
-    <!-- TODO - loading -->
+    <div id="loading">
+        <i class="fa fa-spinner fa-spin fa-4x"></i>
+    </div>
+    <div class="row">
+        <table id="webhookTable" class="table" style="display:none;">
+            <thead>
+                <tr>
+                    <th class="col-md-2 no-sort">Title</th>
+                    <th class="col-md-2 no-sort"></th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
 
+    
+    <!-- TODO move to a modal dialog -->
     <div class="row">
         <label for="title" class="col-sm-2 control-label form-label">Title:</label>
         <div class="col-md-6">
@@ -29,15 +45,17 @@
             <input type="text" id="url" onclick="this.select();" value="https://example.com/test1"
                 class="form-control" />
         </div>
-        <form id="apiPingForm">
-            <button class="btn btn-primary"><i class="fa fa-refresh" type="submit"></i> Ping</button>
+        <form id="apiTestWebhookForm">
+            <button class="btn btn-primary"><i class="fa fa-refresh" type="submit"></i> Send test webhook</button>
             <input type="hidden" name="csrf_token" value="{{.Token}}" />
         </form>
     </div>
 
-    <input type="hidden" name="csrf_token" value="{{.Token}}" />
-    <br />
-    <button class="btn btn-primary" type="submit"><i class="fa fa-save"></i> Save</button>
+    <form id="webhooksForm">
+        <input type="hidden" name="csrf_token" value="{{.Token}}" />
+        <br />
+        <button class="btn btn-primary" type="submit"><i class="fa fa-save"></i> Save</button>
+    </form>
 </div>
 {{end}} {{define "scripts"}}
 <!-- TODO replace with "min" -->

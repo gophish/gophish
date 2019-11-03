@@ -1,11 +1,10 @@
-let webhooks = []
-
-
 //TODO
+
+let webhooks = []
 const load = () => {
     $("#loading").show()
     api.webhooks.get()
-        .success((us) => {
+        .success((wh) => {
             $("#loading").hide()
         })
         .error(() => {
@@ -13,6 +12,21 @@ const load = () => {
         })
 }
 
-$(document).ready(function () {
+$("#apiTestWebhookForm").submit(function(e) {
+    api.webhookId.validate("TODO - id")
+        .success(function(response) {
+            successFlash(response.message)
+        })
+        .error(function (data) {
+            errorFlash(data.message)
+        })
+    return false
+})
+
+$("#webhooksForm").submit(function(e) {
+    
+})
+
+$(document).ready(function() {
     load()
 });
