@@ -1,12 +1,7 @@
 package models
 
-import (
-  // "errors"
-
-)
-
 type Webhook struct {
-  Id     int64  `json:"id"`
+  Id     int64  `json:"id" gorm:"column:id; primary_key:yes"`
   Title  string `json:"title"`
   Url    string `json:"url"`
   Secret string `json:"secret"`
