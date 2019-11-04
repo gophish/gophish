@@ -4,6 +4,11 @@
         {{.Title}}
     </h1>
     <div id="flashes" class="row"></div>
+    <div class="row">
+        <button type="button" class="btn btn-primary" id="new_button" data-toggle="modal" data-backdrop="static"
+            data-user-id="-1" data-target="#modal">
+            <i class="fa fa-plus"></i> New Webhook</button>
+    </div>
     &nbsp;
     <div id="loading">
         <i class="fa fa-spinner fa-spin fa-4x"></i>
@@ -21,10 +26,6 @@
         </table>
     </div>
 </div>
-
-
-
-
 
 <!-- Modal -->
 <div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel">
@@ -48,9 +49,9 @@
                     <input type="text" class="form-control" placeholder="Url" id="url" />
                 </div>
 
-                <label class="control-label" for="password">Secret:</label>
+                <label class="control-label" for="secret">Secret:</label>
                 <div class="form-group">
-                    <input type="password" class="form-control" placeholder="Secret" id="secret" required />
+                    <input type="text" class="form-control" placeholder="Secret" id="secret" required />
                 </div>
 
             </div>

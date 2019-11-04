@@ -12,14 +12,14 @@ const (
   MinHttpStatusErrorCode = 400
 )
 
-type Webhook struct {
+type Transport struct {
   client *http.Client
 }
 
 //TODO
 
 
-func (wh *Webhook) Send(data interface{}) error {
+func (wh *Transport) Send(data interface{}) error {
   jsonData, err := json.Marshal(data)
   if err != nil {
     log.Error(err)
@@ -46,7 +46,7 @@ func (wh *Webhook) Send(data interface{}) error {
 
 
 //TODO
-func (wh *Webhook) sign(data interface{}, ts int32) (string, error) {
+func (wh *Transport) sign(data interface{}, ts int32) (string, error) {
   // data2 := fmt.Sprintf("%s__%s", data, ts) //TODO: add timestamp
   data2 := data
   hash1 := hmac.New(sha256.New, []byte(wh.Secret))
