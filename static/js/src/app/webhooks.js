@@ -1,12 +1,14 @@
+let webhooks = []
+
 //TODO
 
-let webhooks = []
+
 const load = () => {
-    $("#webhookTable").hide()
-    $("#loading").show()
+    $("#webhookTable").hide();
+    $("#loading").show();
     api.webhooks.get()
-        .success((wh) => {
-            webhooks = wh;
+        .success((whs) => {
+            webhooks = whs;
             $("#loading").hide()
             $("#webhookTable").show()
             let webhookTable = $("#webhookTable").DataTable({
@@ -23,7 +25,7 @@ const load = () => {
                     escapeHtml(webhook.url),
                     `
                       <div class="pull-right">
-                        <button class="btn btn-primary validate_button" data-backdrop="static" data-webhook-id="${webhook.id}">
+                        <button class="btn btn-primary validate_button" data-webhook-id="${webhook.id}">
                           Ping
                         </button>
                         <button class="btn btn-primary edit_button" data-toggle="modal" data-backdrop="static" data-target="#modal" data-webhook-id="${webhook.id}">
@@ -42,21 +44,70 @@ const load = () => {
         })
 }
 
-$("#apiTestWebhookForm").submit(function(e) {
-    api.webhookId.validate("TODO - id")
-        .success(function(response) {
-            successFlash(response.message)
-        })
-        .error(function (data) {
-            errorFlash(data.message)
-        })
-    return false
-})
+const editWebhook = (id) => {
+    $("#modalSubmit").unbind('click').click(() => {
+        // saveWebhook(id) //TODO
+    });
+    api.webhookId.get(id)
+        .success(function(wh) {
+            //TODO
+            // $("#username").val(user.username)
 
-$("#webhooksForm").submit(function(e) {
-    
-})
+
+        })
+        .error(function () {
+            errorFlash("Error fetching webhook")
+        });
+}
+const deleteWebhook = (id) => {
+    var wh = webhooks.find(x => x.id == id)
+    if (!wh) {
+        return
+    }
+    Swal.fire({
+        title: "Are you sure?",
+        text: `This will delete the webhook '${wh.title}'`,
+        type: "warning",
+        animation: false,
+        showCancelButton: true,
+        confirmButtonText: "Delete",
+        confirmButtonColor: "#428bca",
+        reverseButtons: true,
+        allowOutsideClick: false,
+        preConfirm: function () {
+            return new Promise((resolve, reject) => {
+                api.webhookId.delete(id)
+                    .success((msg) => {
+                        resolve()
+                    })
+                    .error((data) => {
+                        reject(data.responseJSON.message)
+                    })
+            })
+            .catch(error => {
+                Swal.showValidationMessage(error)
+              })
+        }
+    }).then(function (result) {
+        if (result.value){
+            Swal.fire(
+                'Webhook Deleted!',
+                `The webhook '${webhook.title}' has been deleted!`,
+                'success'
+            );
+        }
+        $('button:contains("OK")').on('click', function () {
+            location.reload()
+        })
+    })
+}
 
 $(document).ready(function() {
-    load()
+    load();
+    $("#webhookTable").on('click', '.edit_button', function (e) {
+        editWebhook($(this).attr('data-webhook-id'))
+    });
+    $("#webhookTable").on('click', '.delete_button', function (e) {
+        deleteWebhook($(this).attr('data-webhook-id'))
+    });
 });
