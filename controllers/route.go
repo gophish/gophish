@@ -15,6 +15,7 @@ import (
 	"github.com/gophish/gophish/controllers/api"
 	log "github.com/gophish/gophish/logger"
 	mid "github.com/gophish/gophish/middleware"
+	"github.com/gophish/gophish/middleware/ratelimit"
 	"github.com/gophish/gophish/models"
 	"github.com/gophish/gophish/util"
 	"github.com/gophish/gophish/worker"
@@ -32,9 +33,10 @@ type AdminServerOption func(*AdminServer)
 // AdminServer is an HTTP server that implements the administrative Gophish
 // handlers, including the dashboard and REST API.
 type AdminServer struct {
-	server *http.Server
-	worker worker.Worker
-	config config.AdminServer
+	server  *http.Server
+	worker  worker.Worker
+	config  config.AdminServer
+	limiter *ratelimit.PostLimiter
 }
 
 // WithWorker is an option that sets the background worker.
@@ -52,10 +54,12 @@ func NewAdminServer(config config.AdminServer, options ...AdminServerOption) *Ad
 		ReadTimeout: 10 * time.Second,
 		Addr:        config.ListenURL,
 	}
+	defaultLimiter := ratelimit.NewPostLimiter()
 	as := &AdminServer{
-		worker: defaultWorker,
-		server: defaultServer,
-		config: config,
+		worker:  defaultWorker,
+		server:  defaultServer,
+		limiter: defaultLimiter,
+		config:  config,
 	}
 	for _, opt := range options {
 		opt(as)
@@ -96,8 +100,9 @@ func (as *AdminServer) registerRoutes() {
 	router := mux.NewRouter()
 	// Base Front-end routes
 	router.HandleFunc("/", mid.Use(as.Base, mid.RequireLogin))
-	router.HandleFunc("/login", as.Login)
+	router.HandleFunc("/login", mid.Use(as.Login, as.limiter.Limit))
 	router.HandleFunc("/logout", mid.Use(as.Logout, mid.RequireLogin))
+	router.HandleFunc("/reset_password", mid.Use(as.ResetPassword, mid.RequireLogin))
 	router.HandleFunc("/campaigns", mid.Use(as.Campaigns, mid.RequireLogin))
 	router.HandleFunc("/campaigns/{id:[0-9]+}", mid.Use(as.CampaignID, mid.RequireLogin))
 	router.HandleFunc("/templates", mid.Use(as.Templates, mid.RequireLogin))
@@ -107,14 +112,17 @@ func (as *AdminServer) registerRoutes() {
 	router.HandleFunc("/settings", mid.Use(as.Settings, mid.RequireLogin))
 	router.HandleFunc("/users", mid.Use(as.UserManagement, mid.RequirePermission(models.PermissionModifySystem), mid.RequireLogin))
 	// Create the API routes
-	api := api.NewServer(api.WithWorker(as.worker))
+	api := api.NewServer(
+		api.WithWorker(as.worker),
+		api.WithLimiter(as.limiter),
+	)
 	router.PathPrefix("/api/").Handler(api)
 
 	// Setup static file serving
 	router.PathPrefix("/").Handler(http.FileServer(unindexed.Dir("./static/")))
 
 	// Setup CSRF Protection
-	csrfHandler := csrf.Protect([]byte(util.GenerateSecureKey()),
+	csrfHandler := csrf.Protect([]byte(auth.GenerateSecureKey(auth.APIKeyLength)),
 		csrf.FieldName("csrf_token"),
 		csrf.Secure(as.config.UseTLS))
 	adminHandler := csrfHandler(router)
@@ -142,12 +150,14 @@ type templateParams struct {
 // the CSRF token.
 func newTemplateParams(r *http.Request) templateParams {
 	user := ctx.Get(r, "user").(models.User)
+	session := ctx.Get(r, "session").(*sessions.Session)
 	modifySystem, _ := user.HasPermission(models.PermissionModifySystem)
 	return templateParams{
 		Token:        csrf.Token(r),
 		User:         user,
 		ModifySystem: modifySystem,
 		Version:      config.Version,
+		Flashes:      session.Flashes(),
 	}
 }
 
@@ -208,18 +218,31 @@ func (as *AdminServer) Settings(w http.ResponseWriter, r *http.Request) {
 		params.Title = "Settings"
 		getTemplate(w, "settings").ExecuteTemplate(w, "base", params)
 	case r.Method == "POST":
-		err := auth.ChangePassword(r)
+		u := ctx.Get(r, "user").(models.User)
+		currentPw := r.FormValue("current_password")
+		newPassword := r.FormValue("new_password")
+		confirmPassword := r.FormValue("confirm_new_password")
+		// Check the current password
+		err := auth.ValidatePassword(currentPw, u.Hash)
 		msg := models.Response{Success: true, Message: "Settings Updated Successfully"}
-		if err == auth.ErrInvalidPassword {
-			msg.Message = "Invalid Password"
-			msg.Success = false
-			api.JSONResponse(w, msg, http.StatusBadRequest)
-			return
-		}
 		if err != nil {
 			msg.Message = err.Error()
 			msg.Success = false
 			api.JSONResponse(w, msg, http.StatusBadRequest)
+			return
+		}
+		newHash, err := auth.ValidatePasswordChange(u.Hash, newPassword, confirmPassword)
+		if err != nil {
+			msg.Message = err.Error()
+			msg.Success = false
+			api.JSONResponse(w, msg, http.StatusBadRequest)
+			return
+		}
+		u.Hash = string(newHash)
+		if err = models.PutUser(&u); err != nil {
+			msg.Message = err.Error()
+			msg.Success = false
+			api.JSONResponse(w, msg, http.StatusInternalServerError)
 			return
 		}
 		api.JSONResponse(w, msg, http.StatusOK)
@@ -232,6 +255,39 @@ func (as *AdminServer) UserManagement(w http.ResponseWriter, r *http.Request) {
 	params := newTemplateParams(r)
 	params.Title = "User Management"
 	getTemplate(w, "users").ExecuteTemplate(w, "base", params)
+}
+
+func (as *AdminServer) nextOrIndex(w http.ResponseWriter, r *http.Request) {
+	next := "/"
+	url, err := url.Parse(r.FormValue("next"))
+	if err == nil {
+		path := url.Path
+		if path != "" {
+			next = path
+		}
+	}
+	http.Redirect(w, r, next, 302)
+}
+
+func (as *AdminServer) handleInvalidLogin(w http.ResponseWriter, r *http.Request) {
+	session := ctx.Get(r, "session").(*sessions.Session)
+	Flash(w, r, "danger", "Invalid Username/Password")
+	params := struct {
+		User    models.User
+		Title   string
+		Flashes []interface{}
+		Token   string
+	}{Title: "Login", Token: csrf.Token(r)}
+	params.Flashes = session.Flashes()
+	session.Save(r, w)
+	templates := template.New("template")
+	_, err := templates.ParseFiles("templates/login.html", "templates/flashes.html")
+	if err != nil {
+		log.Error(err)
+	}
+	// w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.WriteHeader(http.StatusUnauthorized)
+	template.Must(templates, err).ExecuteTemplate(w, "base", params)
 }
 
 // Login handles the authentication flow for a user. If credentials are valid,
@@ -255,37 +311,25 @@ func (as *AdminServer) Login(w http.ResponseWriter, r *http.Request) {
 		}
 		template.Must(templates, err).ExecuteTemplate(w, "base", params)
 	case r.Method == "POST":
-		//Attempt to login
-		succ, u, err := auth.Login(r)
+		// Find the user with the provided username
+		username, password := r.FormValue("username"), r.FormValue("password")
+		u, err := models.GetUserByUsername(username)
 		if err != nil {
 			log.Error(err)
+			as.handleInvalidLogin(w, r)
+			return
 		}
-		//If we've logged in, save the session and redirect to the dashboard
-		if succ {
-			session.Values["id"] = u.Id
-			session.Save(r, w)
-			next := "/"
-			url, err := url.Parse(r.FormValue("next"))
-			if err == nil {
-				path := url.Path
-				if path != "" {
-					next = path
-				}
-			}
-			http.Redirect(w, r, next, 302)
-		} else {
-			Flash(w, r, "danger", "Invalid Username/Password")
-			params.Flashes = session.Flashes()
-			session.Save(r, w)
-			templates := template.New("template")
-			_, err := templates.ParseFiles("templates/login.html", "templates/flashes.html")
-			if err != nil {
-				log.Error(err)
-			}
-			w.Header().Set("Content-Type", "text/html; charset=utf-8")
-			w.WriteHeader(http.StatusUnauthorized)
-			template.Must(templates, err).ExecuteTemplate(w, "base", params)
+		// Validate the user's password
+		err = auth.ValidatePassword(password, u.Hash)
+		if err != nil {
+			log.Error(err)
+			as.handleInvalidLogin(w, r)
+			return
 		}
+		// If we've logged in, save the session and redirect to the dashboard
+		session.Values["id"] = u.Id
+		session.Save(r, w)
+		as.nextOrIndex(w, r)
 	}
 }
 
@@ -298,6 +342,59 @@ func (as *AdminServer) Logout(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/login", 302)
 }
 
+// ResetPassword handles the password reset flow when a password change is
+// required either by the Gophish system or an administrator.
+//
+// This handler is meant to be used when a user is required to reset their
+// password, not just when they want to.
+//
+// This is an important distinction since in this handler we don't require
+// the user to re-enter their current password, as opposed to the flow
+// through the settings handler.
+//
+// To that end, if the user doesn't require a password change, we will
+// redirect them to the settings page.
+func (as *AdminServer) ResetPassword(w http.ResponseWriter, r *http.Request) {
+	u := ctx.Get(r, "user").(models.User)
+	session := ctx.Get(r, "session").(*sessions.Session)
+	if !u.PasswordChangeRequired {
+		Flash(w, r, "success", "Please reset your password through the settings page")
+		session.Save(r, w)
+		http.Redirect(w, r, "/settings", http.StatusTemporaryRedirect)
+		return
+	}
+	params := newTemplateParams(r)
+	params.Title = "Reset Password"
+	switch {
+	case r.Method == http.MethodGet:
+		getTemplate(w, "reset_password").ExecuteTemplate(w, "base", params)
+		return
+	case r.Method == http.MethodPost:
+		newPassword := r.FormValue("password")
+		confirmPassword := r.FormValue("confirm_password")
+		newHash, err := auth.ValidatePasswordChange(u.Hash, newPassword, confirmPassword)
+		// TODO: Make these UI errors, not API errors
+		if err != nil {
+			Flash(w, r, "danger", err.Error())
+			session.Save(r, w)
+			http.Redirect(w, r, "/reset_password", http.StatusTemporaryRedirect)
+			return
+		}
+		u.PasswordChangeRequired = false
+		u.Hash = newHash
+		if err = models.PutUser(&u); err != nil {
+			Flash(w, r, "danger", err.Error())
+			session.Save(r, w)
+			http.Redirect(w, r, "/reset_password", http.StatusTemporaryRedirect)
+			return
+		}
+		Flash(w, r, "success", "Password changed successfully")
+		session.Save(r, w)
+		as.nextOrIndex(w, r)
+	}
+}
+
+// TODO: Make this execute the template, too
 func getTemplate(w http.ResponseWriter, tmpl string) *template.Template {
 	templates := template.New("template")
 	_, err := templates.ParseFiles("templates/base.html", "templates/nav.html", "templates/"+tmpl+".html", "templates/flashes.html")

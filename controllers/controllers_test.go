@@ -5,6 +5,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/gophish/gophish/auth"
 	"github.com/gophish/gophish/config"
 	"github.com/gophish/gophish/models"
 	"github.com/stretchr/testify/suite"
@@ -39,6 +40,11 @@ func (s *ControllersSuite) SetupSuite() {
 	u, err := models.GetUser(1)
 	s.Nil(err)
 	s.apiKey = u.ApiKey
+	// Reset the temporary password for the admin user to a value we control
+	hash, err := auth.GeneratePasswordHash("gophish")
+	s.Nil(err)
+	u.Hash = hash
+	models.PutUser(&u)
 	// Start the phishing server
 	s.phishServer = httptest.NewUnstartedServer(NewPhishingServer(s.config.PhishConf).server.Handler)
 	s.phishServer.Config.Addr = s.config.PhishConf.ListenURL

@@ -49,7 +49,7 @@ func (s *APISuite) TestGetUsers() {
 func (s *APISuite) TestCreateUser() {
 	payload := &userRequest{
 		Username: "foo",
-		Password: "bar",
+		Password: "validpassword",
 		Role:     models.RoleUser,
 	}
 	body, err := json.Marshal(payload)

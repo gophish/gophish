@@ -134,6 +134,18 @@ func (s *MiddlewareSuite) TestBearerToken() {
 	s.Equal(response.Code, http.StatusOK)
 }
 
+func (s *MiddlewareSuite) TestPasswordResetRequired() {
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	req = ctx.Set(req, "user", models.User{
+		PasswordChangeRequired: true,
+	})
+	response := httptest.NewRecorder()
+	RequireLogin(successHandler).ServeHTTP(response, req)
+	s.Equal(response.Code, http.StatusTemporaryRedirect)
+	expected := "/reset_password?next=%2F"
+	s.Equal(response.Header().Get("Location"), expected)
+}
+
 func TestMiddlewareSuite(t *testing.T) {
 	suite.Run(t, new(MiddlewareSuite))
 }

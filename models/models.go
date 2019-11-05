@@ -2,12 +2,14 @@ package models
 
 import (
 	"crypto/rand"
-	"fmt"
-	"io"
-	"time"
 	"crypto/tls"
 	"crypto/x509"
+	"fmt"
+	"io"
 	"io/ioutil"
+	"time"
+
+	"github.com/gophish/gophish/auth"
 
 	"bitbucket.org/liamstask/goose/lib/goose"
 
@@ -22,6 +24,9 @@ var db *gorm.DB
 var conf *config.Config
 
 const MaxDatabaseConnectionAttempts int = 10
+
+// DefaultAdminUsername is the default username for the administrative user
+const DefaultAdminUsername = "admin"
 
 const (
 	CampaignInProgress string = "In progress"
@@ -82,8 +87,32 @@ func chooseDBDriver(name, openStr string) goose.DBDriver {
 	return d
 }
 
-// Setup initializes the Conn object
-// It also populates the Gophish Config object
+func createTemporaryPassword(u *User) error {
+	// This will result in a 16 character password which could be viewed as an
+	// inconvenience, but it should be ok for now.
+	temporaryPassword := auth.GenerateSecureKey(auth.MinPasswordLength)
+	hash, err := auth.GeneratePasswordHash(temporaryPassword)
+	if err != nil {
+		return err
+	}
+	u.Hash = hash
+	// Note that anytime a temporary password is created, we will force the user
+	// to change their password
+	u.PasswordChangeRequired = true
+	err = db.Save(u).Error
+	if err != nil {
+		return err
+	}
+	log.Infof("Please use this temporary password to login as \"admin\": %s", temporaryPassword)
+	return nil
+}
+
+// Setup initializes the database and runs any needed migrations.
+//
+// First, it establishes a connection to the database, then runs any migrations
+// newer than the version the database is on.
+//
+// The installation process has
 func Setup(c *config.Config) error {
 	// Setup the package-scoped config
 	conf = c
@@ -153,6 +182,7 @@ func Setup(c *config.Config) error {
 	}
 	// Create the admin user if it doesn't exist
 	var userCount int64
+	var adminUser User
 	db.Model(&User{}).Count(&userCount)
 	adminRole, err := GetRoleBySlug(RoleAdmin)
 	if err != nil {
@@ -160,14 +190,39 @@ func Setup(c *config.Config) error {
 		return err
 	}
 	if userCount == 0 {
-		initUser := User{
-			Username: "admin",
-			Hash:     "$2a$10$IYkPp0.QsM81lYYPrQx6W.U6oQGw7wMpozrKhKAHUBVL4mkm/EvAS", //gophish
-			Role:     adminRole,
-			RoleID:   adminRole.ID,
+		adminUser := User{
+			Username:               DefaultAdminUsername,
+			Role:                   adminRole,
+			RoleID:                 adminRole.ID,
+			PasswordChangeRequired: true,
 		}
-		initUser.ApiKey = generateSecureKey()
-		err = db.Save(&initUser).Error
+		adminUser.ApiKey = auth.GenerateSecureKey(auth.APIKeyLength)
+		err = db.Save(&adminUser).Error
+		if err != nil {
+			log.Error(err)
+			return err
+		}
+	}
+	// If this is the first time the user is installing Gophish, then we will
+	// generate a temporary password for the admin user.
+	//
+	// We do this here instead of in the block above where the admin is created
+	// since there's the chance the user executes Gophish and has some kind of
+	// error, then tries restarting it. If they didn't grab the password out of
+	// the logs, then they would have lost it.
+	//
+	// By doing the temporary password here, we will regenerate that temporary
+	// password until the user is able to reset the admin password.
+	if adminUser.Username == "" {
+		log.Info("Generating temporary password because Gophish hasn't been installed")
+		adminUser, err = GetUserByUsername(DefaultAdminUsername)
+		if err != nil {
+			log.Error(err)
+			return err
+		}
+	}
+	if adminUser.PasswordChangeRequired {
+		err = createTemporaryPassword(&adminUser)
 		if err != nil {
 			log.Error(err)
 			return err

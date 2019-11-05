@@ -3,10 +3,12 @@ package controllers
 import (
 	"fmt"
 	"net/http"
+	"net/http/httptest"
 	"net/url"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/gophish/gophish/models"
 )
 
 func (s *ControllersSuite) TestLoginCSRF() {
@@ -75,6 +77,7 @@ func (s *ControllersSuite) TestSuccessfulLogin() {
 }
 
 func (s *ControllersSuite) TestSuccessfulRedirect() {
+
 	next := "/campaigns"
 	resp, err := http.Get(fmt.Sprintf("%s/login", s.adminServer.URL))
 	s.Equal(err, nil)
@@ -107,4 +110,15 @@ func (s *ControllersSuite) TestSuccessfulRedirect() {
 	url, err := resp.Location()
 	s.Equal(err, nil)
 	s.Equal(url.Path, next)
+}
+
+func (s *ControllersSuite) TestPasswordReset() {
+	admin, err := models.GetUser(1)
+	s.Nil(err)
+
+	admin.PasswordChangeRequired = true
+	err = models.PutUser(&admin)
+	s.Nil(err)
+
+	req := httptest.NewRequest()
 }
