@@ -1,5 +1,9 @@
 package models
 
+import (
+  log "github.com/gophish/gophish/logger"
+)
+
 type Webhook struct {
   Id     int64  `json:"id" gorm:"column:id; primary_key:yes"`
   Title  string `json:"title"`
@@ -19,7 +23,20 @@ func GetWebhook(id int64) (Webhook, error) {
   return wh, err
 }
 
-func UpdateWebhook(wh *Webhook) error {
+func PostWebhook(wh *Webhook) error {
+  err := wh.Validate()
+  if err != nil {
+    log.Error(err)
+    return err
+  }
+  err = db.Save(wh).Error
+  if err != nil {
+    log.Error(err)
+  }
+  return err
+}
+
+func PutWebhook(wh *Webhook) error {
   err := db.Save(wh).Error
   return err
 }
@@ -27,4 +44,11 @@ func UpdateWebhook(wh *Webhook) error {
 func DeleteWebhook(id int64) error {
   err := db.Where("id=?", id).Delete(&Webhook{}).Error
   return err
+}
+
+
+//TODO
+func (p *Webhook) Validate() error {
+  
+  return nil
 }
