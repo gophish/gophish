@@ -42,7 +42,7 @@ const load = () => {
         .error(() => {
             errorFlash("Error fetching webhooks")
         })
-}
+};
 
 const editWebhook = (id) => {
     $("#modalSubmit").unbind('click').click(() => {
@@ -51,8 +51,9 @@ const editWebhook = (id) => {
     api.webhookId.get(id)
         .success(function(wh) {
             //TODO
-            // $("#username").val(user.username)
-
+            $("#webhookTitle").val(wh.title);
+            $("#url").val(wh.url);
+            $("#secret").val(wh.secret);
 
         })
         .error(function () {
@@ -60,7 +61,7 @@ const editWebhook = (id) => {
         });
 }
 const deleteWebhook = (id) => {
-    var wh = webhooks.find(x => x.id == id)
+    var wh = webhooks.find(x => x.id == id);
     if (!wh) {
         return
     }
@@ -88,11 +89,11 @@ const deleteWebhook = (id) => {
                 Swal.showValidationMessage(error)
               })
         }
-    }).then(function (result) {
-        if (result.value){
+    }).then(function(result) {
+        if (result.value) {
             Swal.fire(
                 'Webhook Deleted!',
-                `The webhook '${webhook.title}' has been deleted!`,
+                `The webhook has been deleted!`,
                 'success'
             );
         }
@@ -100,14 +101,14 @@ const deleteWebhook = (id) => {
             location.reload()
         })
     })
-}
+};
 
 $(document).ready(function() {
     load();
     $("#webhookTable").on('click', '.edit_button', function (e) {
-        editWebhook($(this).attr('data-webhook-id'))
+        editWebhook($(this).attr('data-webhook-id'));
     });
     $("#webhookTable").on('click', '.delete_button', function (e) {
-        deleteWebhook($(this).attr('data-webhook-id'))
+        deleteWebhook($(this).attr('data-webhook-id'));
     });
 });

@@ -37,9 +37,17 @@ func (as *Server) Webhook(w http.ResponseWriter, r *http.Request) {
   switch {
   case r.Method == "GET":
     JSONResponse(w, wh, http.StatusOK)
-  //TODO 
-  //"POST/DELETE"
-
+  case r.Method == "DELETE":
+    err = models.DeleteWebhook(id)
+    if err != nil {
+      JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
+      return
+    }
+    log.Infof("Deleted webhook with id: %d", id)
+    JSONResponse(w, models.Response{Success: true, Message: "Webhook deleted Successfully!"}, http.StatusOK)
+  case r.Method == "PUT":
+    //TODO
+    JSONResponse(w, wh, http.StatusOK)
 
  
   }
