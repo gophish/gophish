@@ -113,13 +113,6 @@ $(document).ready(function () {
             return false
         }
 
-        var reshow = false
-        if ($("#advancedarea").is(":visible")) {
-            reshow = true
-        }
-        $("#advancedarea").hide("slow");
-        $("html, body").animate({ scrollTop: $(document).height() }, 1000);
-
         var oldHTML = $("#validateimap").html();
         // Disable inputs and change button text
         $("#imaphost").attr("disabled", true);
@@ -128,7 +121,12 @@ $(document).ready(function () {
         $("#imappassword").attr("disabled", true);
         $("#use_imap").attr("disabled", true);
         $("#use_tls").attr("disabled", true);
-        $("#validateimap").attr("disabled", true);
+                $("#folder").attr("disabled", true);
+                $("#restrictdomain").attr("disabled", true);
+                $('#deletecampaign').attr("disabled", true);
+                $('#lastlogin').attr("disabled", true);
+                $('#imapfreq').attr("disabled", true);
+        $("#validateimap").attr("disabled", true);  
         $("#validateimap").html("<i class='fa fa-circle-o-notch fa-spin'></i> Testing...");
         
         api.IMAP.validate(server).done(function(data) {
@@ -172,12 +170,14 @@ $(document).ready(function () {
             $("#imappassword").attr("disabled", false);
             $("#use_imap").attr("disabled", false);
             $("#use_tls").attr("disabled", false);
+            $("#folder").attr("disabled", false);
+            $("#restrictdomain").attr("disabled", false);
+            $('#deletecampaign').attr("disabled", false);
+            $('#lastlogin').attr("disabled", false);
+            $('#imapfreq').attr("disabled", false);
             $("#validateimap").attr("disabled", false);
             $("#validateimap").html(oldHTML);
 
-            if (reshow == true){
-                $("#advancedarea").show("slow");
-            }
           });
 
       }); //end testclick
@@ -187,8 +187,7 @@ $(document).ready(function () {
     })
 
     $("#advanced").click(function() {
-        $("#advancedarea").toggle("slow");
-        $("html, body").animate({ scrollTop: $(document).height() }, 1000);
+        $("#advancedarea").toggle();
     })
 
     function lastLoginTicker(){

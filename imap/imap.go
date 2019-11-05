@@ -173,13 +173,11 @@ func ValidateIMAP(s *models.IMAP) error {
 		Folder: s.Folder}
 
 	client, err := newIMAPClient(mailSettings)
-	defer func() {
-		client.Close(true)
-		client.Logout(30 * time.Second)
-	}()
-
 	if err != nil {
 		log.Error(err.Error())
+	} else {
+		client.Close(true)
+		client.Logout(30 * time.Second)
 	}
 	return err
 }
@@ -358,7 +356,7 @@ func generateMail(info MailboxInfo, search string, since *time.Time, markAsRead,
 	client, err := newIMAPClient(info)
 	if err != nil {
 		close(responses)
-		return responses, fmt.Errorf("uid search failed: %s", err)
+		return responses, fmt.Errorf("failed to create IMAP connection: %s", err)
 	}
 
 	go func() {

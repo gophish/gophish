@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"net/http"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -127,6 +128,7 @@ func (im *Monitor) Shutdown() error {
 //  for the rid campaign identifier.
 func checkForNewEmails(im models.IMAP, reportURL string) {
 
+	im.Host = im.Host + ":" + strconv.Itoa(int(im.Port)) // Append port
 	mailSettings := MailboxInfo{
 		Host:   im.Host,
 		TLS:    im.TLS,
