@@ -6,7 +6,7 @@
     <div id="flashes" class="row"></div>
     <div class="row">
         <button type="button" class="btn btn-primary" id="new_button" data-toggle="modal" data-backdrop="static"
-            data-user-id="-1" data-target="#modal">
+            data-webhook-id="-1" data-target="#modal">
             <i class="fa fa-plus"></i> New Webhook</button>
     </div>
     &nbsp;
@@ -40,9 +40,9 @@
             </div>
             <div class="modal-body" id="modal_body">
                 <div class="row" id="modal.flashes"></div>
-                <label class="control-label" for="webhookTitle">Title:</label>
+                <label class="control-label" for="title">Title:</label>
                 <div class="form-group">
-                    <input type="text" class="form-control" placeholder="Title" id="webhookTitle" autofocus />
+                    <input type="text" class="form-control" placeholder="Title" id="title" autofocus />
                 </div>
 
                 <label class="control-label" for="url">Url:</label>

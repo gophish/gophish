@@ -2,6 +2,37 @@ let webhooks = []
 
 //TODO
 
+const saveWebhook = (id) => {
+    let wh = {
+        title: $("#title").val(wh.title),
+        url: $("#url").val(wh.url),
+        secret: $("#secret").val(wh.secret)
+    }
+    if (id != -1) {
+        wh.id = id;
+        api.webhookId.put(wh)
+            .success(function(data) {
+                successFlash(`Webhook '${wh.title}' has been updated successfully!`)
+                load();
+                // dismiss()
+                $("#modal").modal('hide');
+            })
+            .error(function(data) {
+                modalError(data.responseJSON.message)
+            })
+    } else {
+        api.webhooks.post(wh)
+            .success(function(data) {
+                successFlash(`Webhook '${wh.title}' has been created successfully!`)
+                load();
+                // dismiss()
+                $("#modal").modal('hide');
+            })
+            .error(function(data) {
+                modalError(data.responseJSON.message)
+            })
+    }
+}
 
 const load = () => {
     $("#webhookTable").hide();
@@ -46,12 +77,12 @@ const load = () => {
 
 const editWebhook = (id) => {
     $("#modalSubmit").unbind('click').click(() => {
-        // saveWebhook(id) //TODO
+        saveWebhook(id);
     });
     api.webhookId.get(id)
         .success(function(wh) {
             //TODO
-            $("#webhookTitle").val(wh.title);
+            $("#title").val(wh.title);
             $("#url").val(wh.url);
             $("#secret").val(wh.secret);
 
@@ -67,7 +98,7 @@ const deleteWebhook = (id) => {
     }
     Swal.fire({
         title: "Are you sure?",
-        text: `This will delete the webhook '${wh.title}'`,
+        text: `This will delete the webhook titled '${wh.title}'`,
         type: "warning",
         animation: false,
         showCancelButton: true,
@@ -105,6 +136,9 @@ const deleteWebhook = (id) => {
 
 $(document).ready(function() {
     load();
+    $("#new_button").on("click", function () {
+        editWebhook(-1);
+    });
     $("#webhookTable").on('click', '.edit_button', function (e) {
         editWebhook($(this).attr('data-webhook-id'));
     });
