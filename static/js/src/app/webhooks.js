@@ -2,6 +2,14 @@ let webhooks = []
 
 //TODO
 
+
+const dismiss = () => {
+    $("#title").val("");
+    $("#url").val("");
+    $("#secret").val("");
+    $("#modal\\.flashes").empty();
+}
+
 const saveWebhook = (id) => {
     let wh = {
         title: $("#title").val(wh.title),
@@ -14,7 +22,7 @@ const saveWebhook = (id) => {
             .success(function(data) {
                 successFlash(`Webhook "${wh.title}" has been updated successfully!`);
                 load();
-                // dismiss()
+                dismiss();
                 $("#modal").modal("hide");
             })
             .error(function(data) {
@@ -25,7 +33,7 @@ const saveWebhook = (id) => {
             .success(function(data) {
                 successFlash(`Webhook "${wh.title}" has been created successfully!`);
                 load();
-                // dismiss()
+                dismiss();
                 $("#modal").modal("hide");
             })
             .error(function(data) {
@@ -79,6 +87,8 @@ const editWebhook = (id) => {
     $("#modalSubmit").unbind("click").click(() => {
         saveWebhook(id);
     });
+
+    // debugger
     if (id !== -1) {
         api.webhookId.get(id)
           .success(function(wh) {
@@ -137,13 +147,16 @@ const deleteWebhook = (id) => {
 
 $(document).ready(function() {
     load();
-    $("#new_button").on("click", function () {
+    $("#modal").on("hide.bs.modal", function() {
+        dismiss();
+    });
+    $("#new_button").on("click", function() {
         editWebhook(-1);
     });
-    $("#webhookTable").on("click", ".edit_button", function (e) {
+    $("#webhookTable").on("click", ".edit_button", function(e) {
         editWebhook($(this).attr("data-webhook-id"));
     });
-    $("#webhookTable").on("click", ".delete_button", function (e) {
+    $("#webhookTable").on("click", ".delete_button", function(e) {
         deleteWebhook($(this).attr("data-webhook-id"));
     });
 });
