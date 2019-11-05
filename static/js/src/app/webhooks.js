@@ -12,9 +12,9 @@ const dismiss = () => {
 
 const saveWebhook = (id) => {
     let wh = {
-        title: $("#title").val(wh.title),
-        url: $("#url").val(wh.url),
-        secret: $("#secret").val(wh.secret)
+        title: $("#title").val(),
+        url: $("#url").val(),
+        secret: $("#secret").val()
     };
     if (id != -1) {
         wh.id = id;

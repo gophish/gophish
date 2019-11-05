@@ -232,13 +232,13 @@ var api = {
         },
     },
     webhookId: {
-        get: function (id) {
+        get: function(id) {
             return query(`/webhooks/${id}`, "GET", {}, false)
         },
-        post: function (webhook) {
-            return query(`/webhooks/${webhook.id}`, "POST", webhook, false)
+        put: function(webhook) {
+            return query(`/webhooks/${webhook.id}`, "PUT", webhook, true)
         },
-        delete: function (id) {
+        delete: function(id) {
             return query(`/webhooks/${id}`, "DELETE", {}, false)
         },
         validate: function (id) {
