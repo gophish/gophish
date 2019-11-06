@@ -22,6 +22,20 @@ func (as *Server) Webhooks(w http.ResponseWriter, r *http.Request) {
       return
     }
     JSONResponse(w, whs, http.StatusOK)
+
+  case r.Method == "POST":
+    wh := models.Webhook{}
+    err := json.NewDecoder(r.Body).Decode(&wh)
+    if err != nil {
+      JSONResponse(w, models.Response{Success: false, Message: "Invalid JSON structure"}, http.StatusBadRequest)
+      return
+    }
+    err = models.PostWebhook(&wh)
+    if err != nil {
+      JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
+      return
+    }
+    JSONResponse(w, wh, http.StatusCreated)
   }
 }
 
@@ -36,6 +50,7 @@ func (as *Server) Webhook(w http.ResponseWriter, r *http.Request) {
   switch {
   case r.Method == "GET":
     JSONResponse(w, wh, http.StatusOK)
+
   case r.Method == "DELETE":
     err = models.DeleteWebhook(id)
     if err != nil {
@@ -45,28 +60,10 @@ func (as *Server) Webhook(w http.ResponseWriter, r *http.Request) {
     log.Infof("Deleted webhook with id: %d", id)
     JSONResponse(w, models.Response{Success: true, Message: "Webhook deleted Successfully!"}, http.StatusOK)
 
-case r.Method == "POST":
-    wh := models.Webhook{}
-    err := json.NewDecoder(r.Body).Decode(&wh)
-    if err != nil {
-      JSONResponse(w, models.Response{Success: false, Message: "Invalid JSON structure"}, http.StatusBadRequest)
-      return
-    }
-    err = models.PostWebhook(&wh)
-    if err != nil {
-      JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
-      return
-    }
-    JSONResponse(w, wh, http.StatusCreated)
-
   case r.Method == "PUT":
-    // Change this to get from URL and uid (don't bother with id in r.Body)
     wh = models.Webhook{}
     err = json.NewDecoder(r.Body).Decode(&wh)
-    if wh.Id != id {
-      JSONResponse(w, models.Response{Success: false, Message: "Error: /:id and webhook_id mismatch"}, http.StatusInternalServerError)
-      return
-    }
+    wh.Id = id;
     err = models.PutWebhook(&wh)
     if err != nil {
       JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
@@ -76,20 +73,23 @@ case r.Method == "POST":
   }
 }
 
-func (as *Server) ValidateWebhook(w http.ResponseWriter, r *http.Request) {
-  vars := mux.Vars(r)
-  id, _ := strconv.ParseInt(vars["id"], 0, 64)
-  wh, err := models.GetWebhook(id)
-  if err != nil {
-    log.Error(err)
-    JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
-    return
+func (as *Server) PingWebhook(w http.ResponseWriter, r *http.Request) {
+  switch {
+  case r.Method == "POST":
+    vars := mux.Vars(r)
+    id, _ := strconv.ParseInt(vars["id"], 0, 64)
+    wh, err := models.GetWebhook(id)
+    if err != nil {
+      log.Error(err)
+      JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
+      return
+    }
+    // err = wh.Send("") //TODO empty data
+    // if err != nil {
+    //   log.Error(err)
+    //   JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadGateway)
+    //   return
+    // }
+    JSONResponse(w, wh, http.StatusOK)
   }
-  // err = wh.Send("") //TODO empty data
-  // if err != nil {
-  //   log.Error(err)
-  //   JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadGateway)
-  //   return
-  // }
-  JSONResponse(w, wh, http.StatusOK)
 }

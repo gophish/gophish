@@ -241,7 +241,7 @@ var api = {
         delete: function(id) {
             return query(`/webhooks/${id}`, "DELETE", {}, false)
         },
-        validate: function (id) {
+        ping: function(id) {
             return query(`/webhooks/${id}/validate`, "POST", {}, false)
         },
     },

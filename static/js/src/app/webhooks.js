@@ -64,7 +64,7 @@ const load = () => {
                     escapeHtml(webhook.url),
                     `
                       <div class="pull-right">
-                        <button class="btn btn-primary validate_button" data-webhook-id="${webhook.id}">
+                        <button class="btn btn-primary ping_button" data-webhook-id="${webhook.id}">
                           Ping
                         </button>
                         <button class="btn btn-primary edit_button" data-toggle="modal" data-backdrop="static" data-target="#modal" data-webhook-id="${webhook.id}">
@@ -87,8 +87,6 @@ const editWebhook = (id) => {
     $("#modalSubmit").unbind("click").click(() => {
         saveWebhook(id);
     });
-
-    // debugger
     if (id !== -1) {
         api.webhookId.get(id)
           .success(function(wh) {
@@ -145,6 +143,16 @@ const deleteWebhook = (id) => {
     })
 };
 
+const pingUrl = (id) => {
+    api.webhookId.ping(id)
+        .success(function(wh) {
+            successFlash(`Ping of the webhook "${wh.title}" returned successful response`)
+        })
+        .error(function () {
+            errorFlash("Error fetching webhook")
+        });
+};
+
 $(document).ready(function() {
     load();
     $("#modal").on("hide.bs.modal", function() {
@@ -159,4 +167,8 @@ $(document).ready(function() {
     $("#webhookTable").on("click", ".delete_button", function(e) {
         deleteWebhook($(this).attr("data-webhook-id"));
     });
+    $("#webhookTable").on("click", ".ping_button", function(e) {
+        pingUrl($(this).attr("data-webhook-id"));
+    });
+
 });
