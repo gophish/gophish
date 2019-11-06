@@ -101,7 +101,7 @@ func main() {
 	phishConfig := conf.PhishConf
 	phishServer := controllers.NewPhishingServer(phishConfig)
 
-	imapMonitor := imap.NewMonitor(conf)
+	imapMonitor := imap.NewMonitor()
 
 	go adminServer.Start()
 	go phishServer.Start()

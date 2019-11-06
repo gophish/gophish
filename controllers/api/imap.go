@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -55,7 +54,6 @@ func (as *Server) ImapServer(w http.ResponseWriter, r *http.Request) {
 		}
 		s.ModifiedDate = time.Now().UTC()
 		s.UserId = ctx.Get(r, "user_id").(int64)
-		fmt.Printf("%+v\n", s)
 		err = models.PostIMAP(&s, ctx.Get(r, "user_id").(int64))
 		if err != nil {
 			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)

@@ -2,7 +2,6 @@ package models
 
 import (
 	"errors"
-	"fmt"
 	"net"
 	"time"
 
@@ -127,9 +126,6 @@ func PostIMAP(s *IMAP, uid int64) error {
 	}
 
 	// Insert new settings into the DB
-	fmt.Println("\nSaving this to db:")
-	fmt.Printf("%+v\n", s)
-	fmt.Println("")
 	err = db.Save(s).Error
 	if err != nil {
 		log.Error("Unable to save to database: ", err.Error())
@@ -147,8 +143,6 @@ func DeleteIMAP(uid int64) error {
 }
 
 func SuccessfulLogin(s *IMAP) error {
-	fmt.Println("updatding: ")
-	fmt.Printf("%+v\n", s)
 	err := db.Model(&s).Where("user_id = ?", s.UserId).Update("last_login", time.Now().UTC()).Error
 	if err != nil {
 		log.Error("Unable to update database: ", err.Error())

@@ -8,8 +8,6 @@ package imap
  */
 import (
 	"context"
-	"fmt"
-	"net/http"
 	"regexp"
 	"strconv"
 	"strings"
@@ -17,7 +15,6 @@ import (
 
 	log "github.com/gophish/gophish/logger"
 
-	"github.com/gophish/gophish/config"
 	"github.com/gophish/gophish/models"
 )
 
@@ -26,8 +23,7 @@ var goPhishRegex = regexp.MustCompile("(\\?rid=[A-Za-z0-9]{7})")
 
 // Monitor is a worker that monitors IMAP servers for reported campaign emails
 type Monitor struct {
-	cancel    func()
-	reportURL string
+	cancel func()
 }
 
 // Monitor.start() checks for campaign emails
@@ -51,7 +47,7 @@ func (im *Monitor) start(ctx context.Context) {
 				if _, ok := usermap[dbuser.Id]; !ok { // If we don't currently have a running Go routine for this user, start one.
 					log.Info("Starting new IMAP monitor for user ", dbuser.Username)
 					usermap[dbuser.Id] = 1
-					go monitorIMAP(dbuser.Id, ctx, im.reportURL)
+					go monitorIMAP(dbuser.Id, ctx)
 				}
 			}
 			time.Sleep(10 * time.Second) // Every ten seconds we check if a new user has been created
@@ -61,7 +57,7 @@ func (im *Monitor) start(ctx context.Context) {
 
 // monitorIMAP will continuously login to the IMAP settings associated to the supplied user id (if the user account has IMAP settings, and they're enabled.)
 // It also verifies the user account exists, and returns if not (for the case of a user being deleted).
-func monitorIMAP(uid int64, ctx context.Context, reportURL string) {
+func monitorIMAP(uid int64, ctx context.Context) {
 
 	for {
 		select {
@@ -85,7 +81,7 @@ func monitorIMAP(uid int64, ctx context.Context, reportURL string) {
 				// 3. Check if IMAP is enabled
 				if im.Enabled {
 					log.Debug("Checking IMAP for user ", uid, ": ", im.Username, "@", im.Host)
-					checkForNewEmails(im, reportURL)
+					checkForNewEmails(im)
 					time.Sleep((time.Duration(im.IMAPFreq) - 10) * time.Second) // Subtract 10 to compensate for the default sleep of 10 at the bottom
 				}
 			}
@@ -95,16 +91,9 @@ func monitorIMAP(uid int64, ctx context.Context, reportURL string) {
 }
 
 // NewMonitor returns a new instance of imap.Monitor
-func NewMonitor(config *config.Config) *Monitor {
+func NewMonitor() *Monitor {
 
-	reportURL := "http://" + config.PhishConf.ListenURL
-	if config.PhishConf.UseTLS {
-		reportURL = "https://" + config.PhishConf.ListenURL
-	}
-
-	im := &Monitor{
-		reportURL: reportURL,
-	}
+	im := &Monitor{}
 	return im
 }
 
@@ -126,7 +115,7 @@ func (im *Monitor) Shutdown() error {
 
 // checkForNewEmails logs into an IMAP account and checks unread emails
 //  for the rid campaign identifier.
-func checkForNewEmails(im models.IMAP, reportURL string) {
+func checkForNewEmails(im models.IMAP) {
 
 	im.Host = im.Host + ":" + strconv.Itoa(int(im.Port)) // Append port
 	mailSettings := MailboxInfo{
@@ -135,15 +124,6 @@ func checkForNewEmails(im models.IMAP, reportURL string) {
 		User:   im.Username,
 		Pwd:    im.Password,
 		Folder: im.Folder}
-
-	// Make sure server ends with a trailing slash
-	if reportURL[len(reportURL)-1:] != "/" {
-		reportURL = reportURL + "/"
-	}
-	// Set http timeout to 10 seconds, or routine may hang
-	var netClient = &http.Client{
-		Timeout: time.Second * 10,
-	}
 
 	msgs, err := GetUnread(mailSettings, true, false)
 	if err != nil {
@@ -171,26 +151,27 @@ func checkForNewEmails(im models.IMAP, reportURL string) {
 			rid := goPhishRegex.FindString(body)
 
 			if rid != "" {
-				rid := strings.TrimSpace(rid)
-				reportURL := fmt.Sprintf("%sreport%s", reportURL, rid)
-				response, err := netClient.Get(reportURL)
+				rid = rid[5:]
+				log.Infof("User '%s' reported email with rid %s", m.From.Address, rid)
+				result, err := models.GetResult(rid)
 				if err != nil {
-					log.Error("Error reporting GoPhish email, marking as unread. ", err.Error())
+					log.Error("Error reporting GoPhish email with rid ", rid, ": ", err.Error())
 					reportingFailed = append(reportingFailed, m.UID)
-
 				} else {
-					if response.StatusCode == 204 {
+					err = result.HandleEmailReport(models.EventDetails{}) // Not sure if we should populate something into the EventDetails{}
+					if err != nil {
+						log.Error("Error updating GoPhish email with rid ", rid, ": ", err.Error())
+					} else {
 						if im.DeleteReportedCampaignEmail == true {
 							campaignEmails = append(campaignEmails, m.UID)
 						}
-						log.Debugf("User '%s' reported GoPhish campaign email with subject '%s'\n", m.From, m.Subject)
-					} else {
-						log.Error("Failed to report campaign. Server did not recogise rid: " + rid)
 					}
 				}
 			} else {
-				log.Debugf("User '%s' reported email with subject '%s'. This is not a GoPhish campaign; you should investigate it.\n", m.From, m.Subject)
+				// In the future this should be an alert in Gophish
+				log.Debugf("User '%s' reported email with subject '%s'. This is not a GoPhish campaign; you should investigate it.\n", m.From.Address, m.Subject)
 			}
+			// Check if any emails were unable to be reported, so we can mark them as unread
 			if len(reportingFailed) > 0 {
 				log.Debugf("Marking %d emails as unread as failed to report\n", len(reportingFailed))
 				err := MarkAsUnread(mailSettings, reportingFailed) // Set emails as unread that we failed to report to GoPhish
@@ -198,8 +179,8 @@ func checkForNewEmails(im models.IMAP, reportURL string) {
 					log.Error("Unable to mark emails as unread: ", err.Error())
 				}
 			}
+			// If the DeleteReportedCampaignEmail flag is set, delete reported Gophish campaign emails
 			if im.DeleteReportedCampaignEmail == true && len(campaignEmails) > 0 {
-				fmt.Printf("Deleting %d campaign emails\n", len(campaignEmails))
 				log.Debugf("Deleting %d campaign emails\n", len(campaignEmails))
 				err := DeleteEmails(mailSettings, campaignEmails) // Delete GoPhish campaign emails.
 				if err != nil {
@@ -207,7 +188,6 @@ func checkForNewEmails(im models.IMAP, reportURL string) {
 				}
 			}
 		}
-
 	} else {
 		log.Debug("No new emails for ", im.Username)
 	}
