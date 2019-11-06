@@ -148,8 +148,12 @@ const pingUrl = (id) => {
         .success(function(wh) {
             successFlash(`Ping of the webhook "${wh.title}" returned successful response`)
         })
-        .error(function () {
-            errorFlash("Error fetching webhook")
+        .error(function() {
+            var wh = webhooks.find(x => x.id == id);
+            if (!wh) {
+                return
+            }
+            errorFlash(`Error when pinging the webhook "${wh.title}"`)
         });
 };
 
