@@ -170,5 +170,4 @@ $(document).ready(function() {
     $("#webhookTable").on("click", ".ping_button", function(e) {
         pingUrl($(this).attr("data-webhook-id"));
     });
-
 });

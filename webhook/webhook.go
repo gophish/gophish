@@ -10,9 +10,9 @@ import (
   "errors"
   "encoding/json"
   "bytes"
+  "encoding/gob"
 
   log "github.com/gophish/gophish/logger"
-
 )
 
 const (
@@ -59,13 +59,26 @@ func (whTr *Transport) Send(url string, secret string, data interface{}) error {
 //TODO
 func sign(secret string, data interface{}, ts int32) (string, error) {
   // data2 := fmt.Sprintf("%s__%s", data, ts) //TODO: add timestamp
-  data2 := data
+  data2, err := interfaceToBytes(data)
+
+  if err != nil {
+    return "", err
+  }
   hash1 := hmac.New(sha256.New, []byte(secret))
-  // _, err := hash1.Write([]byte(data2))
-  _, err := hash1.Write(data2.([]byte))
+  _, err = hash1.Write(data2)
   if err != nil {
     return "", err
   }
   hexStr := hex.EncodeToString(hash1.Sum(nil))
   return hexStr, nil
+}
+
+func interfaceToBytes(data interface{}) ([]byte, error) {
+  var buf bytes.Buffer
+  enc := gob.NewEncoder(&buf)
+  err := enc.Encode(data)
+  if err != nil {
+    return nil, err
+  }
+  return buf.Bytes(), nil
 }
