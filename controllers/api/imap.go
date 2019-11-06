@@ -2,10 +2,10 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
-	"github.com/dustin/go-humanize"
 	ctx "github.com/gophish/gophish/context"
 	"github.com/gophish/gophish/imap"
 	log "github.com/gophish/gophish/logger"
@@ -42,16 +42,8 @@ func (as *Server) ImapServer(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Error(err)
 		}
-		if len(ss) > 0 {
-			ss[0].LastLoginFriendly = humanize.Time(ss[0].LastLogin)
-			delta := time.Now().Sub(ss[0].LastLogin).Hours() // Default value if never logged in is "0001-01-01T00:00:00Z"
-			if delta > 87600 {
-				ss[0].LastLoginFriendly = "Never" // Well, either Never or > 10 years ago.
-			}
-
-		}
-
 		JSONResponse(w, ss, http.StatusOK)
+
 	// POST: Update database
 	case r.Method == "POST":
 		s := models.IMAP{}
@@ -63,6 +55,7 @@ func (as *Server) ImapServer(w http.ResponseWriter, r *http.Request) {
 		}
 		s.ModifiedDate = time.Now().UTC()
 		s.UserId = ctx.Get(r, "user_id").(int64)
+		fmt.Printf("%+v\n", s)
 		err = models.PostIMAP(&s, ctx.Get(r, "user_id").(int64))
 		if err != nil {
 			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)

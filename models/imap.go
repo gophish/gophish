@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"fmt"
 	"net"
 	"time"
 
@@ -25,7 +26,6 @@ type IMAP struct {
 	RestrictDomain              string    `json:"restrict_domain"`
 	DeleteReportedCampaignEmail bool      `json:"delete_reported_campaign_email"`
 	LastLogin                   time.Time `json:"last_login,omitempty"`
-	LastLoginFriendly           string    `json:"last_login_friendly,omitempty"`
 	ModifiedDate                time.Time `json:"modified_date"`
 	IMAPFreq                    uint32    `json:"imap_freq,string,omitempty"`
 }
@@ -77,7 +77,7 @@ func (s *IMAP) Validate() error {
 		s.Folder = DefaultIMAPFolder
 	}
 
-	// Make sure s.Host is an IP or hostname. NB will fail if unable to resolve the hostname.s
+	// Make sure s.Host is an IP or hostname. NB will fail if unable to resolve the hostname.
 	ip := net.ParseIP(s.Host)
 	_, err := net.LookupHost(s.Host)
 	if ip == nil && err != nil {
@@ -127,9 +127,12 @@ func PostIMAP(s *IMAP, uid int64) error {
 	}
 
 	// Insert new settings into the DB
+	fmt.Println("\nSaving this to db:")
+	fmt.Printf("%+v\n", s)
+	fmt.Println("")
 	err = db.Save(s).Error
 	if err != nil {
-		log.Error("Bad things happened here ", err.Error())
+		log.Error("Unable to save to database: ", err.Error())
 	}
 	return err
 }
@@ -144,9 +147,11 @@ func DeleteIMAP(uid int64) error {
 }
 
 func SuccessfulLogin(s *IMAP) error {
-	err := db.Model(&s).Update("last_login", time.Now()).Error
+	fmt.Println("updatding: ")
+	fmt.Printf("%+v\n", s)
+	err := db.Model(&s).Where("user_id = ?", s.UserId).Update("last_login", time.Now().UTC()).Error
 	if err != nil {
-		log.Error(err)
+		log.Error("Unable to update database: ", err.Error())
 	}
 	return err
 }

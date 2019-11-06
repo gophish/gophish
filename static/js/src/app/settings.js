@@ -37,6 +37,7 @@ $(document).ready(function () {
         imapSettings.imap_freq = $("#imapfreq").val()
         imapSettings.restrict_domain = $("#restrictdomain").val()
         imapSettings.delete_reported_campaign_email = $('#deletecampaign').prop('checked')
+        imapSettings.last_login = $("#lastloginraw").val()
 
         
         //To avoid unmarshalling error in controllers/api/imap.go. It would fail gracefully, but with a generic error.
@@ -121,11 +122,11 @@ $(document).ready(function () {
         $("#imappassword").attr("disabled", true);
         $("#use_imap").attr("disabled", true);
         $("#use_tls").attr("disabled", true);
-                $("#folder").attr("disabled", true);
-                $("#restrictdomain").attr("disabled", true);
-                $('#deletecampaign').attr("disabled", true);
-                $('#lastlogin').attr("disabled", true);
-                $('#imapfreq').attr("disabled", true);
+        $("#folder").attr("disabled", true);
+        $("#restrictdomain").attr("disabled", true);
+        $('#deletecampaign').attr("disabled", true);
+        $('#lastlogin').attr("disabled", true);
+        $('#imapfreq').attr("disabled", true);
         $("#validateimap").attr("disabled", true);  
         $("#validateimap").html("<i class='fa fa-circle-o-notch fa-spin'></i> Testing...");
         
@@ -190,18 +191,6 @@ $(document).ready(function () {
         $("#advancedarea").toggle();
     })
 
-    function lastLoginTicker(){
-
-        if ($("#lastlogin").is(":visible") && $('#use_imap').prop('checked') == true) {
-            api.IMAP.get()
-            .success(function (imap) {
-                if (imap.length > 0){
-                    $('#lastlogin').val(imap[0].last_login_friendly)
-                }
-            })  
-        }
-    }
-
     function loadIMAPSettings(){
         api.IMAP.get()
         .success(function (imap) {
@@ -223,7 +212,8 @@ $(document).ready(function () {
                 $("#folder").val(imap.folder)
                 $("#restrictdomain").val(imap.restrict_domain)
                 $('#deletecampaign').prop('checked', imap.delete_reported_campaign_email)
-                $('#lastlogin').val(imap.last_login_friendly)
+                $('#lastloginraw').val(imap.last_login)
+                $('#lastlogin').val(moment.utc(imap.last_login).fromNow())
                 $('#imapfreq').val(imap.imap_freq)
             }  
 
@@ -240,10 +230,4 @@ $(document).ready(function () {
     })
 
     loadIMAPSettings()
-    setInterval(function() {
-        lastLoginTicker()
-    }, 1000);
-
-    
-
 })
