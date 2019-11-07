@@ -20,6 +20,7 @@ const (
   MinHttpStatusErrorCode = 400
 )
 
+//TODO rename to Sender because "http" contains Transport too
 type Transport struct {
   Client *http.Client
 }
@@ -48,7 +49,7 @@ func (whTr *Transport) Send(url string, secret string, data interface{}) error {
 
   //TODO
   if resp.StatusCode >= MinHttpStatusErrorCode {
-    errMsg := fmt.Sprintf("http status of response: %d", resp.Status)
+    errMsg := fmt.Sprintf("http status of response: %s", resp.Status)
     log.Error(errMsg)
     return errors.New(errMsg)
   }

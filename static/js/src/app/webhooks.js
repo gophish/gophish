@@ -7,7 +7,7 @@ const dismiss = () => {
     $("#title").val("");
     $("#url").val("");
     $("#secret").val("");
-    $("#modal\\.flashes").empty();
+    $("#flashes").empty();
 }
 
 const saveWebhook = (id) => {
@@ -144,6 +144,7 @@ const deleteWebhook = (id) => {
 };
 
 const pingUrl = (id) => {
+    dismiss();
     api.webhookId.ping(id)
         .success(function(wh) {
             successFlash(`Ping of the webhook "${wh.title}" returned successful response`)

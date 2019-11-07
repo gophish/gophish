@@ -242,7 +242,7 @@ var api = {
             return query(`/webhooks/${id}`, "DELETE", {}, false)
         },
         ping: function(id) {
-            return query(`/webhooks/${id}/validate`, "POST", {}, false)
+            return query(`/webhooks/${id}/validate`, "POST", {}, true)
         },
     },
     // import handles all of the "import" functions in the api
