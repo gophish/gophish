@@ -65,6 +65,7 @@ func (as *Server) Webhook(w http.ResponseWriter, r *http.Request) {
     wh = models.Webhook{}
     err = json.NewDecoder(r.Body).Decode(&wh)
     wh.Id = id;
+    wh.IsActive = false;
     err = models.PutWebhook(&wh)
     if err != nil {
       JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)

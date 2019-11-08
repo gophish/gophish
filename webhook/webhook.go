@@ -29,6 +29,11 @@ type Transport struct {
 
 
 func (whTr *Transport) Send(url string, secret string, data interface{}) error {
+  if whTr.Client == nil {
+    errMsg := "Client must be initialized"
+    log.Error(errMsg)
+    panic(errMsg)
+  }
   jsonData, err := json.Marshal(data)
   if err != nil {
     log.Error(err)
