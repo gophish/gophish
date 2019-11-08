@@ -5,10 +5,11 @@ import (
 )
 
 type Webhook struct {
-  Id     int64  `json:"id" gorm:"column:id; primary_key:yes"`
-  Title  string `json:"title"`
-  Url    string `json:"url"`
-  Secret string `json:"secret"`
+  Id       int64  `json:"id" gorm:"column:id; primary_key:yes"`
+  Title    string `json:"title"`
+  Url      string `json:"url"`
+  Secret   string `json:"secret"`
+  IsActive bool   `json:"is_active"`
 }
 
 func GetWebhooks() ([]Webhook, error) {

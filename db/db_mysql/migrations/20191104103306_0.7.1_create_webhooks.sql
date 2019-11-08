@@ -5,7 +5,8 @@ CREATE TABLE IF NOT EXISTS "webhooks" (
     "id" integer primary key autoincrement,
     "title" varchar(255),
     "url" varchar(1000),
-    "secret" varchar(255)
+    "secret" varchar(255),
+    "is_active" integer default 0
 );
 
 

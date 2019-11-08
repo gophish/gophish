@@ -62,6 +62,7 @@ const load = () => {
                 webhookTable.row.add([
                     escapeHtml(webhook.title),
                     escapeHtml(webhook.url),
+                    escapeHtml(webhook.is_active),
                     `
                       <div class="pull-right">
                         <button class="btn btn-primary ping_button" data-webhook-id="${webhook.id}">
