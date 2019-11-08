@@ -148,7 +148,9 @@ const pingUrl = (id) => {
     dismiss();
     api.webhookId.ping(id)
         .success(function(wh) {
-            successFlash(`Ping of the webhook "${wh.title}" returned successful response`)
+            successFlash(`Ping of the webhook "${wh.title}" returned successful response`);
+
+            //TODO reload table or a certain row to reflect "is_active" status of a webhook
         })
         .error(function() {
             var wh = webhooks.find(x => x.id == id);

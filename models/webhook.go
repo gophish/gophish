@@ -18,6 +18,12 @@ func GetWebhooks() ([]Webhook, error) {
   return whs, err
 }
 
+func GetActiveWebhooks() ([]Webhook, error) {
+  whs := []Webhook{}
+  err := db.Where("is_active=?", true).Find(&whs).Error
+  return whs, err
+}
+
 func GetWebhook(id int64) (Webhook, error) {
   wh := Webhook{}
   err := db.Where("id=?", id).First(&wh).Error
