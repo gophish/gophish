@@ -18,6 +18,7 @@ import (
 const (
   DefaultTimeoutSeconds = 10
   MinHttpStatusErrorCode = 400
+  SignatureHeader = "X-Gophish-Signature"
 )
 
 //TODO rename to Sender because "http" contains Transport too
@@ -42,7 +43,7 @@ func (whTr *Transport) Send(url string, secret string, data interface{}) error {
   req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
   ts := int32(time.Now().Unix())
   signat, err := sign(secret, data, ts)
-  req.Header.Set("X-Gophish-Signature", signat)
+  req.Header.Set(SignatureHeader, signat)
   req.Header.Set("Content-Type", "application/json")
   resp, err := whTr.Client.Do(req)
   if err != nil {
