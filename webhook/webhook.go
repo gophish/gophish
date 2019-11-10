@@ -4,13 +4,11 @@ import (
   "crypto/hmac"
   "crypto/sha256"
   "encoding/hex"
-  "time"
   "net/http"
   "fmt"
   "errors"
   "encoding/json"
   "bytes"
-  "encoding/gob"
 
   log "github.com/gophish/gophish/logger"
 )
@@ -21,12 +19,17 @@ const (
   SignatureHeader = "X-Gophish-Signature"
 )
 
-//TODO rename to Sender because "http" contains Transport too
+//TODO
+
 type Transport struct {
   Client *http.Client
 }
 
-//TODO
+
+type Sender interface {
+  Send(url string, secret string, data interface{}) error
+}
+
 
 
 func (whTr *Transport) Send(url string, secret string, data interface{}) error {
@@ -41,8 +44,7 @@ func (whTr *Transport) Send(url string, secret string, data interface{}) error {
     return err
   }
   req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
-  ts := int32(time.Now().Unix())
-  signat, err := sign(secret, data, ts)
+  signat, err := sign(secret, data)
   req.Header.Set(SignatureHeader, signat)
   req.Header.Set("Content-Type", "application/json")
   resp, err := whTr.Client.Do(req)
@@ -62,17 +64,9 @@ func (whTr *Transport) Send(url string, secret string, data interface{}) error {
   return nil
 }
 
-
-//TODO
-func sign(secret string, data interface{}, ts int32) (string, error) {
-  // data2 := fmt.Sprintf("%s__%s", data, ts) //TODO: add timestamp
-  data2, err := interfaceToBytes(data)
-
-  if err != nil {
-    return "", err
-  }
+func sign(secret string, data []byte) (string, error) {
   hash1 := hmac.New(sha256.New, []byte(secret))
-  _, err = hash1.Write(data2)
+  _, err := hash1.Write(data)
   if err != nil {
     return "", err
   }
