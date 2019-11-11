@@ -30,11 +30,12 @@ type DefaultSender struct {
 } 
 
 func NewDefaultSender() Sender {
-  return DefaultSender {
-    client: &http.Client {
+  a1 := DefaultSender{}
+  a2 := &http.Client{
       Timeout: DefaultTimeoutSeconds,
-    }
   }
+  a1.client = a2
+  return a1
 }
 
 
@@ -48,7 +49,7 @@ func NewDefaultSender() Sender {
 
 
 
-func (ds *DefaultSender) Send(url string, secret string, data interface{}) error {
+func (ds DefaultSender) Send(url string, secret string, data interface{}) error {
   jsonData, err := json.Marshal(data)
   if err != nil {
     log.Error(err)
@@ -85,12 +86,12 @@ func sign(secret string, data []byte) (string, error) {
   return hexStr, nil
 }
 
-func interfaceToBytes(data interface{}) ([]byte, error) {
-  var buf bytes.Buffer
-  enc := gob.NewEncoder(&buf)
-  err := enc.Encode(data)
-  if err != nil {
-    return nil, err
-  }
-  return buf.Bytes(), nil
-}
+// func interfaceToBytes(data interface{}) ([]byte, error) {
+//   var buf bytes.Buffer
+//   enc := gob.NewEncoder(&buf)
+//   err := enc.Encode(data)
+//   if err != nil {
+//     return nil, err
+//   }
+//   return buf.Bytes(), nil
+// }
