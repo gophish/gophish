@@ -21,23 +21,34 @@ const (
 
 //TODO
 
-type Transport struct {
-  Client *http.Client
-}
-
-
 type Sender interface {
   Send(url string, secret string, data interface{}) error
 }
 
+type DefaultSender struct {
+  client *http.Client
+} 
 
-
-func (whTr *Transport) Send(url string, secret string, data interface{}) error {
-  if whTr.Client == nil {
-    errMsg := "Client must be initialized"
-    log.Error(errMsg)
-    panic(errMsg)
+func NewDefaultSender() Sender {
+  return DefaultSender {
+    client: &http.Client {
+      Timeout: DefaultTimeoutSeconds,
+    }
   }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+func (ds *DefaultSender) Send(url string, secret string, data interface{}) error {
   jsonData, err := json.Marshal(data)
   if err != nil {
     log.Error(err)
@@ -47,7 +58,7 @@ func (whTr *Transport) Send(url string, secret string, data interface{}) error {
   signat, err := sign(secret, data)
   req.Header.Set(SignatureHeader, signat)
   req.Header.Set("Content-Type", "application/json")
-  resp, err := whTr.Client.Do(req)
+  resp, err := ds.client.Do(req)
   if err != nil {
     log.Error(err)
     return err

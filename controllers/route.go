@@ -35,6 +35,7 @@ type AdminServer struct {
 	server *http.Server
 	worker worker.Worker
 	config config.AdminServer
+	webhook webhook.Sender
 }
 
 // WithWorker is an option that sets the background worker.
@@ -56,6 +57,10 @@ func NewAdminServer(config config.AdminServer, options ...AdminServerOption) *Ad
 		worker: defaultWorker,
 		server: defaultServer,
 		config: config,
+
+
+		//TODO
+		webhook: ??? //webhook.Sender
 	}
 	for _, opt := range options {
 		opt(as)

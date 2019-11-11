@@ -19,6 +19,7 @@ type ServerOption func(*Server)
 type Server struct {
 	handler http.Handler
 	worker  worker.Worker
+	webhook webhook.Sender
 }
 
 // NewServer returns a new instance of the API handler with the provided
