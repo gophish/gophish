@@ -42,11 +42,7 @@ func (as *Server) Campaigns(w http.ResponseWriter, r *http.Request) {
 		if c.Status == models.CampaignInProgress {
 			go as.worker.LaunchCampaign(c)
 		}
-
-    //TODO send webhook
     sendWebhooks("create_campaign", c)
-
-
     JSONResponse(w, c, http.StatusCreated)
   }
 }
@@ -138,33 +134,26 @@ func (as *Server) CampaignComplete(w http.ResponseWriter, r *http.Request) {
 			JSONResponse(w, models.Response{Success: false, Message: "Error completing campaign"}, http.StatusInternalServerError)
 			return
 		}
-
-
-
-    //TODO send "CampaignCompete" webhook
     data := map[string]int64 {
       "id": id,
     }
     sendWebhooks("campaign_complete", data)
-
-
     JSONResponse(w, models.Response{Success: true, Message: "Campaign completed successfully!"}, http.StatusOK)
-	}
+  }
 
-  func sendWebhooks(eventName string, c Campaign) {
-    whs, err := models.GetActiveWebhooks()
-    if err == nil {
-      data := map[string]interface{} {
-        "event": eventName,
-        "data": c,
-      }
-      for _, wh := range whs {
-        go func(wh2 models.Webhook) {
-              as.webhook.Send(wh2.Url, wh2.Secret, data)
-           }(wh)
-      }
-    } else {
-      log.Error(err)
+func sendWebhooks(eventName string, d data) {
+  whs, err := models.GetActiveWebhooks()
+  if err == nil {
+    data := map[string]interface{} {
+      "event": eventName,
+      "data": d,
     }
+    for _, wh := range whs {
+      go func(wh2 models.Webhook) {
+            as.webhook.Send(wh2.Url, wh2.Secret, data)
+         }(wh)
+    }
+  } else {
+    log.Error(err)
   }
 }
