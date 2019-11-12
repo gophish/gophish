@@ -67,9 +67,6 @@ func (as *Server) Campaigns(w http.ResponseWriter, r *http.Request) {
 
     whs, err2 := models.GetActiveWebhooks()
     if err2 == nil {
-      // httpCnt := &http.Client{} //TODO add timeout and other stuff
-      // whTr := &webhook.Transport{Client: httpCnt}
-      // whData := "TODO" //TODO add payload of the current campaign
       data := map[string]interface{} {
         "id": c.Id,
         //TODO
