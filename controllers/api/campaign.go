@@ -43,6 +43,9 @@ func (as *Server) Campaigns(w http.ResponseWriter, r *http.Request) {
 			go as.worker.LaunchCampaign(c)
 		}
 
+
+
+
     //TODO
     // send "Campaign Created" webhook
     
@@ -59,6 +62,29 @@ func (as *Server) Campaigns(w http.ResponseWriter, r *http.Request) {
     // } else {
     //   log.Error(err2)
     // }
+
+
+
+    whs, err2 := models.GetActiveWebhooks()
+    if err2 == nil {
+      // httpCnt := &http.Client{} //TODO add timeout and other stuff
+      // whTr := &webhook.Transport{Client: httpCnt}
+      // whData := "TODO" //TODO add payload of the current campaign
+      data := map[string]interface{} {
+        "id": c.Id,
+        //TODO
+      }
+      for _, wh := range whs {
+        go func(wh2 models.Webhook) {
+              as.webhook.Send(wh.Url, wh.Secret, data)
+           }(wh)
+      }
+    } else {
+      log.Error(err2)
+    }
+
+
+
 
 
 
