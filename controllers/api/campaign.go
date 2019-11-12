@@ -42,7 +42,7 @@ func (as *Server) Campaigns(w http.ResponseWriter, r *http.Request) {
 		if c.Status == models.CampaignInProgress {
 			go as.worker.LaunchCampaign(c)
 		}
-    sendWebhooks("create_campaign", c)
+    as.sendWebhooks("create_campaign", c)
     JSONResponse(w, c, http.StatusCreated)
   }
 }
@@ -137,11 +137,12 @@ func (as *Server) CampaignComplete(w http.ResponseWriter, r *http.Request) {
     data := map[string]int64 {
       "id": id,
     }
-    sendWebhooks("campaign_complete", data)
+    as.sendWebhooks("campaign_complete", data)
     JSONResponse(w, models.Response{Success: true, Message: "Campaign completed successfully!"}, http.StatusOK)
   }
+}
 
-func sendWebhooks(eventName string, d data) {
+func (as *Server) sendWebhooks(eventName string, d interface{}) {
   whs, err := models.GetActiveWebhooks()
   if err == nil {
     data := map[string]interface{} {
