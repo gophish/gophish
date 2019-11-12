@@ -11,6 +11,7 @@ import (
 	"github.com/NYTimes/gziphandler"
 	"github.com/gophish/gophish/auth"
 	"github.com/gophish/gophish/config"
+	"github.com/gophish/gophish/webhook"
 	ctx "github.com/gophish/gophish/context"
 	"github.com/gophish/gophish/controllers/api"
 	log "github.com/gophish/gophish/logger"
@@ -57,10 +58,7 @@ func NewAdminServer(config config.AdminServer, options ...AdminServerOption) *Ad
 		worker: defaultWorker,
 		server: defaultServer,
 		config: config,
-
-
-		//TODO
-		webhook: ??? //webhook.Sender
+		webhook: webhook.NewDefaultSender(),
 	}
 	for _, opt := range options {
 		opt(as)

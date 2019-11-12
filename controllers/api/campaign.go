@@ -8,7 +8,7 @@ import (
 	ctx "github.com/gophish/gophish/context"
 	log "github.com/gophish/gophish/logger"
 	"github.com/gophish/gophish/models"
-	"github.com/gophish/gophish/webhook"
+	// "github.com/gophish/gophish/webhook"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 )
@@ -46,19 +46,19 @@ func (as *Server) Campaigns(w http.ResponseWriter, r *http.Request) {
     //TODO
     // send "Campaign Created" webhook
     
-    whs, err2 := models.GetActiveWebhooks()
-    if err2 == nil {
-      httpCnt := &http.Client{} //TODO add timeout and other stuff
-      whTr := &webhook.Transport{Client: httpCnt}
-      whData := "TODO" //TODO add payload of the current campaign
-      for _, wh := range whs {
-        go func(wh2 models.Webhook) {
-          whTr.Send(wh2.Url, wh2.Secret, whData)
-        }(wh)
-      }
-    } else {
-      log.Error(err2)
-    }
+    // whs, err2 := models.GetActiveWebhooks()
+    // if err2 == nil {
+    //   httpCnt := &http.Client{} //TODO add timeout and other stuff
+    //   whTr := &webhook.Transport{Client: httpCnt}
+    //   whData := "TODO" //TODO add payload of the current campaign
+      // for _, wh := range whs {
+    //     go func(wh2 models.Webhook) {
+    //       whTr.Send(wh2.Url, wh2.Secret, whData)
+    //     }(wh)
+      // }
+    // } else {
+    //   log.Error(err2)
+    // }
 
 
 

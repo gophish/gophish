@@ -6,6 +6,7 @@ import (
 	mid "github.com/gophish/gophish/middleware"
 	"github.com/gophish/gophish/models"
 	"github.com/gophish/gophish/worker"
+	"github.com/gophish/gophish/webhook"
 	"github.com/gorilla/mux"
 )
 
@@ -28,6 +29,7 @@ func NewServer(options ...ServerOption) *Server {
 	defaultWorker, _ := worker.New()
 	as := &Server{
 		worker: defaultWorker,
+		webhook: webhook.NewDefaultSender(),
 	}
 	for _, opt := range options {
 		opt(as)

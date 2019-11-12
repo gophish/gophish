@@ -9,6 +9,7 @@ import (
   "errors"
   "encoding/json"
   "bytes"
+  "encoding/gob"
 
   log "github.com/gophish/gophish/logger"
 )
@@ -30,12 +31,11 @@ type DefaultSender struct {
 } 
 
 func NewDefaultSender() Sender {
-  a1 := DefaultSender{}
-  a2 := &http.Client{
+  sn := &DefaultSender{}
+  sn.client = &http.Client{
       Timeout: DefaultTimeoutSeconds,
   }
-  a1.client = a2
-  return a1
+  return sn
 }
 
 
@@ -56,7 +56,12 @@ func (ds DefaultSender) Send(url string, secret string, data interface{}) error 
     return err
   }
   req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
-  signat, err := sign(secret, data)
+  data2, err := interfaceToBytes(data)
+  if err != nil {
+    log.Error(err)
+    return err
+  }
+  signat, err := sign(secret, data2)
   req.Header.Set(SignatureHeader, signat)
   req.Header.Set("Content-Type", "application/json")
   resp, err := ds.client.Do(req)
@@ -86,12 +91,12 @@ func sign(secret string, data []byte) (string, error) {
   return hexStr, nil
 }
 
-// func interfaceToBytes(data interface{}) ([]byte, error) {
-//   var buf bytes.Buffer
-//   enc := gob.NewEncoder(&buf)
-//   err := enc.Encode(data)
-//   if err != nil {
-//     return nil, err
-//   }
-//   return buf.Bytes(), nil
-// }
+func interfaceToBytes(data interface{}) ([]byte, error) {
+  var buf bytes.Buffer
+  enc := gob.NewEncoder(&buf)
+  err := enc.Encode(data)
+  if err != nil {
+    return nil, err
+  }
+  return buf.Bytes(), nil
+}
