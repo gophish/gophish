@@ -27,13 +27,13 @@ type Sender interface {
   Send(url string, secret string, data interface{}) error
 }
 
-type DefaultSender struct {
+type defaultSender struct {
   client *http.Client
 } 
 
 var senderInstance Sender
 func newDefaultSender() Sender {
-  sn := &DefaultSender{}
+  sn := &defaultSender{}
   sn.client = &http.Client{
     Timeout: DefaultTimeoutSeconds,
   }
@@ -51,7 +51,7 @@ func SendAll(whsInfo map[string]string, data interface{}) {
   }
 }
 
-func (ds DefaultSender) Send(url string, secret string, data interface{}) error {
+func (ds defaultSender) Send(url string, secret string, data interface{}) error {
   jsonData, err := json.Marshal(data)
   if err != nil {
     log.Error(err)
