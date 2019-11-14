@@ -6,6 +6,7 @@ import (
 	"time"
 
 	log "github.com/gophish/gophish/logger"
+	"github.com/gophish/gophish/webhook"
 	"github.com/jinzhu/gorm"
 	"github.com/sirupsen/logrus"
 )
@@ -157,6 +158,27 @@ func (c *Campaign) UpdateStatus(s string) error {
 func (c *Campaign) AddEvent(e *Event) error {
 	e.CampaignId = c.Id
 	e.Time = time.Now().UTC()
+
+
+  //TODO
+  pl := map[string]string {
+      "event_name": "create_campaign",
+      "data": "TODO",
+    }
+   whs, err := GetActiveWebhooks()
+  if err != nil {
+	  whsInfo := make(map[string]string)
+	  for _, wh := range whs {
+	     whsInfo[wh.Url] = wh.Secret
+	  }
+	  webhook.SendAll(whsInfo, pl)
+	} else {
+		log.Error("GetActiveWebhooks")
+	}
+
+
+
+
 	return db.Save(e).Error
 }
 

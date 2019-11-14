@@ -20,6 +20,7 @@ const (
   SignatureHeader = "X-Gophish-Signature"
 )
 
+
 //TODO
 
 type Sender interface {
@@ -30,7 +31,8 @@ type DefaultSender struct {
   client *http.Client
 } 
 
-func NewDefaultSender() Sender {
+var mainSenderInstance Sender
+func newDefaultSender() Sender {
   sn := &DefaultSender{}
   sn.client = &http.Client{
       Timeout: DefaultTimeoutSeconds,
@@ -38,16 +40,17 @@ func NewDefaultSender() Sender {
   return sn
 }
 
+func SendAll(whsInfo map[string]string, data interface{}) {
+  if mainSenderInstance == nil {
+    mainSenderInstance = newDefaultSender()
+  }
 
-
-
-
-
-
-
-
-
-
+  for k, v := range whsInfo {
+    go func(url string, secret string) {
+          mainSenderInstance.Send(url, secret, data)
+       }(k, v)
+  }
+}
 
 func (ds DefaultSender) Send(url string, secret string, data interface{}) error {
   jsonData, err := json.Marshal(data)
