@@ -16,7 +16,7 @@ type User struct {
 	Id       int64  `json:"id"`
 	Username string `json:"username" sql:"not null;unique"`
 	Hash     string `json:"-"`
-	ApiKey   string `json:"-" sql:"not null;unique"`
+	ApiKey   string `json:"api_key" sql:"not null;unique"`
 	Role     Role   `json:"role" gorm:"association_autoupdate:false;association_autocreate:false"`
 	RoleID   int64  `json:"-"`
 }
