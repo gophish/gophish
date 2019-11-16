@@ -21,20 +21,6 @@ type User struct {
 	RoleID   int64  `json:"-"`
 }
 
-// Changed User is identical to a regular user except that it contains the API key in
-// the serialized response. This is desirable in case GoPhish is used via API with multiple
-// users, otherwise there are no means of retrieving the API key of a newly created user.
-// This type is only supposed to be used for JSON serialization, so there is no need for 
-// having database associations.
-type ChangedUser struct {
-	Id       int64  `json:"id"`
-	Username string `json:"username"`
-	Hash     string `json:"-"`
-	ApiKey   string `json:"api"` 
-	Role     Role   `json:"role"`
-	RoleID   int64  `json:"-"`
-}
-
 // GetUser returns the user that the given id corresponds to. If no user is found, an
 // error is thrown.
 func GetUser(id int64) (User, error) {
