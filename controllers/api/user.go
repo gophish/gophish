@@ -115,7 +115,7 @@ func (as *Server) Users(w http.ResponseWriter, r *http.Request) {
 			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
 			return
 		}
-		JSONResponse(w, models.ChangedUser(user), http.StatusOK)
+		JSONResponse(w, user, http.StatusOK)
 		return
 	}
 }
@@ -213,6 +213,6 @@ func (as *Server) User(w http.ResponseWriter, r *http.Request) {
 			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
 			return
 		}
-		JSONResponse(w, models.ChangedUser(existingUser), http.StatusOK)
+		JSONResponse(w, existingUser, http.StatusOK)
 	}
 }
