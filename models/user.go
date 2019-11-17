@@ -19,7 +19,7 @@ type User struct {
 	ApiKey                 string `json:"-" sql:"not null;unique"`
 	Role                   Role   `json:"role" gorm:"association_autoupdate:false;association_autocreate:false"`
 	RoleID                 int64  `json:"-"`
-	PasswordChangeRequired bool   `json:"-"`
+	PasswordChangeRequired bool   `json:"password_change_required"`
 }
 
 // GetUser returns the user that the given id corresponds to. If no user is found, an

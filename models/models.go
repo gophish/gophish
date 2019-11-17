@@ -214,7 +214,6 @@ func Setup(c *config.Config) error {
 	// By doing the temporary password here, we will regenerate that temporary
 	// password until the user is able to reset the admin password.
 	if adminUser.Username == "" {
-		log.Info("Generating temporary password because Gophish hasn't been installed")
 		adminUser, err = GetUserByUsername(DefaultAdminUsername)
 		if err != nil {
 			log.Error(err)

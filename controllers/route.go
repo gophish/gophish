@@ -216,6 +216,8 @@ func (as *AdminServer) Settings(w http.ResponseWriter, r *http.Request) {
 	case r.Method == "GET":
 		params := newTemplateParams(r)
 		params.Title = "Settings"
+		session := ctx.Get(r, "session").(*sessions.Session)
+		session.Save(r, w)
 		getTemplate(w, "settings").ExecuteTemplate(w, "base", params)
 	case r.Method == "POST":
 		u := ctx.Get(r, "user").(models.User)
@@ -358,7 +360,7 @@ func (as *AdminServer) ResetPassword(w http.ResponseWriter, r *http.Request) {
 	u := ctx.Get(r, "user").(models.User)
 	session := ctx.Get(r, "session").(*sessions.Session)
 	if !u.PasswordChangeRequired {
-		Flash(w, r, "success", "Please reset your password through the settings page")
+		Flash(w, r, "info", "Please reset your password through the settings page")
 		session.Save(r, w)
 		http.Redirect(w, r, "/settings", http.StatusTemporaryRedirect)
 		return
@@ -367,6 +369,8 @@ func (as *AdminServer) ResetPassword(w http.ResponseWriter, r *http.Request) {
 	params.Title = "Reset Password"
 	switch {
 	case r.Method == http.MethodGet:
+		params.Flashes = session.Flashes()
+		session.Save(r, w)
 		getTemplate(w, "reset_password").ExecuteTemplate(w, "base", params)
 		return
 	case r.Method == http.MethodPost:
@@ -388,8 +392,13 @@ func (as *AdminServer) ResetPassword(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/reset_password", http.StatusTemporaryRedirect)
 			return
 		}
-		Flash(w, r, "success", "Password changed successfully")
-		session.Save(r, w)
+		// TODO: We probably want to flash a message here that the password was
+		// changed successfully. The problem is that when the user resets their
+		// password on first use, they will see two flashes on the dashboard-
+		// one for their password reset, and one for the "no campaigns created".
+		//
+		// The solution to this is to revamp the empty page to be more useful,
+		// like a wizard or something.
 		as.nextOrIndex(w, r)
 	}
 }
