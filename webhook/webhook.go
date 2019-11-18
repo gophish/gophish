@@ -35,6 +35,9 @@ type defaultSender struct {
 var senderInstance = &defaultSender {
   client: &http.Client{
     Timeout: DefaultTimeoutSeconds,
+    CheckRedirect: func(req *http.Request, via []*http.Request) error {
+      return http.ErrUseLastResponse
+    },
   },
 }
 
