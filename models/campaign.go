@@ -164,8 +164,8 @@ func (c *Campaign) AddEvent(e *Event) error {
   pl := map[string]string {
       "event_name": "create_campaign",
       "data": "TODO",
-    }
-   whs, err := GetActiveWebhooks()
+  }
+  whs, err := GetActiveWebhooks()
   if err != nil {
 	  whsInfo := make(map[string]string)
 	  for _, wh := range whs {

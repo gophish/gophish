@@ -29,21 +29,15 @@ type Sender interface {
 
 type defaultSender struct {
   client *http.Client
-} 
+}
 
-var senderInstance Sender
-func newDefaultSender() Sender {
-  sn := &defaultSender{}
-  sn.client = &http.Client{
+var senderInstance = &defaultSender {
+  client: &http.Client{
     Timeout: DefaultTimeoutSeconds,
-  }
-  return sn
+  },
 }
 
 func SendAll(whsInfo map[string]string, data interface{}) {
-  if senderInstance == nil {
-    senderInstance = newDefaultSender()
-  }
   for k, v := range whsInfo {
     go func(url string, secret string) {
           senderInstance.Send(url, secret, data)
