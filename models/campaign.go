@@ -167,17 +167,17 @@ func (c *Campaign) AddEvent(e *Event) error {
   }
   whs, err := GetActiveWebhooks()
   if err != nil {
-	  whsInfo := make(map[string]string)
+		whEndPoints := []webhook.EndPoint{}
 	  for _, wh := range whs {
-	     whsInfo[wh.Url] = wh.Secret
+			whEndPoints = append(whEndPoints, webhook.EndPoint{
+			 	Url: wh.Url, 
+			 	Secret: wh.Secret,
+			})
 	  }
-	  webhook.SendAll(whsInfo, pl)
+	  webhook.SendAll(whEndPoints, pl)
 	} else {
 		log.Error("GetActiveWebhooks")
 	}
-
-
-
 
 	return db.Save(e).Error
 }

@@ -37,11 +37,16 @@ var senderInstance = &defaultSender {
   },
 }
 
-func SendAll(whsInfo map[string]string, data interface{}) {
-  for k, v := range whsInfo {
+type EndPoint struct {
+  Url string
+  Secret string
+}
+
+func SendAll(endPoints []EndPoint, data interface{}) {
+  for _, ep := range endPoints {
     go func(url string, secret string) {
           senderInstance.Send(url, secret, data)
-       }(k, v)
+       }(ep.Url, ep.Secret)
   }
 }
 
