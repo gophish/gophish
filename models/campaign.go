@@ -630,8 +630,6 @@ func CompleteCampaign(id int64, uid int64) error {
 		log.Error(err)
 	}
 
-
-	//TODO
   //INFO send webhook
   pl := map[string]interface{} {
     "event_name": "complete_campaign",
