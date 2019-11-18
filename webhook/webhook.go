@@ -24,6 +24,7 @@ const (
 //TODO
 
 type Sender interface {
+  //TODO replace with EndPoint
   Send(url string, secret string, data interface{}) error
 }
 
@@ -43,13 +44,14 @@ type EndPoint struct {
 }
 
 func SendAll(endPoints []EndPoint, data interface{}) {
-  for _, ep := range endPoints {
+  for _, ept := range endPoints {
     go func(url string, secret string) {
           senderInstance.Send(url, secret, data)
-       }(ep.Url, ep.Secret)
+       }(ept.Url, ept.Secret)
   }
 }
 
+//TODO replace with EndPoint
 func (ds defaultSender) Send(url string, secret string, data interface{}) error {
   jsonData, err := json.Marshal(data)
   if err != nil {
