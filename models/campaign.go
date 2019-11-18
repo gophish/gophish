@@ -629,5 +629,26 @@ func CompleteCampaign(id int64, uid int64) error {
 	if err != nil {
 		log.Error(err)
 	}
+
+
+	//TODO
+  //INFO send webhook
+  pl := map[string]interface{} {
+    "event_name": "complete_campaign",
+    "data": c,
+  }
+  whs, err := GetActiveWebhooks()
+  if err != nil {
+		whEndPoints := []webhook.EndPoint{}
+	  for _, wh := range whs {
+			whEndPoints = append(whEndPoints, webhook.EndPoint {
+			  Url: wh.Url,
+			  Secret: wh.Secret,
+			})
+	  }
+	  webhook.SendAll(whEndPoints, pl)
+	} else {
+		log.Error("GetActiveWebhooks")
+	}
 	return err
 }
