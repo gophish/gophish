@@ -159,19 +159,18 @@ func (c *Campaign) AddEvent(e *Event) error {
 	e.CampaignId = c.Id
 	e.Time = time.Now().UTC()
 
-
-  //TODO
-  pl := map[string]string {
-      "event_name": "create_campaign",
-      "data": "TODO",
+  //INFO send webhook
+  pl := map[string]interface{} {
+    "event_name": "create_campaign",
+    "data": e,
   }
   whs, err := GetActiveWebhooks()
   if err != nil {
 		whEndPoints := []webhook.EndPoint{}
 	  for _, wh := range whs {
-			whEndPoints = append(whEndPoints, webhook.EndPoint{
-			 	Url: wh.Url, 
-			 	Secret: wh.Secret,
+			whEndPoints = append(whEndPoints, webhook.EndPoint {
+			  Url: wh.Url,
+			  Secret: wh.Secret,
 			})
 	  }
 	  webhook.SendAll(whEndPoints, pl)
