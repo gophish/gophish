@@ -161,7 +161,7 @@ func (c *Campaign) AddEvent(e *Event) error {
 
   //INFO send webhook
   pl := map[string]interface{} {
-    "event_name": "create_campaign",
+    "event_name": CampaignCreated,
     "data": e,
   }
   whs, err := GetActiveWebhooks()
@@ -632,7 +632,7 @@ func CompleteCampaign(id int64, uid int64) error {
 
   //INFO send webhook
   pl := map[string]interface{} {
-    "event_name": "complete_campaign",
+    "event_name": CampaignComplete,
     "data": c,
   }
   whs, err := GetActiveWebhooks()

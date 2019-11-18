@@ -65,6 +65,9 @@ func (r *Result) HandleEmailSent() error {
 	r.SendDate = event.Time
 	r.Status = EventSent
 	r.ModifiedDate = event.Time
+
+  //TODO add webhook 'EventSent'
+
 	return db.Save(r).Error
 }
 
@@ -77,6 +80,9 @@ func (r *Result) HandleEmailError(err error) error {
 	}
 	r.Status = Error
 	r.ModifiedDate = event.Time
+
+  //TODO add webhook 'EventSendingError'
+
 	return db.Save(r).Error
 }
 
@@ -90,6 +96,9 @@ func (r *Result) HandleEmailBackoff(err error, sendDate time.Time) error {
 	r.Status = StatusRetry
 	r.SendDate = sendDate
 	r.ModifiedDate = event.Time
+
+  //TODO add webhook 'EventSendingError'
+
 	return db.Save(r).Error
 }
 
@@ -107,6 +116,10 @@ func (r *Result) HandleEmailOpened(details EventDetails) error {
 	}
 	r.Status = EventOpened
 	r.ModifiedDate = event.Time
+
+	//TODO add webhook 'email opened'
+
+
 	return db.Save(r).Error
 }
 
@@ -124,6 +137,10 @@ func (r *Result) HandleClickedLink(details EventDetails) error {
 	}
 	r.Status = EventClicked
 	r.ModifiedDate = event.Time
+
+
+  //TODO add webhook 'EventClicked'
+
 	return db.Save(r).Error
 }
 
@@ -136,6 +153,9 @@ func (r *Result) HandleFormSubmit(details EventDetails) error {
 	}
 	r.Status = EventDataSubmit
 	r.ModifiedDate = event.Time
+
+  //TODO add webhook 'EventDataSubmit'
+
 	return db.Save(r).Error
 }
 
@@ -148,6 +168,11 @@ func (r *Result) HandleEmailReport(details EventDetails) error {
 	}
 	r.Reported = true
 	r.ModifiedDate = event.Time
+
+
+	//TODO add webhook 'email reported'
+
+
 	return db.Save(r).Error
 }
 
