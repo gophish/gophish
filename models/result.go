@@ -245,18 +245,18 @@ func GetResult(rid string) (Result, error) {
 func sendWebhooks(evt *Event) {
   whs, err := GetActiveWebhooks()
   if err != nil {
-		whEndPoints := []webhook.EndPoint{}
-	  for _, wh := range whs {
-			whEndPoints = append(whEndPoints, webhook.EndPoint {
-			  Url: wh.Url,
-			  Secret: wh.Secret,
-			})
-	  }
-	  pl := map[string]interface{} {
-	    "data": evt,
-	  }
-	  webhook.SendAll(whEndPoints, pl)
-	} else {
-		log.Error("GetActiveWebhooks")
-	}
+    whEndPoints := []webhook.EndPoint{}
+    for _, wh := range whs {
+      whEndPoints = append(whEndPoints, webhook.EndPoint {
+        Url: wh.Url,
+        Secret: wh.Secret,
+      })
+    }
+    pl := map[string]interface{} {
+      "data": evt,
+    }
+    webhook.SendAll(whEndPoints, pl)
+  } else {
+    log.Error("GetActiveWebhooks")
+  }
 }
