@@ -66,24 +66,7 @@ func (r *Result) HandleEmailSent() error {
 	r.SendDate = event.Time
 	r.Status = EventSent
 	r.ModifiedDate = event.Time
-
-  //INFO send webhook
-  whs, err := GetActiveWebhooks()
-  if err != nil {
-		whEndPoints := []webhook.EndPoint{}
-	  for _, wh := range whs {
-			whEndPoints = append(whEndPoints, webhook.EndPoint {
-			  Url: wh.Url,
-			  Secret: wh.Secret,
-			})
-	  }
-	  pl := map[string]interface{} {
-	    "data": event,
-	  }
-	  webhook.SendAll(whEndPoints, pl)
-	} else {
-		log.Error("GetActiveWebhooks")
-	}
+	sendWebhooks(event)
 	return db.Save(r).Error
 }
 
@@ -128,10 +111,7 @@ func (r *Result) HandleEmailOpened(details EventDetails) error {
 	}
 	r.Status = EventOpened
 	r.ModifiedDate = event.Time
-
-	//TODO add webhook 'email opened'
-
-
+  sendWebhooks(event)
 	return db.Save(r).Error
 }
 
