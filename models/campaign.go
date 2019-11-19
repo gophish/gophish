@@ -161,7 +161,6 @@ func (c *Campaign) AddEvent(e *Event) error {
 
   //INFO send webhook
   pl := map[string]interface{} {
-    "event_name": CampaignCreated,
     "data": e,
   }
   whs, err := GetActiveWebhooks()
@@ -628,25 +627,6 @@ func CompleteCampaign(id int64, uid int64) error {
 	err = db.Where("id=? and user_id=?", id, uid).Save(&c).Error
 	if err != nil {
 		log.Error(err)
-	}
-
-  //INFO send webhook
-  pl := map[string]interface{} {
-    "event_name": CampaignComplete,
-    "data": c,
-  }
-  whs, err := GetActiveWebhooks()
-  if err != nil {
-		whEndPoints := []webhook.EndPoint{}
-	  for _, wh := range whs {
-			whEndPoints = append(whEndPoints, webhook.EndPoint {
-			  Url: wh.Url,
-			  Secret: wh.Secret,
-			})
-	  }
-	  webhook.SendAll(whEndPoints, pl)
-	} else {
-		log.Error("GetActiveWebhooks")
 	}
 	return err
 }
