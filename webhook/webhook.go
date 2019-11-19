@@ -9,7 +9,6 @@ import (
   "errors"
   "encoding/json"
   "bytes"
-  "encoding/gob"
 
   log "github.com/gophish/gophish/logger"
 )
@@ -64,8 +63,6 @@ func (ds defaultSender) Send(url string, secret string, data interface{}) error 
   req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
   signat, err := sign(secret, jsonData)
   req.Header.Set(SignatureHeader, signat)
-
-
   req.Header.Set("Content-Type", "application/json")
   resp, err := ds.client.Do(req)
   if err != nil {

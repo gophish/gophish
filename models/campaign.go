@@ -160,9 +160,6 @@ func (c *Campaign) AddEvent(e *Event) error {
 	e.Time = time.Now().UTC()
 
   //INFO send webhook
-  pl := map[string]interface{} {
-    "data": e,
-  }
   whs, err := GetActiveWebhooks()
   if err != nil {
 		whEndPoints := []webhook.EndPoint{}
@@ -171,6 +168,9 @@ func (c *Campaign) AddEvent(e *Event) error {
 			  Url: wh.Url,
 			  Secret: wh.Secret,
 			})
+	  }
+	  pl := map[string]interface{} {
+	    "data": e,
 	  }
 	  webhook.SendAll(whEndPoints, pl)
 	} else {

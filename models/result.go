@@ -8,6 +8,7 @@ import (
 	"time"
 
 	log "github.com/gophish/gophish/logger"
+	"github.com/gophish/gophish/webhook"
 	"github.com/jinzhu/gorm"
 	"github.com/oschwald/maxminddb-golang"
 )
@@ -66,8 +67,23 @@ func (r *Result) HandleEmailSent() error {
 	r.Status = EventSent
 	r.ModifiedDate = event.Time
 
-  //TODO add webhook 'EventSent'
-
+  //INFO send webhook
+  whs, err := GetActiveWebhooks()
+  if err != nil {
+		whEndPoints := []webhook.EndPoint{}
+	  for _, wh := range whs {
+			whEndPoints = append(whEndPoints, webhook.EndPoint {
+			  Url: wh.Url,
+			  Secret: wh.Secret,
+			})
+	  }
+	  pl := map[string]interface{} {
+	    "data": event,
+	  }
+	  webhook.SendAll(whEndPoints, pl)
+	} else {
+		log.Error("GetActiveWebhooks")
+	}
 	return db.Save(r).Error
 }
 
@@ -80,9 +96,7 @@ func (r *Result) HandleEmailError(err error) error {
 	}
 	r.Status = Error
 	r.ModifiedDate = event.Time
-
-  //TODO add webhook 'EventSendingError'
-
+	sendWebhooks(event)
 	return db.Save(r).Error
 }
 
@@ -96,9 +110,7 @@ func (r *Result) HandleEmailBackoff(err error, sendDate time.Time) error {
 	r.Status = StatusRetry
 	r.SendDate = sendDate
 	r.ModifiedDate = event.Time
-
-  //TODO add webhook 'EventSendingError'
-
+	sendWebhooks(event)
 	return db.Save(r).Error
 }
 
@@ -137,10 +149,7 @@ func (r *Result) HandleClickedLink(details EventDetails) error {
 	}
 	r.Status = EventClicked
 	r.ModifiedDate = event.Time
-
-
-  //TODO add webhook 'EventClicked'
-
+  sendWebhooks(event)
 	return db.Save(r).Error
 }
 
@@ -153,9 +162,7 @@ func (r *Result) HandleFormSubmit(details EventDetails) error {
 	}
 	r.Status = EventDataSubmit
 	r.ModifiedDate = event.Time
-
-  //TODO add webhook 'EventDataSubmit'
-
+  sendWebhooks(event)
 	return db.Save(r).Error
 }
 
@@ -168,11 +175,7 @@ func (r *Result) HandleEmailReport(details EventDetails) error {
 	}
 	r.Reported = true
 	r.ModifiedDate = event.Time
-
-
-	//TODO add webhook 'email reported'
-
-
+	sendWebhooks(event)
 	return db.Save(r).Error
 }
 
@@ -236,4 +239,24 @@ func GetResult(rid string) (Result, error) {
 	r := Result{}
 	err := db.Where("r_id=?", rid).First(&r).Error
 	return r, err
+}
+
+//INFI send 'event' to all the webhooks
+func sendWebhooks(evt *Event) {
+  whs, err := GetActiveWebhooks()
+  if err != nil {
+		whEndPoints := []webhook.EndPoint{}
+	  for _, wh := range whs {
+			whEndPoints = append(whEndPoints, webhook.EndPoint {
+			  Url: wh.Url,
+			  Secret: wh.Secret,
+			})
+	  }
+	  pl := map[string]interface{} {
+	    "data": evt,
+	  }
+	  webhook.SendAll(whEndPoints, pl)
+	} else {
+		log.Error("GetActiveWebhooks")
+	}
 }
