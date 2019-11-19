@@ -241,7 +241,7 @@ func GetResult(rid string) (Result, error) {
 	return r, err
 }
 
-//INFI send 'event' to all the webhooks
+//INFO send 'Event' to all the active webhooks
 func sendWebhooks(evt *Event) {
   whs, err := GetActiveWebhooks()
   if err != nil {
