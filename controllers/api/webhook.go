@@ -61,16 +61,18 @@ func (as *Server) Webhook(w http.ResponseWriter, r *http.Request) {
     JSONResponse(w, models.Response{Success: true, Message: "Webhook deleted Successfully!"}, http.StatusOK)
 
   case r.Method == "PUT":
-    wh = models.Webhook{}
-    err = json.NewDecoder(r.Body).Decode(&wh)
-    wh.Id = id;
-    wh.IsActive = false;
-    err = models.PutWebhook(&wh)
+    wh2 := models.Webhook{}
+    err = json.NewDecoder(r.Body).Decode(&wh2)
+    wh2.Id = id;
+    if (wh.Url != wh2.Url) || (wh.Secret != wh2.Secret) {
+      wh2.IsActive = false;
+    }
+    err = models.PutWebhook(&wh2)
     if err != nil {
       JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
       return
     }
-    JSONResponse(w, wh, http.StatusOK)
+    JSONResponse(w, wh2, http.StatusOK)
   }
 }
 
@@ -85,6 +87,10 @@ func (as *Server) PingWebhook(w http.ResponseWriter, r *http.Request) {
       JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
       return
     }
+
+    //TODO send ping
+
+
 
     //TODO update it here inplace?
     if !wh.IsActive {
