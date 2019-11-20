@@ -19,7 +19,19 @@ func init() {
 
 // Setup configures the logger based on options in the config.json.
 func Setup(conf *config.Config) error {
-	Logger.SetLevel(logrus.InfoLevel)
+	// Set up logging level
+	logLevel := conf.Logging.Level
+	if logLevel != "" {
+		// parse string
+		ll, err := logrus.ParseLevel(logLevel)
+		if err != nil {
+			ll = logrus.DebugLevel
+		}
+		// set global log level
+		Logger.SetLevel(ll)
+	} else {
+		Logger.SetLevel(logrus.InfoLevel)
+	}
 	// Set up logging to a file if specified in the config
 	logFile := conf.Logging.Filename
 	if logFile != "" {
