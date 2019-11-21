@@ -104,10 +104,13 @@ func (as *Server) PingWebhook(w http.ResponseWriter, r *http.Request) {
         }
       }
     } else {
+      if wh.IsActive {
+        wh.IsActive = false;
+        models.PutWebhook(&wh)
+      }
       JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
       return
     }
-
 
     JSONResponse(w, wh, http.StatusOK)
   }

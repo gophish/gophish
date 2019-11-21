@@ -9,6 +9,7 @@ import (
   "errors"
   "encoding/json"
   "bytes"
+  "time"
 
   log "github.com/gophish/gophish/logger"
 )
@@ -33,7 +34,7 @@ type defaultSender struct {
 
 var senderInstance = &defaultSender {
   client: &http.Client{
-    Timeout: DefaultTimeoutSeconds,
+    Timeout: time.Second * DefaultTimeoutSeconds,
     CheckRedirect: func(req *http.Request, via []*http.Request) error {
       return http.ErrUseLastResponse
     },
