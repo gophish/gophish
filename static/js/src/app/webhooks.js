@@ -144,16 +144,19 @@ const deleteWebhook = (id) => {
     })
 };
 
-const pingUrl = (id) => {
+const pingUrl = (btn, whId) => {
     dismiss();
-    api.webhookId.ping(id)
+    btn.disabled = true;
+    api.webhookId.ping(whId)
         .success(function(wh) {
+            btn.disabled = false;
             successFlash(`Ping of "${wh.title}" webhook succeeded`);
-
-            //TODO reload table or a certain row to reflect "is_active" status of a webhook
+            //TODO:
+            // reload table or a certain row to reflect "is_active" status of a webhook
         })
         .error(function() {
-            var wh = webhooks.find(x => x.id == id);
+            btn.disabled = false;
+            var wh = webhooks.find(x => x.id == whId);
             if (!wh) {
                 return
             }
@@ -176,6 +179,6 @@ $(document).ready(function() {
         deleteWebhook($(this).attr("data-webhook-id"));
     });
     $("#webhookTable").on("click", ".ping_button", function(e) {
-        pingUrl($(this).attr("data-webhook-id"));
+        pingUrl(e.currentTarget, e.currentTarget.dataset.webhookId);
     });
 });
