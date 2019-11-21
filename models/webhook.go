@@ -1,6 +1,8 @@
 package models
 
 import (
+  "errors"
+
   log "github.com/gophish/gophish/logger"
 )
 
@@ -56,6 +58,11 @@ func DeleteWebhook(id int64) error {
 
 //TODO
 func (wh *Webhook) Validate() error {
-  
+  if wh.Url == "" {
+    return errors.New("url can't be empty")
+  }
+  if wh.Title == "" {
+    return errors.New("title can't be empty")
+  }
   return nil
 }
