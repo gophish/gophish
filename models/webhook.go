@@ -55,7 +55,7 @@ func DeleteWebhook(id int64) error {
 
 
 //TODO
-func (p *Webhook) Validate() error {
+func (wh *Webhook) Validate() error {
   
   return nil
 }

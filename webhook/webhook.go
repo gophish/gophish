@@ -45,23 +45,28 @@ type EndPoint struct {
   Secret string
 }
 
+func SendSingle(endPoint EndPoint, data interface{}) error {
+  return senderInstance.Send(endPoint, data)
+}
+
 func SendAll(endPoints []EndPoint, data interface{}) {
   for _, ept := range endPoints {
-    go func(url string, secret string) {
-          senderInstance.Send(url, secret, data)
-       }(ept.Url, ept.Secret)
+    //TODO handle or return errors
+    go func(ept1 EndPoint) {
+          senderInstance.Send(ept1, data)
+       }(EndPoint{Url: ept.Url, Secret: ept.Secret})
   }
 }
 
 //TODO replace with EndPoint
-func (ds defaultSender) Send(url string, secret string, data interface{}) error {
+func (ds defaultSender) Send(endPoint EndPoint, data interface{}) error {
   jsonData, err := json.Marshal(data)
   if err != nil {
     log.Error(err)
     return err
   }
-  req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
-  signat, err := sign(secret, jsonData)
+  req, err := http.NewRequest("POST", endPoint.Url, bytes.NewBuffer(jsonData))
+  signat, err := sign(endPoint.Secret, jsonData)
   req.Header.Set(SignatureHeader, signat)
   req.Header.Set("Content-Type", "application/json")
   resp, err := ds.client.Do(req)

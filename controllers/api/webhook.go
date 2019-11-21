@@ -10,6 +10,7 @@ import (
   "github.com/gophish/gophish/models"
   "github.com/gorilla/mux"
   log "github.com/gophish/gophish/logger"
+  "github.com/gophish/gophish/webhook"
 )
 
 func (as *Server) Webhooks(w http.ResponseWriter, r *http.Request) {
@@ -64,7 +65,7 @@ func (as *Server) Webhook(w http.ResponseWriter, r *http.Request) {
     wh2 := models.Webhook{}
     err = json.NewDecoder(r.Body).Decode(&wh2)
     wh2.Id = id;
-    if (wh.Url != wh2.Url) || (wh.Secret != wh2.Secret) {
+    if wh.Url != wh2.Url {
       wh2.IsActive = false;
     }
     err = models.PutWebhook(&wh2)
@@ -88,18 +89,23 @@ func (as *Server) PingWebhook(w http.ResponseWriter, r *http.Request) {
       return
     }
 
-    //TODO send ping
-
-
-
     //TODO update it here inplace?
-    if !wh.IsActive {
-      wh.IsActive = true;
-      err = models.PutWebhook(&wh)
-      if err != nil {
-        JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
-        return
+
+
+    //TODO send ping
+    err1 := webhook.SendSingle(webhook.EndPoint{Url: "", Secret: ""}, "daf")
+    if err1 == nil {
+      if !wh.IsActive {
+        wh.IsActive = true;
+        err = models.PutWebhook(&wh)
+        if err != nil {
+          JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
+          return
+        }
       }
+    } else {
+      JSONResponse(w, models.Response{Success: false, Message: err1.Error()}, http.StatusBadRequest)
+      return
     }
 
 
