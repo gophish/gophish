@@ -93,8 +93,8 @@ func (as *Server) PingWebhook(w http.ResponseWriter, r *http.Request) {
 
 
     //TODO send ping
-    err1 := webhook.SendSingle(webhook.EndPoint{Url: "", Secret: ""}, "daf")
-    if err1 == nil {
+    err = webhook.SendSingle(webhook.EndPoint{Url: wh.Url, Secret: wh.Secret}, "")
+    if err == nil {
       if !wh.IsActive {
         wh.IsActive = true;
         err = models.PutWebhook(&wh)
@@ -104,7 +104,7 @@ func (as *Server) PingWebhook(w http.ResponseWriter, r *http.Request) {
         }
       }
     } else {
-      JSONResponse(w, models.Response{Success: false, Message: err1.Error()}, http.StatusBadRequest)
+      JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
       return
     }
 

@@ -58,7 +58,6 @@ func SendAll(endPoints []EndPoint, data interface{}) {
   }
 }
 
-//TODO replace with EndPoint
 func (ds defaultSender) Send(endPoint EndPoint, data interface{}) error {
   jsonData, err := json.Marshal(data)
   if err != nil {
