@@ -166,7 +166,7 @@ func (c *Campaign) AddEvent(e *Event) error {
 		whEndPoints := []webhook.EndPoint{}
 	  for _, wh := range whs {
 			whEndPoints = append(whEndPoints, webhook.EndPoint {
-			  Url: wh.Url,
+			  URL: wh.URL,
 			  Secret: wh.Secret,
 			})
 	  }

@@ -24,8 +24,7 @@ const (
 //TODO
 
 type Sender interface {
-  //TODO replace with EndPoint
-  Send(url string, secret string, data interface{}) error
+  Send(endPoint EndPoint, data interface{}) error
 }
 
 type defaultSender struct {
@@ -42,7 +41,7 @@ var senderInstance = &defaultSender {
 }
 
 type EndPoint struct {
-  Url string
+  URL string
   Secret string
 }
 
@@ -55,7 +54,7 @@ func SendAll(endPoints []EndPoint, data interface{}) {
     //TODO handle or return errors
     go func(ept1 EndPoint) {
           senderInstance.Send(ept1, data)
-       }(EndPoint{Url: ept.Url, Secret: ept.Secret})
+       }(EndPoint{URL: ept.URL, Secret: ept.Secret})
   }
 }
 
@@ -65,7 +64,7 @@ func (ds defaultSender) Send(endPoint EndPoint, data interface{}) error {
     log.Error(err)
     return err
   }
-  req, err := http.NewRequest("POST", endPoint.Url, bytes.NewBuffer(jsonData))
+  req, err := http.NewRequest("POST", endPoint.URL, bytes.NewBuffer(jsonData))
   signat, err := sign(endPoint.Secret, jsonData)
   req.Header.Set(SignatureHeader, signat)
   req.Header.Set("Content-Type", "application/json")

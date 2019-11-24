@@ -9,7 +9,7 @@ import (
 type Webhook struct {
   Id       int64  `json:"id" gorm:"column:id; primary_key:yes"`
   Title    string `json:"title"`
-  Url      string `json:"url"`
+  URL      string `json:"url"`
   Secret   string `json:"secret"`
   IsActive bool   `json:"is_active"`
 }
@@ -58,7 +58,7 @@ func DeleteWebhook(id int64) error {
 
 //TODO
 func (wh *Webhook) Validate() error {
-  if wh.Url == "" {
+  if wh.URL == "" {
     return errors.New("url can't be empty")
   }
   if wh.Title == "" {

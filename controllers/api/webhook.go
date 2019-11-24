@@ -65,7 +65,7 @@ func (as *Server) Webhook(w http.ResponseWriter, r *http.Request) {
     wh2 := models.Webhook{}
     err = json.NewDecoder(r.Body).Decode(&wh2)
     wh2.Id = id;
-    if wh.Url != wh2.Url {
+    if wh.URL != wh2.URL {
       wh2.IsActive = false;
     }
     err = models.PutWebhook(&wh2)
@@ -93,7 +93,7 @@ func (as *Server) PingWebhook(w http.ResponseWriter, r *http.Request) {
 
 
     //TODO send ping
-    err = webhook.SendSingle(webhook.EndPoint{Url: wh.Url, Secret: wh.Secret}, "")
+    err = webhook.SendSingle(webhook.EndPoint{URL: wh.URL, Secret: wh.Secret}, "")
     if err == nil {
       if !wh.IsActive {
         wh.IsActive = true;
