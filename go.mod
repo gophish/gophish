@@ -24,5 +24,7 @@ require (
 	github.com/sirupsen/logrus v1.4.2
 	github.com/ziutek/mymysql v1.5.4 // indirect
 	golang.org/x/crypto v0.0.0-20191029031824-8986dd9e96cf
+	golang.org/x/lint v0.0.0-20191125180803-fdd1cda4f05f // indirect
+	golang.org/x/tools v0.0.0-20191126225216-7360bd5c0f4e // indirect
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 )

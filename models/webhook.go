@@ -33,7 +33,7 @@ func GetWebhook(id int64) (Webhook, error) {
 }
 
 func PostWebhook(wh *Webhook) error {
-  err := wh.Validate()
+  err := validate(wh)
   if err != nil {
     log.Error(err)
     return err
@@ -46,7 +46,12 @@ func PostWebhook(wh *Webhook) error {
 }
 
 func PutWebhook(wh *Webhook) error {
-  err := db.Save(wh).Error
+  err := validate(wh)
+  if err != nil {
+    log.Error(err)
+    return err
+  }
+  err = db.Save(wh).Error
   return err
 }
 
@@ -55,9 +60,7 @@ func DeleteWebhook(id int64) error {
   return err
 }
 
-
-//TODO
-func (wh *Webhook) Validate() error {
+func validate(wh *Webhook) error {
   if wh.URL == "" {
     return errors.New("url can't be empty")
   }
