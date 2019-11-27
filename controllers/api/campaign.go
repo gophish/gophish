@@ -41,8 +41,8 @@ func (as *Server) Campaigns(w http.ResponseWriter, r *http.Request) {
 		if c.Status == models.CampaignInProgress {
 			go as.worker.LaunchCampaign(c)
 		}
-    JSONResponse(w, c, http.StatusCreated)
-  }
+		JSONResponse(w, c, http.StatusCreated)
+	}
 }
 
 // CampaignsSummary returns the summary for the current user's campaigns
@@ -133,6 +133,6 @@ func (as *Server) CampaignComplete(w http.ResponseWriter, r *http.Request) {
 			JSONResponse(w, models.Response{Success: false, Message: "Error completing campaign"}, http.StatusInternalServerError)
 			return
 		}
-    JSONResponse(w, models.Response{Success: true, Message: "Campaign completed successfully!"}, http.StatusOK)
-  }
+		JSONResponse(w, models.Response{Success: true, Message: "Campaign completed successfully!"}, http.StatusOK)
+	}
 }

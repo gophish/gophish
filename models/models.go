@@ -2,12 +2,12 @@ package models
 
 import (
 	"crypto/rand"
-	"fmt"
-	"io"
-	"time"
 	"crypto/tls"
 	"crypto/x509"
+	"fmt"
+	"io"
 	"io/ioutil"
+	"time"
 
 	"bitbucket.org/liamstask/goose/lib/goose"
 

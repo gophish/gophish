@@ -159,16 +159,16 @@ func (c *Campaign) AddEvent(e *Event) error {
 	e.CampaignId = c.Id
 	e.Time = time.Now().UTC()
 
-  whs, err := GetActiveWebhooks()
-  if err != nil {
+	whs, err := GetActiveWebhooks()
+	if err != nil {
 		whEndPoints := []webhook.EndPoint{}
-	  for _, wh := range whs {
-			whEndPoints = append(whEndPoints, webhook.EndPoint {
-			  URL: wh.URL,
-			  Secret: wh.Secret,
+		for _, wh := range whs {
+			whEndPoints = append(whEndPoints, webhook.EndPoint{
+				URL:    wh.URL,
+				Secret: wh.Secret,
 			})
-	  }
-	  webhook.SendAll(whEndPoints, e)
+		}
+		webhook.SendAll(whEndPoints, e)
 	} else {
 		log.Error("errror calling 'GetActiveWebhooks'")
 	}
@@ -565,7 +565,7 @@ func PostCampaign(c *Campaign, uid int64) error {
 		}
 	}
 	err = db.Save(c).Error
-  return err
+	return err
 }
 
 //DeleteCampaign deletes the specified campaign
