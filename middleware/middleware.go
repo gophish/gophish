@@ -75,13 +75,6 @@ func GetContext(handler http.Handler) http.HandlerFunc {
 // parameter, or a Bearer token.
 func RequireAPIKey(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		if r.Method == "OPTIONS" {
-			w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
-			w.Header().Set("Access-Control-Max-Age", "1000")
-			w.Header().Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
-			return
-		}
 		r.ParseForm()
 		ak := r.Form.Get("api_key")
 		// If we can't get the API key, we'll also check for the

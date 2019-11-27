@@ -5,12 +5,19 @@ import (
 	"io/ioutil"
 )
 
+// ApiServer represents the API server configuration details
+type ApiServer struct {
+	CorsAllowedOrigins []string `json:"cors_allowed_origins"`
+	CorsDebug          bool     `json:"cors_debug"`
+}
+
 // AdminServer represents the Admin server configuration details
 type AdminServer struct {
-	ListenURL string `json:"listen_url"`
-	UseTLS    bool   `json:"use_tls"`
-	CertPath  string `json:"cert_path"`
-	KeyPath   string `json:"key_path"`
+	ListenURL string    `json:"listen_url"`
+	UseTLS    bool      `json:"use_tls"`
+	CertPath  string    `json:"cert_path"`
+	KeyPath   string    `json:"key_path"`
+	ApiConf   ApiServer `json:"api"`
 }
 
 // PhishServer represents the Phish server configuration details

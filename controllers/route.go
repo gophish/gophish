@@ -106,7 +106,7 @@ func (as *AdminServer) registerRoutes() {
 	router.HandleFunc("/settings", mid.Use(as.Settings, mid.RequireLogin))
 	router.HandleFunc("/users", mid.Use(as.UserManagement, mid.RequirePermission(models.PermissionModifySystem), mid.RequireLogin))
 	// Create the API routes
-	api := api.NewServer(api.WithWorker(as.worker))
+	api := api.NewServer(as.config.ApiConf, api.WithWorker(as.worker))
 	router.PathPrefix("/api/").Handler(api)
 
 	// Setup static file serving

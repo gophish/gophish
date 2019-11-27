@@ -4,9 +4,11 @@ import (
 	"net/http"
 
 	mid "github.com/gophish/gophish/middleware"
+	"github.com/gophish/gophish/config"
 	"github.com/gophish/gophish/models"
 	"github.com/gophish/gophish/worker"
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 )
 
 // ServerOption is an option to apply to the API server.
@@ -17,15 +19,17 @@ type ServerOption func(*Server)
 // stopped. Rather, it's meant to be used as an http.Handler in the
 // AdminServer.
 type Server struct {
+	config config.ApiServer
 	handler http.Handler
 	worker  worker.Worker
 }
 
 // NewServer returns a new instance of the API handler with the provided
 // options applied.
-func NewServer(options ...ServerOption) *Server {
+func NewServer(config config.ApiServer, options ...ServerOption) *Server {
 	defaultWorker, _ := worker.New()
 	as := &Server{
+		config: config,
 		worker: defaultWorker,
 	}
 	for _, opt := range options {
@@ -71,7 +75,17 @@ func (as *Server) registerRoutes() {
 	router.HandleFunc("/import/group", as.ImportGroup)
 	router.HandleFunc("/import/email", as.ImportEmail)
 	router.HandleFunc("/import/site", as.ImportSite)
-	as.handler = router
+	
+	c := cors.New(cors.Options{
+		AllowedOrigins: as.config.CorsAllowedOrigins,
+		AllowedMethods: []string{"GET", "POST", "OPTIONS"},
+		AllowedHeaders: []string{"Origin", "X-Requested-With", "Content-Type", "Accept"},
+		MaxAge: 1000,
+		AllowCredentials: true,
+		Debug: as.config.CorsDebug,
+	})
+	
+	as.handler = c.Handler(router)
 }
 
 func (as *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
