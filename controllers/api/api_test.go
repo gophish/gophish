@@ -43,7 +43,7 @@ func (s *APISuite) SetupSuite() {
 	// static assets
 	err = os.Chdir("../")
 	s.Nil(err)
-	s.apiServer = NewServer()
+	s.apiServer = NewServer(conf.AdminConf.ApiConf)
 }
 
 func (s *APISuite) TearDownTest() {
