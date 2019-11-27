@@ -159,8 +159,6 @@ func (c *Campaign) AddEvent(e *Event) error {
 	e.CampaignId = c.Id
 	e.Time = time.Now().UTC()
 
-  //INFO send webhook
-  //TODO this code is duplicated at models/result.go#sendWebhooks
   whs, err := GetActiveWebhooks()
   if err != nil {
 		whEndPoints := []webhook.EndPoint{}
@@ -170,12 +168,9 @@ func (c *Campaign) AddEvent(e *Event) error {
 			  Secret: wh.Secret,
 			})
 	  }
-	  pl := map[string]interface{} {
-	    "data": e,
-	  }
-	  webhook.SendAll(whEndPoints, pl)
+	  webhook.SendAll(whEndPoints, e)
 	} else {
-		log.Error("GetActiveWebhooks")
+		log.Error("errror calling 'GetActiveWebhooks'")
 	}
 
 	return db.Save(e).Error

@@ -6,7 +6,6 @@ import (
 	mid "github.com/gophish/gophish/middleware"
 	"github.com/gophish/gophish/models"
 	"github.com/gophish/gophish/worker"
-	// "github.com/gophish/gophish/webhook"
 	"github.com/gorilla/mux"
 )
 
@@ -73,7 +72,7 @@ func (as *Server) registerRoutes() {
 	router.HandleFunc("/import/email", as.ImportEmail)
 	router.HandleFunc("/import/site", as.ImportSite)
   router.HandleFunc("/webhooks/", mid.Use(as.Webhooks, mid.RequirePermission(models.PermissionModifySystem)))
-  router.HandleFunc("/webhooks/{id:[0-9]+}/validate", mid.Use(as.PingWebhook, mid.RequirePermission(models.PermissionModifySystem)))
+  router.HandleFunc("/webhooks/{id:[0-9]+}/validate", mid.Use(as.ValidateWebhook, mid.RequirePermission(models.PermissionModifySystem)))
   router.HandleFunc("/webhooks/{id:[0-9]+}", mid.Use(as.Webhook, mid.RequirePermission(models.PermissionModifySystem)))
 	as.handler = router
 }

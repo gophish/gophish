@@ -1,7 +1,5 @@
 package api
 
-//TODO
-
 import (
   "net/http"
   "strconv"
@@ -77,7 +75,7 @@ func (as *Server) Webhook(w http.ResponseWriter, r *http.Request) {
   }
 }
 
-func (as *Server) PingWebhook(w http.ResponseWriter, r *http.Request) {
+func (as *Server) ValidateWebhook(w http.ResponseWriter, r *http.Request) {
   switch {
   case r.Method == "POST":
     vars := mux.Vars(r)
@@ -89,10 +87,6 @@ func (as *Server) PingWebhook(w http.ResponseWriter, r *http.Request) {
       return
     }
 
-    //TODO update it here inplace?
-
-
-    //TODO send ping
     err = webhook.SendSingle(webhook.EndPoint{URL: wh.URL, Secret: wh.Secret}, "")
     if err == nil {
       if !wh.IsActive {

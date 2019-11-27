@@ -20,9 +20,6 @@ const (
   SignatureHeader = "X-Gophish-Signature"
 )
 
-
-//TODO
-
 type Sender interface {
   Send(endPoint EndPoint, data interface{}) error
 }
@@ -51,7 +48,6 @@ func SendSingle(endPoint EndPoint, data interface{}) error {
 
 func SendAll(endPoints []EndPoint, data interface{}) {
   for _, ept := range endPoints {
-    //TODO handle or return errors
     go func(ept1 EndPoint) {
           senderInstance.Send(ept1, data)
        }(EndPoint{URL: ept.URL, Secret: ept.Secret})
