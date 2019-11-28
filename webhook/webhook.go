@@ -15,9 +15,15 @@ import (
 )
 
 const (
-	defaultTimeoutSeconds  = 10
-	minHTTPStatusErrorCode = 400
-	signatureHeader        = "X-Gophish-Signature"
+
+	//DefaultTimeoutSeconds is amount of seconds of timeout used by HTTP sender
+	DefaultTimeoutSeconds  = 10
+
+	//MinHTTPStatusErrorCode is the lowest number of an HTTP response which indicates an error
+	MinHTTPStatusErrorCode = 400
+
+	//SignatureHeader is the name of an HTTP header used to which contains signature of a webhook
+	SignatureHeader        = "X-Gophish-Signature"
 )
 
 //Sender defines behaviour of an entity by which webhook is sent
@@ -31,7 +37,7 @@ type defaultSender struct {
 
 var senderInstance = &defaultSender{
 	client: &http.Client{
-		Timeout: time.Second * defaultTimeoutSeconds,
+		Timeout: time.Second * DefaultTimeoutSeconds,
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			return http.ErrUseLastResponse
 		},
@@ -68,7 +74,7 @@ func (ds defaultSender) Send(endPoint EndPoint, data interface{}) error {
 
 	req, err := http.NewRequest("POST", endPoint.URL, bytes.NewBuffer(jsonData))
 	signat, err := sign(endPoint.Secret, jsonData)
-	req.Header.Set(signatureHeader, signat)
+	req.Header.Set(SignatureHeader, signat)
 	req.Header.Set("Content-Type", "application/json")
 	resp, err := ds.client.Do(req)
 	if err != nil {
@@ -77,7 +83,7 @@ func (ds defaultSender) Send(endPoint EndPoint, data interface{}) error {
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode >= minHTTPStatusErrorCode {
+	if resp.StatusCode >= MinHTTPStatusErrorCode {
 		errMsg := fmt.Sprintf("http status of response: %s", resp.Status)
 		log.Error(errMsg)
 		return errors.New(errMsg)

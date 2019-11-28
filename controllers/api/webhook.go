@@ -75,7 +75,7 @@ func (as *Server) Webhook(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (as *Server) ValidateEndPoint(w http.ResponseWriter, r *http.Request) {
+func (as *Server) ValidateWebhook(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "POST":
 		vars := mux.Vars(r)
