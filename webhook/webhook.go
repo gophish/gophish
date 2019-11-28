@@ -64,7 +64,7 @@ func SendAll(endPoints []EndPoint, data interface{}) {
 	}
 }
 
-//implementation of sending data to EndPoint
+//Send contains the implementation of sending webhook to an EndPoint
 func (ds defaultSender) Send(endPoint EndPoint, data interface{}) error {
 	jsonData, err := json.Marshal(data)
 	if err != nil {
