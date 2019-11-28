@@ -24,9 +24,5 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-// Package worker contains the functionality for the background worker process.
-// It starts a background service that polls every minute for scheduled campaigns
-// to be launched.
-// If a campaign is found, it gathers the maillogs associated with the campaign and
-// sends them to the mailer package to be processed.
+// Package webhook contains the functionality for handling outcoming webhooks.
 package webhook
