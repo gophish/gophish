@@ -15,11 +15,12 @@ import (
 )
 
 const (
-	DefaultTimeoutSeconds  = 10
-	MinHttpStatusErrorCode = 400
-	SignatureHeader        = "X-Gophish-Signature"
+	defaultTimeoutSeconds  = 10
+	minHTTPStatusErrorCode = 400
+	signatureHeader        = "X-Gophish-Signature"
 )
 
+//Sender defines behaviour of an entity by which webhook is sent
 type Sender interface {
 	Send(endPoint EndPoint, data interface{}) error
 }
@@ -30,22 +31,25 @@ type defaultSender struct {
 
 var senderInstance = &defaultSender{
 	client: &http.Client{
-		Timeout: time.Second * DefaultTimeoutSeconds,
+		Timeout: time.Second * defaultTimeoutSeconds,
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			return http.ErrUseLastResponse
 		},
 	},
 }
 
+//EndPoint represents and end point to send a webhook to: url and secret by which payload is signed
 type EndPoint struct {
 	URL    string
 	Secret string
 }
 
+//SendSingle sends data to a single EndPoint
 func SendSingle(endPoint EndPoint, data interface{}) error {
 	return senderInstance.Send(endPoint, data)
 }
 
+//SendAll sends data to each of the EndPoints
 func SendAll(endPoints []EndPoint, data interface{}) {
 	for _, ept := range endPoints {
 		go func(ept1 EndPoint) {
@@ -54,15 +58,17 @@ func SendAll(endPoints []EndPoint, data interface{}) {
 	}
 }
 
+//implementation of sending data to EndPoint
 func (ds defaultSender) Send(endPoint EndPoint, data interface{}) error {
 	jsonData, err := json.Marshal(data)
 	if err != nil {
 		log.Error(err)
 		return err
 	}
+
 	req, err := http.NewRequest("POST", endPoint.URL, bytes.NewBuffer(jsonData))
 	signat, err := sign(endPoint.Secret, jsonData)
-	req.Header.Set(SignatureHeader, signat)
+	req.Header.Set(signatureHeader, signat)
 	req.Header.Set("Content-Type", "application/json")
 	resp, err := ds.client.Do(req)
 	if err != nil {
@@ -71,8 +77,7 @@ func (ds defaultSender) Send(endPoint EndPoint, data interface{}) error {
 	}
 	defer resp.Body.Close()
 
-	//TODO
-	if resp.StatusCode >= MinHttpStatusErrorCode {
+	if resp.StatusCode >= minHTTPStatusErrorCode {
 		errMsg := fmt.Sprintf("http status of response: %s", resp.Status)
 		log.Error(errMsg)
 		return errors.New(errMsg)
