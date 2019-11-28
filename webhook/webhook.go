@@ -50,8 +50,8 @@ type EndPoint struct {
 	Secret string
 }
 
-//SendSingle sends data to a single EndPoint
-func SendSingle(endPoint EndPoint, data interface{}) error {
+//Send sends data to a single EndPoint
+func Send(endPoint EndPoint, data interface{}) error {
 	return senderInstance.Send(endPoint, data)
 }
 

@@ -87,7 +87,7 @@ func (as *Server) ValidateWebhook(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err = webhook.SendSingle(webhook.EndPoint{URL: wh.URL, Secret: wh.Secret}, "")
+		err = webhook.Send(webhook.EndPoint{URL: wh.URL, Secret: wh.Secret}, "")
 		if err == nil {
 			if !wh.IsActive {
 				wh.IsActive = true
