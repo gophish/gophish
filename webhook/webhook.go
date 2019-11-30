@@ -17,13 +17,13 @@ import (
 const (
 
 	//DefaultTimeoutSeconds is amount of seconds of timeout used by HTTP sender
-	DefaultTimeoutSeconds  = 10
+	DefaultTimeoutSeconds = 10
 
 	//MinHTTPStatusErrorCode is the lowest number of an HTTP response which indicates an error
 	MinHTTPStatusErrorCode = 400
 
 	//SignatureHeader is the name of an HTTP header used to which contains signature of a webhook
-	SignatureHeader        = "X-Gophish-Signature"
+	SignatureHeader = "X-Gophish-Signature"
 )
 
 //Sender defines behaviour of an entity by which webhook is sent

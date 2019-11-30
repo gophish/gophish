@@ -1,6 +1,5 @@
 package webhook
 
-
 //TODO
 import (
 
@@ -21,12 +20,9 @@ type WebhookSuite struct {
 
 // mockSender is a mock gomail.Sender used for testing.
 type mockSender struct {
-
 }
 
 func newMockSender() *mockSender {
-	ms := &mockSender{
-		
-	}
+	ms := &mockSender{}
 	return ms
 }

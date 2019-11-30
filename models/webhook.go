@@ -6,6 +6,7 @@ import (
 	log "github.com/gophish/gophish/logger"
 )
 
+// Webhook represents the webhook model
 type Webhook struct {
 	Id       int64  `json:"id" gorm:"column:id; primary_key:yes"`
 	Title    string `json:"title"`
@@ -14,24 +15,29 @@ type Webhook struct {
 	IsActive bool   `json:"is_active"`
 }
 
+// GetWebhooks returns the webhooks
 func GetWebhooks() ([]Webhook, error) {
 	whs := []Webhook{}
 	err := db.Find(&whs).Error
 	return whs, err
 }
 
+// GetActiveWebhooks returns the active webhooks
 func GetActiveWebhooks() ([]Webhook, error) {
 	whs := []Webhook{}
 	err := db.Where("is_active=?", true).Find(&whs).Error
 	return whs, err
 }
 
+// GetWebhook returns the webhook that the given id corresponds to.
+// If no webhook is found, an error is returned.
 func GetWebhook(id int64) (Webhook, error) {
 	wh := Webhook{}
 	err := db.Where("id=?", id).First(&wh).Error
 	return wh, err
 }
 
+// PostWebhook creates a new webhook in the database.
 func PostWebhook(wh *Webhook) error {
 	err := validate(wh)
 	if err != nil {
@@ -45,6 +51,7 @@ func PostWebhook(wh *Webhook) error {
 	return err
 }
 
+// PutWebhook edits an existing webhook in the database.
 func PutWebhook(wh *Webhook) error {
 	err := validate(wh)
 	if err != nil {
@@ -55,6 +62,8 @@ func PutWebhook(wh *Webhook) error {
 	return err
 }
 
+// DeleteWebhook deletes an existing webhook in the database.
+// An error is returned if a webhook with the given id isn't found.
 func DeleteWebhook(id int64) error {
 	err := db.Where("id=?", id).Delete(&Webhook{}).Error
 	return err

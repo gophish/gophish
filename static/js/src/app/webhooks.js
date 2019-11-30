@@ -1,3 +1,7 @@
+const reloadPageMsg = `
+  <a href='#' onclick='javascript: window.location.reload()'>Reload</a> the page
+`;
+
 let webhooks = [];
 
 const dismiss = () => {
@@ -5,7 +9,7 @@ const dismiss = () => {
     $("#url").val("");
     $("#secret").val("");
     $("#flashes").empty();
-}
+};
 
 const saveWebhook = (id) => {
     let wh = {
@@ -17,10 +21,10 @@ const saveWebhook = (id) => {
         wh.id = id;
         api.webhookId.put(wh)
             .success(function(data) {
-                successFlash(`Webhook "${wh.title}" has been updated successfully!`);
                 load();
                 dismiss();
                 $("#modal").modal("hide");
+                successFlash(`Webhook "${wh.title}" has been updated successfully! ${reloadPageMsg}`);
             })
             .error(function(data) {
                 modalError(data.responseJSON.message)
@@ -28,10 +32,10 @@ const saveWebhook = (id) => {
     } else {
         api.webhooks.post(wh)
             .success(function(data) {
-                successFlash(`Webhook "${wh.title}" has been created successfully!`);
                 load();
                 dismiss();
                 $("#modal").modal("hide");
+                successFlash(`Webhook "${wh.title}" has been created successfully!`);
             })
             .error(function(data) {
                 modalError(data.responseJSON.message)
@@ -88,7 +92,6 @@ const editWebhook = (id) => {
     if (id !== -1) {
         api.webhookId.get(id)
           .success(function(wh) {
-              //TODO
               $("#title").val(wh.title);
               $("#url").val(wh.url);
               $("#secret").val(wh.secret);
@@ -102,7 +105,7 @@ const editWebhook = (id) => {
 const deleteWebhook = (id) => {
     var wh = webhooks.find(x => x.id == id);
     if (!wh) {
-        return
+        return;
     }
     Swal.fire({
         title: "Are you sure?",
@@ -148,7 +151,7 @@ const pingUrl = (btn, whId) => {
     api.webhookId.ping(whId)
         .success(function(wh) {
             btn.disabled = false;
-            successFlash(`Ping of "${wh.title}" webhook succeeded, please reload the page to fetch the updated data`);
+            successFlash(`Ping of "${wh.title}" webhook succeeded. ${reloadPageMsg}`);
         })
         .error(function() {
             btn.disabled = false;
@@ -156,7 +159,7 @@ const pingUrl = (btn, whId) => {
             if (!wh) {
                 return
             }
-            errorFlash(`Ping of "${wh.title}" webhook failed`)
+            errorFlash(`Ping of "${wh.title}" webhook failed. ${reloadPageMsg}`)
         });
 };
 
