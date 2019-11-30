@@ -1,7 +1,4 @@
-let webhooks = []
-
-//TODO
-
+let webhooks = [];
 
 const dismiss = () => {
     $("#title").val("");
@@ -40,7 +37,7 @@ const saveWebhook = (id) => {
                 modalError(data.responseJSON.message)
             })
     }
-}
+};
 
 const load = () => {
     $("#webhookTable").hide();
@@ -100,7 +97,8 @@ const editWebhook = (id) => {
               errorFlash("Error fetching webhook")
           });
     }
-}
+};
+
 const deleteWebhook = (id) => {
     var wh = webhooks.find(x => x.id == id);
     if (!wh) {
@@ -150,9 +148,7 @@ const pingUrl = (btn, whId) => {
     api.webhookId.ping(whId)
         .success(function(wh) {
             btn.disabled = false;
-            successFlash(`Ping of "${wh.title}" webhook succeeded`);
-            //TODO:
-            // reload table or a certain row to reflect "is_active" status of a webhook
+            successFlash(`Ping of "${wh.title}" webhook succeeded, please reload the page to fetch the updated data`);
         })
         .error(function() {
             btn.disabled = false;

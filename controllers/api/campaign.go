@@ -127,8 +127,7 @@ func (as *Server) CampaignComplete(w http.ResponseWriter, r *http.Request) {
 	id, _ := strconv.ParseInt(vars["id"], 0, 64)
 	switch {
 	case r.Method == "GET":
-		userId := ctx.Get(r, "user_id").(int64)
-		err := models.CompleteCampaign(id, userId)
+		err := models.CompleteCampaign(id, ctx.Get(r, "user_id").(int64))
 		if err != nil {
 			JSONResponse(w, models.Response{Success: false, Message: "Error completing campaign"}, http.StatusInternalServerError)
 			return

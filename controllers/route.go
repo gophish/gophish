@@ -235,7 +235,7 @@ func (as *AdminServer) UserManagement(w http.ResponseWriter, r *http.Request) {
 	getTemplate(w, "users").ExecuteTemplate(w, "base", params)
 }
 
-// Webhook is an admin-only handler that handles webhooks
+// Webhooks is an admin-only handler that handles webhooks
 func (as *AdminServer) Webhooks(w http.ResponseWriter, r *http.Request) {
 	params := newTemplateParams(r)
 	params.Title = "Webhooks"
