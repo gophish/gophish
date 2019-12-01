@@ -39,20 +39,12 @@ func (mcs mockSender) Send(endPoint webhook.EndPoint, data interface{}) error {
 func (s *WebhookSuite) TestSend() {
 	snd1 := newMockSender()
 	endp1 := webhook.EndPoint{URL: "http://example.com/a1", Secret: "s1"}
-	d1 := 123
-	err := snd1.Send(endp1, d1)
-	s.Nil(err)
-}
-
-func (s *WebhookSuite) TestSendAll(endPoints []webhook.EndPoint, data interface{}) {
-	snd1 := newMockSender()
-	endpS := []webhook.EndPoint{
-		webhook.EndPoint{URL: "http://example.com/a1", Secret: "s1"},
-		webhook.EndPoint{URL: "http://example.com/a2", Secret: "s2"},
-		webhook.EndPoint{URL: "http://example.com/a3", Secret: "s3"},
+	d1 := map[string]string {
+		"a1": "a11",
+		"a2": "a22",
+		"a3": "a33",
 	}
-	d1 := 456
-	err := snd1.SendAll(endpS, d1)
+	err := snd1.Send(endp1, d1)
 	s.Nil(err)
 }
 
