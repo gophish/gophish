@@ -44,9 +44,17 @@ func (s *WebhookSuite) TestSend() {
 	s.Nil(err)
 }
 
-// func (s *WebhookSuite) TestSendAll(endPoints []webhook.EndPoint, data interface{}) {
-// 	s.Equal(2, 2)
-// }
+func (s *WebhookSuite) TestSendAll(endPoints []webhook.EndPoint, data interface{}) {
+	snd1 := newMockSender()
+	endpS := []webhook.EndPoint{
+		webhook.EndPoint{URL: "http://example.com/a1", Secret: "s1"},
+		webhook.EndPoint{URL: "http://example.com/a2", Secret: "s2"},
+		webhook.EndPoint{URL: "http://example.com/a3", Secret: "s3"},
+	}
+	d1 := 456
+	err := snd1.SendAll(endpS, d1)
+	s.Nil(err)
+}
 
 func TestWebhookSuite(t *testing.T) {
 	suite.Run(t, new(WebhookSuite))
