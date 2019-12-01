@@ -26,7 +26,7 @@ func newMockSender() *mockSender {
 	return ms
 }
 
-func (mcs mockSender) Send(endPoint webhook.EndPoint, data interface{}) error {
+func (ms mockSender) Send(endPoint webhook.EndPoint, data interface{}) error {
 	log.Println("[test] mocked 'Send' function")
 	return nil
 }
