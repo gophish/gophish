@@ -32,14 +32,14 @@ func (ms mockSender) Send(endPoint webhook.EndPoint, data interface{}) error {
 }
 
 func (s *WebhookSuite) TestSend() {
-	snd1 := newMockSender()
+	mcSnd := newMockSender()
 	endp1 := webhook.EndPoint{URL: "http://example.com/a1", Secret: "s1"}
 	d1 := map[string]string {
 		"a1": "a11",
 		"a2": "a22",
 		"a3": "a33",
 	}
-	err := snd1.Send(endp1, d1)
+	err := mcSnd.Send(endp1, d1)
 	s.Nil(err)
 }
 
