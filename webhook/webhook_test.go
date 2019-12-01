@@ -3,11 +3,11 @@ package webhook
 //TODO
 
 import (
-	"encoding/json"
+	// "encoding/json"
 	"fmt"
 	"testing"
+	"net/http"
 
-	log "github.com/gophish/gophish/logger"
 	"github.com/stretchr/testify/suite"
 	"github.com/gophish/gophish/webhook"
 )
@@ -17,33 +17,36 @@ type WebhookSuite struct {
 }
 
 type mockSender struct {
+	client *http.Client
 }
 
 func newMockSender() *mockSender {
-	ms := &mockSender{}
+	ms := &mockSender{
+		client: &http.Client{},
+	}
 	return ms
 }
 
 
-//TODO
 func (mcs mockSender) Send(endPoint webhook.EndPoint, data interface{}) error {
 	fmt.Println("Mocked Send function")
-	_, err := json.Marshal(data)
-	if err != nil {
-		log.Error(err)
-		return err
-	}
+	// _, err := json.Marshal(data)
+	// s.Nil(err)
 
 	return nil
 }
 
-
 func (s *WebhookSuite) TestSend() {
-	s.Equal(1, 1)
+	snd1 := newMockSender()
+	endp1 := webhook.EndPoint{URL: "http://example.com/a1", Secret: "s1"}
+	d1 := 123
+	err := snd1.Send(endp1, d1)
+	s.Nil(err)
 }
-func (s *WebhookSuite) TestSendAll() {
-	s.Equal(2, 2)
-}
+
+// func (s *WebhookSuite) TestSendAll(endPoints []webhook.EndPoint, data interface{}) {
+// 	s.Equal(2, 2)
+// }
 
 func TestWebhookSuite(t *testing.T) {
 	suite.Run(t, new(WebhookSuite))
