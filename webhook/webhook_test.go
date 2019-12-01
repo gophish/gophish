@@ -3,10 +3,9 @@ package webhook
 //TODO
 
 import (
-	// "encoding/json"
-	"fmt"
 	"testing"
 	"net/http"
+	"log"
 
 	"github.com/stretchr/testify/suite"
 	"github.com/gophish/gophish/webhook"
@@ -21,18 +20,14 @@ type mockSender struct {
 }
 
 func newMockSender() *mockSender {
-	ms := &mockSender{
+	ms := &mockSender {
 		client: &http.Client{},
 	}
 	return ms
 }
 
-
 func (mcs mockSender) Send(endPoint webhook.EndPoint, data interface{}) error {
-	fmt.Println("Mocked Send function")
-	// _, err := json.Marshal(data)
-	// s.Nil(err)
-
+	log.Println("[test] mocked 'Send' function")
 	return nil
 }
 
