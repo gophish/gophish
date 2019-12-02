@@ -9,7 +9,6 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
-	// "bytes"
 	"encoding/json"
 
 	"github.com/stretchr/testify/suite"
