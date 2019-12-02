@@ -61,7 +61,7 @@ func (s *WebhookSuite) TestSendReal() {
 		realSign := r.Header.Get(webhook.SignatureHeader)
 		assert.Equal(s.T(), expectedSign, realSign)
 
-		neHeader := r.Header.Get("not-existing-header")
+		neHeader := r.Header.Get("non-existing-header")
 		assert.Equal(s.T(), neHeader, "")
 
 		contTypeJsonHeader := r.Header.Get("Content-Type")
