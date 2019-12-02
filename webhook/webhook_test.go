@@ -5,11 +5,14 @@ package webhook
 import (
 	"testing"
 	"net/http"
+	"net/http/httptest"
 	"log"
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
+	"io/ioutil"
 
 	"github.com/stretchr/testify/suite"
 	"github.com/gophish/gophish/webhook"
@@ -36,7 +39,7 @@ func (ms mockSender) Send(endPoint webhook.EndPoint, data interface{}) error {
 	return nil
 }
 
-func (s *WebhookSuite) TestSend() {
+func (s *WebhookSuite) TestSend1() {
 	mcSnd := newMockSender()
 	endp1 := webhook.EndPoint{URL: "http://example.com/a1", Secret: "s1"}
 	d1 := map[string]string {
@@ -50,14 +53,29 @@ func (s *WebhookSuite) TestSend() {
 
 func (s *WebhookSuite) TestSend2() {
 
+		//TODO
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			fmt.Fprintln(w, "Hello, client333")
+		}))
+		defer ts.Close()
+
+		res, err := http.Get(ts.URL)
+		if err != nil {
+			log.Fatal(err)
+		}
+		_, err = ioutil.ReadAll(res.Body)
+		res.Body.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
 }
 
 func (s *WebhookSuite) TestSignature() {
-	expectedSign := "8c5f1d7b39c52b7a68cd6ff4340dc7907e2681d683b32c1e40e81bfad1d65f80"
+	expectedSign := "167c12505cebb59eeb4170306e863e8f9d59d2a652c8e73673afc62a50ce32fa"
 	d1 := map[string]string {
-		"key1": "a11",
-		"key2": "a22",
-		"key3": "a33",
+		"key1": "val1",
+		"key2": "val22",
+		"key3": "val333",
 	};
 
 	jsonData, err := json.Marshal(d1)
