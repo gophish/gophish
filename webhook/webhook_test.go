@@ -53,29 +53,39 @@ func (s *WebhookSuite) TestSendMocked() {
 }
 
 func (s *WebhookSuite) TestSendReal() {
+	expectedSign := "4775314ed81be378b2b14f18ac29a6db0eb83b44ed464a000400d43100c8a01e"
 
 		//TODO
 		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			fmt.Fprintln(w, "Hello, client333")
+			fmt.Fprintln(w, "***inside the server***")
+			fmt.Println("***inside the server2***")
+
+			realSign := r.Header.Get(webhook.SignatureHeader)
+			assert.Equal(s.T(), expectedSign, realSign)
+
+			//TODO
 		}))
 		defer ts.Close()
 
-		// res, err := http.Post(ts.URL, )
-		// if err != nil {
-		// 	log.Fatal(err)
-		// }
-		// _, err = ioutil.ReadAll(res.Body)
-		// res.Body.Close()
-		// if err != nil {
-		// 	log.Fatal(err)
-		// }
+								// res, err := http.Post(ts.URL, )
+								// if err != nil {
+								// 	log.Fatal(err)
+								// }
+								// _, err = ioutil.ReadAll(res.Body)
+								// res.Body.Close()
+								// if err != nil {
+								// 	log.Fatal(err)
+								// }
 
 	secret := "secret456"
-	d1 := map[string]string {
-		"key1": "val1",
-		"key2": "val22",
-		"key3": "val333",
-	};
+	d1 := map[string]interface{} {
+		"key11": "val1",
+		"key22": "val22",
+		"key33": map[string]string {
+			"key4": "val444",
+		},
+	}
+
 
 	jsonData, err := json.Marshal(d1)
 	s.Nil(err)
