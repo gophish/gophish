@@ -49,12 +49,16 @@ func (s *WebhookSuite) TestSend() {
 	s.Nil(err)
 }
 
+func (s *WebhookSuite) TestSend2() {
+
+}
+
 func (s *WebhookSuite) TestSignature() {
-	expectedSign := "751f4495dc31f0e71c80081790372fa41d4f9fc307c2a55eb95873316b567434"
+	expectedSign := "8c5f1d7b39c52b7a68cd6ff4340dc7907e2681d683b32c1e40e81bfad1d65f80"
 	d1 := map[string]string {
-		"a1": "a11",
-		"a2": "a22",
-		"a3": "a33",
+		"key1": "a11",
+		"key2": "a22",
+		"key3": "a33",
 	};
 
 	jsonData, err := json.Marshal(d1)
