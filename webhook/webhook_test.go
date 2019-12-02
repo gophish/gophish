@@ -86,12 +86,11 @@ func (s *WebhookSuite) TestSendReal() {
 	s.Nil(err)
 
 	sign1 := hex.EncodeToString(hash1.Sum(nil))
-
 	req.Header.Set(webhook.SignatureHeader, sign1)
 	req.Header.Set("Content-Type", "application/json")
 	resp, err := hClient.Do(req)
-	s.Nil(err)
 	defer resp.Body.Close()
+	s.Nil(err)
 
 	assert.Equal(s.T(), resp.StatusCode, successfulHttpResponseCode, "response code is successful")
 	assert.NotEqual(s.T(), resp.StatusCode, webhook.MinHTTPStatusErrorCode, "response code isn't equal to MinHTTPStatusErrorCode")
