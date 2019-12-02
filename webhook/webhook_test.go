@@ -12,7 +12,8 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	// "io/ioutil"
+	"bytes"
 
 	"github.com/stretchr/testify/suite"
 	"github.com/gophish/gophish/webhook"
@@ -59,15 +60,50 @@ func (s *WebhookSuite) TestSendReal() {
 		}))
 		defer ts.Close()
 
-		res, err := http.Get(ts.URL)
-		if err != nil {
-			log.Fatal(err)
-		}
-		_, err = ioutil.ReadAll(res.Body)
-		res.Body.Close()
-		if err != nil {
-			log.Fatal(err)
-		}
+		// res, err := http.Post(ts.URL, )
+		// if err != nil {
+		// 	log.Fatal(err)
+		// }
+		// _, err = ioutil.ReadAll(res.Body)
+		// res.Body.Close()
+		// if err != nil {
+		// 	log.Fatal(err)
+		// }
+
+	secret := "secret456"
+	d1 := map[string]string {
+		"key1": "val1",
+		"key2": "val22",
+		"key3": "val333",
+	};
+
+	jsonData, err := json.Marshal(d1)
+	s.Nil(err)
+
+	req, err := http.NewRequest("POST", ts.URL, bytes.NewBuffer(jsonData))
+	// signat, err := sign(endPoint.Secret, jsonData)
+
+	hash1 := hmac.New(sha256.New, []byte(secret))
+	_, err = hash1.Write(jsonData)
+	s.Nil(err)
+
+	sign1 := hex.EncodeToString(hash1.Sum(nil))
+
+
+	hClient := &http.Client{}
+
+	req.Header.Set(webhook.SignatureHeader, sign1)
+	req.Header.Set("Content-Type", "application/json")
+	resp, err := hClient.Do(req)
+	s.Nil(err)
+	defer resp.Body.Close()
+
+	// if resp.StatusCode >= webhook.MinHTTPStatusErrorCode {
+	// 	errMsg := fmt.Sprintf("http status of response: %s", resp.Status)
+	// 	log.Error(errMsg)
+	// 	return errors.New(errMsg)
+	// }
+
 }
 
 func (s *WebhookSuite) TestSignature() {
