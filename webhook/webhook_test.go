@@ -39,7 +39,7 @@ func (ms mockSender) Send(endPoint webhook.EndPoint, data interface{}) error {
 	return nil
 }
 
-func (s *WebhookSuite) TestSend1() {
+func (s *WebhookSuite) TestSendMocked() {
 	mcSnd := newMockSender()
 	endp1 := webhook.EndPoint{URL: "http://example.com/a1", Secret: "s1"}
 	d1 := map[string]string {
@@ -51,7 +51,7 @@ func (s *WebhookSuite) TestSend1() {
 	s.Nil(err)
 }
 
-func (s *WebhookSuite) TestSend2() {
+func (s *WebhookSuite) TestSendReal() {
 
 		//TODO
 		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
