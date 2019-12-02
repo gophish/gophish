@@ -11,6 +11,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"bytes"
+	"io/ioutil"
 
 	"github.com/stretchr/testify/suite"
 	"github.com/gophish/gophish/webhook"
@@ -53,6 +54,13 @@ func (s *WebhookSuite) TestSendReal() {
 	expectedSign := "4775314ed81be378b2b14f18ac29a6db0eb83b44ed464a000400d43100c8a01e"
 	successfulHttpResponseCode := 200
 	secret := "secret456"
+	d1 := map[string]interface{} {
+		"key11": "val1",
+		"key22": "val22",
+		"key33": map[string]string {
+			"key4": "val444",
+		},
+	}
 
 	hClient := &http.Client{}
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -66,16 +74,24 @@ func (s *WebhookSuite) TestSendReal() {
 
 		contTypeJsonHeader := r.Header.Get("Content-Type")
 		assert.Equal(s.T(), contTypeJsonHeader, "application/json")
+
+		body, err := ioutil.ReadAll(r.Body)
+    s.Nil(err)
+
+    var d2 map[string]interface{}
+    err = json.Unmarshal(body, &d2)
+    s.Nil(err)
+
+    key1RealVal := d2["key1"]
+		assert.Equal(s.T(), d1["key1"], key1RealVal)
+
+    key2RealVal := d2["key2"]
+		assert.Equal(s.T(), d1["key2"], key2RealVal)
+
+    key3RealVal := d2["key3"]
+		assert.Equal(s.T(), d1["key3"], key3RealVal)
 	}))
 	defer ts.Close()
-
-	d1 := map[string]interface{} {
-		"key11": "val1",
-		"key22": "val22",
-		"key33": map[string]string {
-			"key4": "val444",
-		},
-	}
 
 	jsonData, err := json.Marshal(d1)
 	s.Nil(err)
@@ -97,10 +113,60 @@ func (s *WebhookSuite) TestSendReal() {
 	assert.True(s.T(), resp.StatusCode < webhook.MinHTTPStatusErrorCode, "response code is less than MinHTTPStatusErrorCode")
 }
 
+func (s *WebhookSuite) TestSendReal2() {
+	expectedSign := "004b36ca3fcbc01a08b17bf5d4a7e1aa0b10e14f55f3f8bd9acac0c7e8d2635d"
+	secret := "secret456"
+	d1 := map[string]interface{} {
+		"key1": "val1",
+		"key2": "val2",
+		"key3": "val3",
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println("[test] running the server...")
+
+		realSign := r.Header.Get(webhook.SignatureHeader)
+		assert.Equal(s.T(), expectedSign, realSign)
+
+		neHeader := r.Header.Get("non-existing-header")
+		assert.Equal(s.T(), neHeader, "")
+
+		contTypeJsonHeader := r.Header.Get("Content-Type")
+		assert.Equal(s.T(), contTypeJsonHeader, "application/json")
+
+		body, err := ioutil.ReadAll(r.Body)
+    s.Nil(err)
+
+    var d2 map[string]interface{}
+    err = json.Unmarshal(body, &d2)
+    s.Nil(err)
+
+    key1RealVal := d2["key1"]
+		assert.Equal(s.T(), d1["key1"], key1RealVal)
+
+    key2RealVal := d2["key2"]
+		assert.Equal(s.T(), d1["key2"], key2RealVal)
+
+    key3RealVal := d2["key3"]
+		assert.Equal(s.T(), d1["key3"], key3RealVal)
+	}))
+	defer ts.Close()
+
+	jsonData, err := json.Marshal(d1)
+	s.Nil(err)
+
+	hash1 := hmac.New(sha256.New, []byte(secret))
+	_, err = hash1.Write(jsonData)
+	s.Nil(err)
+
+	endp1 := webhook.EndPoint{URL: ts.URL, Secret: secret}
+	err = webhook.Send(endp1, d1)
+	s.Nil(err)
+}
+
 func (s *WebhookSuite) TestSignature() {
 	expectedSign := "167c12505cebb59eeb4170306e863e8f9d59d2a652c8e73673afc62a50ce32fa"
 	secret := "secret123"
-
 	d1 := map[string]string {
 		"key1": "val1",
 		"key2": "val22",
