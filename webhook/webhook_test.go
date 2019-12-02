@@ -1,7 +1,5 @@
 package webhook
 
-//TODO
-
 import (
 	"testing"
 	"net/http"
@@ -12,7 +10,6 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	// "io/ioutil"
 	"bytes"
 
 	"github.com/stretchr/testify/suite"
@@ -58,8 +55,6 @@ func (s *WebhookSuite) TestSendReal() {
 	secret := "secret456"
 
 	hClient := &http.Client{}
-
-	//TODO
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("[test] running the server")
 
@@ -98,13 +93,15 @@ func (s *WebhookSuite) TestSendReal() {
 	s.Nil(err)
 	defer resp.Body.Close()
 
-	assert.Equal(s.T(), resp.StatusCode, successfulHttpResponseCode)
-	assert.NotEqual(s.T(), resp.StatusCode, webhook.MinHTTPStatusErrorCode)
-	assert.True(s.T(), resp.StatusCode < webhook.MinHTTPStatusErrorCode)
+	assert.Equal(s.T(), resp.StatusCode, successfulHttpResponseCode, "response code is successful")
+	assert.NotEqual(s.T(), resp.StatusCode, webhook.MinHTTPStatusErrorCode, "response code isn't equal to MinHTTPStatusErrorCode")
+	assert.True(s.T(), resp.StatusCode < webhook.MinHTTPStatusErrorCode, "response code is less than MinHTTPStatusErrorCode")
 }
 
 func (s *WebhookSuite) TestSignature() {
 	expectedSign := "167c12505cebb59eeb4170306e863e8f9d59d2a652c8e73673afc62a50ce32fa"
+	secret := "secret123"
+
 	d1 := map[string]string {
 		"key1": "val1",
 		"key2": "val22",
@@ -114,7 +111,6 @@ func (s *WebhookSuite) TestSignature() {
 	jsonData, err := json.Marshal(d1)
 	s.Nil(err)
 
-	secret := "secret123"
 	hash1 := hmac.New(sha256.New, []byte(secret))
 	_, err = hash1.Write(jsonData)
 	s.Nil(err)
