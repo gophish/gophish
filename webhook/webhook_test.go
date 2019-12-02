@@ -76,19 +76,19 @@ func (s *WebhookSuite) TestSendReal() {
 		assert.Equal(s.T(), contTypeJsonHeader, "application/json")
 
 		body, err := ioutil.ReadAll(r.Body)
-    s.Nil(err)
+		s.Nil(err)
 
-    var d2 map[string]interface{}
-    err = json.Unmarshal(body, &d2)
-    s.Nil(err)
+		var d2 map[string]interface{}
+		err = json.Unmarshal(body, &d2)
+		s.Nil(err)
 
-    key1RealVal := d2["key1"]
+		key1RealVal := d2["key1"]
 		assert.Equal(s.T(), d1["key1"], key1RealVal)
 
-    key2RealVal := d2["key2"]
+		key2RealVal := d2["key2"]
 		assert.Equal(s.T(), d1["key2"], key2RealVal)
 
-    key3RealVal := d2["key3"]
+		key3RealVal := d2["key3"]
 		assert.Equal(s.T(), d1["key3"], key3RealVal)
 	}))
 	defer ts.Close()
@@ -135,19 +135,19 @@ func (s *WebhookSuite) TestSendReal2() {
 		assert.Equal(s.T(), contTypeJsonHeader, "application/json")
 
 		body, err := ioutil.ReadAll(r.Body)
-    s.Nil(err)
+		s.Nil(err)
 
-    var d2 map[string]interface{}
-    err = json.Unmarshal(body, &d2)
-    s.Nil(err)
+		var d2 map[string]interface{}
+		err = json.Unmarshal(body, &d2)
+		s.Nil(err)
 
-    key1RealVal := d2["key1"]
+		key1RealVal := d2["key1"]
 		assert.Equal(s.T(), d1["key1"], key1RealVal)
 
-    key2RealVal := d2["key2"]
+		key2RealVal := d2["key2"]
 		assert.Equal(s.T(), d1["key2"], key2RealVal)
 
-    key3RealVal := d2["key3"]
+		key3RealVal := d2["key3"]
 		assert.Equal(s.T(), d1["key3"], key3RealVal)
 	}))
 	defer ts.Close()
