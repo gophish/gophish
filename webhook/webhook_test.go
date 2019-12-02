@@ -99,6 +99,8 @@ func (s *WebhookSuite) TestSendReal() {
 	defer resp.Body.Close()
 
 	assert.Equal(s.T(), resp.StatusCode, successfulHttpResponseCode)
+	assert.NotEqual(s.T(), resp.StatusCode, webhook.MinHTTPStatusErrorCode)
+	assert.True(s.T(), resp.StatusCode < webhook.MinHTTPStatusErrorCode)
 }
 
 func (s *WebhookSuite) TestSignature() {
