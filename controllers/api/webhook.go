@@ -11,6 +11,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// Webhooks returns a list of webhooks, both active and disabled
 func (as *Server) Webhooks(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "GET":
@@ -38,6 +39,7 @@ func (as *Server) Webhooks(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Webhook returns details of a single webhook specified by "id" parameter
 func (as *Server) Webhook(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.ParseInt(vars["id"], 0, 64)
@@ -75,6 +77,10 @@ func (as *Server) Webhook(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// ValidateWebhook makes an HTTP request to a specified remote url to ensure that it's valid.
+// If a request succeeds a webhook changes its 'is_active' state to 'true' in database.
+// If a request doesn't succeed,
+// a webhook changes its 'is_active' state to 'false' in database
 func (as *Server) ValidateWebhook(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "POST":
