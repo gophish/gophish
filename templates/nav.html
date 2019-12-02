@@ -10,7 +10,7 @@
                     <a href="/campaigns">Campaigns</a>
                 </li>
                 <li>
-                    <a href="/users">Users &amp; Groups</a>
+                    <a href="/groups">Users &amp; Groups</a>
                 </li>
                 <li> <a href="/templates">Email Templates</a>
                 </li>
@@ -21,8 +21,13 @@
                     <a href="/sending_profiles">Sending Profiles</a>
                 </li>
                 <li>
-                    <a href="/settings">Settings <span class="badge pull-right">Admin</span></a>
+                    <a href="/settings">Account Settings</span></a>
                 </li>
+                {{if .ModifySystem}}
+                <li>
+                    <a href="/users">User Management<span class="nav-badge badge pull-right">Admin</span></a>
+                </li>
+                {{end}}
                 <li>
                     <hr>
                 </li>

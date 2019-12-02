@@ -32,6 +32,7 @@ type Config struct {
 	PhishConf      PhishServer   `json:"phish_server"`
 	DBName         string        `json:"db_name"`
 	DBPath         string        `json:"db_path"`
+	DBSSLCaPath    string        `json:"db_sslca_path"`
 	MigrationsPath string        `json:"migrations_prefix"`
 	TestFlag       bool          `json:"test_flag"`
 	ContactAddress string        `json:"contact_address"`

@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/gophish/gophish/auth"
 	ctx "github.com/gophish/gophish/context"
 	"github.com/gophish/gophish/models"
 	"github.com/gorilla/csrf"
@@ -31,6 +30,15 @@ func CSRFExceptions(handler http.Handler) http.HandlerFunc {
 	}
 }
 
+// Use allows us to stack middleware to process the request
+// Example taken from https://github.com/gorilla/mux/pull/36#issuecomment-25849172
+func Use(handler http.HandlerFunc, mid ...func(http.Handler) http.HandlerFunc) http.HandlerFunc {
+	for _, m := range mid {
+		handler = m(handler)
+	}
+	return handler
+}
+
 // GetContext wraps each request in a function which fills in the context for a given request.
 // This includes setting the User and Session keys and values as necessary for use in later functions.
 func GetContext(handler http.Handler) http.HandlerFunc {
@@ -43,7 +51,7 @@ func GetContext(handler http.Handler) http.HandlerFunc {
 		}
 		// Set the context appropriately here.
 		// Set the session
-		session, _ := auth.Store.Get(r, "gophish")
+		session, _ := Store.Get(r, "gophish")
 		// Put the session in the context so that we can
 		// reuse the values in different handlers
 		r = ctx.Set(r, "session", session)
@@ -107,11 +115,12 @@ func RequireLogin(handler http.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if u := ctx.Get(r, "user"); u != nil {
 			handler.ServeHTTP(w, r)
-		} else {
-			q := r.URL.Query()
-			q.Set("next", r.URL.Path)
-			http.Redirect(w, r, fmt.Sprintf("/login?%s", q.Encode()), http.StatusTemporaryRedirect)
+			return
 		}
+		q := r.URL.Query()
+		q.Set("next", r.URL.Path)
+		http.Redirect(w, r, fmt.Sprintf("/login?%s", q.Encode()), http.StatusTemporaryRedirect)
+		return
 	}
 }
 

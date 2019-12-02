@@ -59,3 +59,44 @@ func (s *ModelsSuite) TestGeneratedAPIKey(c *check.C) {
 	c.Assert(err, check.Equals, nil)
 	c.Assert(u.ApiKey, check.Not(check.Equals), "12345678901234567890123456789012")
 }
+
+func (s *ModelsSuite) verifyRoleCount(c *check.C, roleID, expected int64) {
+	var adminCount int64
+	err := db.Model(&User{}).Where("role_id=?", roleID).Count(&adminCount).Error
+	c.Assert(err, check.Equals, nil)
+	c.Assert(adminCount, check.Equals, expected)
+}
+
+func (s *ModelsSuite) TestDeleteLastAdmin(c *check.C) {
+	// Create a new admin user
+	role, err := GetRoleBySlug(RoleAdmin)
+	c.Assert(err, check.Equals, nil)
+	newAdmin := User{
+		Username: "new-admin",
+		Hash:     "123456",
+		ApiKey:   "123456",
+		Role:     role,
+		RoleID:   role.ID,
+	}
+	err = PutUser(&newAdmin)
+	c.Assert(err, check.Equals, nil)
+
+	// Ensure that there are two admins
+	s.verifyRoleCount(c, role.ID, 2)
+
+	// Delete the newly created admin - this should work since we have more
+	// than one current admin.
+	err = DeleteUser(newAdmin.Id)
+	c.Assert(err, check.Equals, nil)
+
+	// Verify that we now have one admin
+	s.verifyRoleCount(c, role.ID, 1)
+
+	// Try to delete the last admin - this should fail since we always want at
+	// least one admin active in Gophish.
+	err = DeleteUser(1)
+	c.Assert(err, check.Equals, ErrModifyingOnlyAdmin)
+
+	// Verify that the admin wasn't deleted
+	s.verifyRoleCount(c, role.ID, 1)
+}

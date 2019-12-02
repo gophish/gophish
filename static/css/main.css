@@ -1,3 +1,7 @@
+.swal2-popup {
+    font-size: 1.6rem !important;
+  }
+
 .nav-tabs {
     cursor: pointer;
 }
@@ -700,6 +704,10 @@ table.dataTable {
 .nav-sidebar>li.active>a:focus,
 .nav-sidebar>li.active>a:hover {
     background-color: #37485a;
+}
+
+.nav-badge {
+    margin-top: 5px;
 }
 
 #resultsMapContainer {

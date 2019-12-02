@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -17,6 +18,7 @@ var successHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Reques
 
 type MiddlewareSuite struct {
 	suite.Suite
+	apiKey string
 }
 
 func (s *MiddlewareSuite) SetupSuite() {
@@ -29,6 +31,10 @@ func (s *MiddlewareSuite) SetupSuite() {
 	if err != nil {
 		s.T().Fatalf("Failed creating database: %v", err)
 	}
+	// Get the API key to use for these tests
+	u, err := models.GetUser(1)
+	s.Nil(err)
+	s.apiKey = u.ApiKey
 }
 
 // MiddlewarePermissionTest maps an expected HTTP Method to an expected HTTP
@@ -97,6 +103,35 @@ func (s *MiddlewareSuite) TestRequirePermission() {
 		handler.ServeHTTP(response, req)
 		s.Equal(response.Code, expected)
 	}
+}
+
+func (s *MiddlewareSuite) TestRequireAPIKey() {
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	req.Header.Set("Content-Type", "application/json")
+	response := httptest.NewRecorder()
+	// Test that making a request without an API key is denied
+	RequireAPIKey(successHandler).ServeHTTP(response, req)
+	s.Equal(response.Code, http.StatusUnauthorized)
+}
+
+func (s *MiddlewareSuite) TestInvalidAPIKey() {
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	query := req.URL.Query()
+	query.Set("api_key", "bogus-api-key")
+	req.URL.RawQuery = query.Encode()
+	req.Header.Set("Content-Type", "application/json")
+	response := httptest.NewRecorder()
+	RequireAPIKey(successHandler).ServeHTTP(response, req)
+	s.Equal(response.Code, http.StatusUnauthorized)
+}
+
+func (s *MiddlewareSuite) TestBearerToken() {
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", s.apiKey))
+	req.Header.Set("Content-Type", "application/json")
+	response := httptest.NewRecorder()
+	RequireAPIKey(successHandler).ServeHTTP(response, req)
+	s.Equal(response.Code, http.StatusOK)
 }
 
 func TestMiddlewareSuite(t *testing.T) {

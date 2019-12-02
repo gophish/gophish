@@ -4,10 +4,14 @@ import (
 	"crypto/rand"
 	"fmt"
 	"io"
+	"time"
+	"crypto/tls"
+	"crypto/x509"
+	"io/ioutil"
 
 	"bitbucket.org/liamstask/goose/lib/goose"
 
-	_ "github.com/go-sql-driver/mysql" // Blank import needed to import mysql
+	mysql "github.com/go-sql-driver/mysql"
 	"github.com/gophish/gophish/config"
 	log "github.com/gophish/gophish/logger"
 	"github.com/jinzhu/gorm"
@@ -16,6 +20,8 @@ import (
 
 var db *gorm.DB
 var conf *config.Config
+
+const MaxDatabaseConnectionAttempts int = 10
 
 const (
 	CampaignInProgress string = "In progress"
@@ -93,8 +99,45 @@ func Setup(c *config.Config) error {
 		log.Error(err)
 		return err
 	}
+
+	// Register certificates for tls encrypted db connections
+	if conf.DBSSLCaPath != "" {
+		switch conf.DBName {
+		case "mysql":
+			rootCertPool := x509.NewCertPool()
+			pem, err := ioutil.ReadFile(conf.DBSSLCaPath)
+			if err != nil {
+				log.Error(err)
+				return err
+			}
+			if ok := rootCertPool.AppendCertsFromPEM(pem); !ok {
+				log.Error("Failed to append PEM.")
+				return err
+			}
+			mysql.RegisterTLSConfig("ssl_ca", &tls.Config{
+				RootCAs: rootCertPool,
+			})
+			// Default database is sqlite3, which supports no tls, as connection
+			// is file based
+		default:
+		}
+	}
+
 	// Open our database connection
-	db, err = gorm.Open(conf.DBName, conf.DBPath)
+	i := 0
+	for {
+		db, err = gorm.Open(conf.DBName, conf.DBPath)
+		if err == nil {
+			break
+		}
+		if err != nil && i >= MaxDatabaseConnectionAttempts {
+			log.Error(err)
+			return err
+		}
+		i += 1
+		log.Warn("waiting for database to be up...")
+		time.Sleep(5 * time.Second)
+	}
 	db.LogMode(false)
 	db.SetLogger(log.Logger)
 	db.DB().SetMaxOpenConns(1)

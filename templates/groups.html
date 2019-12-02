@@ -1,0 +1,106 @@
+{{define "body"}}
+<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+    <div class="row">
+        <h1 class="page-header">
+            Users &amp; Groups
+        </h1>
+    </div>
+    <div id="flashes" class="row"></div>
+    <div class="row">
+        <button type="button" class="btn btn-primary" onclick="edit(-1)" data-toggle="modal" data-backdrop="static"
+            data-target="#modal">
+            <i class="fa fa-plus"></i> New Group</button>
+    </div>
+    &nbsp;
+    <div id="loading">
+        <i class="fa fa-spinner fa-spin fa-4x"></i>
+    </div>
+    <div id="emptyMessage" class="row" style="display:none;">
+        <div class="alert alert-info">
+            No groups created yet. Let's create one!
+        </div>
+    </div>
+    <div class="row">
+        <table id="groupTable" class="table" style="display:none;">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th># of Members</th>
+                    <th>Modified Date</th>
+                    <th class="col-md-2 no-sort"></th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="groupModalLabel">New Group</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" id="modal.flashes"></div>
+                <label class="control-label" for="name">Name:</label>
+                <div class="form-group">
+                    <input type="text" class="form-control" ng-model="group.name" placeholder="Group name" id="name"
+                        autofocus />
+                </div>
+                <div class="form-group">
+                    <span class="btn btn-danger btn-file" data-toggle="tooltip" data-placement="right"
+                        title="Supports CSV files" id="fileUpload">
+                        <i class="fa fa-plus"></i> Bulk Import Users
+                        <input type="file" id="csvupload" multiple>
+                    </span>
+                    <span id="csv-template" class="text-muted small">
+                        <i class="fa fa-file-excel-o"></i> Download CSV Template</span>
+                </div>
+                <div class="row">
+                    <form id="targetForm">
+                        <div class="col-sm-2">
+                            <input type="text" class="form-control" placeholder="First Name" id="firstName">
+                        </div>
+                        <div class="col-sm-2">
+                            <input type="text" class="form-control" placeholder="Last Name" id="lastName">
+                        </div>
+                        <div class="col-sm-3">
+                            <input type="email" class="form-control" placeholder="Email" id="email" required>
+                        </div>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" placeholder="Position" id="position">
+                        </div>
+                        <div class="col-sm-1">
+                            <button type="submit" class="btn btn-danger btn-lg">
+                                <i class="fa fa-plus"></i> Add</button>
+                        </div>
+                    </form>
+                </div>
+                <br />
+                <table id="targetsTable" class="table table-hover table-striped table-condensed">
+                    <thead>
+                        <tr>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Email</th>
+                            <th>Position</th>
+                            <th class="no-sort"></th>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="modalSubmit">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+{{end}} {{define "scripts"}}
+<script src="/js/dist/app/groups.min.js"></script>
+{{end}}

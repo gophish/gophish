@@ -12,6 +12,7 @@ import (
 	"github.com/gophish/gophish/auth"
 	"github.com/gophish/gophish/config"
 	ctx "github.com/gophish/gophish/context"
+	"github.com/gophish/gophish/controllers/api"
 	log "github.com/gophish/gophish/logger"
 	mid "github.com/gophish/gophish/middleware"
 	"github.com/gophish/gophish/models"
@@ -64,7 +65,7 @@ func NewAdminServer(config config.AdminServer, options ...AdminServerOption) *Ad
 }
 
 // Start launches the admin server, listening on the configured address.
-func (as *AdminServer) Start() error {
+func (as *AdminServer) Start() {
 	if as.worker != nil {
 		go as.worker.Start()
 	}
@@ -72,14 +73,13 @@ func (as *AdminServer) Start() error {
 		err := util.CheckAndCreateSSL(as.config.CertPath, as.config.KeyPath)
 		if err != nil {
 			log.Fatal(err)
-			return err
 		}
 		log.Infof("Starting admin server at https://%s", as.config.ListenURL)
-		return as.server.ListenAndServeTLS(as.config.CertPath, as.config.KeyPath)
+		log.Fatal(as.server.ListenAndServeTLS(as.config.CertPath, as.config.KeyPath))
 	}
 	// If TLS isn't configured, just listen on HTTP
 	log.Infof("Starting admin server at http://%s", as.config.ListenURL)
-	return as.server.ListenAndServe()
+	log.Fatal(as.server.ListenAndServe())
 }
 
 // Shutdown attempts to gracefully shutdown the server.
@@ -94,53 +94,30 @@ func (as *AdminServer) Shutdown() error {
 func (as *AdminServer) registerRoutes() {
 	router := mux.NewRouter()
 	// Base Front-end routes
-	router.HandleFunc("/", Use(as.Base, mid.RequireLogin))
+	router.HandleFunc("/", mid.Use(as.Base, mid.RequireLogin))
 	router.HandleFunc("/login", as.Login)
-	router.HandleFunc("/logout", Use(as.Logout, mid.RequireLogin))
-	router.HandleFunc("/campaigns", Use(as.Campaigns, mid.RequireLogin))
-	router.HandleFunc("/campaigns/{id:[0-9]+}", Use(as.CampaignID, mid.RequireLogin))
-	router.HandleFunc("/templates", Use(as.Templates, mid.RequireLogin))
-	router.HandleFunc("/users", Use(as.Users, mid.RequireLogin))
-	router.HandleFunc("/landing_pages", Use(as.LandingPages, mid.RequireLogin))
-	router.HandleFunc("/sending_profiles", Use(as.SendingProfiles, mid.RequireLogin))
-	router.HandleFunc("/settings", Use(as.Settings, mid.RequireLogin))
-	router.HandleFunc("/register", Use(as.Register, mid.RequireLogin, mid.RequirePermission(models.PermissionModifySystem)))
+	router.HandleFunc("/logout", mid.Use(as.Logout, mid.RequireLogin))
+	router.HandleFunc("/campaigns", mid.Use(as.Campaigns, mid.RequireLogin))
+	router.HandleFunc("/campaigns/{id:[0-9]+}", mid.Use(as.CampaignID, mid.RequireLogin))
+	router.HandleFunc("/templates", mid.Use(as.Templates, mid.RequireLogin))
+	router.HandleFunc("/groups", mid.Use(as.Groups, mid.RequireLogin))
+	router.HandleFunc("/landing_pages", mid.Use(as.LandingPages, mid.RequireLogin))
+	router.HandleFunc("/sending_profiles", mid.Use(as.SendingProfiles, mid.RequireLogin))
+	router.HandleFunc("/settings", mid.Use(as.Settings, mid.RequireLogin))
+	router.HandleFunc("/users", mid.Use(as.UserManagement, mid.RequirePermission(models.PermissionModifySystem), mid.RequireLogin))
 	// Create the API routes
-	api := router.PathPrefix("/api").Subrouter()
-	api = api.StrictSlash(true)
-	api.Use(mid.RequireAPIKey)
-	api.Use(mid.EnforceViewOnly)
-	api.HandleFunc("/reset", as.APIReset)
-	api.HandleFunc("/campaigns/", as.APICampaigns)
-	api.HandleFunc("/campaigns/summary", as.APICampaignsSummary)
-	api.HandleFunc("/campaigns/{id:[0-9]+}", as.APICampaign)
-	api.HandleFunc("/campaigns/{id:[0-9]+}/results", as.APICampaignResults)
-	api.HandleFunc("/campaigns/{id:[0-9]+}/summary", as.APICampaignSummary)
-	api.HandleFunc("/campaigns/{id:[0-9]+}/complete", as.APICampaignComplete)
-	api.HandleFunc("/groups/", as.APIGroups)
-	api.HandleFunc("/groups/summary", as.APIGroupsSummary)
-	api.HandleFunc("/groups/{id:[0-9]+}", as.APIGroup)
-	api.HandleFunc("/groups/{id:[0-9]+}/summary", as.APIGroupSummary)
-	api.HandleFunc("/templates/", as.APITemplates)
-	api.HandleFunc("/templates/{id:[0-9]+}", as.APITemplate)
-	api.HandleFunc("/pages/", as.APIPages)
-	api.HandleFunc("/pages/{id:[0-9]+}", as.APIPage)
-	api.HandleFunc("/smtp/", as.APISendingProfiles)
-	api.HandleFunc("/smtp/{id:[0-9]+}", as.APISendingProfile)
-	api.HandleFunc("/util/send_test_email", as.APISendTestEmail)
-	api.HandleFunc("/import/group", as.APIImportGroup)
-	api.HandleFunc("/import/email", as.APIImportEmail)
-	api.HandleFunc("/import/site", as.APIImportSite)
+	api := api.NewServer(api.WithWorker(as.worker))
+	router.PathPrefix("/api/").Handler(api)
 
 	// Setup static file serving
 	router.PathPrefix("/").Handler(http.FileServer(unindexed.Dir("./static/")))
 
 	// Setup CSRF Protection
-	csrfHandler := csrf.Protect([]byte(auth.GenerateSecureKey()),
+	csrfHandler := csrf.Protect([]byte(util.GenerateSecureKey()),
 		csrf.FieldName("csrf_token"),
 		csrf.Secure(as.config.UseTLS))
 	adminHandler := csrfHandler(router)
-	adminHandler = Use(adminHandler.ServeHTTP, mid.CSRFExceptions, mid.GetContext)
+	adminHandler = mid.Use(adminHandler.ServeHTTP, mid.CSRFExceptions, mid.GetContext)
 
 	// Setup GZIP compression
 	gzipWrapper, _ := gziphandler.NewGzipLevelHandler(gzip.BestCompression)
@@ -149,15 +126,6 @@ func (as *AdminServer) registerRoutes() {
 	// Setup logging
 	adminHandler = handlers.CombinedLoggingHandler(log.Writer(), adminHandler)
 	as.server.Handler = adminHandler
-}
-
-// Use allows us to stack middleware to process the request
-// Example taken from https://github.com/gorilla/mux/pull/36#issuecomment-25849172
-func Use(handler http.HandlerFunc, mid ...func(http.Handler) http.HandlerFunc) http.HandlerFunc {
-	for _, m := range mid {
-		handler = m(handler)
-	}
-	return handler
 }
 
 type templateParams struct {
@@ -179,42 +147,6 @@ func newTemplateParams(r *http.Request) templateParams {
 		User:         user,
 		ModifySystem: modifySystem,
 		Version:      config.Version,
-	}
-}
-
-// Register creates a new user
-func (as *AdminServer) Register(w http.ResponseWriter, r *http.Request) {
-	// If it is a post request, attempt to register the account
-	// Now that we are all registered, we can log the user in
-	params := templateParams{Title: "Register", Token: csrf.Token(r)}
-	session := ctx.Get(r, "session").(*sessions.Session)
-	switch {
-	case r.Method == "GET":
-		params.Flashes = session.Flashes()
-		session.Save(r, w)
-		templates := template.New("template")
-		_, err := templates.ParseFiles("templates/register.html", "templates/flashes.html")
-		if err != nil {
-			log.Error(err)
-		}
-		template.Must(templates, err).ExecuteTemplate(w, "base", params)
-	case r.Method == "POST":
-		//Attempt to register
-		succ, err := auth.Register(r)
-		//If we've registered, redirect to the login page
-		if succ {
-			Flash(w, r, "success", "Registration successful!")
-			session.Save(r, w)
-			http.Redirect(w, r, "/login", 302)
-			return
-		}
-		// Check the error
-		m := err.Error()
-		log.Error(err)
-		Flash(w, r, "danger", m)
-		session.Save(r, w)
-		http.Redirect(w, r, "/register", 302)
-		return
 	}
 }
 
@@ -246,11 +178,11 @@ func (as *AdminServer) Templates(w http.ResponseWriter, r *http.Request) {
 	getTemplate(w, "templates").ExecuteTemplate(w, "base", params)
 }
 
-// Users handles the default path and template execution
-func (as *AdminServer) Users(w http.ResponseWriter, r *http.Request) {
+// Groups handles the default path and template execution
+func (as *AdminServer) Groups(w http.ResponseWriter, r *http.Request) {
 	params := newTemplateParams(r)
 	params.Title = "Users & Groups"
-	getTemplate(w, "users").ExecuteTemplate(w, "base", params)
+	getTemplate(w, "groups").ExecuteTemplate(w, "base", params)
 }
 
 // LandingPages handles the default path and template execution
@@ -280,17 +212,25 @@ func (as *AdminServer) Settings(w http.ResponseWriter, r *http.Request) {
 		if err == auth.ErrInvalidPassword {
 			msg.Message = "Invalid Password"
 			msg.Success = false
-			JSONResponse(w, msg, http.StatusBadRequest)
+			api.JSONResponse(w, msg, http.StatusBadRequest)
 			return
 		}
 		if err != nil {
 			msg.Message = err.Error()
 			msg.Success = false
-			JSONResponse(w, msg, http.StatusBadRequest)
+			api.JSONResponse(w, msg, http.StatusBadRequest)
 			return
 		}
-		JSONResponse(w, msg, http.StatusOK)
+		api.JSONResponse(w, msg, http.StatusOK)
 	}
+}
+
+// UserManagement is an admin-only handler that allows for the registration
+// and management of user accounts within Gophish.
+func (as *AdminServer) UserManagement(w http.ResponseWriter, r *http.Request) {
+	params := newTemplateParams(r)
+	params.Title = "User Management"
+	getTemplate(w, "users").ExecuteTemplate(w, "base", params)
 }
 
 // Login handles the authentication flow for a user. If credentials are valid,

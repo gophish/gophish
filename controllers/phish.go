@@ -13,6 +13,7 @@ import (
 	"github.com/NYTimes/gziphandler"
 	"github.com/gophish/gophish/config"
 	ctx "github.com/gophish/gophish/context"
+	"github.com/gophish/gophish/controllers/api"
 	log "github.com/gophish/gophish/logger"
 	"github.com/gophish/gophish/models"
 	"github.com/gophish/gophish/util"
@@ -81,19 +82,18 @@ func WithContactAddress(addr string) PhishingServerOption {
 }
 
 // Start launches the phishing server, listening on the configured address.
-func (ps *PhishingServer) Start() error {
+func (ps *PhishingServer) Start() {
 	if ps.config.UseTLS {
 		err := util.CheckAndCreateSSL(ps.config.CertPath, ps.config.KeyPath)
 		if err != nil {
 			log.Fatal(err)
-			return err
 		}
 		log.Infof("Starting phishing server at https://%s", ps.config.ListenURL)
-		return ps.server.ListenAndServeTLS(ps.config.CertPath, ps.config.KeyPath)
+		log.Fatal(ps.server.ListenAndServeTLS(ps.config.CertPath, ps.config.KeyPath))
 	}
 	// If TLS isn't configured, just listen on HTTP
 	log.Infof("Starting phishing server at http://%s", ps.config.ListenURL)
-	return ps.server.ListenAndServe()
+	log.Fatal(ps.server.ListenAndServe())
 }
 
 // Shutdown attempts to gracefully shutdown the server.
@@ -160,6 +160,7 @@ func (ps *PhishingServer) TrackHandler(w http.ResponseWriter, r *http.Request) {
 // ReportHandler tracks emails as they are reported, updating the status for the given Result
 func (ps *PhishingServer) ReportHandler(w http.ResponseWriter, r *http.Request) {
 	r, err := setupContext(r)
+	w.Header().Set("Access-Control-Allow-Origin", "*") // To allow Chrome extensions (or other pages) to report a campaign without violating CORS
 	if err != nil {
 		// Log the error if it wasn't something we can safely ignore
 		if err != ErrInvalidRequest && err != ErrCampaignComplete {
@@ -202,6 +203,7 @@ func (ps *PhishingServer) PhishHandler(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
+	w.Header().Set("X-Server", config.ServerName) // Useful for checking if this is a GoPhish server (e.g. for campaign reporting plugins)
 	var ptx models.PhishingTemplateContext
 	// Check for a preview
 	if preview, ok := ctx.Get(r, "result").(models.EmailRequest); ok {
@@ -299,7 +301,7 @@ func (ps *PhishingServer) TransparencyHandler(w http.ResponseWriter, r *http.Req
 		SendDate:       rs.SendDate,
 		ContactAddress: ps.contactAddress,
 	}
-	JSONResponse(w, tr, http.StatusOK)
+	api.JSONResponse(w, tr, http.StatusOK)
 }
 
 // setupContext handles some of the administrative work around receiving a new
