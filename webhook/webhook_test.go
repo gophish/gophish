@@ -60,14 +60,12 @@ func (s *WebhookSuite) TestSignature() {
 	jsonData, err := json.Marshal(d1)
 	s.Nil(err)
 
-
 	secret := "secret123"
 	hash1 := hmac.New(sha256.New, []byte(secret))
 	_, err = hash1.Write(jsonData)
 	s.Nil(err)
 
 	realSign := hex.EncodeToString(hash1.Sum(nil))
-	// c.Assert(expectedSign, realSign, nil)
 	assert.Equal(s.T(), expectedSign, realSign)
 }
 
