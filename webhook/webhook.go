@@ -16,17 +16,17 @@ import (
 
 const (
 
-	//DefaultTimeoutSeconds is amount of seconds of timeout used by HTTP sender
+	// DefaultTimeoutSeconds is amount of seconds of timeout used by HTTP sender
 	DefaultTimeoutSeconds = 10
 
-	//MinHTTPStatusErrorCode is the lowest number of an HTTP response which indicates an error
+	// MinHTTPStatusErrorCode is the lowest number of an HTTP response which indicates an error
 	MinHTTPStatusErrorCode = 400
 
-	//SignatureHeader is the name of an HTTP header used to which contains signature of a webhook
+	// SignatureHeader is the name of an HTTP header used to which contains signature of a webhook
 	SignatureHeader = "X-Gophish-Signature"
 )
 
-//Sender defines behaviour of an entity by which webhook is sent
+// Sender defines behaviour of an entity by which webhook is sent
 type Sender interface {
 	Send(endPoint EndPoint, data interface{}) error
 }
@@ -44,18 +44,18 @@ var senderInstance = &defaultSender{
 	},
 }
 
-//EndPoint represents and end point to send a webhook to: url and secret by which payload is signed
+// EndPoint represents and end point to send a webhook to: url and secret by which payload is signed
 type EndPoint struct {
 	URL    string
 	Secret string
 }
 
-//Send sends data to a single EndPoint
+// Send sends data to a single EndPoint
 func Send(endPoint EndPoint, data interface{}) error {
 	return senderInstance.Send(endPoint, data)
 }
 
-//SendAll sends data to each of the EndPoints
+// SendAll sends data to each of the EndPoints
 func SendAll(endPoints []EndPoint, data interface{}) {
 	for _, ept := range endPoints {
 		go func(ept1 EndPoint) {
@@ -64,7 +64,7 @@ func SendAll(endPoints []EndPoint, data interface{}) {
 	}
 }
 
-//Send contains the implementation of sending webhook to an EndPoint
+// Send contains the implementation of sending webhook to an EndPoint
 func (ds defaultSender) Send(endPoint EndPoint, data interface{}) error {
 	jsonData, err := json.Marshal(data)
 	if err != nil {
