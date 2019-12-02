@@ -54,30 +54,26 @@ func (s *WebhookSuite) TestSendMocked() {
 
 func (s *WebhookSuite) TestSendReal() {
 	expectedSign := "4775314ed81be378b2b14f18ac29a6db0eb83b44ed464a000400d43100c8a01e"
-
-		//TODO
-		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			fmt.Fprintln(w, "***inside the server***")
-			fmt.Println("***inside the server2***")
-
-			realSign := r.Header.Get(webhook.SignatureHeader)
-			assert.Equal(s.T(), expectedSign, realSign)
-
-			//TODO
-		}))
-		defer ts.Close()
-
-								// res, err := http.Post(ts.URL, )
-								// if err != nil {
-								// 	log.Fatal(err)
-								// }
-								// _, err = ioutil.ReadAll(res.Body)
-								// res.Body.Close()
-								// if err != nil {
-								// 	log.Fatal(err)
-								// }
-
+	successfulHttpResponseCode := 200
 	secret := "secret456"
+
+	hClient := &http.Client{}
+
+	//TODO
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println("[test] running the server")
+
+		realSign := r.Header.Get(webhook.SignatureHeader)
+		assert.Equal(s.T(), expectedSign, realSign)
+
+		neHeader := r.Header.Get("not-existing-header")
+		assert.Equal(s.T(), neHeader, "")
+
+		contTypeJsonHeader := r.Header.Get("Content-Type")
+		assert.Equal(s.T(), contTypeJsonHeader, "application/json")
+	}))
+	defer ts.Close()
+
 	d1 := map[string]interface{} {
 		"key11": "val1",
 		"key22": "val22",
@@ -86,21 +82,15 @@ func (s *WebhookSuite) TestSendReal() {
 		},
 	}
 
-
 	jsonData, err := json.Marshal(d1)
 	s.Nil(err)
 
 	req, err := http.NewRequest("POST", ts.URL, bytes.NewBuffer(jsonData))
-	// signat, err := sign(endPoint.Secret, jsonData)
-
 	hash1 := hmac.New(sha256.New, []byte(secret))
 	_, err = hash1.Write(jsonData)
 	s.Nil(err)
 
 	sign1 := hex.EncodeToString(hash1.Sum(nil))
-
-
-	hClient := &http.Client{}
 
 	req.Header.Set(webhook.SignatureHeader, sign1)
 	req.Header.Set("Content-Type", "application/json")
@@ -108,12 +98,7 @@ func (s *WebhookSuite) TestSendReal() {
 	s.Nil(err)
 	defer resp.Body.Close()
 
-	// if resp.StatusCode >= webhook.MinHTTPStatusErrorCode {
-	// 	errMsg := fmt.Sprintf("http status of response: %s", resp.Status)
-	// 	log.Error(errMsg)
-	// 	return errors.New(errMsg)
-	// }
-
+	assert.Equal(s.T(), resp.StatusCode, successfulHttpResponseCode)
 }
 
 func (s *WebhookSuite) TestSignature() {
