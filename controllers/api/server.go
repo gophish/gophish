@@ -79,9 +79,9 @@ func (as *Server) registerRoutes() {
 	c := cors.New(cors.Options{
 		AllowedOrigins: as.config.CorsAllowedOrigins,
 		AllowedMethods: []string{"GET", "POST", "OPTIONS"},
-		AllowedHeaders: []string{"Origin", "X-Requested-With", "Content-Type", "Accept"},
+		AllowedHeaders: []string{"Origin", "X-Requested-With", "Content-Type", "Accept", "Authorization"},
 		MaxAge: 1000,
-		AllowCredentials: true,
+		AllowCredentials: false,
 		Debug: as.config.CorsDebug,
 	})
 	
