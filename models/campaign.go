@@ -491,6 +491,7 @@ func PostCampaign(c *Campaign, uid int64) error {
 	// Insert all the results
 	resultMap := make(map[string]bool)
 	recipientIndex := 0
+	tx := db.Begin()
 	for _, g := range c.Groups {
 		// Insert a result for each target in the group
 		for _, t := range g.Targets {
@@ -515,24 +516,30 @@ func PostCampaign(c *Campaign, uid int64) error {
 				Reported:     false,
 				ModifiedDate: c.CreatedDate,
 			}
-			err = r.GenerateId()
+			err = r.GenerateId(tx)
 			if err != nil {
 				log.Error(err)
-				continue
+				tx.Rollback()
+				return err
 			}
 			processing := false
 			if r.SendDate.Before(c.CreatedDate) || r.SendDate.Equal(c.CreatedDate) {
 				r.Status = StatusSending
 				processing = true
 			}
-			err = db.Save(r).Error
+			err = tx.Save(r).Error
 			if err != nil {
 				log.WithFields(logrus.Fields{
 					"email": t.Email,
-				}).Error(err)
+				}).Errorf("error creating result: %v", err)
+				tx.Rollback()
+				return err
 			}
 			c.Results = append(c.Results, *r)
-			log.Infof("Creating maillog for %s to send at %s\n", r.Email, sendDate)
+			log.WithFields(logrus.Fields{
+				"email":     r.Email,
+				"send_date": sendDate,
+			}).Debug("creating maillog")
 			m := &MailLog{
 				UserId:     c.UserId,
 				CampaignId: c.Id,
@@ -540,16 +547,18 @@ func PostCampaign(c *Campaign, uid int64) error {
 				SendDate:   sendDate,
 				Processing: processing,
 			}
-			err = db.Save(m).Error
+			err = tx.Save(m).Error
 			if err != nil {
-				log.Error(err)
-				continue
+				log.WithFields(logrus.Fields{
+					"email": t.Email,
+				}).Errorf("error creating maillog entry: %v", err)
+				tx.Rollback()
+				return err
 			}
 			recipientIndex++
 		}
 	}
-	err = db.Save(c).Error
-	return err
+	return tx.Commit().Error
 }
 
 //DeleteCampaign deletes the specified campaign
