@@ -56,7 +56,7 @@ func (s *WebhookSuite) TestSendReal() {
 
 	hClient := &http.Client{}
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("[test] running the server")
+		fmt.Println("[test] running the server...")
 
 		realSign := r.Header.Get(webhook.SignatureHeader)
 		assert.Equal(s.T(), expectedSign, realSign)
