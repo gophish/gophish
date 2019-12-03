@@ -253,14 +253,6 @@ func PutGroup(g *Group) error {
 			continue
 		}
 
-		// tExists = false
-		// // Is the target still in the group?
-		// for _, nt := range g.Targets {
-		// 	if t.Email == nt.Email {
-		// 		tExists = true
-		// 		break
-		// 	}
-		// }
 		// If the target does not exist in the group any longer, we delete it
 		// if !tExists {
 		err := tx.Where("group_id=? and target_id=?", g.Id, t.Id).Delete(&GroupTarget{}).Error
@@ -270,10 +262,11 @@ func PutGroup(g *Group) error {
 				"email": t.Email,
 			}).Error("Error deleting email")
 		}
-		// }
 	}
 	// Add any targets that are not in the database yet.
 	for _, nt := range g.Targets {
+		// If the target already exists in the database, we should just update
+		// the record with the latest information.
 		if id, ok := cacheExisting[nt.Email]; ok {
 			nt.Id = id
 			err = UpdateTarget(tx, nt)
@@ -284,31 +277,13 @@ func PutGroup(g *Group) error {
 			}
 			continue
 		}
-		// Check and see if the target already exists in the db
-		// tExists = false
-		// for _, t := range ts {
-		// 	if t.Email == nt.Email {
-		// 		tExists = true
-		// 		nt.Id = t.Id
-		// 		break
-		// 	}
-		// }
-		// Add target if not in database, otherwise update target information.
-		// if !tExists {
+		// Otherwise, add target if not in database
 		err = insertTargetIntoGroup(tx, nt, g.Id)
 		if err != nil {
 			log.Error(err)
 			tx.Rollback()
 			return err
 		}
-		// } else {
-		// err = UpdateTarget(tx, nt)
-		// if err != nil {
-		// 	log.Error(err)
-		// 	tx.Rollback()
-		// 	return err
-		// }
-		// }
 	}
 	err = tx.Save(g).Error
 	if err != nil {
