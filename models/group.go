@@ -247,14 +247,12 @@ func PutGroup(g *Group) error {
 
 	tx := db.Begin()
 	// Check existing targets, removing any that are no longer in the group.
-	// tExists := false
 	for _, t := range ts {
 		if _, ok := cacheNew[t.Email]; ok {
 			continue
 		}
 
 		// If the target does not exist in the group any longer, we delete it
-		// if !tExists {
 		err := tx.Where("group_id=? and target_id=?", g.Id, t.Id).Delete(&GroupTarget{}).Error
 		if err != nil {
 			tx.Rollback()
