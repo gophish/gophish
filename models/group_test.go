@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/gophish/gophish/config"
 	"github.com/jinzhu/gorm"
 	"gopkg.in/check.v1"
 )
@@ -173,44 +172,6 @@ func (s *ModelsSuite) TestPutGroupEmptyAttribute(c *check.C) {
 	c.Assert(targets[1].Email, check.Equals, "test2@example.com")
 	c.Assert(targets[1].FirstName, check.Equals, "Second")
 	c.Assert(targets[1].LastName, check.Equals, "Example")
-}
-
-func setupBenchmark(b *testing.B) {
-	conf := &config.Config{
-		DBName:         "sqlite3",
-		DBPath:         ":memory:",
-		MigrationsPath: "../db/db_sqlite3/migrations/",
-	}
-	err := Setup(conf)
-	if err != nil {
-		b.Fatalf("Failed creating database: %v", err)
-	}
-}
-
-func tearDownBenchmark(b *testing.B) {
-	err := db.Close()
-	if err != nil {
-		b.Fatalf("error closing database: %v", err)
-	}
-	/*err = os.Remove("gophish_benchmark.db")
-	if err != nil {
-		b.Fatalf("error removing db %v", err)
-	}*/
-}
-
-func resetBenchmark(b *testing.B) {
-	db.Delete(Group{})
-	db.Delete(Target{})
-	db.Delete(GroupTarget{})
-	db.Delete(SMTP{})
-	db.Delete(Page{})
-	db.Delete(Result{})
-	db.Delete(MailLog{})
-	db.Delete(Campaign{})
-
-	// Reset users table to default state.
-	db.Not("id", 1).Delete(User{})
-	db.Model(User{}).Update("username", "admin")
 }
 
 func benchmarkPostGroup(b *testing.B, iter, size int) {
