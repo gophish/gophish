@@ -1,6 +1,8 @@
 package models
 
 import (
+	"fmt"
+	"testing"
 	"time"
 
 	check "gopkg.in/check.v1"
@@ -13,6 +15,11 @@ func (s *ModelsSuite) TestGenerateSendDate(c *check.C) {
 	err := PostCampaign(&campaign, campaign.UserId)
 	c.Assert(err, check.Equals, nil)
 	c.Assert(campaign.LaunchDate, check.Equals, campaign.CreatedDate)
+
+	// For comparing the dates, we need to fetch the campaign again. This is
+	// to solve an issue where the campaign object right now has time down to
+	// the microsecond, while in MySQL it's rounded down to the second.
+	campaign, _ = GetCampaign(campaign.Id, campaign.UserId)
 
 	ms, err := GetMailLogsByCampaign(campaign.Id)
 	c.Assert(err, check.Equals, nil)
@@ -27,6 +34,8 @@ func (s *ModelsSuite) TestGenerateSendDate(c *check.C) {
 	err = PostCampaign(&campaign, campaign.UserId)
 	c.Assert(err, check.Equals, nil)
 
+	campaign, _ = GetCampaign(campaign.Id, campaign.UserId)
+
 	ms, err = GetMailLogsByCampaign(campaign.Id)
 	c.Assert(err, check.Equals, nil)
 	for _, m := range ms {
@@ -40,6 +49,8 @@ func (s *ModelsSuite) TestGenerateSendDate(c *check.C) {
 	campaign.SendByDate = campaign.LaunchDate.Add(2 * time.Minute)
 	err = PostCampaign(&campaign, campaign.UserId)
 	c.Assert(err, check.Equals, nil)
+
+	campaign, _ = GetCampaign(campaign.Id, campaign.UserId)
 
 	ms, err = GetMailLogsByCampaign(campaign.Id)
 	c.Assert(err, check.Equals, nil)
@@ -132,4 +143,129 @@ func (s *ModelsSuite) TestCompleteCampaignAlsoDeletesMailLogs(c *check.C) {
 	ms, err = GetMailLogsByCampaign(campaign.Id)
 	c.Assert(err, check.Equals, nil)
 	c.Assert(len(ms), check.Equals, 0)
+}
+
+func (s *ModelsSuite) TestCampaignGetResults(c *check.C) {
+	campaign := s.createCampaign(c)
+	got, err := GetCampaign(campaign.Id, campaign.UserId)
+	c.Assert(err, check.Equals, nil)
+	c.Assert(len(campaign.Results), check.Equals, len(got.Results))
+}
+
+func setupCampaignDependencies(b *testing.B, size int) {
+	group := Group{Name: "Test Group"}
+	// Create a large group of 5000 members
+	for i := 0; i < size; i++ {
+		group.Targets = append(group.Targets, Target{BaseRecipient: BaseRecipient{Email: fmt.Sprintf("test%d@example.com", i), FirstName: "User", LastName: fmt.Sprintf("%d", i)}})
+	}
+	group.UserId = 1
+	err := PostGroup(&group)
+	if err != nil {
+		b.Fatalf("error posting group: %v", err)
+	}
+
+	// Add a template
+	template := Template{Name: "Test Template"}
+	template.Subject = "{{.RId}} - Subject"
+	template.Text = "{{.RId}} - Text"
+	template.HTML = "{{.RId}} - HTML"
+	template.UserId = 1
+	err = PostTemplate(&template)
+	if err != nil {
+		b.Fatalf("error posting template: %v", err)
+	}
+
+	// Add a landing page
+	p := Page{Name: "Test Page"}
+	p.HTML = "<html>Test</html>"
+	p.UserId = 1
+	err = PostPage(&p)
+	if err != nil {
+		b.Fatalf("error posting page: %v", err)
+	}
+
+	// Add a sending profile
+	smtp := SMTP{Name: "Test Page"}
+	smtp.UserId = 1
+	smtp.Host = "example.com"
+	smtp.FromAddress = "test@test.com"
+	err = PostSMTP(&smtp)
+	if err != nil {
+		b.Fatalf("error posting smtp: %v", err)
+	}
+}
+
+func BenchmarkCampaign100(b *testing.B) {
+	setupBenchmark(b)
+	setupCampaignDependencies(b, 100)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		campaign := Campaign{Name: "Test campaign"}
+		campaign.UserId = 1
+		campaign.Template = Template{Name: "Test Template"}
+		campaign.Page = Page{Name: "Test Page"}
+		campaign.SMTP = SMTP{Name: "Test Page"}
+		campaign.Groups = []Group{Group{Name: "Test Group"}}
+
+		b.StartTimer()
+		err := PostCampaign(&campaign, 1)
+		if err != nil {
+			b.Fatalf("error posting campaign: %v", err)
+		}
+		b.StopTimer()
+		db.Delete(Result{})
+		db.Delete(MailLog{})
+		db.Delete(Campaign{})
+	}
+	tearDownBenchmark(b)
+}
+
+func BenchmarkCampaign1000(b *testing.B) {
+	setupBenchmark(b)
+	setupCampaignDependencies(b, 1000)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		campaign := Campaign{Name: "Test campaign"}
+		campaign.UserId = 1
+		campaign.Template = Template{Name: "Test Template"}
+		campaign.Page = Page{Name: "Test Page"}
+		campaign.SMTP = SMTP{Name: "Test Page"}
+		campaign.Groups = []Group{Group{Name: "Test Group"}}
+
+		b.StartTimer()
+		err := PostCampaign(&campaign, 1)
+		if err != nil {
+			b.Fatalf("error posting campaign: %v", err)
+		}
+		b.StopTimer()
+		db.Delete(Result{})
+		db.Delete(MailLog{})
+		db.Delete(Campaign{})
+	}
+	tearDownBenchmark(b)
+}
+
+func BenchmarkCampaign10000(b *testing.B) {
+	setupBenchmark(b)
+	setupCampaignDependencies(b, 10000)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		campaign := Campaign{Name: "Test campaign"}
+		campaign.UserId = 1
+		campaign.Template = Template{Name: "Test Template"}
+		campaign.Page = Page{Name: "Test Page"}
+		campaign.SMTP = SMTP{Name: "Test Page"}
+		campaign.Groups = []Group{Group{Name: "Test Group"}}
+
+		b.StartTimer()
+		err := PostCampaign(&campaign, 1)
+		if err != nil {
+			b.Fatalf("error posting campaign: %v", err)
+		}
+		b.StopTimer()
+		db.Delete(Result{})
+		db.Delete(MailLog{})
+		db.Delete(Campaign{})
+	}
+	tearDownBenchmark(b)
 }
