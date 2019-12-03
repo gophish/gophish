@@ -96,5 +96,10 @@ func (s *ModelsSuite) createCampaign(ch *check.C) Campaign {
 	c := s.createCampaignDependencies(ch)
 	// Setup and "launch" our campaign
 	ch.Assert(PostCampaign(&c, c.UserId), check.Equals, nil)
+
+	// For comparing the dates, we need to fetch the campaign again. This is
+	// to solve an issue where the campaign object right now has time down to
+	// the microsecond, while in MySQL it's rounded down to the second.
+	c, _ = GetCampaign(c.Id, c.UserId)
 	return c
 }

@@ -16,6 +16,11 @@ func (s *ModelsSuite) TestGenerateSendDate(c *check.C) {
 	c.Assert(err, check.Equals, nil)
 	c.Assert(campaign.LaunchDate, check.Equals, campaign.CreatedDate)
 
+	// For comparing the dates, we need to fetch the campaign again. This is
+	// to solve an issue where the campaign object right now has time down to
+	// the microsecond, while in MySQL it's rounded down to the second.
+	campaign, _ = GetCampaign(campaign.Id, campaign.UserId)
+
 	ms, err := GetMailLogsByCampaign(campaign.Id)
 	c.Assert(err, check.Equals, nil)
 	for _, m := range ms {
@@ -28,6 +33,8 @@ func (s *ModelsSuite) TestGenerateSendDate(c *check.C) {
 	campaign.LaunchDate = time.Now().UTC()
 	err = PostCampaign(&campaign, campaign.UserId)
 	c.Assert(err, check.Equals, nil)
+
+	campaign, _ = GetCampaign(campaign.Id, campaign.UserId)
 
 	ms, err = GetMailLogsByCampaign(campaign.Id)
 	c.Assert(err, check.Equals, nil)
@@ -42,6 +49,8 @@ func (s *ModelsSuite) TestGenerateSendDate(c *check.C) {
 	campaign.SendByDate = campaign.LaunchDate.Add(2 * time.Minute)
 	err = PostCampaign(&campaign, campaign.UserId)
 	c.Assert(err, check.Equals, nil)
+
+	campaign, _ = GetCampaign(campaign.Id, campaign.UserId)
 
 	ms, err = GetMailLogsByCampaign(campaign.Id)
 	c.Assert(err, check.Equals, nil)
