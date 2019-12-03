@@ -64,9 +64,6 @@ func (s *WebhookSuite) TestSendReal() {
 		realSign := r.Header.Get(SignatureHeader)
 		assert.Equal(s.T(), expectedSign, realSign)
 
-		neHeader := r.Header.Get("non-existing-header")
-		assert.Equal(s.T(), neHeader, "")
-
 		contTypeJsonHeader := r.Header.Get("Content-Type")
 		assert.Equal(s.T(), contTypeJsonHeader, "application/json")
 
@@ -76,27 +73,12 @@ func (s *WebhookSuite) TestSendReal() {
 		var d2 map[string]interface{}
 		err = json.Unmarshal(body, &d2)
 		s.Nil(err)
-
-		key1RealVal := d2["key1"]
-		assert.Equal(s.T(), d1["key1"], key1RealVal)
-
-		key2RealVal := d2["key2"]
-		assert.Equal(s.T(), d1["key2"], key2RealVal)
-
-		key3RealVal := d2["key3"]
-		assert.Equal(s.T(), d1["key3"], key3RealVal)
+		assert.Equal(s.T(), d1, d2)
 	}))
+
 	defer ts.Close()
-
-	jsonData, err := json.Marshal(d1)
-	s.Nil(err)
-
-	hash1 := hmac.New(sha256.New, []byte(secret))
-	_, err = hash1.Write(jsonData)
-	s.Nil(err)
-
 	endp1 := EndPoint{URL: ts.URL, Secret: secret}
-	err = Send(endp1, d1)
+	err := Send(endp1, d1)
 	s.Nil(err)
 }
 
