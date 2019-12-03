@@ -10,11 +10,9 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"bytes"
 	"io/ioutil"
 
 	"github.com/stretchr/testify/suite"
-	"github.com/gophish/gophish/webhook"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -33,14 +31,14 @@ func newMockSender() *mockSender {
 	return ms
 }
 
-func (ms mockSender) Send(endPoint webhook.EndPoint, data interface{}) error {
+func (ms mockSender) Send(endPoint EndPoint, data interface{}) error {
 	log.Println("[test] mocked 'Send' function")
 	return nil
 }
 
 func (s *WebhookSuite) TestSendMocked() {
 	mcSnd := newMockSender()
-	endp1 := webhook.EndPoint{URL: "http://example.com/a1", Secret: "s1"}
+	endp1 := EndPoint{URL: "http://example.com/a1", Secret: "s1"}
 	d1 := map[string]string {
 		"a1": "a11",
 		"a2": "a22",
@@ -50,70 +48,8 @@ func (s *WebhookSuite) TestSendMocked() {
 	s.Nil(err)
 }
 
+
 func (s *WebhookSuite) TestSendReal() {
-	expectedSign := "4775314ed81be378b2b14f18ac29a6db0eb83b44ed464a000400d43100c8a01e"
-	successfulHttpResponseCode := 200
-	secret := "secret456"
-	d1 := map[string]interface{} {
-		"key11": "val1",
-		"key22": "val22",
-		"key33": map[string]string {
-			"key4": "val444",
-		},
-	}
-
-	hClient := &http.Client{}
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("[test] running the server...")
-
-		realSign := r.Header.Get(webhook.SignatureHeader)
-		assert.Equal(s.T(), expectedSign, realSign)
-
-		neHeader := r.Header.Get("non-existing-header")
-		assert.Equal(s.T(), neHeader, "")
-
-		contTypeJsonHeader := r.Header.Get("Content-Type")
-		assert.Equal(s.T(), contTypeJsonHeader, "application/json")
-
-		body, err := ioutil.ReadAll(r.Body)
-		s.Nil(err)
-
-		var d2 map[string]interface{}
-		err = json.Unmarshal(body, &d2)
-		s.Nil(err)
-
-		key1RealVal := d2["key1"]
-		assert.Equal(s.T(), d1["key1"], key1RealVal)
-
-		key2RealVal := d2["key2"]
-		assert.Equal(s.T(), d1["key2"], key2RealVal)
-
-		key3RealVal := d2["key3"]
-		assert.Equal(s.T(), d1["key3"], key3RealVal)
-	}))
-	defer ts.Close()
-
-	jsonData, err := json.Marshal(d1)
-	s.Nil(err)
-
-	req, err := http.NewRequest("POST", ts.URL, bytes.NewBuffer(jsonData))
-	hash1 := hmac.New(sha256.New, []byte(secret))
-	_, err = hash1.Write(jsonData)
-	s.Nil(err)
-
-	sign1 := hex.EncodeToString(hash1.Sum(nil))
-	req.Header.Set(webhook.SignatureHeader, sign1)
-	req.Header.Set("Content-Type", "application/json")
-	resp, err := hClient.Do(req)
-	defer resp.Body.Close()
-	s.Nil(err)
-
-	assert.Equal(s.T(), resp.StatusCode, successfulHttpResponseCode, "response code is successful")
-	assert.NotEqual(s.T(), resp.StatusCode, webhook.MinHTTPStatusErrorCode, "response code isn't equal to MinHTTPStatusErrorCode")
-	assert.True(s.T(), resp.StatusCode < webhook.MinHTTPStatusErrorCode, "response code is less than MinHTTPStatusErrorCode")
-}
-
-func (s *WebhookSuite) TestSendReal2() {
 	expectedSign := "004b36ca3fcbc01a08b17bf5d4a7e1aa0b10e14f55f3f8bd9acac0c7e8d2635d"
 	secret := "secret456"
 	d1 := map[string]interface{} {
@@ -125,7 +61,7 @@ func (s *WebhookSuite) TestSendReal2() {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("[test] running the server...")
 
-		realSign := r.Header.Get(webhook.SignatureHeader)
+		realSign := r.Header.Get(SignatureHeader)
 		assert.Equal(s.T(), expectedSign, realSign)
 
 		neHeader := r.Header.Get("non-existing-header")
@@ -159,8 +95,8 @@ func (s *WebhookSuite) TestSendReal2() {
 	_, err = hash1.Write(jsonData)
 	s.Nil(err)
 
-	endp1 := webhook.EndPoint{URL: ts.URL, Secret: secret}
-	err = webhook.Send(endp1, d1)
+	endp1 := EndPoint{URL: ts.URL, Secret: secret}
+	err = Send(endp1, d1)
 	s.Nil(err)
 }
 
@@ -181,6 +117,16 @@ func (s *WebhookSuite) TestSignature() {
 	s.Nil(err)
 
 	realSign := hex.EncodeToString(hash1.Sum(nil))
+	assert.Equal(s.T(), expectedSign, realSign)
+}
+
+//TODO
+func (s *WebhookSuite) TestSignature2() {
+	secret := "secret123"
+	payload := []byte("some payload456")
+	expectedSign := "ab7844c1e9149f8dc976c4188a72163c005930f3c2266a163ffe434230bdf761"
+	realSign, err := sign(secret, payload)
+	s.Nil(err)
 	assert.Equal(s.T(), expectedSign, realSign)
 }
 
