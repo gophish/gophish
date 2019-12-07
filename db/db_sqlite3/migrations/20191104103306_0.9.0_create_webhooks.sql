@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS "webhooks" (
     "name" varchar(255),
     "url" varchar(1000),
     "secret" varchar(255),
-    "is_active" boolean default 0
+    "is_active" integer default 0
 );
 
 
