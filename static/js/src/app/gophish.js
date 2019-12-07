@@ -233,16 +233,16 @@ var api = {
     },
     webhookId: {
         get: function(id) {
-            return query(`/webhooks/${id}`, "GET", {}, false)
+            return query("/webhooks/" + id, "GET", {}, false)
         },
         put: function(webhook) {
-            return query(`/webhooks/${webhook.id}`, "PUT", webhook, true)
+            return query("/webhooks/" + webhook.id, "PUT", webhook, true)
         },
         delete: function(id) {
-            return query(`/webhooks/${id}`, "DELETE", {}, false)
+            return query("/webhooks/" + id, "DELETE", {}, false)
         },
         ping: function(id) {
-            return query(`/webhooks/${id}/validate`, "POST", {}, true)
+            return query("/webhooks/" + id + "/validate", "POST", {}, true)
         },
     },
     // import handles all of the "import" functions in the api
