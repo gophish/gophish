@@ -23,7 +23,7 @@ const (
 	MinHTTPStatusErrorCode = 400
 
 	// SignatureHeader is the name of an HTTP header used to which contains signature of a webhook
-	SignatureHeader = "X-Gophish-Signature: sha256=hash"
+	SignatureHeader = "X-Gophish-Signature: sha256="
 )
 
 // Sender defines behaviour of an entity by which webhook is sent
