@@ -24,6 +24,9 @@ const (
 
 	// SignatureHeader is the name of an HTTP header used to which contains signature of a webhook
 	SignatureHeader = "X-Gophish-Signature"
+
+	// Sha256Prefix is the prefix that specifies the hashing algorithm used for signature
+	Sha256Prefix = "sha256"
 )
 
 // Sender defines behaviour of an entity by which webhook is sent
@@ -74,7 +77,7 @@ func (ds defaultSender) Send(endPoint EndPoint, data interface{}) error {
 
 	req, err := http.NewRequest("POST", endPoint.URL, bytes.NewBuffer(jsonData))
 	signat, err := sign(endPoint.Secret, jsonData)
-	req.Header.Set(SignatureHeader, signat)
+	req.Header.Set(SignatureHeader, fmt.Sprintf("%s=%s", Sha256Prefix, signat))
 	req.Header.Set("Content-Type", "application/json")
 	resp, err := ds.client.Do(req)
 	if err != nil {

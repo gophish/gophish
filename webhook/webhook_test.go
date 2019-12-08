@@ -61,7 +61,9 @@ func (s *WebhookSuite) TestSendReal() {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("[test] running the server...")
 
-		realSign := r.Header.Get(SignatureHeader)
+		signStartIdx := len(Sha256Prefix) + 1
+		realSignRaw := r.Header.Get(SignatureHeader)
+		realSign := realSignRaw[signStartIdx:]
 		assert.Equal(s.T(), expectedSign, realSign)
 
 		contTypeJsonHeader := r.Header.Get("Content-Type")
