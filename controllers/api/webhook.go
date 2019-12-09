@@ -65,9 +65,6 @@ func (as *Server) Webhook(w http.ResponseWriter, r *http.Request) {
 		wh2 := models.Webhook{}
 		err = json.NewDecoder(r.Body).Decode(&wh2)
 		wh2.Id = id
-		if wh.URL != wh2.URL {
-			wh2.IsActive = false
-		}
 		err = models.PutWebhook(&wh2)
 		if err != nil {
 			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
@@ -78,9 +75,6 @@ func (as *Server) Webhook(w http.ResponseWriter, r *http.Request) {
 }
 
 // ValidateWebhook makes an HTTP request to a specified remote url to ensure that it's valid.
-// If a request succeeds a webhook changes its 'is_active' state to 'true' in database.
-// If a request doesn't succeed,
-// a webhook changes its 'is_active' state to 'false' in database
 func (as *Server) ValidateWebhook(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "POST":
@@ -92,26 +86,11 @@ func (as *Server) ValidateWebhook(w http.ResponseWriter, r *http.Request) {
 			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
 			return
 		}
-
 		err = webhook.Send(webhook.EndPoint{URL: wh.URL, Secret: wh.Secret}, "")
 		if err == nil {
-			if !wh.IsActive {
-				wh.IsActive = true
-				err = models.PutWebhook(&wh)
-				if err != nil {
-					JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
-					return
-				}
-			}
+			JSONResponse(w, wh, http.StatusOK)
 		} else {
-			if wh.IsActive {
-				wh.IsActive = false
-				models.PutWebhook(&wh)
-			}
 			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
-			return
 		}
-
-		JSONResponse(w, wh, http.StatusOK)
 	}
 }
