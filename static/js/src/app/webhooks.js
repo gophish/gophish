@@ -1,13 +1,10 @@
-const reloadPageMsg = `
-  <a href='#' onclick='javascript: window.location.reload()'>Reload</a> the page
-`;
-
 let webhooks = [];
 
 const dismiss = () => {
     $("#name").val("");
     $("#url").val("");
     $("#secret").val("");
+    $("#is_active").prop("checked", false);
     $("#flashes").empty();
 };
 
@@ -15,16 +12,17 @@ const saveWebhook = (id) => {
     let wh = {
         name: $("#name").val(),
         url: $("#url").val(),
-        secret: $("#secret").val()
+        secret: $("#secret").val(),
+        is_active: $("#is_active").is(":checked"),
     };
     if (id != -1) {
         wh.id = id;
         api.webhookId.put(wh)
             .success(function(data) {
-                load();
                 dismiss();
+                load();
                 $("#modal").modal("hide");
-                successFlash(`Webhook "${wh.name}" has been updated successfully! ${reloadPageMsg}`);
+                successFlash(`Webhook "${wh.name}" has been updated successfully!`);
             })
             .error(function(data) {
                 modalError(data.responseJSON.message)
@@ -95,6 +93,7 @@ const editWebhook = (id) => {
               $("#name").val(wh.name);
               $("#url").val(wh.url);
               $("#secret").val(wh.secret);
+              $("#is_active").prop("checked", wh.is_active);
           })
           .error(function () {
               errorFlash("Error fetching webhook")
@@ -151,7 +150,7 @@ const pingUrl = (btn, whId) => {
     api.webhookId.ping(whId)
         .success(function(wh) {
             btn.disabled = false;
-            successFlash(`Ping of "${wh.name}" webhook succeeded. ${reloadPageMsg}`);
+            successFlash(`Ping of "${wh.name}" webhook succeeded.`);
         })
         .error(function() {
             btn.disabled = false;
@@ -159,7 +158,7 @@ const pingUrl = (btn, whId) => {
             if (!wh) {
                 return
             }
-            errorFlash(`Ping of "${wh.name}" webhook failed. ${reloadPageMsg}`)
+            errorFlash(`Ping of "${wh.name}" webhook failed.`)
         });
 };
 
