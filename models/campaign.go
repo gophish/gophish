@@ -160,7 +160,7 @@ func (c *Campaign) AddEvent(e *Event) error {
 	e.Time = time.Now().UTC()
 
 	whs, err := GetActiveWebhooks()
-	if err != nil {
+	if err == nil {
 		whEndPoints := []webhook.EndPoint{}
 		for _, wh := range whs {
 			whEndPoints = append(whEndPoints, webhook.EndPoint{
@@ -170,7 +170,7 @@ func (c *Campaign) AddEvent(e *Event) error {
 		}
 		webhook.SendAll(whEndPoints, e)
 	} else {
-		log.Error("errror calling 'GetActiveWebhooks'")
+		log.Errorf("error getting active webhooks: %v", err)
 	}
 
 	return db.Save(e).Error

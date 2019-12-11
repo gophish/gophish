@@ -56,11 +56,13 @@
                     <input type="text" class="form-control" placeholder="Secret" id="secret" required />
                 </div>
 
-                <label class="control-label" for="secret">Is active:</label>
-                <div class="form-group">
-                    <input type="checkbox" class="" id="is_active" value="true" />
+                <div class="checkbox checkbox-primary">
+                    <input type="checkbox" id="is_active" value="true" />
+                    <label for="is_active">Is active <i class="fa fa-question-circle"
+                            data-toggle="tooltip" data-placement="right" 
+                            title="Data is sent only to the active webhooks"></i>
+                    </label>
                 </div>
-
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
