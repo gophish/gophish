@@ -22,7 +22,7 @@ const saveWebhook = (id) => {
                 dismiss();
                 load();
                 $("#modal").modal("hide");
-                successFlash(`Webhook "${wh.name}" has been updated successfully!`);
+                successFlash(`Webhook "${escape(wh.name)}" has been updated successfully!`);
             })
             .error(function(data) {
                 modalError(data.responseJSON.message)
@@ -33,7 +33,7 @@ const saveWebhook = (id) => {
                 load();
                 dismiss();
                 $("#modal").modal("hide");
-                successFlash(`Webhook "${wh.name}" has been created successfully!`);
+                successFlash(`Webhook "${escape(wh.name)}" has been created successfully!`);
             })
             .error(function(data) {
                 modalError(data.responseJSON.message)
@@ -108,7 +108,7 @@ const deleteWebhook = (id) => {
     }
     Swal.fire({
         title: "Are you sure?",
-        text: `This will delete the webhook '${wh.name}'`,
+        text: `This will delete the webhook '${escape(wh.name)}'`,
         type: "warning",
         animation: false,
         showCancelButton: true,
@@ -150,15 +150,15 @@ const pingUrl = (btn, whId) => {
     api.webhookId.ping(whId)
         .success(function(wh) {
             btn.disabled = false;
-            successFlash(`Ping of "${wh.name}" webhook succeeded.`);
+            successFlash(`Ping of "${escape(wh.name)}" webhook succeeded.`);
         })
-        .error(function() {
+        .error(function(data) {
             btn.disabled = false;
             var wh = webhooks.find(x => x.id == whId);
             if (!wh) {
                 return
             }
-            errorFlash(`Ping of "${wh.name}" webhook failed.`)
+            errorFlash(`Ping of "${escape(wh.name)}" webhook failed: "${data.responseJSON.message}"`)
         });
 };
 
