@@ -15,6 +15,12 @@ type Webhook struct {
 	IsActive bool   `json:"is_active"`
 }
 
+// ErrURLNotSpecified indicates there was no URL specified
+var ErrURLNotSpecified = errors.New("URL can't be empty")
+
+// ErrNameNotSpecified indicates there was no name specified
+var ErrNameNotSpecified = errors.New("Name can't be empty")
+
 // GetWebhooks returns the webhooks
 func GetWebhooks() ([]Webhook, error) {
 	whs := []Webhook{}
@@ -71,10 +77,10 @@ func DeleteWebhook(id int64) error {
 
 func (wh *Webhook) Validate() error {
 	if wh.URL == "" {
-		return errors.New("URL can't be empty")
+		return ErrURLNotSpecified
 	}
 	if wh.Name == "" {
-		return errors.New("Name can't be empty")
+		return ErrNameNotSpecified
 	}
 	return nil
 }
