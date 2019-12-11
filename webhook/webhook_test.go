@@ -5,9 +5,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"log"
-	"crypto/hmac"
-	"crypto/sha256"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -85,27 +82,6 @@ func (s *WebhookSuite) TestSendReal() {
 }
 
 func (s *WebhookSuite) TestSignature() {
-	expectedSign := "167c12505cebb59eeb4170306e863e8f9d59d2a652c8e73673afc62a50ce32fa"
-	secret := "secret123"
-	d1 := map[string]string {
-		"key1": "val1",
-		"key2": "val22",
-		"key3": "val333",
-	};
-
-	jsonData, err := json.Marshal(d1)
-	s.Nil(err)
-
-	hash1 := hmac.New(sha256.New, []byte(secret))
-	_, err = hash1.Write(jsonData)
-	s.Nil(err)
-
-	realSign := hex.EncodeToString(hash1.Sum(nil))
-	assert.Equal(s.T(), expectedSign, realSign)
-}
-
-//TODO
-func (s *WebhookSuite) TestSignature2() {
 	secret := "secret123"
 	payload := []byte("some payload456")
 	expectedSign := "ab7844c1e9149f8dc976c4188a72163c005930f3c2266a163ffe434230bdf761"
