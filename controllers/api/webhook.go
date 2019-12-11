@@ -87,10 +87,10 @@ func (as *Server) ValidateWebhook(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		err = webhook.Send(webhook.EndPoint{URL: wh.URL, Secret: wh.Secret}, "")
-		if err == nil {
-			JSONResponse(w, wh, http.StatusOK)
-		} else {
+		if err != nil {
 			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
+			return
 		}
+		JSONResponse(w, wh, http.StatusOK)
 	}
 }
