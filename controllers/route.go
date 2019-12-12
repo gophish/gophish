@@ -3,6 +3,7 @@ package controllers
 import (
 	"compress/gzip"
 	"context"
+	"crypto/tls"
 	"html/template"
 	"net/http"
 	"net/url"
@@ -70,6 +71,10 @@ func (as *AdminServer) Start() {
 		go as.worker.Start()
 	}
 	if as.config.UseTLS {
+		// Only support TLS 1.2 and above - ref #1691, #1689
+		as.server.TLSConfig = &tls.Config{
+			MinVersion: tls.VersionTLS12,
+		}
 		err := util.CheckAndCreateSSL(as.config.CertPath, as.config.KeyPath)
 		if err != nil {
 			log.Fatal(err)

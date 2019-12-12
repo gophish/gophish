@@ -3,6 +3,7 @@ package controllers
 import (
 	"compress/gzip"
 	"context"
+	"crypto/tls"
 	"errors"
 	"fmt"
 	"net"
@@ -84,6 +85,10 @@ func WithContactAddress(addr string) PhishingServerOption {
 // Start launches the phishing server, listening on the configured address.
 func (ps *PhishingServer) Start() {
 	if ps.config.UseTLS {
+		// Only support TLS 1.2 and above - ref #1691, #1689
+		ps.server.TLSConfig = &tls.Config{
+			MinVersion: tls.VersionTLS12,
+		}
 		err := util.CheckAndCreateSSL(ps.config.CertPath, ps.config.KeyPath)
 		if err != nil {
 			log.Fatal(err)
