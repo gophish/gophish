@@ -12,3 +12,7 @@ install:
   - go get -d -v ./... && go build -v ./...
   - go get gopkg.in/check.v1
   - go get github.com/stretchr/testify
+
+script:
+  - diff -u <(echo -n) <(gofmt -d .)
+  - go test -v ./...
