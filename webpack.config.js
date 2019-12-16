@@ -4,6 +4,7 @@ module.exports = {
     context: path.resolve(__dirname, 'static', 'js', 'src', 'app'),
     entry: {
         users: './users',
+        webhooks: './webhooks',
     },
     output: {
         path: path.resolve(__dirname, 'static', 'js', 'dist', 'app'),

@@ -1,16 +1,16 @@
 package webhook
 
 import (
-	"testing"
-	"net/http"
-	"net/http/httptest"
-	"log"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
+	"net/http"
+	"net/http/httptest"
+	"testing"
 
-	"github.com/stretchr/testify/suite"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
 )
 
 type WebhookSuite struct {
@@ -22,7 +22,7 @@ type mockSender struct {
 }
 
 func newMockSender() *mockSender {
-	ms := &mockSender {
+	ms := &mockSender{
 		client: &http.Client{},
 	}
 	return ms
@@ -36,7 +36,7 @@ func (ms mockSender) Send(endPoint EndPoint, data interface{}) error {
 func (s *WebhookSuite) TestSendMocked() {
 	mcSnd := newMockSender()
 	endp1 := EndPoint{URL: "http://example.com/a1", Secret: "s1"}
-	d1 := map[string]string {
+	d1 := map[string]string{
 		"a1": "a11",
 		"a2": "a22",
 		"a3": "a33",
@@ -45,11 +45,10 @@ func (s *WebhookSuite) TestSendMocked() {
 	s.Nil(err)
 }
 
-
 func (s *WebhookSuite) TestSendReal() {
 	expectedSign := "004b36ca3fcbc01a08b17bf5d4a7e1aa0b10e14f55f3f8bd9acac0c7e8d2635d"
 	secret := "secret456"
-	d1 := map[string]interface{} {
+	d1 := map[string]interface{}{
 		"key1": "val1",
 		"key2": "val2",
 		"key3": "val3",

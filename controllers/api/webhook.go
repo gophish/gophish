@@ -76,6 +76,9 @@ func (as *Server) Webhook(w http.ResponseWriter, r *http.Request) {
 
 // ValidateWebhook makes an HTTP request to a specified remote url to ensure that it's valid.
 func (as *Server) ValidateWebhook(w http.ResponseWriter, r *http.Request) {
+	type validationEvent struct {
+		Success bool `json:"success"`
+	}
 	switch {
 	case r.Method == "POST":
 		vars := mux.Vars(r)
@@ -86,7 +89,8 @@ func (as *Server) ValidateWebhook(w http.ResponseWriter, r *http.Request) {
 			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
 			return
 		}
-		err = webhook.Send(webhook.EndPoint{URL: wh.URL, Secret: wh.Secret}, "")
+		payload := validationEvent{Success: true}
+		err = webhook.Send(webhook.EndPoint{URL: wh.URL, Secret: wh.Secret}, payload)
 		if err != nil {
 			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
 			return
