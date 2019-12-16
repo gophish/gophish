@@ -6,6 +6,7 @@ import (
 	"time"
 
 	log "github.com/gophish/gophish/logger"
+	"github.com/gophish/gophish/webhook"
 	"github.com/jinzhu/gorm"
 	"github.com/sirupsen/logrus"
 )
@@ -157,6 +158,21 @@ func (c *Campaign) UpdateStatus(s string) error {
 func (c *Campaign) AddEvent(e *Event) error {
 	e.CampaignId = c.Id
 	e.Time = time.Now().UTC()
+
+	whs, err := GetActiveWebhooks()
+	if err == nil {
+		whEndPoints := []webhook.EndPoint{}
+		for _, wh := range whs {
+			whEndPoints = append(whEndPoints, webhook.EndPoint{
+				URL:    wh.URL,
+				Secret: wh.Secret,
+			})
+		}
+		webhook.SendAll(whEndPoints, e)
+	} else {
+		log.Errorf("error getting active webhooks: %v", err)
+	}
+
 	return db.Save(e).Error
 }
 
