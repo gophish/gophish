@@ -139,7 +139,7 @@ func checkForNewEmails(im models.IMAP) {
 		for _, m := range msgs {
 			// Check if sender is from company's domain, if enabled. TODO: Make this an IMAP filter
 			if im.RestrictDomain != "" { // e.g domainResitct = widgets.com
-				splitEmail := strings.Split(m.From.Address, "@")
+				splitEmail := strings.Split(m.Email.From, "@")
 				senderDomain := splitEmail[len(splitEmail)-1]
 				if senderDomain != im.RestrictDomain {
 					log.Debug("Ignoring email as not from company domain: ", senderDomain)
@@ -147,18 +147,18 @@ func checkForNewEmails(im models.IMAP) {
 				}
 			}
 
-			body := string(append(m.Text, m.HTML...)) // Empty body is being returned for emails forwarded from ProtonMail. Need to investigate more. Perhaps it's being attached, and eazye doesn't support attachments.
+			body := string(append(m.Email.Text, m.Email.HTML...)) // Not sure if we need to check the Text as well as the HTML. Perhaps sometimes Text only emails won't have an HTML component?
 			rid := goPhishRegex.FindString(body)
 
 			if rid != "" {
 				rid = rid[5:]
-				log.Infof("User '%s' reported email with rid %s", m.From.Address, rid)
+				log.Infof("User '%s' reported email with rid %s", m.Email.From, rid)
 				result, err := models.GetResult(rid)
 				if err != nil {
 					log.Error("Error reporting GoPhish email with rid ", rid, ": ", err.Error())
 					reportingFailed = append(reportingFailed, m.UID)
 				} else {
-					err = result.HandleEmailReport(models.EventDetails{}) // Not sure if we should populate something into the EventDetails{}
+					err = result.HandleEmailReport(models.EventDetails{})
 					if err != nil {
 						log.Error("Error updating GoPhish email with rid ", rid, ": ", err.Error())
 					} else {
@@ -169,7 +169,7 @@ func checkForNewEmails(im models.IMAP) {
 				}
 			} else {
 				// In the future this should be an alert in Gophish
-				log.Debugf("User '%s' reported email with subject '%s'. This is not a GoPhish campaign; you should investigate it.\n", m.From.Address, m.Subject)
+				log.Debugf("User '%s' reported email with subject '%s'. This is not a GoPhish campaign; you should investigate it.\n", m.Email.From, m.Email.Subject)
 			}
 			// Check if any emails were unable to be reported, so we can mark them as unread
 			if len(reportingFailed) > 0 {

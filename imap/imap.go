@@ -1,32 +1,27 @@
 package imap
 
 // Functionality taken from https://github.com/jprobinson/eazye
-// TODO: Remove any functions not used by monitor.go
 
 import (
 	"bytes"
 	"crypto/tls"
-	"encoding/base64"
-	"errors"
 	"fmt"
-	"io"
-	"io/ioutil"
-	"mime"
-	"mime/multipart"
-	"net/mail"
 	"strconv"
-	"strings"
 	"time"
 
 	log "github.com/gophish/gophish/logger"
 	"github.com/gophish/gophish/models"
+	"github.com/jordan-wright/email"
 	"github.com/mxk/go-imap/imap"
-	"github.com/paulrosania/go-charset/charset"
 
 	_ "github.com/paulrosania/go-charset/data"
-	qprintable "github.com/sloonz/go-qprintable"
-	"golang.org/x/net/html"
 )
+
+// IMAPEmail Email struct with IMAP UID
+type IMAPEmail struct {
+	UID uint32 `json:"uid"`
+	*email.Email
+}
 
 // MailboxInfo holds onto the credentials and other information
 // needed for connecting to an IMAP server.
@@ -41,9 +36,9 @@ type MailboxInfo struct {
 }
 
 // GetAll will pull all emails from the email folder and return them as a list.
-func GetAll(info MailboxInfo, markAsRead, delete bool) ([]Email, error) {
+func GetAll(info MailboxInfo, markAsRead, delete bool) ([]IMAPEmail, error) {
 	// call chan, put 'em in a list, return
-	var emails []Email
+	var emails []IMAPEmail
 	responses, err := GenerateAll(info, markAsRead, delete)
 	if err != nil {
 		return emails, err
@@ -65,9 +60,9 @@ func GenerateAll(info MailboxInfo, markAsRead, delete bool) (chan Response, erro
 }
 
 // GetUnread will find all unread emails in the folder and return them as a list.
-func GetUnread(info MailboxInfo, markAsRead, delete bool) ([]Email, error) {
+func GetUnread(info MailboxInfo, markAsRead, delete bool) ([]IMAPEmail, error) {
 	// call chan, put 'em in a list, return
-	var emails []Email
+	var emails []IMAPEmail
 
 	responses, err := GenerateUnread(info, markAsRead, delete)
 	if err != nil {
@@ -87,30 +82,6 @@ func GetUnread(info MailboxInfo, markAsRead, delete bool) ([]Email, error) {
 // GenerateUnread will find all unread emails in the folder and pass them along to the responses channel.
 func GenerateUnread(info MailboxInfo, markAsRead, delete bool) (chan Response, error) {
 	return generateMail(info, "UNSEEN", nil, markAsRead, delete)
-}
-
-// GetSince will pull all emails that have an internal date after the given time.
-func GetSince(info MailboxInfo, since time.Time, markAsRead, delete bool) ([]Email, error) {
-	var emails []Email
-	responses, err := GenerateSince(info, since, markAsRead, delete)
-	if err != nil {
-		return emails, err
-	}
-
-	for resp := range responses {
-		if resp.Err != nil {
-			return emails, resp.Err
-		}
-		emails = append(emails, resp.Email)
-	}
-
-	return emails, nil
-}
-
-// GenerateSince will find all emails that have an internal date after the given time and pass them along to the
-// responses channel.
-func GenerateSince(info MailboxInfo, since time.Time, markAsRead, delete bool) (chan Response, error) {
-	return generateMail(info, "", &since, markAsRead, delete)
 }
 
 // MarkAsUnread will set the UNSEEN flag on a supplied slice of UIDs
@@ -182,119 +153,9 @@ func ValidateIMAP(s *models.IMAP) error {
 	return err
 }
 
-// Email is a simplified email struct containing the basic pieces of an email. If you want more info,
-// it should all be available within the Message attribute.
-type Email struct {
-	Message *mail.Message
-
-	From         *mail.Address   `json:"from"`
-	To           []*mail.Address `json:"to"`
-	InternalDate time.Time       `json:"internal_date"`
-	Precedence   string          `json:"precedence"`
-	Subject      string          `json:"subject"`
-	HTML         []byte          `json:"html"`
-	Text         []byte          `json:"text"`
-	IsMultiPart  bool            `json:"is_multipart"`
-	UID          uint32          `json:"uid"`
-}
-
-var (
-	styleTag       = []byte("style")
-	scriptTag      = []byte("script")
-	headTag        = []byte("head")
-	metaTag        = []byte("meta")
-	doctypeTag     = []byte("doctype")
-	shapeTag       = []byte("v:shape")
-	imageDataTag   = []byte("v:imagedata")
-	commentTag     = []byte("!")
-	nonVisibleTags = [][]byte{
-		styleTag,
-		scriptTag,
-		headTag,
-		metaTag,
-		doctypeTag,
-		shapeTag,
-		imageDataTag,
-		commentTag,
-	}
-)
-
-func VisibleText(body io.Reader) ([][]byte, error) {
-	var (
-		text [][]byte
-		skip bool
-		err  error
-	)
-	z := html.NewTokenizer(body)
-	for {
-		tt := z.Next()
-		switch tt {
-		case html.ErrorToken:
-			if err = z.Err(); err == io.EOF {
-				return text, nil
-			}
-			return text, err
-		case html.TextToken:
-			if !skip {
-				tmp := bytes.TrimSpace(z.Text())
-				if len(tmp) == 0 {
-					continue
-				}
-				tagText := make([]byte, len(tmp))
-				copy(tagText, tmp)
-				text = append(text, tagText)
-			}
-		case html.StartTagToken, html.EndTagToken:
-			tn, _ := z.TagName()
-			for _, nvTag := range nonVisibleTags {
-				if bytes.Equal(tn, nvTag) {
-					skip = (tt == html.StartTagToken)
-					break
-				}
-			}
-		}
-	}
-	return text, nil
-}
-
-// VisibleText will return any visible text from an HTML
-// email body.
-func (e *Email) VisibleText() ([][]byte, error) {
-	// if theres no HTML, just return text
-	if len(e.HTML) == 0 {
-		return [][]byte{e.Text}, nil
-	}
-	return VisibleText(bytes.NewReader(e.HTML))
-}
-
-// String is to spit out a somewhat pretty version of the email.
-func (e *Email) String() string {
-	return fmt.Sprintf(`
-----------------------------
-From:           %s
-To:             %s
-Internal Date:  %s
-Precedence:     %s
-Subject:        %s
-HTML:           %s
-
-Text:           %s
-----------------------------
-
-`,
-		e.From,
-		e.To,
-		e.InternalDate,
-		e.Precedence,
-		e.Subject,
-		string(e.HTML),
-		string(e.Text),
-	)
-}
-
 // Response is a helper struct to wrap the email responses and possible errors.
 type Response struct {
-	Email Email
+	Email IMAPEmail
 	Err   error
 }
 
@@ -401,7 +262,7 @@ func getEmails(client *imap.Client, cmd *imap.Command, markAsRead, delete bool, 
 		return
 	}
 
-	var email Email
+	var email IMAPEmail
 	for _, msgData := range fCmd.Data {
 		msgFields := msgData.MessageInfo().Attrs
 
@@ -464,165 +325,22 @@ func alterEmail(client *imap.Client, UID uint32, flag string, plus bool) error {
 	return nil
 }
 
-func hasEncoding(word string) bool {
-	return strings.Contains(word, "=?") && strings.Contains(word, "?=")
-}
-
-func isEncodedWord(word string) bool {
-	return strings.HasPrefix(word, "=?") && strings.HasSuffix(word, "?=") && strings.Count(word, "?") == 4
-}
-
-func parseSubject(subject string) string {
-	if !hasEncoding(subject) {
-		return subject
-	}
-
-	dec := mime.WordDecoder{}
-	sub, _ := dec.DecodeHeader(subject)
-	return sub
-}
-
-// NewEmail will parse an imap.FieldMap into an Email. This
+// NewEmail will parse an imap.FieldMap into an IMAPEmail. This
 // will expect the message to container the internaldate and the body with
 // all headers included.
-func NewEmail(msgFields imap.FieldMap) (Email, error) {
-	var email Email
-	// parse the header
-	var message bytes.Buffer
-	message.Write(imap.AsBytes(msgFields["RFC822.HEADER"]))
-	message.Write([]byte("\n\n"))
+func NewEmail(msgFields imap.FieldMap) (IMAPEmail, error) {
+
 	rawBody := imap.AsBytes(msgFields["BODY[]"])
-	message.Write(rawBody)
-	msg, err := mail.ReadMessage(&message)
+
+	rawBodyStream := bytes.NewReader(rawBody)
+	em, err := email.NewEmailFromReader(rawBodyStream) // Parse with @jordanwright's library
 	if err != nil {
-		return email, fmt.Errorf("unable to read header: %s", err)
+		log.Error("Unable to parse email")
+	}
+	iem := IMAPEmail{
+		Email: em,
+		UID:   imap.AsNumber(msgFields["UID"]),
 	}
 
-	from, err := mail.ParseAddress(msg.Header.Get("From"))
-	if err != nil {
-		return email, fmt.Errorf("unable to parse from address: %s", err)
-	}
-
-	to, err := mail.ParseAddressList(msg.Header.Get("To"))
-	if err != nil {
-		to = []*mail.Address{}
-	}
-
-	email = Email{
-		Message:      msg,
-		InternalDate: imap.AsDateTime(msgFields["INTERNALDATE"]),
-		Precedence:   msg.Header.Get("Precedence"),
-		From:         from,
-		To:           to,
-		Subject:      parseSubject(msg.Header.Get("Subject")),
-		UID:          imap.AsNumber(msgFields["UID"]),
-	}
-
-	// chunk the body up into simple chunks
-	email.HTML, email.Text, email.IsMultiPart, err = parseBody(msg.Header, rawBody)
-	return email, err
-}
-
-var headerSplitter = []byte("\r\n\r\n")
-
-// parseBody will accept a a raw body, break it into all its parts and then convert the
-// message to UTF-8 from whatever charset it may have.
-func parseBody(header mail.Header, body []byte) (html []byte, text []byte, isMultipart bool, err error) {
-	var mediaType string
-	var params map[string]string
-	mediaType, params, err = mime.ParseMediaType(header.Get("Content-Type"))
-	if err != nil {
-		return
-	}
-
-	if strings.HasPrefix(mediaType, "multipart/") {
-		isMultipart = true
-		mr := multipart.NewReader(bytes.NewReader(body), params["boundary"])
-		for {
-			p, err := mr.NextPart()
-			if err == io.EOF {
-				break
-			}
-			if err != nil {
-				break
-			}
-
-			slurp, err := ioutil.ReadAll(p)
-			if err != nil {
-				// error and no results to use
-				if len(slurp) == 0 {
-					break
-				}
-			}
-
-			partMediaType, partParams, err := mime.ParseMediaType(p.Header.Get("Content-Type"))
-			if err != nil {
-				break
-			}
-
-			var htmlT, textT []byte
-			htmlT, textT, err = parsePart(partMediaType, partParams["charset"], p.Header.Get("Content-Transfer-Encoding"), slurp)
-			if len(htmlT) > 0 {
-				html = htmlT
-			} else {
-				text = textT
-			}
-		}
-	} else {
-
-		splitBody := bytes.SplitN(body, headerSplitter, 2)
-		if len(splitBody) < 2 {
-			err = errors.New("unexpected email format. (single part and no \\r\\n\\r\\n separating headers/body")
-			return
-		}
-
-		body = splitBody[1]
-		html, text, err = parsePart(mediaType, params["charset"], header.Get("Content-Transfer-Encoding"), body)
-	}
-	return
-}
-
-func parsePart(mediaType, charsetStr, encoding string, part []byte) (html, text []byte, err error) {
-	// deal with charset
-	if strings.ToLower(charsetStr) == "iso-8859-1" {
-		var cr io.Reader
-		cr, err = charset.NewReader("latin1", bytes.NewReader(part))
-		if err != nil {
-			return
-		}
-
-		part, err = ioutil.ReadAll(cr)
-		if err != nil {
-			return
-		}
-	}
-
-	// deal with encoding
-	var body []byte
-	switch strings.ToLower(encoding) {
-	case "quoted-printable":
-		dec := qprintable.NewDecoder(qprintable.WindowsTextEncoding, bytes.NewReader(part))
-		body, err = ioutil.ReadAll(dec)
-		if err != nil {
-			return
-		}
-	case "base64":
-		decoder := base64.NewDecoder(base64.StdEncoding, bytes.NewReader(part))
-		body, err = ioutil.ReadAll(decoder)
-		if err != nil {
-			return
-		}
-	default:
-		body = part
-	}
-
-	// deal with media type
-	mediaType = strings.ToLower(mediaType)
-	switch {
-	case strings.Contains(mediaType, "text/html"):
-		html = body
-	case strings.Contains(mediaType, "text/plain"):
-		text = body
-	}
-	return
+	return iem, err
 }
