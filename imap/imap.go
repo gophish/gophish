@@ -13,12 +13,10 @@ import (
 	"github.com/gophish/gophish/models"
 	"github.com/jordan-wright/email"
 	"github.com/mxk/go-imap/imap"
-
-	_ "github.com/paulrosania/go-charset/data"
 )
 
-// IMAPEmail Email struct with IMAP UID
-type IMAPEmail struct {
+// Email Email struct with IMAP UID
+type Email struct {
 	UID uint32 `json:"uid"`
 	*email.Email
 }
@@ -36,9 +34,9 @@ type MailboxInfo struct {
 }
 
 // GetAll will pull all emails from the email folder and return them as a list.
-func GetAll(info MailboxInfo, markAsRead, delete bool) ([]IMAPEmail, error) {
+func GetAll(info MailboxInfo, markAsRead, delete bool) ([]Email, error) {
 	// call chan, put 'em in a list, return
-	var emails []IMAPEmail
+	var emails []Email
 	responses, err := GenerateAll(info, markAsRead, delete)
 	if err != nil {
 		return emails, err
@@ -60,9 +58,9 @@ func GenerateAll(info MailboxInfo, markAsRead, delete bool) (chan Response, erro
 }
 
 // GetUnread will find all unread emails in the folder and return them as a list.
-func GetUnread(info MailboxInfo, markAsRead, delete bool) ([]IMAPEmail, error) {
+func GetUnread(info MailboxInfo, markAsRead, delete bool) ([]Email, error) {
 	// call chan, put 'em in a list, return
-	var emails []IMAPEmail
+	var emails []Email
 
 	responses, err := GenerateUnread(info, markAsRead, delete)
 	if err != nil {
@@ -87,7 +85,7 @@ func GenerateUnread(info MailboxInfo, markAsRead, delete bool) (chan Response, e
 // MarkAsUnread will set the UNSEEN flag on a supplied slice of UIDs
 func MarkAsUnread(info MailboxInfo, uids []uint32) error {
 
-	client, err := newIMAPClient(info)
+	client, err := newClient(info)
 	if err != nil {
 		return err
 	}
@@ -108,7 +106,7 @@ func MarkAsUnread(info MailboxInfo, uids []uint32) error {
 // DeleteEmails will delete emails from the supplied slice of UIDs
 func DeleteEmails(info MailboxInfo, uids []uint32) error {
 
-	client, err := newIMAPClient(info)
+	client, err := newClient(info)
 	if err != nil {
 		return err
 	}
@@ -126,8 +124,8 @@ func DeleteEmails(info MailboxInfo, uids []uint32) error {
 
 }
 
-// ValidateIMAP validates supplied IMAP model by connecting to the server
-func ValidateIMAP(s *models.IMAP) error {
+// Validate validates supplied IMAP model by connecting to the server
+func Validate(s *models.IMAP) error {
 
 	err := s.Validate()
 	if err != nil {
@@ -143,7 +141,7 @@ func ValidateIMAP(s *models.IMAP) error {
 		Pwd:    s.Password,
 		Folder: s.Folder}
 
-	client, err := newIMAPClient(mailSettings)
+	client, err := newClient(mailSettings)
 	if err != nil {
 		log.Error(err.Error())
 	} else {
@@ -155,12 +153,12 @@ func ValidateIMAP(s *models.IMAP) error {
 
 // Response is a helper struct to wrap the email responses and possible errors.
 type Response struct {
-	Email IMAPEmail
+	Email Email
 	Err   error
 }
 
-// newIMAPClient will initiate a new IMAP connection with the given creds.
-func newIMAPClient(info MailboxInfo) (*imap.Client, error) {
+// newClient will initiate a new IMAP connection with the given creds.
+func newClient(info MailboxInfo) (*imap.Client, error) {
 	var client *imap.Client
 	var err error
 	if info.TLS {
@@ -214,7 +212,7 @@ var GenerateBufferSize = 100
 
 func generateMail(info MailboxInfo, search string, since *time.Time, markAsRead, delete bool) (chan Response, error) {
 	responses := make(chan Response, GenerateBufferSize)
-	client, err := newIMAPClient(info)
+	client, err := newClient(info)
 	if err != nil {
 		close(responses)
 		return responses, fmt.Errorf("failed to create IMAP connection: %s", err)
@@ -262,7 +260,7 @@ func getEmails(client *imap.Client, cmd *imap.Command, markAsRead, delete bool, 
 		return
 	}
 
-	var email IMAPEmail
+	var email Email
 	for _, msgData := range fCmd.Data {
 		msgFields := msgData.MessageInfo().Attrs
 
@@ -325,10 +323,10 @@ func alterEmail(client *imap.Client, UID uint32, flag string, plus bool) error {
 	return nil
 }
 
-// NewEmail will parse an imap.FieldMap into an IMAPEmail. This
+// NewEmail will parse an imap.FieldMap into an Email. This
 // will expect the message to container the internaldate and the body with
 // all headers included.
-func NewEmail(msgFields imap.FieldMap) (IMAPEmail, error) {
+func NewEmail(msgFields imap.FieldMap) (Email, error) {
 
 	rawBody := imap.AsBytes(msgFields["BODY[]"])
 
@@ -337,7 +335,7 @@ func NewEmail(msgFields imap.FieldMap) (IMAPEmail, error) {
 	if err != nil {
 		log.Error("Unable to parse email")
 	}
-	iem := IMAPEmail{
+	iem := Email{
 		Email: em,
 		UID:   imap.AsNumber(msgFields["UID"]),
 	}

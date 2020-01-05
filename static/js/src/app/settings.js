@@ -147,11 +147,13 @@ $(document).ready(function () {
                     confirmButtonText: "More Info",
                     confirmButtonColor: "#428bca",
                     allowOutsideClick: false,
-                }).then((result) => {
-                    Swal.fire({
-                        title: "Error:",
-                        text: data.message,
-                      })
+                }).then(function(result) {
+                    if (result.value) {
+                        Swal.fire({
+                            title: "Error:",
+                            text: data.message,
+                        })
+                    }
                   })
             }
             

@@ -47,7 +47,7 @@ func (im *Monitor) start(ctx context.Context) {
 				if _, ok := usermap[dbuser.Id]; !ok { // If we don't currently have a running Go routine for this user, start one.
 					log.Info("Starting new IMAP monitor for user ", dbuser.Username)
 					usermap[dbuser.Id] = 1
-					go monitorIMAP(dbuser.Id, ctx)
+					go monitor(dbuser.Id, ctx)
 				}
 			}
 			time.Sleep(10 * time.Second) // Every ten seconds we check if a new user has been created
@@ -55,9 +55,9 @@ func (im *Monitor) start(ctx context.Context) {
 	}
 }
 
-// monitorIMAP will continuously login to the IMAP settings associated to the supplied user id (if the user account has IMAP settings, and they're enabled.)
+// monitor will continuously login to the IMAP settings associated to the supplied user id (if the user account has IMAP settings, and they're enabled.)
 // It also verifies the user account exists, and returns if not (for the case of a user being deleted).
-func monitorIMAP(uid int64, ctx context.Context) {
+func monitor(uid int64, ctx context.Context) {
 
 	for {
 		select {

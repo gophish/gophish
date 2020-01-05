@@ -11,20 +11,20 @@ import (
 	"github.com/gophish/gophish/models"
 )
 
-// ImapServerValidate handles requests for the /api/imapserver/validate endpoint
-func (as *Server) ImapServerValidate(w http.ResponseWriter, r *http.Request) {
+// IMAPServerValidate handles requests for the /api/imapserver/validate endpoint
+func (as *Server) IMAPServerValidate(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "GET":
 		JSONResponse(w, models.Response{Success: false, Message: "Only POSTs allowed"}, http.StatusBadRequest)
 	case r.Method == "POST":
-		s := models.IMAP{}
+		im := models.IMAP{}
 		// Put the request into a page
-		err := json.NewDecoder(r.Body).Decode(&s)
+		err := json.NewDecoder(r.Body).Decode(&im)
 		if err != nil {
 			JSONResponse(w, models.Response{Success: false, Message: "Invalid request"}, http.StatusBadRequest)
 			return
 		}
-		err = imap.ValidateIMAP(&s)
+		err = imap.Validate(&im)
 		if err != nil {
 			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusOK)
 			return
@@ -33,8 +33,8 @@ func (as *Server) ImapServerValidate(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// ImapServer handles requests for the /api/imapserver/ endpoint
-func (as *Server) ImapServer(w http.ResponseWriter, r *http.Request) {
+// IMAPServer handles requests for the /api/imapserver/ endpoint
+func (as *Server) IMAPServer(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "GET":
 		ss, err := models.GetIMAP(ctx.Get(r, "user_id").(int64))
@@ -45,16 +45,16 @@ func (as *Server) ImapServer(w http.ResponseWriter, r *http.Request) {
 
 	// POST: Update database
 	case r.Method == "POST":
-		s := models.IMAP{}
+		im := models.IMAP{}
 		// Put the request into a page
-		err := json.NewDecoder(r.Body).Decode(&s)
+		err := json.NewDecoder(r.Body).Decode(&im)
 		if err != nil {
 			JSONResponse(w, models.Response{Success: false, Message: "Invalid data. Please check your IMAP settings."}, http.StatusBadRequest)
 			return
 		}
-		s.ModifiedDate = time.Now().UTC()
-		s.UserId = ctx.Get(r, "user_id").(int64)
-		err = models.PostIMAP(&s, ctx.Get(r, "user_id").(int64))
+		im.ModifiedDate = time.Now().UTC()
+		im.UserId = ctx.Get(r, "user_id").(int64)
+		err = models.PostIMAP(&im, ctx.Get(r, "user_id").(int64))
 		if err != nil {
 			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
 			return
