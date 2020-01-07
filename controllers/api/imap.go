@@ -18,7 +18,6 @@ func (as *Server) IMAPServerValidate(w http.ResponseWriter, r *http.Request) {
 		JSONResponse(w, models.Response{Success: false, Message: "Only POSTs allowed"}, http.StatusBadRequest)
 	case r.Method == "POST":
 		im := models.IMAP{}
-		// Put the request into a page
 		err := json.NewDecoder(r.Body).Decode(&im)
 		if err != nil {
 			JSONResponse(w, models.Response{Success: false, Message: "Invalid request"}, http.StatusBadRequest)
@@ -46,7 +45,6 @@ func (as *Server) IMAPServer(w http.ResponseWriter, r *http.Request) {
 	// POST: Update database
 	case r.Method == "POST":
 		im := models.IMAP{}
-		// Put the request into a page
 		err := json.NewDecoder(r.Body).Decode(&im)
 		if err != nil {
 			JSONResponse(w, models.Response{Success: false, Message: "Invalid data. Please check your IMAP settings."}, http.StatusBadRequest)

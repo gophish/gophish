@@ -37,8 +37,6 @@ $(document).ready(function () {
         imapSettings.imap_freq = $("#imapfreq").val()
         imapSettings.restrict_domain = $("#restrictdomain").val()
         imapSettings.delete_reported_campaign_email = $('#deletecampaign').prop('checked')
-        imapSettings.last_login = $("#lastloginraw").val()
-
         
         //To avoid unmarshalling error in controllers/api/imap.go. It would fail gracefully, but with a generic error.
         if (imapSettings.host == ""){

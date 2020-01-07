@@ -15,6 +15,22 @@ import (
 	"github.com/mxk/go-imap/imap"
 )
 
+// Client interface for IMAP interactions
+type Client interface {
+	Close(expunge bool) (cmd *imap.Command, err error)
+	Login(username, password string) (cmd *imap.Command, err error)
+	Logout(timeout time.Duration) (cmd *imap.Command, err error)
+	Select(mbox string, readonly bool) (cmd *imap.Command, err error)
+	UIDFetch(seq *imap.SeqSet, items ...string) (cmd *imap.Command, err error)
+	UIDSearch(spec ...imap.Field) (cmd *imap.Command, err error)
+	UIDStore(seq *imap.SeqSet, item string, value imap.Field) (cmd *imap.Command, err error)
+}
+
+// UIDStore stores UIDs
+//func UIDStore(seq *imap.SeqSet, item string, value imap.Field) (cmd *imap.Command, err error) {
+//	return nil, nil
+//}
+
 // Email Email struct with IMAP UID
 type Email struct {
 	UID uint32 `json:"uid"`
@@ -189,7 +205,7 @@ func newClient(info MailboxInfo) (*imap.Client, error) {
 const dateFormat = "02-Jan-2006"
 
 // findEmails will run a find the UIDs of any emails that match the search.:
-func findEmails(client *imap.Client, search string, since *time.Time) (*imap.Command, error) {
+func findEmails(client Client, search string, since *time.Time) (*imap.Command, error) {
 	var specs []imap.Field
 	if len(search) > 0 {
 		specs = append(specs, search)
@@ -239,7 +255,7 @@ func generateMail(info MailboxInfo, search string, since *time.Time, markAsRead,
 	return responses, nil
 }
 
-func getEmails(client *imap.Client, cmd *imap.Command, markAsRead, delete bool, responses chan Response) {
+func getEmails(client Client, cmd *imap.Command, markAsRead, delete bool, responses chan Response) {
 	seq := &imap.SeqSet{}
 	msgCount := 0
 	for _, rsp := range cmd.Data {
@@ -300,15 +316,15 @@ func getEmails(client *imap.Client, cmd *imap.Command, markAsRead, delete bool, 
 	return
 }
 
-func deleteEmail(client *imap.Client, UID uint32) error {
+func deleteEmail(client Client, UID uint32) error {
 	return alterEmail(client, UID, "\\DELETED", true)
 }
 
-func removeSeen(client *imap.Client, UID uint32) error {
+func removeSeen(client Client, UID uint32) error {
 	return alterEmail(client, UID, "\\SEEN", false)
 }
 
-func alterEmail(client *imap.Client, UID uint32, flag string, plus bool) error {
+func alterEmail(client Client, UID uint32, flag string, plus bool) error {
 	flg := "-FLAGS"
 	if plus {
 		flg = "+FLAGS"
