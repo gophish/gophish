@@ -37,9 +37,9 @@ type Email struct {
 	*email.Email
 }
 
-// MailboxInfo holds onto the credentials and other information
+// Mailbox holds onto the credentials and other information
 // needed for connecting to an IMAP server.
-type MailboxInfo struct {
+type Mailbox struct {
 	Host   string
 	TLS    bool
 	User   string
@@ -50,10 +50,11 @@ type MailboxInfo struct {
 }
 
 // GetAll will pull all emails from the email folder and return them as a list.
-func GetAll(info MailboxInfo, markAsRead, delete bool) ([]Email, error) {
+// func GetAll(info Mailbox, markAsRead, delete bool) ([]Email, error) {
+func (mbox *Mailbox) GetAll(markAsRead, delete bool) ([]Email, error) {
 	// call chan, put 'em in a list, return
 	var emails []Email
-	responses, err := GenerateAll(info, markAsRead, delete)
+	responses, err := mbox.GenerateAll(markAsRead, delete)
 	if err != nil {
 		return emails, err
 	}
@@ -69,16 +70,18 @@ func GetAll(info MailboxInfo, markAsRead, delete bool) ([]Email, error) {
 }
 
 // GenerateAll will find all emails in the email folder and pass them along to the responses channel.
-func GenerateAll(info MailboxInfo, markAsRead, delete bool) (chan Response, error) {
-	return generateMail(info, "ALL", nil, markAsRead, delete)
+//func GenerateAll(info Mailbox, markAsRead, delete bool) (chan Response, error) {
+func (mbox *Mailbox) GenerateAll(markAsRead, delete bool) (chan Response, error) {
+	return mbox.generateMail("ALL", nil, markAsRead, delete)
 }
 
 // GetUnread will find all unread emails in the folder and return them as a list.
-func GetUnread(info MailboxInfo, markAsRead, delete bool) ([]Email, error) {
+// func GetUnread(info Mailbox, markAsRead, delete bool) ([]Email, error) {
+func (mbox *Mailbox) GetUnread(markAsRead, delete bool) ([]Email, error) {
 	// call chan, put 'em in a list, return
 	var emails []Email
 
-	responses, err := GenerateUnread(info, markAsRead, delete)
+	responses, err := mbox.GenerateUnread(markAsRead, delete)
 	if err != nil {
 		return emails, err
 	}
@@ -94,14 +97,14 @@ func GetUnread(info MailboxInfo, markAsRead, delete bool) ([]Email, error) {
 }
 
 // GenerateUnread will find all unread emails in the folder and pass them along to the responses channel.
-func GenerateUnread(info MailboxInfo, markAsRead, delete bool) (chan Response, error) {
-	return generateMail(info, "UNSEEN", nil, markAsRead, delete)
+func (mbox *Mailbox) GenerateUnread(markAsRead, delete bool) (chan Response, error) {
+	return mbox.generateMail("UNSEEN", nil, markAsRead, delete)
 }
 
 // MarkAsUnread will set the UNSEEN flag on a supplied slice of UIDs
-func MarkAsUnread(info MailboxInfo, uids []uint32) error {
-
-	client, err := newClient(info)
+// func MarkAsUnread(info Mailbox, uids []uint32) error {
+func (mbox *Mailbox) MarkAsUnread(uids []uint32) error {
+	client, err := mbox.newClient()
 	if err != nil {
 		return err
 	}
@@ -120,9 +123,9 @@ func MarkAsUnread(info MailboxInfo, uids []uint32) error {
 }
 
 // DeleteEmails will delete emails from the supplied slice of UIDs
-func DeleteEmails(info MailboxInfo, uids []uint32) error {
-
-	client, err := newClient(info)
+//func DeleteEmails(info Mailbox, uids []uint32) error {
+func (mbox *Mailbox) DeleteEmails(uids []uint32) error {
+	client, err := mbox.newClient()
 	if err != nil {
 		return err
 	}
@@ -150,14 +153,14 @@ func Validate(s *models.IMAP) error {
 	}
 
 	s.Host = s.Host + ":" + strconv.Itoa(int(s.Port)) // Append port
-	mailSettings := MailboxInfo{
+	mailServer := Mailbox{
 		Host:   s.Host,
 		TLS:    s.TLS,
 		User:   s.Username,
 		Pwd:    s.Password,
 		Folder: s.Folder}
 
-	client, err := newClient(mailSettings)
+	client, err := mailServer.newClient()
 	if err != nil {
 		log.Error(err.Error())
 	} else {
@@ -174,27 +177,28 @@ type Response struct {
 }
 
 // newClient will initiate a new IMAP connection with the given creds.
-func newClient(info MailboxInfo) (*imap.Client, error) {
+//func newClient(info Mailbox) (*imap.Client, error) {
+func (mbox *Mailbox) newClient() (*imap.Client, error) {
 	var client *imap.Client
 	var err error
-	if info.TLS {
-		client, err = imap.DialTLS(info.Host, new(tls.Config))
+	if mbox.TLS {
+		client, err = imap.DialTLS(mbox.Host, new(tls.Config))
 		if err != nil {
 			return client, err
 		}
 	} else {
-		client, err = imap.Dial(info.Host)
+		client, err = imap.Dial(mbox.Host)
 		if err != nil {
 			return client, err
 		}
 	}
 
-	_, err = client.Login(info.User, info.Pwd)
+	_, err = client.Login(mbox.User, mbox.Pwd)
 	if err != nil {
 		return client, err
 	}
 
-	_, err = imap.Wait(client.Select(info.Folder, info.ReadOnly))
+	_, err = imap.Wait(client.Select(mbox.Folder, mbox.ReadOnly))
 	if err != nil {
 		return client, err
 	}
@@ -226,9 +230,10 @@ func findEmails(client Client, search string, since *time.Time) (*imap.Command, 
 
 var GenerateBufferSize = 100
 
-func generateMail(info MailboxInfo, search string, since *time.Time, markAsRead, delete bool) (chan Response, error) {
+//func generateMail(info Mailbox, search string, since *time.Time, markAsRead, delete bool) (chan Response, error) {
+func (mbox *Mailbox) generateMail(search string, since *time.Time, markAsRead, delete bool) (chan Response, error) {
 	responses := make(chan Response, GenerateBufferSize)
-	client, err := newClient(info)
+	client, err := mbox.newClient()
 	if err != nil {
 		close(responses)
 		return responses, fmt.Errorf("failed to create IMAP connection: %s", err)

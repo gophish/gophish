@@ -118,14 +118,14 @@ func (im *Monitor) Shutdown() error {
 func checkForNewEmails(im models.IMAP) {
 
 	im.Host = im.Host + ":" + strconv.Itoa(int(im.Port)) // Append port
-	mailSettings := MailboxInfo{
+	mailServer := Mailbox{
 		Host:   im.Host,
 		TLS:    im.TLS,
 		User:   im.Username,
 		Pwd:    im.Password,
 		Folder: im.Folder}
 
-	msgs, err := GetUnread(mailSettings, true, false)
+	msgs, err := mailServer.GetUnread(true, false)
 	if err != nil {
 		log.Error(err)
 		return
@@ -174,7 +174,7 @@ func checkForNewEmails(im models.IMAP) {
 			// Check if any emails were unable to be reported, so we can mark them as unread
 			if len(reportingFailed) > 0 {
 				log.Debugf("Marking %d emails as unread as failed to report\n", len(reportingFailed))
-				err := MarkAsUnread(mailSettings, reportingFailed) // Set emails as unread that we failed to report to GoPhish
+				err := mailServer.MarkAsUnread(reportingFailed) // Set emails as unread that we failed to report to GoPhish
 				if err != nil {
 					log.Error("Unable to mark emails as unread: ", err.Error())
 				}
@@ -182,7 +182,7 @@ func checkForNewEmails(im models.IMAP) {
 			// If the DeleteReportedCampaignEmail flag is set, delete reported Gophish campaign emails
 			if im.DeleteReportedCampaignEmail == true && len(campaignEmails) > 0 {
 				log.Debugf("Deleting %d campaign emails\n", len(campaignEmails))
-				err := DeleteEmails(mailSettings, campaignEmails) // Delete GoPhish campaign emails.
+				err := mailServer.DeleteEmails(campaignEmails) // Delete GoPhish campaign emails.
 				if err != nil {
 					log.Error("Failed to delete emails: ", err.Error())
 				}
