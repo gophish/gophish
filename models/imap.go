@@ -54,44 +54,44 @@ var ErrIMAPPasswordNotSpecified = errors.New("No Password specified")
 var ErrInvalidIMAPFreq = errors.New("Invalid polling frequency.")
 
 // TableName specifies the database tablename for Gorm to use
-func (s IMAP) TableName() string {
+func (im IMAP) TableName() string {
 	return "imap"
 }
 
 // Validate ensures that IMAP configs/connections are valid
-func (s *IMAP) Validate() error {
+func (im *IMAP) Validate() error {
 	switch {
-	case s.Host == "":
+	case im.Host == "":
 		return ErrIMAPHostNotSpecified
-	case s.Port == 0:
+	case im.Port == 0:
 		return ErrIMAPPortNotSpecified
-	case s.Username == "":
+	case im.Username == "":
 		return ErrIMAPUsernameNotSpecified
-	case s.Password == "":
+	case im.Password == "":
 		return ErrIMAPPasswordNotSpecified
 	}
 
 	// Set the default value for Folder
-	if s.Folder == "" {
-		s.Folder = DefaultIMAPFolder
+	if im.Folder == "" {
+		im.Folder = DefaultIMAPFolder
 	}
 
-	// Make sure s.Host is an IP or hostname. NB will fail if unable to resolve the hostname.
-	ip := net.ParseIP(s.Host)
-	_, err := net.LookupHost(s.Host)
+	// Make sure im.Host is an IP or hostname. NB will fail if unable to resolve the hostname.
+	ip := net.ParseIP(im.Host)
+	_, err := net.LookupHost(im.Host)
 	if ip == nil && err != nil {
 		return ErrInvalidIMAPHost
 	}
 
 	// Make sure 1 >= port <= 65535
-	if s.Port < 1 || s.Port > 65535 {
+	if im.Port < 1 || im.Port > 65535 {
 		return ErrInvalidIMAPPort
 	}
 
 	// Make sure the polling frequency is between every 30 seconds and every year
 	// If not set it to the default
-	if s.IMAPFreq < 30 || s.IMAPFreq > 31540000 {
-		s.IMAPFreq = DefaultIMAPFreq
+	if im.IMAPFreq < 30 || im.IMAPFreq > 31540000 {
+		im.IMAPFreq = DefaultIMAPFreq
 	}
 
 	return nil
@@ -99,20 +99,20 @@ func (s *IMAP) Validate() error {
 
 // GetIMAP returns the IMAP server owned by the given user.
 func GetIMAP(uid int64) ([]IMAP, error) {
-	ss := []IMAP{}
+	im := []IMAP{}
 	count := 0
-	err := db.Where("user_id=?", uid).Find(&ss).Count(&count).Error
+	err := db.Where("user_id=?", uid).Find(&im).Count(&count).Error
 
 	if err != nil {
 		log.Error(err)
-		return ss, err
+		return im, err
 	}
-	return ss, nil
+	return im, nil
 }
 
 // PostIMAP updates IMAP settings for a user in the database.
-func PostIMAP(s *IMAP, uid int64) error {
-	err := s.Validate()
+func PostIMAP(im *IMAP, uid int64) error {
+	err := im.Validate()
 	if err != nil {
 		log.Error(err)
 		return err
@@ -126,7 +126,7 @@ func PostIMAP(s *IMAP, uid int64) error {
 	}
 
 	// Insert new settings into the DB
-	err = db.Save(s).Error
+	err = db.Save(im).Error
 	if err != nil {
 		log.Error("Unable to save to database: ", err.Error())
 	}
@@ -142,8 +142,8 @@ func DeleteIMAP(uid int64) error {
 	return err
 }
 
-func SuccessfulLogin(s *IMAP) error {
-	err := db.Model(&s).Where("user_id = ?", s.UserId).Update("last_login", time.Now().UTC()).Error
+func SuccessfulLogin(im *IMAP) error {
+	err := db.Model(&im).Where("user_id = ?", im.UserId).Update("last_login", time.Now().UTC()).Error
 	if err != nil {
 		log.Error("Unable to update database: ", err.Error())
 	}

@@ -26,12 +26,7 @@ type Client interface {
 	UIDStore(seq *imap.SeqSet, item string, value imap.Field) (cmd *imap.Command, err error)
 }
 
-// UIDStore stores UIDs
-//func UIDStore(seq *imap.SeqSet, item string, value imap.Field) (cmd *imap.Command, err error) {
-//	return nil, nil
-//}
-
-// Email Email struct with IMAP UID
+// Email represents an email.Email with an included IMAP UID
 type Email struct {
 	UID uint32 `json:"uid"`
 	*email.Email
@@ -50,7 +45,6 @@ type Mailbox struct {
 }
 
 // GetAll will pull all emails from the email folder and return them as a list.
-// func GetAll(info Mailbox, markAsRead, delete bool) ([]Email, error) {
 func (mbox *Mailbox) GetAll(markAsRead, delete bool) ([]Email, error) {
 	// call chan, put 'em in a list, return
 	var emails []Email
@@ -70,13 +64,11 @@ func (mbox *Mailbox) GetAll(markAsRead, delete bool) ([]Email, error) {
 }
 
 // GenerateAll will find all emails in the email folder and pass them along to the responses channel.
-//func GenerateAll(info Mailbox, markAsRead, delete bool) (chan Response, error) {
 func (mbox *Mailbox) GenerateAll(markAsRead, delete bool) (chan Response, error) {
 	return mbox.generateMail("ALL", nil, markAsRead, delete)
 }
 
 // GetUnread will find all unread emails in the folder and return them as a list.
-// func GetUnread(info Mailbox, markAsRead, delete bool) ([]Email, error) {
 func (mbox *Mailbox) GetUnread(markAsRead, delete bool) ([]Email, error) {
 	// call chan, put 'em in a list, return
 	var emails []Email
@@ -102,7 +94,6 @@ func (mbox *Mailbox) GenerateUnread(markAsRead, delete bool) (chan Response, err
 }
 
 // MarkAsUnread will set the UNSEEN flag on a supplied slice of UIDs
-// func MarkAsUnread(info Mailbox, uids []uint32) error {
 func (mbox *Mailbox) MarkAsUnread(uids []uint32) error {
 	client, err := mbox.newClient()
 	if err != nil {
@@ -123,7 +114,6 @@ func (mbox *Mailbox) MarkAsUnread(uids []uint32) error {
 }
 
 // DeleteEmails will delete emails from the supplied slice of UIDs
-//func DeleteEmails(info Mailbox, uids []uint32) error {
 func (mbox *Mailbox) DeleteEmails(uids []uint32) error {
 	client, err := mbox.newClient()
 	if err != nil {
@@ -177,7 +167,6 @@ type Response struct {
 }
 
 // newClient will initiate a new IMAP connection with the given creds.
-//func newClient(info Mailbox) (*imap.Client, error) {
 func (mbox *Mailbox) newClient() (*imap.Client, error) {
 	var client *imap.Client
 	var err error
@@ -228,9 +217,8 @@ func findEmails(client Client, search string, since *time.Time) (*imap.Command, 
 	return cmd, nil
 }
 
-var GenerateBufferSize = 100
+const GenerateBufferSize = 100
 
-//func generateMail(info Mailbox, search string, since *time.Time, markAsRead, delete bool) (chan Response, error) {
 func (mbox *Mailbox) generateMail(search string, since *time.Time, markAsRead, delete bool) (chan Response, error) {
 	responses := make(chan Response, GenerateBufferSize)
 	client, err := mbox.newClient()
