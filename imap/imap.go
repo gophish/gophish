@@ -258,7 +258,6 @@ func getEmails(client Client, cmd *imap.Command, markAsRead, delete bool, respon
 		}
 	}
 
-	// nothing to request?! why you even callin me, foolio?
 	if seq.Empty() {
 		return
 	}
@@ -342,7 +341,7 @@ func NewEmail(msgFields imap.FieldMap) (Email, error) {
 	rawBodyStream := bytes.NewReader(rawBody)
 	em, err := email.NewEmailFromReader(rawBodyStream) // Parse with @jordanwright's library
 	if err != nil {
-		log.Error("Unable to parse email")
+		return Email{}, err
 	}
 	iem := Email{
 		Email: em,

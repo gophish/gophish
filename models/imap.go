@@ -51,6 +51,8 @@ var ErrIMAPUsernameNotSpecified = errors.New("No Username specified")
 // in the IMAP configuration
 var ErrIMAPPasswordNotSpecified = errors.New("No Password specified")
 
+// ErrInvalidIMAPFreq is thrown when the frequency for polling the
+// IMAP server is invalid
 var ErrInvalidIMAPFreq = errors.New("Invalid polling frequency.")
 
 // TableName specifies the database tablename for Gorm to use

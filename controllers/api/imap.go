@@ -7,7 +7,6 @@ import (
 
 	ctx "github.com/gophish/gophish/context"
 	"github.com/gophish/gophish/imap"
-	log "github.com/gophish/gophish/logger"
 	"github.com/gophish/gophish/models"
 )
 
@@ -38,7 +37,8 @@ func (as *Server) IMAPServer(w http.ResponseWriter, r *http.Request) {
 	case r.Method == "GET":
 		ss, err := models.GetIMAP(ctx.Get(r, "user_id").(int64))
 		if err != nil {
-			log.Error(err)
+			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
+			return
 		}
 		JSONResponse(w, ss, http.StatusOK)
 
