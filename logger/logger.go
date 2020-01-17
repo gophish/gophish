@@ -1,10 +1,10 @@
 package logger
 
 import (
+	"errors"
 	"io"
 	"os"
 
-	"github.com/gophish/gophish/config"
 	"github.com/sirupsen/logrus"
 )
 
@@ -12,28 +12,34 @@ import (
 // It is exported here for use with gorm.
 var Logger *logrus.Logger
 
+// ErrInvalidLevel is returned when an invalid log level is given in the config
+var ErrInvalidLevel = errors.New("invalid log level")
+
+// Config represents configuration details for logging.
+type Config struct {
+	Filename string `json:"filename"`
+	Level    string `json:"level"`
+}
+
 func init() {
 	Logger = logrus.New()
 	Logger.Formatter = &logrus.TextFormatter{DisableColors: true}
 }
 
 // Setup configures the logger based on options in the config.json.
-func Setup(conf *config.Config) error {
+func Setup(config *Config) error {
+	var err error
 	// Set up logging level
-	logLevel := conf.Logging.Level
-	if logLevel != "" {
-		// parse string
-		ll, err := logrus.ParseLevel(logLevel)
+	level := logrus.InfoLevel
+	if config.Level != "" {
+		level, err = logrus.ParseLevel(config.Level)
 		if err != nil {
-			ll = logrus.DebugLevel
+			return err
 		}
-		// set global log level
-		Logger.SetLevel(ll)
-	} else {
-		Logger.SetLevel(logrus.InfoLevel)
 	}
+	Logger.SetLevel(level)
 	// Set up logging to a file if specified in the config
-	logFile := conf.Logging.Filename
+	logFile := config.Filename
 	if logFile != "" {
 		f, err := os.OpenFile(logFile, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0644)
 		if err != nil {
