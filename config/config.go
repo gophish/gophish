@@ -24,6 +24,7 @@ type PhishServer struct {
 // LoggingConfig represents configuration details for Gophish logging.
 type LoggingConfig struct {
 	Filename string `json:"filename"`
+	Level    string `json:"level"`
 }
 
 // Config represents the configuration information.
