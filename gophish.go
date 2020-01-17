@@ -69,7 +69,7 @@ func main() {
 	}
 	config.Version = string(version)
 
-	err = log.Setup(conf)
+	err = log.Setup(conf.Logging)
 	if err != nil {
 		log.Fatal(err)
 	}
