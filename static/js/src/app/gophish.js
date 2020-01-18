@@ -10,6 +10,26 @@ function successFlash(message) {
         <i class=\"fa fa-check-circle\"></i> " + message + "</div>")
 }
 
+// Fade message after n seconds
+function errorFlashFade(message, fade) {
+    $("#flashes").empty()
+    $("#flashes").append("<div style=\"text-align:center\" class=\"alert alert-danger\">\
+        <i class=\"fa fa-exclamation-circle\"></i> " + message + "</div>")
+    setTimeout(function(){ 
+        $("#flashes").empty() 
+    }, fade * 1000);
+}
+// Fade message after n seconds
+function successFlashFade(message, fade) {  
+    $("#flashes").empty()
+    $("#flashes").append("<div style=\"text-align:center\" class=\"alert alert-success\">\
+        <i class=\"fa fa-check-circle\"></i> " + message + "</div>")
+    setTimeout(function(){ 
+        $("#flashes").empty() 
+    }, fade * 1000);
+
+}
+
 function modalError(message) {
     $("#modal\\.flashes").empty().append("<div style=\"text-align:center\" class=\"alert alert-danger\">\
         <i class=\"fa fa-exclamation-circle\"></i> " + message + "</div>")
@@ -195,6 +215,18 @@ var api = {
         // delete() - Deletes a SMTP at DELETE /smtp/:id
         delete: function (id) {
             return query("/smtp/" + id, "DELETE", {}, false)
+        }
+    },
+    // IMAP containts the endpoints for /imap/
+    IMAP: {
+        get: function() {
+            return query("/imap/", "GET", {}, !1)
+        },
+        post: function(e) {
+            return query("/imap/", "POST", e, !1)
+        },
+        validate: function(e) {
+            return query("/imap/validate", "POST", e, true)
         }
     },
     // users contains the endpoints for /users
