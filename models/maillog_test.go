@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math"
 	"net/textproto"
+	"testing"
 	"time"
 
 	"github.com/gophish/gophish/config"
@@ -321,4 +322,64 @@ func (s *ModelsSuite) TestMailLogGenerateEmptySubject(ch *check.C) {
 	}
 	got := s.emailFromFirstMailLog(campaign, ch)
 	ch.Assert(got.Subject, check.Equals, expected.Subject)
+}
+
+func BenchmarkMailLogGenerate100(b *testing.B) {
+	setupBenchmark(b)
+	campaign := setupCampaign(b, 100)
+	ms, err := GetMailLogsByCampaign(campaign.Id)
+	if err != nil {
+		b.Fatalf("error getting maillogs for campaign: %v", err)
+	}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		msg := gomail.NewMessage()
+		ms[0].Generate(msg)
+	}
+	tearDownBenchmark(b)
+}
+
+func BenchmarkMailLogGenerate1000(b *testing.B) {
+	setupBenchmark(b)
+	campaign := setupCampaign(b, 1000)
+	ms, err := GetMailLogsByCampaign(campaign.Id)
+	if err != nil {
+		b.Fatalf("error getting maillogs for campaign: %v", err)
+	}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		msg := gomail.NewMessage()
+		ms[0].Generate(msg)
+	}
+	tearDownBenchmark(b)
+}
+
+func BenchmarkMailLogGenerate5000(b *testing.B) {
+	setupBenchmark(b)
+	campaign := setupCampaign(b, 5000)
+	ms, err := GetMailLogsByCampaign(campaign.Id)
+	if err != nil {
+		b.Fatalf("error getting maillogs for campaign: %v", err)
+	}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		msg := gomail.NewMessage()
+		ms[0].Generate(msg)
+	}
+	tearDownBenchmark(b)
+}
+
+func BenchmarkMailLogGenerate10000(b *testing.B) {
+	setupBenchmark(b)
+	campaign := setupCampaign(b, 10000)
+	ms, err := GetMailLogsByCampaign(campaign.Id)
+	if err != nil {
+		b.Fatalf("error getting maillogs for campaign: %v", err)
+	}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		msg := gomail.NewMessage()
+		ms[0].Generate(msg)
+	}
+	tearDownBenchmark(b)
 }

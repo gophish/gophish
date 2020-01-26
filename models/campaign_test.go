@@ -195,6 +195,20 @@ func setupCampaignDependencies(b *testing.B, size int) {
 	}
 }
 
+// setupCampaign sets up the campaign dependencies as well as posting the
+// actual campaign
+func setupCampaign(b *testing.B, size int) Campaign {
+	setupCampaignDependencies(b, size)
+	campaign := Campaign{Name: "Test campaign"}
+	campaign.UserId = 1
+	campaign.Template = Template{Name: "Test Template"}
+	campaign.Page = Page{Name: "Test Page"}
+	campaign.SMTP = SMTP{Name: "Test Page"}
+	campaign.Groups = []Group{Group{Name: "Test Group"}}
+	PostCampaign(&campaign, 1)
+	return campaign
+}
+
 func BenchmarkCampaign100(b *testing.B) {
 	setupBenchmark(b)
 	setupCampaignDependencies(b, 100)
