@@ -39,10 +39,6 @@ type Result struct {
 }
 
 func (r *Result) createEvent(status string, details interface{}) (*Event, error) {
-	c, err := GetCampaign(r.CampaignId, r.UserId)
-	if err != nil {
-		return nil, err
-	}
 	e := &Event{Email: r.Email, Message: status}
 	if details != nil {
 		dj, err := json.Marshal(details)
@@ -51,7 +47,7 @@ func (r *Result) createEvent(status string, details interface{}) (*Event, error)
 		}
 		e.Details = string(dj)
 	}
-	c.AddEvent(e)
+	AddEvent(e, r.CampaignId)
 	return e, nil
 }
 

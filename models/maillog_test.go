@@ -331,6 +331,7 @@ func BenchmarkMailLogGenerate100(b *testing.B) {
 	if err != nil {
 		b.Fatalf("error getting maillogs for campaign: %v", err)
 	}
+	ms[0].CacheCampaign(&campaign)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		msg := gomail.NewMessage()
@@ -346,6 +347,7 @@ func BenchmarkMailLogGenerate1000(b *testing.B) {
 	if err != nil {
 		b.Fatalf("error getting maillogs for campaign: %v", err)
 	}
+	ms[0].CacheCampaign(&campaign)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		msg := gomail.NewMessage()
@@ -361,6 +363,7 @@ func BenchmarkMailLogGenerate5000(b *testing.B) {
 	if err != nil {
 		b.Fatalf("error getting maillogs for campaign: %v", err)
 	}
+	ms[0].CacheCampaign(&campaign)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		msg := gomail.NewMessage()
@@ -376,6 +379,7 @@ func BenchmarkMailLogGenerate10000(b *testing.B) {
 	if err != nil {
 		b.Fatalf("error getting maillogs for campaign: %v", err)
 	}
+	ms[0].CacheCampaign(&campaign)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		msg := gomail.NewMessage()

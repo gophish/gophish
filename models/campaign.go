@@ -155,8 +155,8 @@ func (c *Campaign) UpdateStatus(s string) error {
 }
 
 // AddEvent creates a new campaign event in the database
-func (c *Campaign) AddEvent(e *Event) error {
-	e.CampaignId = c.Id
+func AddEvent(e *Event, campaignID int64) error {
+	e.CampaignId = campaignID
 	e.Time = time.Now().UTC()
 
 	whs, err := GetActiveWebhooks()
@@ -500,7 +500,7 @@ func PostCampaign(c *Campaign, uid int64) error {
 		log.Error(err)
 		return err
 	}
-	err = c.AddEvent(&Event{Message: "Campaign Created"})
+	err = AddEvent(&Event{Message: "Campaign Created"}, c.Id)
 	if err != nil {
 		log.Error(err)
 	}
