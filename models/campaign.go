@@ -75,7 +75,7 @@ type CampaignStats struct {
 // that occurs during the campaign
 type Event struct {
 	Id         int64     `json:"-"`
-	CampaignId int64     `json:"-"`
+	CampaignId int64     `json:"campaign_id"`
 	Email      string    `json:"email"`
 	Time       time.Time `json:"time"`
 	Message    string    `json:"message"`
