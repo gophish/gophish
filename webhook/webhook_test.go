@@ -7,15 +7,9 @@ import (
 	"log"
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/suite"
 )
-
-type WebhookSuite struct {
-	suite.Suite
-}
 
 type mockSender struct {
 	client *http.Client
@@ -33,22 +27,24 @@ func (ms mockSender) Send(endPoint EndPoint, data interface{}) error {
 	return nil
 }
 
-func (s *WebhookSuite) TestSendMocked() {
-	mcSnd := newMockSender()
-	endp1 := EndPoint{URL: "http://example.com/a1", Secret: "s1"}
-	d1 := map[string]string{
+func TestSendMocked(t *testing.T) {
+	ms := newMockSender()
+	endpoint := EndPoint{URL: "http://example.com/a1", Secret: "s1"}
+	data := map[string]string{
 		"a1": "a11",
 		"a2": "a22",
 		"a3": "a33",
 	}
-	err := mcSnd.Send(endp1, d1)
-	s.Nil(err)
+	err := ms.Send(endpoint, data)
+	if err != nil {
+		t.Fatalf("error sending data to webhook endpoint: %v", err)
+	}
 }
 
-func (s *WebhookSuite) TestSendReal() {
-	expectedSign := "004b36ca3fcbc01a08b17bf5d4a7e1aa0b10e14f55f3f8bd9acac0c7e8d2635d"
+func TestSendReal(t *testing.T) {
+	expectedSig := "004b36ca3fcbc01a08b17bf5d4a7e1aa0b10e14f55f3f8bd9acac0c7e8d2635d"
 	secret := "secret456"
-	d1 := map[string]interface{}{
+	data := map[string]interface{}{
 		"key1": "val1",
 		"key2": "val2",
 		"key3": "val3",
@@ -58,37 +54,50 @@ func (s *WebhookSuite) TestSendReal() {
 		fmt.Println("[test] running the server...")
 
 		signStartIdx := len(Sha256Prefix) + 1
-		realSignRaw := r.Header.Get(SignatureHeader)
-		realSign := realSignRaw[signStartIdx:]
-		assert.Equal(s.T(), expectedSign, realSign)
+		sigHeader := r.Header.Get(SignatureHeader)
+		gotSig := sigHeader[signStartIdx:]
+		if expectedSig != gotSig {
+			t.Fatalf("invalid signature received. expected %s got %s", expectedSig, gotSig)
+		}
 
-		contTypeJsonHeader := r.Header.Get("Content-Type")
-		assert.Equal(s.T(), contTypeJsonHeader, "application/json")
+		ct := r.Header.Get("Content-Type")
+		expectedCT := "application/json"
+		if ct != expectedCT {
+			t.Fatalf("invalid content type. expected %s got %s", ct, expectedCT)
+		}
 
 		body, err := ioutil.ReadAll(r.Body)
-		s.Nil(err)
+		if err != nil {
+			t.Fatalf("error reading JSON body from webhook request: %v", err)
+		}
 
-		var d2 map[string]interface{}
-		err = json.Unmarshal(body, &d2)
-		s.Nil(err)
-		assert.Equal(s.T(), d1, d2)
+		var payload map[string]interface{}
+		err = json.Unmarshal(body, &payload)
+		if err != nil {
+			t.Fatalf("error unmarshaling webhook payload: %v", err)
+		}
+		if !reflect.DeepEqual(data, payload) {
+			t.Fatalf("invalid payload received. expected %#v got %#v", data, payload)
+		}
 	}))
 
 	defer ts.Close()
 	endp1 := EndPoint{URL: ts.URL, Secret: secret}
-	err := Send(endp1, d1)
-	s.Nil(err)
+	err := Send(endp1, data)
+	if err != nil {
+		t.Fatalf("error sending data to webhook endpoint: %v", err)
+	}
 }
 
-func (s *WebhookSuite) TestSignature() {
+func TestSignature(t *testing.T) {
 	secret := "secret123"
 	payload := []byte("some payload456")
-	expectedSign := "ab7844c1e9149f8dc976c4188a72163c005930f3c2266a163ffe434230bdf761"
-	realSign, err := sign(secret, payload)
-	s.Nil(err)
-	assert.Equal(s.T(), expectedSign, realSign)
-}
-
-func TestWebhookSuite(t *testing.T) {
-	suite.Run(t, new(WebhookSuite))
+	expected := "ab7844c1e9149f8dc976c4188a72163c005930f3c2266a163ffe434230bdf761"
+	got, err := sign(secret, payload)
+	if err != nil {
+		t.Fatalf("error signing payload: %v", err)
+	}
+	if expected != got {
+		t.Fatalf("invalid signature received. expected %s got %s", expected, got)
+	}
 }
