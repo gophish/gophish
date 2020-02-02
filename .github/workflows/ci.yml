@@ -1,4 +1,4 @@
-name: Go
+name: CI
 on: [push]
 jobs:
 
