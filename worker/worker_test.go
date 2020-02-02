@@ -1,18 +1,18 @@
 package worker
 
 import (
+	"testing"
+
 	"github.com/gophish/gophish/config"
 	"github.com/gophish/gophish/models"
-	"github.com/stretchr/testify/suite"
 )
 
-// WorkerSuite is a suite of tests to cover API related functions
-type WorkerSuite struct {
-	suite.Suite
+// testContext is context to cover API related functions
+type testContext struct {
 	config *config.Config
 }
 
-func (s *WorkerSuite) SetupSuite() {
+func setupTest(t *testing.T) *testContext {
 	conf := &config.Config{
 		DBName:         "sqlite3",
 		DBPath:         ":memory:",
@@ -20,21 +20,15 @@ func (s *WorkerSuite) SetupSuite() {
 	}
 	err := models.Setup(conf)
 	if err != nil {
-		s.T().Fatalf("Failed creating database: %v", err)
+		t.Fatalf("Failed creating database: %v", err)
 	}
-	s.config = conf
-	s.Nil(err)
+	ctx := &testContext{}
+	ctx.config = conf
+	return ctx
 }
 
-func (s *WorkerSuite) TearDownTest() {
-	campaigns, _ := models.GetCampaigns(1)
-	for _, campaign := range campaigns {
-		models.DeleteCampaign(campaign.Id)
-	}
-}
-
-func (s *WorkerSuite) SetupTest() {
-	s.config.TestFlag = true
+func createTestData(t *testing.T, ctx *testContext) {
+	ctx.config.TestFlag = true
 	// Add a group
 	group := models.Group{Name: "Test Group"}
 	group.Targets = []models.Target{
@@ -45,12 +39,12 @@ func (s *WorkerSuite) SetupTest() {
 	models.PostGroup(&group)
 
 	// Add a template
-	t := models.Template{Name: "Test Template"}
-	t.Subject = "Test subject"
-	t.Text = "Text text"
-	t.HTML = "<html>Test</html>"
-	t.UserId = 1
-	models.PostTemplate(&t)
+	template := models.Template{Name: "Test Template"}
+	template.Subject = "Test subject"
+	template.Text = "Text text"
+	template.HTML = "<html>Test</html>"
+	template.UserId = 1
+	models.PostTemplate(&template)
 
 	// Add a landing page
 	p := models.Page{Name: "Test Page"}
@@ -69,7 +63,7 @@ func (s *WorkerSuite) SetupTest() {
 	// Set the status such that no emails are attempted
 	c := models.Campaign{Name: "Test campaign"}
 	c.UserId = 1
-	c.Template = t
+	c.Template = template
 	c.Page = p
 	c.SMTP = smtp
 	c.Groups = []models.Group{group}

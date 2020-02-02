@@ -8,27 +8,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/gophish/gophish/config"
 	"github.com/gophish/gophish/models"
-	"github.com/stretchr/testify/suite"
 )
-
-type UtilSuite struct {
-	suite.Suite
-}
-
-func (s *UtilSuite) SetupSuite() {
-	conf := &config.Config{
-		DBName:         "sqlite3",
-		DBPath:         ":memory:",
-		MigrationsPath: "../db/db_sqlite3/migrations/",
-	}
-	err := models.Setup(conf)
-	if err != nil {
-		s.T().Fatalf("Failed creating database: %v", err)
-	}
-	s.Nil(err)
-}
 
 func buildCSVRequest(csvPayload string) (*http.Request, error) {
 	csvHeader := "First Name,Last Name,Email\n"
@@ -52,7 +33,7 @@ func buildCSVRequest(csvPayload string) (*http.Request, error) {
 	return r, nil
 }
 
-func (s *UtilSuite) TestParseCSVEmail() {
+func TestParseCSVEmail(t *testing.T) {
 	expected := models.Target{
 		BaseRecipient: models.BaseRecipient{
 			FirstName: "John",
@@ -63,16 +44,19 @@ func (s *UtilSuite) TestParseCSVEmail() {
 
 	csvPayload := fmt.Sprintf("%s,%s,<%s>", expected.FirstName, expected.LastName, expected.Email)
 	r, err := buildCSVRequest(csvPayload)
-	s.Nil(err)
+	if err != nil {
+		t.Fatalf("error building CSV request: %v", err)
+	}
 
 	got, err := ParseCSV(r)
-	s.Nil(err)
-	s.Equal(len(got), 1)
-	if !reflect.DeepEqual(expected, got[0]) {
-		s.T().Fatalf("Incorrect targets received. Expected: %#v\nGot: %#v", expected, got)
+	if err != nil {
+		t.Fatalf("error parsing CSV: %v", err)
 	}
-}
-
-func TestUtilSuite(t *testing.T) {
-	suite.Run(t, new(UtilSuite))
+	expectedLength := 1
+	if len(got) != expectedLength {
+		t.Fatalf("invalid number of results received from CSV. expected %d got %d", expectedLength, len(got))
+	}
+	if !reflect.DeepEqual(expected, got[0]) {
+		t.Fatalf("Incorrect targets received. Expected: %#v\nGot: %#v", expected, got)
+	}
 }
