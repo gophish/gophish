@@ -80,6 +80,7 @@ func (s *SMTP) Validate() error {
 	if err != nil {
 		return err
 	}
+
 	// Make sure addr is in host:port format
 	hp := strings.Split(s.Host, ":")
 	if len(hp) > 2 {
@@ -204,6 +205,7 @@ func PutSMTP(s *SMTP) error {
 		log.Error(err)
 		return err
 	}
+
 	err = db.Where("id=?", s.Id).Save(s).Error
 	if err != nil {
 		log.Error(err)

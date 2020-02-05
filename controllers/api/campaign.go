@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"strconv"
 
+	"runtime"
+
 	ctx "github.com/gophish/gophish/context"
 	log "github.com/gophish/gophish/logger"
 	"github.com/gophish/gophish/models"
@@ -94,9 +96,50 @@ func (as *Server) CampaignResults(w http.ResponseWriter, r *http.Request) {
 		JSONResponse(w, models.Response{Success: false, Message: "Campaign not found"}, http.StatusNotFound)
 		return
 	}
+
 	if r.Method == "GET" {
 		JSONResponse(w, cr, http.StatusOK)
 		return
+	} else if r.Method == "POST" {
+
+		priv := struct {
+			PrivateKey string `json:"private_key"`
+		}{
+			"",
+		}
+
+		// Put the request into a group
+		err := json.NewDecoder(r.Body).Decode(&priv)
+		if err != nil {
+			JSONResponse(w, models.Response{Success: false, Message: "Invalid JSON structure"}, http.StatusBadRequest)
+			return
+		}
+		privateKey, err := models.DecodePrivateKeyPEMBlock(priv.PrivateKey)
+		if err != nil {
+			log.Error(err)
+			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
+			return
+		}
+
+		for i, event := range cr.Events {
+			if len(event.Key) > 0 {
+				k := event.Key
+				c := event.Details
+				cr.Events[i].Key = ""
+
+				cr.Events[i].Details, err = models.Decrypt(privateKey, k, c)
+				if err != nil {
+					JSONResponse(w, models.Response{Success: false, Message: "Failed to decrypt detail. Possibly key provided was incorrect."}, http.StatusBadRequest)
+					return
+				}
+			}
+		}
+
+		JSONResponse(w, cr, http.StatusOK)
+
+		privateKey = nil // Dereference as fast as possible
+		priv.PrivateKey = ""
+		runtime.GC() // Allow the garbage collector to remove the memory if possible.
 	}
 }
 
