@@ -32,7 +32,7 @@ function save(idx) {
 }
 
 function dismiss() {
-    $("#publicKeysTable").dataTable().DataTable().clear().draw()
+    load();
     $("#friendly_name").val("")
 	$("#public_key").val("")
 	$("#modal").modal('hide')
@@ -60,7 +60,7 @@ function edit(idx) {
     }
 }
 
-var deleteKey = function (idx) {
+function deleteKey(idx) {
 	  Swal.fire({
         title: "Are you sure?",
         text: "This will delete the public key. This can't be undone!",
@@ -73,24 +73,35 @@ var deleteKey = function (idx) {
         allowOutsideClick: false,
         preConfirm: function () {
             return new Promise(function (resolve, reject) {
+  
                 api.public_keys_id.delete(public_keys[idx].id)
                     .success(function (msg) {
                         resolve()
                     })
                     .error(function (data) {
-                        reject(data.responseJSON.message)
+                         Swal.fire({
+                            title: "Failed!",
+                            text: escapeHtml(data.responseJSON.message),
+                            type: "error",
+                        })
                     })
             })
         }
-    }).then(function () {
-        Swal.fire(
-            'Public Key Deleted!',
-            'This public key has been deleted!',
-            'success'
-        );
+    }).then(function (result) {
+    	if(result.value) {
+	        Swal.fire(
+	            'Public Key Deleted!',
+	            'This public key has been deleted!',
+	            'success'
+	        );
+        }
+        
         $('button:contains("OK")').on('click', function () {
             load()
         })
+    }).catch(function() {
+    	 $("#modal\\.flashes").empty().append("<div style=\"text-align:center\" class=\"alert alert-danger\">\
+            <i class=\"fa fa-exclamation-circle\"></i> " + data.responseJSON.message + "</div>")
     })
 }
 
@@ -144,7 +155,6 @@ function load() {
 
 $(document).ready(function () {
     load();
-    $('[data-toggle="tooltip"]').tooltip();
 
     $("#apiResetForm").submit(function (e) {
         api.reset()
@@ -307,7 +317,7 @@ $(document).ready(function () {
           .fail(function() {
             Swal.fire({
                 title: "Failed!",
-                text: "An unecpected error occured.",
+                text: "An unexcpected error occured.",
                 type: "error",
             })
           })
