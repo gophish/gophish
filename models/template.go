@@ -137,6 +137,7 @@ func PutTemplate(t *Template) error {
 	if err := t.Validate(); err != nil {
 		return err
 	}
+
 	// Delete all attachments, and replace with new ones
 	err := db.Where("template_id=?", t.Id).Delete(&Attachment{}).Error
 	if err != nil && err != gorm.ErrRecordNotFound {

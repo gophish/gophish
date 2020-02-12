@@ -41,6 +41,7 @@ github.com/jordan-wright/email v0.0.0-20200121133829-a0b5c5b58bb6 h1:gI29NnCaNU8
 github.com/jordan-wright/email v0.0.0-20200121133829-a0b5c5b58bb6/go.mod h1:1c7szIrayyPPB/987hsnvNzLushdWf4o/79s3P08L8A=
 github.com/jordan-wright/unindexed v0.0.0-20181209214434-78fa79113c0f h1:bYVTBvVHcAYDkH8hyVMRUW7J2mYQNNSmQPXGadYd1nY=
 github.com/jordan-wright/unindexed v0.0.0-20181209214434-78fa79113c0f/go.mod h1:eRt05O5haIXGKGodWjpQ2xdgBHTE7hg/pzsukNi9IRA=
+github.com/konsorten/go-windows-terminal-sequences v1.0.1 h1:mweAR1A6xJ3oS2pRaGiHgQ4OO8tzTaLawm8vnODuwDk=
 github.com/konsorten/go-windows-terminal-sequences v1.0.1/go.mod h1:T0+1ngSBFLxvqU3pZ+m/2kptfBszLMUkC4ZK/EgS/cQ=
 github.com/kylelemons/go-gypsy v0.0.0-20160905020020-08cad365cd28 h1:mkl3tvPHIuPaWsLtmHTybJeoVEW7cbePK73Ir8VtruA=
 github.com/kylelemons/go-gypsy v0.0.0-20160905020020-08cad365cd28/go.mod h1:T/T7jsxVqf9k/zYOqbgNAsANsjxTd1Yq3htjDhQ1H0c=

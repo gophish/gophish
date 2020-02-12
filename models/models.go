@@ -169,6 +169,7 @@ func Setup(c *config.Config) error {
 			Role:     adminRole,
 			RoleID:   adminRole.ID,
 		}
+
 		initUser.ApiKey = generateSecureKey()
 		err = db.Save(&initUser).Error
 		if err != nil {

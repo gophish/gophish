@@ -47,6 +47,21 @@ func (s *ModelsSuite) TearDownTest(c *check.C) {
 }
 
 func (s *ModelsSuite) createCampaignDependencies(ch *check.C, optional ...string) Campaign {
+
+	//Add a dummy public key to the admin user
+	pubKey := &PublicKey{Id: 1, FriendlyName: "Happy", UserId: 1,
+		PubKey: `-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAz8qUODbqjWxcL8eNngjC
+fwO6bstHOt6p8EvHahem6JQ/VeIdJ4h7Hy0eTxm68sXKvliWrs6J3uJUAAZlZqX5
+E9uMaSjiaF+aLVjQOj+fqmh/+UnpZUa/p2WtWy1YyZuAZ9o4EcbeUFokkS8oIXfW
+vyPrE5ggAUNiW4p/4iHltjqKyt8z2cids36j09OLz0hnGxzAq4PQvdYnW0OyLkbq
+FwvpiR8/9JY4O7pM4dUaQBQhvj+ahbuYhdO+tsnE7cRMOLNXfc8vDtdTY08BfL5Z
+vFsuNexQlF1DnL5VIETx9WHmbT77A00VJp3VeUxADpYoSyrKQ5settc+dSFvp7kP
+qwIDAQAB
+-----END PUBLIC KEY-----`,
+	}
+	ch.Assert(PostPublicKey(pubKey), check.Equals, nil)
+
 	// we use the optional parameter to pass an alternative subject
 	group := Group{Name: "Test Group"}
 	group.Targets = []Target{
@@ -88,6 +103,7 @@ func (s *ModelsSuite) createCampaignDependencies(ch *check.C, optional ...string
 	c.Template = t
 	c.Page = p
 	c.SMTP = smtp
+	c.PublicKeyId = 1
 	c.Groups = []Group{group}
 	return c
 }

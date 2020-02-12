@@ -100,6 +100,10 @@ var api = {
         results: function (id) {
             return query("/campaigns/" + id + "/results", "GET", {}, true)
         },
+		// decrypted_results() - Posts to the API a private key which the server can then decrypt results with before returning them
+		decrypted_results: function(id, args) {
+			 return query("/campaigns/" + id + "/results", "POST", args, true)
+		},
         // complete() - Completes a campaign at POST /campaigns/:id/complete
         complete: function (id) {
             return query("/campaigns/" + id + "/complete", "GET", {}, true)
@@ -176,6 +180,33 @@ var api = {
             return query("/pages/", "POST", page, false)
         }
     },
+	// public_keys contains the endpoints for /public_keys
+    public_keys: {
+        // get() - Queries the API for GET /public_keys
+        get: function () {
+            return query("/public_keys/", "GET", {}, false)
+        },
+		
+		post: function(publickey) {
+			return query("/public_keys/", "POST", publickey, false)
+		}
+		
+    },
+    // public_keys_id contains the endpoints for /public_keys/:id
+	public_keys_id: {
+		// get() - Queries the API for GET /public_keys/:id
+		get: function (id) {
+            return query("/public_keys/" + id, "GET", {}, false)
+        },
+        // put() - Puts a page to PUT /public_keys/:id
+        put: function (key) {
+            return query("/public_keys/" + key.id, "PUT", key, false)
+        },
+        // delete() - Deletes a page at DELETE /public_keys/:id
+        delete: function (id) {
+            return query("/public_keys/" + id, "DELETE", {}, false)
+        }
+	},
     // pageId contains the endpoints for /pages/:id
     pageId: {
         // get() - Queries the API for GET /pages/:id

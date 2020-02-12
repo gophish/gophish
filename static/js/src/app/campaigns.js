@@ -49,6 +49,7 @@ function launch() {
                     smtp: {
                         name: $("#profile").select2("data")[0].text
                     },
+					 public_key_id: Number($("#pub_key_selection").select2("data")[0].id),
                     launch_date: moment($("#launch_date").val(), "MMMM Do YYYY, h:mm a").utc().format(),
                     send_by_date: send_by_date || null,
                     groups: groups,
@@ -119,6 +120,7 @@ function dismiss() {
     $("#name").val("");
     $("#template").val("").change();
     $("#page").val("").change();
+	$("#pub_key_selection").val("").change();
     $("#url").val("");
     $("#profile").val("").change();
     $("#users").val("").change();
@@ -220,6 +222,20 @@ function setupOptions() {
                     page_select.val(page_s2[0].id)
                     page_select.trigger('change.select2')
                 }
+            }
+        });
+	api.public_keys.get()
+        .success(function (public_keys) {
+            if (public_keys.length > 0) {
+                var public_keys_s2 = $.map(public_keys, function (obj) {
+                    obj.text = obj.name
+                    return obj
+                });
+                var public_keys_select = $("#pub_key_selection.form-control")
+                public_keys_select.select2({
+                    placeholder: "Select a Public key",
+                    data: public_keys_s2,
+                });
             }
         });
     api.SMTP.get()

@@ -3,6 +3,7 @@ package models
 import (
 	"errors"
 	"net/url"
+	"strconv"
 	"time"
 
 	log "github.com/gophish/gophish/logger"
@@ -31,6 +32,7 @@ type Campaign struct {
 	SMTPId        int64     `json:"-"`
 	SMTP          SMTP      `json:"smtp"`
 	URL           string    `json:"url"`
+	PublicKeyId   int64     `json:"public_key_id"`
 }
 
 // CampaignResults is a struct representing the results from a campaign
@@ -79,6 +81,7 @@ type Event struct {
 	Email      string    `json:"email"`
 	Time       time.Time `json:"time"`
 	Message    string    `json:"message"`
+	Key        string    `json:"key"` // This is encrypted with the public key associated with the campaign
 	Details    string    `json:"details"`
 }
 
@@ -125,6 +128,9 @@ var ErrSMTPNotFound = errors.New("Sending profile not found")
 // ErrInvalidSendByDate indicates that the user specified a send by date that occurs before the
 // launch date
 var ErrInvalidSendByDate = errors.New("The launch date must be before the \"send emails by\" date")
+
+// ErrPubKeyNotFound indicates that a publc key was requested that does not belong to this user, or doesnt exist
+var ErrPubKeyNotFound = errors.New("The public key specified was not found in database")
 
 // RecipientParameter is the URL parameter that points to the result ID for a recipient.
 const RecipientParameter = "rid"
@@ -374,6 +380,18 @@ func GetCampaign(id int64, uid int64) (Campaign, error) {
 	return c, err
 }
 
+// GetCampaignByPublicKey returns the campaign, if it exists, specified by the given id and user_id.
+func GetCampaignByPublicKey(pub_key_id int64, uid int64) (Campaign, error) {
+	c := Campaign{}
+	err := db.Where("public_key_id = ?", pub_key_id).Where("user_id = ?", uid).Find(&c).Error
+	if err != nil {
+		log.Errorf("%s: campaign not found", err)
+		return c, err
+	}
+	err = c.getDetails()
+	return c, err
+}
+
 // GetCampaignResults returns just the campaign results for the given campaign
 func GetCampaignResults(id int64, uid int64) (CampaignResults, error) {
 	cr := CampaignResults{}
@@ -492,14 +510,39 @@ func PostCampaign(c *Campaign, uid int64) error {
 		log.Error(err)
 		return err
 	}
+
 	c.SMTP = s
 	c.SMTPId = s.Id
+
+	if c.PublicKeyId != 0 {
+		pub, err := GetPublicKey(c.PublicKeyId, uid)
+		if err == gorm.ErrRecordNotFound {
+
+			pubkeyName := pub.FriendlyName
+			if len(pubkeyName) == 0 {
+				pubkeyName = strconv.FormatInt(pub.Id, 10)
+			}
+
+			log.WithFields(logrus.Fields{
+				"pubkey": pubkeyName,
+			}).Error("Public key does not exist")
+
+			return ErrPubKeyNotFound
+		} else if err != nil {
+			log.Error(err)
+			return err
+		}
+
+		c.PublicKeyId = pub.Id
+	}
+
 	// Insert into the DB
 	err = db.Save(c).Error
 	if err != nil {
 		log.Error(err)
 		return err
 	}
+
 	err = c.AddEvent(&Event{Message: "Campaign Created"})
 	if err != nil {
 		log.Error(err)

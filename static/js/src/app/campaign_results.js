@@ -232,7 +232,48 @@ function exportAsCSV(scope) {
         document.body.removeChild(dlLink)
     }
     $("#exportButton").html(exportHTML)
+	$("#modal").modal('hide')
+	$("#modal\\.flashes").empty()
 }
+
+//Check if there are encrypted elements that the user may want the server to decrypt before downloading.
+function checkForNecessaryDecrypt() {
+	var encryptedResultsFound = false;
+	for(i = 0; i < campaign.timeline.length; i++) {
+		if(campaign.timeline[i].key.length > 0) {
+			encryptedResultsFound = true;
+			break;
+		}
+	}
+	if(encryptedResultsFound) {
+		    $("#modal").modal('show')
+	} else {
+		exportAsCSV("events");
+	}
+}
+
+function getDecryptedEvents() {
+	 $("#modal\\.flashes").empty()
+	if($('#decrypt_results').is(':checked')) {
+		if($('#private_key').length > 0 && $('#private_key')[0].value.length > 0 ) {
+			api.campaignId.decrypted_results(campaign.id, {private_key : $('#private_key')[0].value} )
+	        .success(function (c) {
+	           campaign = c;
+			   exportAsCSV("events");
+			})
+			.error(function (c) {
+				console.log(c)
+				modalError(c.responseJSON.message)
+			});
+	
+		} else {
+			modalError("Private key has to be greater than zero length.")
+		}
+	} else {
+		exportAsCSV("events");
+	}
+}
+
 
 function replay(event_idx) {
     request = campaign.timeline[event_idx]
@@ -388,8 +429,8 @@ function renderTimeline(data) {
                 '    <i class="fa ' + statuses[event.message].icon + '"></i></div>' +
                 '    <div class="timeline-message">' + escapeHtml(event.message) +
                 '    <span class="timeline-date">' + moment.utc(event.time).local().format('MMMM Do YYYY h:mm:ss a') + '</span>'
-            if (event.details) {
-                details = JSON.parse(event.details)
+            if (event.details && event.key == "") {
+               	details = JSON.parse(event.details)
                 if (event.message == "Clicked Link" || event.message == "Submitted Data") {
                     deviceView = renderDevice(details)
                     if (deviceView) {
@@ -423,7 +464,11 @@ function renderTimeline(data) {
                     results += '<span class="label label-default">Error</span> ' + details.error
                     results += '</div>'
                 }
-            }
+            } else if(event.details && event.key != "") {
+				results += '<div id="encryptedData">Encrypted</div>'
+			}
+			
+			
             results += '</div></div>'
         }
     })
@@ -934,6 +979,17 @@ $(document).ready(function () {
         }
     })
     load();
+	
+	checkbox = $('#decrypt_results');
+	$('#privateKeyArea').hide();
+	checkbox.on('click', function() {
+		if($(this).is(':checked')) {
+      			$('#privateKeyArea').show();
+    
+   	 	} else {
+      			$('#privateKeyArea').hide();
+    	}
+	});
 
     // Start the polling loop
     setRefresh = setTimeout(refresh, 60000)
