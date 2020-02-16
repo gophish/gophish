@@ -9,7 +9,6 @@ import (
 	"github.com/gophish/gophish/config"
 	"github.com/gophish/gophish/mailer"
 	"github.com/gophish/gophish/models"
-	"github.com/stretchr/testify/suite"
 )
 
 type logMailer struct {
@@ -24,13 +23,12 @@ func (m *logMailer) Queue(ms []mailer.Mail) {
 	m.queue <- ms
 }
 
-// WorkerSuite is a suite of tests to cover API related functions
-type WorkerSuite struct {
-	suite.Suite
+// testContext is context to cover API related functions
+type testContext struct {
 	config *config.Config
 }
 
-func (s *WorkerSuite) SetupSuite() {
+func setupTest(t *testing.T) *testContext {
 	conf := &config.Config{
 		DBName:         "sqlite3",
 		DBPath:         ":memory:",
@@ -38,22 +36,16 @@ func (s *WorkerSuite) SetupSuite() {
 	}
 	err := models.Setup(conf)
 	if err != nil {
-		s.T().Fatalf("Failed creating database: %v", err)
+		t.Fatalf("Failed creating database: %v", err)
 	}
-	s.config = conf
-	s.Nil(err)
-	s.setupCampaignDependencies()
+	ctx := &testContext{}
+	ctx.config = conf
+	createTestData(t, ctx)
+	return ctx
 }
 
-func (s *WorkerSuite) TearDownTest() {
-	campaigns, _ := models.GetCampaigns(1)
-	for _, campaign := range campaigns {
-		models.DeleteCampaign(campaign.Id)
-	}
-}
-
-func (s *WorkerSuite) setupCampaignDependencies() {
-	s.config.TestFlag = true
+func createTestData(t *testing.T, ctx *testContext) {
+	ctx.config.TestFlag = true
 	// Add a group
 	group := models.Group{Name: "Test Group"}
 	for i := 0; i < 10; i++ {
@@ -67,12 +59,12 @@ func (s *WorkerSuite) setupCampaignDependencies() {
 	models.PostGroup(&group)
 
 	// Add a template
-	t := models.Template{Name: "Test Template"}
-	t.Subject = "Test subject"
-	t.Text = "Text text"
-	t.HTML = "<html>Test</html>"
-	t.UserId = 1
-	models.PostTemplate(&t)
+	template := models.Template{Name: "Test Template"}
+	template.Subject = "Test subject"
+	template.Text = "Text text"
+	template.HTML = "<html>Test</html>"
+	template.UserId = 1
+	models.PostTemplate(&template)
 
 	// Add a landing page
 	p := models.Page{Name: "Test Page"}
@@ -88,7 +80,7 @@ func (s *WorkerSuite) setupCampaignDependencies() {
 	models.PostSMTP(&smtp)
 }
 
-func (s *WorkerSuite) setupCampaign(id int) (*models.Campaign, error) {
+func setupCampaign(id int) (*models.Campaign, error) {
 	// Setup and "launch" our campaign
 	// Set the status such that no emails are attempted
 	c := models.Campaign{Name: fmt.Sprintf("Test campaign - %d", id)}
@@ -124,14 +116,20 @@ func (s *WorkerSuite) setupCampaign(id int) (*models.Campaign, error) {
 	return &c, err
 }
 
-func (s *WorkerSuite) TestMailLogGrouping() {
+func TestMailLogGrouping(t *testing.T) {
+	setupTest(t)
+
 	// Create the campaigns and unlock the maillogs so that they're picked up
 	// by the worker
 	for i := 0; i < 10; i++ {
-		campaign, err := s.setupCampaign(i)
-		s.Nil(err)
+		campaign, err := setupCampaign(i)
+		if err != nil {
+			t.Fatalf("error creating campaign: %v", err)
+		}
 		ms, err := models.GetMailLogsByCampaign(campaign.Id)
-		s.Nil(err)
+		if err != nil {
+			t.Fatalf("error getting maillogs for campaign: %v", err)
+		}
 		for _, m := range ms {
 			m.Unlock()
 		}
@@ -150,20 +148,18 @@ func (s *WorkerSuite) TestMailLogGrouping() {
 		ms := <-lm.queue
 		maillog, ok := ms[0].(*models.MailLog)
 		if !ok {
-			s.T().Fatalf("unable to cast mail to models.MailLog")
+			t.Fatalf("unable to cast mail to models.MailLog")
 		}
 		expected := maillog.CampaignId
 		for _, m := range ms {
 			maillog, ok = m.(*models.MailLog)
 			if !ok {
-				s.T().Fatalf("unable to cast mail to models.MailLog")
+				t.Fatalf("unable to cast mail to models.MailLog")
 			}
 			got := maillog.CampaignId
-			s.Equal(expected, got)
+			if got != expected {
+				t.Fatalf("unexpected campaign ID received for maillog: got %d expected %d", got, expected)
+			}
 		}
 	}
-}
-
-func TestMailerSuite(t *testing.T) {
-	suite.Run(t, new(WorkerSuite))
 }
