@@ -69,7 +69,7 @@ func (w *DefaultWorker) processCampaigns(t time.Time) error {
 		// generate the message (ref #1726)
 		c, ok := campaignCache[m.CampaignId]
 		if !ok {
-			c, err = models.GetCampaign(m.CampaignId, m.UserId)
+			c, err = models.GetCampaignMailContext(m.CampaignId, m.UserId)
 			if err != nil {
 				return err
 			}
