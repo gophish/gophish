@@ -283,3 +283,55 @@ func BenchmarkCampaign10000(b *testing.B) {
 	}
 	tearDownBenchmark(b)
 }
+
+func BenchmarkGetCampaign100(b *testing.B) {
+	setupBenchmark(b)
+	campaign := setupCampaign(b, 100)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_, err := GetCampaign(campaign.Id, campaign.UserId)
+		if err != nil {
+			b.Fatalf("error getting campaign: %v", err)
+		}
+	}
+	tearDownBenchmark(b)
+}
+
+func BenchmarkGetCampaign1000(b *testing.B) {
+	setupBenchmark(b)
+	campaign := setupCampaign(b, 1000)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_, err := GetCampaign(campaign.Id, campaign.UserId)
+		if err != nil {
+			b.Fatalf("error getting campaign: %v", err)
+		}
+	}
+	tearDownBenchmark(b)
+}
+
+func BenchmarkGetCampaign5000(b *testing.B) {
+	setupBenchmark(b)
+	campaign := setupCampaign(b, 5000)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_, err := GetCampaign(campaign.Id, campaign.UserId)
+		if err != nil {
+			b.Fatalf("error getting campaign: %v", err)
+		}
+	}
+	tearDownBenchmark(b)
+}
+
+func BenchmarkGetCampaign10000(b *testing.B) {
+	setupBenchmark(b)
+	campaign := setupCampaign(b, 10000)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_, err := GetCampaign(campaign.Id, campaign.UserId)
+		if err != nil {
+			b.Fatalf("error getting campaign: %v", err)
+		}
+	}
+	tearDownBenchmark(b)
+}

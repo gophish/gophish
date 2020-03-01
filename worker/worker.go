@@ -45,54 +45,70 @@ func WithMailer(m mailer.Mailer) func(*DefaultWorker) error {
 	}
 }
 
+// processCampaigns loads maillogs scheduled to be sent before the provided
+// time and sends them to the mailer.
+func (w *DefaultWorker) processCampaigns(t time.Time) error {
+	ms, err := models.GetQueuedMailLogs(t.UTC())
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+	// Lock the MailLogs (they will be unlocked after processing)
+	err = models.LockMailLogs(ms, true)
+	if err != nil {
+		return err
+	}
+	campaignCache := make(map[int64]models.Campaign)
+	// We'll group the maillogs by campaign ID to (roughly) group
+	// them by sending profile. This lets the mailer re-use the Sender
+	// instead of having to re-connect to the SMTP server for every
+	// email.
+	msg := make(map[int64][]mailer.Mail)
+	for _, m := range ms {
+		// We cache the campaign here to greatly reduce the time it takes to
+		// generate the message (ref #1726)
+		c, ok := campaignCache[m.CampaignId]
+		if !ok {
+			c, err = models.GetCampaignMailContext(m.CampaignId, m.UserId)
+			if err != nil {
+				return err
+			}
+			campaignCache[c.Id] = c
+		}
+		m.CacheCampaign(&c)
+		msg[m.CampaignId] = append(msg[m.CampaignId], m)
+	}
+
+	// Next, we process each group of maillogs in parallel
+	for cid, msc := range msg {
+		go func(cid int64, msc []mailer.Mail) {
+			c := campaignCache[cid]
+			if c.Status == models.CampaignQueued {
+				err := c.UpdateStatus(models.CampaignInProgress)
+				if err != nil {
+					log.Error(err)
+					return
+				}
+			}
+			log.WithFields(logrus.Fields{
+				"num_emails": len(msc),
+			}).Info("Sending emails to mailer for processing")
+			w.mailer.Queue(msc)
+		}(cid, msc)
+	}
+	return nil
+}
+
 // Start launches the worker to poll the database every minute for any pending maillogs
 // that need to be processed.
 func (w *DefaultWorker) Start() {
 	log.Info("Background Worker Started Successfully - Waiting for Campaigns")
 	go w.mailer.Start(context.Background())
 	for t := range time.Tick(1 * time.Minute) {
-		ms, err := models.GetQueuedMailLogs(t.UTC())
+		err := w.processCampaigns(t)
 		if err != nil {
 			log.Error(err)
 			continue
-		}
-		// Lock the MailLogs (they will be unlocked after processing)
-		err = models.LockMailLogs(ms, true)
-		if err != nil {
-			log.Error(err)
-			continue
-		}
-		// We'll group the maillogs by campaign ID to (sort of) group
-		// them by sending profile. This lets the mailer re-use the Sender
-		// instead of having to re-connect to the SMTP server for every
-		// email.
-		msg := make(map[int64][]mailer.Mail)
-		for _, m := range ms {
-			msg[m.CampaignId] = append(msg[m.CampaignId], m)
-		}
-
-		// Next, we process each group of maillogs in parallel
-		for cid, msc := range msg {
-			go func(cid int64, msc []mailer.Mail) {
-				uid := msc[0].(*models.MailLog).UserId
-				c, err := models.GetCampaign(cid, uid)
-				if err != nil {
-					log.Error(err)
-					errorMail(err, msc)
-					return
-				}
-				if c.Status == models.CampaignQueued {
-					err := c.UpdateStatus(models.CampaignInProgress)
-					if err != nil {
-						log.Error(err)
-						return
-					}
-				}
-				log.WithFields(logrus.Fields{
-					"num_emails": len(msc),
-				}).Info("Sending emails to mailer for processing")
-				w.mailer.Queue(msc)
-			}(cid, msc)
 		}
 	}
 }
@@ -115,6 +131,11 @@ func (w *DefaultWorker) LaunchCampaign(c models.Campaign) {
 		if m.SendDate.After(currentTime) {
 			m.Unlock()
 			continue
+		}
+		err = m.CacheCampaign(&c)
+		if err != nil {
+			log.Error(err)
+			return
 		}
 		mailEntries = append(mailEntries, m)
 	}
