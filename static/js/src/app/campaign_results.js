@@ -638,15 +638,6 @@ function poll() {
                 var event_date = moment.utc(event.time).local()
                 timeline_series_data.push({
                     email: event.email,
-                    x: event_date.valueOf(),
-                    y: 1
-                })
-            })
-            var timeline_series_data = []
-            $.each(campaign.timeline, function (i, event) {
-                var event_date = moment.utc(event.time).local()
-                timeline_series_data.push({
-                    email: event.email,
                     message: event.message,
                     x: event_date.valueOf(),
                     y: 1,
