@@ -939,7 +939,9 @@ function report_mail(rid, cid) {
                     return; // wait for response
                 }
             });
-            refresh(); 
+            setTimeout(function() {
+                refresh(); 
+            }, 1500);
         }));
     }
 }
