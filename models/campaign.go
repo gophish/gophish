@@ -491,7 +491,7 @@ func PostCampaign(c *Campaign, uid int64) error {
 	t, err := GetTemplateByName(c.Template.Name, uid)
 	if err == gorm.ErrRecordNotFound {
 		log.WithFields(logrus.Fields{
-			"template": t.Name,
+			"template": c.Template.Name,
 		}).Error("Template does not exist")
 		return ErrTemplateNotFound
 	} else if err != nil {
@@ -504,7 +504,7 @@ func PostCampaign(c *Campaign, uid int64) error {
 	p, err := GetPageByName(c.Page.Name, uid)
 	if err == gorm.ErrRecordNotFound {
 		log.WithFields(logrus.Fields{
-			"page": p.Name,
+			"page": c.Page.Name,
 		}).Error("Page does not exist")
 		return ErrPageNotFound
 	} else if err != nil {
@@ -517,7 +517,7 @@ func PostCampaign(c *Campaign, uid int64) error {
 	s, err := GetSMTPByName(c.SMTP.Name, uid)
 	if err == gorm.ErrRecordNotFound {
 		log.WithFields(logrus.Fields{
-			"smtp": s.Name,
+			"smtp": c.SMTP.Name,
 		}).Error("Sending profile does not exist")
 		return ErrSMTPNotFound
 	} else if err != nil {
