@@ -936,12 +936,11 @@ function report_mail(rid, cid) {
                 url: report_url,
                 method: "GET",
                 success: function(data) {
-                    return; // wait for response
+                    setTimeout(function() {
+                        refresh(); 
+                    }, 1500);
                 }
             });
-            setTimeout(function() {
-                refresh(); 
-            }, 1500);
         }));
     }
 }
