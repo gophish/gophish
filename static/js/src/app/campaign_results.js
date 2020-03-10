@@ -926,23 +926,33 @@ function refresh() {
 };
 
 function report_mail(rid, cid) {
-    var r = confirm("Mark this mail as reported?");
-    if (r == true) {
-        api.campaignId.get(cid).success((function(c) {
-            report_url = c.url;
-            report_url += report_url.endsWith("/") ? "" : "/";
-            report_url += "report?rid=" + rid;
-            $.ajax({
-                url: report_url,
-                method: "GET",
-                success: function(data) {
-                    setTimeout(function() {
-                        refresh(); 
-                    }, 1500);
-                }
-            });
-        }));
-    }
+    Swal.fire({
+        title: "Are you sure?",
+        text: "This result will be flagged as reported (RID: " + rid + ")",
+        type: "question",
+        animation: false,
+        showCancelButton: true,
+        confirmButtonText: "Continue",
+        confirmButtonColor: "#428bca",
+        reverseButtons: true,
+        allowOutsideClick: false,
+        showLoaderOnConfirm: true
+    }).then(function (result) {
+        if (result.value){
+            api.campaignId.get(cid).success((function(c) {
+                report_url = c.url;
+                report_url += report_url.endsWith("/") ? "" : "/";
+                report_url += "report?rid=" + rid;
+                $.ajax({
+                    url: report_url,
+                    method: "GET",
+                    success: function(data) {
+                        refresh();
+                    }
+                });
+            }));
+        }
+    })
 }
 
 $(document).ready(function () {
