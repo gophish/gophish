@@ -1,0 +1,26 @@
+events {
+    worker_connections 4096;
+}
+
+http {
+    server {
+        listen 80;
+        server_name {{gophish_domain}};
+        return 301 https://$host$request_uri;
+    }
+
+    server {
+        listen 443 ssl;
+        ssl_certificate {{ gophish_crt_path }};
+        ssl_certificate_key {{ gophish_ssl_cert_path }};
+        server_name {{gophish_domain}};
+        location / {
+            proxy_pass         https://127.0.0.1:8080;
+            proxy_redirect     off;
+            proxy_set_header   Host $host;
+            proxy_set_header   X-Real-IP $remote_addr;
+            proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header   X-Forwarded-Host $server_name;
+        }
+    }
+}
