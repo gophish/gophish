@@ -1,0 +1,11 @@
+[Unit]
+Description=gophish
+After=network.target
+[Service]
+Type=simple
+WorkingDirectory=/home/{{ gophish_user }}/gophish_deploy/
+ExecStart="/home/{{ gophish_user }}/gophish_deploy/gophish"
+User={{ gophish_user }}
+PIDFile="/home/{{ gophish_user }}/gophish_deploy/gophish.pid"
+[Install]
+WantedBy=multi-user.target
