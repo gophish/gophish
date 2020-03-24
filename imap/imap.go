@@ -7,8 +7,8 @@ import (
 	"crypto/tls"
 	"fmt"
 	"io"
+	"regexp"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/emersion/go-imap"
@@ -163,7 +163,8 @@ func (mbox *Mailbox) GetUnread(markAsRead, delete bool) ([]Email, error) {
 
 			//Remove CR characters, see https://github.com/jordan-wright/email/issues/106
 			tmp := string(buf)
-			tmp = strings.ReplaceAll(tmp, "\r", "")
+			re := regexp.MustCompile(`\r`)
+			tmp = re.ReplaceAllString(tmp, "")
 			buf = []byte(tmp)
 
 			rawBodyStream := bytes.NewReader(buf)
