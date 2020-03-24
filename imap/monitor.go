@@ -14,12 +14,13 @@ import (
 	"time"
 
 	log "github.com/gophish/gophish/logger"
+	"github.com/jordan-wright/email"
 
 	"github.com/gophish/gophish/models"
 )
 
 // Pattern for GoPhish emails e.g ?rid=AbC123
-var goPhishRegex = regexp.MustCompile("(\\?rid=[A-Za-z0-9]{7})")
+var goPhishRegex = regexp.MustCompile("(\\?rid=(3D)?([A-Za-z0-9]{7}))") // We include the optional quoted-printable 3D at the front, just in case decoding fails
 
 // Monitor is a worker that monitors IMAP servers for reported campaign emails
 type Monitor struct {
@@ -147,30 +148,34 @@ func checkForNewEmails(im models.IMAP) {
 				}
 			}
 
-			body := string(append(m.Email.Text, m.Email.HTML...)) // Not sure if we need to check the Text as well as the HTML. Perhaps sometimes Text only emails won't have an HTML component?
-			rid := goPhishRegex.FindString(body)
-
-			if rid != "" {
-				rid = rid[5:]
-				log.Infof("User '%s' reported email with rid %s", m.Email.From, rid)
-				result, err := models.GetResult(rid)
-				if err != nil {
-					log.Error("Error reporting GoPhish email with rid ", rid, ": ", err.Error())
-					reportingFailed = append(reportingFailed, m.SeqNum)
-				} else {
-					err = result.HandleEmailReport(models.EventDetails{})
+			rids, err := checkRIDs(m.Email) // Search email Text, HTML, and each attachment for rid parameters
+			if err != nil {
+				log.Errorf("Error searching email for rids from user '%s': %s", m.Email.From, err.Error())
+			} else {
+				if len(rids) < 1 {
+					// In the future this should be an alert in Gophish
+					log.Infof("User '%s' reported email with subject '%s'. This is not a GoPhish campaign; you should investigate it.\n", m.Email.From, m.Email.Subject)
+				}
+				for rid := range rids {
+					log.Infof("User '%s' reported email with rid %s", m.Email.From, rid)
+					result, err := models.GetResult(rid)
 					if err != nil {
-						log.Error("Error updating GoPhish email with rid ", rid, ": ", err.Error())
+						log.Error("Error reporting GoPhish email with rid ", rid, ": ", err.Error())
+						reportingFailed = append(reportingFailed, m.SeqNum)
 					} else {
-						if im.DeleteReportedCampaignEmail == true {
-							campaignEmails = append(campaignEmails, m.SeqNum)
+						err = result.HandleEmailReport(models.EventDetails{})
+						if err != nil {
+							log.Error("Error updating GoPhish email with rid ", rid, ": ", err.Error())
+						} else {
+							if im.DeleteReportedCampaignEmail == true {
+								campaignEmails = append(campaignEmails, m.SeqNum)
+							}
 						}
 					}
+
 				}
-			} else {
-				// In the future this should be an alert in Gophish
-				log.Debugf("User '%s' reported email with subject '%s'. This is not a GoPhish campaign; you should investigate it.\n", m.Email.From, m.Email.Subject)
 			}
+
 			// Check if any emails were unable to be reported, so we can mark them as unread
 			if len(reportingFailed) > 0 {
 				log.Debugf("Marking %d emails as unread as failed to report\n", len(reportingFailed))
@@ -191,4 +196,36 @@ func checkForNewEmails(im models.IMAP) {
 	} else {
 		log.Debug("No new emails for ", im.Username)
 	}
+}
+
+// returns a slice of gophish rid paramters found in the email HTML, Text, and attachments
+func checkRIDs(em *email.Email) (map[string]int, error) {
+
+	rids := make(map[string]int)
+
+	// Check Text and HTML
+	for _, r := range goPhishRegex.FindAllStringSubmatch(string(em.Text)+string(em.HTML), -1) {
+		newrid := r[len(r)-1]
+		if _, ok := rids[newrid]; ok {
+			rids[newrid]++
+		} else {
+			rids[newrid] = 1
+		}
+	}
+
+	//Next check each attachment
+	for _, a := range em.Attachments {
+		if a.Header.Get("Content-Type") == "message/rfc822" {
+			for _, r := range goPhishRegex.FindAllStringSubmatch(string(a.Content), -1) {
+				newrid := r[len(r)-1]
+				if _, ok := rids[newrid]; ok {
+					rids[newrid]++
+				} else {
+					rids[newrid] = 1
+				}
+			}
+		}
+	}
+
+	return rids, nil
 }
