@@ -134,8 +134,8 @@ func checkForNewEmails(im models.IMAP) {
 	err = models.SuccessfulLogin(&im)
 
 	if len(msgs) > 0 {
-		var reportingFailed []uint32 // UIDs of emails that were unable to be reported to phishing server, mark as unread
-		var campaignEmails []uint32  // UIDs of campaign emails. If DeleteReportedCampaignEmail is true, we will delete these
+		var reportingFailed []uint32 // SeqNums of emails that were unable to be reported to phishing server, mark as unread
+		var campaignEmails []uint32  // SeqNums of campaign emails. If DeleteReportedCampaignEmail is true, we will delete these
 		for _, m := range msgs {
 			// Check if sender is from company's domain, if enabled. TODO: Make this an IMAP filter
 			if im.RestrictDomain != "" { // e.g domainResitct = widgets.com
@@ -156,14 +156,14 @@ func checkForNewEmails(im models.IMAP) {
 				result, err := models.GetResult(rid)
 				if err != nil {
 					log.Error("Error reporting GoPhish email with rid ", rid, ": ", err.Error())
-					reportingFailed = append(reportingFailed, m.UID)
+					reportingFailed = append(reportingFailed, m.SeqNum)
 				} else {
 					err = result.HandleEmailReport(models.EventDetails{})
 					if err != nil {
 						log.Error("Error updating GoPhish email with rid ", rid, ": ", err.Error())
 					} else {
 						if im.DeleteReportedCampaignEmail == true {
-							campaignEmails = append(campaignEmails, m.UID)
+							campaignEmails = append(campaignEmails, m.SeqNum)
 						}
 					}
 				}
