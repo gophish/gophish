@@ -7,6 +7,7 @@ package imap
 *		 - Add field to User for numner of non-campaign emails reported
  */
 import (
+	"bytes"
 	"context"
 	"regexp"
 	"strconv"
@@ -216,7 +217,15 @@ func checkRIDs(em *email.Email) (map[string]int, error) {
 	//Next check each attachment
 	for _, a := range em.Attachments {
 		if a.Header.Get("Content-Type") == "message/rfc822" {
-			for _, r := range goPhishRegex.FindAllStringSubmatch(string(a.Content), -1) {
+
+			//Let's decode the email
+			rawBodyStream := bytes.NewReader(a.Content)
+			attachementemail, err := email.NewEmailFromReader(rawBodyStream)
+			if err != nil {
+				return rids, err
+			}
+
+			for _, r := range goPhishRegex.FindAllStringSubmatch(string(attachementemail.Text)+string(attachementemail.HTML), -1) {
 				newrid := r[len(r)-1]
 				if _, ok := rids[newrid]; ok {
 					rids[newrid]++
