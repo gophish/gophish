@@ -13,6 +13,7 @@ import (
 
 	"github.com/emersion/go-imap"
 	"github.com/emersion/go-imap/client"
+	"github.com/emersion/go-message/charset"
 	"github.com/emersion/go-message/mail"
 	log "github.com/gophish/gophish/logger"
 	"github.com/gophish/gophish/models"
@@ -120,6 +121,8 @@ func (mbox *Mailbox) DeleteEmails(seqs []uint32) error {
 
 // GetUnread will find all unread emails in the folder and return them as a list.
 func (mbox *Mailbox) GetUnread(markAsRead, delete bool) ([]Email, error) {
+
+	imap.CharsetReader = charset.Reader
 	var emails []Email
 
 	imapclient, err := mbox.newClient()
