@@ -207,7 +207,8 @@ func checkRIDs(em *email.Email) (map[string]int, error) {
 	rids := make(map[string]int)
 
 	// Check Text and HTML
-	for _, r := range goPhishRegex.FindAllStringSubmatch(string(em.Text)+string(em.HTML), -1) {
+	emailContent := string(em.Text) + string(em.HTML)
+	for _, r := range goPhishRegex.FindAllStringSubmatch(emailContent, -1) {
 		newrid := r[len(r)-1]
 		if _, ok := rids[newrid]; ok {
 			rids[newrid]++
@@ -222,12 +223,13 @@ func checkRIDs(em *email.Email) (map[string]int, error) {
 
 			//Let's decode the email
 			rawBodyStream := bytes.NewReader(a.Content)
-			attachementemail, err := email.NewEmailFromReader(rawBodyStream)
+			attachementEmail, err := email.NewEmailFromReader(rawBodyStream)
 			if err != nil {
 				return rids, err
 			}
 
-			for _, r := range goPhishRegex.FindAllStringSubmatch(string(attachementemail.Text)+string(attachementemail.HTML), -1) {
+			emailContent := string(attachementEmail.Text) + string(attachementEmail.HTML)
+			for _, r := range goPhishRegex.FindAllStringSubmatch(emailContent, -1) {
 				newrid := r[len(r)-1]
 				if _, ok := rids[newrid]; ok {
 					rids[newrid]++

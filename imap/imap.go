@@ -1,7 +1,5 @@
 package imap
 
-//package main
-
 import (
 	"bytes"
 	"crypto/tls"
@@ -65,30 +63,29 @@ func Validate(s *models.IMAP) error {
 		Pwd:    s.Password,
 		Folder: s.Folder}
 
-	imapclient, err := mailServer.newClient()
+	imapClient, err := mailServer.newClient()
 	if err != nil {
 		log.Error(err.Error())
 	} else {
-		imapclient.Logout()
+		imapClient.Logout()
 	}
 	return err
 }
 
 // MarkAsUnread will set the UNSEEN flag on a supplied slice of SeqNums
 func (mbox *Mailbox) MarkAsUnread(seqs []uint32) error {
-	imapclient, err := mbox.newClient()
+	imapClient, err := mbox.newClient()
 	if err != nil {
 		return err
 	}
 
-	defer imapclient.Logout()
+	defer imapClient.Logout()
 
 	seqSet := new(imap.SeqSet)
 	seqSet.AddNum(seqs...)
 
 	item := imap.FormatFlagsOp(imap.RemoveFlags, true)
-	flags := []interface{}{imap.SeenFlag}
-	err = imapclient.Store(seqSet, item, flags, nil)
+	err = imapClient.Store(seqSet, item, imap.SeenFlag, nil)
 	if err != nil {
 		return err
 	}
@@ -99,19 +96,18 @@ func (mbox *Mailbox) MarkAsUnread(seqs []uint32) error {
 
 // DeleteEmails will delete emails from the supplied slice of SeqNums
 func (mbox *Mailbox) DeleteEmails(seqs []uint32) error {
-	imapclient, err := mbox.newClient()
+	imapClient, err := mbox.newClient()
 	if err != nil {
 		return err
 	}
 
-	defer imapclient.Logout()
+	defer imapClient.Logout()
 
 	seqSet := new(imap.SeqSet)
 	seqSet.AddNum(seqs...)
 
 	item := imap.FormatFlagsOp(imap.AddFlags, true)
-	flags := []interface{}{imap.DeletedFlag}
-	err = imapclient.Store(seqSet, item, flags, nil)
+	err = imapClient.Store(seqSet, item, imap.DeletedFlag, nil)
 	if err != nil {
 		return err
 	}
@@ -125,17 +121,17 @@ func (mbox *Mailbox) GetUnread(markAsRead, delete bool) ([]Email, error) {
 	imap.CharsetReader = charset.Reader
 	var emails []Email
 
-	imapclient, err := mbox.newClient()
+	imapClient, err := mbox.newClient()
 	if err != nil {
 		return emails, fmt.Errorf("failed to create IMAP connection: %s", err)
 	}
 
-	defer imapclient.Logout()
+	defer imapClient.Logout()
 
 	// Search for unread emails
 	criteria := imap.NewSearchCriteria()
 	criteria.WithoutFlags = []string{"\\Seen"}
-	seqs, err := imapclient.Search(criteria)
+	seqs, err := imapClient.Search(criteria)
 	if err != nil {
 		return emails, err
 	}
@@ -144,11 +140,11 @@ func (mbox *Mailbox) GetUnread(markAsRead, delete bool) ([]Email, error) {
 		seqset := new(imap.SeqSet)
 		seqset.AddNum(seqs...)
 		section := &imap.BodySectionName{}
-		items := []imap.FetchItem{imap.FetchEnvelope, imap.FetchFlags, imap.FetchInternalDate, section.FetchItem()} // Check this
+		items := []imap.FetchItem{imap.FetchEnvelope, imap.FetchFlags, imap.FetchInternalDate, section.FetchItem()}
 		messages := make(chan *imap.Message)
 
 		go func() {
-			if err := imapclient.Fetch(seqset, items, messages); err != nil {
+			if err := imapClient.Fetch(seqset, items, messages); err != nil {
 				log.Error("Error fetching emails: ", err.Error()) // TODO: How to handle this, need to propogate error out
 			}
 		}()
@@ -176,7 +172,7 @@ func (mbox *Mailbox) GetUnread(markAsRead, delete bool) ([]Email, error) {
 				return emails, err
 			}
 
-			// Reload the reader 🔫
+			// Reload the reader
 			rawBodyStream = bytes.NewReader(buf)
 			mr, err := mail.CreateReader(rawBodyStream)
 			if err != nil {
@@ -208,38 +204,35 @@ func (mbox *Mailbox) GetUnread(markAsRead, delete bool) ([]Email, error) {
 			emails = append(emails, emtmp)
 
 		} // On to the next email
-	} else {
-		//log.Println("No new messages")
 	}
-
 	return emails, nil
 }
 
 // newClient will initiate a new IMAP connection with the given creds.
 func (mbox *Mailbox) newClient() (*client.Client, error) {
-	var imapclient *client.Client
+	var imapClient *client.Client
 	var err error
 	if mbox.TLS {
-		imapclient, err = client.DialTLS(mbox.Host, new(tls.Config))
+		imapClient, err = client.DialTLS(mbox.Host, new(tls.Config))
 		if err != nil {
-			return imapclient, err
+			return imapClient, err
 		}
 	} else {
-		imapclient, err = client.Dial(mbox.Host)
+		imapClient, err = client.Dial(mbox.Host)
 		if err != nil {
-			return imapclient, err
+			return imapClient, err
 		}
 	}
 
-	err = imapclient.Login(mbox.User, mbox.Pwd)
+	err = imapClient.Login(mbox.User, mbox.Pwd)
 	if err != nil {
-		return imapclient, err
+		return imapClient, err
 	}
 
-	_, err = imapclient.Select(mbox.Folder, mbox.ReadOnly)
+	_, err = imapClient.Select(mbox.Folder, mbox.ReadOnly)
 	if err != nil {
-		return imapclient, err
+		return imapClient, err
 	}
 
-	return imapclient, nil
+	return imapClient, nil
 }
