@@ -169,7 +169,6 @@ function setupOptions() {
                     obj.title = obj.targets.length + " targets"
                     return obj
                 });
-                console.log(group_s2)
                 $("#users.form-control").select2({
                     placeholder: "Select Groups",
                     data: group_s2,
