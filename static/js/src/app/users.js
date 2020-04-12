@@ -115,7 +115,7 @@ const deleteUser = (id) => {
     })
 }
 
-const swapUser = (id) => {
+const impersonate = (id) => {
     var user = users.find(x => x.id == id)
     if (!user) {
         return
@@ -132,15 +132,35 @@ const swapUser = (id) => {
         allowOutsideClick: false,
     }).then((result) => {
         if (result.value) {
-          fetch('/superlogin', {
+
+         fetch('/impersonate', {
                 method: 'post',
                 body: "username=" + user.username + "&csrf_token=" + encodeURIComponent(csrf_token),
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                   },
           }).then((response) => {
-                    window.location.href = "/settings";
-                })
+                if (response.status == 200) {
+                    Swal.fire({
+                        title: "Success!",
+                        html: "Successfully changed to user <strong>" + escapeHtml(user.username) + "</strong>.",
+                        type: "success",
+                        showCancelButton: false,
+                        confirmButtonText: "Home",
+                        allowOutsideClick: false,
+                    }).then((result) => {
+                        if (result.value) {
+                            window.location.href = "/"
+                        }});
+                } else {
+                    Swal.fire({
+                        title: "Error!",
+                        type: "error",
+                        html: "Failed to change to user <strong>" + escapeHtml(user.username) + "</strong>.",
+                        showCancelButton: false,
+                    })
+                }
+            })
         }
       })
 }
@@ -166,7 +186,7 @@ const load = () => {
                     escapeHtml(user.username),
                     escapeHtml(user.role.name),
                     "<div class='pull-right'>\
-                    <button class='btn btn-warning swapuser_button' data-user-id='" + user.id + "'>\
+                    <button class='btn btn-warning impersonate_button' data-user-id='" + user.id + "'>\
                     <i class='fa fa-retweet'></i>\
                     </button>\
                     <button class='btn btn-primary edit_button' data-toggle='modal' data-backdrop='static' data-target='#modal' data-user-id='" + user.id + "'>\
@@ -213,7 +233,7 @@ $(document).ready(function () {
     $("#userTable").on('click', '.delete_button', function (e) {
         deleteUser($(this).attr('data-user-id'))
     })
-    $("#userTable").on('click', '.swapuser_button', function (e) {
-        swapUser($(this).attr('data-user-id'))
+    $("#userTable").on('click', '.impersonate_button', function (e) {
+        impersonate($(this).attr('data-user-id'))
     })
 });
