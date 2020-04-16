@@ -179,6 +179,8 @@ func (m *MailLog) Generate(msg *gomail.Message) error {
 	if err != nil {
 		return err
 	}
+	// Getting all template params.. current + extended.
+	allTemplateParams := GetAllTemplateParams(ptx)
 
 	// Add the transparency headers
 	msg.SetHeader("X-Mailer", config.ServerName)
@@ -195,12 +197,12 @@ func (m *MailLog) Generate(msg *gomail.Message) error {
 
 	// Parse the customHeader templates
 	for _, header := range c.SMTP.Headers {
-		key, err := ExecuteTemplate(header.Key, ptx)
+		key, err := ExecuteTemplate(header.Key, allTemplateParams)
 		if err != nil {
 			log.Warn(err)
 		}
 
-		value, err := ExecuteTemplate(header.Value, ptx)
+		value, err := ExecuteTemplate(header.Value, allTemplateParams)
 		if err != nil {
 			log.Warn(err)
 		}
@@ -210,7 +212,7 @@ func (m *MailLog) Generate(msg *gomail.Message) error {
 	}
 
 	// Parse remaining templates
-	subject, err := ExecuteTemplate(c.Template.Subject, ptx)
+	subject, err := ExecuteTemplate(c.Template.Subject, allTemplateParams)
 	if err != nil {
 		log.Warn(err)
 	}
@@ -221,14 +223,14 @@ func (m *MailLog) Generate(msg *gomail.Message) error {
 
 	msg.SetHeader("To", r.FormatAddress())
 	if c.Template.Text != "" {
-		text, err := ExecuteTemplate(c.Template.Text, ptx)
+		text, err := ExecuteTemplate(c.Template.Text, allTemplateParams)
 		if err != nil {
 			log.Warn(err)
 		}
 		msg.SetBody("text/plain", text)
 	}
 	if c.Template.HTML != "" {
-		html, err := ExecuteTemplate(c.Template.HTML, ptx)
+		html, err := ExecuteTemplate(c.Template.HTML, allTemplateParams)
 		if err != nil {
 			log.Warn(err)
 		}

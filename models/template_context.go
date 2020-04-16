@@ -2,6 +2,7 @@ package models
 
 import (
 	"bytes"
+	"encoding/json"
 	"net/mail"
 	"net/url"
 	"path"
@@ -76,7 +77,8 @@ func NewPhishingTemplateContext(ctx TemplateContext, r BaseRecipient, rid string
 // template body and data.
 func ExecuteTemplate(text string, data interface{}) (string, error) {
 	buff := bytes.Buffer{}
-	tmpl, err := template.New("template").Parse(text)
+	// replacing template params with no corresponding map keys with empty string.
+	tmpl, err := template.New("template").Option("missingkey=zero").Parse(text)
 	if err != nil {
 		return buff.String(), err
 	}
@@ -123,4 +125,32 @@ func ValidateTemplate(text string) error {
 		return err
 	}
 	return nil
+}
+
+// GetAllTemplateParams merges the PhishingTemplateContext with the extended_parameters
+// if extended_parameters are valid JSON
+func GetAllTemplateParams(ptx PhishingTemplateContext) map[string]string {
+	currentTemplateParams := map[string]string{
+		"From":        ptx.From,
+		"URL":         ptx.URL,
+		"Tracker":     ptx.Tracker,
+		"TrackingURL": ptx.TrackingURL,
+		"RId":         ptx.RId,
+		"BaseURL":     ptx.BaseURL,
+		"Email":       ptx.BaseRecipient.Email,
+		"FirstName":   ptx.BaseRecipient.FirstName,
+		"LastName":    ptx.BaseRecipient.LastName,
+		"Position":    ptx.BaseRecipient.Position,
+	}
+	extendedTemplateParams := map[string]string{}
+	err := json.Unmarshal([]byte(ptx.BaseRecipient.ExtendedTemplate), &extendedTemplateParams)
+
+	if err == nil {
+		// only merge if we have a valid JSON in extended_parameters
+		for k, v := range extendedTemplateParams {
+			currentTemplateParams[k] = v
+		}
+	}
+	return currentTemplateParams
+
 }

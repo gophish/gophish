@@ -113,8 +113,10 @@ func (s *EmailRequest) Generate(msg *gomail.Message) error {
 	if err != nil {
 		return err
 	}
+	// Getting all template params.. current + extended.
+	allTemplateParams := GetAllTemplateParams(ptx)
 
-	url, err := ExecuteTemplate(s.URL, ptx)
+	url, err := ExecuteTemplate(s.URL, allTemplateParams)
 	if err != nil {
 		return err
 	}
@@ -128,12 +130,12 @@ func (s *EmailRequest) Generate(msg *gomail.Message) error {
 
 	// Parse the customHeader templates
 	for _, header := range s.SMTP.Headers {
-		key, err := ExecuteTemplate(header.Key, ptx)
+		key, err := ExecuteTemplate(header.Key, allTemplateParams)
 		if err != nil {
 			log.Error(err)
 		}
 
-		value, err := ExecuteTemplate(header.Value, ptx)
+		value, err := ExecuteTemplate(header.Value, allTemplateParams)
 		if err != nil {
 			log.Error(err)
 		}
@@ -143,7 +145,7 @@ func (s *EmailRequest) Generate(msg *gomail.Message) error {
 	}
 
 	// Parse remaining templates
-	subject, err := ExecuteTemplate(s.Template.Subject, ptx)
+	subject, err := ExecuteTemplate(s.Template.Subject, allTemplateParams)
 	if err != nil {
 		log.Error(err)
 	}
@@ -154,14 +156,14 @@ func (s *EmailRequest) Generate(msg *gomail.Message) error {
 
 	msg.SetHeader("To", s.FormatAddress())
 	if s.Template.Text != "" {
-		text, err := ExecuteTemplate(s.Template.Text, ptx)
+		text, err := ExecuteTemplate(s.Template.Text, allTemplateParams)
 		if err != nil {
 			log.Error(err)
 		}
 		msg.SetBody("text/plain", text)
 	}
 	if s.Template.HTML != "" {
-		html, err := ExecuteTemplate(s.Template.HTML, ptx)
+		html, err := ExecuteTemplate(s.Template.HTML, allTemplateParams)
 		if err != nil {
 			log.Error(err)
 		}
