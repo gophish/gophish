@@ -4,7 +4,6 @@ import (
 	"compress/gzip"
 	"context"
 	"crypto/tls"
-	"fmt"
 	"html/template"
 	"net/http"
 	"net/url"
@@ -180,8 +179,6 @@ func newTemplateParams(r *http.Request) templateParams {
 // Base handles the default path and template execution
 func (as *AdminServer) Base(w http.ResponseWriter, r *http.Request) {
 	params := newTemplateParams(r)
-
-	fmt.Println(params)
 	params.Title = "Dashboard"
 	getTemplate(w, "dashboard").ExecuteTemplate(w, "base", params)
 }
