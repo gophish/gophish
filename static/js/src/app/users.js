@@ -115,6 +115,55 @@ const deleteUser = (id) => {
     })
 }
 
+const impersonate = (id) => {
+    var user = users.find(x => x.id == id)
+    if (!user) {
+        return
+    }
+    Swal.fire({
+        title: "Are you sure?",
+        html: "You will be logged out of your account and logged in as <strong>" + escapeHtml(user.username) + "</strong>",
+        type: "warning",
+        animation: false,
+        showCancelButton: true,
+        confirmButtonText: "Swap User",
+        confirmButtonColor: "#428bca",
+        reverseButtons: true,
+        allowOutsideClick: false,
+    }).then((result) => {
+        if (result.value) {
+
+         fetch('/impersonate', {
+                method: 'post',
+                body: "username=" + user.username + "&csrf_token=" + encodeURIComponent(csrf_token),
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                  },
+          }).then((response) => {
+                if (response.status == 200) {
+                    Swal.fire({
+                        title: "Success!",
+                        html: "Successfully changed to user <strong>" + escapeHtml(user.username) + "</strong>.",
+                        type: "success",
+                        showCancelButton: false,
+                        confirmButtonText: "Home",
+                        allowOutsideClick: false,
+                    }).then((result) => {
+                        if (result.value) {
+                            window.location.href = "/"
+                        }});
+                } else {
+                    Swal.fire({
+                        title: "Error!",
+                        type: "error",
+                        html: "Failed to change to user <strong>" + escapeHtml(user.username) + "</strong>.",
+                        showCancelButton: false,
+                    })
+                }
+            })
+        }
+      })
+}
 
 const load = () => {
     $("#userTable").hide()
@@ -136,7 +185,11 @@ const load = () => {
                 userTable.row.add([
                     escapeHtml(user.username),
                     escapeHtml(user.role.name),
-                    "<div class='pull-right'><button class='btn btn-primary edit_button' data-toggle='modal' data-backdrop='static' data-target='#modal' data-user-id='" + user.id + "'>\
+                    "<div class='pull-right'>\
+                    <button class='btn btn-warning impersonate_button' data-user-id='" + user.id + "'>\
+                    <i class='fa fa-retweet'></i>\
+                    </button>\
+                    <button class='btn btn-primary edit_button' data-toggle='modal' data-backdrop='static' data-target='#modal' data-user-id='" + user.id + "'>\
                     <i class='fa fa-pencil'></i>\
                     </button>\
                     <button class='btn btn-danger delete_button' data-user-id='" + user.id + "'>\
@@ -179,5 +232,8 @@ $(document).ready(function () {
     })
     $("#userTable").on('click', '.delete_button', function (e) {
         deleteUser($(this).attr('data-user-id'))
+    })
+    $("#userTable").on('click', '.impersonate_button', function (e) {
+        impersonate($(this).attr('data-user-id'))
     })
 });
