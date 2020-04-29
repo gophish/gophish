@@ -95,8 +95,10 @@
                     <select class="form-control" placeholder="Landing Page" id="page" />
                     <option></option>
                     </select>
+                    </select>
                     <label class="control-label" for="url">URL:
-                        <i class="fa fa-question-circle" data-toggle="tooltip" data-placement="right" title="Location of Gophish listener (must be reachable by targets!)"></i>
+                        <i class="fa fa-question-circle" data-toggle="tooltip" data-placement="right"
+                            title="Location of Gophish listener (must be reachable by targets!)"></i>
                     </label>
                     <input type="text" class="form-control" placeholder="http://192.168.1.1" id="url" />
                     <div class="row">
@@ -106,9 +108,11 @@
                         </div>
                         <div class="col-md-6">
                             <label class="control-label" for="delay">Send Emails By (Optional)
-                                <i class="fa fa-question-circle" data-toggle="tooltip" data-placement="right" title="If specified, Gophish will send emails evenly between the campaign launch and this date."></i>
+                                <i class="fa fa-question-circle" data-toggle="tooltip" data-placement="right"
+                                    title="If specified, Gophish will send emails evenly between the campaign launch and this date."></i>
                             </label>
-                            <input type="text" class="form-control" id="send_by_date" autocomplete="random-data"/> <!--Chrome ignores autocomplete="off".-->
+                            <input type="text" class="form-control" id="send_by_date" autocomplete="random-data" />
+                            <!--Chrome ignores autocomplete="off".-->
                         </div>
                     </div>
                     <label class="control-label" for="profile">Sending Profile:</label>
@@ -117,8 +121,8 @@
                         <option></option>
                         </select>
                         <span class="input-group-btn">
-                            <button type="button" data-toggle="modal" data-backdrop="static" data-target="#sendTestEmailModal"
-                                class="btn btn-primary button">
+                            <button type="button" data-toggle="modal" data-backdrop="static"
+                                data-target="#sendTestEmailModal" class="btn btn-primary button">
                                 <i class="fa fa-envelope"></i> Send Test Email</button>
                         </span>
                     </div>
