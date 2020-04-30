@@ -35,6 +35,7 @@ type Result struct {
 	SendDate     time.Time `json:"send_date"`
 	Reported     bool      `json:"reported" sql:"not null"`
 	ModifiedDate time.Time `json:"modified_date"`
+	LinkOpened   bool      `json:"linkOpened"`
 	BaseRecipient
 }
 
@@ -132,6 +133,9 @@ func (r *Result) HandleFormSubmit(details EventDetails) error {
 	}
 	r.Status = EventDataSubmit
 	r.ModifiedDate = event.Time
+	if r.LinkOpened != true {
+		r.LinkOpened = true // change boolean status of LinkOpened if the victim submit data for first time
+	}
 	return db.Save(r).Error
 }
 
@@ -193,6 +197,7 @@ func (r *Result) GenerateId(tx *gorm.DB) error {
 			return err
 		}
 		r.RId = rid
+		r.LinkOpened = false // LinkOpened set to false after created the result id (r_id)
 		err = tx.Table("results").Where("r_id=?", r.RId).First(&Result{}).Error
 		if err == gorm.ErrRecordNotFound {
 			break

@@ -216,6 +216,7 @@ func (ps *PhishingServer) PhishHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		p, err := models.GetPage(preview.PageId, preview.UserId)
+
 		if err != nil {
 			log.Error(err)
 			http.NotFound(w, r)
@@ -268,15 +269,33 @@ func renderPhishResponse(w http.ResponseWriter, r *http.Request, ptx models.Phis
 	// If the request was a form submit and a redirect URL was specified, we
 	// should send the user to that URL
 	if r.Method == "POST" {
-		if p.RedirectURL != "" {
+		if p.RedirectURL != "" || p.SecondRedirectURL != "" {
 			redirectURL, err := models.ExecuteTemplate(p.RedirectURL, ptx)
+			secondRedirectURL, err2 := models.ExecuteTemplate(p.SecondRedirectURL, ptx)
 			if err != nil {
 				log.Error(err)
 				http.NotFound(w, r)
 				return
 			}
-			http.Redirect(w, r, redirectURL, http.StatusFound)
-			return
+
+			if err2 != nil {
+				log.Error(err2)
+				http.NotFound(w, r)
+				return
+			}
+
+			rs := ctx.Get(r, "result").(models.Result)
+			rid := ctx.Get(r, "rid").(string)
+			personData := rs.GetResult(rid)
+
+			// check if the person submitted the form at least one time
+			if !personData.LinkOpened {
+				http.Redirect(w, r, redirectURL, http.StatusFound)
+				return
+			} else {
+				http.Redirect(w, r, secondRedirectURL, http.StatusFound)
+				return
+			}
 		}
 	}
 	// Otherwise, we just need to write out the templated HTML
