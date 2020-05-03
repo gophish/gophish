@@ -191,17 +191,19 @@ function edit(idx) {
         $("#subject").val(template.subject)
         $("#html_editor").val(template.html)
         $("#text_editor").val(template.text)
+        attachmentRows = []
         $.each(template.attachments, function (i, file) {
             var icon = icons[file.type] || "fa-file-o"
             // Add the record to the modal
-            attachmentsTable.row.add([
+            attachmentRows.push([
                 '<i class="fa ' + icon + '"></i>',
                 escapeHtml(file.name),
                 '<span class="remove-row"><i class="fa fa-trash-o"></i></span>',
                 file.content,
                 file.type || "application/octet-stream"
-            ]).draw()
+            ])
         })
+        attachmentsTable.rows.add(attachmentRows).draw()
         if (template.html.indexOf("{{.Tracker}}") != -1) {
             $("#use_tracker_checkbox").prop("checked", true)
         } else {
@@ -316,8 +318,9 @@ function load() {
                     }]
                 });
                 templateTable.clear()
+                templateRows = []
                 $.each(templates, function (i, template) {
-                    templateTable.row.add([
+                    templateRows.push([
                         escapeHtml(template.name),
                         moment(template.modified_date).format('MMMM Do YYYY, h:mm:ss a'),
                         "<div class='pull-right'><span data-toggle='modal' data-backdrop='static' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Edit Template' onclick='edit(" + i + ")'>\
@@ -329,8 +332,9 @@ function load() {
                     <button class='btn btn-danger' data-toggle='tooltip' data-placement='left' title='Delete Template' onclick='deleteTemplate(" + i + ")'>\
                     <i class='fa fa-trash-o'></i>\
                     </button></div>"
-                    ]).draw()
+                    ])
                 })
+                templateTable.rows.add(templateRows).draw()
                 $('[data-toggle="tooltip"]').tooltip()
             } else {
                 $("#emptyMessage").show()
