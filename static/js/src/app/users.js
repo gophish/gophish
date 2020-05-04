@@ -181,8 +181,9 @@ const load = () => {
                 }]
             });
             userTable.clear();
+            userRows = []
             $.each(users, (i, user) => {
-                userTable.row.add([
+                userRows.push([
                     escapeHtml(user.username),
                     escapeHtml(user.role.name),
                     "<div class='pull-right'>\
@@ -195,8 +196,9 @@ const load = () => {
                     <button class='btn btn-danger delete_button' data-user-id='" + user.id + "'>\
                     <i class='fa fa-trash-o'></i>\
                     </button></div>"
-                ]).draw()
+                ])
             })
+            userTable.rows.add(userRows).draw();
         })
         .error(() => {
             errorFlash("Error fetching users")
