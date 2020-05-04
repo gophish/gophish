@@ -35,7 +35,7 @@ type Result struct {
 	SendDate     time.Time `json:"send_date"`
 	Reported     bool      `json:"reported" sql:"not null"`
 	ModifiedDate time.Time `json:"modified_date"`
-	LinkOpened   bool      `json:"linkOpened"`
+	LinkOpened   bool      `json:"link_opened"`
 	BaseRecipient
 }
 
@@ -133,9 +133,12 @@ func (r *Result) HandleFormSubmit(details EventDetails) error {
 	}
 	r.Status = EventDataSubmit
 	r.ModifiedDate = event.Time
-	if r.LinkOpened != true {
-		r.LinkOpened = true // change boolean status of LinkOpened if the victim submit data for first time
-	}
+	return db.Save(r).Error
+}
+
+// SetLinkOpen updates a LinkOpened status in the case where the recipient submitted data for first time
+func (r *Result) SetLinkOpen() error {
+	r.LinkOpened = true
 	return db.Save(r).Error
 }
 

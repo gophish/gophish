@@ -15,7 +15,8 @@ function save(idx) {
     page.capture_credentials = $("#capture_credentials_checkbox").prop("checked")
     page.capture_passwords = $("#capture_passwords_checkbox").prop("checked")
     page.redirect_url = $("#redirect_url_input").val()
-    page.secondRedirect_url = $("#secondRedirect_url_input").val() // get the value of second url redirection
+    page.second_redirect_url = $("#second_redirect_url_input").val() // get the value of second url redirection
+    console.log(page)
     if (idx != -1) {
         page.id = pages[idx].id
         api.pageId.put(page)
@@ -44,11 +45,11 @@ function dismiss() {
     $("#html_editor").val("")
     $("#url").val("")
     $("#redirect_url_input").val("")
-    $("#secondRedirect_url_input").val("")
+    $("#second_redirect_url_input").val("")
     $("#modal").find("input[type='checkbox']").prop("checked", false)
     $("#capture_passwords").hide()
     $("#redirect_url").hide()
-    $("#secondRedirect_url").hide()
+    $("#second_redirect_url").hide()
     $("#modal").modal('hide')
 }
 
@@ -122,11 +123,11 @@ function edit(idx) {
         $("#capture_credentials_checkbox").prop("checked", page.capture_credentials)
         $("#capture_passwords_checkbox").prop("checked", page.capture_passwords)
         $("#redirect_url_input").val(page.redirect_url)
-        $("#secondRedirect_url_input").val(page.secondRedirect_url)
+        $("#second_redirect_url_input").val(page.secondRedirect_url)
         if (page.capture_credentials) {
             $("#capture_passwords").show()
             $("#redirect_url").show()
-            $("#secondRedirect_url").show()
+            $("#second_redirect_url").show()
 
         }
     }
@@ -238,7 +239,7 @@ $(document).ready(function () {
     $("#capture_credentials_checkbox").change(function () {
         $("#capture_passwords").toggle()
         $("#redirect_url").toggle()
-        $("#secondRedirect_url").toggle()
+        $("#second_redirect_url").toggle()
     })
     CKEDITOR.on('dialogDefinition', function (ev) {
         // Take the dialog name and its definition from the event data.
