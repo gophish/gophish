@@ -136,7 +136,8 @@ func (r *Result) HandleFormSubmit(details EventDetails) error {
 	return db.Save(r).Error
 }
 
-// SetLinkOpen updates a LinkOpened status in the case where the recipient submitted data for first time
+// SetLinkOpen updates a LinkOpened status in the case where the victim submitted data for first time.
+// This data will serve to redirect to the second url if the victim submits data once again.
 func (r *Result) SetLinkOpen() error {
 	r.LinkOpened = true
 	return db.Save(r).Error

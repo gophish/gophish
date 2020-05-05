@@ -285,23 +285,25 @@ func renderPhishResponse(w http.ResponseWriter, r *http.Request, ptx models.Phis
 			}
 
 			personData, err3 := models.GetResult(ptx.RId)
-			log.Logger.Printf(ptx.RId)
 			if err3 != nil {
 				log.Error(err)
 				http.NotFound(w, r)
 				return
 			}
 
-			// check if the person submitted the form at least one time
+			// Check if the person submitted the form at least one time
 			if personData.LinkOpened == false {
 				personData.SetLinkOpen()
 				http.Redirect(w, r, redirectURL, http.StatusFound)
 				return
+				// If page has got second redirection url, redirect to SecondRedirectURL
 			} else if personData.LinkOpened == true && p.SecondRedirectURL != "" {
 				http.Redirect(w, r, secondRedirectURL, http.StatusFound)
 				return
+				// If page hasn't got second redirection url - redirect to redirectUrl
 			} else {
 				http.Redirect(w, r, redirectURL, http.StatusFound)
+				return
 			}
 		}
 	}

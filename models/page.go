@@ -18,7 +18,7 @@ type Page struct {
 	CaptureCredentials bool      `json:"capture_credentials" gorm:"column:capture_credentials"`
 	CapturePasswords   bool      `json:"capture_passwords" gorm:"column:capture_passwords"`
 	RedirectURL        string    `json:"redirect_url" gorm:"column:redirect_url"`
-	SecondRedirectURL  string    `json:"second_redirect_url" gorm:"column:second_redirect_url"` // second url link was added
+	SecondRedirectURL  string    `json:"second_redirect_url" gorm:"column:second_redirect_url"`
 	ModifiedDate       time.Time `json:"modified_date"`
 }
 
