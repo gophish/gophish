@@ -18,6 +18,7 @@ function sendTestEmail() {
         url: '',
         smtp: {
             from_address: $("#from").val(),
+            spoofed_hostname: $("#spoofed_hostname").val(),
             host: $("#host").val(),
             username: $("#username").val(),
             password: $("#password").val(),
@@ -55,6 +56,7 @@ function save(idx) {
     profile.name = $("#name").val()
     profile.interface_type = $("#interface_type").val()
     profile.from_address = $("#from").val()
+    profile.spoofed_hostname = $("#spoofed_hostname").val()
     profile.host = $("#host").val()
     profile.username = $("#username").val()
     profile.password = $("#password").val()
@@ -90,6 +92,7 @@ function dismiss() {
     $("#interface_type").val("SMTP")
     $("#from").val("")
     $("#host").val("")
+    $("#spoofed_hostname").val("")
     $("#username").val("")
     $("#password").val("")
     $("#ignore_cert_errors").prop("checked", true)
@@ -157,6 +160,7 @@ function edit(idx) {
         $("#name").val(profile.name)
         $("#interface_type").val(profile.interface_type)
         $("#from").val(profile.from_address)
+        $("#spoofed_hostname").val(profile.spoofed_hostname)
         $("#host").val(profile.host)
         $("#username").val(profile.username)
         $("#password").val(profile.password)
@@ -176,6 +180,7 @@ function copy(idx) {
     $("#name").val("Copy of " + profile.name)
     $("#interface_type").val(profile.interface_type)
     $("#from").val(profile.from_address)
+    $("#spoofed_hostname").val(profile.spoofed_hostname)
     $("#host").val(profile.host)
     $("#username").val(profile.username)
     $("#password").val(profile.password)

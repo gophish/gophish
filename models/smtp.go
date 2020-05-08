@@ -34,6 +34,7 @@ type SMTP struct {
 	UserId           int64     `json:"-" gorm:"column:user_id"`
 	Interface        string    `json:"interface_type" gorm:"column:interface_type"`
 	Name             string    `json:"name"`
+	SpoofedHostname  string    `json:"spoofed_hostname"`
 	Host             string    `json:"host"`
 	Username         string    `json:"username,omitempty"`
 	Password         string    `json:"password,omitempty"`
@@ -114,12 +115,16 @@ func (s *SMTP) GetDialer() (mailer.Dialer, error) {
 		ServerName:         host,
 		InsecureSkipVerify: s.IgnoreCertErrors,
 	}
-	hostname, err := os.Hostname()
-	if err != nil {
-		log.Error(err)
-		hostname = "localhost"
+	if s.SpoofedHostname == "" {
+		hostname, err := os.Hostname()
+		if err != nil {
+			log.Error(err)
+			hostname = "localhost"
+		}
+		d.LocalName = hostname
+	} else {
+		d.LocalName = s.SpoofedHostname
 	}
-	d.LocalName = hostname
 	return &Dialer{d}, err
 }
 
