@@ -360,6 +360,7 @@ $(document).ready(function () {
                         [1, "desc"]
                     ]
                 });
+                campaignRows = []
                 $.each(campaigns, function (i, campaign) {
                     campaignTable = campaignTableOriginal
                     if (campaign.status === "Completed") {
@@ -378,7 +379,7 @@ $(document).ready(function () {
                         var quickStats = launchDate + "<br><br>" + "Number of recipients: " + campaign.stats.total + "<br><br>" + "Emails opened: " + campaign.stats.opened + "<br><br>" + "Emails clicked: " + campaign.stats.clicked + "<br><br>" + "Submitted Credentials: " + campaign.stats.submitted_data + "<br><br>" + "Errors : " + campaign.stats.error + "Reported : " + campaign.stats.reported
                     }
 
-                    campaignTable.row.add([
+                    campaignRows.push([
                         escapeHtml(campaign.name),
                         moment(campaign.created_date).format('MMMM Do YYYY, h:mm:ss a'),
                         "<span class=\"label " + label + "\" data-toggle=\"tooltip\" data-placement=\"right\" data-html=\"true\" title=\"" + quickStats + "\">" + campaign.status + "</span>",
@@ -391,9 +392,10 @@ $(document).ready(function () {
                     <button class='btn btn-danger' onclick='deleteCampaign(" + i + ")' data-toggle='tooltip' data-placement='left' title='Delete Campaign'>\
                     <i class='fa fa-trash-o'></i>\
                     </button></div>"
-                    ]).draw()
+                    ])
                     $('[data-toggle="tooltip"]').tooltip()
                 })
+                campaignTable.rows.add(campaignRows).draw()
             } else {
                 $("#emptyMessage").show()
             }
