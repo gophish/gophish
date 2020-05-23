@@ -162,15 +162,16 @@ function deleteCampaign(idx) {
 }
 
 function setupOptions() {
-    api.groups.get()
-        .success(function (groups) {
+    api.groups.summary()
+        .success(function (summaries) {
+            groups = summaries.groups
             if (groups.length == 0) {
                 modalError("No groups found!")
                 return false;
             } else {
                 var group_s2 = $.map(groups, function (obj) {
                     obj.text = obj.name
-                    obj.title = obj.targets.length + " targets"
+                    obj.title = obj.num_targets + " targets"
                     return obj
                 });
                 console.log(group_s2)
