@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"path/filepath"
 	"time"
 
 	"bitbucket.org/liamstask/goose/lib/goose"
@@ -94,8 +93,6 @@ func Setup(c *config.Config) error {
 		Env:           "production",
 		Driver:        chooseDBDriver(conf.DBName, conf.DBPath),
 	}
-	abs, _ := filepath.Abs(migrateConf.MigrationsDir)
-	fmt.Println(abs)
 	// Get the latest possible migration
 	latest, err := goose.GetMostRecentDBVersion(migrateConf.MigrationsDir)
 	if err != nil {
