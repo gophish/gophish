@@ -68,7 +68,7 @@ func TestLoadConfig(t *testing.T) {
 	}
 
 	// Load an invalid config
-	conf, err = LoadConfig("bogusfile")
+	_, err = LoadConfig("bogusfile")
 	if err == nil {
 		t.Fatalf("expected error when loading invalid config, but got %v", err)
 	}

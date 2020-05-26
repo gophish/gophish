@@ -285,7 +285,7 @@ func (as *AdminServer) Impersonate(w http.ResponseWriter, r *http.Request) {
 		session.Values["id"] = u.Id
 		session.Save(r, w)
 	}
-	http.Redirect(w, r, "/", 302)
+	http.Redirect(w, r, "/", http.StatusFound)
 }
 
 // Login handles the authentication flow for a user. If credentials are valid,
@@ -326,7 +326,7 @@ func (as *AdminServer) Login(w http.ResponseWriter, r *http.Request) {
 					next = path
 				}
 			}
-			http.Redirect(w, r, next, 302)
+			http.Redirect(w, r, next, http.StatusFound)
 		} else {
 			Flash(w, r, "danger", "Invalid Username/Password")
 			params.Flashes = session.Flashes()
@@ -349,7 +349,7 @@ func (as *AdminServer) Logout(w http.ResponseWriter, r *http.Request) {
 	delete(session.Values, "id")
 	Flash(w, r, "success", "You have successfully logged out")
 	session.Save(r, w)
-	http.Redirect(w, r, "/login", 302)
+	http.Redirect(w, r, "/login", http.StatusFound)
 }
 
 func getTemplate(w http.ResponseWriter, tmpl string) *template.Template {

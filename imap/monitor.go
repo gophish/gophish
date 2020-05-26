@@ -162,7 +162,7 @@ func checkForNewEmails(im models.IMAP) {
 					if err != nil {
 						log.Error("Error updating GoPhish email with rid ", rid, ": ", err.Error())
 					} else {
-						if im.DeleteReportedCampaignEmail == true {
+						if im.DeleteReportedCampaignEmail {
 							campaignEmails = append(campaignEmails, m.UID)
 						}
 					}
@@ -180,7 +180,7 @@ func checkForNewEmails(im models.IMAP) {
 				}
 			}
 			// If the DeleteReportedCampaignEmail flag is set, delete reported Gophish campaign emails
-			if im.DeleteReportedCampaignEmail == true && len(campaignEmails) > 0 {
+			if im.DeleteReportedCampaignEmail && len(campaignEmails) > 0 {
 				log.Debugf("Deleting %d campaign emails\n", len(campaignEmails))
 				err := mailServer.DeleteEmails(campaignEmails) // Delete GoPhish campaign emails.
 				if err != nil {

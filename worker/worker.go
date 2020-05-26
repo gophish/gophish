@@ -155,11 +155,3 @@ func (w *DefaultWorker) SendTestEmail(s *models.EmailRequest) error {
 	}()
 	return <-s.ErrorChan
 }
-
-// errorMail is a helper to handle erroring out a slice of Mail instances
-// in the case that an unrecoverable error occurs.
-func errorMail(err error, ms []mailer.Mail) {
-	for _, m := range ms {
-		m.Error(err)
-	}
-}

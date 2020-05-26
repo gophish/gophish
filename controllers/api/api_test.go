@@ -42,18 +42,6 @@ func setupTest(t *testing.T) *testContext {
 	return ctx
 }
 
-func tearDown(t *testing.T, ctx *testContext) {
-	// Cleanup all users except the original admin
-	// users, _ := models.GetUsers()
-	// for _, user := range users {
-	// 	if user.Id == 1 {
-	// 		continue
-	// 	}
-	// 	err := models.DeleteUser(user.Id)
-	// 	s.Nil(err)
-	// }
-}
-
 func createTestData(t *testing.T) {
 	// Add a group
 	group := models.Group{Name: "Test Group"}

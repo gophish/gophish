@@ -305,7 +305,6 @@ func getEmails(client Client, cmd *imap.Command, markAsRead, delete bool, respon
 			}
 		}
 	}
-	return
 }
 
 func deleteEmail(client Client, UID uint32) error {

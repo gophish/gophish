@@ -15,9 +15,7 @@ type logMailer struct {
 	queue chan []mailer.Mail
 }
 
-func (m *logMailer) Start(ctx context.Context) {
-	return
-}
+func (m *logMailer) Start(ctx context.Context) {}
 
 func (m *logMailer) Queue(ms []mailer.Mail) {
 	m.queue <- ms
