@@ -130,81 +130,83 @@ func (mbox *Mailbox) GetUnread(markAsRead, delete bool) ([]Email, error) {
 
 	// Search for unread emails
 	criteria := imap.NewSearchCriteria()
-	criteria.WithoutFlags = []string{"\\Seen"}
+	criteria.WithoutFlags = []string{imap.SeenFlag}
 	seqs, err := imapClient.Search(criteria)
 	if err != nil {
 		return emails, err
 	}
 
-	if len(seqs) > 0 {
-		seqset := new(imap.SeqSet)
-		seqset.AddNum(seqs...)
-		section := &imap.BodySectionName{}
-		items := []imap.FetchItem{imap.FetchEnvelope, imap.FetchFlags, imap.FetchInternalDate, section.FetchItem()}
-		messages := make(chan *imap.Message)
-
-		go func() {
-			if err := imapClient.Fetch(seqset, items, messages); err != nil {
-				log.Error("Error fetching emails: ", err.Error()) // TODO: How to handle this, need to propogate error out
-			}
-		}()
-
-		// Step through each email
-		for msg := range messages {
-			// Extract raw message body. I can't find a better way to do this with the emersion library
-			var em *email.Email
-			var buf []byte
-			for _, value := range msg.Body {
-				buf = make([]byte, value.Len())
-				value.Read(buf)
-				break // There should only ever be one item in this map, but I'm not 100% sure
-			}
-
-			//Remove CR characters, see https://github.com/jordan-wright/email/issues/106
-			tmp := string(buf)
-			re := regexp.MustCompile(`\r`)
-			tmp = re.ReplaceAllString(tmp, "")
-			buf = []byte(tmp)
-
-			rawBodyStream := bytes.NewReader(buf)
-			em, err = email.NewEmailFromReader(rawBodyStream) // Parse with @jordanwright's library
-			if err != nil {
-				return emails, err
-			}
-
-			// Reload the reader
-			rawBodyStream = bytes.NewReader(buf)
-			mr, err := mail.CreateReader(rawBodyStream)
-			if err != nil {
-				return emails, err
-			}
-
-			// Step over each part of the email, parsing attachments and attaching them to Jordan's email
-			for {
-				p, err := mr.NextPart()
-				if err == io.EOF {
-					break
-				} else if err != nil {
-					return emails, err
-				}
-				h := p.Header
-
-				s, ok := h.(*mail.AttachmentHeader)
-				if ok {
-					filename, _ := s.Filename()
-					typ, _, _ := s.ContentType()
-					_, err := em.Attach(p.Body, filename, typ)
-					if err != nil {
-						return emails, err //Unable to attach file
-					}
-				}
-			}
-
-			emtmp := Email{Email: em, SeqNum: msg.SeqNum} // Not sure why msg.Uid is always 0, so swapped to sequence numbers
-			emails = append(emails, emtmp)
-
-		} // On to the next email
+	if len(seqs) == 0 {
+		return emails, nil
 	}
+
+	seqset := new(imap.SeqSet)
+	seqset.AddNum(seqs...)
+	section := &imap.BodySectionName{}
+	items := []imap.FetchItem{imap.FetchEnvelope, imap.FetchFlags, imap.FetchInternalDate, section.FetchItem()}
+	messages := make(chan *imap.Message)
+
+	go func() {
+		if err := imapClient.Fetch(seqset, items, messages); err != nil {
+			log.Error("Error fetching emails: ", err.Error()) // TODO: How to handle this, need to propogate error out
+		}
+	}()
+
+	// Step through each email
+	for msg := range messages {
+		// Extract raw message body. I can't find a better way to do this with the emersion library
+		var em *email.Email
+		var buf []byte
+		for _, value := range msg.Body {
+			buf = make([]byte, value.Len())
+			value.Read(buf)
+			break // There should only ever be one item in this map, but I'm not 100% sure
+		}
+
+		//Remove CR characters, see https://github.com/jordan-wright/email/issues/106
+		tmp := string(buf)
+		re := regexp.MustCompile(`\r`)
+		tmp = re.ReplaceAllString(tmp, "")
+		buf = []byte(tmp)
+
+		rawBodyStream := bytes.NewReader(buf)
+		em, err = email.NewEmailFromReader(rawBodyStream) // Parse with @jordanwright's library
+		if err != nil {
+			return emails, err
+		}
+
+		// Reload the reader
+		rawBodyStream = bytes.NewReader(buf)
+		mr, err := mail.CreateReader(rawBodyStream)
+		if err != nil {
+			return emails, err
+		}
+
+		// Step over each part of the email, parsing attachments and attaching them to Jordan's email
+		for {
+			p, err := mr.NextPart()
+			if err == io.EOF {
+				break
+			} else if err != nil {
+				return emails, err
+			}
+			h := p.Header
+
+			s, ok := h.(*mail.AttachmentHeader)
+			if ok {
+				filename, _ := s.Filename()
+				typ, _, _ := s.ContentType()
+				_, err := em.Attach(p.Body, filename, typ)
+				if err != nil {
+					return emails, err //Unable to attach file
+				}
+			}
+		}
+
+		emtmp := Email{Email: em, SeqNum: msg.SeqNum} // Not sure why msg.Uid is always 0, so swapped to sequence numbers
+		emails = append(emails, emtmp)
+
+	} // On to the next email
 	return emails, nil
 }
 
