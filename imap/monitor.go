@@ -139,7 +139,7 @@ func checkForNewEmails(im models.IMAP) {
 	if len(msgs) > 0 {
 		log.Debugf("%d new emails for %s", len(msgs), im.Username)
 		var reportingFailed []uint32 // SeqNums of emails that were unable to be reported to phishing server, mark as unread
-		var campaignEmails []uint32  // SeqNums of campaign emails. If DeleteReportedCampaignEmail is true, we will delete these
+		var deleteEmails []uint32  // SeqNums of campaign emails. If DeleteReportedCampaignEmail is true, we will delete these
 		for _, m := range msgs {
 			// Check if sender is from company's domain, if enabled. TODO: Make this an IMAP filter
 			if im.RestrictDomain != "" { // e.g domainResitct = widgets.com
@@ -175,28 +175,28 @@ func checkForNewEmails(im models.IMAP) {
 					continue
 				}
 				if im.DeleteReportedCampaignEmail == true {
-					campaignEmails = append(campaignEmails, m.SeqNum)
+					deleteEmails = append(deleteEmails, m.SeqNum)
 				}
 			}
 			
-
-			// Check if any emails were unable to be reported, so we can mark them as unread
-			if len(reportingFailed) > 0 {
-				log.Debugf("Marking %d emails as unread as failed to report", len(reportingFailed))
-				err := mailServer.MarkAsUnread(reportingFailed) // Set emails as unread that we failed to report to GoPhish
-				if err != nil {
-					log.Error("Unable to mark emails as unread: ", err.Error())
-				}
-			}
-			// If the DeleteReportedCampaignEmail flag is set, delete reported Gophish campaign emails
-			if im.DeleteReportedCampaignEmail == true && len(campaignEmails) > 0 {
-				log.Debugf("Deleting %d campaign emails", len(campaignEmails))
-				err := mailServer.DeleteEmails(campaignEmails) // Delete GoPhish campaign emails.
-				if err != nil {
-					log.Error("Failed to delete emails: ", err.Error())
-				}
+		}
+		// Check if any emails were unable to be reported, so we can mark them as unread
+		if len(reportingFailed) > 0 {
+			log.Debugf("Marking %d emails as unread as failed to report", len(reportingFailed))
+			err := mailServer.MarkAsUnread(reportingFailed) // Set emails as unread that we failed to report to GoPhish
+			if err != nil {
+				log.Error("Unable to mark emails as unread: ", err.Error())
 			}
 		}
+		// If the DeleteReportedCampaignEmail flag is set, delete reported Gophish campaign emails
+		if len(deleteEmails) > 0 {
+			log.Debugf("Deleting %d campaign emails", len(deleteEmails))
+			err := mailServer.DeleteEmails(deleteEmails) // Delete GoPhish campaign emails.
+			if err != nil {
+				log.Error("Failed to delete emails: ", err.Error())
+			}
+		}
+		
 	} else {
 		log.Debug("No new emails for ", im.Username)
 	}
