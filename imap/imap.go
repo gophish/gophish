@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"crypto/tls"
 	"fmt"
-	"io"
 	"regexp"
 	"strconv"
 	"time"
@@ -12,7 +11,6 @@ import (
 	"github.com/emersion/go-imap"
 	"github.com/emersion/go-imap/client"
 	"github.com/emersion/go-message/charset"
-	"github.com/emersion/go-message/mail"
 	log "github.com/gophish/gophish/logger"
 	"github.com/gophish/gophish/models"
 
@@ -175,38 +173,10 @@ func (mbox *Mailbox) GetUnread(markAsRead, delete bool) ([]Email, error) {
 			return emails, err
 		}
 
-		// Reload the reader
-		rawBodyStream = bytes.NewReader(buf)
-		mr, err := mail.CreateReader(rawBodyStream)
-		if err != nil {
-			return emails, err
-		}
-
-		// Step over each part of the email, parsing attachments and attaching them to Jordan's email
-		for {
-			p, err := mr.NextPart()
-			if err == io.EOF {
-				break
-			} else if err != nil {
-				return emails, err
-			}
-			h := p.Header
-
-			s, ok := h.(*mail.AttachmentHeader)
-			if ok {
-				filename, _ := s.Filename()
-				typ, _, _ := s.ContentType()
-				_, err := em.Attach(p.Body, filename, typ)
-				if err != nil {
-					return emails, err //Unable to attach file
-				}
-			}
-		}
-
 		emtmp := Email{Email: em, SeqNum: msg.SeqNum} // Not sure why msg.Uid is always 0, so swapped to sequence numbers
 		emails = append(emails, emtmp)
 
-	} // On to the next email
+	}
 	return emails, nil
 }
 

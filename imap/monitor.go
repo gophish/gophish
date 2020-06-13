@@ -13,6 +13,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"path/filepath"
 
 	log "github.com/gophish/gophish/logger"
 	"github.com/jordan-wright/email"
@@ -150,34 +151,34 @@ func checkForNewEmails(im models.IMAP) {
 				}
 			}
 
-			rids, err := checkRIDs(m.Email) // Search email Text, HTML, and each attachment for rid parameters
+			rids, err := matchEmail(m.Email) // Search email Text, HTML, and each attachment for rid parameters
 
 			if err != nil {
 				log.Errorf("Error searching email for rids from user '%s': %s", m.Email.From, err.Error())
-			} else {
-				if len(rids) < 1 {
-					// In the future this should be an alert in Gophish
-					log.Infof("User '%s' reported email with subject '%s'. This is not a GoPhish campaign; you should investigate it.", m.Email.From, m.Email.Subject)
+				continue
+			} 
+			if len(rids) < 1 {
+				// In the future this should be an alert in Gophish
+				log.Infof("User '%s' reported email with subject '%s'. This is not a GoPhish campaign; you should investigate it.", m.Email.From, m.Email.Subject)
+			}
+			for rid := range rids {
+				log.Infof("User '%s' reported email with rid %s", m.Email.From, rid)
+				result, err := models.GetResult(rid)
+				if err != nil {
+					log.Error("Error reporting GoPhish email with rid ", rid, ": ", err.Error())
+					reportingFailed = append(reportingFailed, m.SeqNum)
+					continue
 				}
-				for rid := range rids {
-					log.Infof("User '%s' reported email with rid %s", m.Email.From, rid)
-					result, err := models.GetResult(rid)
-					if err != nil {
-						log.Error("Error reporting GoPhish email with rid ", rid, ": ", err.Error())
-						reportingFailed = append(reportingFailed, m.SeqNum)
-					} else {
-						err = result.HandleEmailReport(models.EventDetails{})
-						if err != nil {
-							log.Error("Error updating GoPhish email with rid ", rid, ": ", err.Error())
-						} else {
-							if im.DeleteReportedCampaignEmail == true {
-								campaignEmails = append(campaignEmails, m.SeqNum)
-							}
-						}
-					}
-
+				err = result.HandleEmailReport(models.EventDetails{})
+				if err != nil {
+					log.Error("Error updating GoPhish email with rid ", rid, ": ", err.Error())
+					continue
+				}
+				if im.DeleteReportedCampaignEmail == true {
+					campaignEmails = append(campaignEmails, m.SeqNum)
 				}
 			}
+			
 
 			// Check if any emails were unable to be reported, so we can mark them as unread
 			if len(reportingFailed) > 0 {
@@ -201,42 +202,38 @@ func checkForNewEmails(im models.IMAP) {
 	}
 }
 
-// returns a slice of gophish rid paramters found in the email HTML, Text, and attachments
-func checkRIDs(em *email.Email) (map[string]int, error) {
-
-	rids := make(map[string]int)
+func checkRIDs(em *email.Email, rids map[string]int){
 
 	// Check Text and HTML
 	emailContent := string(em.Text) + string(em.HTML)
 	for _, r := range goPhishRegex.FindAllStringSubmatch(emailContent, -1) {
 		newrid := r[len(r)-1]
-		if _, ok := rids[newrid]; ok {
-			rids[newrid]++
-		} else {
-			rids[newrid] = 1
+		if _, ok := rids[newrid]; !ok {
+			rids[newrid] = 0
 		}
+		rids[newrid]++
 	}
+}
+
+// returns a slice of gophish rid paramters found in the email HTML, Text, and attachments
+func matchEmail(em *email.Email) (map[string]int, error) {
+
+	rids := make(map[string]int)
+	checkRIDs(em, rids)
 
 	//Next check each attachment
 	for _, a := range em.Attachments {
-		if a.Header.Get("Content-Type") == "message/rfc822" || (len(a.Filename) > 3 && a.Filename[len(a.Filename)-4:] == ".eml") {
+		ext := filepath.Ext(a.Filename)
+		if a.Header.Get("Content-Type") == "message/rfc822" || ext == ".eml" {
 
 			//Let's decode the email
 			rawBodyStream := bytes.NewReader(a.Content)
-			attachementEmail, err := email.NewEmailFromReader(rawBodyStream)
+			attachmentEmail, err := email.NewEmailFromReader(rawBodyStream)
 			if err != nil {
 				return rids, err
 			}
 
-			emailContent := string(attachementEmail.Text) + string(attachementEmail.HTML)
-			for _, r := range goPhishRegex.FindAllStringSubmatch(emailContent, -1) {
-				newrid := r[len(r)-1]
-				if _, ok := rids[newrid]; ok {
-					rids[newrid]++
-				} else {
-					rids[newrid] = 1
-				}
-			}
+			checkRIDs(attachmentEmail, rids)
 		}
 	}
 
