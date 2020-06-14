@@ -46,7 +46,6 @@ type Mailbox struct {
 
 // Validate validates supplied IMAP model by connecting to the server
 func Validate(s *models.IMAP) error {
-
 	err := s.Validate()
 	if err != nil {
 		log.Error(err)
@@ -115,7 +114,6 @@ func (mbox *Mailbox) DeleteEmails(seqs []uint32) error {
 
 // GetUnread will find all unread emails in the folder and return them as a list.
 func (mbox *Mailbox) GetUnread(markAsRead, delete bool) ([]Email, error) {
-
 	imap.CharsetReader = charset.Reader
 	var emails []Email
 
@@ -186,15 +184,13 @@ func (mbox *Mailbox) newClient() (*client.Client, error) {
 	var err error
 	if mbox.TLS {
 		imapClient, err = client.DialTLS(mbox.Host, new(tls.Config))
-		if err != nil {
-			return imapClient, err
-		}
 	} else {
 		imapClient, err = client.Dial(mbox.Host)
-		if err != nil {
-			return imapClient, err
-		}
 	}
+	if err != nil {
+		return imapClient, err
+	}
+
 
 	err = imapClient.Login(mbox.User, mbox.Pwd)
 	if err != nil {

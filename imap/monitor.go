@@ -33,7 +33,6 @@ type Monitor struct {
 // As each account can have its own polling frequency set we need to run one Go routine for
 // each, as well as keeping an eye on newly created user accounts.
 func (im *Monitor) start(ctx context.Context) {
-
 	usermap := make(map[int64]int) // Keep track of running go routines, one per user. We assume incrementing non-repeating UIDs (for the case where users are deleted and re-added).
 
 	for {
@@ -61,7 +60,6 @@ func (im *Monitor) start(ctx context.Context) {
 // monitor will continuously login to the IMAP settings associated to the supplied user id (if the user account has IMAP settings, and they're enabled.)
 // It also verifies the user account exists, and returns if not (for the case of a user being deleted).
 func monitor(uid int64, ctx context.Context) {
-
 	for {
 		select {
 		case <-ctx.Done():
@@ -95,7 +93,6 @@ func monitor(uid int64, ctx context.Context) {
 
 // NewMonitor returns a new instance of imap.Monitor
 func NewMonitor() *Monitor {
-
 	im := &Monitor{}
 	return im
 }
@@ -119,7 +116,6 @@ func (im *Monitor) Shutdown() error {
 // checkForNewEmails logs into an IMAP account and checks unread emails
 //  for the rid campaign identifier.
 func checkForNewEmails(im models.IMAP) {
-
 	im.Host = im.Host + ":" + strconv.Itoa(int(im.Port)) // Append port
 	mailServer := Mailbox{
 		Host:   im.Host,
@@ -202,31 +198,28 @@ func checkForNewEmails(im models.IMAP) {
 	}
 }
 
-func checkRIDs(em *email.Email, rids map[string]int){
-
+func checkRIDs(em *email.Email, rids map[string]bool){
 	// Check Text and HTML
 	emailContent := string(em.Text) + string(em.HTML)
 	for _, r := range goPhishRegex.FindAllStringSubmatch(emailContent, -1) {
 		newrid := r[len(r)-1]
-		if _, ok := rids[newrid]; !ok {
-			rids[newrid] = 0
+		if !rids[newrid] {
+			rids[newrid] = true
 		}
-		rids[newrid]++
 	}
 }
 
 // returns a slice of gophish rid paramters found in the email HTML, Text, and attachments
-func matchEmail(em *email.Email) (map[string]int, error) {
-
-	rids := make(map[string]int)
+func matchEmail(em *email.Email) (map[string]bool, error) {
+	rids := make(map[string]bool)
 	checkRIDs(em, rids)
 
-	//Next check each attachment
+	// Next check each attachment
 	for _, a := range em.Attachments {
 		ext := filepath.Ext(a.Filename)
 		if a.Header.Get("Content-Type") == "message/rfc822" || ext == ".eml" {
 
-			//Let's decode the email
+			// Let's decode the email
 			rawBodyStream := bytes.NewReader(a.Content)
 			attachmentEmail, err := email.NewEmailFromReader(rawBodyStream)
 			if err != nil {
