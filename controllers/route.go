@@ -377,19 +377,22 @@ func (as *AdminServer) ResetPassword(w http.ResponseWriter, r *http.Request) {
 		newPassword := r.FormValue("password")
 		confirmPassword := r.FormValue("confirm_password")
 		newHash, err := auth.ValidatePasswordChange(u.Hash, newPassword, confirmPassword)
-		// TODO: Make these UI errors, not API errors
 		if err != nil {
 			Flash(w, r, "danger", err.Error())
+			params.Flashes = session.Flashes()
 			session.Save(r, w)
-			http.Redirect(w, r, "/reset_password", http.StatusTemporaryRedirect)
+			w.WriteHeader(http.StatusBadRequest)
+			getTemplate(w, "reset_password").ExecuteTemplate(w, "base", params)
 			return
 		}
 		u.PasswordChangeRequired = false
 		u.Hash = newHash
 		if err = models.PutUser(&u); err != nil {
 			Flash(w, r, "danger", err.Error())
+			params.Flashes = session.Flashes()
 			session.Save(r, w)
-			http.Redirect(w, r, "/reset_password", http.StatusTemporaryRedirect)
+			w.WriteHeader(http.StatusInternalServerError)
+			getTemplate(w, "reset_password").ExecuteTemplate(w, "base", params)
 			return
 		}
 		// TODO: We probably want to flash a message here that the password was
