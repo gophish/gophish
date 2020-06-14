@@ -38,6 +38,27 @@ type AdminServer struct {
 	config config.AdminServer
 }
 
+var defaultTLSConfig = &tls.Config{
+	PreferServerCipherSuites: true,
+	CurvePreferences: []tls.CurveID{
+		tls.X25519,
+		tls.CurveP256,
+	},
+	MinVersion: tls.VersionTLS12,
+	CipherSuites: []uint16{
+		tls.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
+		tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+		tls.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,
+		tls.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,
+		tls.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+		tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+
+		// Kept for backwards compatibility with some clients
+		tls.TLS_RSA_WITH_AES_256_GCM_SHA384,
+		tls.TLS_RSA_WITH_AES_128_GCM_SHA256,
+	},
+}
+
 // WithWorker is an option that sets the background worker.
 func WithWorker(w worker.Worker) AdminServerOption {
 	return func(as *AdminServer) {
@@ -72,9 +93,7 @@ func (as *AdminServer) Start() {
 	}
 	if as.config.UseTLS {
 		// Only support TLS 1.2 and above - ref #1691, #1689
-		as.server.TLSConfig = &tls.Config{
-			MinVersion: tls.VersionTLS12,
-		}
+		as.server.TLSConfig = defaultTLSConfig
 		err := util.CheckAndCreateSSL(as.config.CertPath, as.config.KeyPath)
 		if err != nil {
 			log.Fatal(err)
