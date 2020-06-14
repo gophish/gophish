@@ -18,9 +18,9 @@ const APIKeyLength = 32
 // ErrInvalidPassword is thrown when a user provides an incorrect password.
 var ErrInvalidPassword = errors.New("Invalid Password")
 
-// ErrPasswordMismatch is thrown when a user provides a blank password to the register
-// or change password functions
-var ErrPasswordMismatch = errors.New("Password cannot be blank")
+// ErrPasswordMismatch is thrown when a user provides a mismatching password
+// and confirmation password.
+var ErrPasswordMismatch = errors.New("Passwords do not match")
 
 // ErrReusedPassword is thrown when a user attempts to change their password to
 // the existing password
@@ -63,7 +63,7 @@ func CheckPasswordPolicy(password string) error {
 	// helps to provide a more specific error message
 	case password == "":
 		return ErrEmptyPassword
-	case len(password) <= MinPasswordLength:
+	case len(password) < MinPasswordLength:
 		return ErrPasswordTooShort
 	}
 	return nil
