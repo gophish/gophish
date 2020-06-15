@@ -120,7 +120,6 @@ func RequireLogin(handler http.Handler) http.HandlerFunc {
 		q := r.URL.Query()
 		q.Set("next", r.URL.Path)
 		http.Redirect(w, r, fmt.Sprintf("/login?%s", q.Encode()), http.StatusTemporaryRedirect)
-		return
 	}
 }
 

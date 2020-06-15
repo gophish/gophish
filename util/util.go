@@ -138,6 +138,9 @@ func CheckAndCreateSSL(cp string, kp string) error {
 	log.Infof("Creating new self-signed certificates for administration interface")
 
 	priv, err := ecdsa.GenerateKey(elliptic.P384(), rand.Reader)
+	if err != nil {
+		return fmt.Errorf("error generating tls private key: %v", err)
+	}
 
 	notBefore := time.Now()
 	// Generate a certificate that lasts for 10 years
@@ -147,7 +150,7 @@ func CheckAndCreateSSL(cp string, kp string) error {
 	serialNumber, err := rand.Int(rand.Reader, serialNumberLimit)
 
 	if err != nil {
-		return fmt.Errorf("TLS Certificate Generation: Failed to generate a random serial number: %s", err)
+		return fmt.Errorf("tls certificate generation: failed to generate a random serial number: %s", err)
 	}
 
 	template := x509.Certificate{
@@ -165,24 +168,24 @@ func CheckAndCreateSSL(cp string, kp string) error {
 
 	derBytes, err := x509.CreateCertificate(rand.Reader, &template, &template, priv.Public(), priv)
 	if err != nil {
-		return fmt.Errorf("TLS Certificate Generation: Failed to create certificate: %s", err)
+		return fmt.Errorf("tls certificate generation: failed to create certificate: %s", err)
 	}
 
 	certOut, err := os.Create(cp)
 	if err != nil {
-		return fmt.Errorf("TLS Certificate Generation: Failed to open %s for writing: %s", cp, err)
+		return fmt.Errorf("tls certificate generation: failed to open %s for writing: %s", cp, err)
 	}
 	pem.Encode(certOut, &pem.Block{Type: "CERTIFICATE", Bytes: derBytes})
 	certOut.Close()
 
 	keyOut, err := os.OpenFile(kp, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
-		return fmt.Errorf("TLS Certificate Generation: Failed to open %s for writing", kp)
+		return fmt.Errorf("tls certificate generation: failed to open %s for writing", kp)
 	}
 
 	b, err := x509.MarshalECPrivateKey(priv)
 	if err != nil {
-		return fmt.Errorf("TLS Certificate Generation: Unable to marshal ECDSA private key: %v", err)
+		return fmt.Errorf("tls certificate generation: unable to marshal ECDSA private key: %v", err)
 	}
 
 	pem.Encode(keyOut, &pem.Block{Type: "EC PRIVATE KEY", Bytes: b})

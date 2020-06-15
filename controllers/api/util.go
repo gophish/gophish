@@ -118,5 +118,4 @@ func (as *Server) SendTestEmail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	JSONResponse(w, models.Response{Success: true, Message: "Email Sent"}, http.StatusOK)
-	return
 }

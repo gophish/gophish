@@ -16,13 +16,13 @@ const saveWebhook = (id) => {
         is_active: $("#is_active").is(":checked"),
     };
     if (id != -1) {
-        wh.id = id;
+        wh.id = parseInt(id);
         api.webhookId.put(wh)
             .success(function(data) {
                 dismiss();
                 load();
                 $("#modal").modal("hide");
-                successFlash(`Webhook "${escape(wh.name)}" has been updated successfully!`);
+                successFlash(`Webhook "${escapeHtml(wh.name)}" has been updated successfully!`);
             })
             .error(function(data) {
                 modalError(data.responseJSON.message)
@@ -33,7 +33,7 @@ const saveWebhook = (id) => {
                 load();
                 dismiss();
                 $("#modal").modal("hide");
-                successFlash(`Webhook "${escape(wh.name)}" has been created successfully!`);
+                successFlash(`Webhook "${escapeHtml(wh.name)}" has been created successfully!`);
             })
             .error(function(data) {
                 modalError(data.responseJSON.message)
@@ -108,7 +108,7 @@ const deleteWebhook = (id) => {
     }
     Swal.fire({
         title: "Are you sure?",
-        text: `This will delete the webhook '${escape(wh.name)}'`,
+        text: `This will delete the webhook '${escapeHtml(wh.name)}'`,
         type: "warning",
         animation: false,
         showCancelButton: true,
@@ -150,7 +150,7 @@ const pingUrl = (btn, whId) => {
     api.webhookId.ping(whId)
         .success(function(wh) {
             btn.disabled = false;
-            successFlash(`Ping of "${escape(wh.name)}" webhook succeeded.`);
+            successFlash(`Ping of "${escapeHtml(wh.name)}" webhook succeeded.`);
         })
         .error(function(data) {
             btn.disabled = false;
@@ -158,7 +158,7 @@ const pingUrl = (btn, whId) => {
             if (!wh) {
                 return
             }
-            errorFlash(`Ping of "${escape(wh.name)}" webhook failed: "${data.responseJSON.message}"`)
+            errorFlash(`Ping of "${escapeHtml(wh.name)}" webhook failed: "${data.responseJSON.message}"`)
         });
 };
 

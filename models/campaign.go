@@ -27,7 +27,7 @@ type Campaign struct {
 	Status        string    `json:"status"`
 	Results       []Result  `json:"results,omitempty"`
 	Groups        []Group   `json:"groups,omitempty"`
-	Events        []Event   `json:"timeline,omitemtpy"`
+	Events        []Event   `json:"timeline,omitempty"`
 	SMTPId        int64     `json:"-"`
 	SMTP          SMTP      `json:"smtp"`
 	URL           string    `json:"url"`

@@ -130,6 +130,7 @@ func (as *AdminServer) registerRoutes() {
 	router.HandleFunc("/settings", mid.Use(as.Settings, mid.RequireLogin))
 	router.HandleFunc("/users", mid.Use(as.UserManagement, mid.RequirePermission(models.PermissionModifySystem), mid.RequireLogin))
 	router.HandleFunc("/webhooks", mid.Use(as.Webhooks, mid.RequirePermission(models.PermissionModifySystem), mid.RequireLogin))
+	router.HandleFunc("/impersonate", mid.Use(as.Impersonate, mid.RequirePermission(models.PermissionModifySystem), mid.RequireLogin))
 	// Create the API routes
 	api := api.NewServer(api.WithWorker(as.worker))
 	router.PathPrefix("/api/").Handler(api)
@@ -138,7 +139,11 @@ func (as *AdminServer) registerRoutes() {
 	router.PathPrefix("/").Handler(http.FileServer(unindexed.Dir("./static/")))
 
 	// Setup CSRF Protection
-	csrfHandler := csrf.Protect([]byte(util.GenerateSecureKey()),
+	csrfKey := []byte(as.config.CSRFKey)
+	if len(csrfKey) == 0 {
+		csrfKey = []byte(util.GenerateSecureKey())
+	}
+	csrfHandler := csrf.Protect(csrfKey,
 		csrf.FieldName("csrf_token"),
 		csrf.Secure(as.config.UseTLS))
 	adminHandler := csrfHandler(router)
@@ -265,6 +270,24 @@ func (as *AdminServer) Webhooks(w http.ResponseWriter, r *http.Request) {
 	getTemplate(w, "webhooks").ExecuteTemplate(w, "base", params)
 }
 
+// Impersonate allows an admin to login to a user account without needing the password
+func (as *AdminServer) Impersonate(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method == "POST" {
+		username := r.FormValue("username")
+		u, err := models.GetUserByUsername(username)
+		if err != nil {
+			log.Error(err)
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+		session := ctx.Get(r, "session").(*sessions.Session)
+		session.Values["id"] = u.Id
+		session.Save(r, w)
+	}
+	http.Redirect(w, r, "/", http.StatusFound)
+}
+
 // Login handles the authentication flow for a user. If credentials are valid,
 // a session is created
 func (as *AdminServer) Login(w http.ResponseWriter, r *http.Request) {
@@ -303,7 +326,7 @@ func (as *AdminServer) Login(w http.ResponseWriter, r *http.Request) {
 					next = path
 				}
 			}
-			http.Redirect(w, r, next, 302)
+			http.Redirect(w, r, next, http.StatusFound)
 		} else {
 			Flash(w, r, "danger", "Invalid Username/Password")
 			params.Flashes = session.Flashes()
@@ -326,7 +349,7 @@ func (as *AdminServer) Logout(w http.ResponseWriter, r *http.Request) {
 	delete(session.Values, "id")
 	Flash(w, r, "success", "You have successfully logged out")
 	session.Save(r, w)
-	http.Redirect(w, r, "/login", 302)
+	http.Redirect(w, r, "/login", http.StatusFound)
 }
 
 func getTemplate(w http.ResponseWriter, tmpl string) *template.Template {

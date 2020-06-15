@@ -171,8 +171,20 @@ func (mbox *Mailbox) GetUnread(markAsRead, delete bool) ([]Email, error) {
 			return emails, err
 		}
 
+<<<<<<< HEAD
 		emtmp := Email{Email: em, SeqNum: msg.SeqNum} // Not sure why msg.Uid is always 0, so swapped to sequence numbers
 		emails = append(emails, emtmp)
+=======
+		if delete {
+			err = deleteEmail(client, imap.AsNumber(msgFields["UID"]))
+			if err != nil {
+				responses <- Response{Err: fmt.Errorf("unable to delete email: %s", err)}
+				return
+			}
+		}
+	}
+}
+>>>>>>> master
 
 	}
 	return emails, nil

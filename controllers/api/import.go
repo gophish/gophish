@@ -46,7 +46,6 @@ func (as *Server) ImportGroup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	JSONResponse(w, ts, http.StatusOK)
-	return
 }
 
 // ImportEmail allows for the importing of email.
@@ -94,7 +93,6 @@ func (as *Server) ImportEmail(w http.ResponseWriter, r *http.Request) {
 		HTML:    string(e.HTML),
 	}
 	JSONResponse(w, er, http.StatusOK)
-	return
 }
 
 // ImportSite allows for the importing of HTML from a website
@@ -153,5 +151,4 @@ func (as *Server) ImportSite(w http.ResponseWriter, r *http.Request) {
 	}
 	cs := cloneResponse{HTML: h}
 	JSONResponse(w, cs, http.StatusOK)
-	return
 }
