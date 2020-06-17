@@ -37,6 +37,8 @@ type MailLog struct {
 	SendDate    time.Time `json:"send_date"`
 	SendAttempt int       `json:"send_attempt"`
 	Processing  bool      `json:"-"`
+
+	cachedCampaign *Campaign
 }
 
 // GenerateMailLog creates a new maillog for the given campaign and
@@ -123,16 +125,30 @@ func (m *MailLog) Success() error {
 		return err
 	}
 	err = db.Delete(m).Error
-	return nil
+	return err
 }
 
 // GetDialer returns a dialer based on the maillog campaign's SMTP configuration
 func (m *MailLog) GetDialer() (mailer.Dialer, error) {
-	c, err := GetCampaign(m.CampaignId, m.UserId)
-	if err != nil {
-		return nil, err
+	c := m.cachedCampaign
+	if c == nil {
+		campaign, err := GetCampaignMailContext(m.CampaignId, m.UserId)
+		if err != nil {
+			return nil, err
+		}
+		c = &campaign
 	}
 	return c.SMTP.GetDialer()
+}
+
+// CacheCampaign allows bulk-mail workers to cache the otherwise expensive
+// campaign lookup operation by providing a pointer to the campaign here.
+func (m *MailLog) CacheCampaign(campaign *Campaign) error {
+	if campaign.Id != m.CampaignId {
+		return fmt.Errorf("incorrect campaign provided for caching. expected %d got %d", m.CampaignId, campaign.Id)
+	}
+	m.cachedCampaign = campaign
+	return nil
 }
 
 // Generate fills in the details of a gomail.Message instance with
@@ -144,9 +160,13 @@ func (m *MailLog) Generate(msg *gomail.Message) error {
 	if err != nil {
 		return err
 	}
-	c, err := GetCampaign(m.CampaignId, m.UserId)
-	if err != nil {
-		return err
+	c := m.cachedCampaign
+	if c == nil {
+		campaign, err := GetCampaignMailContext(m.CampaignId, m.UserId)
+		if err != nil {
+			return err
+		}
+		c = &campaign
 	}
 
 	f, err := mail.ParseAddress(c.SMTP.FromAddress)
@@ -155,7 +175,7 @@ func (m *MailLog) Generate(msg *gomail.Message) error {
 	}
 	msg.SetAddressHeader("From", f.Address, f.Name)
 
-	ptx, err := NewPhishingTemplateContext(&c, r.BaseRecipient, r.RId)
+	ptx, err := NewPhishingTemplateContext(c, r.BaseRecipient, r.RId)
 	if err != nil {
 		return err
 	}

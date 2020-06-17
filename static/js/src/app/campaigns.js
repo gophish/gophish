@@ -162,15 +162,16 @@ function deleteCampaign(idx) {
 }
 
 function setupOptions() {
-    api.groups.get()
-        .success(function (groups) {
+    api.groups.summary()
+        .success(function (summaries) {
+            groups = summaries.groups
             if (groups.length == 0) {
                 modalError("No groups found!")
                 return false;
             } else {
                 var group_s2 = $.map(groups, function (obj) {
                     obj.text = obj.name
-                    obj.title = obj.targets.length + " targets"
+                    obj.title = obj.num_targets + " targets"
                     return obj
                 });
                 console.log(group_s2)
@@ -360,6 +361,7 @@ $(document).ready(function () {
                         [1, "desc"]
                     ]
                 });
+                campaignRows = []
                 $.each(campaigns, function (i, campaign) {
                     campaignTable = campaignTableOriginal
                     if (campaign.status === "Completed") {
@@ -378,7 +380,7 @@ $(document).ready(function () {
                         var quickStats = launchDate + "<br><br>" + "Number of recipients: " + campaign.stats.total + "<br><br>" + "Emails opened: " + campaign.stats.opened + "<br><br>" + "Emails clicked: " + campaign.stats.clicked + "<br><br>" + "Submitted Credentials: " + campaign.stats.submitted_data + "<br><br>" + "Errors : " + campaign.stats.error + "Reported : " + campaign.stats.reported
                     }
 
-                    campaignTable.row.add([
+                    campaignRows.push([
                         escapeHtml(campaign.name),
                         moment(campaign.created_date).format('MMMM Do YYYY, h:mm:ss a'),
                         "<span class=\"label " + label + "\" data-toggle=\"tooltip\" data-placement=\"right\" data-html=\"true\" title=\"" + quickStats + "\">" + campaign.status + "</span>",
@@ -391,9 +393,10 @@ $(document).ready(function () {
                     <button class='btn btn-danger' onclick='deleteCampaign(" + i + ")' data-toggle='tooltip' data-placement='left' title='Delete Campaign'>\
                     <i class='fa fa-trash-o'></i>\
                     </button></div>"
-                    ]).draw()
+                    ])
                     $('[data-toggle="tooltip"]').tooltip()
                 })
+                campaignTable.rows.add(campaignRows).draw()
             } else {
                 $("#emptyMessage").show()
             }

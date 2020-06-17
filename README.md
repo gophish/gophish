@@ -3,7 +3,7 @@
 Gophish
 =======
 
-[![Build Status](https://travis-ci.org/gophish/gophish.svg?branch=master)](https://travis-ci.org/gophish/gophish) [![GoDoc](https://godoc.org/github.com/gophish/gophish?status.svg)](https://godoc.org/github.com/gophish/gophish)
+![Build Status](https://github.com/gophish/gophish/workflows/CI/badge.svg) [![GoDoc](https://godoc.org/github.com/gophish/gophish?status.svg)](https://godoc.org/github.com/gophish/gophish)
 
 Gophish: Open-Source Phishing Toolkit
 
@@ -14,12 +14,12 @@ Gophish: Open-Source Phishing Toolkit
 Installation of Gophish is dead-simple - just download and extract the zip containing the [release for your system](https://github.com/gophish/gophish/releases/), and run the binary. Gophish has binary releases for Windows, Mac, and Linux platforms.
 
 ### Building From Source
-**If you are building from source, please note that Gophish requires Go v1.9 or above!**
+**If you are building from source, please note that Gophish requires Go v1.10 or above!**
 
 To build Gophish from source, simply run ```go get github.com/gophish/gophish``` and ```cd``` into the project source directory. Then, run ```go build```. After this, you should have a binary called ```gophish``` in the current directory.
 
 ### Docker
-You can also use Gophish via an unofficial Docker container [here](https://hub.docker.com/r/matteoggl/gophish/).
+You can also use Gophish via the official Docker container [here](https://hub.docker.com/r/gophish/gophish/).
 
 ### Setup
 After running the Gophish binary, open an Internet browser to https://localhost:3333 and login with the default username (admin) and password (gophish).
@@ -38,7 +38,7 @@ Gophish - Open-Source Phishing Framework
 
 The MIT License (MIT)
 
-Copyright (c) 2013 - 2018 Jordan Wright
+Copyright (c) 2013 - 2020 Jordan Wright
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software ("Gophish Community Edition") and associated documentation files (the "Software"), to deal

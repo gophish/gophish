@@ -96,5 +96,44 @@ func (s *ModelsSuite) createCampaign(ch *check.C) Campaign {
 	c := s.createCampaignDependencies(ch)
 	// Setup and "launch" our campaign
 	ch.Assert(PostCampaign(&c, c.UserId), check.Equals, nil)
+
+	// For comparing the dates, we need to fetch the campaign again. This is
+	// to solve an issue where the campaign object right now has time down to
+	// the microsecond, while in MySQL it's rounded down to the second.
+	c, _ = GetCampaign(c.Id, c.UserId)
 	return c
+}
+
+func setupBenchmark(b *testing.B) {
+	conf := &config.Config{
+		DBName:         "sqlite3",
+		DBPath:         ":memory:",
+		MigrationsPath: "../db/db_sqlite3/migrations/",
+	}
+	err := Setup(conf)
+	if err != nil {
+		b.Fatalf("Failed creating database: %v", err)
+	}
+}
+
+func tearDownBenchmark(b *testing.B) {
+	err := db.Close()
+	if err != nil {
+		b.Fatalf("error closing database: %v", err)
+	}
+}
+
+func resetBenchmark(b *testing.B) {
+	db.Delete(Group{})
+	db.Delete(Target{})
+	db.Delete(GroupTarget{})
+	db.Delete(SMTP{})
+	db.Delete(Page{})
+	db.Delete(Result{})
+	db.Delete(MailLog{})
+	db.Delete(Campaign{})
+
+	// Reset users table to default state.
+	db.Not("id", 1).Delete(User{})
+	db.Model(User{}).Update("username", "admin")
 }

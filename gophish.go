@@ -26,6 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"os/signal"
@@ -34,14 +35,23 @@ import (
 
 	"github.com/gophish/gophish/config"
 	"github.com/gophish/gophish/controllers"
+	"github.com/gophish/gophish/imap"
 	log "github.com/gophish/gophish/logger"
 	"github.com/gophish/gophish/middleware"
 	"github.com/gophish/gophish/models"
 )
 
+const (
+	modeAll   string = "all"
+	modeAdmin string = "admin"
+	modePhish string = "phish"
+)
+
 var (
 	configPath    = kingpin.Flag("config", "Location of config.json.").Default("./config.json").String()
 	disableMailer = kingpin.Flag("disable-mailer", "Disable the mailer (for use with multi-system deployments)").Bool()
+	mode          = kingpin.Flag("mode", fmt.Sprintf("Run the binary in one of the modes (%s, %s or %s)", modeAll, modeAdmin, modePhish)).
+			Default("all").Enum(modeAll, modeAdmin, modePhish)
 )
 
 func main() {
@@ -69,7 +79,7 @@ func main() {
 	}
 	config.Version = string(version)
 
-	err = log.Setup(conf)
+	err = log.Setup(conf.Logging)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -80,6 +90,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	// Unlock any maillogs that may have been locked for processing
 	// when Gophish was last shutdown.
 	err = models.UnlockAllMailLogs()
@@ -99,14 +110,26 @@ func main() {
 	phishConfig := conf.PhishConf
 	phishServer := controllers.NewPhishingServer(phishConfig)
 
-	go adminServer.Start()
-	go phishServer.Start()
+	imapMonitor := imap.NewMonitor()
+	if *mode == "admin" || *mode == "all" {
+		go adminServer.Start()
+		go imapMonitor.Start()
+	}
+	if *mode == "phish" || *mode == "all" {
+		go phishServer.Start()
+	}
 
 	// Handle graceful shutdown
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
 	<-c
 	log.Info("CTRL+C Received... Gracefully shutting down servers")
-	adminServer.Shutdown()
-	phishServer.Shutdown()
+	if *mode == modeAdmin || *mode == modeAll {
+		adminServer.Shutdown()
+		imapMonitor.Shutdown()
+	}
+	if *mode == modePhish || *mode == modeAll {
+		phishServer.Shutdown()
+	}
+
 }

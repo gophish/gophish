@@ -5,7 +5,7 @@ import (
 )
 
 func TestPasswordPolicy(t *testing.T) {
-	candidate := "tooshort"
+	candidate := "short"
 	got := CheckPasswordPolicy(candidate)
 	if got != ErrPasswordTooShort {
 		t.Fatalf("unexpected error received. expected %v got %v", ErrPasswordTooShort, got)

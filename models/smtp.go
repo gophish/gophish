@@ -101,6 +101,7 @@ func (s *SMTP) GetDialer() (mailer.Dialer, error) {
 	if len(hp) < 2 {
 		hp = append(hp, "25")
 	}
+	host := hp[0]
 	// Any issues should have been caught in validation, but we'll
 	// double check here.
 	port, err := strconv.Atoi(hp[1])
@@ -108,9 +109,9 @@ func (s *SMTP) GetDialer() (mailer.Dialer, error) {
 		log.Error(err)
 		return nil, err
 	}
-	d := gomail.NewDialer(hp[0], port, s.Username, s.Password)
+	d := gomail.NewDialer(host, port, s.Username, s.Password)
 	d.TLSConfig = &tls.Config{
-		ServerName:         s.Host,
+		ServerName:         host,
 		InsecureSkipVerify: s.IgnoreCertErrors,
 	}
 	hostname, err := os.Hostname()

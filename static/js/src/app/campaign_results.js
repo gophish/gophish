@@ -638,15 +638,6 @@ function poll() {
                 var event_date = moment.utc(event.time).local()
                 timeline_series_data.push({
                     email: event.email,
-                    x: event_date.valueOf(),
-                    y: 1
-                })
-            })
-            var timeline_series_data = []
-            $.each(campaign.timeline, function (i, event) {
-                var event_date = moment.utc(event.time).local()
-                timeline_series_data.push({
-                    email: event.email,
                     message: event.message,
                     x: event_date.valueOf(),
                     y: 1,
@@ -786,7 +777,7 @@ function load() {
                                     if (reported) {
                                         return "<i class='fa fa-check-circle text-center text-success'></i>"
                                     }
-                                    return "<i class='fa fa-times-circle text-center text-muted'></i>"
+                                    return "<i role='button' class='fa fa-times-circle text-center text-muted' onclick='report_mail(\"" + row[0] + "\", \"" + campaign.id + "\");'></i>"
                                 }
                                 return reported
                             },
@@ -925,7 +916,35 @@ function refresh() {
     setRefresh = setTimeout(refresh, 60000)
 };
 
-
+function report_mail(rid, cid) {
+    Swal.fire({
+        title: "Are you sure?",
+        text: "This result will be flagged as reported (RID: " + rid + ")",
+        type: "question",
+        animation: false,
+        showCancelButton: true,
+        confirmButtonText: "Continue",
+        confirmButtonColor: "#428bca",
+        reverseButtons: true,
+        allowOutsideClick: false,
+        showLoaderOnConfirm: true
+    }).then(function (result) {
+        if (result.value){
+            api.campaignId.get(cid).success((function(c) {
+                report_url = c.url;
+                report_url += report_url.endsWith("/") ? "" : "/";
+                report_url += "report?rid=" + rid;
+                $.ajax({
+                    url: report_url,
+                    method: "GET",
+                    success: function(data) {
+                        refresh();
+                    }
+                });
+            }));
+        }
+    })
+}
 
 $(document).ready(function () {
     Highcharts.setOptions({

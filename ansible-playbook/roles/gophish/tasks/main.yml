@@ -2,22 +2,27 @@
   hostname:
     name: "{{ hostname }}"
 
+- name: Ensure ufw is installed on the machine
+  package:
+    name: ufw
+    state: present
+
 - name: Allow TCP 22 for SSH.
   ufw:
     rule: allow
-    port: 22
+    port: '22'
     proto: tcp
 
 - name: Allow TCP 80 for Gophish.
   ufw:
     rule: allow
-    port: 80
+    port: '80'
     proto: tcp
 
 - name: Allow TCP 443 for Gophish.
   ufw:
     rule: allow
-    port: 443
+    port: '443'
     proto: tcp
 
 - name: Enable ufw.
@@ -34,11 +39,55 @@
   apt:
     upgrade: safe
 
+- name: Ensure /etc/ssl/csr folder exists
+  file:
+    path: /etc/ssl/csr
+    state: directory
+    mode: '0755'
+  
+- name: Ensure /etc/ssl/private folder exists
+  file:
+    path: /etc/ssl/private
+    state: directory
+    mode: '0755'
+
+- name: Ensure /etc/ssl/crt folder exists
+  file:
+    path: /etc/ssl/crt
+    state: directory
+    mode: '0755'
+
 - name: Install specified packages.
   apt:
-    pkg: "{{ item }}"
+    pkg: "{{ install_packages }}"
     state: latest
-  with_items: "{{ install_packages }}"
+
+- name: adding existing user '{{ gophish_user }}' to group ssl-cert
+  user:
+    name: '{{ gophish_user }}'
+    groups: ssl-cert
+    append: yes
+
+- name: Ensure the cryptography Python package is installed
+  pip:
+    name: cryptography
+
+- name: Generate an OpenSSL private key with the default values (4096 bits, RSA)
+  openssl_privatekey:
+    path: "{{ gophish_ssl_cert_path }}"
+
+- name: Generate an OpenSSL Certificate Signing Request
+  openssl_csr:
+    path: "{{ gophish_csr_path }}"
+    privatekey_path: "{{ gophish_ssl_cert_path }}"
+    common_name: "{{ gophish_domain }}"
+
+- name: Generate a Self Signed OpenSSL certificate
+  openssl_certificate:
+    path: "{{ gophish_crt_path }}"
+    privatekey_path: "{{ gophish_ssl_cert_path }}"
+    csr_path: "{{ gophish_csr_path }}"
+    provider: selfsigned
 
 - name: Update postfix main.cf configuration file.
   template:
@@ -69,9 +118,23 @@
     owner: "{{ gophish_user }}"
     group: "{{ gophish_user }}"
 
+- name: Ensure gophish user has permission for CRT file.
+  file:
+    path: "{{ gophish_crt_path }}"
+    mode: 0755
+    owner: "{{ gophish_user }}"
+    group: "{{ gophish_user }}"
+
+- name: Ensure gophish user has permission for SSL certificate.
+  file:
+    path: "{{ gophish_ssl_cert_path }}"
+    mode: 0755
+    owner: "{{ gophish_user }}"
+    group: "{{ gophish_user }}"
+
 - name: Create directory for gophish.
   file:
-    path: "/home/{{ gophish_user }}/gophish"
+    path: "/home/{{ gophish_user }}/gophish_deploy"
     state: directory
     mode: 0755
     owner: "{{ gophish_user }}"
@@ -80,28 +143,64 @@
 - name: Unzip gophish file.
   unarchive:
     src: "/home/{{ gophish_user }}/gophish.zip"
-    dest: "/home/{{ gophish_user }}/gophish"
+    dest: "/home/{{ gophish_user }}/gophish_deploy"
     remote_src: True  # File is on target server and not locally.
     owner: "{{ gophish_user }}"
     group: "{{ gophish_user }}"
 
 - name: Change ownership of Gophish folder and files.
   file:
-    path: /home/{{ gophish_user }}/gophish
+    path: /home/{{ gophish_user }}/gophish_deploy
     owner: "{{ gophish_user }}"
     group: "{{ gophish_user }}"
     recurse: True
 
-- name: Allow gophish binary to bind to privileged ports using setcap.
-  shell: setcap CAP_NET_BIND_SERVICE=+eip /home/{{ gophish_user }}/gophish/gophish
+- name: Ensure gophish binary is allowed to bind to privileged ports using setcap
+  capabilities:
+    path: /home/{{ gophish_user }}/gophish_deploy/gophish
+    capability: cap_net_bind_service+eip
+    state: present
 
 - name: Copy config.json file.
   copy:
     src: files/config.json
-    dest: "/home/{{ gophish_user }}/gophish/config.json"
+    dest: "/home/{{ gophish_user }}/gophish_deploy/config.json"
     owner: "{{ gophish_user }}"
     group: "{{ gophish_user }}"
     mode: 0644
+
+- name: Ensure gophish service file is properly set
+  template:
+    src: gophish.service.j2
+    dest: /etc/systemd/system/gophish.service
+    mode: 644
+
+- name: Ensure systemd to reread configs
+  systemd:
+    daemon_reload: yes
+
+- name: Ensure gophish is properly started
+  service:
+    name: gophish.service
+    state: started
+    enabled: yes
+
+- name: Ensure nginx is installed
+  package:
+    name: nginx
+    state: present
+
+- name: Ensure nginx service file is properly set
+  template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/nginx.conf
+    mode: 644
+
+- name: Ensure nginx service is restarted
+  service:
+    name: nginx
+    state: reloaded
+    enabled: yes
 
 - name: Reboot the box in 1 minute.
   command: shutdown -r 1

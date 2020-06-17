@@ -82,19 +82,20 @@ func WithContactAddress(addr string) PhishingServerOption {
 }
 
 // Start launches the phishing server, listening on the configured address.
-func (ps *PhishingServer) Start() error {
+func (ps *PhishingServer) Start() {
 	if ps.config.UseTLS {
+		// Only support TLS 1.2 and above - ref #1691, #1689
+		ps.server.TLSConfig = defaultTLSConfig
 		err := util.CheckAndCreateSSL(ps.config.CertPath, ps.config.KeyPath)
 		if err != nil {
 			log.Fatal(err)
-			return err
 		}
 		log.Infof("Starting phishing server at https://%s", ps.config.ListenURL)
-		return ps.server.ListenAndServeTLS(ps.config.CertPath, ps.config.KeyPath)
+		log.Fatal(ps.server.ListenAndServeTLS(ps.config.CertPath, ps.config.KeyPath))
 	}
 	// If TLS isn't configured, just listen on HTTP
 	log.Infof("Starting phishing server at http://%s", ps.config.ListenURL)
-	return ps.server.ListenAndServe()
+	log.Fatal(ps.server.ListenAndServe())
 }
 
 // Shutdown attempts to gracefully shutdown the server.

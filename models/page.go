@@ -138,6 +138,9 @@ func PostPage(p *Page) error {
 // Per the PUT Method RFC, it presumes all data for a page is provided.
 func PutPage(p *Page) error {
 	err := p.Validate()
+	if err != nil {
+		return err
+	}
 	err = db.Where("id=?", p.Id).Save(p).Error
 	if err != nil {
 		log.Error(err)

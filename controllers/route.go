@@ -3,6 +3,7 @@ package controllers
 import (
 	"compress/gzip"
 	"context"
+	"crypto/tls"
 	"html/template"
 	"net/http"
 	"net/url"
@@ -39,6 +40,27 @@ type AdminServer struct {
 	limiter *ratelimit.PostLimiter
 }
 
+var defaultTLSConfig = &tls.Config{
+	PreferServerCipherSuites: true,
+	CurvePreferences: []tls.CurveID{
+		tls.X25519,
+		tls.CurveP256,
+	},
+	MinVersion: tls.VersionTLS12,
+	CipherSuites: []uint16{
+		tls.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
+		tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+		tls.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,
+		tls.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,
+		tls.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+		tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+
+		// Kept for backwards compatibility with some clients
+		tls.TLS_RSA_WITH_AES_256_GCM_SHA384,
+		tls.TLS_RSA_WITH_AES_128_GCM_SHA256,
+	},
+}
+
 // WithWorker is an option that sets the background worker.
 func WithWorker(w worker.Worker) AdminServerOption {
 	return func(as *AdminServer) {
@@ -69,22 +91,23 @@ func NewAdminServer(config config.AdminServer, options ...AdminServerOption) *Ad
 }
 
 // Start launches the admin server, listening on the configured address.
-func (as *AdminServer) Start() error {
+func (as *AdminServer) Start() {
 	if as.worker != nil {
 		go as.worker.Start()
 	}
 	if as.config.UseTLS {
+		// Only support TLS 1.2 and above - ref #1691, #1689
+		as.server.TLSConfig = defaultTLSConfig
 		err := util.CheckAndCreateSSL(as.config.CertPath, as.config.KeyPath)
 		if err != nil {
 			log.Fatal(err)
-			return err
 		}
 		log.Infof("Starting admin server at https://%s", as.config.ListenURL)
-		return as.server.ListenAndServeTLS(as.config.CertPath, as.config.KeyPath)
+		log.Fatal(as.server.ListenAndServeTLS(as.config.CertPath, as.config.KeyPath))
 	}
 	// If TLS isn't configured, just listen on HTTP
 	log.Infof("Starting admin server at http://%s", as.config.ListenURL)
-	return as.server.ListenAndServe()
+	log.Fatal(as.server.ListenAndServe())
 }
 
 // Shutdown attempts to gracefully shutdown the server.
@@ -111,6 +134,8 @@ func (as *AdminServer) registerRoutes() {
 	router.HandleFunc("/sending_profiles", mid.Use(as.SendingProfiles, mid.RequireLogin))
 	router.HandleFunc("/settings", mid.Use(as.Settings, mid.RequireLogin))
 	router.HandleFunc("/users", mid.Use(as.UserManagement, mid.RequirePermission(models.PermissionModifySystem), mid.RequireLogin))
+	router.HandleFunc("/webhooks", mid.Use(as.Webhooks, mid.RequirePermission(models.PermissionModifySystem), mid.RequireLogin))
+	router.HandleFunc("/impersonate", mid.Use(as.Impersonate, mid.RequirePermission(models.PermissionModifySystem), mid.RequireLogin))
 	// Create the API routes
 	api := api.NewServer(
 		api.WithWorker(as.worker),
@@ -122,7 +147,11 @@ func (as *AdminServer) registerRoutes() {
 	router.PathPrefix("/").Handler(http.FileServer(unindexed.Dir("./static/")))
 
 	// Setup CSRF Protection
-	csrfHandler := csrf.Protect([]byte(auth.GenerateSecureKey(auth.APIKeyLength)),
+	csrfKey := []byte(as.config.CSRFKey)
+	if len(csrfKey) == 0 {
+		csrfKey = []byte(auth.GenerateSecureKey(auth.APIKeyLength))
+	}
+	csrfHandler := csrf.Protect(csrfKey,
 		csrf.FieldName("csrf_token"),
 		csrf.Secure(as.config.UseTLS))
 	adminHandler := csrfHandler(router)
@@ -292,6 +321,31 @@ func (as *AdminServer) handleInvalidLogin(w http.ResponseWriter, r *http.Request
 	template.Must(templates, err).ExecuteTemplate(w, "base", params)
 }
 
+// Webhooks is an admin-only handler that handles webhooks
+func (as *AdminServer) Webhooks(w http.ResponseWriter, r *http.Request) {
+	params := newTemplateParams(r)
+	params.Title = "Webhooks"
+	getTemplate(w, "webhooks").ExecuteTemplate(w, "base", params)
+}
+
+// Impersonate allows an admin to login to a user account without needing the password
+func (as *AdminServer) Impersonate(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method == "POST" {
+		username := r.FormValue("username")
+		u, err := models.GetUserByUsername(username)
+		if err != nil {
+			log.Error(err)
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+		session := ctx.Get(r, "session").(*sessions.Session)
+		session.Values["id"] = u.Id
+		session.Save(r, w)
+	}
+	http.Redirect(w, r, "/", http.StatusFound)
+}
+
 // Login handles the authentication flow for a user. If credentials are valid,
 // a session is created
 func (as *AdminServer) Login(w http.ResponseWriter, r *http.Request) {
@@ -341,7 +395,7 @@ func (as *AdminServer) Logout(w http.ResponseWriter, r *http.Request) {
 	delete(session.Values, "id")
 	Flash(w, r, "success", "You have successfully logged out")
 	session.Save(r, w)
-	http.Redirect(w, r, "/login", 302)
+	http.Redirect(w, r, "/login", http.StatusFound)
 }
 
 // ResetPassword handles the password reset flow when a password change is

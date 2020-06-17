@@ -200,8 +200,9 @@ function load() {
                     }]
                 });
                 profileTable.clear()
+                profileRows = []
                 $.each(profiles, function (i, profile) {
-                    profileTable.row.add([
+                    profileRows.push([
                         escapeHtml(profile.name),
                         profile.interface_type,
                         moment(profile.modified_date).format('MMMM Do YYYY, h:mm:ss a'),
@@ -214,8 +215,9 @@ function load() {
                     <button class='btn btn-danger' data-toggle='tooltip' data-placement='left' title='Delete Profile' onclick='deleteProfile(" + i + ")'>\
                     <i class='fa fa-trash-o'></i>\
                     </button></div>"
-                    ]).draw()
+                    ])
                 })
+                profileTable.rows.add(profileRows).draw()
                 $('[data-toggle="tooltip"]').tooltip()
             } else {
                 $("#emptyMessage").show()

@@ -5,6 +5,7 @@ module.exports = {
     entry: {
         passwords: './passwords',
         users: './users',
+        webhooks: './webhooks',
     },
     output: {
         path: path.resolve(__dirname, 'static', 'js', 'dist', 'app'),

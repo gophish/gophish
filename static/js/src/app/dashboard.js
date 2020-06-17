@@ -326,6 +326,7 @@ $(document).ready(function () {
                         [1, "desc"]
                     ]
                 });
+                campaignRows = []
                 $.each(campaigns, function (i, campaign) {
                     var campaign_date = moment(campaign.created_date).format('MMMM Do YYYY, h:mm:ss a')
                     var label = statuses[campaign.status].label || "label-default";
@@ -338,8 +339,8 @@ $(document).ready(function () {
                         launchDate = "Launch Date: " + moment(campaign.launch_date).format('MMMM Do YYYY, h:mm:ss a')
                         var quickStats = launchDate + "<br><br>" + "Number of recipients: " + campaign.stats.total + "<br><br>" + "Emails opened: " + campaign.stats.opened + "<br><br>" + "Emails clicked: " + campaign.stats.clicked + "<br><br>" + "Submitted Credentials: " + campaign.stats.submitted_data + "<br><br>" + "Errors : " + campaign.stats.error + "<br><br>" + "Reported : " + campaign.stats.email_reported
                     }
-                    // Add it to the table
-                    campaignTable.row.add([
+                    // Add it to the list
+                    campaignRows.push([
                         escapeHtml(campaign.name),
                         campaign_date,
                         campaign.stats.sent,
@@ -354,9 +355,10 @@ $(document).ready(function () {
                     <button class='btn btn-danger' onclick='deleteCampaign(" + i + ")' data-toggle='tooltip' data-placement='left' title='Delete Campaign'>\
                     <i class='fa fa-trash-o'></i>\
                     </button></div>"
-                    ]).draw()
+                    ])
                     $('[data-toggle="tooltip"]').tooltip()
                 })
+                campaignTable.rows.add(campaignRows).draw()
                 // Build the charts
                 generateStatsPieCharts(campaigns)
                 generateTimelineChart(campaigns)

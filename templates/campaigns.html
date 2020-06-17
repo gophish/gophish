@@ -108,7 +108,7 @@
                             <label class="control-label" for="delay">Send Emails By (Optional)
                                 <i class="fa fa-question-circle" data-toggle="tooltip" data-placement="right" title="If specified, Gophish will send emails evenly between the campaign launch and this date."></i>
                             </label>
-                            <input type="text" class="form-control" id="send_by_date" />
+                            <input type="text" class="form-control" id="send_by_date" autocomplete="random-data"/> <!--Chrome ignores autocomplete="off".-->
                         </div>
                     </div>
                     <label class="control-label" for="profile">Sending Profile:</label>
