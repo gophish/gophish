@@ -191,7 +191,6 @@ func (mbox *Mailbox) newClient() (*client.Client, error) {
 		return imapClient, err
 	}
 
-
 	err = imapClient.Login(mbox.User, mbox.Pwd)
 	if err != nil {
 		return imapClient, err

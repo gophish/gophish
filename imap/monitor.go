@@ -9,11 +9,11 @@ package imap
 import (
 	"bytes"
 	"context"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
-	"path/filepath"
 
 	log "github.com/gophish/gophish/logger"
 	"github.com/jordan-wright/email"
@@ -135,7 +135,7 @@ func checkForNewEmails(im models.IMAP) {
 	if len(msgs) > 0 {
 		log.Debugf("%d new emails for %s", len(msgs), im.Username)
 		var reportingFailed []uint32 // SeqNums of emails that were unable to be reported to phishing server, mark as unread
-		var deleteEmails []uint32  // SeqNums of campaign emails. If DeleteReportedCampaignEmail is true, we will delete these
+		var deleteEmails []uint32    // SeqNums of campaign emails. If DeleteReportedCampaignEmail is true, we will delete these
 		for _, m := range msgs {
 			// Check if sender is from company's domain, if enabled. TODO: Make this an IMAP filter
 			if im.RestrictDomain != "" { // e.g domainResitct = widgets.com
@@ -152,7 +152,7 @@ func checkForNewEmails(im models.IMAP) {
 			if err != nil {
 				log.Errorf("Error searching email for rids from user '%s': %s", m.Email.From, err.Error())
 				continue
-			} 
+			}
 			if len(rids) < 1 {
 				// In the future this should be an alert in Gophish
 				log.Infof("User '%s' reported email with subject '%s'. This is not a GoPhish campaign; you should investigate it.", m.Email.From, m.Email.Subject)
@@ -174,7 +174,7 @@ func checkForNewEmails(im models.IMAP) {
 					deleteEmails = append(deleteEmails, m.SeqNum)
 				}
 			}
-			
+
 		}
 		// Check if any emails were unable to be reported, so we can mark them as unread
 		if len(reportingFailed) > 0 {
@@ -192,13 +192,13 @@ func checkForNewEmails(im models.IMAP) {
 				log.Error("Failed to delete emails: ", err.Error())
 			}
 		}
-		
+
 	} else {
 		log.Debug("No new emails for ", im.Username)
 	}
 }
 
-func checkRIDs(em *email.Email, rids map[string]bool){
+func checkRIDs(em *email.Email, rids map[string]bool) {
 	// Check Text and HTML
 	emailContent := string(em.Text) + string(em.HTML)
 	for _, r := range goPhishRegex.FindAllStringSubmatch(emailContent, -1) {
