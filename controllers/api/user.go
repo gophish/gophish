@@ -29,9 +29,10 @@ var ErrInsufficientPermission = errors.New("Permission denied")
 
 // userRequest is the payload which represents the creation of a new user.
 type userRequest struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-	Role     string `json:"role"`
+	Username               string `json:"username"`
+	Password               string `json:"password"`
+	Role                   string `json:"role"`
+	PasswordChangeRequired bool   `json:"password_change_required`
 }
 
 func (ur *userRequest) Validate(existingUser *models.User) error {
@@ -198,6 +199,7 @@ func (as *Server) User(w http.ResponseWriter, r *http.Request) {
 		// Note that we don't force the current password to be provided. The
 		// assumption here is that the API key is a proper bearer token proving
 		// authenticated access to the account.
+		existingUser.PasswordChangeRequired = ur.PasswordChangeRequired
 		if ur.Password != "" {
 			err = auth.CheckPasswordPolicy(ur.Password)
 			if err != nil {

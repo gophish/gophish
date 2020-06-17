@@ -11,7 +11,7 @@ const save = (id) => {
         username: $("#username").val(),
         password: $("#password").val(),
         role: $("#role").val(),
-        password_reset_required: $("#force_password_reset_checkbox").checked
+        password_reset_required: $("#force_password_change_checkbox").prop('checked')
     }
     // Submit the user
     if (id != -1) {
@@ -66,7 +66,7 @@ const edit = (id) => {
                 $("#username").val(user.username)
                 $("#role").val(user.role.slug)
                 $("#role").trigger("change")
-                $("#force_password_change_checkbox").checked = user.password_change_required
+                $("#force_password_change_checkbox").prop('checked', false)
             })
             .error(function () {
                 errorFlash("Error fetching user")
