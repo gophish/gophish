@@ -8,6 +8,8 @@ require (
 	github.com/PuerkitoBio/goquery v1.5.0
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751 // indirect
 	github.com/alecthomas/units v0.0.0-20190924025748-f65c72e2690d // indirect
+	github.com/emersion/go-imap v1.0.4
+	github.com/emersion/go-message v0.12.0
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/gophish/gomail v0.0.0-20180314010319-cf7e1a5479be
 	github.com/gorilla/context v1.1.1
@@ -17,11 +19,10 @@ require (
 	github.com/gorilla/securecookie v1.1.1
 	github.com/gorilla/sessions v1.2.0
 	github.com/jinzhu/gorm v1.9.12
-	github.com/jordan-wright/email v0.0.0-20200121133829-a0b5c5b58bb6
+	github.com/jordan-wright/email v0.0.0-20200602115436-fd8a7622303e
 	github.com/jordan-wright/unindexed v0.0.0-20181209214434-78fa79113c0f
 	github.com/kylelemons/go-gypsy v0.0.0-20160905020020-08cad365cd28 // indirect
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
-	github.com/mxk/go-imap v0.0.0-20150429134902-531c36c3f12d
 	github.com/oschwald/maxminddb-golang v1.6.0
 	github.com/sirupsen/logrus v1.4.2
 	github.com/ziutek/mymysql v1.5.4 // indirect
