@@ -730,3 +730,15 @@ table.dataTable {
 .cke_autocomplete_panel>li {
     padding: 10px 5px !important;
 }
+
+#password-strength {
+    margin-top: 20px;
+    margin-bottom: 0px;
+    height: 8px;
+}
+#password-strength-description {
+    font-size: 12px;
+}
+#password-strength-container {
+    height: 40px;
+}

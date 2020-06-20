@@ -27,6 +27,7 @@ require (
 	github.com/sirupsen/logrus v1.4.2
 	github.com/ziutek/mymysql v1.5.4 // indirect
 	golang.org/x/crypto v0.0.0-20200128174031-69ecbb4d6d5d
+	golang.org/x/time v0.0.0-20200416051211-89c76fbcd5d1
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405

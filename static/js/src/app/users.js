@@ -10,7 +10,8 @@ const save = (id) => {
     let user = {
         username: $("#username").val(),
         password: $("#password").val(),
-        role: $("#role").val()
+        role: $("#role").val(),
+        password_change_required: $("#force_password_change_checkbox").prop('checked')
     }
     // Submit the user
     if (id != -1) {
@@ -18,26 +19,26 @@ const save = (id) => {
         // we need to PUT /user/:id
         user.id = id
         api.userId.put(user)
-            .success(function (data) {
+            .success((data) => {
                 successFlash("User " + escapeHtml(user.username) + " updated successfully!")
                 load()
                 dismiss()
                 $("#modal").modal('hide')
             })
-            .error(function (data) {
+            .error((data) => {
                 modalError(data.responseJSON.message)
             })
     } else {
         // Else, if this is a new user, POST it
         // to /user
         api.users.post(user)
-            .success(function (data) {
+            .success((data) => {
                 successFlash("User " + escapeHtml(user.username) + " registered successfully!")
                 load()
                 dismiss()
                 $("#modal").modal('hide')
             })
-            .error(function (data) {
+            .error((data) => {
                 modalError(data.responseJSON.message)
             })
     }
@@ -61,10 +62,11 @@ const edit = (id) => {
         $("#role").trigger("change")
     } else {
         api.userId.get(id)
-            .success(function (user) {
+            .success((user) => {
                 $("#username").val(user.username)
                 $("#role").val(user.role.slug)
                 $("#role").trigger("change")
+                $("#force_password_change_checkbox").prop('checked', false)
             })
             .error(function () {
                 errorFlash("Error fetching user")

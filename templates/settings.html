@@ -4,6 +4,7 @@
         <h1 class="page-header">Settings</h1>
     </div>
     <div id="flashes" class="row"></div>
+    {{template "flashes" .Flashes}}
     <!-- Nav tabs -->
     <ul class="nav nav-tabs" role="tablist">
         <li class="active" role="mainSettings"><a href="#mainSettings" aria-controls="mainSettings" role="tab"
@@ -58,8 +59,15 @@
                 <div class="row">
                     <label for="new_password" class="col-sm-2 control-label form-label">New Password:</label>
                     <div class="col-md-6">
-                        <input type="password" id="new_password" name="new_password" autocomplete="off"
+                        <input type="password" id="password" name="new_password" autocomplete="new-password"
                             class="form-control" />
+                        <div class="hidden" id="password-strength-container">
+                            <div class="progress" id="password-strength">
+                                <div id="password-strength-bar" class="progress-bar" role="progressbar"
+                                    aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <span id="password-strength-description"></span>
+                        </div>
                     </div>
                 </div>
                 <br />
@@ -225,5 +233,6 @@
     </div>
 </div>
 {{end}} {{define "scripts"}}
+<script src="/js/dist/app/passwords.min.js"></script>
 <script src="/js/dist/app/settings.min.js"></script>
 {{end}}

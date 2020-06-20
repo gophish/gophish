@@ -6,17 +6,13 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/gophish/gophish/auth"
 	ctx "github.com/gophish/gophish/context"
 	log "github.com/gophish/gophish/logger"
 	"github.com/gophish/gophish/models"
-	"github.com/gophish/gophish/util"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 )
-
-// ErrEmptyPassword is thrown when a user provides a blank password to the register
-// or change password functions
-var ErrEmptyPassword = errors.New("No password provided")
 
 // ErrUsernameTaken is thrown when a user attempts to register a username that is taken.
 var ErrUsernameTaken = errors.New("Username already taken")
@@ -33,9 +29,10 @@ var ErrInsufficientPermission = errors.New("Permission denied")
 
 // userRequest is the payload which represents the creation of a new user.
 type userRequest struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-	Role     string `json:"role"`
+	Username               string `json:"username"`
+	Password               string `json:"password"`
+	Role                   string `json:"role"`
+	PasswordChangeRequired bool   `json:"password_change_required"`
 }
 
 func (ur *userRequest) Validate(existingUser *models.User) error {
@@ -89,11 +86,12 @@ func (as *Server) Users(w http.ResponseWriter, r *http.Request) {
 			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
 			return
 		}
-		if ur.Password == "" {
-			JSONResponse(w, models.Response{Success: false, Message: ErrEmptyPassword.Error()}, http.StatusBadRequest)
+		err = auth.CheckPasswordPolicy(ur.Password)
+		if err != nil {
+			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
 			return
 		}
-		hash, err := util.NewHash(ur.Password)
+		hash, err := auth.GeneratePasswordHash(ur.Password)
 		if err != nil {
 			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
 			return
@@ -106,7 +104,7 @@ func (as *Server) Users(w http.ResponseWriter, r *http.Request) {
 		user := models.User{
 			Username: ur.Username,
 			Hash:     hash,
-			ApiKey:   util.GenerateSecureKey(),
+			ApiKey:   auth.GenerateSecureKey(auth.APIKeyLength),
 			Role:     role,
 			RoleID:   role.ID,
 		}
@@ -195,13 +193,20 @@ func (as *Server) User(w http.ResponseWriter, r *http.Request) {
 		// We don't force the password to be provided, since it may be an admin
 		// managing the user's account, and making a simple change like
 		// updating the username or role. However, if it _is_ provided, we'll
-		// update the stored hash.
+		// update the stored hash after validating the new password meets our
+		// password policy.
 		//
 		// Note that we don't force the current password to be provided. The
 		// assumption here is that the API key is a proper bearer token proving
 		// authenticated access to the account.
+		existingUser.PasswordChangeRequired = ur.PasswordChangeRequired
 		if ur.Password != "" {
-			hash, err := util.NewHash(ur.Password)
+			err = auth.CheckPasswordPolicy(ur.Password)
+			if err != nil {
+				JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
+				return
+			}
+			hash, err := auth.GeneratePasswordHash(ur.Password)
 			if err != nil {
 				JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
 				return
