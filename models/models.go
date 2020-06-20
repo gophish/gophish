@@ -96,14 +96,14 @@ func createTemporaryPassword(u *User) error {
 		return err
 	}
 	u.Hash = hash
-	// Note that anytime a temporary password is created, we will force the user
+	// Anytime a temporary password is created, we will force the user
 	// to change their password
 	u.PasswordChangeRequired = true
 	err = db.Save(u).Error
 	if err != nil {
 		return err
 	}
-	log.Infof("Please use this temporary password to login as \"admin\": %s", temporaryPassword)
+	log.Infof("Please login with the username admin and the password %s", temporaryPassword)
 	return nil
 }
 
@@ -112,7 +112,8 @@ func createTemporaryPassword(u *User) error {
 // First, it establishes a connection to the database, then runs any migrations
 // newer than the version the database is on.
 //
-// The installation process has
+// Once the database is up-to-date, we create an admin user (if needed) that
+// has a randomly generated API key and password.
 func Setup(c *config.Config) error {
 	// Setup the package-scoped config
 	conf = c

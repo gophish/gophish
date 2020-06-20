@@ -32,7 +32,7 @@ type userRequest struct {
 	Username               string `json:"username"`
 	Password               string `json:"password"`
 	Role                   string `json:"role"`
-	PasswordChangeRequired bool   `json:"password_change_required`
+	PasswordChangeRequired bool   `json:"password_change_required"`
 }
 
 func (ur *userRequest) Validate(existingUser *models.User) error {

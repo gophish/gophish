@@ -11,7 +11,7 @@ const save = (id) => {
         username: $("#username").val(),
         password: $("#password").val(),
         role: $("#role").val(),
-        password_reset_required: $("#force_password_change_checkbox").prop('checked')
+        password_change_required: $("#force_password_change_checkbox").prop('checked')
     }
     // Submit the user
     if (id != -1) {
