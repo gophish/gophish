@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"os"
 	"time"
 
 	"bitbucket.org/liamstask/goose/lib/goose"
@@ -27,6 +28,11 @@ const MaxDatabaseConnectionAttempts int = 10
 
 // DefaultAdminUsername is the default username for the administrative user
 const DefaultAdminUsername = "admin"
+
+// InitialAdminPassword is the environment variable that specifies which
+// password to use for the initial root login instead of generating one
+// randomly
+const InitialAdminPassword = "GOPHISH_INITIAL_ADMIN_PASSWORD"
 
 const (
 	CampaignInProgress string = "In progress"
@@ -88,9 +94,14 @@ func chooseDBDriver(name, openStr string) goose.DBDriver {
 }
 
 func createTemporaryPassword(u *User) error {
-	// This will result in a 16 character password which could be viewed as an
-	// inconvenience, but it should be ok for now.
-	temporaryPassword := auth.GenerateSecureKey(auth.MinPasswordLength)
+	var temporaryPassword string
+	if envPassword := os.Getenv(InitialAdminPassword); envPassword != "" {
+		temporaryPassword = envPassword
+	} else {
+		// This will result in a 16 character password which could be viewed as an
+		// inconvenience, but it should be ok for now.
+		temporaryPassword = auth.GenerateSecureKey(auth.MinPasswordLength)
+	}
 	hash, err := auth.GeneratePasswordHash(temporaryPassword)
 	if err != nil {
 		return err
