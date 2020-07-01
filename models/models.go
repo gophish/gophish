@@ -34,6 +34,11 @@ const DefaultAdminUsername = "admin"
 // randomly
 const InitialAdminPassword = "GOPHISH_INITIAL_ADMIN_PASSWORD"
 
+// InitialAdminApiToken is the environment variable that specifies the
+// API token to seed the initial root login instead of generating one
+// randomly
+const InitialAdminApiToken = "GOPHISH_INITIAL_ADMIN_API_TOKEN"
+
 const (
 	CampaignInProgress string = "In progress"
 	CampaignQueued     string = "Queued"
@@ -208,7 +213,13 @@ func Setup(c *config.Config) error {
 			RoleID:                 adminRole.ID,
 			PasswordChangeRequired: true,
 		}
-		adminUser.ApiKey = auth.GenerateSecureKey(auth.APIKeyLength)
+
+		if envToken := os.Getenv(InitialAdminApiToken); envToken != "" {
+			adminUser.ApiKey = envToken
+		} else {
+			adminUser.ApiKey = auth.GenerateSecureKey(auth.APIKeyLength)
+		}
+
 		err = db.Save(&adminUser).Error
 		if err != nil {
 			log.Error(err)
