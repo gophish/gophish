@@ -76,6 +76,10 @@ func (as *Server) registerRoutes() {
 	router.HandleFunc("/webhooks/", mid.Use(as.Webhooks, mid.RequirePermission(models.PermissionModifySystem)))
 	router.HandleFunc("/webhooks/{id:[0-9]+}/validate", mid.Use(as.ValidateWebhook, mid.RequirePermission(models.PermissionModifySystem)))
 	router.HandleFunc("/webhooks/{id:[0-9]+}", mid.Use(as.Webhook, mid.RequirePermission(models.PermissionModifySystem)))
+	router.HandleFunc("/reported/", as.ReportedEmails)                                // Return all reported emails
+	router.HandleFunc("/reported/{id:[0-9]+}", as.ReportedEmails)                     // Fetch an individual email e.g /reported/3
+	router.HandleFunc("/reported/{range:[0-9]+,[0-9]+}", as.ReportedEmails)           // Fetch a range of emails e.g. /reported/0,10
+	router.HandleFunc("/reported/attachment/{id:[0-9]+}", as.ReportedEmailAttachment) // Download attachment
 	as.handler = router
 }
 
