@@ -66,7 +66,7 @@ func TestCreateUser(t *testing.T) {
 	testCtx := setupTest(t)
 	payload := &userRequest{
 		Username: "foo",
-		Password: "bar",
+		Password: "validpassword",
 		Role:     models.RoleUser,
 	}
 	body, err := json.Marshal(payload)

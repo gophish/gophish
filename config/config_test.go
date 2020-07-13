@@ -62,12 +62,13 @@ func TestLoadConfig(t *testing.T) {
 	}
 	expectedConfig.MigrationsPath = expectedConfig.MigrationsPath + expectedConfig.DBName
 	expectedConfig.TestFlag = false
+	expectedConfig.AdminConf.CSRFKey = ""
 	if !reflect.DeepEqual(expectedConfig, conf) {
 		t.Fatalf("invalid config received. expected %#v got %#v", expectedConfig, conf)
 	}
 
 	// Load an invalid config
-	conf, err = LoadConfig("bogusfile")
+	_, err = LoadConfig("bogusfile")
 	if err == nil {
 		t.Fatalf("expected error when loading invalid config, but got %v", err)
 	}

@@ -114,13 +114,21 @@ func RequireAPIKey(handler http.Handler) http.Handler {
 func RequireLogin(handler http.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if u := ctx.Get(r, "user"); u != nil {
+			// If a password change is required for the user, then redirect them
+			// to the login page
+			currentUser := u.(models.User)
+			if currentUser.PasswordChangeRequired && r.URL.Path != "/reset_password" {
+				q := r.URL.Query()
+				q.Set("next", r.URL.Path)
+				http.Redirect(w, r, fmt.Sprintf("/reset_password?%s", q.Encode()), http.StatusTemporaryRedirect)
+				return
+			}
 			handler.ServeHTTP(w, r)
 			return
 		}
 		q := r.URL.Query()
 		q.Set("next", r.URL.Path)
 		http.Redirect(w, r, fmt.Sprintf("/login?%s", q.Encode()), http.StatusTemporaryRedirect)
-		return
 	}
 }
 

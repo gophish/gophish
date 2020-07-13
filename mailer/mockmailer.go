@@ -13,11 +13,6 @@ import (
 // being unreachable
 var errHostUnreachable = errors.New("host unreachable")
 
-// errDialerUnavailable is a mock error to represent a dialer
-// being unavailable (perhaps an error getting the dialer config
-// or a database error)
-var errDialerUnavailable = errors.New("dialer unavailable")
-
 // mockDialer keeps track of calls to Dial
 type mockDialer struct {
 	dialCount int
@@ -135,10 +130,6 @@ func (mm *mockMessage) setDialer(dialer func() (Dialer, error)) {
 
 func (mm *mockMessage) defaultDialer() (Dialer, error) {
 	return newMockDialer(), nil
-}
-
-func (mm *mockMessage) errorDialer() (Dialer, error) {
-	return nil, errDialerUnavailable
 }
 
 func (mm *mockMessage) GetDialer() (Dialer, error) {

@@ -11,6 +11,7 @@ import (
 	"context"
 	"encoding/base64"
 	"net/mail"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -34,7 +35,6 @@ type Monitor struct {
 // As each account can have its own polling frequency set we need to run one Go routine for
 // each, as well as keeping an eye on newly created user accounts.
 func (im *Monitor) start(ctx context.Context) {
-
 	usermap := make(map[int64]int) // Keep track of running go routines, one per user. We assume incrementing non-repeating UIDs (for the case where users are deleted and re-added).
 
 	for {
@@ -62,7 +62,6 @@ func (im *Monitor) start(ctx context.Context) {
 // monitor will continuously login to the IMAP settings associated to the supplied user id (if the user account has IMAP settings, and they're enabled.)
 // It also verifies the user account exists, and returns if not (for the case of a user being deleted).
 func monitor(uid int64, ctx context.Context) {
-
 	for {
 		select {
 		case <-ctx.Done():
@@ -96,7 +95,6 @@ func monitor(uid int64, ctx context.Context) {
 
 // NewMonitor returns a new instance of imap.Monitor
 func NewMonitor() *Monitor {
-
 	im := &Monitor{}
 	return im
 }
@@ -120,7 +118,6 @@ func (im *Monitor) Shutdown() error {
 // checkForNewEmails logs into an IMAP account and checks unread emails
 //  for the rid campaign identifier.
 func checkForNewEmails(im models.IMAP) {
-
 	im.Host = im.Host + ":" + strconv.Itoa(int(im.Port)) // Append port
 	mailServer := Mailbox{
 		Host:   im.Host,
@@ -140,7 +137,7 @@ func checkForNewEmails(im models.IMAP) {
 	if len(msgs) > 0 {
 		log.Debugf("%d new emails for %s", len(msgs), im.Username)
 		var reportingFailed []uint32 // SeqNums of emails that were unable to be reported to phishing server, mark as unread
-		var campaignEmails []uint32  // SeqNums of campaign emails. If DeleteReportedCampaignEmail is true, we will delete these
+		var deleteEmails []uint32    // SeqNums of campaign emails. If DeleteReportedCampaignEmail is true, we will delete these
 		for _, m := range msgs {
 			// Check if sender is from company's domain, if enabled. TODO: Make this an IMAP filter
 			if im.RestrictDomain != "" { // e.g domainResitct = widgets.com
@@ -152,118 +149,113 @@ func checkForNewEmails(im models.IMAP) {
 				}
 			}
 
-			rids, err := checkRIDs(m.Email) // Search email Text, HTML, and each attachment for rid parameters
+			rids, err := matchEmail(m.Email) // Search email Text, HTML, and each attachment for rid parameters
 
 			if err != nil {
 				log.Errorf("Error searching email for rids from user '%s': %s", m.Email.From, err.Error())
-			} else {
-				if len(rids) < 1 {
-					log.Infof("User '%s' reported email with subject '%s'. This is not a GoPhish campaign; you should investigate it.", m.Email.From, m.Email.Subject)
+				continue
+			}
+			if len(rids) < 1 {
+				// In the future this should be an alert in Gophish
+				log.Infof("User '%s' reported email with subject '%s'. This is not a GoPhish campaign; you should investigate it.", m.Email.From, m.Email.Subject)
 
-					// Save reported email to the database
-					atts := []*models.ReportedAttachment{}
-					for _, a := range m.Attachments {
-						na := &models.ReportedAttachment{Filename: a.Filename, Header: a.Header.Get("Content-Type"), Size: len(a.Content), Content: base64.StdEncoding.EncodeToString(a.Content)}
-						atts = append(atts, na)
-					}
-
-					e, err := mail.ParseAddress(m.Email.From)
-					if err != nil {
-						log.Error(err)
-					}
-
-					em := &models.ReportedEmail{
-						UserId:          im.UserId,
-						ReportedByName:  e.Name,
-						ReportedByEmail: e.Address,
-						ReportedHTML:    string(m.HTML),
-						ReportedText:    string(m.Text),
-						ReportedSubject: string(m.Subject),
-						IMAPUID:         -1, // https://github.com/emersion/go-imap/issues/353
-						ReportedTime:    time.Now().UTC(),
-						Attachments:     atts,
-						Status:          "Unknown"}
-
-					models.SaveReportedEmail(em)
+				// Save reported email to the database
+				atts := []*models.ReportedAttachment{}
+				for _, a := range m.Attachments {
+					na := &models.ReportedAttachment{Filename: a.Filename, Header: a.Header.Get("Content-Type"), Size: len(a.Content), Content: base64.StdEncoding.EncodeToString(a.Content)}
+					atts = append(atts, na)
 				}
-				for rid := range rids {
-					log.Infof("User '%s' reported email with rid %s", m.Email.From, rid)
-					result, err := models.GetResult(rid)
-					if err != nil {
-						log.Error("Error reporting GoPhish email with rid ", rid, ": ", err.Error())
-						reportingFailed = append(reportingFailed, m.SeqNum)
-					} else {
-						err = result.HandleEmailReport(models.EventDetails{})
-						if err != nil {
-							log.Error("Error updating GoPhish email with rid ", rid, ": ", err.Error())
-						} else {
-							if im.DeleteReportedCampaignEmail == true {
-								campaignEmails = append(campaignEmails, m.SeqNum)
-							}
-						}
-					}
 
+				e, err := mail.ParseAddress(m.Email.From)
+				if err != nil {
+					log.Error(err)
+				}
+
+				em := &models.ReportedEmail{
+					UserId:          im.UserId,
+					ReportedByName:  e.Name,
+					ReportedByEmail: e.Address,
+					ReportedHTML:    string(m.HTML),
+					ReportedText:    string(m.Text),
+					ReportedSubject: string(m.Subject),
+					IMAPUID:         -1, // https://github.com/emersion/go-imap/issues/353
+					ReportedTime:    time.Now().UTC(),
+					Attachments:     atts,
+					Status:          "Unknown"}
+
+				models.SaveReportedEmail(em)
+
+			}
+			for rid := range rids {
+				log.Infof("User '%s' reported email with rid %s", m.Email.From, rid)
+				result, err := models.GetResult(rid)
+				if err != nil {
+					log.Error("Error reporting GoPhish email with rid ", rid, ": ", err.Error())
+					reportingFailed = append(reportingFailed, m.SeqNum)
+					continue
+				}
+				err = result.HandleEmailReport(models.EventDetails{})
+				if err != nil {
+					log.Error("Error updating GoPhish email with rid ", rid, ": ", err.Error())
+					continue
+				}
+				if im.DeleteReportedCampaignEmail == true {
+					deleteEmails = append(deleteEmails, m.SeqNum)
 				}
 			}
 
-			// Check if any emails were unable to be reported, so we can mark them as unread
-			if len(reportingFailed) > 0 {
-				log.Debugf("Marking %d emails as unread as failed to report", len(reportingFailed))
-				err := mailServer.MarkAsUnread(reportingFailed) // Set emails as unread that we failed to report to GoPhish
-				if err != nil {
-					log.Error("Unable to mark emails as unread: ", err.Error())
-				}
-			}
-			// If the DeleteReportedCampaignEmail flag is set, delete reported Gophish campaign emails
-			if im.DeleteReportedCampaignEmail == true && len(campaignEmails) > 0 {
-				log.Debugf("Deleting %d campaign emails", len(campaignEmails))
-				err := mailServer.DeleteEmails(campaignEmails) // Delete GoPhish campaign emails.
-				if err != nil {
-					log.Error("Failed to delete emails: ", err.Error())
-				}
+		}
+		// Check if any emails were unable to be reported, so we can mark them as unread
+		if len(reportingFailed) > 0 {
+			log.Debugf("Marking %d emails as unread as failed to report", len(reportingFailed))
+			err := mailServer.MarkAsUnread(reportingFailed) // Set emails as unread that we failed to report to GoPhish
+			if err != nil {
+				log.Error("Unable to mark emails as unread: ", err.Error())
 			}
 		}
+		// If the DeleteReportedCampaignEmail flag is set, delete reported Gophish campaign emails
+		if len(deleteEmails) > 0 {
+			log.Debugf("Deleting %d campaign emails", len(deleteEmails))
+			err := mailServer.DeleteEmails(deleteEmails) // Delete GoPhish campaign emails.
+			if err != nil {
+				log.Error("Failed to delete emails: ", err.Error())
+			}
+		}
+
 	} else {
 		log.Debug("No new emails for ", im.Username)
 	}
 }
 
-// returns a slice of gophish rid paramters found in the email HTML, Text, and attachments
-func checkRIDs(em *email.Email) (map[string]int, error) {
-
-	rids := make(map[string]int)
-
+func checkRIDs(em *email.Email, rids map[string]bool) {
 	// Check Text and HTML
 	emailContent := string(em.Text) + string(em.HTML)
 	for _, r := range goPhishRegex.FindAllStringSubmatch(emailContent, -1) {
 		newrid := r[len(r)-1]
-		if _, ok := rids[newrid]; ok {
-			rids[newrid]++
-		} else {
-			rids[newrid] = 1
+		if !rids[newrid] {
+			rids[newrid] = true
 		}
 	}
+}
 
-	//Next check each attachment
+// returns a slice of gophish rid paramters found in the email HTML, Text, and attachments
+func matchEmail(em *email.Email) (map[string]bool, error) {
+	rids := make(map[string]bool)
+	checkRIDs(em, rids)
+
+	// Next check each attachment
 	for _, a := range em.Attachments {
-		if a.Header.Get("Content-Type") == "message/rfc822" || (len(a.Filename) > 3 && a.Filename[len(a.Filename)-4:] == ".eml") {
+		ext := filepath.Ext(a.Filename)
+		if a.Header.Get("Content-Type") == "message/rfc822" || ext == ".eml" {
 
-			//Let's decode the email
+			// Let's decode the email
 			rawBodyStream := bytes.NewReader(a.Content)
-			attachementEmail, err := email.NewEmailFromReader(rawBodyStream)
+			attachmentEmail, err := email.NewEmailFromReader(rawBodyStream)
 			if err != nil {
 				return rids, err
 			}
 
-			emailContent := string(attachementEmail.Text) + string(attachementEmail.HTML)
-			for _, r := range goPhishRegex.FindAllStringSubmatch(emailContent, -1) {
-				newrid := r[len(r)-1]
-				if _, ok := rids[newrid]; ok {
-					rids[newrid]++
-				} else {
-					rids[newrid] = 1
-				}
-			}
+			checkRIDs(attachmentEmail, rids)
 		}
 	}
 

@@ -103,10 +103,6 @@ func (s *EmailRequest) Generate(msg *gomail.Message) error {
 	if err != nil {
 		return err
 	}
-	fn := f.Name
-	if fn == "" {
-		fn = f.Address
-	}
 	msg.SetAddressHeader("From", f.Address, f.Name)
 
 	ptx, err := NewPhishingTemplateContext(s, s.BaseRecipient, s.RId)

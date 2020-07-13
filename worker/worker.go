@@ -125,6 +125,11 @@ func (w *DefaultWorker) LaunchCampaign(c models.Campaign) {
 	// that implements an interface as a slice of that interface.
 	mailEntries := []mailer.Mail{}
 	currentTime := time.Now().UTC()
+	campaignMailCtx, err := models.GetCampaignMailContext(c.Id, c.UserId)
+	if err != nil {
+		log.Error(err)
+		return
+	}
 	for _, m := range ms {
 		// Only send the emails scheduled to be sent for the past minute to
 		// respect the campaign scheduling options
@@ -132,7 +137,7 @@ func (w *DefaultWorker) LaunchCampaign(c models.Campaign) {
 			m.Unlock()
 			continue
 		}
-		err = m.CacheCampaign(&c)
+		err = m.CacheCampaign(&campaignMailCtx)
 		if err != nil {
 			log.Error(err)
 			return
@@ -149,12 +154,4 @@ func (w *DefaultWorker) SendTestEmail(s *models.EmailRequest) error {
 		w.mailer.Queue(ms)
 	}()
 	return <-s.ErrorChan
-}
-
-// errorMail is a helper to handle erroring out a slice of Mail instances
-// in the case that an unrecoverable error occurs.
-func errorMail(err error, ms []mailer.Mail) {
-	for _, m := range ms {
-		m.Error(err)
-	}
 }

@@ -27,7 +27,9 @@ func (s *ModelsSuite) TestGetUserByAPIKeyWithExistingAPIKey(c *check.C) {
 	u, err := GetUser(1)
 	c.Assert(err, check.Equals, nil)
 
-	u, err = GetUserByAPIKey(u.ApiKey)
+	got, err := GetUserByAPIKey(u.ApiKey)
+	c.Assert(err, check.Equals, nil)
+	c.Assert(got.Id, check.Equals, u.Id)
 }
 
 func (s *ModelsSuite) TestGetUserByAPIKeyWithNotExistingAPIKey(c *check.C) {
@@ -46,11 +48,12 @@ func (s *ModelsSuite) TestGetUserByUsernameWithNotExistingUser(c *check.C) {
 }
 
 func (s *ModelsSuite) TestPutUser(c *check.C) {
-	u, err := GetUser(1)
+	u, _ := GetUser(1)
 	u.Username = "admin_changed"
-	err = PutUser(&u)
+	err := PutUser(&u)
 	c.Assert(err, check.Equals, nil)
 	u, err = GetUser(1)
+	c.Assert(err, check.Equals, nil)
 	c.Assert(u.Username, check.Equals, "admin_changed")
 }
 

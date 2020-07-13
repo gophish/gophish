@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	mid "github.com/gophish/gophish/middleware"
+	"github.com/gophish/gophish/middleware/ratelimit"
 	"github.com/gophish/gophish/models"
 	"github.com/gophish/gophish/worker"
 	"github.com/gorilla/mux"
@@ -19,14 +20,17 @@ type ServerOption func(*Server)
 type Server struct {
 	handler http.Handler
 	worker  worker.Worker
+	limiter *ratelimit.PostLimiter
 }
 
 // NewServer returns a new instance of the API handler with the provided
 // options applied.
 func NewServer(options ...ServerOption) *Server {
 	defaultWorker, _ := worker.New()
+	defaultLimiter := ratelimit.NewPostLimiter()
 	as := &Server{
-		worker: defaultWorker,
+		worker:  defaultWorker,
+		limiter: defaultLimiter,
 	}
 	for _, opt := range options {
 		opt(as)
@@ -39,6 +43,12 @@ func NewServer(options ...ServerOption) *Server {
 func WithWorker(w worker.Worker) ServerOption {
 	return func(as *Server) {
 		as.worker = w
+	}
+}
+
+func WithLimiter(limiter *ratelimit.PostLimiter) ServerOption {
+	return func(as *Server) {
+		as.limiter = limiter
 	}
 }
 

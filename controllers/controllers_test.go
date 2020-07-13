@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/gophish/gophish/auth"
 	"github.com/gophish/gophish/config"
 	"github.com/gophish/gophish/models"
 )
@@ -41,6 +42,10 @@ func setupTest(t *testing.T) *testContext {
 	ctx.adminServer.Start()
 	// Get the API key to use for these tests
 	u, err := models.GetUser(1)
+	// Reset the temporary password for the admin user to a value we control
+	hash, err := auth.GeneratePasswordHash("gophish")
+	u.Hash = hash
+	models.PutUser(&u)
 	if err != nil {
 		t.Fatalf("error getting first user from database: %v", err)
 	}

@@ -226,7 +226,6 @@ func PutGroup(g *Group) error {
 		return err
 	}
 	// Fetch group's existing targets from database.
-	ts := []Target{}
 	ts, err := GetTargets(g.Id)
 	if err != nil {
 		log.WithFields(logrus.Fields{

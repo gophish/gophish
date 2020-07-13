@@ -125,7 +125,7 @@ func (m *MailLog) Success() error {
 		return err
 	}
 	err = db.Delete(m).Error
-	return nil
+	return err
 }
 
 // GetDialer returns a dialer based on the maillog campaign's SMTP configuration

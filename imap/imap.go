@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"crypto/tls"
 	"fmt"
-	"io"
 	"regexp"
 	"strconv"
 	"time"
@@ -12,7 +11,6 @@ import (
 	"github.com/emersion/go-imap"
 	"github.com/emersion/go-imap/client"
 	"github.com/emersion/go-message/charset"
-	"github.com/emersion/go-message/mail"
 	log "github.com/gophish/gophish/logger"
 	"github.com/gophish/gophish/models"
 
@@ -48,7 +46,6 @@ type Mailbox struct {
 
 // Validate validates supplied IMAP model by connecting to the server
 func Validate(s *models.IMAP) error {
-
 	err := s.Validate()
 	if err != nil {
 		log.Error(err)
@@ -117,7 +114,6 @@ func (mbox *Mailbox) DeleteEmails(seqs []uint32) error {
 
 // GetUnread will find all unread emails in the folder and return them as a list.
 func (mbox *Mailbox) GetUnread(markAsRead, delete bool) ([]Email, error) {
-
 	imap.CharsetReader = charset.Reader
 	var emails []Email
 
@@ -130,80 +126,54 @@ func (mbox *Mailbox) GetUnread(markAsRead, delete bool) ([]Email, error) {
 
 	// Search for unread emails
 	criteria := imap.NewSearchCriteria()
-	criteria.WithoutFlags = []string{"\\Seen"}
+	criteria.WithoutFlags = []string{imap.SeenFlag}
 	seqs, err := imapClient.Search(criteria)
 	if err != nil {
 		return emails, err
 	}
 
-	if len(seqs) > 0 {
-		seqset := new(imap.SeqSet)
-		seqset.AddNum(seqs...)
-		section := &imap.BodySectionName{}
-		items := []imap.FetchItem{imap.FetchEnvelope, imap.FetchFlags, imap.FetchInternalDate, section.FetchItem()}
-		messages := make(chan *imap.Message)
+	if len(seqs) == 0 {
+		return emails, nil
+	}
 
-		go func() {
-			if err := imapClient.Fetch(seqset, items, messages); err != nil {
-				log.Error("Error fetching emails: ", err.Error()) // TODO: How to handle this, need to propogate error out
-			}
-		}()
+	seqset := new(imap.SeqSet)
+	seqset.AddNum(seqs...)
+	section := &imap.BodySectionName{}
+	items := []imap.FetchItem{imap.FetchEnvelope, imap.FetchFlags, imap.FetchInternalDate, section.FetchItem()}
+	messages := make(chan *imap.Message)
 
-		// Step through each email
-		for msg := range messages {
-			// Extract raw message body. I can't find a better way to do this with the emersion library
-			var em *email.Email
-			var buf []byte
-			for _, value := range msg.Body {
-				buf = make([]byte, value.Len())
-				value.Read(buf)
-				break // There should only ever be one item in this map, but I'm not 100% sure
-			}
+	go func() {
+		if err := imapClient.Fetch(seqset, items, messages); err != nil {
+			log.Error("Error fetching emails: ", err.Error()) // TODO: How to handle this, need to propogate error out
+		}
+	}()
 
-			//Remove CR characters, see https://github.com/jordan-wright/email/issues/106
-			tmp := string(buf)
-			re := regexp.MustCompile(`\r`)
-			tmp = re.ReplaceAllString(tmp, "")
-			buf = []byte(tmp)
+	// Step through each email
+	for msg := range messages {
+		// Extract raw message body. I can't find a better way to do this with the emersion library
+		var em *email.Email
+		var buf []byte
+		for _, value := range msg.Body {
+			buf = make([]byte, value.Len())
+			value.Read(buf)
+			break // There should only ever be one item in this map, but I'm not 100% sure
+		}
 
-			rawBodyStream := bytes.NewReader(buf)
-			em, err = email.NewEmailFromReader(rawBodyStream) // Parse with @jordanwright's library
-			if err != nil {
-				return emails, err
-			}
+		//Remove CR characters, see https://github.com/jordan-wright/email/issues/106
+		tmp := string(buf)
+		re := regexp.MustCompile(`\r`)
+		tmp = re.ReplaceAllString(tmp, "")
+		buf = []byte(tmp)
 
-			// Reload the reader
-			rawBodyStream = bytes.NewReader(buf)
-			mr, err := mail.CreateReader(rawBodyStream)
-			if err != nil {
-				return emails, err
-			}
+		rawBodyStream := bytes.NewReader(buf)
+		em, err = email.NewEmailFromReader(rawBodyStream) // Parse with @jordanwright's library
+		if err != nil {
+			return emails, err
+		}
 
-			// Step over each part of the email, parsing attachments and attaching them to Jordan's email
-			for {
-				p, err := mr.NextPart()
-				if err == io.EOF {
-					break
-				} else if err != nil {
-					return emails, err
-				}
-				h := p.Header
+		emtmp := Email{Email: em, SeqNum: msg.SeqNum} // Not sure why msg.Uid is always 0, so swapped to sequence numbers
+		emails = append(emails, emtmp)
 
-				s, ok := h.(*mail.AttachmentHeader)
-				if ok {
-					filename, _ := s.Filename()
-					typ, _, _ := s.ContentType()
-					_, err := em.Attach(p.Body, filename, typ)
-					if err != nil {
-						return emails, err //Unable to attach file
-					}
-				}
-			}
-
-			emtmp := Email{Email: em, SeqNum: msg.SeqNum} // Not sure why msg.Uid is always 0, so swapped to sequence numbers
-			emails = append(emails, emtmp)
-
-		} // On to the next email
 	}
 	return emails, nil
 }
@@ -214,14 +184,11 @@ func (mbox *Mailbox) newClient() (*client.Client, error) {
 	var err error
 	if mbox.TLS {
 		imapClient, err = client.DialTLS(mbox.Host, new(tls.Config))
-		if err != nil {
-			return imapClient, err
-		}
 	} else {
 		imapClient, err = client.Dial(mbox.Host)
-		if err != nil {
-			return imapClient, err
-		}
+	}
+	if err != nil {
+		return imapClient, err
 	}
 
 	err = imapClient.Login(mbox.User, mbox.Pwd)
