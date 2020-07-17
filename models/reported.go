@@ -57,7 +57,7 @@ func GetReportedEmailAttachment(uid, id int64) (ReportedAttachment, error) {
 
 	att := ReportedAttachment{}
 
-	err := db.Debug().Table("reported_attachments").Select("reported_attachments.filename, reported_attachments.header, reported_attachments.content").Joins("left join reported on reported.id = reported_attachments.rid").Where("reported.user_id=? AND reported_attachments.id=?", uid, id).Take(&att).Error
+	err := db.Table("reported_attachments").Select("reported_attachments.filename, reported_attachments.header, reported_attachments.content").Joins("left join reported on reported.id = reported_attachments.rid").Where("reported.user_id=? AND reported_attachments.id=?", uid, id).Take(&att).Error
 
 	return att, err
 }
@@ -71,7 +71,7 @@ func GetReportedEmails(uid, emailid, limit, offset int64) ([]*ReportedEmail, err
 	// We have three conditions; fetch all email, fetch one email by id, or fetch a subset of emails by limit and offset
 	if emailid == -1 {
 		if offset == -1 {
-			err = db.Debug().Preload("Attachments").Where("user_id=?", uid).Find(&ems).Error
+			err = db.Preload("Attachments").Where("user_id=?", uid).Find(&ems).Error
 		} else {
 			err = db.Preload("Attachments").Where("user_id=?", uid).Order("ReportedTime", true).Offset(offset).Limit(limit).Find(&ems).Error
 		}
