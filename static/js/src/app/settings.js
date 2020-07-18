@@ -132,13 +132,13 @@ $(document).ready(function () {
             if (data.success == true) {
                 Swal.fire({
                     title: "Success",
-                    html: "Logged into <b>" + $("#imaphost").val() + "</b>",
+                    html: "Logged into <b>" + escapeHtml($("#imaphost").val()) + "</b>",
                     type: "success",
                 })
             } else {
                 Swal.fire({
                     title: "Failed!",
-                    html: "Unable to login to <b>" + $("#imaphost").val() + "</b>.",
+                    html: "Unable to login to <b>" + escapeHtml($("#imaphost").val()) + "</b>.",
                     type: "error",
                     showCancelButton: true,
                     cancelButtonText: "Close",
