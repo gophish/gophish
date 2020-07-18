@@ -55,6 +55,9 @@ func LoadConfig(filepath string) (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
+	if config.Logging == nil {
+		config.Logging = &log.Config{}
+	}
 	// Choosing the migrations directory based on the database used.
 	config.MigrationsPath = config.MigrationsPath + config.DBName
 	// Explicitly set the TestFlag to false to prevent config.json overrides
