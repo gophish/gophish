@@ -343,7 +343,7 @@ $(document).ready(function () {
                 $("#campaignTable").show()
                 $("#campaignTableArchive").show()
 
-                campaignTableOriginal = $("#campaignTable").DataTable({
+                activeCampaignsTable = $("#campaignTable").DataTable({
                     columnDefs: [{
                         orderable: false,
                         targets: "no-sort"
@@ -352,7 +352,7 @@ $(document).ready(function () {
                         [1, "desc"]
                     ]
                 });
-                campaignTableArchive = $("#campaignTableArchive").DataTable({
+                archivedCampaignsTable = $("#campaignTableArchive").DataTable({
                     columnDefs: [{
                         orderable: false,
                         targets: "no-sort"
@@ -361,13 +361,11 @@ $(document).ready(function () {
                         [1, "desc"]
                     ]
                 });
-                campaignRows = []
+                rows = {
+                    'active': [],
+                    'archived': []
+                }
                 $.each(campaigns, function (i, campaign) {
-                    campaignTable = campaignTableOriginal
-                    if (campaign.status === "Completed") {
-                        campaignTable = campaignTableArchive
-                    }
-
                     label = labels[campaign.status] || "label-default";
 
                     //section for tooltips on the status of a campaign to show some quick stats
@@ -377,10 +375,10 @@ $(document).ready(function () {
                         var quickStats = launchDate + "<br><br>" + "Number of recipients: " + campaign.stats.total
                     } else {
                         launchDate = "Launch Date: " + moment(campaign.launch_date).format('MMMM Do YYYY, h:mm:ss a')
-                        var quickStats = launchDate + "<br><br>" + "Number of recipients: " + campaign.stats.total + "<br><br>" + "Emails opened: " + campaign.stats.opened + "<br><br>" + "Emails clicked: " + campaign.stats.clicked + "<br><br>" + "Submitted Credentials: " + campaign.stats.submitted_data + "<br><br>" + "Errors : " + campaign.stats.error + "Reported : " + campaign.stats.reported
+                        var quickStats = launchDate + "<br><br>" + "Number of recipients: " + campaign.stats.total + "<br><br>" + "Emails opened: " + campaign.stats.opened + "<br><br>" + "Emails clicked: " + campaign.stats.clicked + "<br><br>" + "Submitted Credentials: " + campaign.stats.submitted_data + "<br><br>" + "Errors : " + campaign.stats.error + "<br><br>" + "Reported : " + campaign.stats.email_reported
                     }
 
-                    campaignRows.push([
+                    var row = [
                         escapeHtml(campaign.name),
                         moment(campaign.created_date).format('MMMM Do YYYY, h:mm:ss a'),
                         "<span class=\"label " + label + "\" data-toggle=\"tooltip\" data-placement=\"right\" data-html=\"true\" title=\"" + quickStats + "\">" + campaign.status + "</span>",
@@ -393,10 +391,16 @@ $(document).ready(function () {
                     <button class='btn btn-danger' onclick='deleteCampaign(" + i + ")' data-toggle='tooltip' data-placement='left' title='Delete Campaign'>\
                     <i class='fa fa-trash-o'></i>\
                     </button></div>"
-                    ])
-                    $('[data-toggle="tooltip"]').tooltip()
+                    ]
+                    if (campaign.status == 'Completed') {
+                        rows['archived'].push(row)
+                    } else {
+                        rows['active'].push(row)
+                    }
                 })
-                campaignTable.rows.add(campaignRows).draw()
+                activeCampaignsTable.rows.add(rows['active']).draw()
+                archivedCampaignsTable.rows.add(rows['archived']).draw()
+                $('[data-toggle="tooltip"]').tooltip()
             } else {
                 $("#emptyMessage").show()
             }
