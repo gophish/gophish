@@ -216,7 +216,9 @@ function exportAsCSV(scope) {
         return
     }
     $("#exportButton").html('<i class="fa fa-spinner fa-spin"></i>')
-    var csvString = Papa.unparse(csvScope, {})
+    var csvString = Papa.unparse(csvScope, {
+        'escapeFormulae': true
+    })
     var csvData = new Blob([csvString], {
         type: 'text/csv;charset=utf-8;'
     });
