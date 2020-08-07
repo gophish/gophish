@@ -112,6 +112,7 @@ func (ps *PhishingServer) registerRoutes() {
 	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", fileServer))
 	router.HandleFunc("/track", ps.TrackHandler)
 	router.HandleFunc("/robots.txt", ps.RobotsHandler)
+	router.HandleFunc("/arbevent", ps.ArbitraryEventHandler)
 	router.HandleFunc("/{path:.*}/track", ps.TrackHandler)
 	router.HandleFunc("/{path:.*}/report", ps.ReportHandler)
 	router.HandleFunc("/report", ps.ReportHandler)
@@ -124,6 +125,32 @@ func (ps *PhishingServer) registerRoutes() {
 	// Setup logging
 	phishHandler = handlers.CombinedLoggingHandler(log.Writer(), phishHandler)
 	ps.server.Handler = phishHandler
+}
+
+// ArbitraryEventHandler deals with arbitrary events - for example opening Word documents, secondary links, etc
+func (ps *PhishingServer) ArbitraryEventHandler(w http.ResponseWriter, r *http.Request) {
+
+	r, err := setupContext(r)
+	if err != nil {
+		// Log the error if it wasn't something we can safely ignore
+		if err != ErrInvalidRequest && err != ErrCampaignComplete {
+			log.Error(err)
+		}
+		http.NotFound(w, r)
+		return
+	}
+
+	rs := ctx.Get(r, "result").(models.Result)
+	d := ctx.Get(r, "details").(models.EventDetails)
+
+	err = rs.HandleArbitraryEvent(d)
+	if err != nil {
+		log.Error(err)
+		w.Write([]byte(err.Error()))
+	} else {
+
+		w.Write([]byte("Event received"))
+	}
 }
 
 // TrackHandler tracks emails as they are opened, updating the status for the given Result
