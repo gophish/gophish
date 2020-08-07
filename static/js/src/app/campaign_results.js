@@ -1,4 +1,3 @@
-console.log("Running campaign_results.min.js")
 var map = null
 var doPoll = true;
 
@@ -693,6 +692,9 @@ function poll() {
     api.campaignId.results(campaign.id)
         .success(function (c) {
             campaign = c
+
+            updateArbitraryEventData(campaign) // Update data structures with new arbitrary event specifications 
+
             /* Update the timeline */
             var timeline_series_data = []
             $.each(campaign.timeline, function (i, event) {
@@ -799,50 +801,7 @@ function load() {
             campaign = c
             if (campaign) {
 
-                // We add arbitrary events to the statuses dict and arbitrary event names the progressListing array.
-                tmpTitles = {}
-                campaign.timeline.forEach(function(event) {
-                    if (event.message == "Arbitrary Event") {
-                        details = JSON.parse(event.details) // TODO Validate this exists
-
-                        title = "Arbitrary Event"
-                        if ("title" in details.payload){
-                            title = String(details.payload.title)
-
-                        }
-                        statuses[title] = {"arbitrary event" : 1} // Set true to be arbitrary event, just so we can discern if we need to
-
-
-                        statuses[title]["color"] = "#00FFFF" // Default
-                        if ("color" in details.payload ){
-                            color = String(details.payload.color)
-                            if  (!(/^#[0-9A-F]{6}$/i.test(color))) {
-                                color = "#00FFFF" // Default to Cyan if the color is invalid
-                            }
-                            statuses[title]["color"] = color
-                        }
-
-                        statuses[title]["icon"] = "fa fa-info" // Default
-                        if ("icon" in details.payload ){
-                            icon = String(details.payload.icon)
-                            statuses[title]["icon"] = icon
-                        }
-
-                        statuses[title]["label"] = "label-info" // Default
-                        if ("label" in details.payload ){
-                            label = String(details.payload.label)
-                            statuses[title]["label"] = label
-                        }
-
-                        // Store unique event titles to be added to the progressListing once we exit the loop
-                        tmpTitles[title] = 1
-                    }
-                })
-
-                // We add the arbitary event titles to the progress listing
-                // Small problem here is that the ordering will assume anything appended is more serious than 'data submitted'
-                progressListing = progressListing.concat(Object.keys(tmpTitles))
-
+                updateArbitraryEventData(campaign) // Update data structures with new arbitrary event specifications
 
                 $("title").text(c.name + " - Gophish")
                 $("#loading").hide()
@@ -1077,6 +1036,63 @@ function report_mail(rid, cid) {
             }));
         }
     })
+}
+
+
+/* updateArbitraryData will go through the supplied campaign and add arbitrary event data to three data structure:
+    statuses
+    statusMapping //TODO
+    progressListing
+*/
+function updateArbitraryEventData(campaign){
+
+    // We add arbitrary events to the statuses dict and arbitrary event names the progressListing array.
+    campaign.timeline.forEach(function(event) {
+        if (event.message == "Arbitrary Event") {
+            details = JSON.parse(event.details) // TODO Validate this exists
+
+            title = "Arbitrary Event"
+            if ("title" in details.payload){
+                title = String(details.payload.title)
+
+            }
+            statuses[title] = {"arbitrary event" : 1} // Set true to be arbitrary event, just so we can discern if we need to
+
+
+            statuses[title]["color"] = "#00FFFF" // Default
+            if ("color" in details.payload ){
+                color = String(details.payload.color)
+                if  (!(/^#[0-9A-F]{6}$/i.test(color))) {
+                    color = "#00FFFF" // Default to Cyan if the color is invalid
+                }
+                statuses[title]["color"] = color
+            }
+
+            statuses[title]["icon"] = "fa fa-info" // Default
+            if ("icon" in details.payload ){
+                icon = String(details.payload.icon)
+                statuses[title]["icon"] = icon
+            }
+
+            statuses[title]["label"] = "label-info" // Default
+            if ("label" in details.payload ){
+                label = String(details.payload.label)
+                statuses[title]["label"] = label
+            }
+
+            // Add the title to the progressListing array (if it's not already in there)
+            if (!progressListing.includes(title)) {
+                progressListing.push(title)
+            }
+
+
+        }
+    })
+
+    // We add the arbitary event titles to the progress listing
+    // Small problem here is that the ordering will assume anything appended is more serious than 'data submitted'
+    //progressListing = progressListing.concat(Object.keys(tmpTitles))
+
 }
 
 $(document).ready(function () {
