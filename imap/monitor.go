@@ -120,6 +120,7 @@ func checkForNewEmails(im models.IMAP) {
 	mailServer := Mailbox{
 		Host:   im.Host,
 		TLS:    im.TLS,
+		IgnoreCertErrors: im.IgnoreCertErrors,
 		User:   im.Username,
 		Pwd:    im.Password,
 		Folder: im.Folder}

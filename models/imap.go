@@ -21,6 +21,7 @@ type IMAP struct {
 	Username                    string    `json:"username"`
 	Password                    string    `json:"password"`
 	TLS                         bool      `json:"tls"`
+	IgnoreCertErrors            bool      `json:"ignore_cert_errors"`
 	Folder                      string    `json:"folder"`
 	RestrictDomain              string    `json:"restrict_domain"`
 	DeleteReportedCampaignEmail bool      `json:"delete_reported_campaign_email"`

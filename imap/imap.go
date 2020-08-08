@@ -35,11 +35,12 @@ type Email struct {
 // Mailbox holds onto the credentials and other information
 // needed for connecting to an IMAP server.
 type Mailbox struct {
-	Host   string
-	TLS    bool
-	User   string
-	Pwd    string
-	Folder string
+	Host             string
+	TLS              bool
+	IgnoreCertErrors bool
+	User             string
+	Pwd              string
+	Folder           string
 	// Read only mode, false (original logic) if not initialized
 	ReadOnly bool
 }
@@ -54,11 +55,12 @@ func Validate(s *models.IMAP) error {
 
 	s.Host = s.Host + ":" + strconv.Itoa(int(s.Port)) // Append port
 	mailServer := Mailbox{
-		Host:   s.Host,
-		TLS:    s.TLS,
-		User:   s.Username,
-		Pwd:    s.Password,
-		Folder: s.Folder}
+		Host:             s.Host,
+		TLS:              s.TLS,
+		IgnoreCertErrors: s.IgnoreCertErrors,
+		User:             s.Username,
+		Pwd:              s.Password,
+		Folder:           s.Folder}
 
 	imapClient, err := mailServer.newClient()
 	if err != nil {
@@ -183,7 +185,9 @@ func (mbox *Mailbox) newClient() (*client.Client, error) {
 	var imapClient *client.Client
 	var err error
 	if mbox.TLS {
-		imapClient, err = client.DialTLS(mbox.Host, new(tls.Config))
+		config := new(tls.Config)
+		config.InsecureSkipVerify = mbox.IgnoreCertErrors
+		imapClient, err = client.DialTLS(mbox.Host, config)
 	} else {
 		imapClient, err = client.Dial(mbox.Host)
 	}

@@ -36,6 +36,7 @@ $(document).ready(function () {
         imapSettings.folder = $("#folder").val()
         imapSettings.imap_freq = $("#imapfreq").val()
         imapSettings.restrict_domain = $("#restrictdomain").val()
+        imapSettings.ignore_cert_errors = $('#ignorecerterrors').prop('checked')
         imapSettings.delete_reported_campaign_email = $('#deletecampaign').prop('checked')
         
         //To avoid unmarshalling error in controllers/api/imap.go. It would fail gracefully, but with a generic error.
@@ -91,6 +92,7 @@ $(document).ready(function () {
         server.username = $("#imapusername").val()
         server.password = $("#imappassword").val()
         server.tls = $('#use_tls').prop('checked')
+        server.ignore_cert_errors = $('#ignorecerterrors').prop('checked')
 
         //To avoid unmarshalling error in controllers/api/imap.go. It would fail gracefully, but with a generic error. 
         if (server.host == ""){
@@ -120,6 +122,7 @@ $(document).ready(function () {
         $("#imappassword").attr("disabled", true);
         $("#use_imap").attr("disabled", true);
         $("#use_tls").attr("disabled", true);
+        $('#ignorecerterrors').attr("disabled", true);
         $("#folder").attr("disabled", true);
         $("#restrictdomain").attr("disabled", true);
         $('#deletecampaign').attr("disabled", true);
@@ -171,6 +174,7 @@ $(document).ready(function () {
             $("#imappassword").attr("disabled", false);
             $("#use_imap").attr("disabled", false);
             $("#use_tls").attr("disabled", false);
+            $('#ignorecerterrors').attr("disabled", false);
             $("#folder").attr("disabled", false);
             $("#restrictdomain").attr("disabled", false);
             $('#deletecampaign').attr("disabled", false);
@@ -208,6 +212,7 @@ $(document).ready(function () {
                 $("#imapport").val(imap.port)
                 $("#imappassword").val(imap.password)
                 $('#use_tls').prop('checked', imap.tls)
+                $('#ignorecerterrors').prop('checked', imap.ignore_cert_errors)
                 $('#use_imap').prop('checked', imap.enabled)
                 $("#folder").val(imap.folder)
                 $("#restrictdomain").val(imap.restrict_domain)
