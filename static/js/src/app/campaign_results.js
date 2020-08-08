@@ -1,5 +1,7 @@
 var map = null
 var doPoll = true;
+var arbEventsPieCharts = true; // Include pie charts for arbitary events or not
+                               // Setting to true will add the arb events to statusMapping as wel as adding HTML chart elements.
 
 // statuses is a helper map to point result statuses to ui classes
 var statuses = {
@@ -104,6 +106,7 @@ var statusMapping = {
     "Clicked Link": "clicked",
     "Submitted Data": "submitted_data",
     "Email Reported": "reported",
+    //"Opened Word Document" : "opened_word_document"
 }
 
 // This is an underwhelming attempt at an enum
@@ -693,7 +696,7 @@ function poll() {
         .success(function (c) {
             campaign = c
 
-            updateArbitraryEventData(campaign) // Update data structures with new arbitrary event specifications 
+            updateArbitraryEventData(campaign, false) // Update data structures with new arbitrary event specifications 
 
             /* Update the timeline */
             var timeline_series_data = []
@@ -725,13 +728,20 @@ function poll() {
                 data: timeline_series_data
             })
             /* Update the results donut chart */
-            var email_series_data = {}
+            //var email_series_data = {}
             // Load the initial data
-            Object.keys(statusMapping).forEach(function (k) {
-                email_series_data[k] = 0
-            });
+            //Object.keys(statusMapping).forEach(function (k) {
+            //    email_series_data[k] = 0
+            //});
+            
+            /*
             $.each(campaign.results, function (i, result) {
-                email_series_data[result.status]++;
+
+                // Don't count arbitrary events, we do this independently to avoid backfill logic.
+                if (progressListing.includes(result.status)) {
+                    email_series_data[result.status]++;
+                }
+
                 if (result.reported) {
                     email_series_data['Email Reported']++
                 }
@@ -740,7 +750,12 @@ function poll() {
                 for (var i = 0; i < step; i++) {
                     email_series_data[progressListing[i]]++
                 }
-            })
+            })*/
+
+            // New function for counting events. Doesn't handle backfill, yet.
+            email_series_data = countCampaignEvents(campaign)
+ 
+
             $.each(email_series_data, function (status, count) {
                 var email_data = []
                 if (!(status in statusMapping)) {
@@ -801,7 +816,7 @@ function load() {
             campaign = c
             if (campaign) {
 
-                updateArbitraryEventData(campaign) // Update data structures with new arbitrary event specifications
+                updateArbitraryEventData(campaign, true) // Update data structures with new arbitrary event specifications
 
                 $("title").text(c.name + " - Gophish")
                 $("#loading").hide()
@@ -865,11 +880,12 @@ function load() {
                     ]
                 });
                 resultsTable.clear();
-                var email_series_data = {}
+                //var email_series_data = {}
                 var timeline_series_data = []
-                Object.keys(statusMapping).forEach(function (k) {
-                    email_series_data[k] = 0
-                });
+                //Object.keys(statusMapping).forEach(function (k) {
+                //    email_series_data[k] = 0
+                //});
+                
                 $.each(campaign.results, function (i, result) {
 
                     resultsTable.row.add([
@@ -883,16 +899,34 @@ function load() {
                         result.reported,
                         moment(result.send_date).format('MMMM Do YYYY, h:mm:ss a')
                     ])
-                    email_series_data[result.status]++;
+                    
+
+                    /*
+                    // Don't count arbitrary events, we do this independently to avoid backfill logic.
+                    if (progressListing.includes(result.status)) {
+                        email_series_data[result.status]++;
+                    }
+
                     if (result.reported) {
                         email_series_data['Email Reported']++
                     }
+
+                    //TODO: At some point need to figure out backfilling with arbitrary events
+                    // Possibly just backfill Email sent and Email Opened before getting into more complex
+                    // data structures
+
                     // Backfill status values
                     var step = progressListing.indexOf(result.status)
                     for (var i = 0; i < step; i++) {
                         email_series_data[progressListing[i]]++
                     }
+                    */
+                    
                 })
+
+                // New function for counting events. Doesn't handle backfill, yet.
+                email_series_data = countCampaignEvents(campaign)
+  
                 resultsTable.draw();
                 // Setup tooltips
                 $('[data-toggle="tooltip"]').tooltip()
@@ -1041,23 +1075,33 @@ function report_mail(rid, cid) {
 
 /* updateArbitraryData will go through the supplied campaign and add arbitrary event data to three data structure:
     statuses
-    statusMapping //TODO
-    progressListing
-*/
-function updateArbitraryEventData(campaign){
+    statusMapping 
+    progressListing // Todo, needs more consideration on backfill
 
-    // We add arbitrary events to the statuses dict and arbitrary event names the progressListing array.
-    campaign.timeline.forEach(function(event) {
+    The createPies boolean is used to allow us to create the pies on load() but not re-create them from calling poll(), as the
+     highchart info gets overwritten. The problem with this is that if a new arbitrary event comes in while the page is loaded
+     the poll() won't add the pie. Need to investigate this. TODO
+
+*/
+function updateArbitraryEventData(campaign, createPies){
+
+
+    var arbEventNames = [] // Hold unique arb event names. Used to create HTML pie charts if arbEventPieCharts set to true
+    
+    campaign.timeline.forEach(function(event) { // Step over each event
+
+        
         if (event.message == "Arbitrary Event") {
+
             details = JSON.parse(event.details) // TODO Validate this exists
 
+            // 1. Add title, color, icon, and label properties to statuses dict
             title = "Arbitrary Event"
             if ("title" in details.payload){
                 title = String(details.payload.title)
 
             }
             statuses[title] = {"arbitrary event" : 1} // Set true to be arbitrary event, just so we can discern if we need to
-
 
             statuses[title]["color"] = "#00FFFF" // Default
             if ("color" in details.payload ){
@@ -1080,19 +1124,87 @@ function updateArbitraryEventData(campaign){
                 statuses[title]["label"] = label
             }
 
-            // Add the title to the progressListing array (if it's not already in there)
-            if (!progressListing.includes(title)) {
-                progressListing.push(title)
+            if (!arbEventNames.includes(title)){
+                arbEventNames.push(title)
             }
 
+            /* How to handle progressListing needs more thought, and probably  */
+            // Add the title to the progressListing array (if it's not already in there)
+            //if (!progressListing.includes(title)) {
+            //    progressListing.push(title)
+            //}
 
+            
         }
     })
 
-    // We add the arbitary event titles to the progress listing
-    // Small problem here is that the ordering will assume anything appended is more serious than 'data submitted'
-    //progressListing = progressListing.concat(Object.keys(tmpTitles))
+    // 2.0 If arbEventsPieChart is enabled we add to statusMapping and add HTML charts for the event
+    if (arbEventsPieCharts == true && createPies == true) {
 
+        //2.1 Create HTML elements
+
+        // Split the array into multiple arrays, each of size 5. This let's us create pie chart rows of five
+        arbEventNames.sort()
+        chunkedArbEvents = Array.from({ length: Math.ceil(arbEventNames.length / 5) }, (v, i) => arbEventNames.slice(i * 5, i * 5 + 5) );
+        
+        $("#arbpie").html('') // i. Clear the div class
+        html = ''
+        chunkedArbEvents.forEach(function(chunk){
+
+            rowhtml = '<div class="row">\n\t<div style="height:200px;" class="col-lg-1 col-md-1"></div>\n'
+            chunk.forEach(function(title){
+                sanitizedEventName = title.toLowerCase().replace(/ /g, "_") // Convert Opened Word Document to opened_word_document.
+                sanitizedEventName = escapeHtml(sanitizedEventName) // Should maybe do more tests on this. Or even use a short random string rather than the name. e.g {"Opened Word Document" : "7a2f87"}
+                //i. Add the HTML element
+                rowhtml += '\t<div id="' + sanitizedEventName + '_chart" style="height:200px;" class="col-lg-2 col-md-2"></div>\n'
+
+                //ii. Add to statusMapping
+                statusMapping[title] = sanitizedEventName
+
+
+            })
+            rowhtml += '\t<div style="height:200px;" class="col-lg-1 col-md-1"></div>\n</div>\n'
+
+            html += rowhtml
+
+        })
+        $("#arbpie").html(html)
+
+    }
+
+}
+
+
+// countCampaignEvents will return a dict of title:count of arbitrary and regular events from a campaign
+// Todo: Need to implement backfill logic
+function countCampaignEvents(campaign) {
+
+    // Add all the default events to a counter dict
+    eventsCounter = {}
+    Object.keys(statusMapping).forEach(function (k) {
+        eventsCounter[k] = 0
+    });
+    
+    
+    campaign.timeline.forEach(function(event){
+        if (event.message == "Arbitrary Event"){
+            details = JSON.parse(event.details)
+            title = details.payload.title[0]
+        } else {
+            title = event.message
+            // Backfill logic for non arbitrary events. Todo
+            
+        }
+        if (title in eventsCounter) {
+            eventsCounter[title] += 1
+        } else {
+            eventsCounter[title] = 1
+        }
+
+        // Backfill logic here for arb? 
+
+    })
+    return eventsCounter
 }
 
 $(document).ready(function () {
