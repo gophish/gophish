@@ -112,7 +112,7 @@ func (ps *PhishingServer) registerRoutes() {
 	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", fileServer))
 	router.HandleFunc("/track", ps.TrackHandler)
 	router.HandleFunc("/robots.txt", ps.RobotsHandler)
-	router.HandleFunc("/arbevent", ps.ArbitraryEventHandler)
+	router.HandleFunc("/event", ps.CustomEventHandler)
 	router.HandleFunc("/{path:.*}/track", ps.TrackHandler)
 	router.HandleFunc("/{path:.*}/report", ps.ReportHandler)
 	router.HandleFunc("/report", ps.ReportHandler)
@@ -127,8 +127,8 @@ func (ps *PhishingServer) registerRoutes() {
 	ps.server.Handler = phishHandler
 }
 
-// ArbitraryEventHandler deals with arbitrary events - for example opening Word documents, secondary links, etc
-func (ps *PhishingServer) ArbitraryEventHandler(w http.ResponseWriter, r *http.Request) {
+// CustomEventHandler deals with Custom events - for example opening Word documents, secondary links, etc
+func (ps *PhishingServer) CustomEventHandler(w http.ResponseWriter, r *http.Request) {
 
 	r, err := setupContext(r)
 	if err != nil {
@@ -143,7 +143,7 @@ func (ps *PhishingServer) ArbitraryEventHandler(w http.ResponseWriter, r *http.R
 	rs := ctx.Get(r, "result").(models.Result)
 	d := ctx.Get(r, "details").(models.EventDetails)
 
-	err = rs.HandleArbitraryEvent(d)
+	err = rs.HandleCustomEvent(d)
 	if err != nil {
 		log.Error(err)
 		w.Write([]byte(err.Error()))

@@ -136,16 +136,16 @@ func (r *Result) HandleFormSubmit(details EventDetails) error {
 	return db.Save(r).Error
 }
 
-// HandleArbitraryEvent updates a Result with an arbitrary event (e.g Word document opened, secondary link clicked)
-func (r *Result) HandleArbitraryEvent(details EventDetails) error {
+// HandleCustomEvent updates a Result with an custom event (e.g Word document opened, secondary link clicked)
+func (r *Result) HandleCustomEvent(details EventDetails) error {
 
 	EventTitle := details.Payload.Get("title")
 
 	if EventTitle == "" {
-		return errors.New("No title supplied for arbitrary event")
+		return errors.New("No title supplied for custom event")
 	}
 
-	event, err := r.createEvent(EventArbitraryEvent, details)
+	event, err := r.createEvent(EventCustomEvent, details)
 	if err != nil {
 		return err
 	}

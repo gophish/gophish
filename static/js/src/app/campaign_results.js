@@ -1,7 +1,7 @@
 var map = null
 var doPoll = true;
-var arbEventsPieCharts = true; // Include pie charts for arbitary events or not
-                               // Setting to true will add the arb events to statusMapping as wel as adding HTML chart elements.
+var customEventsPieCharts = true; // Include pie charts for custom events or not
+                               // Setting to true will add the custom events to statusMapping as wel as adding HTML chart elements.
 
 // statuses is a helper map to point result statuses to ui classes
 var statuses = {
@@ -390,9 +390,9 @@ function renderTimeline(data) {
         if (!event.email || event.email == record.email) {
             // Add the event
             
-            // Handle arbitrary event as a special case
+            // Handle custom event as a special case
             // We could collapse the first half into the regular code, but for now it feels neater to keep it separate and live with the code re-use (*waves @ jordan*)
-            if (event.message == "Arbitrary Event"){
+            if (event.message == "Custom Event"){
 
                 if (event.details) { // Should always be data, otherwise we can ignore the event
                     details = JSON.parse(event.details)
@@ -403,7 +403,7 @@ function renderTimeline(data) {
                     results +=
                         '    <div class="timeline-icon ' + statuses[message].label+ '">' +
                         '    <i class="fa ' + statuses[message].icon + '"></i></div>' +
-                        '    <div class="timeline-message">' + escapeHtml(message) + // This is the case that makes code reuse tricky, as we want the title of the arbitrary event from the payload. TODO Give some more thought. Perhaps we scrap 'Arbitrary Event' and put the title in the message, and have some other indicator of the requirement to uniquely parse the contents of 'payload' e.g. payload['ae'] = 1 
+                        '    <div class="timeline-message">' + escapeHtml(message) + // This is the case that makes code reuse tricky, as we want the title of the custom event from the payload. TODO Give some more thought. Perhaps we scrap 'Custom Event' and put the title in the message, and have some other indicator of the requirement to uniquely parse the contents of 'payload' e.g. payload['ae'] = 1 
                         '    <span class="timeline-date">' + moment.utc(event.time).local().format('MMMM Do YYYY h:mm:ss a') + '</span>'
 
                         // Check if user agent present && requested to display it
@@ -429,7 +429,7 @@ function renderTimeline(data) {
                             results += '</div>'
                         }
                     results += '</div></div>'
-                } // End arbitrary event processsing
+                } // End custom event processsing
 
         
             } else { // else, if regular event
@@ -696,14 +696,14 @@ function poll() {
         .success(function (c) {
             campaign = c
 
-            updateArbitraryEventData(campaign, false) // Update data structures with new arbitrary event specifications 
+            updateCustomEventData(campaign, false) // Update data structures with new custom event specifications 
 
             /* Update the timeline */
             var timeline_series_data = []
             $.each(campaign.timeline, function (i, event) {
 
-                // Handle arbitary event
-                if (event.message == "Arbitrary Event") {
+                // Handle custom event
+                if (event.message == "Custom Event") {
                     details = JSON.parse(event.details)
                     message = details.payload.title
 
@@ -737,7 +737,7 @@ function poll() {
             /*
             $.each(campaign.results, function (i, result) {
 
-                // Don't count arbitrary events, we do this independently to avoid backfill logic.
+                // Don't count custom events, we do this independently to avoid backfill logic.
                 if (progressListing.includes(result.status)) {
                     email_series_data[result.status]++;
                 }
@@ -816,7 +816,7 @@ function load() {
             campaign = c
             if (campaign) {
 
-                updateArbitraryEventData(campaign, true) // Update data structures with new arbitrary event specifications
+                updateCustomEventData(campaign, true) // Update data structures with new custom event specifications
 
                 $("title").text(c.name + " - Gophish")
                 $("#loading").hide()
@@ -902,7 +902,7 @@ function load() {
                     
 
                     /*
-                    // Don't count arbitrary events, we do this independently to avoid backfill logic.
+                    // Don't count custom events, we do this independently to avoid backfill logic.
                     if (progressListing.includes(result.status)) {
                         email_series_data[result.status]++;
                     }
@@ -911,7 +911,7 @@ function load() {
                         email_series_data['Email Reported']++
                     }
 
-                    //TODO: At some point need to figure out backfilling with arbitrary events
+                    //TODO: At some point need to figure out backfilling with custom events
                     // Possibly just backfill Email sent and Email Opened before getting into more complex
                     // data structures
 
@@ -955,8 +955,8 @@ function load() {
                     }
                     var event_date = moment.utc(event.time).local()
 
-                    // Handle arbitary event
-                    if (event.message == "Arbitrary Event") {
+                    // Handle custom event
+                    if (event.message == "Custom Event") {
                             details = JSON.parse(event.details)
                             message = details.payload.title
                     } else {
@@ -1073,35 +1073,35 @@ function report_mail(rid, cid) {
 }
 
 
-/* updateArbitraryData will go through the supplied campaign and add arbitrary event data to three data structure:
+/* updateCustomData will go through the supplied campaign and add custom event data to three data structure:
     statuses
     statusMapping 
     progressListing // Todo, needs more consideration on backfill
 
     The createPies boolean is used to allow us to create the pies on load() but not re-create them from calling poll(), as the
-     highchart info gets overwritten. The problem with this is that if a new arbitrary event comes in while the page is loaded
+     highchart info gets overwritten. The problem with this is that if a new custom event comes in while the page is loaded
      the poll() won't add the pie. Need to investigate this. TODO
 
 */
-function updateArbitraryEventData(campaign, createPies){
+function updateCustomEventData(campaign, createPies){
 
 
-    var arbEventNames = [] // Hold unique arb event names. Used to create HTML pie charts if arbEventPieCharts set to true
+    var customEventNames = [] // Hold unique custom event names. Used to create HTML pie charts if customEventPieCharts set to true
     
     campaign.timeline.forEach(function(event) { // Step over each event
 
         
-        if (event.message == "Arbitrary Event") {
+        if (event.message == "Custom Event") {
 
             details = JSON.parse(event.details) // TODO Validate this exists
 
             // 1. Add title, color, icon, and label properties to statuses dict
-            title = "Arbitrary Event"
+            title = "Custom Event"
             if ("title" in details.payload){
                 title = String(details.payload.title)
 
             }
-            statuses[title] = {"arbitrary event" : 1} // Set true to be arbitrary event, just so we can discern if we need to
+            statuses[title] = {"custom event" : 1} // Set true to be custom event, just so we can discern if we need to
 
             statuses[title]["color"] = "#00FFFF" // Default
             if ("color" in details.payload ){
@@ -1124,8 +1124,8 @@ function updateArbitraryEventData(campaign, createPies){
                 statuses[title]["label"] = label
             }
 
-            if (!arbEventNames.includes(title)){
-                arbEventNames.push(title)
+            if (!customEventNames.includes(title)){
+                customEventNames.push(title)
             }
 
             /* How to handle progressListing needs more thought, and probably  */
@@ -1138,16 +1138,16 @@ function updateArbitraryEventData(campaign, createPies){
         }
     })
 
-    // 2.0 If arbEventsPieChart is enabled we add to statusMapping and add HTML charts for the event
-    if (arbEventsPieCharts == true && createPies == true) {
+    // 2.0 If customEventsPieChart is enabled we add to statusMapping and add HTML charts for the event
+    if (customEventsPieCharts == true && createPies == true) {
 
         //2.1 Create HTML elements
 
         // Split the array into multiple arrays, each of size 5. This let's us create pie chart rows of five
-        arbEventNames.sort()
-        chunkedArbEvents = Array.from({ length: Math.ceil(arbEventNames.length / 5) }, (v, i) => arbEventNames.slice(i * 5, i * 5 + 5) );
+        customEventNames.sort()
+        chunkedArbEvents = Array.from({ length: Math.ceil(customEventNames.length / 5) }, (v, i) => customEventNames.slice(i * 5, i * 5 + 5) );
         
-        $("#arbpie").html('') // i. Clear the div class
+        $("#custompie").html('') // i. Clear the div class
         html = ''
         chunkedArbEvents.forEach(function(chunk){
 
@@ -1168,14 +1168,14 @@ function updateArbitraryEventData(campaign, createPies){
             html += rowhtml
 
         })
-        $("#arbpie").html(html)
+        $("#custompie").html(html)
 
     }
 
 }
 
 
-// countCampaignEvents will return a dict of title:count of arbitrary and regular events from a campaign
+// countCampaignEvents will return a dict of title:count of custom and regular events from a campaign
 // Todo: Need to implement backfill logic
 function countCampaignEvents(campaign) {
 
@@ -1187,12 +1187,12 @@ function countCampaignEvents(campaign) {
     
     
     campaign.timeline.forEach(function(event){
-        if (event.message == "Arbitrary Event"){
+        if (event.message == "Custom Event"){
             details = JSON.parse(event.details)
             title = details.payload.title[0]
         } else {
             title = event.message
-            // Backfill logic for non arbitrary events. Todo
+            // Backfill logic for non custom events. Todo
             
         }
         if (title in eventsCounter) {
@@ -1201,7 +1201,7 @@ function countCampaignEvents(campaign) {
             eventsCounter[title] = 1
         }
 
-        // Backfill logic here for arb? 
+        // Backfill logic here for custom? 
 
     })
     return eventsCounter
