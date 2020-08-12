@@ -146,10 +146,9 @@ func (ps *PhishingServer) CustomEventHandler(w http.ResponseWriter, r *http.Requ
 	err = rs.HandleCustomEvent(d)
 	if err != nil {
 		log.Error(err)
-		w.Write([]byte(err.Error()))
+		http.NotFound(w, r)
 	} else {
-
-		w.Write([]byte("Event received"))
+		w.WriteHeader(http.StatusNoContent)
 	}
 }
 
