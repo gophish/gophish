@@ -1,15 +1,20 @@
 package models
 
 import (
+	"archive/zip"
+	"bytes"
 	"crypto/rand"
+	"crypto/sha1"
 	"encoding/base64"
 	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"math"
 	"math/big"
 	"net/mail"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -26,6 +31,10 @@ var MaxSendAttempts = 8
 // ErrMaxSendAttempts is thrown when the maximum number of sending attempts for a given
 // MailLog is exceeded.
 var ErrMaxSendAttempts = errors.New("max send attempts exceeded")
+
+// processAttachment is used to to keep track of which email attachments have templated values.
+// This allows us to skip re-templating attach
+var processAttachment = map[[20]byte]bool{} // Considered using attachmentLookup[campaignid][filehash] but given the low number of files current approach should be fine
 
 // MailLog is a struct that holds information about an email that is to be
 // sent out.
@@ -211,6 +220,7 @@ func (m *MailLog) Generate(msg *gomail.Message) error {
 
 	// Parse remaining templates
 	subject, err := ExecuteTemplate(c.Template.Subject, ptx)
+
 	if err != nil {
 		log.Warn(err)
 	}
@@ -243,7 +253,11 @@ func (m *MailLog) Generate(msg *gomail.Message) error {
 		msg.Attach(func(a Attachment) (string, gomail.FileSetting, gomail.FileSetting) {
 			h := map[string][]string{"Content-ID": {fmt.Sprintf("<%s>", a.Name)}}
 			return a.Name, gomail.SetCopyFunc(func(w io.Writer) error {
-				decoder := base64.NewDecoder(base64.StdEncoding, strings.NewReader(a.Content))
+				//decoder := base64.NewDecoder(base64.StdEncoding, strings.NewReader(a.Content))
+				decoder, err := applyAttachmentTemplate(a, ptx)
+				if err != nil {
+					return err
+				}
 				_, err = io.Copy(w, decoder)
 				return err
 			}), gomail.SetHeader(h)
@@ -251,6 +265,129 @@ func (m *MailLog) Generate(msg *gomail.Message) error {
 	}
 
 	return nil
+}
+
+// applyAttachmentTemplate parses different attachment files and applies the supplied phishing template.
+func applyAttachmentTemplate(a Attachment, ptx PhishingTemplateContext) (io.Reader, error) {
+
+	fileContentsHash := sha1.Sum([]byte(a.Content)) // Hash of the file content
+	var processedAttachment string                  // Attachment content to return
+
+	decodedAttachment, err := base64.StdEncoding.DecodeString(a.Content) // Decode the attachment
+	if err != nil {
+		return nil, err
+	}
+
+	// Keep track of which files have no template variables so we don't parse them repeatidly
+	if _, ok := processAttachment[fileContentsHash]; !ok {
+		processAttachment[fileContentsHash] = true // Default to true to process a file
+	}
+
+	if processAttachment[fileContentsHash] == true {
+
+		// Decided to use the file extension rather than the content type, as there seems to be quite
+		//  a bit of variability with types. e.g sometimes a Word docx file would have:
+		//   "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+		fileExtension := filepath.Ext(a.Name)
+
+		switch fileExtension {
+
+		case ".docx", ".docm", ".pptx", ".xlsx", ".xlsm":
+			// Most modern office formats are xml based and can be unarchived.
+			// .docm and .xlsm files are comprised of xml, and a binary blob for the macro code
+
+			// Create a new zip reader from the file
+			zipReader, err := zip.NewReader(bytes.NewReader(decodedAttachment), int64(len(decodedAttachment)))
+			if err != nil {
+				return nil, err
+			}
+
+			newZipArchive := new(bytes.Buffer)
+			zipWriter := zip.NewWriter(newZipArchive) // For writing the new archive
+
+			// i. Read each file from the Word document archive
+			// ii. Apply the template to it
+			// iii. Add the templated content to a new zip Word archive
+			fileContainedTemplatesVars := false
+			for _, zipFile := range zipReader.File {
+				ff, err := zipFile.Open()
+				if err != nil {
+					return nil, err
+				}
+				defer ff.Close()
+				contents, err := ioutil.ReadAll(ff)
+				if err != nil {
+					return nil, err
+				}
+				subFileExtension := filepath.Ext(zipFile.Name)
+				var tFile string
+				if subFileExtension == ".xml" || subFileExtension == ".rels" { // Ignore other files, e.g binary ones and images
+					// For each file apply the template.
+					tFile, err = ExecuteTemplate(string(contents), ptx)
+					if err != nil {
+						return nil, err
+					}
+					// Check if the subfile changed. We only need this to be set once to know in the future to check the 'parent' file
+					if tFile != string(contents) {
+						fileContainedTemplatesVars = true
+					}
+
+				} else {
+					tFile = string(contents) // Could move this to the declaration of tFile, but might be confusing to read
+				}
+				// Write new Word archive
+				newZipFile, err := zipWriter.Create(zipFile.Name)
+				if err != nil {
+					zipWriter.Close() // Don't use defer when writing files https://www.joeshaw.org/dont-defer-close-on-writable-files/
+					return nil, err
+				}
+				_, err = newZipFile.Write([]byte(tFile))
+				if err != nil {
+					zipWriter.Close()
+					return nil, err
+				}
+
+			}
+
+			// If no files in the archive had template variables, we set the 'parent' file to not be checked in the future
+			if fileContainedTemplatesVars == false {
+				processAttachment[fileContentsHash] = false
+			}
+
+			zipWriter.Close()
+			processedAttachment = newZipArchive.String()
+
+		case ".txt", ".html":
+			processedAttachment, err = ExecuteTemplate(string(decodedAttachment), ptx)
+		case ".pdf":
+			// Todo.
+			// See: https://stackoverflow.com/questions/8099927/tracking-code-into-a-pdf-or-postscript-file
+		case ".exe":
+			// Todo. Perhaps we ignore the .exe and build our own, with a simple callback to the server
+			//  A special extension of 'exef' or some such might be useful in case users want to attach
+			//  an actual exe file. Does anyone email exe files in 2020 ?
+		default:
+			// We have two options here; either apply template to all files, or none. Probably safer to err on the side of none.
+			processedAttachment = string(decodedAttachment) // Option one: Do nothing
+			//processedAttachment, err = ExecuteTemplate(string(decodedAttachment), ptx) // Option two: Template all files
+		}
+		// Handle err from all the switch statement ExecuteTemplate functions
+		if err != nil {
+			return nil, err
+		}
+
+		// Check if applying the template altered the file contents. If not, let's not apply the template again to that file.
+		// This doesn't work very well with .docx etc files, as the unzipping and rezipping seems to alter them.
+		if processedAttachment == string(decodedAttachment) {
+			processAttachment[fileContentsHash] = false
+		}
+
+	} else {
+		processedAttachment = string(decodedAttachment)
+	}
+
+	decoder := strings.NewReader(processedAttachment)
+	return decoder, nil
 }
 
 // GetQueuedMailLogs returns the mail logs that are queued up for the given minute.
