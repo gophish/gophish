@@ -118,12 +118,13 @@ func (im *Monitor) Shutdown() error {
 func checkForNewEmails(im models.IMAP) {
 	im.Host = im.Host + ":" + strconv.Itoa(int(im.Port)) // Append port
 	mailServer := Mailbox{
-		Host:   im.Host,
-		TLS:    im.TLS,
+		Host:             im.Host,
+		TLS:              im.TLS,
 		IgnoreCertErrors: im.IgnoreCertErrors,
-		User:   im.Username,
-		Pwd:    im.Password,
-		Folder: im.Folder}
+		User:             im.Username,
+		Pwd:              im.Password,
+		Folder:           im.Folder,
+	}
 
 	msgs, err := mailServer.GetUnread(true, false)
 	if err != nil {
