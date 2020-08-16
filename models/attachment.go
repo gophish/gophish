@@ -21,6 +21,27 @@ type Attachment struct {
 	vanillaFile bool   // Vanilla file has no template variables
 }
 
+// ValidateAttachment ensures that the provided attachment uses the supported template variables correctly.
+func (a Attachment) ValidateAttachment() error {
+
+	ptx := PhishingTemplateContext{
+		BaseRecipient: BaseRecipient{
+			FirstName: "Foo",
+			LastName:  "Bar",
+			Email:     "foo@bar.com",
+		},
+		BaseURL:     "http://testurl.com",
+		URL:         "http://testurl.com/?rid=1234567",
+		TrackingURL: "http://testurl.local/track?rid=1234567",
+		Tracker:     "<img alt='' style='display: none' src='http://testurl.local/track?rid=1234567'/>",
+		From:        "From Address",
+		RId:         "1234567",
+	}
+
+	_, err := a.ApplyTemplate(ptx)
+	return err
+}
+
 // ApplyTemplate parses different attachment files and applies the supplied phishing template.
 func (a *Attachment) ApplyTemplate(ptx PhishingTemplateContext) (io.Reader, error) {
 
