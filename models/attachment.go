@@ -13,26 +13,26 @@ import (
 // Attachment contains the fields and methods for
 // an email attachment
 type Attachment struct {
-	Id             int64  `json:"-"`
-	TemplateId     int64  `json:"-"`
-	Content        string `json:"content"`
-	Type           string `json:"type"`
-	Name           string `json:"name"`
-	noTemplateVars bool
+	Id          int64  `json:"-"`
+	TemplateId  int64  `json:"-"`
+	Content     string `json:"content"`
+	Type        string `json:"type"`
+	Name        string `json:"name"`
+	vanillaFile bool   // Vanilla file has no template variables
 }
 
 // ApplyTemplate parses different attachment files and applies the supplied phishing template.
 func (a *Attachment) ApplyTemplate(ptx PhishingTemplateContext) (io.Reader, error) {
 
 	var processedAttachment string
-
 	decodedAttachment, err := base64.StdEncoding.DecodeString(a.Content) // Decode the attachment
 	if err != nil {
 		return nil, err
 	}
 
-	if a.noTemplateVars == true {
-		processedAttachment = string(decodedAttachment)
+	// If we've already determined there are no template variables in this attachment return it immediately
+	if a.vanillaFile == true {
+		return strings.NewReader(string(decodedAttachment)), nil
 	} else {
 
 		// Decided to use the file extension rather than the content type, as there seems to be quite
@@ -101,7 +101,7 @@ func (a *Attachment) ApplyTemplate(ptx PhishingTemplateContext) (io.Reader, erro
 
 			// If no files in the archive had template variables, we set the 'parent' file to not be checked in the future
 			if fileContainedTemplatesVars == false {
-				a.noTemplateVars = true
+				a.vanillaFile = true
 			}
 
 			zipWriter.Close()
@@ -112,19 +112,14 @@ func (a *Attachment) ApplyTemplate(ptx PhishingTemplateContext) (io.Reader, erro
 			if err != nil {
 				return nil, err
 			}
+			if processedAttachment == string(decodedAttachment) {
+				a.vanillaFile = true
+			}
 		default:
 			// We have two options here; either apply template to all files, or none. Probably safer to err on the side of none.
 			processedAttachment = string(decodedAttachment) // Option one: Do nothing
 			//processedAttachment, err = ExecuteTemplate(string(decodedAttachment), ptx) // Option two: Template all files
 		}
-
-		// Check if applying the template altered the file contents. If not, let's not apply the template again to that file.
-		// This doesn't work very well with .docx etc files, as the unzipping and rezipping seems to alter them, so those
-		// file have their own logic for checking this (above).
-		if processedAttachment == string(decodedAttachment) {
-			a.noTemplateVars = true
-		}
-
 	}
 
 	decoder := strings.NewReader(processedAttachment)
