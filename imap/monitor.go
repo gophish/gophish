@@ -14,6 +14,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"encoding/base64"
 
 	log "github.com/gophish/gophish/logger"
 	"github.com/jordan-wright/email"
@@ -201,8 +202,13 @@ func checkForNewEmails(im models.IMAP) {
 }
 
 func checkRIDs(em *email.Email, rids map[string]bool) {
-	// Check Text and HTML
+	// Check Text and HTML	
 	emailContent := string(em.Text) + string(em.HTML)
+	
+	if(IsBase64(emailContent)){
+		emailByte, _ :=  base64.StdEncoding.DecodeString(emailContent)
+		emailContent = string(emailByte)
+	}
 	for _, r := range goPhishRegex.FindAllStringSubmatch(emailContent, -1) {
 		newrid := r[len(r)-1]
 		if !rids[newrid] {
