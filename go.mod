@@ -11,7 +11,7 @@ require (
 	github.com/emersion/go-imap v1.0.4
 	github.com/emersion/go-message v0.12.0
 	github.com/go-sql-driver/mysql v1.5.0
-	github.com/gophish/gomail v0.0.0-20180314010319-cf7e1a5479be
+	github.com/gophish/gomail v0.0.0-20200818021916-1f6d0dfd512e
 	github.com/gorilla/context v1.1.1
 	github.com/gorilla/csrf v1.6.2
 	github.com/gorilla/handlers v1.4.2
@@ -29,7 +29,5 @@ require (
 	golang.org/x/crypto v0.0.0-20200128174031-69ecbb4d6d5d
 	golang.org/x/time v0.0.0-20200416051211-89c76fbcd5d1
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
-	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405
-	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df // indirect
 )

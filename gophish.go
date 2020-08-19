@@ -28,6 +28,7 @@ THE SOFTWARE.
 import (
 	"fmt"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"os/signal"
 
@@ -35,10 +36,12 @@ import (
 
 	"github.com/gophish/gophish/config"
 	"github.com/gophish/gophish/controllers"
+	"github.com/gophish/gophish/dialer"
 	"github.com/gophish/gophish/imap"
 	log "github.com/gophish/gophish/logger"
 	"github.com/gophish/gophish/middleware"
 	"github.com/gophish/gophish/models"
+	"github.com/gophish/gophish/webhook"
 )
 
 const (
@@ -78,6 +81,13 @@ func main() {
 		log.Warnf("Please consider adding a contact_address entry in your config.json")
 	}
 	config.Version = string(version)
+
+	// Configure our various upstream clients to make sure that we restrict
+	// outbound connections as needed.
+	dialer.SetAllowedHosts(conf.AdminConf.AllowedInternalHosts)
+	webhook.SetTransport(&http.Transport{
+		DialContext: dialer.Dialer().DialContext,
+	})
 
 	err = log.Setup(conf.Logging)
 	if err != nil {

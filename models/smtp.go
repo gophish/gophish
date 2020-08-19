@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/gophish/gomail"
+	"github.com/gophish/gophish/dialer"
 	log "github.com/gophish/gophish/logger"
 	"github.com/gophish/gophish/mailer"
 	"github.com/jinzhu/gorm"
@@ -109,7 +110,8 @@ func (s *SMTP) GetDialer() (mailer.Dialer, error) {
 		log.Error(err)
 		return nil, err
 	}
-	d := gomail.NewDialer(host, port, s.Username, s.Password)
+	dialer := dialer.Dialer()
+	d := gomail.NewWithDialer(dialer, host, port, s.Username, s.Password)
 	d.TLSConfig = &tls.Config{
 		ServerName:         host,
 		InsecureSkipVerify: s.IgnoreCertErrors,

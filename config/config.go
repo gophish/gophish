@@ -9,11 +9,12 @@ import (
 
 // AdminServer represents the Admin server configuration details
 type AdminServer struct {
-	ListenURL string `json:"listen_url"`
-	UseTLS    bool   `json:"use_tls"`
-	CertPath  string `json:"cert_path"`
-	KeyPath   string `json:"key_path"`
-	CSRFKey   string `json:"csrf_key"`
+	ListenURL            string   `json:"listen_url"`
+	UseTLS               bool     `json:"use_tls"`
+	CertPath             string   `json:"cert_path"`
+	KeyPath              string   `json:"key_path"`
+	CSRFKey              string   `json:"csrf_key"`
+	AllowedInternalHosts []string `json:"allowed_internal_hosts"`
 }
 
 // PhishServer represents the Phish server configuration details

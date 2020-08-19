@@ -11,6 +11,7 @@ import (
 	"github.com/emersion/go-imap"
 	"github.com/emersion/go-imap/client"
 	"github.com/emersion/go-message/charset"
+	"github.com/gophish/gophish/dialer"
 	log "github.com/gophish/gophish/logger"
 	"github.com/gophish/gophish/models"
 
@@ -184,12 +185,13 @@ func (mbox *Mailbox) GetUnread(markAsRead, delete bool) ([]Email, error) {
 func (mbox *Mailbox) newClient() (*client.Client, error) {
 	var imapClient *client.Client
 	var err error
+	restrictedDialer := dialer.Dialer()
 	if mbox.TLS {
 		config := new(tls.Config)
 		config.InsecureSkipVerify = mbox.IgnoreCertErrors
-		imapClient, err = client.DialTLS(mbox.Host, config)
+		imapClient, err = client.DialWithDialerTLS(restrictedDialer, mbox.Host, config)
 	} else {
-		imapClient, err = client.Dial(mbox.Host)
+		imapClient, err = client.DialWithDialer(restrictedDialer, mbox.Host)
 	}
 	if err != nil {
 		return imapClient, err
