@@ -9,12 +9,12 @@ package imap
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
 	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
-	"encoding/base64"
 
 	log "github.com/gophish/gophish/logger"
 	"github.com/jordan-wright/email"
@@ -201,14 +201,20 @@ func checkForNewEmails(im models.IMAP) {
 	}
 }
 
+func IsBase64(s string) bool {
+	_, err := base64.StdEncoding.DecodeString(s)
+	return err == nil
+}
+
 func checkRIDs(em *email.Email, rids map[string]bool) {
-	// Check Text and HTML	
+	// Check Text and HTML
 	emailContent := string(em.Text) + string(em.HTML)
-	
-	if(IsBase64(emailContent)){
-		emailByte, _ :=  base64.StdEncoding.DecodeString(emailContent)
+
+	if IsBase64(emailContent) {
+		emailByte, _ := base64.StdEncoding.DecodeString(emailContent)
 		emailContent = string(emailByte)
 	}
+
 	for _, r := range goPhishRegex.FindAllStringSubmatch(emailContent, -1) {
 		newrid := r[len(r)-1]
 		if !rids[newrid] {
@@ -226,7 +232,6 @@ func matchEmail(em *email.Email) (map[string]bool, error) {
 	for _, a := range em.Attachments {
 		ext := filepath.Ext(a.Filename)
 		if a.Header.Get("Content-Type") == "message/rfc822" || ext == ".eml" {
-
 			// Let's decode the email
 			rawBodyStream := bytes.NewReader(a.Content)
 			attachmentEmail, err := email.NewEmailFromReader(rawBodyStream)
