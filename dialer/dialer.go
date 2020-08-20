@@ -72,7 +72,6 @@ func Dialer() *net.Dialer {
 // This implementation is based on the blog post by Andrew Ayer at
 // https://www.agwa.name/blog/post/preventing_server_side_request_forgery_in_golang
 func (d *RestrictedDialer) Dialer() *net.Dialer {
-	fmt.Printf("current allowed: %#v\n", d.allowedHosts)
 	return &net.Dialer{
 		Timeout:   30 * time.Second,
 		KeepAlive: 30 * time.Second,
