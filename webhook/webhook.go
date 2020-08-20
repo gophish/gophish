@@ -51,6 +51,11 @@ var senderInstance = &defaultSender{
 	},
 }
 
+// SetTransport sets the underlying transport for the default webhook client.
+func SetTransport(tr *http.Transport) {
+	senderInstance.client.Transport = tr
+}
+
 // EndPoint represents a URL to send the webhook to, as well as a secret used
 // to sign the event
 type EndPoint struct {
