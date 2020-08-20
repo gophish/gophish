@@ -176,6 +176,17 @@ func RequirePermission(perm string) func(http.Handler) http.HandlerFunc {
 	}
 }
 
+// ApplySecurityHeaders applies various security headers according to best-
+// practices.
+func ApplySecurityHeaders(next http.Handler) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		csp := "frame-ancestors 'none';"
+		w.Header().Set("Content-Security-Policy", csp)
+		w.Header().Set("X-Frame-Options", "DENY")
+		next.ServeHTTP(w, r)
+	}
+}
+
 // JSONError returns an error in JSON format with the given
 // status code and message
 func JSONError(w http.ResponseWriter, c int, m string) {

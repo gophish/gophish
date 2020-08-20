@@ -181,3 +181,19 @@ func TestPasswordResetRequired(t *testing.T) {
 		t.Fatalf("incorrect location header received. expected %s got %s", expectedLocation, gotLocation)
 	}
 }
+
+func TestApplySecurityHeaders(t *testing.T) {
+	expected := map[string]string{
+		"Content-Security-Policy": "frame-ancestors 'none';",
+		"X-Frame-Options":         "DENY",
+	}
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	response := httptest.NewRecorder()
+	ApplySecurityHeaders(successHandler).ServeHTTP(response, req)
+	for header, value := range expected {
+		got := response.Header().Get(header)
+		if got != value {
+			t.Fatalf("incorrect security header received for %s: expected %s got %s", header, value, got)
+		}
+	}
+}

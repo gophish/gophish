@@ -155,7 +155,7 @@ func (as *AdminServer) registerRoutes() {
 		csrf.FieldName("csrf_token"),
 		csrf.Secure(as.config.UseTLS))
 	adminHandler := csrfHandler(router)
-	adminHandler = mid.Use(adminHandler.ServeHTTP, mid.CSRFExceptions, mid.GetContext)
+	adminHandler = mid.Use(adminHandler.ServeHTTP, mid.CSRFExceptions, mid.GetContext, mid.ApplySecurityHeaders)
 
 	// Setup GZIP compression
 	gzipWrapper, _ := gziphandler.NewGzipLevelHandler(gzip.BestCompression)
