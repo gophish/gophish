@@ -52,8 +52,8 @@ github.com/jinzhu/inflection v1.0.0 h1:K317FqzuhWc8YvSVlFMCCUb36O/S9MCKRDI7QkRKD
 github.com/jinzhu/inflection v1.0.0/go.mod h1:h+uFLlag+Qp1Va5pdKtLDYj+kHp5pxUVkryuEj+Srlc=
 github.com/jinzhu/now v1.0.1 h1:HjfetcXq097iXP0uoPCdnM4Efp5/9MsM0/M+XOTeR3M=
 github.com/jinzhu/now v1.0.1/go.mod h1:d3SSVoowX0Lcu0IBviAWJpolVfI5UJVZZ7cO71lE/z8=
-github.com/jordan-wright/email v0.0.0-20200602115436-fd8a7622303e h1:OGunVjqY7y4U4laftpEHv+mvZBlr7UGimJXKEGQtg48=
-github.com/jordan-wright/email v0.0.0-20200602115436-fd8a7622303e/go.mod h1:Fy2gCFfZhay8jplf/Csj6cyH/oshQTkLQYZbKkcV+SY=
+github.com/jordan-wright/email v4.0.1-0.20200824153738-3f5bafa1cd84+incompatible h1:d60x4RsAHk/UX/0OT8Gc6D7scVvhBbEANpTAWrDhA/I=
+github.com/jordan-wright/email v4.0.1-0.20200824153738-3f5bafa1cd84+incompatible/go.mod h1:1c7szIrayyPPB/987hsnvNzLushdWf4o/79s3P08L8A=
 github.com/jordan-wright/unindexed v0.0.0-20181209214434-78fa79113c0f h1:bYVTBvVHcAYDkH8hyVMRUW7J2mYQNNSmQPXGadYd1nY=
 github.com/jordan-wright/unindexed v0.0.0-20181209214434-78fa79113c0f/go.mod h1:eRt05O5haIXGKGodWjpQ2xdgBHTE7hg/pzsukNi9IRA=
 github.com/konsorten/go-windows-terminal-sequences v1.0.1 h1:mweAR1A6xJ3oS2pRaGiHgQ4OO8tzTaLawm8vnODuwDk=
