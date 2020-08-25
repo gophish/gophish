@@ -51,6 +51,7 @@ const (
 	EventClicked       string = "Clicked Link"
 	EventDataSubmit    string = "Submitted Data"
 	EventReported      string = "Email Reported"
+	EventCustomEvent   string = "Custom Event"
 	EventProxyRequest  string = "Proxied request"
 	StatusSuccess      string = "Success"
 	StatusQueued       string = "Queued"
