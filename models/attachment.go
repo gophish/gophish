@@ -22,23 +22,26 @@ type Attachment struct {
 }
 
 // ValidateAttachment ensures that the provided attachment uses the supported template variables correctly.
-func (a Attachment) ValidateAttachment() error {
+func (a Attachment) Validate() error {
 
-	ptx := PhishingTemplateContext{
+	vc := ValidationContext{
+		FromAddress: "foo@bar.com",
+		BaseURL:     "http://example.com",
+	}
+	td := Result{
 		BaseRecipient: BaseRecipient{
+			Email:     "foo@bar.com",
 			FirstName: "Foo",
 			LastName:  "Bar",
-			Email:     "foo@bar.com",
+			Position:  "Test",
 		},
-		BaseURL:     "http://testurl.com",
-		URL:         "http://testurl.com/?rid=1234567",
-		TrackingURL: "http://testurl.local/track?rid=1234567",
-		Tracker:     "<img alt='' style='display: none' src='http://testurl.local/track?rid=1234567'/>",
-		From:        "Foobus Barbus",
-		RId:         "1234567",
+		RId: "123456",
 	}
-
-	_, err := a.ApplyTemplate(ptx)
+	ptx, err := NewPhishingTemplateContext(vc, td.BaseRecipient, td.RId)
+	if err != nil {
+		return err
+	}
+	_, err = a.ApplyTemplate(ptx)
 	return err
 }
 
