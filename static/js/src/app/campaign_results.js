@@ -1,8 +1,11 @@
 var map = null
 var doPoll = true;
+var customEventsPieCharts = true; // Include pie charts for custom events or not
+                               // Setting to true will add the custom events to statusMapping as wel as adding HTML chart elements.
 
 // statuses is a helper map to point result statuses to ui classes
 var statuses = {
+
     "Email Sent": {
         color: "#1abc9c",
         label: "label-success",
@@ -103,6 +106,7 @@ var statusMapping = {
     "Clicked Link": "clicked",
     "Submitted Data": "submitted_data",
     "Email Reported": "reported",
+    //"Opened Word Document" : "opened_word_document"
 }
 
 // This is an underwhelming attempt at an enum
@@ -344,6 +348,7 @@ var renderDevice = function (event_details) {
     var browserIcon = 'info-circle'
     var browserVersion = ''
 
+    
     if (ua.browser && ua.browser.name) {
         deviceBrowser = ua.browser.name
         // Handle the "mobile safari" case
@@ -365,6 +370,7 @@ var renderDevice = function (event_details) {
 }
 
 function renderTimeline(data) {
+
     record = {
         "id": data[0],
         "first_name": data[2],
@@ -383,50 +389,99 @@ function renderTimeline(data) {
     $.each(campaign.timeline, function (i, event) {
         if (!event.email || event.email == record.email) {
             // Add the event
-            results += '<div class="timeline-entry">' +
-                '    <div class="timeline-bar"></div>'
-            results +=
-                '    <div class="timeline-icon ' + statuses[event.message].label + '">' +
-                '    <i class="fa ' + statuses[event.message].icon + '"></i></div>' +
-                '    <div class="timeline-message">' + escapeHtml(event.message) +
-                '    <span class="timeline-date">' + moment.utc(event.time).local().format('MMMM Do YYYY h:mm:ss a') + '</span>'
-            if (event.details) {
-                details = JSON.parse(event.details)
-                if (event.message == "Clicked Link" || event.message == "Submitted Data") {
-                    deviceView = renderDevice(details)
-                    if (deviceView) {
-                        results += deviceView
+            
+            // Handle custom event as a special case
+            // We could collapse the first half into the regular code, but for now it feels neater to keep it separate and live with the code re-use (*waves @ jordan*)
+            if (event.message == "Custom Event"){
+
+                if (event.details) { // Should always be data, otherwise we can ignore the event
+                    details = JSON.parse(event.details)
+                    message = details.payload.title
+
+                    results += '<div class="timeline-entry">' +
+                    '    <div class="timeline-bar"></div>'
+                    results +=
+                        '    <div class="timeline-icon ' + statuses[message].label+ '">' +
+                        '    <i class="fa ' + statuses[message].icon + '"></i></div>' +
+                        '    <div class="timeline-message">' + escapeHtml(message) + // This is the case that makes code reuse tricky, as we want the title of the custom event from the payload. TODO Give some more thought. Perhaps we scrap 'Custom Event' and put the title in the message, and have some other indicator of the requirement to uniquely parse the contents of 'payload' e.g. payload['ae'] = 1 
+                        '    <span class="timeline-date">' + moment.utc(event.time).local().format('MMMM Do YYYY h:mm:ss a') + '</span>'
+
+                        // Check if user agent present && requested to display it
+                        if ("browser" in details && details.payload.ua == 1){
+                            deviceView = renderDevice(details)
+                            if (deviceView) {
+                                results += deviceView
+                            }
+                        }
+
+                        //Iterate over sub-items
+                        if ("sub_text" in details.payload) {
+                            results += '<div class="timeline-device-details">'
+                            details.payload.sub_text.forEach(function (text, index) {
+                                results += "<div>"
+                                // Check if there's an associated icon
+                                if ("sub_icon" in details.payload && details.payload.sub_icon.length >= index){
+                                    results = results + '<span class="' + details.payload.sub_icon[index] + '"></span> ' //+ text
+                                } 
+                                results += text
+                                results += "</div>"
+                            })
+                            results += '</div>'
+                        }
+                    results += '</div></div>'
+                } // End custom event processsing
+
+        
+            } else { // else, if regular event
+             
+
+                results += '<div class="timeline-entry">' +
+                    '    <div class="timeline-bar"></div>'
+                results +=
+                    '    <div class="timeline-icon ' + statuses[event.message].label + '">' +
+                    '    <i class="fa ' + statuses[event.message].icon + '"></i></div>' +
+                    '    <div class="timeline-message">' + escapeHtml(event.message) +
+                    '    <span class="timeline-date">' + moment.utc(event.time).local().format('MMMM Do YYYY h:mm:ss a') + '</span>'
+                if (event.details) {
+                    details = JSON.parse(event.details)
+
+                    if (event.message == "Clicked Link" || event.message == "Submitted Data" || event.message == "Email Opened") {
+                        deviceView = renderDevice(details)
+                        if (deviceView) {
+                            results += deviceView
+                        }
+                    }
+                    if (event.message == "Submitted Data") {
+                        results += '<div class="timeline-replay-button"><button onclick="replay(' + i + ')" class="btn btn-success">'
+                        results += '<i class="fa fa-refresh"></i> Replay Credentials</button></div>'
+                        results += '<div class="timeline-event-details"><i class="fa fa-caret-right"></i> View Details</div>'
+                    }
+                    if (details.payload) {
+                        results += '<div class="timeline-event-results">'
+                        results += '    <table class="table table-condensed table-bordered table-striped">'
+                        results += '        <thead><tr><th>Parameter</th><th>Value(s)</tr></thead><tbody>'
+                        $.each(Object.keys(details.payload), function (i, param) {
+                            if (param == "rid") {
+                                return true;
+                            }
+                            results += '    <tr>'
+                            results += '        <td>' + escapeHtml(param) + '</td>'
+                            results += '        <td>' + escapeHtml(details.payload[param]) + '</td>'
+                            results += '    </tr>'
+                        })
+                        results += '       </tbody></table>'
+                        results += '</div>'
+                    }
+                    if (details.error) {
+                        results += '<div class="timeline-event-details"><i class="fa fa-caret-right"></i> View Details</div>'
+                        results += '<div class="timeline-event-results">'
+                        results += '<span class="label label-default">Error</span> ' + details.error
+                        results += '</div>'
                     }
                 }
-                if (event.message == "Submitted Data") {
-                    results += '<div class="timeline-replay-button"><button onclick="replay(' + i + ')" class="btn btn-success">'
-                    results += '<i class="fa fa-refresh"></i> Replay Credentials</button></div>'
-                    results += '<div class="timeline-event-details"><i class="fa fa-caret-right"></i> View Details</div>'
-                }
-                if (details.payload) {
-                    results += '<div class="timeline-event-results">'
-                    results += '    <table class="table table-condensed table-bordered table-striped">'
-                    results += '        <thead><tr><th>Parameter</th><th>Value(s)</tr></thead><tbody>'
-                    $.each(Object.keys(details.payload), function (i, param) {
-                        if (param == "rid") {
-                            return true;
-                        }
-                        results += '    <tr>'
-                        results += '        <td>' + escapeHtml(param) + '</td>'
-                        results += '        <td>' + escapeHtml(details.payload[param]) + '</td>'
-                        results += '    </tr>'
-                    })
-                    results += '       </tbody></table>'
-                    results += '</div>'
-                }
-                if (details.error) {
-                    results += '<div class="timeline-event-details"><i class="fa fa-caret-right"></i> View Details</div>'
-                    results += '<div class="timeline-event-results">'
-                    results += '<span class="label label-default">Error</span> ' + details.error
-                    results += '</div>'
-                }
+                results += '</div></div>'
             }
-            results += '</div></div>'
+            
         }
     })
     // Add the scheduled send event at the bottom
@@ -612,7 +667,13 @@ var updateMap = function (results) {
  * @param {moment(datetime)} send_date 
  */
 function createStatusLabel(status, send_date) {
-    var label = statuses[status].label || "label-default";
+
+    if (status in statuses){
+        var label = statuses[status].label || "label-default";
+    } else {
+        var label = "label-default"
+    }
+
     var statusColumn = "<span class=\"label " + label + "\">" + status + "</span>"
     // Add the tooltip if the email is scheduled to be sent
     if (status == "Scheduled" || status == "Retrying") {
@@ -634,17 +695,31 @@ function poll() {
     api.campaignId.results(campaign.id)
         .success(function (c) {
             campaign = c
+
+            updateCustomEventData(campaign, false) // Update data structures with new custom event specifications 
+
             /* Update the timeline */
             var timeline_series_data = []
             $.each(campaign.timeline, function (i, event) {
+
+                // Handle custom event
+                if (event.message == "Custom Event") {
+                    details = JSON.parse(event.details)
+                    message = details.payload.title
+
+                } else {
+                    message = event.message
+                    //color = statuses[event.message].color
+                }
+
                 var event_date = moment.utc(event.time).local()
                 timeline_series_data.push({
                     email: event.email,
-                    message: event.message,
+                    message: message, //event.message,
                     x: event_date.valueOf(),
                     y: 1,
                     marker: {
-                        fillColor: statuses[event.message].color
+                        fillColor: statuses[message].color //statuses[event.message].color
                     }
                 })
             })
@@ -653,13 +728,20 @@ function poll() {
                 data: timeline_series_data
             })
             /* Update the results donut chart */
-            var email_series_data = {}
+            //var email_series_data = {}
             // Load the initial data
-            Object.keys(statusMapping).forEach(function (k) {
-                email_series_data[k] = 0
-            });
+            //Object.keys(statusMapping).forEach(function (k) {
+            //    email_series_data[k] = 0
+            //});
+            
+            /*
             $.each(campaign.results, function (i, result) {
-                email_series_data[result.status]++;
+
+                // Don't count custom events, we do this independently to avoid backfill logic.
+                if (progressListing.includes(result.status)) {
+                    email_series_data[result.status]++;
+                }
+
                 if (result.reported) {
                     email_series_data['Email Reported']++
                 }
@@ -668,7 +750,12 @@ function poll() {
                 for (var i = 0; i < step; i++) {
                     email_series_data[progressListing[i]]++
                 }
-            })
+            })*/
+
+            // New function for counting events. Doesn't handle backfill, yet.
+            email_series_data = countCampaignEvents(campaign)
+ 
+
             $.each(email_series_data, function (status, count) {
                 var email_data = []
                 if (!(status in statusMapping)) {
@@ -700,6 +787,7 @@ function poll() {
                         rowData[8] = moment(result.send_date).format('MMMM Do YYYY, h:mm:ss a')
                         rowData[7] = result.reported
                         rowData[6] = result.status
+
                         resultsTable.row(i).data(rowData)
                         if (row.child.isShown()) {
                             $(row.node()).find("#caret").removeClass("fa-caret-right")
@@ -720,12 +808,16 @@ function poll() {
 }
 
 function load() {
+
     campaign.id = window.location.pathname.split('/').slice(-1)[0]
     var use_map = JSON.parse(localStorage.getItem('gophish.use_map'))
     api.campaignId.results(campaign.id)
         .success(function (c) {
             campaign = c
             if (campaign) {
+
+                updateCustomEventData(campaign, true) // Update data structures with new custom event specifications
+
                 $("title").text(c.name + " - Gophish")
                 $("#loading").hide()
                 $("#campaignResults").show()
@@ -788,12 +880,14 @@ function load() {
                     ]
                 });
                 resultsTable.clear();
-                var email_series_data = {}
+                //var email_series_data = {}
                 var timeline_series_data = []
-                Object.keys(statusMapping).forEach(function (k) {
-                    email_series_data[k] = 0
-                });
+                //Object.keys(statusMapping).forEach(function (k) {
+                //    email_series_data[k] = 0
+                //});
+                
                 $.each(campaign.results, function (i, result) {
+
                     resultsTable.row.add([
                         result.id,
                         "<i id=\"caret\" class=\"fa fa-caret-right\"></i>",
@@ -805,16 +899,34 @@ function load() {
                         result.reported,
                         moment(result.send_date).format('MMMM Do YYYY, h:mm:ss a')
                     ])
-                    email_series_data[result.status]++;
+                    
+
+                    /*
+                    // Don't count custom events, we do this independently to avoid backfill logic.
+                    if (progressListing.includes(result.status)) {
+                        email_series_data[result.status]++;
+                    }
+
                     if (result.reported) {
                         email_series_data['Email Reported']++
                     }
+
+                    //TODO: At some point need to figure out backfilling with custom events
+                    // Possibly just backfill Email sent and Email Opened before getting into more complex
+                    // data structures
+
                     // Backfill status values
                     var step = progressListing.indexOf(result.status)
                     for (var i = 0; i < step; i++) {
                         email_series_data[progressListing[i]]++
                     }
+                    */
+                    
                 })
+
+                // New function for counting events. Doesn't handle backfill, yet.
+                email_series_data = countCampaignEvents(campaign)
+  
                 resultsTable.draw();
                 // Setup tooltips
                 $('[data-toggle="tooltip"]').tooltip()
@@ -842,15 +954,25 @@ function load() {
                         return true
                     }
                     var event_date = moment.utc(event.time).local()
+
+                    // Handle custom event
+                    if (event.message == "Custom Event") {
+                            details = JSON.parse(event.details)
+                            message = details.payload.title
+                    } else {
+                        message = event.message
+                    }
+
                     timeline_series_data.push({
                         email: event.email,
-                        message: event.message,
+                        message: message, //event.message,
                         x: event_date.valueOf(),
                         y: 1,
                         marker: {
-                            fillColor: statuses[event.message].color
+                            fillColor: statuses[message].color //statuses[event.message].color
                         }
                     })
+                    
                 })
                 renderTimelineChart({
                     data: timeline_series_data
@@ -869,6 +991,7 @@ function load() {
                         name: '',
                         y: 100 - Math.floor((count / campaign.results.length) * 100)
                     })
+
                     var chart = renderPieChart({
                         elemId: statusMapping[status] + '_chart',
                         title: status,
@@ -876,6 +999,7 @@ function load() {
                         data: email_data,
                         colors: [statuses[status].color, '#dddddd']
                     })
+
                 })
 
                 if (use_map) {
@@ -946,6 +1070,141 @@ function report_mail(rid, cid) {
             }));
         }
     })
+}
+
+
+/* updateCustomData will go through the supplied campaign and add custom event data to three data structure:
+    statuses
+    statusMapping 
+    progressListing // Todo, needs more consideration on backfill
+
+    The createPies boolean is used to allow us to create the pies on load() but not re-create them from calling poll(), as the
+     highchart info gets overwritten. The problem with this is that if a new custom event comes in while the page is loaded
+     the poll() won't add the pie. Need to investigate this. TODO
+
+*/
+function updateCustomEventData(campaign, createPies){
+
+
+    var customEventNames = [] // Hold unique custom event names. Used to create HTML pie charts if customEventPieCharts set to true
+    
+    campaign.timeline.forEach(function(event) { // Step over each event
+
+        
+        if (event.message == "Custom Event") {
+
+            details = JSON.parse(event.details) // TODO Validate this exists
+
+            // 1. Add title, color, icon, and label properties to statuses dict
+            title = "Custom Event"
+            if ("title" in details.payload){
+                title = String(details.payload.title)
+
+            }
+            statuses[title] = {"custom event" : 1} // Set true to be custom event, just so we can discern if we need to
+
+            statuses[title]["color"] = "#00FFFF" // Default
+            if ("color" in details.payload ){
+                color = String(details.payload.color)
+                if  (!(/^#[0-9A-F]{6}$/i.test(color))) {
+                    color = "#00FFFF" // Default to Cyan if the color is invalid
+                }
+                statuses[title]["color"] = color
+            }
+
+            statuses[title]["icon"] = "fa fa-info" // Default
+            if ("icon" in details.payload ){
+                icon = String(details.payload.icon)
+                statuses[title]["icon"] = icon
+            }
+
+            statuses[title]["label"] = "label-info" // Default
+            if ("label" in details.payload ){
+                label = String(details.payload.label)
+                statuses[title]["label"] = label
+            }
+
+            if (!customEventNames.includes(title)){
+                customEventNames.push(title)
+            }
+
+            /* How to handle progressListing needs more thought, and probably  */
+            // Add the title to the progressListing array (if it's not already in there)
+            //if (!progressListing.includes(title)) {
+            //    progressListing.push(title)
+            //}
+
+            
+        }
+    })
+
+    // 2.0 If customEventsPieChart is enabled we add to statusMapping and add HTML charts for the event
+    if (customEventsPieCharts == true && createPies == true) {
+
+        //2.1 Create HTML elements
+
+        // Split the array into multiple arrays, each of size 5. This let's us create pie chart rows of five
+        customEventNames.sort()
+        chunkedArbEvents = Array.from({ length: Math.ceil(customEventNames.length / 5) }, (v, i) => customEventNames.slice(i * 5, i * 5 + 5) );
+        
+        $("#custompie").html('') // i. Clear the div class
+        html = ''
+        chunkedArbEvents.forEach(function(chunk){
+
+            rowhtml = '<div class="row">\n\t<div style="height:200px;" class="col-lg-1 col-md-1"></div>\n'
+            chunk.forEach(function(title){
+                sanitizedEventName = title.toLowerCase().replace(/ /g, "_") // Convert Opened Word Document to opened_word_document.
+                sanitizedEventName = escapeHtml(sanitizedEventName) // Should maybe do more tests on this. Or even use a short random string rather than the name. e.g {"Opened Word Document" : "7a2f87"}
+                //i. Add the HTML element
+                rowhtml += '\t<div id="' + sanitizedEventName + '_chart" style="height:200px;" class="col-lg-2 col-md-2"></div>\n'
+
+                //ii. Add to statusMapping
+                statusMapping[title] = sanitizedEventName
+
+
+            })
+            rowhtml += '\t<div style="height:200px;" class="col-lg-1 col-md-1"></div>\n</div>\n'
+
+            html += rowhtml
+
+        })
+        $("#custompie").html(html)
+
+    }
+
+}
+
+
+// countCampaignEvents will return a dict of title:count of custom and regular events from a campaign
+// Todo: Need to implement backfill logic
+function countCampaignEvents(campaign) {
+
+    // Add all the default events to a counter dict
+    eventsCounter = {}
+    Object.keys(statusMapping).forEach(function (k) {
+        eventsCounter[k] = 0
+    });
+    
+    
+    campaign.timeline.forEach(function(event){
+        if (event.message == "Custom Event"){
+            details = JSON.parse(event.details)
+            title = details.payload.title[0]
+        } else {
+            title = event.message
+            // Backfill logic for non custom events. Todo
+            
+        }
+        if (title in eventsCounter) {
+            eventsCounter[title] += 1
+        } else {
+            eventsCounter[title] = 1
+        }
+
+        // Backfill logic here for custom? 
+
+    })
+    return eventsCounter
 }
 
 $(document).ready(function () {
