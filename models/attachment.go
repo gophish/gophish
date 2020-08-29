@@ -48,15 +48,11 @@ func (a Attachment) Validate() error {
 // ApplyTemplate parses different attachment files and applies the supplied phishing template.
 func (a *Attachment) ApplyTemplate(ptx PhishingTemplateContext) (io.Reader, error) {
 
-	var processedAttachment string
-	decodedAttachment, err := base64.StdEncoding.DecodeString(a.Content) // Decode the attachment
-	if err != nil {
-		return nil, err
-	}
+	decodedAttachment := base64.NewDecoder(base64.StdEncoding, strings.NewReader(a.Content))
 
 	// If we've already determined there are no template variables in this attachment return it immediately
 	if a.vanillaFile == true {
-		return strings.NewReader(string(decodedAttachment)), nil
+		return decodedAttachment, nil
 	} else {
 
 		// Decided to use the file extension rather than the content type, as there seems to be quite
@@ -70,8 +66,12 @@ func (a *Attachment) ApplyTemplate(ptx PhishingTemplateContext) (io.Reader, erro
 			// Most modern office formats are xml based and can be unarchived.
 			// .docm and .xlsm files are comprised of xml, and a binary blob for the macro code
 
-			// Create a new zip reader from the file
-			zipReader, err := zip.NewReader(bytes.NewReader(decodedAttachment), int64(len(decodedAttachment)))
+			// Zip archives require random access for reading, so it's hard to stream bytes. Solution seems to be to use a buffer.
+			// See https://stackoverflow.com/questions/16946978/how-to-unzip-io-readcloser
+			b := new(bytes.Buffer)
+			b.ReadFrom(decodedAttachment)
+			buf := b.Bytes()
+			zipReader, err := zip.NewReader(bytes.NewReader(buf), int64(len(buf))) // Create a new zip reader from the file
 			if err != nil {
 				return nil, err
 			}
@@ -105,7 +105,6 @@ func (a *Attachment) ApplyTemplate(ptx PhishingTemplateContext) (io.Reader, erro
 					if tFile != string(contents) {
 						fileContainedTemplatesVars = true
 					}
-
 				} else {
 					tFile = string(contents) // Could move this to the declaration of tFile, but might be confusing to read
 				}
@@ -120,33 +119,33 @@ func (a *Attachment) ApplyTemplate(ptx PhishingTemplateContext) (io.Reader, erro
 					zipWriter.Close()
 					return nil, err
 				}
-
 			}
-
 			// If no files in the archive had template variables, we set the 'parent' file to not be checked in the future
 			if fileContainedTemplatesVars == false {
 				a.vanillaFile = true
 			}
-
 			zipWriter.Close()
-			processedAttachment = newZipArchive.String()
+			return bytes.NewReader(newZipArchive.Bytes()), err
+			//processedAttachment = newZipArchive.String()
 
 		case ".txt", ".html":
-			processedAttachment, err = ExecuteTemplate(string(decodedAttachment), ptx)
+			// Feels like a lot of Reader --> String --> Reader going on here
+			buf := new(strings.Builder)
+			_, err := io.Copy(buf, decodedAttachment)
 			if err != nil {
 				return nil, err
 			}
-			if processedAttachment == string(decodedAttachment) {
+			processedAttachment, err := ExecuteTemplate(buf.String(), ptx)
+			if err != nil {
+				return nil, err
+			}
+			if processedAttachment == string(buf.String()) {
 				a.vanillaFile = true
 			}
+			return strings.NewReader(processedAttachment), nil
 		default:
-			// We have two options here; either apply template to all files, or none. Probably safer to err on the side of none.
-			processedAttachment = string(decodedAttachment) // Option one: Do nothing
-			//processedAttachment, err = ExecuteTemplate(string(decodedAttachment), ptx) // Option two: Template all files
+			return decodedAttachment, nil // Default is to simply return the file
 		}
 	}
-
-	decoder := strings.NewReader(processedAttachment)
-	return decoder, nil
 
 }

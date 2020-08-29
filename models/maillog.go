@@ -25,10 +25,6 @@ var MaxSendAttempts = 8
 // MailLog is exceeded.
 var ErrMaxSendAttempts = errors.New("max send attempts exceeded")
 
-// processAttachment is used to to keep track of which email attachments have templated values.
-// This allows us to skip re-templating attach
-var processAttachment = map[[20]byte]bool{} // Considered using attachmentLookup[campaignid][filehash] but given the low number of files current approach should be fine
-
 // MailLog is a struct that holds information about an email that is to be
 // sent out.
 type MailLog struct {
