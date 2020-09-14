@@ -382,6 +382,10 @@ func (as *AdminServer) Login(w http.ResponseWriter, r *http.Request) {
 			as.handleInvalidLogin(w, r)
 			return
 		}
+		err = models.UpdateLastLogin(username)
+		if err != nil {
+			log.Error(err)
+		}
 		// If we've logged in, save the session and redirect to the dashboard
 		session.Values["id"] = u.Id
 		session.Save(r, w)

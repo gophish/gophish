@@ -185,9 +185,14 @@ const load = () => {
             userTable.clear();
             userRows = []
             $.each(users, (i, user) => {
+                lastlogin = "Never"
+                if (user.last_login != "0001-01-01T00:00:00Z") {
+                    lastlogin = moment(user.last_login).format('MMMM Do YYYY, h:mm:ss a')
+                }
                 userRows.push([
                     escapeHtml(user.username),
                     escapeHtml(user.role.name),
+                    lastlogin,
                     "<div class='pull-right'>\
                     <button class='btn btn-warning impersonate_button' data-user-id='" + user.id + "'>\
                     <i class='fa fa-retweet'></i>\

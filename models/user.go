@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"time"
 
 	log "github.com/gophish/gophish/logger"
 )
@@ -13,13 +14,14 @@ var ErrModifyingOnlyAdmin = errors.New("Cannot remove the only administrator")
 
 // User represents the user model for gophish.
 type User struct {
-	Id                     int64  `json:"id"`
-	Username               string `json:"username" sql:"not null;unique"`
-	Hash                   string `json:"-"`
-	ApiKey                 string `json:"api_key" sql:"not null;unique"`
-	Role                   Role   `json:"role" gorm:"association_autoupdate:false;association_autocreate:false"`
-	RoleID                 int64  `json:"-"`
-	PasswordChangeRequired bool   `json:"password_change_required"`
+	Id                     int64     `json:"id"`
+	Username               string    `json:"username" sql:"not null;unique"`
+	Hash                   string    `json:"-"`
+	ApiKey                 string    `json:"api_key" sql:"not null;unique"`
+	Role                   Role      `json:"role" gorm:"association_autoupdate:false;association_autocreate:false"`
+	RoleID                 int64     `json:"-"`
+	PasswordChangeRequired bool      `json:"password_change_required"`
+	LastLogin              time.Time `json:"last_login"`
 }
 
 // GetUser returns the user that the given id corresponds to. If no user is found, an
@@ -51,6 +53,18 @@ func GetUserByUsername(username string) (User, error) {
 	u := User{}
 	err := db.Preload("Role").Where("username = ?", username).First(&u).Error
 	return u, err
+}
+
+// UpdateLastLogin updates the timestamp for the last successful login for a user
+func UpdateLastLogin(username string) error {
+	u := User{}
+	err := db.Where("username=?", username).First(&u).Error
+	if err != nil {
+		return err
+	}
+	u.LastLogin = time.Now().UTC()
+	err = db.Save(u).Error
+	return err
 }
 
 // PutUser updates the given user
