@@ -933,9 +933,9 @@ function report_mail(rid, cid) {
     }).then(function (result) {
         if (result.value){
             api.campaignId.get(cid).success((function(c) {
-                report_url = c.url;
-                report_url += report_url.endsWith("/") ? "" : "/";
-                report_url += "report?rid=" + rid;
+                report_url = new URL(c.url)
+                report_url.pathname = '/report'
+                report_url.search = "?rid=" + rid
                 $.ajax({
                     url: report_url,
                     method: "GET",
