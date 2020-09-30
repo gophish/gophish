@@ -55,18 +55,6 @@ func GetUserByUsername(username string) (User, error) {
 	return u, err
 }
 
-// UpdateLastLogin updates the timestamp for the last successful login for a user
-func UpdateLastLogin(username string) error {
-	u := User{}
-	err := db.Where("username=?", username).First(&u).Error
-	if err != nil {
-		return err
-	}
-	u.LastLogin = time.Now().UTC()
-	err = db.Save(u).Error
-	return err
-}
-
 // PutUser updates the given user
 func PutUser(u *User) error {
 	err := db.Save(u).Error

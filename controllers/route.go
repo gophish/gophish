@@ -382,7 +382,8 @@ func (as *AdminServer) Login(w http.ResponseWriter, r *http.Request) {
 			as.handleInvalidLogin(w, r)
 			return
 		}
-		err = models.UpdateLastLogin(username)
+		u.LastLogin = time.Now().UTC()
+		err = models.PutUser(&u)
 		if err != nil {
 			log.Error(err)
 		}
