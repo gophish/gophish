@@ -121,6 +121,10 @@ func (ps *PhishingServer) registerRoutes() {
 	gzipWrapper, _ := gziphandler.NewGzipLevelHandler(gzip.BestCompression)
 	phishHandler := gzipWrapper(router)
 
+	// Respect X-Forwarded-For and X-Real-IP headers in case we're behind a
+	// reverse proxy.
+	phishHandler = handlers.ProxyHeaders(phishHandler)
+
 	// Setup logging
 	phishHandler = handlers.CombinedLoggingHandler(log.Writer(), phishHandler)
 	ps.server.Handler = phishHandler

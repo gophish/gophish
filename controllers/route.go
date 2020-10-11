@@ -161,6 +161,10 @@ func (as *AdminServer) registerRoutes() {
 	gzipWrapper, _ := gziphandler.NewGzipLevelHandler(gzip.BestCompression)
 	adminHandler = gzipWrapper(adminHandler)
 
+	// Respect X-Forwarded-For and X-Real-IP headers in case we're behind a
+	// reverse proxy.
+	adminHandler = handlers.ProxyHeaders(adminHandler)
+
 	// Setup logging
 	adminHandler = handlers.CombinedLoggingHandler(log.Writer(), adminHandler)
 	as.server.Handler = adminHandler
