@@ -360,12 +360,7 @@ func setupContext(r *http.Request) (*http.Request, error) {
 	}
 	ip, _, err := net.SplitHostPort(r.RemoteAddr)
 	if err != nil {
-		log.Error(err)
-		return r, err
-	}
-	// Respect X-Forwarded headers
-	if fips := r.Header.Get("X-Forwarded-For"); fips != "" {
-		ip = strings.Split(fips, ", ")[0]
+		ip = r.RemoteAddr
 	}
 	// Handle post processing such as GeoIP
 	err = rs.UpdateGeo(ip)
