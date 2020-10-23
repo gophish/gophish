@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/mail"
+	"strings"
 	"time"
 
 	log "github.com/gophish/gophish/logger"
@@ -46,7 +47,7 @@ type GroupTarget struct {
 // Target contains the fields needed for individual targets specified by the user
 // Groups contain 1..* Targets, but 1 Target may belong to 1..* Groups
 type Target struct {
-	Id int64 `json:"-"`
+	Id int64 `json:"id"`
 	BaseRecipient
 }
 
@@ -57,6 +58,15 @@ type BaseRecipient struct {
 	FirstName string `json:"first_name"`
 	LastName  string `json:"last_name"`
 	Position  string `json:"position"`
+}
+
+// DataTable is used to return a JSON object suitable for consumption by DataTables
+// when using pagination
+type DataTable struct {
+	Draw            int64         `json:"draw"`
+	RecordsTotal    int64         `json:"recordsTotal"`
+	RecordsFiltered int64         `json:"recordsFiltered"`
+	Data            []interface{} `json:"data"`
 }
 
 // FormatAddress returns the email address to use in the "To" header of the email
@@ -114,7 +124,7 @@ func GetGroups(uid int64) ([]Group, error) {
 		return gs, err
 	}
 	for i := range gs {
-		gs[i].Targets, err = GetTargets(gs[i].Id)
+		gs[i].Targets, err = GetTargets(gs[i].Id, -1, -1, "", "")
 		if err != nil {
 			log.Error(err)
 		}
@@ -144,14 +154,15 @@ func GetGroupSummaries(uid int64) (GroupSummaries, error) {
 }
 
 // GetGroup returns the group, if it exists, specified by the given id and user_id.
-func GetGroup(id int64, uid int64) (Group, error) {
+// Filter on number of results and starting point with 'start' and 'length' for pagination.
+func GetGroup(id int64, uid int64, start int64, length int64, search string, order string) (Group, error) {
 	g := Group{}
 	err := db.Where("user_id=? and id=?", uid, id).Find(&g).Error
 	if err != nil {
 		log.Error(err)
 		return g, err
 	}
-	g.Targets, err = GetTargets(g.Id)
+	g.Targets, err = GetTargets(g.Id, start, length, search, order)
 	if err != nil {
 		log.Error(err)
 	}
@@ -183,7 +194,7 @@ func GetGroupByName(n string, uid int64) (Group, error) {
 		log.Error(err)
 		return g, err
 	}
-	g.Targets, err = GetTargets(g.Id)
+	g.Targets, err = GetTargets(g.Id, -1, -1, "", "")
 	if err != nil {
 		log.Error(err)
 	}
@@ -226,7 +237,7 @@ func PutGroup(g *Group) error {
 		return err
 	}
 	// Fetch group's existing targets from database.
-	ts, err := GetTargets(g.Id)
+	ts, err := GetTargets(g.Id, -1, -1, "", "")
 	if err != nil {
 		log.WithFields(logrus.Fields{
 			"group_id": g.Id,
@@ -312,6 +323,63 @@ func DeleteGroup(g *Group) error {
 	return err
 }
 
+// DeleteTarget deletes a single target from a group given by target ID
+func DeleteTarget(t *Target, gid int64, uid int64) error {
+
+	targetOwner, err := GetTargetOwner(t.Id)
+	if err != nil {
+		return err
+	}
+	if targetOwner != uid {
+		return errors.New("No such target id (wrong owner)")
+	}
+
+	err = db.Delete(t).Error
+	if err != nil {
+		return err
+	}
+	err = db.Where("target_id=?", t.Id).Delete(&GroupTarget{}).Error
+	if err != nil {
+		return err
+	}
+	// Update group modification date
+	err = db.Debug().Model(&Group{}).Where("id=?", gid).Update("ModifiedDate", time.Now().UTC()).Error
+	return err
+}
+
+// UpdateGroup updates a given group (without updating the targets)
+// Note: I thought about putting this in the Group() function, but we'd have to skip the validation and have a boolean
+//    	 indicating we just want to rename the group.
+func UpdateGroup(g *Group) error {
+	if g.Name == "" {
+		return ErrGroupNameNotSpecified
+	}
+	err := db.Save(g).Error
+	return err
+}
+
+// AddTargetToGroup adds a single given target to a group by group ID
+func AddTargetToGroup(nt Target, gid int64) error {
+	// Check if target already exists in group
+	tmpt, err := GetTargetByEmail(gid, nt.Email)
+	if err != nil {
+		return err
+	}
+
+	// If target exists in group, update it.
+	if len(tmpt) > 0 {
+		nt.Id = tmpt[0].Id
+		err = UpdateTarget(db, nt)
+	} else {
+		err = insertTargetIntoGroup(db, nt, gid)
+	}
+	if err != nil {
+		return err
+	}
+	err = db.Model(&Group{}).Where("id=?", gid).Update("ModifiedDate", time.Now().UTC()).Error
+	return err
+}
+
 func insertTargetIntoGroup(tx *gorm.DB, t Target, gid int64) error {
 	if _, err := mail.ParseAddress(t.Email); err != nil {
 		log.WithFields(logrus.Fields{
@@ -357,8 +425,40 @@ func UpdateTarget(tx *gorm.DB, target Target) error {
 }
 
 // GetTargets performs a many-to-many select to get all the Targets for a Group
-func GetTargets(gid int64) ([]Target, error) {
+// Start, length, and search can be supplied, or -1, -1, "" to ignore
+func GetTargets(gid int64, start int64, length int64, search string, order string) ([]Target, error) {
+
 	ts := []Target{}
-	err := db.Table("targets").Select("targets.id, targets.email, targets.first_name, targets.last_name, targets.position").Joins("left join group_targets gt ON targets.id = gt.target_id").Where("gt.group_id=?", gid).Scan(&ts).Error
+	var err error
+
+	order = strings.TrimSpace(order)
+	search = strings.TrimSpace(search)
+	if order == "" {
+		order = "targets.first_name asc"
+	} else {
+		order = "targets." + order
+	}
+
+	// TODO: Rather than having two queries create a partial query and include the search options. Haven't been able to figure out how yet.
+	if search != "" {
+		search = "%" + search + "%"
+		err = db.Order(order).Table("targets").Select("targets.id, targets.email, targets.first_name, targets.last_name, targets.position").Joins("left join group_targets gt ON targets.id = gt.target_id").Where("gt.group_id=?", gid).Where("targets.first_name LIKE ? OR targets.last_name LIKE ? OR targets.email LIKE ? or targets.position LIKE ?", search, search, search, search, search).Offset(start).Limit(length).Scan(&ts).Error
+	} else {
+		err = db.Order(order).Table("targets").Select("targets.id, targets.email, targets.first_name, targets.last_name, targets.position").Joins("left join group_targets gt ON targets.id = gt.target_id").Where("gt.group_id=?", gid).Offset(start).Limit(length).Scan(&ts).Error
+	}
 	return ts, err
+}
+
+// GetTargetByEmail gets a single target from a group by email address and group id
+func GetTargetByEmail(gid int64, email string) ([]Target, error) {
+	ts := []Target{}
+	err := db.Table("targets").Select("targets.id, targets.email, targets.first_name, targets.last_name, targets.position").Joins("left join group_targets gt ON targets.id = gt.target_id").Where("gt.group_id=?", gid).Where("targets.email=?", email).First(&ts).Error
+	return ts, err
+}
+
+// GetTargetOwner returns the user id owner of a given target id
+func GetTargetOwner(tid int64) (int64, error) {
+	g := Group{}
+	err := db.Table("groups").Select("groups.user_id").Joins("left join group_targets on group_targets.group_id = groups.id").Where("group_targets.target_id = ?", tid).Scan(&g).Error
+	return g.UserId, err
 }
