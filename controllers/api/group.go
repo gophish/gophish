@@ -132,7 +132,7 @@ func (as *Server) Group(w http.ResponseWriter, r *http.Request) {
 		} else {
 			// Handle pagination for DataTable
 			gs, _ := models.GetGroupSummary(id, ctx.Get(r, "user_id").(int64)) // We need to get the total number of records of the group
-			dT := models.DataTable{Draw: draw, RecordsTotal: gs.NumTargets, RecordsFiltered: gs.NumTargets}
+			dT := models.DataTable{Draw: draw, RecordsTotal: gs.NumTargets, RecordsFiltered: int64(len(g.Targets))}
 			dT.Data = make([]interface{}, len(g.Targets)) // Pseudocode of 'dT.Data = g.Targets'. https://golang.org/doc/faq#convert_slice_of_interface
 			for i, v := range g.Targets {
 				dT.Data[i] = v
