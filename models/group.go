@@ -343,7 +343,7 @@ func DeleteTarget(t *Target, gid int64, uid int64) error {
 		return err
 	}
 	// Update group modification date
-	err = db.Debug().Model(&Group{}).Where("id=?", gid).Update("ModifiedDate", time.Now().UTC()).Error
+	err = db.Model(&Group{}).Where("id=?", gid).Update("ModifiedDate", time.Now().UTC()).Error
 	return err
 }
 
@@ -442,10 +442,12 @@ func GetTargets(gid int64, start int64, length int64, search string, order strin
 	// TODO: Rather than having two queries create a partial query and include the search options. Haven't been able to figure out how yet.
 	if search != "" {
 		search = "%" + search + "%"
-		err = db.Order(order).Table("targets").Select("targets.id, targets.email, targets.first_name, targets.last_name, targets.position").Joins("left join group_targets gt ON targets.id = gt.target_id").Where("gt.group_id=?", gid).Where("targets.first_name LIKE ? OR targets.last_name LIKE ? OR targets.email LIKE ? or targets.position LIKE ?", search, search, search, search, search).Offset(start).Limit(length).Scan(&ts).Error
+		err = db.Order(order).Table("targets").Select("targets.id, targets.email, targets.first_name, targets.last_name, targets.position").Joins("left join group_targets gt ON targets.id = gt.target_id").Where("gt.group_id=?", gid).Where("targets.first_name LIKE ? OR targets.last_name LIKE ? OR targets.email LIKE ? or targets.position LIKE ?", search, search, search, search).Offset(start).Limit(length).Scan(&ts).Error
+
 	} else {
 		err = db.Order(order).Table("targets").Select("targets.id, targets.email, targets.first_name, targets.last_name, targets.position").Joins("left join group_targets gt ON targets.id = gt.target_id").Where("gt.group_id=?", gid).Offset(start).Limit(length).Scan(&ts).Error
 	}
+
 	return ts, err
 }
 
