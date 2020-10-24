@@ -124,7 +124,7 @@ func GetGroups(uid int64) ([]Group, error) {
 		return gs, err
 	}
 	for i := range gs {
-		gs[i].Targets, err = GetTargets(gs[i].Id, -1, -1, "", "")
+		gs[i].Targets, err = GetTargets(gs[i].Id)
 		if err != nil {
 			log.Error(err)
 		}
@@ -154,15 +154,14 @@ func GetGroupSummaries(uid int64) (GroupSummaries, error) {
 }
 
 // GetGroup returns the group, if it exists, specified by the given id and user_id.
-// Filter on number of results and starting point with 'start' and 'length' for pagination.
-func GetGroup(id int64, uid int64, start int64, length int64, search string, order string) (Group, error) {
+func GetGroup(id int64, uid int64) (Group, error) {
 	g := Group{}
 	err := db.Where("user_id=? and id=?", uid, id).Find(&g).Error
 	if err != nil {
 		log.Error(err)
 		return g, err
 	}
-	g.Targets, err = GetTargets(g.Id, start, length, search, order)
+	g.Targets, err = GetTargets(g.Id)
 	if err != nil {
 		log.Error(err)
 	}
@@ -194,7 +193,7 @@ func GetGroupByName(n string, uid int64) (Group, error) {
 		log.Error(err)
 		return g, err
 	}
-	g.Targets, err = GetTargets(g.Id, -1, -1, "", "")
+	g.Targets, err = GetTargets(g.Id)
 	if err != nil {
 		log.Error(err)
 	}
@@ -237,7 +236,7 @@ func PutGroup(g *Group) error {
 		return err
 	}
 	// Fetch group's existing targets from database.
-	ts, err := GetTargets(g.Id, -1, -1, "", "")
+	ts, err := GetTargets(g.Id)
 	if err != nil {
 		log.WithFields(logrus.Fields{
 			"group_id": g.Id,
@@ -425,12 +424,18 @@ func UpdateTarget(tx *gorm.DB, target Target) error {
 }
 
 // GetTargets performs a many-to-many select to get all the Targets for a Group
-// Start, length, and search can be supplied, or -1, -1, "" to ignore
-func GetTargets(gid int64, start int64, length int64, search string, order string) ([]Target, error) {
-
+func GetTargets(gid int64) ([]Target, error) {
 	ts := []Target{}
-	var err error
+	err := db.Table("targets").Select("targets.id, targets.email, targets.first_name, targets.last_name, targets.position").Joins("left join group_targets gt ON targets.id = gt.target_id").Where("gt.group_id=?", gid).Scan(&ts).Error
+	return ts, err
+}
 
+// GetDataTable performs a many-to-many select to get all the Targets for a Group with supplied filters
+// start, length, and search, order can be supplied, or -1, -1, "", "" to ignore
+func GetDataTable(gid int64, start int64, length int64, search string, order string) (DataTable, error) {
+
+	dt := DataTable{}
+	ts := []Target{}
 	order = strings.TrimSpace(order)
 	search = strings.TrimSpace(search)
 	if order == "" {
@@ -439,16 +444,35 @@ func GetTargets(gid int64, start int64, length int64, search string, order strin
 		order = "targets." + order
 	}
 
+	// 1. Get the total number of targets in group:
+	err := db.Table("group_targets").Where("group_id=?", gid).Count(&dt.RecordsTotal).Error
+	if err != nil {
+		return dt, err
+	}
+
+	// 2. Fetch targets, applying relevant start, length, search, and order paramters.
 	// TODO: Rather than having two queries create a partial query and include the search options. Haven't been able to figure out how yet.
 	if search != "" {
+		var count int64
 		search = "%" + search + "%"
-		err = db.Order(order).Table("targets").Select("targets.id, targets.email, targets.first_name, targets.last_name, targets.position").Joins("left join group_targets gt ON targets.id = gt.target_id").Where("gt.group_id=?", gid).Where("targets.first_name LIKE ? OR targets.last_name LIKE ? OR targets.email LIKE ? or targets.position LIKE ?", search, search, search, search).Offset(start).Limit(length).Scan(&ts).Error
+
+		// 2.1 Apply search filter
+		err = db.Order(order).Table("targets").Select("targets.id, targets.email, targets.first_name, targets.last_name, targets.position").Joins("left join group_targets gt ON targets.id = gt.target_id").Where("gt.group_id=?", gid).Where("targets.first_name LIKE ? OR targets.last_name LIKE ? OR targets.email LIKE ? or targets.position LIKE ?", search, search, search, search).Count(&count).Offset(start).Limit(length).Scan(&ts).Error
+
+		dt.RecordsFiltered = count // The number of results from applying the search filter (calculated before trimming down the results with offset and limit)
 
 	} else {
 		err = db.Order(order).Table("targets").Select("targets.id, targets.email, targets.first_name, targets.last_name, targets.position").Joins("left join group_targets gt ON targets.id = gt.target_id").Where("gt.group_id=?", gid).Offset(start).Limit(length).Scan(&ts).Error
+		dt.RecordsFiltered = dt.RecordsTotal
 	}
 
-	return ts, err
+	// 3. Insert targes into datatable struct
+	dt.Data = make([]interface{}, len(ts)) // Pseudocode of 'dT.Data = g.Targets'. https://golang.org/doc/faq#convert_slice_of_interface
+	for i, v := range ts {
+		dt.Data[i] = v
+	}
+
+	return dt, err
 }
 
 // GetTargetByEmail gets a single target from a group by email address and group id

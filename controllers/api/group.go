@@ -99,12 +99,10 @@ func (as *Server) Group(w http.ResponseWriter, r *http.Request) {
 	// Paramters passed by DataTables for pagination are handled below
 	v := r.URL.Query()
 	search := v.Get("search[value]")
-
 	sortcolumn := v.Get("order[0][column]")
 	sortdir := v.Get("order[0][dir]")
 	sortby := v.Get("columns[" + sortcolumn + "][data]")
 	order := sortby + " " + sortdir // e.g "first_name asc"
-
 	start, err := strconv.ParseInt(v.Get("start"), 0, 64)
 	if err != nil {
 		start = -1 // Default. gorm will ignore with this value.
@@ -118,11 +116,23 @@ func (as *Server) Group(w http.ResponseWriter, r *http.Request) {
 		draw = -1 // If the draw value is missing we can assume this is not a DataTable request and return regular API result
 	}
 
-	g, err := models.GetGroup(id, ctx.Get(r, "user_id").(int64), start, length, search, order)
-	if err != nil {
-		JSONResponse(w, models.Response{Success: false, Message: "Group not found"}, http.StatusNotFound)
-		return
+	var g models.Group
+	if draw == -1 {
+		g, err = models.GetGroup(id, ctx.Get(r, "user_id").(int64))
+		if err != nil {
+			JSONResponse(w, models.Response{Success: false, Message: "Group not found"}, http.StatusNotFound)
+			return
+		}
+	} else {
+		// We don't want to fetch the whole set of targets from a group if we're handling a pagination request. This call
+		// is just to validate group ownership
+		_, err := models.GetGroupSummary(id, ctx.Get(r, "user_id").(int64))
+		if err != nil {
+			JSONResponse(w, models.Response{Success: false, Message: "Group not found"}, http.StatusNotFound)
+			return
+		}
 	}
+
 	switch {
 	case r.Method == "GET":
 
@@ -131,12 +141,13 @@ func (as *Server) Group(w http.ResponseWriter, r *http.Request) {
 			JSONResponse(w, g, http.StatusOK)
 		} else {
 			// Handle pagination for DataTable
-			gs, _ := models.GetGroupSummary(id, ctx.Get(r, "user_id").(int64)) // We need to get the total number of records of the group
-			dT := models.DataTable{Draw: draw, RecordsTotal: gs.NumTargets, RecordsFiltered: int64(len(g.Targets))}
-			dT.Data = make([]interface{}, len(g.Targets)) // Pseudocode of 'dT.Data = g.Targets'. https://golang.org/doc/faq#convert_slice_of_interface
-			for i, v := range g.Targets {
-				dT.Data[i] = v
+			dT, err := models.GetDataTable(id, start, length, search, order)
+			if err != nil {
+				log.Errorf("error fetching datatable: %v", err)
+				JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
+				return
 			}
+			dT.Draw = draw
 			JSONResponse(w, dT, http.StatusOK)
 		}
 
@@ -162,7 +173,7 @@ func (as *Server) Group(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			// We need to fetch all the existing targets for this group, so as to not overwrite them below
-			et, _ := models.GetTargets(id, -1, -1, "", "")
+			et, _ := models.GetTargets(id)
 			g.Targets = append(targets, et...)
 			g.Name = groupname
 			g.Id = id // ID isn't supplied in the CSV file upload. Perhaps we could use the filename paramter for this? I'm not sure if this is necessary though.
@@ -216,7 +227,7 @@ func (as *Server) GroupTarget(w http.ResponseWriter, r *http.Request) {
 	gid, _ := strconv.ParseInt(vars["id"], 0, 64) // group id
 
 	// Ensure the group belongs to the user
-	_, err := models.GetGroup(gid, ctx.Get(r, "user_id").(int64), 0, 0, "", "")
+	_, err := models.GetGroupSummary(gid, ctx.Get(r, "user_id").(int64))
 	if err != nil {
 		JSONResponse(w, models.Response{Success: false, Message: "Group not found"}, http.StatusNotFound)
 		return
@@ -252,7 +263,7 @@ func (as *Server) GroupRename(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	id, _ := strconv.ParseInt(vars["id"], 0, 64) // group id
-	g, err := models.GetGroup(id, ctx.Get(r, "user_id").(int64), 0, 0, "", "")
+	g, err := models.GetGroup(id, ctx.Get(r, "user_id").(int64))
 	if err != nil {
 		JSONResponse(w, models.Response{Success: false, Message: "Group not found"}, http.StatusNotFound)
 		return
