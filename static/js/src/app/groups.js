@@ -85,6 +85,9 @@ function edit(id) {
             }
             data.submit();
         },
+        fail: function(e, data) {
+            modalError(data.jqXHR.responseJSON.message);
+        },
         done: function (e, data) {
             if (!('id' in data.result)) {
                 modalError("Failed to upload CSV file")
@@ -207,6 +210,9 @@ function addTarget(firstNameInput, lastNameInput, emailInput, positionInput) {
                 $('#targetsTable_wrapper').show()
                 $('#targetsTable').show()
                 $("#groupid").val(data.id)
+                load()
+                edit(data.id)
+                
             }
         })
         .error(function (data) {
