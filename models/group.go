@@ -357,25 +357,53 @@ func UpdateGroup(g *Group) error {
 	return err
 }
 
-// AddTargetToGroup adds a single given target to a group by group ID
-func AddTargetToGroup(nt Target, gid int64) error {
-	// Check if target already exists in group
-	tmpt, err := GetTargetByEmail(gid, nt.Email)
+// AddTargetsToGroup adds targets to a group, updating on duplicate email
+func AddTargetsToGroup(nts []Target, gid int64) error {
+
+	// Fetch group's existing targets from database.
+	ets, err := GetTargets(gid)
 	if err != nil {
+		return err
+	}
+	// Load email to target id cache
+	existingTargetCache := make(map[string]int64, len(ets))
+	for _, t := range ets {
+		existingTargetCache[t.Email] = t.Id
+	}
+
+	// Step over each new target and see if it exists in the cache map.
+	tx := db.Begin()
+	for _, nt := range nts {
+		if _, ok := existingTargetCache[nt.Email]; ok {
+			// Update
+			nt.Id = existingTargetCache[nt.Email]
+			err = UpdateTarget(tx, nt)
+			if err != nil {
+				log.Error(err)
+				tx.Rollback()
+				return err
+			}
+		} else {
+			// Otherwise, add target if not in database
+			err = insertTargetIntoGroup(tx, nt, gid)
+			if err != nil {
+				log.Error(err)
+				tx.Rollback()
+				return err
+			}
+		}
+	} // for each new target
+
+	err = tx.Model(&Group{}).Where("id=?", gid).Update("ModifiedDate", time.Now().UTC()).Error // put this in the tx too TODO
+	if err != nil {
+		tx.Rollback()
 		return err
 	}
 
-	// If target exists in group, update it.
-	if len(tmpt) > 0 {
-		nt.Id = tmpt[0].Id
-		err = UpdateTarget(db, nt)
-	} else {
-		err = insertTargetIntoGroup(db, nt, gid)
-	}
+	err = tx.Commit().Error
 	if err != nil {
-		return err
+		tx.Rollback()
 	}
-	err = db.Model(&Group{}).Where("id=?", gid).Update("ModifiedDate", time.Now().UTC()).Error
 	return err
 }
 
