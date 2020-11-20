@@ -21,9 +21,8 @@ type Attachment struct {
 	vanillaFile bool   // Vanilla file has no template variables
 }
 
-// ValidateAttachment ensures that the provided attachment uses the supported template variables correctly.
+// Validate ensures that the provided attachment uses the supported template variables correctly.
 func (a Attachment) Validate() error {
-
 	vc := ValidationContext{
 		FromAddress: "foo@bar.com",
 		BaseURL:     "http://example.com",
@@ -53,99 +52,91 @@ func (a *Attachment) ApplyTemplate(ptx PhishingTemplateContext) (io.Reader, erro
 	// If we've already determined there are no template variables in this attachment return it immediately
 	if a.vanillaFile == true {
 		return decodedAttachment, nil
-	} else {
+	}
 
-		// Decided to use the file extension rather than the content type, as there seems to be quite
-		//  a bit of variability with types. e.g sometimes a Word docx file would have:
-		//   "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-		fileExtension := filepath.Ext(a.Name)
+	// Decided to use the file extension rather than the content type, as there seems to be quite
+	//  a bit of variability with types. e.g sometimes a Word docx file would have:
+	//   "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+	fileExtension := filepath.Ext(a.Name)
 
-		switch fileExtension {
+	switch fileExtension {
 
-		case ".docx", ".docm", ".pptx", ".xlsx", ".xlsm":
-			// Most modern office formats are xml based and can be unarchived.
-			// .docm and .xlsm files are comprised of xml, and a binary blob for the macro code
+	case ".docx", ".docm", ".pptx", ".xlsx", ".xlsm":
+		// Most modern office formats are xml based and can be unarchived.
+		// .docm and .xlsm files are comprised of xml, and a binary blob for the macro code
 
-			// Zip archives require random access for reading, so it's hard to stream bytes. Solution seems to be to use a buffer.
-			// See https://stackoverflow.com/questions/16946978/how-to-unzip-io-readcloser
-			b := new(bytes.Buffer)
-			b.ReadFrom(decodedAttachment)
-			buf := b.Bytes()
-			zipReader, err := zip.NewReader(bytes.NewReader(buf), int64(len(buf))) // Create a new zip reader from the file
+		// Zip archives require random access for reading, so it's hard to stream bytes. Solution seems to be to use a buffer.
+		// See https://stackoverflow.com/questions/16946978/how-to-unzip-io-readcloser
+		b := new(bytes.Buffer)
+		b.ReadFrom(decodedAttachment)
+		zipReader, err := zip.NewReader(bytes.NewReader(b.Bytes()), int64(b.Len())) // Create a new zip reader from the file
+
+		if err != nil {
+			return nil, err
+		}
+
+		newZipArchive := new(bytes.Buffer)
+		zipWriter := zip.NewWriter(newZipArchive) // For writing the new archive
+
+		// i. Read each file from the Word document archive
+		// ii. Apply the template to it
+		// iii. Add the templated content to a new zip Word archive
+		for _, zipFile := range zipReader.File {
+			ff, err := zipFile.Open()
 			if err != nil {
 				return nil, err
 			}
-
-			newZipArchive := new(bytes.Buffer)
-			zipWriter := zip.NewWriter(newZipArchive) // For writing the new archive
-
-			// i. Read each file from the Word document archive
-			// ii. Apply the template to it
-			// iii. Add the templated content to a new zip Word archive
-			fileContainedTemplatesVars := false
-			for _, zipFile := range zipReader.File {
-				ff, err := zipFile.Open()
-				if err != nil {
-					return nil, err
-				}
-				defer ff.Close()
-				contents, err := ioutil.ReadAll(ff)
-				if err != nil {
-					return nil, err
-				}
-				subFileExtension := filepath.Ext(zipFile.Name)
-				var tFile string
-				if subFileExtension == ".xml" || subFileExtension == ".rels" { // Ignore other files, e.g binary ones and images
-					// For each file apply the template.
-					tFile, err = ExecuteTemplate(string(contents), ptx)
-					if err != nil {
-						return nil, err
-					}
-					// Check if the subfile changed. We only need this to be set once to know in the future to check the 'parent' file
-					if tFile != string(contents) {
-						fileContainedTemplatesVars = true
-					}
-				} else {
-					tFile = string(contents) // Could move this to the declaration of tFile, but might be confusing to read
-				}
-				// Write new Word archive
-				newZipFile, err := zipWriter.Create(zipFile.Name)
+			defer ff.Close()
+			contents, err := ioutil.ReadAll(ff)
+			if err != nil {
+				return nil, err
+			}
+			subFileExtension := filepath.Ext(zipFile.Name)
+			var tFile string
+			if subFileExtension == ".xml" || subFileExtension == ".rels" { // Ignore other files, e.g binary ones and images
+				// For each file apply the template.
+				tFile, err = ExecuteTemplate(string(contents), ptx)
 				if err != nil {
 					zipWriter.Close() // Don't use defer when writing files https://www.joeshaw.org/dont-defer-close-on-writable-files/
 					return nil, err
 				}
-				_, err = newZipFile.Write([]byte(tFile))
-				if err != nil {
-					zipWriter.Close()
-					return nil, err
+				// Check if the subfile changed. We only need this to be set once to know in the future to check the 'parent' file
+				if tFile != string(contents) {
+					a.vanillaFile = true
 				}
+			} else {
+				tFile = string(contents) // Could move this to the declaration of tFile, but might be confusing to read
 			}
-			// If no files in the archive had template variables, we set the 'parent' file to not be checked in the future
-			if fileContainedTemplatesVars == false {
-				a.vanillaFile = true
-			}
-			zipWriter.Close()
-			return bytes.NewReader(newZipArchive.Bytes()), err
-			//processedAttachment = newZipArchive.String()
-
-		case ".txt", ".html":
-			// Feels like a lot of Reader --> String --> Reader going on here
-			buf := new(strings.Builder)
-			_, err := io.Copy(buf, decodedAttachment)
+			// Write new Word archive
+			newZipFile, err := zipWriter.Create(zipFile.Name)
 			if err != nil {
+				zipWriter.Close() // Don't use defer when writing files https://www.joeshaw.org/dont-defer-close-on-writable-files/
 				return nil, err
 			}
-			processedAttachment, err := ExecuteTemplate(buf.String(), ptx)
+			_, err = newZipFile.Write([]byte(tFile))
 			if err != nil {
+				zipWriter.Close()
 				return nil, err
 			}
-			if processedAttachment == string(buf.String()) {
-				a.vanillaFile = true
-			}
-			return strings.NewReader(processedAttachment), nil
-		default:
-			return decodedAttachment, nil // Default is to simply return the file
 		}
+		zipWriter.Close()
+		return bytes.NewReader(newZipArchive.Bytes()), err
+
+	case ".txt", ".html":
+		b, err := ioutil.ReadAll(decodedAttachment)
+		if err != nil {
+			return nil, err
+		}
+		processedAttachment, err := ExecuteTemplate(string(b), ptx)
+		if err != nil {
+			return nil, err
+		}
+		if processedAttachment == string(string(b)) {
+			a.vanillaFile = true
+		}
+		return strings.NewReader(processedAttachment), nil
+	default:
+		return decodedAttachment, nil // Default is to simply return the file
 	}
 
 }
