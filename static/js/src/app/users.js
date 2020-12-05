@@ -11,7 +11,8 @@ const save = (id) => {
         username: $("#username").val(),
         password: $("#password").val(),
         role: $("#role").val(),
-        password_change_required: $("#force_password_change_checkbox").prop('checked')
+        password_change_required: $("#force_password_change_checkbox").prop('checked'),
+        account_locked: $("#account_locked_checkbox").prop('checked')
     }
     // Submit the user
     if (id != -1) {
@@ -49,6 +50,8 @@ const dismiss = () => {
     $("#password").val("")
     $("#confirm_password").val("")
     $("#role").val("")
+    $("#force_password_change_checkbox").prop('checked', true)
+    $("#account_locked_checkbox").prop('checked', false)
     $("#modal\\.flashes").empty()
 }
 
@@ -66,7 +69,8 @@ const edit = (id) => {
                 $("#username").val(user.username)
                 $("#role").val(user.role.slug)
                 $("#role").trigger("change")
-                $("#force_password_change_checkbox").prop('checked', false)
+                $("#force_password_change_checkbox").prop('checked', user.password_change_required)
+                $("#account_locked_checkbox").prop('checked', user.account_locked)
             })
             .error(function () {
                 errorFlash("Error fetching user")
