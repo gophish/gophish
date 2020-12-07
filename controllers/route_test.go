@@ -117,3 +117,14 @@ func TestSuccessfulRedirect(t *testing.T) {
 		t.Fatalf("unexpected Location header received. expected %s got %s", next, url.Path)
 	}
 }
+
+func TestAccountLocked(t *testing.T) {
+	ctx := setupTest(t)
+	defer tearDown(t, ctx)
+	resp := attemptLogin(t, ctx, nil, "houdini", "gophish", "")
+	got := resp.StatusCode
+	expected := http.StatusUnauthorized
+	if got != expected {
+		t.Fatalf("invalid status code received. expected %d got %d", expected, got)
+	}
+}

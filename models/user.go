@@ -21,6 +21,7 @@ type User struct {
 	Role                   Role      `json:"role" gorm:"association_autoupdate:false;association_autocreate:false"`
 	RoleID                 int64     `json:"-"`
 	PasswordChangeRequired bool      `json:"password_change_required"`
+	AccountLocked          bool      `json:"account_locked"`
 	LastLogin              time.Time `json:"last_login"`
 }
 

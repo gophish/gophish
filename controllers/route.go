@@ -304,9 +304,9 @@ func (as *AdminServer) nextOrIndex(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, next, 302)
 }
 
-func (as *AdminServer) handleInvalidLogin(w http.ResponseWriter, r *http.Request) {
+func (as *AdminServer) handleInvalidLogin(w http.ResponseWriter, r *http.Request, message string) {
 	session := ctx.Get(r, "session").(*sessions.Session)
-	Flash(w, r, "danger", "Invalid Username/Password")
+	Flash(w, r, "danger", message)
 	params := struct {
 		User    models.User
 		Title   string
@@ -376,14 +376,18 @@ func (as *AdminServer) Login(w http.ResponseWriter, r *http.Request) {
 		u, err := models.GetUserByUsername(username)
 		if err != nil {
 			log.Error(err)
-			as.handleInvalidLogin(w, r)
+			as.handleInvalidLogin(w, r, "Invalid Username/Password")
 			return
 		}
 		// Validate the user's password
 		err = auth.ValidatePassword(password, u.Hash)
 		if err != nil {
 			log.Error(err)
-			as.handleInvalidLogin(w, r)
+			as.handleInvalidLogin(w, r, "Invalid Username/Password")
+			return
+		}
+		if u.AccountLocked == true {
+			as.handleInvalidLogin(w, r, "Account Locked")
 			return
 		}
 		u.LastLogin = time.Now().UTC()

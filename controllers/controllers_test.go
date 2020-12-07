@@ -49,6 +49,14 @@ func setupTest(t *testing.T) *testContext {
 	if err != nil {
 		t.Fatalf("error getting first user from database: %v", err)
 	}
+
+	// Create a second user to test account locked status
+	u2 := models.User{Username: "houdini", Hash: hash, AccountLocked: true}
+	models.PutUser(&u2)
+	if err != nil {
+		t.Fatalf("error creating new user: %v", err)
+	}
+
 	ctx.apiKey = u.ApiKey
 	// Start the phishing server
 	ctx.phishServer = httptest.NewUnstartedServer(NewPhishingServer(ctx.config.PhishConf).server.Handler)
