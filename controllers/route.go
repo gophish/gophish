@@ -387,7 +387,7 @@ func (as *AdminServer) Login(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if u.AccountLocked == true {
-			as.handleInvalidLogin(w, r, "Acount Locked")
+			as.handleInvalidLogin(w, r, "Account Locked")
 			return
 		}
 		u.LastLogin = time.Now().UTC()
