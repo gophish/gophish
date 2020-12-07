@@ -132,7 +132,7 @@ func (a *Attachment) ApplyTemplate(ptx PhishingTemplateContext) (io.Reader, erro
 		if err != nil {
 			return nil, err
 		}
-		if processedAttachment == string(string(b)) {
+		if processedAttachment == string(b) {
 			a.vanillaFile = true
 		}
 		return strings.NewReader(processedAttachment), nil
