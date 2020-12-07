@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"gopkg.in/check.v1"
 )
@@ -61,6 +62,8 @@ func (s *ModelsSuite) TestAttachment(c *check.C) {
 
 			_, err = a.ApplyTemplate(ptx)
 			c.Assert(err, check.Equals, nil)
+			c.Assert(a.vanillaFile, check.Equals, strings.Contains(fname, "without-vars"))
+			c.Assert(a.vanillaFile, check.Not(check.Equals), strings.Contains(fname, "with-vars"))
 
 		}
 	}

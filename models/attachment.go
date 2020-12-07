@@ -81,6 +81,7 @@ func (a *Attachment) ApplyTemplate(ptx PhishingTemplateContext) (io.Reader, erro
 		// i. Read each file from the Word document archive
 		// ii. Apply the template to it
 		// iii. Add the templated content to a new zip Word archive
+		a.vanillaFile = true
 		for _, zipFile := range zipReader.File {
 			ff, err := zipFile.Open()
 			if err != nil {
@@ -102,7 +103,7 @@ func (a *Attachment) ApplyTemplate(ptx PhishingTemplateContext) (io.Reader, erro
 				}
 				// Check if the subfile changed. We only need this to be set once to know in the future to check the 'parent' file
 				if tFile != string(contents) {
-					a.vanillaFile = true
+					a.vanillaFile = false
 				}
 			} else {
 				tFile = string(contents) // Could move this to the declaration of tFile, but might be confusing to read
