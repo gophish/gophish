@@ -34,38 +34,49 @@ func (s *ModelsSuite) TestAttachment(c *check.C) {
 		log.Fatalf("Failed to open attachment folder 'testdata': %v\n", err)
 	}
 	for _, ff := range files {
-		if !ff.IsDir() {
+		if !ff.IsDir() && !strings.Contains(ff.Name(), "templated") {
 			fname := ff.Name()
 			fmt.Printf("Checking attachment file -> %s\n", fname)
-			f, err := os.Open("testdata/" + fname)
-			if err != nil {
-				log.Fatalf("Failed to open attachment test file '%s': %v\n", fname, err)
-			}
-			reader := bufio.NewReader(f)
-			content, err := ioutil.ReadAll(reader)
-			if err != nil {
-				log.Fatalf("Failed to read attachment test file '%s': %v\n", fname, err)
-			}
-
-			data := ""
+			data := readFile("testdata/" + fname)
 			if filepath.Ext(fname) == ".b64" {
-				data = string(content)
 				fname = fname[:len(fname)-4]
-			} else {
-				data = base64.StdEncoding.EncodeToString(content)
 			}
-
 			a := Attachment{
 				Content: data,
 				Name:    fname,
 			}
-
-			_, err = a.ApplyTemplate(ptx)
+			t, err := a.ApplyTemplate(ptx)
 			c.Assert(err, check.Equals, nil)
 			c.Assert(a.vanillaFile, check.Equals, strings.Contains(fname, "without-vars"))
 			c.Assert(a.vanillaFile, check.Not(check.Equals), strings.Contains(fname, "with-vars"))
 
+			// Verfify template was applied as expected
+			tt, err := ioutil.ReadAll(t)
+			if err != nil {
+				log.Fatalf("Failed to parse templated file '%s': %v\n", fname, err)
+			}
+			templatedFile := base64.StdEncoding.EncodeToString(tt)
+			expectedOutput := readFile("testdata/" + strings.TrimSuffix(ff.Name(), filepath.Ext(ff.Name())) + ".templated" + filepath.Ext(ff.Name())) // e.g text-file-with-vars.templated.txt
+			c.Assert(templatedFile, check.Equals, expectedOutput)
 		}
 	}
+}
 
+func readFile(fname string) string {
+	f, err := os.Open(fname)
+	if err != nil {
+		log.Fatalf("Failed to open file '%s': %v\n", fname, err)
+	}
+	reader := bufio.NewReader(f)
+	content, err := ioutil.ReadAll(reader)
+	if err != nil {
+		log.Fatalf("Failed to read file '%s': %v\n", fname, err)
+	}
+	data := ""
+	if filepath.Ext(fname) == ".b64" {
+		data = string(content)
+	} else {
+		data = base64.StdEncoding.EncodeToString(content)
+	}
+	return data
 }
