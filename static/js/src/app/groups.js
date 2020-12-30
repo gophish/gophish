@@ -56,8 +56,16 @@ function edit(id) {
     targets = $("#targetsTable").dataTable({
         destroy: true, // Destroy any other instantiated table - http://datatables.net/manual/tech-notes/3#destroy
         columnDefs: [{
+            targets: [0,1,2,3],
+            render: function ( data, type, row ) {
+                return type === 'display' && data.length > 15 ?
+                '<span title= \"' + data +'\">' + data.substr(0,15) + '…</span>':
+                '<span title= \"' + data +'\">' + data + '</span>';
+            }
+        },
+        {
             orderable: false,
-            targets: "no-sort"
+            targets: "no-sort",
         }]
     })
     $("#modalSubmit").unbind('click').click(function () {
