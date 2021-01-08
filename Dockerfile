@@ -10,7 +10,7 @@ RUN gulp
 
 
 # Build Golang binary
-FROM golang:1.11 AS build-golang
+FROM golang:1.15.2 AS build-golang
 
 WORKDIR /go/src/github.com/gophish/gophish
 COPY . .
@@ -40,6 +40,6 @@ USER app
 RUN sed -i 's/127.0.0.1/0.0.0.0/g' config.json
 RUN touch config.json.tmp
 
-EXPOSE 3333 8080 8443
+EXPOSE 3333 8080 8443 80
 
 CMD ["./docker/run.sh"]
