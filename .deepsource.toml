@@ -1,0 +1,16 @@
+version = 1
+
+test_patterns = ["**/*_test.go"]
+
+exclude_patterns = [
+    "docker/**",
+    "doc/**"
+]
+
+[[analyzers]]
+name = "go"
+enabled = true
+
+  [analyzers.meta]
+  import_paths = ["github.com/gophish/gophish"]
+  

@@ -301,7 +301,7 @@ func (as *AdminServer) nextOrIndex(w http.ResponseWriter, r *http.Request) {
 			next = path
 		}
 	}
-	http.Redirect(w, r, next, 302)
+	http.Redirect(w, r, next, http.StatusFound)
 }
 
 func (as *AdminServer) handleInvalidLogin(w http.ResponseWriter, r *http.Request, message string) {
@@ -386,7 +386,7 @@ func (as *AdminServer) Login(w http.ResponseWriter, r *http.Request) {
 			as.handleInvalidLogin(w, r, "Invalid Username/Password")
 			return
 		}
-		if u.AccountLocked == true {
+		if u.AccountLocked {
 			as.handleInvalidLogin(w, r, "Account Locked")
 			return
 		}
