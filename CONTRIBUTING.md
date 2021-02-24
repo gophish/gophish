@@ -2,7 +2,7 @@
 
 Thank you for your interest in contributing to gophish! It is our goal to make the best simulated phishing framework possible, and we are excited you want to help out.
 
-This guide details how to contribute to gophish in a way that is efficient for everyone involved.
+This guide details how to contribute to gophish in a way that is efficient for everyone involved!
 
 Gophish currently only comes in one flavor, gophish Community Edition (CE), which is our free and open source edition. In the future, we reserve the right to create an Enterprise Edition, though we're currently pouring our effort into create a rock-solid open source platform. This document will be updated if an EE edition is created.
 
