@@ -91,7 +91,7 @@ func (limiter *PostLimiter) Cleanup() {
 	limiter.Lock()
 	defer limiter.Unlock()
 	for ip, bucket := range limiter.visitors {
-		if time.Now().Sub(bucket.lastSeen) >= limiter.expiry {
+		if time.Since(bucket.lastSeen) >= limiter.expiry {
 			delete(limiter.visitors, ip)
 		}
 	}

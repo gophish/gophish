@@ -174,7 +174,7 @@ func checkForNewEmails(im models.IMAP) {
 					log.Error("Error updating GoPhish email with rid ", rid, ": ", err.Error())
 					continue
 				}
-				if im.DeleteReportedCampaignEmail == true {
+				if im.DeleteReportedCampaignEmail {
 					deleteEmails = append(deleteEmails, m.SeqNum)
 				}
 			}
