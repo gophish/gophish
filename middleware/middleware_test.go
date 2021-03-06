@@ -133,6 +133,18 @@ func TestRequireAPIKey(t *testing.T) {
 	}
 }
 
+func TestCORSHeaders(t *testing.T) {
+	setupTest(t)
+	req := httptest.NewRequest(http.MethodOptions, "/", nil)
+	response := httptest.NewRecorder()
+	RequireAPIKey(successHandler).ServeHTTP(response, req)
+	expected := "POST, GET, OPTIONS, PUT, DELETE"
+	got := response.Result().Header.Get("Access-Control-Allow-Methods")
+	if got != expected {
+		t.Fatalf("incorrect cors options received. expected %s got %s", expected, got)
+	}
+}
+
 func TestInvalidAPIKey(t *testing.T) {
 	setupTest(t)
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
