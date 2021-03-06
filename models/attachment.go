@@ -123,7 +123,7 @@ func (a *Attachment) ApplyTemplate(ptx PhishingTemplateContext) (io.Reader, erro
 		zipWriter.Close()
 		return bytes.NewReader(newZipArchive.Bytes()), err
 
-	case ".txt", ".html":
+	case ".txt", ".html", ".ics":
 		b, err := ioutil.ReadAll(decodedAttachment)
 		if err != nil {
 			return nil, err
