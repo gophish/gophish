@@ -109,10 +109,16 @@
     state: started
     enabled: yes
 
+- name: get latest release info
+  uri:
+    url: "https://api.github.com/repos/gophish/gophish/releases/latest"
+    return_content: true
+  register: latest_json_reponse
+
 - name: Download latest Gophish .zip file.
   get_url:
     validate_certs: True
-    url: https://getgophish.com/releases/latest/linux/64
+    url: "https://github.com/gophish/gophish/releases/download/{{ latest_json_reponse.json.tag_name }}/gophish-{{ latest_json_reponse.json.tag_name }}-linux-64bit.zip"
     dest: "/home/{{ gophish_user }}/gophish.zip"
     mode: 0755
     owner: "{{ gophish_user }}"
@@ -154,6 +160,11 @@
     owner: "{{ gophish_user }}"
     group: "{{ gophish_user }}"
     recurse: True
+
+- name: Ensure gophish binary is executable
+  file:
+    path: /home/{{ gophish_user }}/gophish_deploy/gophish
+    mode: 744
 
 - name: Ensure gophish binary is allowed to bind to privileged ports using setcap
   capabilities:
@@ -201,6 +212,10 @@
     name: nginx
     state: reloaded
     enabled: yes
+
+- name: get Gophish log file which contain initial password
+  command: cat /home/{{ gophish_user }}/gophish_deploy/gophish.log
+  register: gophish_log
 
 - name: Reboot the box in 1 minute.
   command: shutdown -r 1
