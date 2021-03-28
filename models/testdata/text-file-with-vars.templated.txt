@@ -1,0 +1,19 @@
+The target's unique ID: 1234567
+
+The target's first name: Foo
+
+The target's last name: Bar
+
+The target's position: Space Janitor
+
+The target's email address: foo@bar.com
+
+The spoofed sender: From Address
+
+The URL to the tracking handler: http://testurl.local/track?rid=1234567
+
+An alias for tracker image: <img alt='' style='display: none' src='http://testurl.local/track?rid=1234567'/>
+
+The phishing URL: http://testurl.com/?rid=1234567
+
+The base URL with the path and rid parameter stripped. Useful for making links to static files: http://testurl.com

@@ -1,0 +1,19 @@
+The target's unique ID: {{.RId}}
+
+The target's first name: {{.FirstName}}
+
+The target's last name: {{.LastName}}
+
+The target's position: {{.Position}}
+
+The target's email address: {{.Email}}
+
+The spoofed sender: {{.From}}
+
+The URL to the tracking handler: {{.TrackingURL}}
+
+An alias for tracker image: {{.Tracker}}
+
+The phishing URL: {{.URL}}
+
+The base URL with the path and rid parameter stripped. Useful for making links to static files: {{.BaseURL}}

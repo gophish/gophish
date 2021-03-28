@@ -40,6 +40,12 @@ func (t *Template) Validate() error {
 	if err := ValidateTemplate(t.Text); err != nil {
 		return err
 	}
+	for _, a := range t.Attachments {
+		if err := a.Validate(); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 

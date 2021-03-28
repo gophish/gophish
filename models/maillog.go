@@ -2,7 +2,6 @@ package models
 
 import (
 	"crypto/rand"
-	"encoding/base64"
 	"errors"
 	"fmt"
 	"io"
@@ -10,7 +9,6 @@ import (
 	"math/big"
 	"net/mail"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/gophish/gomail"
@@ -211,6 +209,7 @@ func (m *MailLog) Generate(msg *gomail.Message) error {
 
 	// Parse remaining templates
 	subject, err := ExecuteTemplate(c.Template.Subject, ptx)
+
 	if err != nil {
 		log.Warn(err)
 	}
@@ -239,12 +238,16 @@ func (m *MailLog) Generate(msg *gomail.Message) error {
 		}
 	}
 	// Attach the files
-	for _, a := range c.Template.Attachments {
-		msg.Attach(func(a Attachment) (string, gomail.FileSetting, gomail.FileSetting) {
+	for i, _ := range c.Template.Attachments {
+		a := &c.Template.Attachments[i]
+		msg.Attach(func(a *Attachment) (string, gomail.FileSetting, gomail.FileSetting) {
 			h := map[string][]string{"Content-ID": {fmt.Sprintf("<%s>", a.Name)}}
 			return a.Name, gomail.SetCopyFunc(func(w io.Writer) error {
-				decoder := base64.NewDecoder(base64.StdEncoding, strings.NewReader(a.Content))
-				_, err = io.Copy(w, decoder)
+				content, err := a.ApplyTemplate(ptx)
+				if err != nil {
+					return err
+				}
+				_, err = io.Copy(w, content)
 				return err
 			}), gomail.SetHeader(h)
 		}(a))
