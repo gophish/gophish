@@ -1,4 +1,4 @@
-Tested on Ubuntu 16.04.4.
+Tested on Ubuntu 20.04 LTS.
 
 Installs Postfix (to listen on localhost only) and the latest Linux gophish binary.  setcap is used to allow the gophish binary to listen on privileged ports without running as root.
 
@@ -17,7 +17,7 @@ ansible-playbook site.yml -i hosts -u root --private-key=private.key
 ansible-playbook site.yml -i hosts -u root --ask-pass
 
 # Log in as non-root user with SSH key (if root login has been disabled)
-ansible-playbook site.yml -i hosts --private-key=private.key -u user --become --ask-sudo-pass
+ansible-playbook site.yml -i hosts --private-key=private.key -u user --become --ask-become-pass
 
 # Logging in as non-root user without SSH keys
-ansible-playbook site.yml -i hosts -u ubuntu --ask-pass --become --ask-sudo-pass
+ansible-playbook site.yml -i hosts -u ubuntu --ask-pass --become --ask-become-pass
