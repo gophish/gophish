@@ -4,9 +4,11 @@ import (
 	"compress/gzip"
 	"context"
 	"crypto/tls"
+	"encoding/base64"
 	"html/template"
 	"net/http"
 	"net/url"
+	"strconv"
 	"time"
 
 	"github.com/NYTimes/gziphandler"
@@ -136,6 +138,8 @@ func (as *AdminServer) registerRoutes() {
 	router.HandleFunc("/users", mid.Use(as.UserManagement, mid.RequirePermission(models.PermissionModifySystem), mid.RequireLogin))
 	router.HandleFunc("/webhooks", mid.Use(as.Webhooks, mid.RequirePermission(models.PermissionModifySystem), mid.RequireLogin))
 	router.HandleFunc("/impersonate", mid.Use(as.Impersonate, mid.RequirePermission(models.PermissionModifySystem), mid.RequireLogin))
+	router.HandleFunc("/reported", mid.Use(as.Reported, mid.RequireLogin))
+	router.HandleFunc("/reported/attachment/{id:[0-9]+}", mid.Use(as.ReportedEmailAttachment, mid.RequireLogin))
 	// Create the API routes
 	api := api.NewServer(
 		api.WithWorker(as.worker),
@@ -330,6 +334,36 @@ func (as *AdminServer) Webhooks(w http.ResponseWriter, r *http.Request) {
 	params := newTemplateParams(r)
 	params.Title = "Webhooks"
 	getTemplate(w, "webhooks").ExecuteTemplate(w, "base", params)
+}
+
+// Reported handles the display of user reported emails that aren't Gophish campaigns
+func (as *AdminServer) Reported(w http.ResponseWriter, r *http.Request) {
+	params := newTemplateParams(r)
+	params.Title = "Reported Emails"
+	getTemplate(w, "reported").ExecuteTemplate(w, "base", params)
+}
+
+// ReportedEmailAttachment retrieves an attachment by id
+func (as *AdminServer) ReportedEmailAttachment(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	user := ctx.Get(r, "user").(models.User)
+	attID, _ := strconv.ParseInt(vars["id"], 0, 64)
+
+	att, err := models.GetReportedEmailAttachment(user.Id, attID)
+	if err != nil {
+		log.Error(err)
+		w.Write([]byte("Unable to query attachment"))
+	} else {
+
+		data, err := base64.StdEncoding.DecodeString(att.Content)
+		if err != nil {
+			w.Write([]byte("Unable to load attachment"))
+		} else {
+			w.Header().Set("Content-Type", att.Header)
+			w.WriteHeader(http.StatusOK)
+			w.Write(data)
+		}
+	}
 }
 
 // Impersonate allows an admin to login to a user account without needing the password

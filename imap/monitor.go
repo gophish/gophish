@@ -9,6 +9,8 @@ package imap
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
+	"net/mail"
 	"path/filepath"
 	"regexp"
 	"strconv"
@@ -160,6 +162,33 @@ func checkForNewEmails(im models.IMAP) {
 			if len(rids) < 1 {
 				// In the future this should be an alert in Gophish
 				log.Infof("User '%s' reported email with subject '%s'. This is not a GoPhish campaign; you should investigate it.", m.Email.From, m.Email.Subject)
+
+				// Save reported email to the database
+				atts := []*models.ReportedAttachment{}
+				for _, a := range m.Attachments {
+					na := &models.ReportedAttachment{Filename: a.Filename, Header: a.Header.Get("Content-Type"), Size: len(a.Content), Content: base64.StdEncoding.EncodeToString(a.Content)}
+					atts = append(atts, na)
+				}
+
+				e, err := mail.ParseAddress(m.Email.From)
+				if err != nil {
+					log.Error(err)
+				}
+
+				em := &models.ReportedEmail{
+					UserId:          im.UserId,
+					ReportedByName:  e.Name,
+					ReportedByEmail: e.Address,
+					ReportedHTML:    string(m.HTML),
+					ReportedText:    string(m.Text),
+					ReportedSubject: string(m.Subject),
+					IMAPUID:         -1, // https://github.com/emersion/go-imap/issues/353
+					ReportedTime:    time.Now().UTC(),
+					Attachments:     atts,
+					Status:          "Unknown"}
+
+				models.SaveReportedEmail(em)
+
 			}
 			for rid := range rids {
 				log.Infof("User '%s' reported email with rid %s", m.Email.From, rid)

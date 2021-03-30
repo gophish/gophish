@@ -277,6 +277,27 @@ var api = {
             return query("/webhooks/" + id + "/validate", "POST", {}, true)
         },
     },
+    // report handles (non-campaign) reported emails
+    reported: {
+        get: function() {
+            return query("/reported/", "GET", {}, !1)
+        },
+        getone: function(id) {
+            return query("/reported/" + id, "GET", {}, true)
+        },
+        //post: function(email) {
+        //    return query("/reported/" + email.id, "POST", email, true)
+        //},
+        put: function (email) {
+            return query("/reported/" + email.id, "PUT", email, true)
+        },
+        delete: function(id) {
+            return query("/reported/" + id, "DELETE", {}, false)
+        },        
+        //update: function(e) {
+        //    return query("/reported/update", "POST", e, true)
+        //}
+    },
     // import handles all of the "import" functions in the api
     import_email: function (req) {
         return query("/import/email", "POST", req, false)
