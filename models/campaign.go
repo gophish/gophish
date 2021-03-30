@@ -552,10 +552,11 @@ func PostCampaign(c *Campaign, uid int64) error {
 			sendDate := c.generateSendDate(recipientIndex, totalRecipients)
 			r := &Result{
 				BaseRecipient: BaseRecipient{
-					Email:     t.Email,
-					Position:  t.Position,
-					FirstName: t.FirstName,
-					LastName:  t.LastName,
+					Email:            t.Email,
+					Position:         t.Position,
+					FirstName:        t.FirstName,
+					LastName:         t.LastName,
+					ExtendedTemplate: t.ExtendedTemplate,
 				},
 				Status:       StatusScheduled,
 				CampaignId:   c.Id,
