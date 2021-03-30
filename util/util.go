@@ -44,11 +44,12 @@ func ParseMail(r *http.Request) (email.Email, error) {
 }
 
 // ParseCSV contains the logic to parse the user provided csv file containing Target entries
-func ParseCSV(r *http.Request) ([]models.Target, error) {
+func ParseCSV(r *http.Request) ([]models.Target, string, error) {
 	mr, err := r.MultipartReader()
 	ts := []models.Target{}
+	name := ""
 	if err != nil {
-		return ts, err
+		return ts, name, err
 	}
 	for {
 		part, err := mr.NextPart()
@@ -60,6 +61,7 @@ func ParseCSV(r *http.Request) ([]models.Target, error) {
 			continue
 		}
 		defer part.Close()
+		name = part.FormName()
 		reader := csv.NewReader(part)
 		reader.TrimLeadingSpace = true
 		record, err := reader.Read()
@@ -121,7 +123,7 @@ func ParseCSV(r *http.Request) ([]models.Target, error) {
 			ts = append(ts, t)
 		}
 	}
-	return ts, nil
+	return ts, name, nil
 }
 
 // CheckAndCreateSSL is a helper to setup self-signed certificates for the administrative interface.

@@ -137,6 +137,26 @@ var api = {
         // delete() - Deletes a group at DELETE /groups/:id
         delete: function (id) {
             return query("/groups/" + id, "DELETE", {}, false)
+        },
+        // summary() - Queries the API for GET /groups/:id/summary
+        summary: function (id) {
+            return query("/groups/" + id + "/summary", "GET", {}, true)
+        },
+        // rename() - Renames a group
+        rename: function(id, group) {
+            return query("/groups/" + id + "/rename", "PUT", group, false)
+        },
+        // add() - Adds a single target to a group
+        addtarget: function(id, target) {
+            return query("/groups/" + id + "/target/add", "PUT", target, false)
+        },
+        // delete() - Deletes a single targert by id at DELETE /groups/:id
+        deletetarget: function (id, target) {
+            return query("/groups/" + id + "/target/delete", "DELETE", target, false)
+        },
+        // post() - Posts a CSV group to POST /groups/:id/csv
+        post: function (id, data) {
+            return query("/groups/" + id + "/csv", "POST", data, false)
         }
     },
     // templates contains the endpoints for /templates
