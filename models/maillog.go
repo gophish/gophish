@@ -10,6 +10,8 @@ import (
 	"math/big"
 	"net/mail"
 	"os"
+	"path/filepath"
+	"sort"
 	"strings"
 	"time"
 
@@ -26,6 +28,9 @@ var MaxSendAttempts = 8
 // ErrMaxSendAttempts is thrown when the maximum number of sending attempts for a given
 // MailLog is exceeded.
 var ErrMaxSendAttempts = errors.New("max send attempts exceeded")
+
+// Attachments with these file extensions have inline disposition
+var EmbeddedFileExtensions = []string{".jpg", ".jpeg", ".png", ".gif"}
 
 // MailLog is a struct that holds information about an email that is to be
 // sent out.
@@ -240,14 +245,18 @@ func (m *MailLog) Generate(msg *gomail.Message) error {
 	}
 	// Attach the files
 	for _, a := range c.Template.Attachments {
-		msg.Attach(func(a Attachment) (string, gomail.FileSetting, gomail.FileSetting) {
-			h := map[string][]string{"Content-ID": {fmt.Sprintf("<%s>", a.Name)}}
-			return a.Name, gomail.SetCopyFunc(func(w io.Writer) error {
-				decoder := base64.NewDecoder(base64.StdEncoding, strings.NewReader(a.Content))
+		copyFunc := gomail.SetCopyFunc(func(c Attachment) func(w io.Writer) error {
+			return func(w io.Writer) error {
+				decoder := base64.NewDecoder(base64.StdEncoding, strings.NewReader(c.Content))
 				_, err = io.Copy(w, decoder)
 				return err
-			}), gomail.SetHeader(h)
+			}
 		}(a))
+		if sort.SearchStrings(EmbeddedFileExtensions, filepath.Ext(a.Name)) < len(EmbeddedFileExtensions) {
+			msg.Embed(a.Name, copyFunc)
+		} else {
+			msg.Attach(a.Name, copyFunc)
+		}
 	}
 
 	return nil
