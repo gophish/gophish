@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/emersion/go-smtp"
 	"github.com/gophish/gomail"
 	"github.com/gophish/gophish/dialer"
 	log "github.com/gophish/gophish/logger"
@@ -40,6 +41,7 @@ type SMTP struct {
 	Password         string    `json:"password,omitempty"`
 	FromAddress      string    `json:"from_address"`
 	IgnoreCertErrors bool      `json:"ignore_cert_errors"`
+	UseSMTPUTF8      bool      `json:"use_smtputf8"`
 	Headers          []Header  `json:"headers"`
 	ModifiedDate     time.Time `json:"modified_date"`
 }
@@ -115,6 +117,9 @@ func (s *SMTP) GetDialer() (mailer.Dialer, error) {
 	d.TLSConfig = &tls.Config{
 		ServerName:         host,
 		InsecureSkipVerify: s.IgnoreCertErrors,
+	}
+	d.MailOptions = &smtp.MailOptions{
+		UTF8: s.UseSMTPUTF8,
 	}
 	hostname, err := os.Hostname()
 	if err != nil {

@@ -22,6 +22,7 @@ function sendTestEmail() {
             username: $("#username").val(),
             password: $("#password").val(),
             ignore_cert_errors: $("#ignore_cert_errors").prop("checked"),
+            use_smtputf8: $("#use_smtputf8").prop("checked"),
             headers: headers,
         }
     }
@@ -59,6 +60,7 @@ function save(idx) {
     profile.username = $("#username").val()
     profile.password = $("#password").val()
     profile.ignore_cert_errors = $("#ignore_cert_errors").prop("checked")
+    profile.use_smtputf8 = $("#use_smtputf8").prop("checked")
     if (idx != -1) {
         profile.id = profiles[idx].id
         api.SMTPId.put(profile)
@@ -93,6 +95,7 @@ function dismiss() {
     $("#username").val("")
     $("#password").val("")
     $("#ignore_cert_errors").prop("checked", true)
+    $("#use_smtputf8").prop("checked", false)
     $("#headersTable").dataTable().DataTable().clear().draw()
     $("#modal").modal('hide')
 }
@@ -161,6 +164,7 @@ function edit(idx) {
         $("#username").val(profile.username)
         $("#password").val(profile.password)
         $("#ignore_cert_errors").prop("checked", profile.ignore_cert_errors)
+        $("#use_smtputf8").prop("checked", profile.use_smtputf8)
         $.each(profile.headers, function (i, record) {
             addCustomHeader(record.key, record.value)
         });
@@ -180,6 +184,7 @@ function copy(idx) {
     $("#username").val(profile.username)
     $("#password").val(profile.password)
     $("#ignore_cert_errors").prop("checked", profile.ignore_cert_errors)
+    $("#use_smtputf8").prop("checked", profile.use_smtputf8)
 }
 
 function load() {

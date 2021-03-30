@@ -63,6 +63,11 @@
                         <label for="ignore_cert_errors">Ignore Certificate Errors <i class="fa fa-question-circle"
                                 data-toggle="tooltip" data-placement="right" title="Ignore common certificate errors such as self-signed certs (exposes you to MiTM attacks - use carefully!)"></i></label>
                     </div>
+                    <div class="checkbox checkbox-primary">
+                        <input id="use_smtputf8" type="checkbox">
+                        <label for="use_smtputf8">Use SMTPUTF8 <i class="fa fa-question-circle"
+                                data-toggle="tooltip" data-placement="right" title="SMTPUTF8 enables using UTF-8 chars in From address. It must be supported by both sender and receiver mail servers."></i></label>
+                    </div>
                     <label class="control-label" for="headersForm">Email Headers:</label>
                     <form id="headersForm">
                         <div class="col-md-4">
