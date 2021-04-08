@@ -10,8 +10,18 @@ import (
 
 func (s *ModelsSuite) TestGenerateResultId(c *check.C) {
 	r := Result{}
-	r.GenerateId(db)
+	r.GenerateId(db, "", 0)
 	match, err := regexp.Match("[a-zA-Z0-9]{7}", []byte(r.RId))
+	c.Assert(err, check.Equals, nil)
+	c.Assert(match, check.Equals, true)
+
+	r.GenerateId(db, "0123456789", 4)
+	match, err = regexp.Match("[0-9]{4}", []byte(r.RId))
+	c.Assert(err, check.Equals, nil)
+	c.Assert(match, check.Equals, true)
+
+	r.GenerateId(db, "abcdefghijklmnopqrstuvwxyz", 3)
+	match, err = regexp.Match("[a-z]{3}", []byte(r.RId))
 	c.Assert(err, check.Equals, nil)
 	c.Assert(match, check.Equals, true)
 }

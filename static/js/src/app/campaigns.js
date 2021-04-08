@@ -37,6 +37,11 @@ function launch() {
                 if (send_by_date != "") {
                     send_by_date = moment(send_by_date, "MMMM Do YYYY, h:mm a").utc().format()
                 }
+
+                var custom_rid = $('#customize_rid').is(':checked');
+                var character_set = $('#character_set').val().trim();
+                var r_id_length = parseInt($('#r_id_length').val().trim()) || 7;
+
                 campaign = {
                     name: $("#name").val(),
                     template: {
@@ -52,6 +57,9 @@ function launch() {
                     launch_date: moment($("#launch_date").val(), "MMMM Do YYYY, h:mm a").utc().format(),
                     send_by_date: send_by_date || null,
                     groups: groups,
+                    custom_rid: custom_rid,
+                    character_set: character_set,
+                    r_id_length: r_id_length
                 }
                 // Submit the campaign
                 api.campaigns.post(campaign)
@@ -378,10 +386,18 @@ $(document).ready(function () {
                         var quickStats = launchDate + "<br><br>" + "Number of recipients: " + campaign.stats.total + "<br><br>" + "Emails opened: " + campaign.stats.opened + "<br><br>" + "Emails clicked: " + campaign.stats.clicked + "<br><br>" + "Submitted Credentials: " + campaign.stats.submitted_data + "<br><br>" + "Errors : " + campaign.stats.error + "<br><br>" + "Reported : " + campaign.stats.email_reported
                     }
 
+                    var charSetText = "";
+                    if (campaign.character_set == "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789") {
+                        charSetText = "default";
+                    } else {
+                        charSetText = escapeHtml(campaign.character_set) + " (Length: " + campaign.r_id_length + ")";
+                    }
+
                     var row = [
                         escapeHtml(campaign.name),
                         moment(campaign.created_date).format('MMMM Do YYYY, h:mm:ss a'),
                         "<span class=\"label " + label + "\" data-toggle=\"tooltip\" data-placement=\"right\" data-html=\"true\" title=\"" + quickStats + "\">" + campaign.status + "</span>",
+                        "<span>" + charSetText + "</span>",
                         "<div class='pull-right'><a class='btn btn-primary' href='/campaigns/" + campaign.id + "' data-toggle='tooltip' data-placement='left' title='View Results'>\
                     <i class='fa fa-bar-chart'></i>\
                     </a>\
@@ -423,5 +439,11 @@ $(document).ready(function () {
             }
             return 0;
         });
+    })
+
+    $('#customize_rid').change(function() {
+        $(this).is(':checked')
+            ? $('#fields-customize_rid').removeClass('hidden')
+            : $('#fields-customize_rid').addClass('hidden')
     })
 })

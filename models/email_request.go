@@ -80,7 +80,7 @@ func (s *EmailRequest) Success() error {
 // PostEmailRequest stores a SendTestEmailRequest in the database.
 func PostEmailRequest(s *EmailRequest) error {
 	// Generate an ID to be used in the underlying Result object
-	rid, err := generateResultId()
+	rid, err := generateResultId("", 0)
 	if err != nil {
 		return err
 	}

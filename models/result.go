@@ -3,6 +3,8 @@ package models
 import (
 	"crypto/rand"
 	"encoding/json"
+	"errors"
+	"math"
 	"math/big"
 	"net"
 	"time"
@@ -170,9 +172,12 @@ func (r *Result) UpdateGeo(addr string) error {
 	return db.Save(r).Error
 }
 
-func generateResultId() (string, error) {
-	const alphaNum = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-	k := make([]byte, 7)
+func generateResultId(alphaNum string, r_id_length int64) (string, error) {
+	if len(alphaNum) == 0 || r_id_length <= 0 {
+		alphaNum = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+		r_id_length = 7
+	}
+	k := make([]byte, r_id_length)
 	for i := range k {
 		idx, err := rand.Int(rand.Reader, big.NewInt(int64(len(alphaNum))))
 		if err != nil {
@@ -185,10 +190,12 @@ func generateResultId() (string, error) {
 
 // GenerateId generates a unique key to represent the result
 // in the database
-func (r *Result) GenerateId(tx *gorm.DB) error {
+func (r *Result) GenerateId(tx *gorm.DB, character_set string, r_id_length int64) error {
 	// Keep trying until we generate a unique key (shouldn't take more than one or two iterations)
+	max_iterations := int(math.Pow(float64(len(character_set)), float64(r_id_length)))
+	iteration_count := 0
 	for {
-		rid, err := generateResultId()
+		rid, err := generateResultId(character_set, r_id_length)
 		if err != nil {
 			return err
 		}
@@ -196,6 +203,11 @@ func (r *Result) GenerateId(tx *gorm.DB) error {
 		err = tx.Table("results").Where("r_id=?", r.RId).First(&Result{}).Error
 		if err == gorm.ErrRecordNotFound {
 			break
+		}
+
+		iteration_count++
+		if iteration_count >= max_iterations {
+			return errors.New("Too many iterations - Consider increasing the character set and/or RId length")
 		}
 	}
 	return nil
