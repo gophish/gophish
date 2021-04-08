@@ -37,8 +37,9 @@
                     <thead>
                         <tr>
                             <th class="col-md-3">Name</th>
-                            <th class="col-md-4">Created Date</th>
+                            <th class="col-md-2">Created Date</th>
                             <th class="col-md-2">Status</th>
+                            <th class="col-md-2">Character Set</th>
                             <th class="col-md-3 no-sort"></th>
                         </tr>
                     </thead>
@@ -60,8 +61,9 @@
                     <thead>
                         <tr>
                             <th class="col-md-3">Name</th>
-                            <th class="col-md-4">Created Date</th>
+                            <th class="col-md-2">Created Date</th>
                             <th class="col-md-2">Status</th>
+                            <th class="col-md-2">Character Set</th>
                             <th class="col-md-3 no-sort"></th>
                         </tr>
                     </thead>
@@ -124,6 +126,24 @@
                     </div>
                     <label class="control-label" for="users">Groups:</label>
                     <select class="form-control" id="users" multiple="multiple"></select>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <input type="checkbox" id="customize_rid">
+                            <label for="customize_rid">Customize RId</label>
+                        </div>
+                    </div>
+
+                    <div class="row hidden" id="fields-customize_rid">
+                        <div class="col-md-8">
+                            <label for="character_set">RId Character Set</label>
+                            <input type="text" class="form-control" id="character_set" placeholder="Character set for RId variable" value="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="r_id_length">RId Length</label>
+                            <input type="number" class="form-control" id="r_id_length" placeholder="Length for RId variable" value="7">
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
