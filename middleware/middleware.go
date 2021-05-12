@@ -91,7 +91,7 @@ func RequireAPIKey(handler http.Handler) http.Handler {
 			}
 		}
 		if ak == "" {
-			JSONError(w, http.StatusUnauthorized, "API Key not set")
+			JSONError(w, http.StatusUnauthorized, "Logged out") //API Key not set
 			return
 		}
 		u, err := models.GetUserByAPIKey(ak)
