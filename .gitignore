@@ -29,3 +29,8 @@ gophish_admin.key
 *.exe
 gophish.db*
 gophish
+/.idea/.gitignore
+/.idea/gophish-attachment-tracking.iml
+/.idea/modules.xml
+/package-lock.json
+/.idea/vcs.xml
