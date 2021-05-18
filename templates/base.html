@@ -17,9 +17,8 @@
     <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300,600,700' rel='stylesheet' type='text/css'>
     <script>
         {{if .User}}
-    var user = {
-            username : {{ .User.Username }}
-        }
+    var user = {{.User.Username }}
+
     {{end}}
     {{if .Token}}
         var csrf_token = {{.Token}}
