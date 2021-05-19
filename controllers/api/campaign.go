@@ -135,3 +135,18 @@ func (as *Server) CampaignComplete(w http.ResponseWriter, r *http.Request) {
 		JSONResponse(w, models.Response{Success: true, Message: "Campaign completed successfully!"}, http.StatusOK)
 	}
 }
+
+func (as *Server) FalsePositive(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, _ := strconv.ParseInt(vars["id"], 0, 64)
+	rid, _ := vars["rid"]
+	switch {
+	case r.Method == "GET":
+		err := models.MarkEvent(id, rid)
+		if err != nil {
+			JSONResponse(w, models.Response{Success: false, Message: "Error marking event as false positive"}, http.StatusInternalServerError)
+			return
+		}
+		JSONResponse(w, models.Response{Success: true, Message: "Event marked as false positive!"}, http.StatusOK)
+	}
+}

@@ -42,6 +42,12 @@ var statuses = {
         icon: "fa-exclamation",
         point: "ct-point-clicked"
     },
+    "True/False":{
+        color: "#6c7a89",
+        label: "label-info",
+        icon: "fa-eraser",
+        point: "ct-point-true_false"
+    },
     //not a status, but is used for the campaign timeline and user timeline
     "Email Reported": {
         color: "#45d6ef",
@@ -178,7 +184,7 @@ function completeCampaign() {
             return new Promise(function (resolve, reject) {
                 api.campaignId.complete(campaign.id)
                     .success(function (msg) {
-                        resolve()
+                        resolve()      
                     })
                     .error(function (data) {
                         reject(data.responseJSON.message)
@@ -235,6 +241,56 @@ function exportAsCSV(scope) {
     }
     $("#exportButton").html(exportHTML)
 }
+
+function false_positive(rid, eventid, cid, repo) {
+    if(repo === 'true'){
+        Swal.fire({
+            title: "Are you sure?", 
+            text: "This will flag the submitted data as False Positive and substract it from the count. Please make sure that they are invalid!",
+            type: "question",
+            animation: false,
+            showCancelButton: true,
+            reverseButtons: true,
+            allowOutsideClick: false,
+            showLoaderOnConfirm: true
+        }).then(function (result) {
+            if (result.value){
+                api.eventId.falsepositive(eventid, rid).success((function() {
+                    refresh();
+                } ));
+            }
+        })
+    }
+    else{ // will be called if Reported is not marked
+        Swal.fire({
+            title: "Are you sure?", 
+            text: "This will flag the submitted data as False Positive and substract it from the count. Please make sure that they are invalid!",
+            type: "question",
+            animation: false,
+            showCancelButton: true,
+            input: 'checkbox',
+            inputValue: 1,
+            inputPlaceholder: 'Mark as reported too',
+            confirmButtonText: "Continue",
+            confirmButtonColor: "#428bca",
+            reverseButtons: true,
+            allowOutsideClick: false,
+            showLoaderOnConfirm: true
+        }).then(function (result) {
+            if (result.value && !result.reported){ // Reports the rid as Reported and the submitted data as false positive
+                report_mail(escapeHtml(rid), cid);
+                api.eventId.falsepositive(eventid, rid).success((function() {
+                    refresh();
+                } ));
+            } else if (result.value === 0){ // Marks the Event with the submitted data as false positive
+                api.eventId.falsepositive(eventid, rid).success((function() {
+                    refresh();
+                }));
+            }
+        })
+    }
+}
+
 
 function replay(event_idx) {
     request = campaign.timeline[event_idx]
@@ -400,7 +456,13 @@ function renderTimeline(data) {
                 }
                 if (event.message == "Submitted Data") {
                     results += '<div class="timeline-replay-button"><button onclick="replay(' + i + ')" class="btn btn-success">'
-                    results += '<i class="fa fa-refresh"></i> Replay Credentials</button></div>'
+                    results += '<i class="fa fa-refresh"></i> Replay Credentials</button>'
+                    if(campaign.timeline[i].false_positive === true){
+                        results += '<div class="alert alert-warning mt-1" role="alert">Marked as False Positive!</div></div>'
+                    }
+                    else{
+                        results += '<button onclick="false_positive(\'' + record.id + '\',\'' + campaign.timeline[i].id + '\',\'' + campaign.id + '\',\'' + record.reported + '\')" id="false-positive-button" class="btn btn-warning ms-1"><i class="fa fa-ban"></i> False Positive</button></div>'
+                    }
                     results += '<div class="timeline-event-details"><i class="fa fa-caret-right"></i> View Details</div>'
                 }
                 if (details.payload) {

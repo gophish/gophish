@@ -74,12 +74,13 @@ type CampaignStats struct {
 // Event contains the fields for an event
 // that occurs during the campaign
 type Event struct {
-	Id         int64     `json:"-"`
-	CampaignId int64     `json:"campaign_id"`
-	Email      string    `json:"email"`
-	Time       time.Time `json:"time"`
-	Message    string    `json:"message"`
-	Details    string    `json:"details"`
+	Id            int64     `json:"id"`
+	CampaignId    int64     `json:"campaign_id"`
+	Email         string    `json:"email"`
+	Time          time.Time `json:"time"`
+	Message       string    `json:"message"`
+	Details       string    `json:"details"`
+	FalsePositive bool      `json:"false_positive"`
 }
 
 // EventDetails is a struct that wraps common attributes we want to store
@@ -152,6 +153,33 @@ func (c *Campaign) Validate() error {
 func (c *Campaign) UpdateStatus(s string) error {
 	// This could be made simpler, but I think there's a bug in gorm
 	return db.Table("campaigns").Where("id=?", c.Id).Update("status", s).Error
+}
+
+// Sets the False Positive-field for the specified eventid to true.
+// Checks if all Events with the specific email in that campaign where data has been submitted are set to false_positive "true" and if thats the case changes
+// the status in the "results" table for that recipient back to "Clicked Link" hence it won´t be count in the Submitted statistic until new data is submitted
+func MarkEvent(eveId int64, rid string) error {
+	var mailcount int64
+	var fpcount int64
+	s := Event{}
+	query := db.Table("events").Where("id=?", eveId).Update("false_positive", true).Error
+	if query != nil {
+		log.Errorf("Problem editing false_positive in database: Table \"events\" on id %d", eveId)
+	}
+	mailquery := db.Table("events").Where("id = ?", eveId)
+	mailquery.Select("id, campaign_id, email, time, message, details, false_positive")
+	err := mailquery.Scan(&s).Error
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+	//Counter to check if all Data Submitted is flaged as false/positive
+	db.Table("events").Select("Count(*)").Where("email = ? AND message = ?", s.Email, "Submitted Data").Count(&mailcount)
+	db.Table("events").Select("Count(*)").Where("email = ? AND message = ? AND false_positive = ?", s.Email, "Submitted Data", true).Count(&fpcount)
+	if mailcount == fpcount {
+		return db.Table("results").Where("campaign_id = ? AND r_id = ?", s.CampaignId, rid).Update("status", "Clicked Link").Error
+	}
+	return query
 }
 
 // AddEvent creates a new campaign event in the database
