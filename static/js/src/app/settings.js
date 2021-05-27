@@ -3,7 +3,7 @@ $(document).ready(function () {
     $("#apiResetForm").submit(function (e) {
         api.reset()
             .success(function (response) {
-                api_key = response.data //API-Key is still associated with a user in the backend
+                var api_key = response.data //API-Key is still associated with a user in the backend
                 successFlash(response.message)
                 $("#api_key").val(api_key)
             })
