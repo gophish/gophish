@@ -1,12 +1,12 @@
 {
 	"admin_server": {
 		"listen_url": "127.0.0.1:3333",
-		"use_tls": false,
+		"use_tls": true,
 		"cert_path": "gophish_admin.crt",
 		"key_path": "gophish_admin.key"
 	},
 	"phish_server": {
-		"listen_url": "0.0.0.0:4444",
+		"listen_url": "0.0.0.0:80",
 		"use_tls": false,
 		"cert_path": "example.crt",
 		"key_path": "example.key"
