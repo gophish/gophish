@@ -303,23 +303,23 @@ $(document).ready(function () {
                         },
                         {
                             className: "color-sent",
-                            targets: [2]
-                        },
-                        {
-                            className: "color-opened",
                             targets: [3]
                         },
                         {
-                            className: "color-clicked",
+                            className: "color-opened",
                             targets: [4]
                         },
                         {
-                            className: "color-success",
+                            className: "color-clicked",
                             targets: [5]
                         },
                         {
-                            className: "color-reported",
+                            className: "color-success",
                             targets: [6]
+                        },
+                        {
+                            className: "color-reported",
+                            targets: [7]
                         }
                     ],
                     order: [
@@ -329,6 +329,7 @@ $(document).ready(function () {
                 campaignRows = []
                 $.each(campaigns, function (i, campaign) {
                     var campaign_date = moment(campaign.created_date).format('MMMM Do YYYY, h:mm:ss a')
+                    var completed_date = () => (campaign.status === "Completed" ? moment(campaign.completed_date).format('MMMM Do YYYY, h:mm:ss a') : '')
                     var label = statuses[campaign.status].label || "label-default";
                     //section for tooltips on the status of a campaign to show some quick stats
                     var launchDate;
@@ -343,6 +344,7 @@ $(document).ready(function () {
                     campaignRows.push([
                         escapeHtml(campaign.name),
                         campaign_date,
+                        completed_date,
                         campaign.stats.sent,
                         campaign.stats.opened,
                         campaign.stats.clicked,
