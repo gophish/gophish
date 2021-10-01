@@ -153,6 +153,7 @@ function edit(idx) {
     })
     var profile = {}
     if (idx != -1) {
+        $("#profileModalLabel").text("Edit Sending Profile")
         profile = profiles[idx]
         $("#name").val(profile.name)
         $("#interface_type").val(profile.interface_type)
@@ -164,6 +165,8 @@ function edit(idx) {
         $.each(profile.headers, function (i, record) {
             addCustomHeader(record.key, record.value)
         });
+    } else {
+        $("#profileModalLabel").text("New Sending Profile")
     }
 }
 
