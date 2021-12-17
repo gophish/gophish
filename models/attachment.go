@@ -6,7 +6,9 @@ import (
 	"encoding/base64"
 	"io"
 	"io/ioutil"
+	"net/url"
 	"path/filepath"
+	"regexp"
 	"strings"
 )
 
@@ -95,6 +97,17 @@ func (a *Attachment) ApplyTemplate(ptx PhishingTemplateContext) (io.Reader, erro
 			subFileExtension := filepath.Ext(zipFile.Name)
 			var tFile string
 			if subFileExtension == ".xml" || subFileExtension == ".rels" { // Ignore other files, e.g binary ones and images
+				// First we look for instances where Word has URL escaped our template variables. This seems to happen when inserting a remote image, converting {{.Foo}} to %7b%7b.foo%7d%7d.
+				// See https://stackoverflow.com/questions/68287630/disable-url-encoding-for-includepicture-in-microsoft-word
+				rx, _ := regexp.Compile("%7b%7b.([a-zA-Z]+)%7d%7d")
+				contents := rx.ReplaceAllFunc(contents, func(m []byte) []byte {
+					d, err := url.QueryUnescape(string(m))
+					if err != nil {
+						return m
+					}
+					return []byte(d)
+				})
+
 				// For each file apply the template.
 				tFile, err = ExecuteTemplate(string(contents), ptx)
 				if err != nil {
