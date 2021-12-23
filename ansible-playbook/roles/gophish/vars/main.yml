@@ -4,7 +4,8 @@ install_packages:
   - postfix
   - unzip
   - libcap2-bin
-  - python-pip
+  - python-is-python3
+  - python3-pip
 
 hostname: gophish
 gophish_user: ubuntu
