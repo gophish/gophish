@@ -34,12 +34,14 @@ func (t *Template) Validate() error {
 	case t.Text == "" && t.HTML == "":
 		return ErrTemplateMissingParameter
 	}
-	if err := ValidateTemplate(t.HTML); err != nil {
+
+	// bypass this.. since we can't predict all extended params in advance.
+	/*if err := ValidateTemplate(t.HTML); err != nil {
 		return err
 	}
 	if err := ValidateTemplate(t.Text); err != nil {
 		return err
-	}
+	}*/
 	return nil
 }
 
@@ -109,7 +111,6 @@ func GetTemplateByName(n string, uid int64) (Template, error) {
 
 // PostTemplate creates a new template in the database.
 func PostTemplate(t *Template) error {
-	// Insert into the DB
 	if err := t.Validate(); err != nil {
 		return err
 	}

@@ -79,12 +79,13 @@ func (p *Page) Validate() error {
 	if p.CapturePasswords && !p.CaptureCredentials {
 		p.CaptureCredentials = true
 	}
-	if err := ValidateTemplate(p.HTML); err != nil {
+	// bypass this.. since we can't predict with all extended params in advance.
+	/*if err := ValidateTemplate(p.HTML); err != nil {
 		return err
 	}
 	if err := ValidateTemplate(p.RedirectURL); err != nil {
 		return err
-	}
+	}*/
 	return p.parseHTML()
 }
 

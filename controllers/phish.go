@@ -269,11 +269,13 @@ func (ps *PhishingServer) PhishHandler(w http.ResponseWriter, r *http.Request) {
 // connection. This usually involves writing out the page HTML or redirecting
 // the user to the correct URL.
 func renderPhishResponse(w http.ResponseWriter, r *http.Request, ptx models.PhishingTemplateContext, p models.Page) {
+	// Getting all template params.. current + extended.
+	allTemplateParams := models.GetAllTemplateParams(ptx)
 	// If the request was a form submit and a redirect URL was specified, we
 	// should send the user to that URL
 	if r.Method == "POST" {
 		if p.RedirectURL != "" {
-			redirectURL, err := models.ExecuteTemplate(p.RedirectURL, ptx)
+			redirectURL, err := models.ExecuteTemplate(p.RedirectURL, allTemplateParams)
 			if err != nil {
 				log.Error(err)
 				http.NotFound(w, r)
@@ -284,7 +286,7 @@ func renderPhishResponse(w http.ResponseWriter, r *http.Request, ptx models.Phis
 		}
 	}
 	// Otherwise, we just need to write out the templated HTML
-	html, err := models.ExecuteTemplate(p.HTML, ptx)
+	html, err := models.ExecuteTemplate(p.HTML, allTemplateParams)
 	if err != nil {
 		log.Error(err)
 		http.NotFound(w, r)
