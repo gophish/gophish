@@ -1,0 +1,51 @@
+BEGIN:VCALENDAR
+PRODID:-//zoom.us//iCalendar Event//EN
+VERSION:2.0
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+CLASS:PUBLIC
+BEGIN:VTIMEZONE
+TZID:Europe/London
+TZURL:http://tzurl.org/zoneinfo-outlook/Europe/London
+X-LIC-LOCATION:Europe/London
+BEGIN:DAYLIGHT
+TZOFFSETFROM:+0000
+TZOFFSETTO:+0100
+TZNAME:BST
+DTSTART:19700329T010000
+RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU
+END:DAYLIGHT
+BEGIN:STANDARD
+TZOFFSETFROM:+0100
+TZOFFSETTO:+0000
+TZNAME:GMT
+DTSTART:19701025T020000
+RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+DTSTAMP:20210306T182251Z
+DTSTART;TZID=Europe/London:20210306T183000
+DTEND;TZID=Europe/London:20210306T190000
+SUMMARY:Gophish Test Calendar
+UID:20210306T182251Z-89336450000@fe80:0:0:0:31:49ff:fec9:f252ens5
+TZID:Europe/London
+DESCRIPTION:Glenn Wilkinson is inviting you to a scheduled Zoom meeting.\
+ n\nJoin Zoom Meeting\n{{.URL}}\n\nMeeting ID: 893 3645 9466\nPasscode: 31337\
+ nOne tap mobile\n+442039017895\,\,89336450000#\,\,\,\,*509879# United Ki
+ ngdom\n+441314601196\,\,89336450000#\,\,\,\,*509879# United Kingdom\n\nD
+ ial by your location\n        +44 203 901 7895 United Kingdom\n        +
+ 44 131 460 1196 United Kingdom\n        +44 203 051 2874 United Kingdom\
+ n        +44 203 481 5237 United Kingdom\n        +44 203 481 5240 Unite
+ d Kingdom\n        +1 253 215 8782 US (Tacoma)\n        +1 301 715 8592 
+ US (Washington DC)\n        +1 312 626 6799 US (Chicago)\n        +1 346
+  248 7799 US (Houston)\n        +1 646 558 8656 US (New York)\n        +
+ 1 669 900 9128 US https://us02web.zoom.us/u/kpXDbMrN\n\n
+LOCATION:{{.URL}}
+BEGIN:VALARM
+TRIGGER:-PT10M
+ACTION:DISPLAY
+DESCRIPTION:Reminder
+END:VALARM
+END:VEVENT
+END:VCALENDAR
