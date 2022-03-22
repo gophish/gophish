@@ -6,6 +6,8 @@ The target's last name: {{.LastName}}
 
 The target's position: {{.Position}}
 
+The target's manager: {{.Manager}}
+
 The target's email address: {{.Email}}
 
 The spoofed sender: {{.From}}

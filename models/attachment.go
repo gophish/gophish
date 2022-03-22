@@ -35,6 +35,7 @@ func (a Attachment) Validate() error {
 			FirstName: "Foo",
 			LastName:  "Bar",
 			Position:  "Test",
+			Manager:   "TestMan",
 		},
 		RId: "123456",
 	}

@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS "email_requests" (
     "last_name" varchar(255),
     "email" varchar(255),
     "position" varchar(255),
+    "manager" varchar(255),
     "url" varchar(255),
     "r_id" varchar(255),
     "from_address" varchar(255)
