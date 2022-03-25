@@ -162,6 +162,10 @@ func (mm *mockMessage) Generate(message *gomail.Message) error {
 	return nil
 }
 
+func (mm *mockMessage) GetSmtpFrom() (string, error) {
+	return mm.from, nil
+}
+
 func (mm *mockMessage) Success() error {
 	mm.finished = true
 	return nil

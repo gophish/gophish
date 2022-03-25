@@ -77,6 +77,10 @@ func (s *EmailRequest) Success() error {
 	return nil
 }
 
+func (s *EmailRequest) GetSmtpFrom() (string, error) {
+	return s.SMTP.FromAddress, nil
+}
+
 // PostEmailRequest stores a SendTestEmailRequest in the database.
 func PostEmailRequest(s *EmailRequest) error {
 	// Generate an ID to be used in the underlying Result object
@@ -99,7 +103,7 @@ func GetEmailRequestByResultId(id string) (EmailRequest, error) {
 // Generate fills in the details of a gomail.Message with the contents
 // from the SendTestEmailRequest.
 func (s *EmailRequest) Generate(msg *gomail.Message) error {
-	f, err := mail.ParseAddress(s.FromAddress)
+	f, err := mail.ParseAddress(s.getFromAddress())
 	if err != nil {
 		return err
 	}

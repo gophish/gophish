@@ -149,6 +149,16 @@ func (m *MailLog) CacheCampaign(campaign *Campaign) error {
 	return nil
 }
 
+func (m *MailLog) GetSmtpFrom() (string, error) {
+	c, err := GetCampaign(m.CampaignId, m.UserId)
+	if err != nil {
+		return "", err
+	}
+
+	f, err := mail.ParseAddress(c.SMTP.FromAddress)
+	return f.Address, err
+}
+
 // Generate fills in the details of a gomail.Message instance with
 // the correct headers and body from the campaign and recipient listed in
 // the maillog. We accept the gomail.Message as an argument so that the caller
@@ -167,9 +177,12 @@ func (m *MailLog) Generate(msg *gomail.Message) error {
 		c = &campaign
 	}
 
-	f, err := mail.ParseAddress(c.SMTP.FromAddress)
+	f, err := mail.ParseAddress(c.Template.EnvelopeSender)
 	if err != nil {
-		return err
+		f, err = mail.ParseAddress(c.SMTP.FromAddress)
+		if err != nil {
+			return err
+		}
 	}
 	msg.SetAddressHeader("From", f.Address, f.Name)
 

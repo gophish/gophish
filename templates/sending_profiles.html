@@ -50,7 +50,8 @@
                         <input type="text" class="form-control" placeholder="Profile name" id="name" autofocus />
                         <label class="control-label" for="interface_type">Interface Type:</label>
                         <input type="text" class="form-control" value="SMTP" id="interface_type" disabled />
-                        <label class="control-label" for="from">From:</label>
+                        <label class="control-label" for="from">SMTP From: <i class="fa fa-question-circle"
+                                data-toggle="tooltip" data-placement="right" title="Set this to an email address from your sending domain to bypass SPF-checks. You can set the Envelope Sender in Email Templates. The Envelope Sender is shown to the user."></i></label>
                         <input type="text" class="form-control" placeholder="First Last <test@example.com>" id="from"
                             required />
                         <label class="control-label" for="host">Host:</label>
