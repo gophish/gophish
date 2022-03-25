@@ -20,6 +20,7 @@ func (s *ModelsSuite) TestAttachment(c *check.C) {
 			LastName:  "Bar",
 			Email:     "foo@bar.com",
 			Position:  "Space Janitor",
+			Manager:   "Space Supervisor",
 		},
 		BaseURL:     "http://testurl.com",
 		URL:         "http://testurl.com/?rid=1234567",

@@ -39,6 +39,7 @@ func (as *Server) SendTestEmail(w http.ResponseWriter, r *http.Request) {
 			"{{if .FirstName}} First Name: {{.FirstName}}\n{{end}}" +
 			"{{if .LastName}} Last Name: {{.LastName}}\n{{end}}" +
 			"{{if .Position}} Position: {{.Position}}\n{{end}}" +
+			"{{if .Manager}} Manager: {{.Manager}}\n{{end}}" +
 			"\nNow go send some phish!"
 		t := models.Template{
 			Subject: "Default Email from Gophish",

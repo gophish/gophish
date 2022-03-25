@@ -28,6 +28,7 @@ var (
 	lastNameRegex  = regexp.MustCompile(`(?i)last[\s_-]*name`)
 	emailRegex     = regexp.MustCompile(`(?i)email`)
 	positionRegex  = regexp.MustCompile(`(?i)position`)
+	managerRegex   = regexp.MustCompile(`(?i)manager`)
 )
 
 // ParseMail takes in an HTTP Request and returns an Email object
@@ -70,10 +71,12 @@ func ParseCSV(r *http.Request) ([]models.Target, error) {
 		li := -1
 		ei := -1
 		pi := -1
+		mi := -1
 		fn := ""
 		ln := ""
 		ea := ""
 		ps := ""
+		mn := ""
 		for i, v := range record {
 			switch {
 			case firstNameRegex.MatchString(v):
@@ -84,6 +87,8 @@ func ParseCSV(r *http.Request) ([]models.Target, error) {
 				ei = i
 			case positionRegex.MatchString(v):
 				pi = i
+			case managerRegex.MatchString(v):
+				mi = i
 			}
 		}
 		if fi == -1 && li == -1 && ei == -1 && pi == -1 {
@@ -110,12 +115,16 @@ func ParseCSV(r *http.Request) ([]models.Target, error) {
 			if pi != -1 && len(record) > pi {
 				ps = record[pi]
 			}
+			if mi != -1 && len(record) > mi {
+				mn = record[mi]
+			}
 			t := models.Target{
 				BaseRecipient: models.BaseRecipient{
 					FirstName: fn,
 					LastName:  ln,
 					Email:     ea,
 					Position:  ps,
+					Manager:   mn,
 				},
 			}
 			ts = append(ts, t)
