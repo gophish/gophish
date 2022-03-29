@@ -49,14 +49,20 @@
                 <div class="row" id="modal.flashes"></div>
                 <label class="control-label" for="name">Name:</label>
                 <div class="form-group">
+                    <div class="input-group">
                     <input type="text" class="form-control" ng-model="group.name" placeholder="Group name" id="name"
                         autofocus />
+                        <span class="input-group-btn">
+                            <button  class="btn btn-default" onclick="saveGroupName()" type="button">Save</button>
+                       </span>
+                    </div>
+                    <input id="groupid" type="hidden"/>
                 </div>
                 <div class="form-group">
                     <span class="btn btn-danger btn-file" data-toggle="tooltip" data-placement="right"
                         title="Supports CSV files" id="fileUpload">
                         <i class="fa fa-plus"></i> Bulk Import Users
-                        <input type="file" id="csvupload" multiple>
+                        <input type="file" id="csvupload" name=""> <!-- Removed 'multiple' keyword due to new CSV upload functionality. Fails with new group creation. See Groups function in api/group.go -->
                     </span>
                     <span id="csv-template" class="text-muted small">
                         <i class="fa fa-file-excel-o"></i> Download CSV Template</span>
@@ -83,6 +89,7 @@
                 </div>
                 <br />
                 <table id="targetsTable" class="table table-hover table-striped table-condensed">
+
                     <thead>
                         <tr>
                             <th>First Name</th>
@@ -90,17 +97,20 @@
                             <th>Email</th>
                             <th>Position</th>
                             <th class="no-sort"></th>
-                    <tbody>
-                    </tbody>
+                        </tr>
+                    </thead>
                 </table>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="modalSubmit">Save changes</button>
             </div>
         </div>
     </div>
 </div>
 {{end}} {{define "scripts"}}
+<script>
+
+
+    
+</script>
 <script src="/js/dist/app/groups.min.js"></script>
 {{end}}

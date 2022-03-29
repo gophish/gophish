@@ -41,7 +41,7 @@ type emailResponse struct {
 
 // ImportGroup imports a CSV of group members
 func (as *Server) ImportGroup(w http.ResponseWriter, r *http.Request) {
-	ts, err := util.ParseCSV(r)
+	ts, _, err := util.ParseCSV(r)
 	if err != nil {
 		JSONResponse(w, models.Response{Success: false, Message: "Error parsing CSV"}, http.StatusInternalServerError)
 		return

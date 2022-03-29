@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/mail"
+	"strings"
 	"time"
 
 	log "github.com/gophish/gophish/logger"
@@ -46,7 +47,7 @@ type GroupTarget struct {
 // Target contains the fields needed for individual targets specified by the user
 // Groups contain 1..* Targets, but 1 Target may belong to 1..* Groups
 type Target struct {
-	Id int64 `json:"-"`
+	Id int64 `json:"id"`
 	BaseRecipient
 }
 
@@ -57,6 +58,15 @@ type BaseRecipient struct {
 	FirstName string `json:"first_name"`
 	LastName  string `json:"last_name"`
 	Position  string `json:"position"`
+}
+
+// DataTable is used to return a JSON object suitable for consumption by DataTables
+// when using pagination
+type DataTable struct {
+	Draw            int64         `json:"draw"`
+	RecordsTotal    int64         `json:"recordsTotal"`
+	RecordsFiltered int64         `json:"recordsFiltered"`
+	Data            []interface{} `json:"data"`
 }
 
 // FormatAddress returns the email address to use in the "To" header of the email
@@ -312,6 +322,91 @@ func DeleteGroup(g *Group) error {
 	return err
 }
 
+// DeleteTarget deletes a single target from a group given by target ID
+func DeleteTarget(t *Target, gid int64, uid int64) error {
+
+	targetOwner, err := GetTargetOwner(t.Id)
+	if err != nil {
+		return err
+	}
+	if targetOwner != uid {
+		return errors.New("No such target id (wrong owner)")
+	}
+
+	err = db.Delete(t).Error
+	if err != nil {
+		return err
+	}
+	err = db.Where("target_id=?", t.Id).Delete(&GroupTarget{}).Error
+	if err != nil {
+		return err
+	}
+	// Update group modification date
+	err = db.Model(&Group{}).Where("id=?", gid).Update("ModifiedDate", time.Now().UTC()).Error
+	return err
+}
+
+// UpdateGroup updates a given group (without updating the targets)
+// Note: I thought about putting this in the Group() function, but we'd have to skip the validation and have a boolean
+//    	 indicating we just want to rename the group.
+func UpdateGroup(g *Group) error {
+	if g.Name == "" {
+		return ErrGroupNameNotSpecified
+	}
+	err := db.Save(g).Error
+	return err
+}
+
+// AddTargetsToGroup adds targets to a group, updating on duplicate email
+func AddTargetsToGroup(nts []Target, gid int64) error {
+
+	// Fetch group's existing targets from database.
+	ets, err := GetTargets(gid)
+	if err != nil {
+		return err
+	}
+	// Load email to target id cache
+	existingTargetCache := make(map[string]int64, len(ets))
+	for _, t := range ets {
+		existingTargetCache[t.Email] = t.Id
+	}
+
+	// Step over each new target and see if it exists in the cache map.
+	tx := db.Begin()
+	for _, nt := range nts {
+		if _, ok := existingTargetCache[nt.Email]; ok {
+			// Update
+			nt.Id = existingTargetCache[nt.Email]
+			err = UpdateTarget(tx, nt)
+			if err != nil {
+				log.Error(err)
+				tx.Rollback()
+				return err
+			}
+		} else {
+			// Otherwise, add target if not in database
+			err = insertTargetIntoGroup(tx, nt, gid)
+			if err != nil {
+				log.Error(err)
+				tx.Rollback()
+				return err
+			}
+		}
+	} // for each new target
+
+	err = tx.Model(&Group{}).Where("id=?", gid).Update("ModifiedDate", time.Now().UTC()).Error // put this in the tx too TODO
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	err = tx.Commit().Error
+	if err != nil {
+		tx.Rollback()
+	}
+	return err
+}
+
 func insertTargetIntoGroup(tx *gorm.DB, t Target, gid int64) error {
 	if _, err := mail.ParseAddress(t.Email); err != nil {
 		log.WithFields(logrus.Fields{
@@ -361,4 +456,63 @@ func GetTargets(gid int64) ([]Target, error) {
 	ts := []Target{}
 	err := db.Table("targets").Select("targets.id, targets.email, targets.first_name, targets.last_name, targets.position").Joins("left join group_targets gt ON targets.id = gt.target_id").Where("gt.group_id=?", gid).Scan(&ts).Error
 	return ts, err
+}
+
+// GetDataTable performs a many-to-many select to get all the Targets for a Group with supplied filters
+// start, length, and search, order can be supplied, or -1, -1, "", "" to ignore
+func GetDataTable(gid int64, start int64, length int64, search string, order string) (DataTable, error) {
+
+	dt := DataTable{}
+	ts := []Target{}
+	order = strings.TrimSpace(order)
+	search = strings.TrimSpace(search)
+	if order == "" {
+		order = "targets.first_name asc"
+	} else {
+		order = "targets." + order
+	}
+
+	// 1. Get the total number of targets in group:
+	err := db.Table("group_targets").Where("group_id=?", gid).Count(&dt.RecordsTotal).Error
+	if err != nil {
+		return dt, err
+	}
+
+	// 2. Fetch targets, applying relevant start, length, search, and order paramters.
+	// TODO: Rather than having two queries create a partial query and include the search options. Haven't been able to figure out how yet.
+	if search != "" {
+		var count int64
+		search = "%" + search + "%"
+
+		// 2.1 Apply search filter
+		err = db.Order(order).Table("targets").Select("targets.id, targets.email, targets.first_name, targets.last_name, targets.position").Joins("left join group_targets gt ON targets.id = gt.target_id").Where("gt.group_id=?", gid).Where("targets.first_name LIKE ? OR targets.last_name LIKE ? OR targets.email LIKE ? or targets.position LIKE ?", search, search, search, search).Count(&count).Offset(start).Limit(length).Scan(&ts).Error
+
+		dt.RecordsFiltered = count // The number of results from applying the search filter (calculated before trimming down the results with offset and limit)
+
+	} else {
+		err = db.Order(order).Table("targets").Select("targets.id, targets.email, targets.first_name, targets.last_name, targets.position").Joins("left join group_targets gt ON targets.id = gt.target_id").Where("gt.group_id=?", gid).Offset(start).Limit(length).Scan(&ts).Error
+		dt.RecordsFiltered = dt.RecordsTotal
+	}
+
+	// 3. Insert targes into datatable struct
+	dt.Data = make([]interface{}, len(ts)) // Pseudocode of 'dT.Data = g.Targets'. https://golang.org/doc/faq#convert_slice_of_interface
+	for i, v := range ts {
+		dt.Data[i] = v
+	}
+
+	return dt, err
+}
+
+// GetTargetByEmail gets a single target from a group by email address and group id
+func GetTargetByEmail(gid int64, email string) ([]Target, error) {
+	ts := []Target{}
+	err := db.Table("targets").Select("targets.id, targets.email, targets.first_name, targets.last_name, targets.position").Joins("left join group_targets gt ON targets.id = gt.target_id").Where("gt.group_id=?", gid).Where("targets.email=?", email).First(&ts).Error
+	return ts, err
+}
+
+// GetTargetOwner returns the user id owner of a given target id
+func GetTargetOwner(tid int64) (int64, error) {
+	g := Group{}
+	err := db.Table("groups").Select("groups.user_id").Joins("left join group_targets on group_targets.group_id = groups.id").Where("group_targets.target_id = ?", tid).Scan(&g).Error
+	return g.UserId, err
 }
