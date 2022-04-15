@@ -61,9 +61,11 @@ const edit = (id) => {
     })
     $("#role").select2()
     if (id == -1) {
+        $("#userModalLabel").text("New User")
         $("#role").val("user")
         $("#role").trigger("change")
     } else {
+        $("#userModalLabel").text("Edit User")
         api.userId.get(id)
             .success((user) => {
                 $("#username").val(user.username)

@@ -88,6 +88,7 @@ const editWebhook = (id) => {
         saveWebhook(id);
     });
     if (id !== -1) {
+        $("#webhookModalLabel").text("Edit Webhook")
         api.webhookId.get(id)
           .success(function(wh) {
               $("#name").val(wh.name);
@@ -98,6 +99,8 @@ const editWebhook = (id) => {
           .error(function () {
               errorFlash("Error fetching webhook")
           });
+    } else {
+        $("#webhookModalLabel").text("New Webhook")
     }
 };
 

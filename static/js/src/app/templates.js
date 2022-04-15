@@ -187,6 +187,7 @@ function edit(idx) {
         attachments: []
     }
     if (idx != -1) {
+        $("#templateModalLabel").text("Edit Template")
         template = templates[idx]
         $("#name").val(template.name)
         $("#subject").val(template.subject)
@@ -212,6 +213,8 @@ function edit(idx) {
             $("#use_tracker_checkbox").prop("checked", false)
         }
 
+    } else {
+        $("#templateModalLabel").text("New Template")
     }
     // Handle Deletion
     $("#attachmentsTable").unbind('click').on("click", "span>i.fa-trash-o", function () {

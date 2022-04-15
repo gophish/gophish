@@ -113,6 +113,7 @@ function edit(idx) {
     setupAutocomplete(CKEDITOR.instances["html_editor"])
     var page = {}
     if (idx != -1) {
+        $("#modalLabel").text("Edit Landing Page")
         page = pages[idx]
         $("#name").val(page.name)
         $("#html_editor").val(page.html)
@@ -123,6 +124,8 @@ function edit(idx) {
             $("#capture_passwords").show()
             $("#redirect_url").show()
         }
+    } else {
+        $("#modalLabel").text("New Landing Page")
     }
 }
 

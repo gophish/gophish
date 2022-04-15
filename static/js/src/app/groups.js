@@ -64,8 +64,10 @@ function edit(id) {
         save(id)
     })
     if (id == -1) {
+        $("#groupModalLabel").text("New Group");
         var group = {}
     } else {
+        $("#groupModalLabel").text("Edit Group");
         api.groupId.get(id)
             .success(function (group) {
                 $("#name").val(group.name)
