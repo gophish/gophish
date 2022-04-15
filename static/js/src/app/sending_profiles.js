@@ -310,7 +310,7 @@ $(document).ready(function () {
         dismissSendTestEmailModal()
     })
     // Code to deal with custom email headers
-    $("#headersForm").on('submit', function () {
+    $("#addCustomHeader").on('click', function () {
         headerKey = $("#headerKey").val();
         headerValue = $("#headerValue").val();
 
@@ -319,7 +319,8 @@ $(document).ready(function () {
         }
         addCustomHeader(headerKey, headerValue);
         // Reset user input.
-        $("#headersForm>div>input").val('');
+        $("#headerKey").val('');
+        $("#headerValue").val('');
         $("#headerKey").focus();
         return false;
     });
