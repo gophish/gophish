@@ -11,7 +11,6 @@ import (
 	"net/mail"
 	"os"
 	"path/filepath"
-	"sort"
 	"strings"
 	"time"
 
@@ -30,7 +29,7 @@ var MaxSendAttempts = 8
 var ErrMaxSendAttempts = errors.New("max send attempts exceeded")
 
 // Attachments with these file extensions have inline disposition
-var EmbeddedFileExtensions = []string{".jpg", ".jpeg", ".png", ".gif"}
+var embeddedFileExtensions = []string{".jpg", ".jpeg", ".png", ".gif"}
 
 // MailLog is a struct that holds information about an email that is to be
 // sent out.
@@ -266,7 +265,7 @@ func (m *MailLog) Generate(msg *gomail.Message) error {
 				return err
 			}
 		}(a))
-		if sort.SearchStrings(EmbeddedFileExtensions, filepath.Ext(a.Name)) < len(EmbeddedFileExtensions) {
+		if shouldEmbedAttachment(a.Name) {
 			msg.Embed(a.Name, copyFunc)
 		} else {
 			msg.Attach(a.Name, copyFunc)
@@ -341,4 +340,16 @@ func (m *MailLog) generateMessageID() (string, error) {
 	}
 	msgid := fmt.Sprintf("<%d.%d.%d@%s>", t, pid, rint, h)
 	return msgid, nil
+}
+
+// Check if an attachment should have inline disposition based on
+// its file extension.
+func shouldEmbedAttachment(name string) bool {
+	ext := filepath.Ext(name)
+	for _, v := range embeddedFileExtensions {
+		if strings.EqualFold(ext, v) {
+			return true
+		}
+	}
+	return false
 }

@@ -360,6 +360,50 @@ func (s *ModelsSuite) TestMailLogGenerateEmptySubject(ch *check.C) {
 	ch.Assert(got.Subject, check.Equals, expected.Subject)
 }
 
+func (s *ModelsSuite) TestShouldEmbedAttachment(ch *check.C) {
+
+	// Supported file extensions
+	ch.Assert(shouldEmbedAttachment(".png"), check.Equals, true)
+	ch.Assert(shouldEmbedAttachment(".jpg"), check.Equals, true)
+	ch.Assert(shouldEmbedAttachment(".jpeg"), check.Equals, true)
+	ch.Assert(shouldEmbedAttachment(".gif"), check.Equals, true)
+
+	// Some other file extensions
+	ch.Assert(shouldEmbedAttachment(".docx"), check.Equals, false)
+	ch.Assert(shouldEmbedAttachment(".txt"), check.Equals, false)
+	ch.Assert(shouldEmbedAttachment(".jar"), check.Equals, false)
+	ch.Assert(shouldEmbedAttachment(".exe"), check.Equals, false)
+
+	// Invalid input
+	ch.Assert(shouldEmbedAttachment(""), check.Equals, false)
+	ch.Assert(shouldEmbedAttachment("png"), check.Equals, false)
+}
+
+func (s *ModelsSuite) TestEmbedAttachment(ch *check.C) {
+	campaign := s.createCampaignDependencies(ch)
+	campaign.Template.Attachments = []Attachment{
+		{
+			Name:    "test.png",
+			Type:    "image/png",
+			Content: "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAApJREFUCNdjYAAAAAIAAeIhvDMAAAAASUVORK5CYII=",
+		},
+		{
+			Name:    "test.txt",
+			Type:    "text/plain",
+			Content: "VGVzdCB0ZXh0IGZpbGU=",
+		},
+	}
+	PutTemplate(&campaign.Template)
+	ch.Assert(PostCampaign(&campaign, campaign.UserId), check.Equals, nil)
+	got := s.emailFromFirstMailLog(campaign, ch)
+
+	// The email package simply ignores attachments where the Content-Disposition header is set
+	// to inline, so the best we can do without replacing the whole thing is to check that only
+	// the text file was added as an attachment.
+	ch.Assert(got.Attachments, check.HasLen, 1)
+	ch.Assert(got.Attachments[0].Filename, check.Equals, "test.txt")
+}
+
 func BenchmarkMailLogGenerate100(b *testing.B) {
 	setupBenchmark(b)
 	campaign := setupCampaign(b, 100)

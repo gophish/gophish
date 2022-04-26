@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"io"
 	"net/mail"
-	"path/filepath"
-	"sort"
 	"strings"
 
 	"github.com/gophish/gomail"
@@ -182,7 +180,7 @@ func (s *EmailRequest) Generate(msg *gomail.Message) error {
 				return err
 			}
 		}(a))
-		if sort.SearchStrings(EmbeddedFileExtensions, filepath.Ext(a.Name)) < len(EmbeddedFileExtensions) {
+		if shouldEmbedAttachment(a.Name) {
 			msg.Embed(a.Name, copyFunc)
 		} else {
 			msg.Attach(a.Name, copyFunc)
