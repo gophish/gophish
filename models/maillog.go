@@ -258,18 +258,7 @@ func (m *MailLog) Generate(msg *gomail.Message) error {
 	}
 	// Attach the files
 	for _, a := range c.Template.Attachments {
-		copyFunc := gomail.SetCopyFunc(func(c Attachment) func(w io.Writer) error {
-			return func(w io.Writer) error {
-				decoder := base64.NewDecoder(base64.StdEncoding, strings.NewReader(c.Content))
-				_, err = io.Copy(w, decoder)
-				return err
-			}
-		}(a))
-		if shouldEmbedAttachment(a.Name) {
-			msg.Embed(a.Name, copyFunc)
-		} else {
-			msg.Attach(a.Name, copyFunc)
-		}
+		addAttachment(msg, a)
 	}
 
 	return nil
@@ -352,4 +341,21 @@ func shouldEmbedAttachment(name string) bool {
 		}
 	}
 	return false
+}
+
+// Add an attachment to a gomail message, with the Content-Disposition
+// header set to inline or attachment depending on its file extension.
+func addAttachment(msg *gomail.Message, a Attachment) {
+	copyFunc := gomail.SetCopyFunc(func(c Attachment) func(w io.Writer) error {
+		return func(w io.Writer) error {
+			decoder := base64.NewDecoder(base64.StdEncoding, strings.NewReader(c.Content))
+			_, err := io.Copy(w, decoder)
+			return err
+		}
+	}(a))
+	if shouldEmbedAttachment(a.Name) {
+		msg.Embed(a.Name, copyFunc)
+	} else {
+		msg.Attach(a.Name, copyFunc)
+	}
 }

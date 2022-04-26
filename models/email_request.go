@@ -1,11 +1,8 @@
 package models
 
 import (
-	"encoding/base64"
 	"fmt"
-	"io"
 	"net/mail"
-	"strings"
 
 	"github.com/gophish/gomail"
 	"github.com/gophish/gophish/config"
@@ -173,18 +170,7 @@ func (s *EmailRequest) Generate(msg *gomail.Message) error {
 	}
 	// Attach the files
 	for _, a := range s.Template.Attachments {
-		copyFunc := gomail.SetCopyFunc(func(c Attachment) func(w io.Writer) error {
-			return func(w io.Writer) error {
-				decoder := base64.NewDecoder(base64.StdEncoding, strings.NewReader(c.Content))
-				_, err = io.Copy(w, decoder)
-				return err
-			}
-		}(a))
-		if shouldEmbedAttachment(a.Name) {
-			msg.Embed(a.Name, copyFunc)
-		} else {
-			msg.Attach(a.Name, copyFunc)
-		}
+		addAttachment(msg, a)
 	}
 
 	return nil
