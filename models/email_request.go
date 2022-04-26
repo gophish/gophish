@@ -168,9 +168,10 @@ func (s *EmailRequest) Generate(msg *gomail.Message) error {
 			msg.AddAlternative("text/html", html)
 		}
 	}
+
 	// Attach the files
 	for _, a := range s.Template.Attachments {
-		addAttachment(msg, a)
+		addAttachment(msg, a, ptx)
 	}
 
 	return nil

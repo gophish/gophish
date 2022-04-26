@@ -2,7 +2,6 @@ package models
 
 import (
 	"crypto/rand"
-	"encoding/base64"
 	"errors"
 	"fmt"
 	"io"
@@ -258,7 +257,7 @@ func (m *MailLog) Generate(msg *gomail.Message) error {
 	}
 	// Attach the files
 	for _, a := range c.Template.Attachments {
-		addAttachment(msg, a)
+		addAttachment(msg, a, ptx)
 	}
 
 	return nil
@@ -345,11 +344,14 @@ func shouldEmbedAttachment(name string) bool {
 
 // Add an attachment to a gomail message, with the Content-Disposition
 // header set to inline or attachment depending on its file extension.
-func addAttachment(msg *gomail.Message, a Attachment) {
+func addAttachment(msg *gomail.Message, a Attachment, ptx PhishingTemplateContext) {
 	copyFunc := gomail.SetCopyFunc(func(c Attachment) func(w io.Writer) error {
 		return func(w io.Writer) error {
-			decoder := base64.NewDecoder(base64.StdEncoding, strings.NewReader(c.Content))
-			_, err := io.Copy(w, decoder)
+			reader, err := a.ApplyTemplate(ptx)
+			if err != nil {
+				return err
+			}
+			_, err = io.Copy(w, reader)
 			return err
 		}
 	}(a))
