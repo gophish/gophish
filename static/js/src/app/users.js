@@ -89,6 +89,14 @@ const deleteUser = (id) => {
     if (!user) {
         return
     }
+    if (user.username == "admin") {
+        Swal.fire({
+            title: "Unable to Delete User",
+            text: "The user account " + escapeHtml(user.username) + " cannot be deleted.",
+            type: "info"
+        });
+        return
+    }
     Swal.fire({
         title: "Are you sure?",
         text: "This will delete the account for " + escapeHtml(user.username) + " as well as all of the objects they have created.\n\nThis can't be undone!",
