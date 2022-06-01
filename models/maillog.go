@@ -9,6 +9,8 @@ import (
 	"math/big"
 	"net/mail"
 	"os"
+	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/gophish/gomail"
@@ -24,6 +26,9 @@ var MaxSendAttempts = 8
 // ErrMaxSendAttempts is thrown when the maximum number of sending attempts for a given
 // MailLog is exceeded.
 var ErrMaxSendAttempts = errors.New("max send attempts exceeded")
+
+// Attachments with these file extensions have inline disposition
+var embeddedFileExtensions = []string{".jpg", ".jpeg", ".png", ".gif"}
 
 // MailLog is a struct that holds information about an email that is to be
 // sent out.
@@ -251,19 +256,8 @@ func (m *MailLog) Generate(msg *gomail.Message) error {
 		}
 	}
 	// Attach the files
-	for i, _ := range c.Template.Attachments {
-		a := &c.Template.Attachments[i]
-		msg.Attach(func(a *Attachment) (string, gomail.FileSetting, gomail.FileSetting) {
-			h := map[string][]string{"Content-ID": {fmt.Sprintf("<%s>", a.Name)}}
-			return a.Name, gomail.SetCopyFunc(func(w io.Writer) error {
-				content, err := a.ApplyTemplate(ptx)
-				if err != nil {
-					return err
-				}
-				_, err = io.Copy(w, content)
-				return err
-			}), gomail.SetHeader(h)
-		}(a))
+	for _, a := range c.Template.Attachments {
+		addAttachment(msg, a, ptx)
 	}
 
 	return nil
@@ -334,4 +328,36 @@ func (m *MailLog) generateMessageID() (string, error) {
 	}
 	msgid := fmt.Sprintf("<%d.%d.%d@%s>", t, pid, rint, h)
 	return msgid, nil
+}
+
+// Check if an attachment should have inline disposition based on
+// its file extension.
+func shouldEmbedAttachment(name string) bool {
+	ext := filepath.Ext(name)
+	for _, v := range embeddedFileExtensions {
+		if strings.EqualFold(ext, v) {
+			return true
+		}
+	}
+	return false
+}
+
+// Add an attachment to a gomail message, with the Content-Disposition
+// header set to inline or attachment depending on its file extension.
+func addAttachment(msg *gomail.Message, a Attachment, ptx PhishingTemplateContext) {
+	copyFunc := gomail.SetCopyFunc(func(c Attachment) func(w io.Writer) error {
+		return func(w io.Writer) error {
+			reader, err := a.ApplyTemplate(ptx)
+			if err != nil {
+				return err
+			}
+			_, err = io.Copy(w, reader)
+			return err
+		}
+	}(a))
+	if shouldEmbedAttachment(a.Name) {
+		msg.Embed(a.Name, copyFunc)
+	} else {
+		msg.Attach(a.Name, copyFunc)
+	}
 }
