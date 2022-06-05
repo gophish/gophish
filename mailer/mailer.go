@@ -223,9 +223,9 @@ func sendMail(ctx context.Context, dialer Dialer, ms []Mail) {
 			}
 		}
 		log.WithFields(logrus.Fields{
-			"smtp_from": smtp_from,
+			"smtp_from":     smtp_from,
 			"envelope_from": message.GetHeader("From")[0],
-			"email": message.GetHeader("To")[0],
+			"email":         message.GetHeader("To")[0],
 		}).Info("Email sent")
 		m.Success()
 	}
