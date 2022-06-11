@@ -215,6 +215,7 @@ func (as *Server) User(w http.ResponseWriter, r *http.Request) {
 			}
 			existingUser.Hash = hash
 		}
+		existingUser.AccountLocked = ur.AccountLocked
 		err = models.PutUser(&existingUser)
 		if err != nil {
 			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
