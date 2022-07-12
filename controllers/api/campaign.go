@@ -21,6 +21,32 @@ func (as *Server) Campaigns(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Error(err)
 		}
+		for i := range cs {
+			err = cs[i].FetchEvents()
+			if err != nil {
+				log.Error(err)
+			}
+
+			err = cs[i].FetchPage()
+			if err != nil {
+				log.Error(err)
+			}
+
+			err = cs[i].FetchResults()
+			if err != nil {
+				log.Error(err)
+			}
+
+			err = cs[i].FetchSMTP()
+			if err != nil {
+				log.Error(err)
+			}
+
+			err = cs[i].FetchTemplate()
+			if err != nil {
+				log.Error(err)
+			}
+		}
 		JSONResponse(w, cs, http.StatusOK)
 	//POST: Create a new campaign and return it as JSON
 	case r.Method == "POST":
@@ -70,8 +96,34 @@ func (as *Server) Campaign(w http.ResponseWriter, r *http.Request) {
 		JSONResponse(w, models.Response{Success: false, Message: "Campaign not found"}, http.StatusNotFound)
 		return
 	}
+
 	switch {
 	case r.Method == "GET":
+		err = c.FetchEvents()
+		if err != nil {
+			log.Error(err)
+		}
+
+		err = c.FetchPage()
+		if err != nil {
+			log.Error(err)
+		}
+
+		err = c.FetchResults()
+		if err != nil {
+			log.Error(err)
+		}
+
+		err = c.FetchSMTP()
+		if err != nil {
+			log.Error(err)
+		}
+
+		err = c.FetchTemplate()
+		if err != nil {
+			log.Error(err)
+		}
+
 		JSONResponse(w, c, http.StatusOK)
 	case r.Method == "DELETE":
 		err = models.DeleteCampaign(id)

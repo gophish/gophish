@@ -24,6 +24,27 @@ func getFirstCampaign(t *testing.T) models.Campaign {
 
 func getFirstEmailRequest(t *testing.T) models.EmailRequest {
 	campaign := getFirstCampaign(t)
+
+	err := campaign.FetchResults()
+	if err != nil {
+		t.Fatalf("error fetching results received. expected %v got %v", nil, err)
+	}
+
+	err = campaign.FetchPage()
+	if err != nil {
+		t.Fatalf("error fetching page received. expected %v got %v", nil, err)
+	}
+
+	err = campaign.FetchTemplate()
+	if err != nil {
+		t.Fatalf("error fetching page received. expected %v got %v", nil, err)
+	}
+
+	err = campaign.FetchSMTP()
+	if err != nil {
+		t.Fatalf("error fetching page received. expected %v got %v", nil, err)
+	}
+
 	req := models.EmailRequest{
 		TemplateId:    campaign.TemplateId,
 		Template:      campaign.Template,
@@ -35,7 +56,7 @@ func getFirstEmailRequest(t *testing.T) models.EmailRequest {
 		SMTP:          campaign.SMTP,
 		FromAddress:   campaign.SMTP.FromAddress,
 	}
-	err := models.PostEmailRequest(&req)
+	err = models.PostEmailRequest(&req)
 	if err != nil {
 		t.Fatalf("error creating email request: %v", err)
 	}
@@ -156,6 +177,12 @@ func TestOpenedPhishingEmail(t *testing.T) {
 	ctx := setupTest(t)
 	defer tearDown(t, ctx)
 	campaign := getFirstCampaign(t)
+
+	err := campaign.FetchResults()
+	if err != nil {
+		t.Fatalf("error fetching results received. expected %v got %v", nil, err)
+	}
+
 	result := campaign.Results[0]
 	if result.Status != models.StatusSending {
 		t.Fatalf("unexpected result status received. expected %s got %s", models.StatusSending, result.Status)
@@ -164,6 +191,17 @@ func TestOpenedPhishingEmail(t *testing.T) {
 	openEmail(t, ctx, result.RId)
 
 	campaign = getFirstCampaign(t)
+
+	err = campaign.FetchResults()
+	if err != nil {
+		t.Fatalf("error fetching results received. expected %v got %v", nil, err)
+	}
+
+	err = campaign.FetchEvents()
+	if err != nil {
+		t.Fatalf("error fetching events received. expected %v got %v", nil, err)
+	}
+
 	result = campaign.Results[0]
 	lastEvent := campaign.Events[len(campaign.Events)-1]
 	if result.Status != models.EventOpened {
@@ -181,6 +219,12 @@ func TestReportedPhishingEmail(t *testing.T) {
 	ctx := setupTest(t)
 	defer tearDown(t, ctx)
 	campaign := getFirstCampaign(t)
+
+	err := campaign.FetchResults()
+	if err != nil {
+		t.Fatalf("error fetching results received. expected %v got %v", nil, err)
+	}
+
 	result := campaign.Results[0]
 	if result.Status != models.StatusSending {
 		t.Fatalf("unexpected result status received. expected %s got %s", models.StatusSending, result.Status)
@@ -189,7 +233,19 @@ func TestReportedPhishingEmail(t *testing.T) {
 	reportedEmail(t, ctx, result.RId)
 
 	campaign = getFirstCampaign(t)
+
+	err = campaign.FetchResults()
+	if err != nil {
+		t.Fatalf("error fetching results received. expected %v got %v", nil, err)
+	}
+
 	result = campaign.Results[0]
+
+	err = campaign.FetchEvents()
+	if err != nil {
+		t.Fatalf("error fetching events received. expected %v got %v", nil, err)
+	}
+
 	lastEvent := campaign.Events[len(campaign.Events)-1]
 
 	if result.Reported != true {
@@ -207,16 +263,39 @@ func TestClickedPhishingLinkAfterOpen(t *testing.T) {
 	ctx := setupTest(t)
 	defer tearDown(t, ctx)
 	campaign := getFirstCampaign(t)
+
+	err := campaign.FetchResults()
+	if err != nil {
+		t.Fatalf("error fetching results received. expected %v got %v", nil, err)
+	}
+
 	result := campaign.Results[0]
 	if result.Status != models.StatusSending {
 		t.Fatalf("unexpected result status received. expected %s got %s", models.StatusSending, result.Status)
+	}
+
+	err = campaign.FetchPage()
+	if err != nil {
+		t.Fatalf("error fetching page received. expected %v got %v", nil, err)
 	}
 
 	openEmail(t, ctx, result.RId)
 	clickLink(t, ctx, result.RId, campaign.Page.HTML)
 
 	campaign = getFirstCampaign(t)
+
+	err = campaign.FetchResults()
+	if err != nil {
+		t.Fatalf("error fetching results received. expected %v got %v", nil, err)
+	}
+
 	result = campaign.Results[0]
+
+	err = campaign.FetchEvents()
+	if err != nil {
+		t.Fatalf("error fetching events received. expected %v got %v", nil, err)
+	}
+
 	lastEvent := campaign.Events[len(campaign.Events)-1]
 	if result.Status != models.EventClicked {
 		t.Fatalf("unexpected result status received. expected %s got %s", models.EventClicked, result.Status)
@@ -265,6 +344,12 @@ func TestCompletedCampaignClick(t *testing.T) {
 	ctx := setupTest(t)
 	defer tearDown(t, ctx)
 	campaign := getFirstCampaign(t)
+
+	err := campaign.FetchResults()
+	if err != nil {
+		t.Fatalf("error fetching results received. expected %v got %v", nil, err)
+	}
+
 	result := campaign.Results[0]
 	if result.Status != models.StatusSending {
 		t.Fatalf("unexpected result status received. expected %s got %s", models.StatusSending, result.Status)
@@ -273,6 +358,12 @@ func TestCompletedCampaignClick(t *testing.T) {
 	openEmail(t, ctx, result.RId)
 
 	campaign = getFirstCampaign(t)
+
+	err = campaign.FetchResults()
+	if err != nil {
+		t.Fatalf("error fetching results received. expected %v got %v", nil, err)
+	}
+
 	result = campaign.Results[0]
 	if result.Status != models.EventOpened {
 		t.Fatalf("unexpected result status received. expected %s got %s", models.EventOpened, result.Status)
@@ -283,6 +374,12 @@ func TestCompletedCampaignClick(t *testing.T) {
 	clickLink404(t, ctx, result.RId)
 
 	campaign = getFirstCampaign(t)
+
+	err = campaign.FetchResults()
+	if err != nil {
+		t.Fatalf("error fetching results received. expected %v got %v", nil, err)
+	}
+
 	result = campaign.Results[0]
 	if result.Status != models.EventOpened {
 		t.Fatalf("unexpected result status received. expected %s got %s", models.EventOpened, result.Status)
@@ -348,6 +445,12 @@ func TestTransparencyRequest(t *testing.T) {
 	ctx := setupTest(t)
 	defer tearDown(t, ctx)
 	campaign := getFirstCampaign(t)
+
+	err := campaign.FetchResults()
+	if err != nil {
+		t.Fatalf("error fetching results received. expected %v got %v", nil, err)
+	}
+
 	result := campaign.Results[0]
 	rid := fmt.Sprintf("%s%s", result.RId, TransparencySuffix)
 	transparencyRequest(t, ctx, result, rid, "/")

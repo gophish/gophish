@@ -160,7 +160,7 @@ func (m *MailLog) GetSmtpFrom() (string, error) {
 		return "", err
 	}
 
-	f, err := mail.ParseAddress(c.SMTP.FromAddress)
+	f, err := mail.ParseAddress(c.getFromAddress())
 	return f.Address, err
 }
 
@@ -184,7 +184,7 @@ func (m *MailLog) Generate(msg *gomail.Message) error {
 
 	f, err := mail.ParseAddress(c.Template.EnvelopeSender)
 	if err != nil {
-		f, err = mail.ParseAddress(c.SMTP.FromAddress)
+		f, err = mail.ParseAddress(c.getFromAddress())
 		if err != nil {
 			return err
 		}

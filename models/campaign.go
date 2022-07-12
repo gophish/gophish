@@ -176,55 +176,69 @@ func AddEvent(e *Event, campaignID int64) error {
 	return db.Save(e).Error
 }
 
-// getDetails retrieves the related attributes of the campaign
-// from the database. If the Events and the Results are not available,
-// an error is returned. Otherwise, the attribute name is set to [Deleted],
-// indicating the user deleted the attribute (template, smtp, etc.)
-func (c *Campaign) getDetails() error {
+// FetchEvents retrieves the related Events attribute of the campaign.
+// If the Events are not available, an error is returned.
+func (c *Campaign) FetchEvents() error {
+	err := db.Model(c).Related(&c.Events).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// FetchResults retrieves the related Results attribute of the campaign.
+// If the Results are not available, an error is returned.
+func (c *Campaign) FetchResults() error {
 	err := db.Model(c).Related(&c.Results).Error
 	if err != nil {
-		log.Warnf("%s: results not found for campaign", err)
 		return err
 	}
-	err = db.Model(c).Related(&c.Events).Error
-	if err != nil {
-		log.Warnf("%s: events not found for campaign", err)
-		return err
-	}
-	err = db.Table("templates").Where("id=?", c.TemplateId).Find(&c.Template).Error
-	if err != nil {
-		if err != gorm.ErrRecordNotFound {
-			return err
-		}
-		c.Template = Template{Name: "[Deleted]"}
-		log.Warnf("%s: template not found for campaign", err)
-	}
-	err = db.Where("template_id=?", c.Template.Id).Find(&c.Template.Attachments).Error
-	if err != nil && err != gorm.ErrRecordNotFound {
-		log.Warn(err)
-		return err
-	}
-	err = db.Table("pages").Where("id=?", c.PageId).Find(&c.Page).Error
-	if err != nil {
-		if err != gorm.ErrRecordNotFound {
-			return err
-		}
-		c.Page = Page{Name: "[Deleted]"}
-		log.Warnf("%s: page not found for campaign", err)
-	}
-	err = db.Table("smtp").Where("id=?", c.SMTPId).Find(&c.SMTP).Error
+	return nil
+}
+
+// FetchSMTP retrieves the related SMTP attribute of the campaign.
+// If SMTP is not available, the attribute name is set to [Deleted],
+// indicating the user deleted the attribute.
+func (c *Campaign) FetchSMTP() error {
+	err := db.Table("smtp").Where("id=?", c.SMTPId).Find(&c.SMTP).Error
 	if err != nil {
 		// Check if the SMTP was deleted
 		if err != gorm.ErrRecordNotFound {
 			return err
 		}
 		c.SMTP = SMTP{Name: "[Deleted]"}
-		log.Warnf("%s: sending profile not found for campaign", err)
 	}
 	err = db.Where("smtp_id=?", c.SMTP.Id).Find(&c.SMTP.Headers).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
-		log.Warn(err)
 		return err
+	}
+	return nil
+}
+
+// FetchTemplate retrieves the related Template attribute of the campaign.
+// If SMTP is not available, the attribute name is set to [Deleted],
+// indicating the user deleted the attribute.
+func (c *Campaign) FetchTemplate() error {
+	err := db.Table("templates").Where("id=?", c.TemplateId).Find(&c.Template).Error
+	if err != nil {
+		if err != gorm.ErrRecordNotFound {
+			return err
+		}
+		c.Template = Template{Name: "[Deleted]"}
+	}
+	return nil
+}
+
+// FetchPage retrieves the related Page attribute of the campaign.
+// If SMTP is not available, the attribute name is set to [Deleted],
+// indicating the user deleted the attribute.
+func (c *Campaign) FetchPage() error {
+	err := db.Table("pages").Where("id=?", c.PageId).Find(&c.Page).Error
+	if err != nil {
+		if err != gorm.ErrRecordNotFound {
+			return err
+		}
+		c.Page = Page{Name: "[Deleted]"}
 	}
 	return nil
 }
@@ -238,6 +252,10 @@ func (c *Campaign) getBaseURL() string {
 // getFromAddress returns the Campaign's configured SMTP "From" address.
 // This is used to implement the TemplateContext interface.
 func (c *Campaign) getFromAddress() string {
+	err := c.FetchSMTP()
+	if err != nil {
+		log.Warnf("%s: sending profile not found for campaign", err)
+	}
 	return c.SMTP.FromAddress
 }
 
@@ -307,12 +325,6 @@ func GetCampaigns(uid int64) ([]Campaign, error) {
 	err := db.Model(&User{Id: uid}).Related(&cs).Error
 	if err != nil {
 		log.Error(err)
-	}
-	for i := range cs {
-		err = cs[i].getDetails()
-		if err != nil {
-			log.Error(err)
-		}
 	}
 	return cs, err
 }
@@ -402,7 +414,6 @@ func GetCampaign(id int64, uid int64) (Campaign, error) {
 		log.Errorf("%s: campaign not found", err)
 		return c, err
 	}
-	err = c.getDetails()
 	return c, err
 }
 
@@ -439,12 +450,6 @@ func GetQueuedCampaigns(t time.Time) ([]Campaign, error) {
 		log.Error(err)
 	}
 	log.Infof("Found %d Campaigns to run\n", len(cs))
-	for i := range cs {
-		err = cs[i].getDetails()
-		if err != nil {
-			log.Error(err)
-		}
-	}
 	return cs, err
 }
 
