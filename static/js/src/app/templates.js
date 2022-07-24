@@ -115,15 +115,15 @@ var deleteTemplate = function (idx) {
     })
 }
 
-function deleteTemplate(idx) {
-    if (confirm("Delete " + templates[idx].name + "?")) {
-        api.templateId.delete(templates[idx].id)
-            .success(function (data) {
-                successFlash(data.message)
-                load()
-            })
-    }
-}
+// function deleteTemplate(idx) {
+//     if (confirm("Delete " + templates[idx].name + "?")) {
+//         api.templateId.delete(templates[idx].id)
+//             .success(function (data) {
+//                 successFlash(data.message)
+//                 load()
+//             })
+//     }
+// }
 
 function attach(files) {
     attachmentsTable = $("#attachmentsTable").DataTable({
