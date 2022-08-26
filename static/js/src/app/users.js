@@ -203,7 +203,7 @@ const load = () => {
             userTable.clear();
             userRows = []
             $.each(users, (i, user) => {
-                lastlogin = "Never"
+                lastlogin = ""
                 if (user.last_login != "0001-01-01T00:00:00Z") {
                     lastlogin = moment(user.last_login).format('MMMM Do YYYY, h:mm:ss a')
                 }
