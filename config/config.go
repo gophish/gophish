@@ -15,6 +15,7 @@ type AdminServer struct {
 	KeyPath              string   `json:"key_path"`
 	CSRFKey              string   `json:"csrf_key"`
 	AllowedInternalHosts []string `json:"allowed_internal_hosts"`
+	TrustedOrigins       []string `json:"trusted_origins"`
 }
 
 // PhishServer represents the Phish server configuration details
