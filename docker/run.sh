@@ -25,6 +25,12 @@ if [ -n "${ADMIN_KEY_PATH+set}" ] ; then
         '.admin_server.key_path = $ADMIN_KEY_PATH' config.json > config.json.tmp && \
         cat config.json.tmp > config.json
 fi
+if [ -n "${ADMIN_TRUSTED_ORIGINS+set}" ] ; then
+    jq -r \
+        --arg ADMIN_TRUSTED_ORIGINS "${ADMIN_TRUSTED_ORIGINS}" \
+        '.admin_server.trusted_origins = ($ADMIN_TRUSTED_ORIGINS|split(","))' config.json > config.json.tmp && \
+        cat config.json.tmp > config.json
+fi
 
 # set config for phish_server
 if [ -n "${PHISH_LISTEN_URL+set}" ] ; then
