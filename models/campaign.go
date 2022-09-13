@@ -2,7 +2,9 @@ package models
 
 import (
 	"errors"
+	"math"
 	"net/url"
+	"strings"
 	"time"
 
 	log "github.com/gophish/gophish/logger"
@@ -31,6 +33,9 @@ type Campaign struct {
 	SMTPId        int64     `json:"-"`
 	SMTP          SMTP      `json:"smtp"`
 	URL           string    `json:"url"`
+	CustomRId     bool      `json:"custom_rid" gorm:"-"`
+	CharacterSet  string	`json:"character_set" sql:"not null"`
+	RIdLength     int64		`json:"r_id_length"`
 }
 
 // CampaignResults is a struct representing the results from a campaign
@@ -58,6 +63,8 @@ type CampaignSummary struct {
 	Status        string        `json:"status"`
 	Name          string        `json:"name"`
 	Stats         CampaignStats `json:"stats"`
+	CharacterSet  string		`json:"character_set"`
+	RIdLength     int64		    `json:"r_id_length"`
 }
 
 // CampaignStats is a struct representing the statistics for a single campaign
@@ -126,6 +133,15 @@ var ErrSMTPNotFound = errors.New("Sending profile not found")
 // launch date
 var ErrInvalidSendByDate = errors.New("The launch date must be before the \"send emails by\" date")
 
+// ErrInvalidCharacterSet indicates that the user has entered an invalid character set, ie it's empty
+var ErrInvalidCharacterSet = errors.New("The defined character set is invalid")
+
+// ErrInvalidRIdLength indicates that an invalid RId length has been set (ie zero)
+var ErrInvalidRIdLength = errors.New("The RId length entered is invalid")
+
+// ErrInsufficientCharsetKeyspace indicates that there aren't enough RId combinations to match the total recipients, for the given CharacterSet and RIdLength.
+var ErrInsufficientCharsetKeyspace = errors.New("The specified CharacterSet/Length combination cannot cover the total recipients in this campaign. Consider increasing the Character Set, RId Length, or both");
+
 // RecipientParameter is the URL parameter that points to the result ID for a recipient.
 const RecipientParameter = "rid"
 
@@ -144,6 +160,12 @@ func (c *Campaign) Validate() error {
 		return ErrSMTPNotSpecified
 	case !c.SendByDate.IsZero() && !c.LaunchDate.IsZero() && c.SendByDate.Before(c.LaunchDate):
 		return ErrInvalidSendByDate
+	case c.CustomRId:
+		if c.CharacterSet == "" {
+			return ErrInvalidCharacterSet
+		} else if c.RIdLength <= 0 {
+			return ErrInvalidRIdLength
+		}
 	}
 	return nil
 }
@@ -324,7 +346,7 @@ func GetCampaignSummaries(uid int64) (CampaignSummaries, error) {
 	cs := []CampaignSummary{}
 	// Get the basic campaign information
 	query := db.Table("campaigns").Where("user_id = ?", uid)
-	query = query.Select("id, name, created_date, launch_date, send_by_date, completed_date, status")
+	query = query.Select("id, name, created_date, launch_date, send_by_date, completed_date, status, character_set, r_id_length")
 	err := query.Scan(&cs).Error
 	if err != nil {
 		log.Error(err)
@@ -347,7 +369,7 @@ func GetCampaignSummaries(uid int64) (CampaignSummaries, error) {
 func GetCampaignSummary(id int64, uid int64) (CampaignSummary, error) {
 	cs := CampaignSummary{}
 	query := db.Table("campaigns").Where("user_id = ? AND id = ?", uid, id)
-	query = query.Select("id, name, created_date, launch_date, send_by_date, completed_date, status")
+	query = query.Select("id, name, created_date, launch_date, send_by_date, completed_date, status, character_set, r_id_length")
 	err := query.Scan(&cs).Error
 	if err != nil {
 		log.Error(err)
@@ -487,6 +509,19 @@ func PostCampaign(c *Campaign, uid int64) error {
 		}
 		totalRecipients += len(c.Groups[i].Targets)
 	}
+
+	if c.CustomRId {
+		c.CharacterSet = CleanCharacterSet(c.CharacterSet)
+		// We need to check if the keyspace for the custom character set and rid is enough to match the totalRecipients.
+		// This is on purpose <= so that we don't come too close to the limit.
+		if int(math.Pow(float64(len(c.CharacterSet)), float64(c.RIdLength))) <= totalRecipients {
+			return ErrInsufficientCharsetKeyspace
+		}
+	} else {
+		c.CharacterSet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+		c.RIdLength = 7
+	}
+
 	// Check to make sure the template exists
 	t, err := GetTemplateByName(c.Template.Name, uid)
 	if err == gorm.ErrRecordNotFound {
@@ -564,7 +599,7 @@ func PostCampaign(c *Campaign, uid int64) error {
 				Reported:     false,
 				ModifiedDate: c.CreatedDate,
 			}
-			err = r.GenerateId(tx)
+			err = r.GenerateId(tx, c.CharacterSet, c.RIdLength)
 			if err != nil {
 				log.Error(err)
 				tx.Rollback()
@@ -666,4 +701,17 @@ func CompleteCampaign(id int64, uid int64) error {
 		log.Error(err)
 	}
 	return err
+}
+
+func CleanCharacterSet(character_set string) string {
+	keys := make(map[string]bool)
+	chars := strings.Split(character_set, "")
+	unique := []string{}
+	for _, char := range chars {
+		if _, value := keys[char]; !value {
+			keys[char] = true
+			unique = append(unique, char)
+		}
+	}
+	return strings.Join(unique, "")
 }
