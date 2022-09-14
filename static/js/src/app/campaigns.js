@@ -257,6 +257,7 @@ function copy(idx) {
         .success(function (campaign) {
             $("#name").val("Copy of " + campaign.name)
             if (!campaign.template.id) {
+                $("#template").val("").change();
                 $("#template").select2({
                     placeholder: campaign.template.name
                 });
@@ -265,6 +266,7 @@ function copy(idx) {
                 $("#template").trigger("change.select2")
             }
             if (!campaign.page.id) {
+                $("#page").val("").change();
                 $("#page").select2({
                     placeholder: campaign.page.name
                 });
@@ -273,6 +275,7 @@ function copy(idx) {
                 $("#page").trigger("change.select2")
             }
             if (!campaign.smtp.id) {
+                $("#profile").val("").change();
                 $("#profile").select2({
                     placeholder: campaign.smtp.name
                 });
