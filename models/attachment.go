@@ -61,6 +61,21 @@ func (a *Attachment) ApplyTemplate(ptx PhishingTemplateContext) (io.Reader, erro
 	//   "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
 	fileExtension := filepath.Ext(a.Name)
 
+	if array_contains(conf.Attachments.PlainTextFileList, fileExtension) {
+		b, err := ioutil.ReadAll(decodedAttachment)
+		if err != nil {
+			return nil, err
+		}
+		processedAttachment, err := ExecuteTemplate(string(b), ptx)
+		if err != nil {
+			return nil, err
+		}
+		if processedAttachment == string(b) {
+			a.vanillaFile = true
+		}
+		return strings.NewReader(processedAttachment), nil
+	}
+
 	switch fileExtension {
 
 	case ".docx", ".docm", ".pptx", ".xlsx", ".xlsm":
@@ -136,21 +151,18 @@ func (a *Attachment) ApplyTemplate(ptx PhishingTemplateContext) (io.Reader, erro
 		zipWriter.Close()
 		return bytes.NewReader(newZipArchive.Bytes()), err
 
-	case ".txt", ".html", ".ics":
-		b, err := ioutil.ReadAll(decodedAttachment)
-		if err != nil {
-			return nil, err
-		}
-		processedAttachment, err := ExecuteTemplate(string(b), ptx)
-		if err != nil {
-			return nil, err
-		}
-		if processedAttachment == string(b) {
-			a.vanillaFile = true
-		}
-		return strings.NewReader(processedAttachment), nil
 	default:
 		return decodedAttachment, nil // Default is to simply return the file
 	}
 
+}
+
+func array_contains(s []string, str string) bool {
+	for _, v := range s {
+		if v == str {
+			return true
+		}
+	}
+
+	return false
 }
