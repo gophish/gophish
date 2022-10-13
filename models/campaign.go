@@ -661,7 +661,8 @@ func CompleteCampaign(id int64, uid int64) error {
 	// Mark the campaign as complete
 	c.CompletedDate = time.Now().UTC()
 	c.Status = CampaignComplete
-	err = db.Where("id=? and user_id=?", id, uid).Save(&c).Error
+	err = db.Model(&Campaign{}).Where("id=? and user_id=?", id, uid).
+		Select([]string{"completed_date", "status"}).UpdateColumns(&c).Error
 	if err != nil {
 		log.Error(err)
 	}
