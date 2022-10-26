@@ -47,7 +47,7 @@ func (as *Server) SendTestEmail(w http.ResponseWriter, r *http.Request) {
 		s.Template = t
 	} else {
 		// Get the Template requested by name
-		s.Template, err = models.GetTemplateByName(s.Template.Name, s.UserId)
+		s.Template, err = models.GetTemplateByName(s.Template.Name, []int64{ s.UserId })
 		if err == gorm.ErrRecordNotFound {
 			log.WithFields(logrus.Fields{
 				"template": s.Template.Name,

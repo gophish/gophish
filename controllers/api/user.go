@@ -34,6 +34,7 @@ type userRequest struct {
 	Role                   string `json:"role"`
 	PasswordChangeRequired bool   `json:"password_change_required"`
 	AccountLocked          bool   `json:"account_locked"`
+    AdminGroup             []models.AdminGroup `json:"admin_groups"`
 }
 
 func (ur *userRequest) Validate(existingUser *models.User) error {

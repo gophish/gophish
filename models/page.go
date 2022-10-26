@@ -89,9 +89,9 @@ func (p *Page) Validate() error {
 }
 
 // GetPages returns the pages owned by the given user.
-func GetPages(uid int64) ([]Page, error) {
+func GetPages(uids []int64) ([]Page, error) {
 	ps := []Page{}
-	err := db.Where("user_id=?", uid).Find(&ps).Error
+	err := db.Where("user_id IN (?)", uids).Find(&ps).Error
 	if err != nil {
 		log.Error(err)
 		return ps, err
@@ -100,9 +100,9 @@ func GetPages(uid int64) ([]Page, error) {
 }
 
 // GetPage returns the page, if it exists, specified by the given id and user_id.
-func GetPage(id int64, uid int64) (Page, error) {
+func GetPage(id int64, uids []int64) (Page, error) {
 	p := Page{}
-	err := db.Where("user_id=? and id=?", uid, id).Find(&p).Error
+	err := db.Where("user_id IN (?) and id=?", uids, id).Find(&p).Error
 	if err != nil {
 		log.Error(err)
 	}

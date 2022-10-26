@@ -319,12 +319,13 @@ func GetCampaigns(uid int64) ([]Campaign, error) {
 
 // GetCampaignSummaries gets the summary objects for all the campaigns
 // owned by the current user
-func GetCampaignSummaries(uid int64) (CampaignSummaries, error) {
+func GetCampaignSummaries(users_ids []int64) (CampaignSummaries, error) {
 	overview := CampaignSummaries{}
 	cs := []CampaignSummary{}
 	// Get the basic campaign information
-	query := db.Table("campaigns").Where("user_id = ?", uid)
-	query = query.Select("id, name, created_date, launch_date, send_by_date, completed_date, status")
+	query := db.Table("campaigns").Where("user_id IN (?)", users_ids).
+                Select("id, name, created_date, launch_date, send_by_date, completed_date, status")
+
 	err := query.Scan(&cs).Error
 	if err != nil {
 		log.Error(err)
@@ -488,7 +489,7 @@ func PostCampaign(c *Campaign, uid int64) error {
 		totalRecipients += len(c.Groups[i].Targets)
 	}
 	// Check to make sure the template exists
-	t, err := GetTemplateByName(c.Template.Name, uid)
+	t, err := GetTemplateByName(c.Template.Name, []int64{ uid })
 	if err == gorm.ErrRecordNotFound {
 		log.WithFields(logrus.Fields{
 			"template": c.Template.Name,

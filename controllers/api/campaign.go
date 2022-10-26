@@ -49,7 +49,10 @@ func (as *Server) Campaigns(w http.ResponseWriter, r *http.Request) {
 func (as *Server) CampaignsSummary(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "GET":
-		cs, err := models.GetCampaignSummaries(ctx.Get(r, "user_id").(int64))
+        user := ctx.Get(r, "user").(models.User)
+        user_ids, err := models.GetUsersIDsInUserGroup(user.Id)
+
+        cs, err := models.GetCampaignSummaries(user_ids)
 		if err != nil {
 			log.Error(err)
 			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)

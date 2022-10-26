@@ -255,6 +255,26 @@ var api = {
             return query("/users/" + id, "DELETE", {}, true)
         }
     },
+    adminGroups: {
+        get: function () {
+            return query("/admin_groups/", "GET", {}, true)
+        },
+        post: function(newAdminGroup) {
+            return query("/admin_groups/", "POST", newAdminGroup, true)
+        }
+    },
+    adminGroupsId: {
+        get: function (id) {
+            // return query("/users/" + id, "GET", {}, true)
+            return query("/admin_groups/" + id, "GET", {}, true)
+        },
+        post: function (id, adminGroup) {
+            return query(`/admin_groups/${id}`, "POST", adminGroup, true)
+        },
+        put: function (adminGroup) {
+            return query(`/admin_groups/${adminGroup.id}`, "PUT", adminGroup, true)
+        }
+    },
     webhooks: {
         get: function() {
             return query("/webhooks/", "GET", {}, false)

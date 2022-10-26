@@ -14,15 +14,15 @@ var ErrModifyingOnlyAdmin = errors.New("Cannot remove the only administrator")
 
 // User represents the user model for gophish.
 type User struct {
-	Id                     int64     `json:"id"`
-	Username               string    `json:"username" sql:"not null;unique"`
-	Hash                   string    `json:"-"`
-	ApiKey                 string    `json:"api_key" sql:"not null;unique"`
-	Role                   Role      `json:"role" gorm:"association_autoupdate:false;association_autocreate:false"`
-	RoleID                 int64     `json:"-"`
-	PasswordChangeRequired bool      `json:"password_change_required"`
-	AccountLocked          bool      `json:"account_locked"`
-	LastLogin              time.Time `json:"last_login"`
+	Id                     int64        `json:"id,string"`
+	Username               string       `json:"username" sql:"not null;unique"`
+	Hash                   string       `json:"-"`
+	ApiKey                 string       `json:"api_key" sql:"not null;unique"`
+	Role                   Role         `json:"role" gorm:"association_autoupdate:false;association_autocreate:false"`
+	RoleID                 int64        `json:"-"`
+	PasswordChangeRequired bool         `json:"password_change_required"`
+	AccountLocked          bool         `json:"account_locked"`
+	LastLogin              time.Time    `json:"last_login"`
 }
 
 // GetUser returns the user that the given id corresponds to. If no user is found, an
@@ -110,7 +110,7 @@ func DeleteUser(id int64) error {
 	}
 	log.Infof("Deleting pages for user ID %d", id)
 	// Delete the landing pages
-	pages, err := GetPages(id)
+	pages, err := GetPages([]int64{id})
 	if err != nil {
 		return err
 	}
@@ -122,7 +122,7 @@ func DeleteUser(id int64) error {
 	}
 	// Delete the templates
 	log.Infof("Deleting templates for user ID %d", id)
-	templates, err := GetTemplates(id)
+	templates, err := GetTemplates([]int64{id})
 	if err != nil {
 		return err
 	}
@@ -159,4 +159,23 @@ func DeleteUser(id int64) error {
 	// Finally, delete the user
 	err = db.Where("id=?", id).Delete(&User{}).Error
 	return err
+}
+
+// TODO: Improve this, probably can be all done using a SQL query :)
+func GetUsersIDsInUserGroup(uid int64) ([]int64, error) {
+    user_ids := []int64{}
+    user_ids = append(user_ids, uid)
+    groups, err := GetAdminGroupsUsersIsPartOf(uid)
+
+    if err != nil {
+        return user_ids, err
+    }
+
+    for _, group := range groups {
+        for _, user := range group.Users {
+            user_ids = append(user_ids, user.Id)
+        }
+    }
+
+    return user_ids, nil
 }

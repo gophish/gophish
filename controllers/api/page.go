@@ -17,7 +17,8 @@ import (
 func (as *Server) Pages(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "GET":
-		ps, err := models.GetPages(ctx.Get(r, "user_id").(int64))
+        user_ids, err := models.GetUsersIDsInUserGroup(ctx.Get(r, "user_id").(int64))
+		ps, err := models.GetPages(user_ids)
 		if err != nil {
 			log.Error(err)
 		}
@@ -54,7 +55,8 @@ func (as *Server) Pages(w http.ResponseWriter, r *http.Request) {
 func (as *Server) Page(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.ParseInt(vars["id"], 0, 64)
-	p, err := models.GetPage(id, ctx.Get(r, "user_id").(int64))
+    user_ids, err := models.GetUsersIDsInUserGroup(ctx.Get(r, "user_id").(int64))
+	p, err := models.GetPage(id, user_ids)
 	if err != nil {
 		JSONResponse(w, models.Response{Success: false, Message: "Page not found"}, http.StatusNotFound)
 		return

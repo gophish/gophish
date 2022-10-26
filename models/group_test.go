@@ -87,7 +87,7 @@ func (s *ModelsSuite) TestGetGroup(c *check.C) {
 	c.Assert(PostGroup(originalGroup), check.Equals, nil)
 
 	// Get group and test result.
-	group, err := GetGroup(originalGroup.Id, 1)
+	group, err := GetGroup(originalGroup.Id, []int64{1})
 	c.Assert(err, check.Equals, nil)
 	c.Assert(len(group.Targets), check.Equals, 1)
 	c.Assert(group.Name, check.Equals, "Test Group")
@@ -95,7 +95,7 @@ func (s *ModelsSuite) TestGetGroup(c *check.C) {
 }
 
 func (s *ModelsSuite) TestGetGroupNoGroups(c *check.C) {
-	_, err := GetGroup(1, 1)
+	_, err := GetGroup(1, []int64{1})
 	c.Assert(err, check.Equals, gorm.ErrRecordNotFound)
 }
 

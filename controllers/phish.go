@@ -219,7 +219,7 @@ func (ps *PhishingServer) PhishHandler(w http.ResponseWriter, r *http.Request) {
 			http.NotFound(w, r)
 			return
 		}
-		p, err := models.GetPage(preview.PageId, preview.UserId)
+		p, err := models.GetPage(preview.PageId, []int64{ preview.UserId })
 		if err != nil {
 			log.Error(err)
 			http.NotFound(w, r)
@@ -239,7 +239,7 @@ func (ps *PhishingServer) PhishHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	p, err := models.GetPage(c.PageId, c.UserId)
+	p, err := models.GetPage(c.PageId, []int64{ c.UserId })
 	if err != nil {
 		log.Error(err)
 		http.NotFound(w, r)

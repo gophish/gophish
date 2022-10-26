@@ -17,7 +17,8 @@ import (
 func (as *Server) Templates(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "GET":
-		ts, err := models.GetTemplates(ctx.Get(r, "user_id").(int64))
+        user_ids, err := models.GetUsersIDsInUserGroup(ctx.Get(r, "user_id").(int64))
+		ts, err := models.GetTemplates(user_ids)
 		if err != nil {
 			log.Error(err)
 		}
@@ -31,7 +32,8 @@ func (as *Server) Templates(w http.ResponseWriter, r *http.Request) {
 			JSONResponse(w, models.Response{Success: false, Message: "Invalid JSON structure"}, http.StatusBadRequest)
 			return
 		}
-		_, err = models.GetTemplateByName(t.Name, ctx.Get(r, "user_id").(int64))
+        user_ids, err := models.GetUsersIDsInUserGroup(ctx.Get(r, "user_id").(int64))
+		_, err = models.GetTemplateByName(t.Name, user_ids)
 		if err != gorm.ErrRecordNotFound {
 			JSONResponse(w, models.Response{Success: false, Message: "Template name already in use"}, http.StatusConflict)
 			return
@@ -60,7 +62,8 @@ func (as *Server) Templates(w http.ResponseWriter, r *http.Request) {
 func (as *Server) Template(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.ParseInt(vars["id"], 0, 64)
-	t, err := models.GetTemplate(id, ctx.Get(r, "user_id").(int64))
+    user_ids, err := models.GetUsersIDsInUserGroup(ctx.Get(r, "user_id").(int64))
+	t, err := models.GetTemplate(id, user_ids)
 	if err != nil {
 		JSONResponse(w, models.Response{Success: false, Message: "Template not found"}, http.StatusNotFound)
 		return

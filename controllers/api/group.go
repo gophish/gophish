@@ -53,7 +53,13 @@ func (as *Server) Groups(w http.ResponseWriter, r *http.Request) {
 func (as *Server) GroupsSummary(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == "GET":
-		gs, err := models.GetGroupSummaries(ctx.Get(r, "user_id").(int64))
+        user_ids, err := models.GetUsersIDsInUserGroup(ctx.Get(r, "user_id").(int64))
+		if err != nil {
+			log.Error(err)
+			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
+			return
+		}
+		gs, err := models.GetGroupSummaries(user_ids)
 		if err != nil {
 			log.Error(err)
 			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
@@ -68,7 +74,9 @@ func (as *Server) GroupsSummary(w http.ResponseWriter, r *http.Request) {
 func (as *Server) Group(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.ParseInt(vars["id"], 0, 64)
-	g, err := models.GetGroup(id, ctx.Get(r, "user_id").(int64))
+    user_ids, err := models.GetUsersIDsInUserGroup(ctx.Get(r, "user_id").(int64))
+
+	g, err := models.GetGroup(id, user_ids)
 	if err != nil {
 		JSONResponse(w, models.Response{Success: false, Message: "Group not found"}, http.StatusNotFound)
 		return

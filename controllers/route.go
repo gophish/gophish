@@ -137,6 +137,7 @@ func (as *AdminServer) registerRoutes() {
 	router.HandleFunc("/users", mid.Use(as.UserManagement, mid.RequirePermission(models.PermissionModifySystem), mid.RequireLogin))
 	router.HandleFunc("/webhooks", mid.Use(as.Webhooks, mid.RequirePermission(models.PermissionModifySystem), mid.RequireLogin))
 	router.HandleFunc("/impersonate", mid.Use(as.Impersonate, mid.RequirePermission(models.PermissionModifySystem), mid.RequireLogin))
+    router.HandleFunc("/admin_groups", mid.Use(as.AdminGroupsManagement, mid.RequirePermission(models.PermissionModifySystem), mid.RequireLogin))
 	// Create the API routes
 	api := api.NewServer(
 		api.WithWorker(as.worker),
@@ -179,12 +180,14 @@ type templateParams struct {
 	Token        string
 	Version      string
 	ModifySystem bool
+    AdminGroups  []models.AdminGroup
 }
 
 // newTemplateParams returns the default template parameters for a user and
 // the CSRF token.
 func newTemplateParams(r *http.Request) templateParams {
 	user := ctx.Get(r, "user").(models.User)
+    admin_groups, _ := models.GetAdminGroups()
 	session := ctx.Get(r, "session").(*sessions.Session)
 	modifySystem, _ := user.HasPermission(models.PermissionModifySystem)
 	return templateParams{
@@ -193,6 +196,7 @@ func newTemplateParams(r *http.Request) templateParams {
 		ModifySystem: modifySystem,
 		Version:      config.Version,
 		Flashes:      session.Flashes(),
+        AdminGroups: admin_groups,
 	}
 }
 
@@ -292,6 +296,12 @@ func (as *AdminServer) UserManagement(w http.ResponseWriter, r *http.Request) {
 	params := newTemplateParams(r)
 	params.Title = "User Management"
 	getTemplate(w, "users").ExecuteTemplate(w, "base", params)
+}
+
+func (as *AdminServer) AdminGroupsManagement(w http.ResponseWriter, r *http.Request) {
+    params := newTemplateParams(r)
+    params.Title = "Admin Groups Management"
+    getTemplate(w, "admin_groups").ExecuteTemplate(w, "base", params)
 }
 
 func (as *AdminServer) nextOrIndex(w http.ResponseWriter, r *http.Request) {

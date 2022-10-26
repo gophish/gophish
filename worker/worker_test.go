@@ -83,13 +83,13 @@ func setupCampaign(id int) (*models.Campaign, error) {
 	// Set the status such that no emails are attempted
 	c := models.Campaign{Name: fmt.Sprintf("Test campaign - %d", id)}
 	c.UserId = 1
-	template, err := models.GetTemplate(1, 1)
+	template, err := models.GetTemplate(1, []int64{1})
 	if err != nil {
 		return nil, err
 	}
 	c.Template = template
 
-	page, err := models.GetPage(1, 1)
+	page, err := models.GetPage(1, []int64{1})
 	if err != nil {
 		return nil, err
 	}
@@ -101,7 +101,7 @@ func setupCampaign(id int) (*models.Campaign, error) {
 	}
 	c.SMTP = smtp
 
-	group, err := models.GetGroup(1, 1)
+	group, err := models.GetGroup(1, []int64{1})
 	if err != nil {
 		return nil, err
 	}

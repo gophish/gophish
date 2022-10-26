@@ -63,7 +63,8 @@ scripts = function () {
             app_directory + 'gophish.js',
             app_directory + 'users.js',
             app_directory + 'webhooks.js',
-            app_directory + 'passwords.js'
+            app_directory + 'passwords.js',
+            app_directory + 'admin_groups.js'
         ])
         .pipe(rename({
             suffix: '.min'
