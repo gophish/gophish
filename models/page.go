@@ -19,6 +19,8 @@ type Page struct {
 	CapturePasswords   bool      `json:"capture_passwords" gorm:"column:capture_passwords"`
 	RedirectURL        string    `json:"redirect_url" gorm:"column:redirect_url"`
 	ModifiedDate       time.Time `json:"modified_date"`
+	RedirectMode       string    `json:"redirect_mode" gorm:"column:redirect_mode"` // can be either 'url' or 'html'
+	RedirectHTML       string    `json:"redirect_html" gorm:"column:redirect_html"`
 }
 
 // ErrPageNameNotSpecified is thrown if the name of the landing page is blank.
@@ -83,6 +85,9 @@ func (p *Page) Validate() error {
 		return err
 	}
 	if err := ValidateTemplate(p.RedirectURL); err != nil {
+		return err
+	}
+	if err := ValidateTemplate(p.RedirectHTML); err != nil {
 		return err
 	}
 	return p.parseHTML()
