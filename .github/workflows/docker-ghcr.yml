@@ -1,0 +1,21 @@
+name: Build and publish to ghcr
+
+on: 
+  push:
+    tags:
+    - 'v*.*.*'
+  workflow_dispatch:
+
+jobs:
+  build-and-publish-tag:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Build and publish Docker image tagged according to a git-tag
+      uses: VaultVulp/gp-docker-action@1.5.0
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        image-name: gophish
+        extract-git-tag: true
