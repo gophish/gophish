@@ -284,7 +284,7 @@ func (s *ModelsSuite) TestMailLogGenerateOverrideTransparencyHeaders(ch *check.C
 	smtp := SMTP{
 		Name:        "Test SMTP",
 		Host:        "1.1.1.1:25",
-		FromAddress: "Foo Bar <foo@example.com>",
+		FromAddress: "foo@example.com",
 		UserId:      1,
 		Headers: []Header{
 			Header{Key: "X-Gophish-Contact", Value: ""},
