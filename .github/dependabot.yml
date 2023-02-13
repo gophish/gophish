@@ -1,0 +1,31 @@
+# To get started with Dependabot version updates, you'll need to specify which
+# package ecosystems to update and where the package manifests are located.
+# Please see the documentation for all configuration options:
+# https://docs.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
+
+version: 2
+updates:
+  # Enable version updates for Docker
+  - package-ecosystem: "docker"
+    # Look for a `Dockerfile` in the `root` directory
+    directory: "/"
+    # Check for updates once a day
+    schedule:
+      interval: "daily"
+      
+  # Enable version updates for Go modules
+  - package-ecosystem: "Go modules"
+    # Look for go related file in the `root` directory
+    directory: "/"
+    # Check for updates once a day
+    schedule:
+      interval: "daily"
+      
+  # Enable version updates for yarn
+  - package-ecosystem: "yarn"
+    # Look for a `yarn.lock` in the `root` directory
+    directory: "/"
+    # Check for updates once a day
+    schedule:
+      interval: "daily"
+  
