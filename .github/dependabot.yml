@@ -9,14 +9,5 @@ updates:
     directory: "/"      # Look for a `Dockerfile` in the `root` directory
     schedule:
       interval: "daily"     # Check for updates once a day
-      
-  - package-ecosystem: "Go modules"   # Enable version updates for Go modules
-    directory: "/"     # Look for go related file in the `root` directory
-    schedule:
-      interval: "daily"     # Check for updates once a day
-      
-  - package-ecosystem: "yarn"   # Enable version updates for yarn
-    directory: "/"     # Look for a `yarn.lock` in the `root` directory
-    schedule:
-      interval: "daily"     # Check for updates once a day
+     
   
