@@ -28,7 +28,7 @@
     "jshint": "^2.13.4",
     "jshint-stylish": "^2.2.1",
     "webpack": "^4.32.2",
-    "webpack-cli": "^3.3.2"
+    "webpack-cli": "^4.10.0"
   },
   "dependencies": {
     "zxcvbn": "^4.4.2"
