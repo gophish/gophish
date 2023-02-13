@@ -19,7 +19,7 @@
     "gulp": "^4.0.0",
     "gulp-babel": "^8.0.0",
     "gulp-clean-css": "^4.0.0",
-    "gulp-cli": "^2.2.0",
+    "gulp-cli": "^2.3.0",
     "gulp-concat": "^2.6.1",
     "gulp-jshint": "^2.1.0",
     "gulp-rename": "^1.4.0",
