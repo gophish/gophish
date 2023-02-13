@@ -9,5 +9,10 @@ updates:
     directory: "/"      # Look for a `Dockerfile` in the `root` directory
     schedule:
       interval: "daily"     # Check for updates once a day
+      
+  - package-ecosystem: "npm"   # Enable version updates for Docker
+    directory: "/"      # Look for a `Dockerfile` in the `root` directory
+    schedule:
+      interval: "daily"     # Check for updates once a day
      
   
