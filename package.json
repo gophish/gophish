@@ -14,7 +14,7 @@
   "devDependencies": {
     "@babel/core": "^7.20.12",
     "@babel/preset-env": "^7.20.2",
-    "babel-loader": "^8.0.6",
+    "babel-loader": "^9.1.2",
     "clean-css": "^5.3.2",
     "gulp": "^4.0.2",
     "gulp-babel": "^8.0.0",
