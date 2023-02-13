@@ -3,29 +3,20 @@
 # Please see the documentation for all configuration options:
 # https://docs.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
 
-version: 1
+version: 2
 updates:
-  # Enable version updates for Docker
-  - package-ecosystem: "docker"
-    # Look for a `Dockerfile` in the `root` directory
-    directory: "/"
-    # Check for updates once a day
+  - package-ecosystem: "docker"   # Enable version updates for Docker
+    directory: "/"      # Look for a `Dockerfile` in the `root` directory
     schedule:
-      interval: "daily"
+      interval: "daily"     # Check for updates once a day
       
-  # Enable version updates for Go modules
-  - package-ecosystem: "Go modules"
-    # Look for go related file in the `root` directory
-    directory: "/"
-    # Check for updates once a day
+  - package-ecosystem: "Go modules"   # Enable version updates for Go modules
+    directory: "/"     # Look for go related file in the `root` directory
     schedule:
-      interval: "daily"
+      interval: "daily"     # Check for updates once a day
       
-  # Enable version updates for yarn
-  - package-ecosystem: "yarn"
-    # Look for a `yarn.lock` in the `root` directory
-    directory: "/"
-    # Check for updates once a day
+  - package-ecosystem: "yarn"   # Enable version updates for yarn
+    directory: "/"     # Look for a `yarn.lock` in the `root` directory
     schedule:
-      interval: "daily"
+      interval: "daily"     # Check for updates once a day
   
