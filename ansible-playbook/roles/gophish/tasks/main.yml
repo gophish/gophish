@@ -213,6 +213,11 @@
     state: reloaded
     enabled: yes
 
+- name: Wait for gophish to start
+  ansible.builtin.wait_for:
+    path: /opt/gophish/gophish.log
+    search_regex: "Starting admin server"
+    
 - name: get Gophish log file which contain initial password
   command: cat /home/{{ gophish_user }}/gophish_deploy/gophish.log
   register: gophish_log
