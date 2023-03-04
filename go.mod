@@ -24,7 +24,7 @@ require (
 	github.com/kylelemons/go-gypsy v0.0.0-20160905020020-08cad365cd28 // indirect
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
 	github.com/oschwald/maxminddb-golang v1.6.0
-	github.com/sirupsen/logrus v1.4.2
+	github.com/sirupsen/logrus v1.9.0
 	github.com/ziutek/mymysql v1.5.4 // indirect
 	golang.org/x/crypto v0.6.0
 	golang.org/x/time v0.0.0-20200416051211-89c76fbcd5d1
