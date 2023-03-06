@@ -18,7 +18,8 @@ RUN go get -v && go build -v
 
 
 # Runtime container
-FROM debian:stable-slim
+##FROM debian:stable-slim
+FROM golang:1.20.1
 
 RUN useradd -m -d /opt/gophish -s /bin/bash app
 
@@ -44,4 +45,4 @@ EXPOSE 3333 8080 8443 80
 
 ENV GOPHISH_INITIAL_ADMIN_PASSWORD=changeme
 
-CMD ["./docker/run.sh"]
+CMD ["./docker/run-dev.sh"]
