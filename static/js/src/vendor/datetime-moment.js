@@ -32,7 +32,7 @@ $.fn.dataTable.moment = function ( format, locale ) {
 			return 'moment-'+format;
 		}
 
-		return moment( d.replace ? d.replace(/<.*?>/g, '') : d, format, locale, true ).isValid() ?
+		return moment( d.replace ? d.replace(/(<([^>]+)>)/ig, '') : d, format, locale, true ).isValid() ?
 			'moment-'+format :
 			null;
 	} );
@@ -41,7 +41,7 @@ $.fn.dataTable.moment = function ( format, locale ) {
 	types.order[ 'moment-'+format+'-pre' ] = function ( d ) {
 		return d === '' || d === null ?
 			-Infinity :
-			parseInt( moment( d.replace ? d.replace(/<.*?>/g, '') : d, format, locale, true ).format( 'x' ), 10 );
+			parseInt( moment( d.replace ? d.replace(/(<([^>]+)>)/ig, '') : d, format, locale, true ).format( 'x' ), 10 );
 	};
 };
 
