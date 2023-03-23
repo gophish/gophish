@@ -54,7 +54,7 @@ var textTestCallback = function (range) {
 }
 
 var matchCallback = function (text, offset) {
-    var pattern = /\{{2}\.?([A-z]|\})*$/,
+    var pattern = /\{{2}\.?([a-zA-Z]|\})*$/,
         match = text.slice(0, offset)
         .match(pattern);
 
