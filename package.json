@@ -31,6 +31,27 @@
     "webpack-cli": "^5.0.1"
   },
   "dependencies": {
+    "@eonasdan/tempus-dominus": "^6.4.3",
+    "@popperjs/core": "^2.11.6",
+    "blueimp-file-upload": "^10.32.0",
+    "bootstrap": "^5.2.3",
+    "chartist": "^1.3.0",
+    "ckeditor4": "^4.20.2",
+    "core-js": "^3.29.1",
+    "d3": "^7.8.2",
+    "datamaps": "^0.5.9",
+    "datatables.net": "^1.13.4",
+    "datetime-moment": "^1.0.0",
+    "highcharts": "^10.3.3",
+    "jquery-ui": "^1.13.2",
+    "jquery.iframe-transport": "^1.0.0",
+    "jquery.js": "^0.0.2-security",
+    "moment": "^2.29.4",
+    "papaparse": "^5.4.0",
+    "select2": "^4.1.0-rc.0",
+    "sweetalert2": "^11.7.3",
+    "topojson": "^3.0.2",
+    "ua-parser": "^0.3.5",
     "zxcvbn": "^4.4.2"
   }
 }
