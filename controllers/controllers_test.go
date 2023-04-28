@@ -86,8 +86,11 @@ func createTestData(t *testing.T) {
 	// Add a group
 	group := models.Group{Name: "Test Group"}
 	group.Targets = []models.Target{
-		models.Target{BaseRecipient: models.BaseRecipient{Email: "test1@example.com", FirstName: "First", LastName: "Example"}},
-		models.Target{BaseRecipient: models.BaseRecipient{Email: "test2@example.com", FirstName: "Second", LastName: "Example"}},
+		{BaseRecipient: models.BaseRecipient{Email: "test1@example.com", FirstName: "First", LastName: "Example"}},
+		{
+			Id:            0,
+			BaseRecipient: models.BaseRecipient{Email: "test2@example.com", FirstName: "Second", LastName: "Example"},
+		},
 	}
 	group.UserId = 1
 	models.PostGroup(&group)
