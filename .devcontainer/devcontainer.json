@@ -34,7 +34,9 @@
 	"customizations": {
 		"vscode": {
 			"extensions": [
-				"golang.go"
+				"golang.go",
+				"ms-vscode.cpptools",
+				"GitHub.copilot"
 			]
 		}
 	}
