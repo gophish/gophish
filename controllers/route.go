@@ -336,7 +336,6 @@ func (as *AdminServer) Webhooks(w http.ResponseWriter, r *http.Request) {
 
 // Impersonate allows an admin to login to a user account without needing the password
 func (as *AdminServer) Impersonate(w http.ResponseWriter, r *http.Request) {
-
 	if r.Method == "POST" {
 		username := r.FormValue("username")
 		u, err := models.GetUserByUsername(username)
@@ -392,7 +391,8 @@ func (as *AdminServer) Login(w http.ResponseWriter, r *http.Request) {
 			as.handleInvalidLogin(w, r, "Account Locked")
 			return
 		}
-		u.LastLogin = time.Now().UTC()
+		now := time.Now().UTC()
+		u.LastLogin = &now
 		err = models.PutUser(&u)
 		if err != nil {
 			log.Error(err)

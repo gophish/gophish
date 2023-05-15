@@ -10,7 +10,6 @@ import (
 	"encoding/pem"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"math/big"
 	"net/http"
 	"net/mail"
@@ -38,7 +37,7 @@ func ParseMail(r *http.Request) (email.Email, error) {
 	if err != nil {
 		fmt.Println(err)
 	}
-	body, err := ioutil.ReadAll(m.Body)
+	body, err := io.ReadAll(m.Body)
 	e.HTML = body
 	return e, err
 }
@@ -147,7 +146,6 @@ func CheckAndCreateSSL(cp string, kp string) error {
 
 	serialNumberLimit := new(big.Int).Lsh(big.NewInt(1), 128)
 	serialNumber, err := rand.Int(rand.Reader, serialNumberLimit)
-
 	if err != nil {
 		return fmt.Errorf("tls certificate generation: failed to generate a random serial number: %s", err)
 	}
@@ -177,7 +175,7 @@ func CheckAndCreateSSL(cp string, kp string) error {
 	pem.Encode(certOut, &pem.Block{Type: "CERTIFICATE", Bytes: derBytes})
 	certOut.Close()
 
-	keyOut, err := os.OpenFile(kp, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
+	keyOut, err := os.OpenFile(kp, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
 	if err != nil {
 		return fmt.Errorf("tls certificate generation: failed to open %s for writing", kp)
 	}

@@ -27,12 +27,11 @@ THE SOFTWARE.
 */
 import (
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"os/signal"
 
-	"gopkg.in/alecthomas/kingpin.v2"
+	"github.com/alecthomas/kingpin/v2"
 
 	"github.com/gophish/gophish/config"
 	"github.com/gophish/gophish/controllers"
@@ -60,7 +59,7 @@ var (
 func main() {
 	// Load the version
 
-	version, err := ioutil.ReadFile("./VERSION")
+	version, err := os.ReadFile("./VERSION")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -141,5 +140,4 @@ func main() {
 	if *mode == modePhish || *mode == modeAll {
 		phishServer.Shutdown()
 	}
-
 }

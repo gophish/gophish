@@ -6,7 +6,6 @@ import (
 	"crypto/x509"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"time"
 
@@ -21,8 +20,10 @@ import (
 	_ "github.com/mattn/go-sqlite3" // Blank import needed to import sqlite3
 )
 
-var db *gorm.DB
-var conf *config.Config
+var (
+	db   *gorm.DB
+	conf *config.Config
+)
 
 const MaxDatabaseConnectionAttempts int = 10
 
@@ -151,7 +152,7 @@ func Setup(c *config.Config) error {
 		switch conf.DBName {
 		case "mysql":
 			rootCertPool := x509.NewCertPool()
-			pem, err := ioutil.ReadFile(conf.DBSSLCaPath)
+			pem, err := os.ReadFile(conf.DBSSLCaPath)
 			if err != nil {
 				log.Error(err)
 				return err

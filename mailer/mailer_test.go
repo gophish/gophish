@@ -275,7 +275,7 @@ func TestUnknownError(t *testing.T) {
 	}
 
 	// Check that the email errored out appropriately
-	if !reflect.DeepEqual(message.err, expectedError) {
-		t.Fatalf("Did not received expected error. Got %#v\nExpected %#v", message.err, expectedError)
+	if !errors.Is(message.err, expectedError) {
+		t.Fatalf("Did not receive expected error. Got: %v\nExpected: %v", message.err, expectedError)
 	}
 }

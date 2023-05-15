@@ -61,7 +61,6 @@ func TestLoginCSRF(t *testing.T) {
 			"username": {"admin"},
 			"password": {"gophish"},
 		})
-
 	if err != nil {
 		t.Fatalf("error requesting the /login endpoint: %v", err)
 	}
@@ -102,7 +101,8 @@ func TestSuccessfulRedirect(t *testing.T) {
 	client := &http.Client{
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			return http.ErrUseLastResponse
-		}}
+		},
+	}
 	resp := attemptLogin(t, ctx, client, "admin", "gophish", fmt.Sprintf("?next=%s", next))
 	got := resp.StatusCode
 	expected := http.StatusFound

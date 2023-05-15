@@ -4,9 +4,8 @@
 package context
 
 import (
-	"net/http"
-
 	"context"
+	"net/http"
 )
 
 // Get retrieves a value from the request context

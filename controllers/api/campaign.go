@@ -22,7 +22,7 @@ func (as *Server) Campaigns(w http.ResponseWriter, r *http.Request) {
 			log.Error(err)
 		}
 		JSONResponse(w, cs, http.StatusOK)
-	//POST: Create a new campaign and return it as JSON
+	// POST: Create a new campaign and return it as JSON
 	case r.Method == "POST":
 		c := models.Campaign{}
 		// Put the request into a campaign

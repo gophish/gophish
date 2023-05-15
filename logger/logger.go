@@ -41,7 +41,7 @@ func Setup(config *Config) error {
 	// Set up logging to a file if specified in the config
 	logFile := config.Filename
 	if logFile != "" {
-		f, err := os.OpenFile(logFile, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0644)
+		f, err := os.OpenFile(logFile, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0o644)
 		if err != nil {
 			return err
 		}

@@ -2,7 +2,6 @@ package config
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"os"
 	"reflect"
 	"testing"
@@ -30,7 +29,7 @@ var validConfig = []byte(`{
 }`)
 
 func createTemporaryConfig(t *testing.T) *os.File {
-	f, err := ioutil.TempFile("", "gophish-config")
+	f, err := os.CreateTemp("", "gophish-config")
 	if err != nil {
 		t.Fatalf("unable to create temporary config: %v", err)
 	}

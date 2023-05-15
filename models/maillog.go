@@ -227,7 +227,6 @@ func (m *MailLog) Generate(msg *gomail.Message) error {
 
 	// Parse remaining templates
 	subject, err := ExecuteTemplate(c.Template.Subject, ptx)
-
 	if err != nil {
 		log.Warn(err)
 	}

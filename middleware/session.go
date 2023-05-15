@@ -19,5 +19,5 @@ func init() {
 
 // Store contains the session information for the request
 var Store = sessions.NewCookieStore(
-	[]byte(securecookie.GenerateRandomKey(64)), //Signing key
+	[]byte(securecookie.GenerateRandomKey(64)), // Signing key
 	[]byte(securecookie.GenerateRandomKey(32)))

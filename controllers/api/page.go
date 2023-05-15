@@ -22,7 +22,7 @@ func (as *Server) Pages(w http.ResponseWriter, r *http.Request) {
 			log.Error(err)
 		}
 		JSONResponse(w, ps, http.StatusOK)
-	//POST: Create a new page and return it as JSON
+	// POST: Create a new page and return it as JSON
 	case r.Method == "POST":
 		p := models.Page{}
 		// Put the request into a page
@@ -38,7 +38,8 @@ func (as *Server) Pages(w http.ResponseWriter, r *http.Request) {
 			log.Error(err)
 			return
 		}
-		p.ModifiedDate = time.Now().UTC()
+		now := time.Now().UTC()
+		p.ModifiedDate = &now
 		p.UserId = ctx.Get(r, "user_id").(int64)
 		err = models.PostPage(&p)
 		if err != nil {
@@ -79,7 +80,8 @@ func (as *Server) Page(w http.ResponseWriter, r *http.Request) {
 			JSONResponse(w, models.Response{Success: false, Message: "/:id and /:page_id mismatch"}, http.StatusBadRequest)
 			return
 		}
-		p.ModifiedDate = time.Now().UTC()
+		now := time.Now().UTC()
+		p.ModifiedDate = &now
 		p.UserId = ctx.Get(r, "user_id").(int64)
 		err = models.PutPage(&p)
 		if err != nil {

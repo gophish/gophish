@@ -176,6 +176,7 @@ func (s *ModelsSuite) TestEmailRequestURLTemplating(ch *check.C) {
 	ch.Assert(string(got.Text), check.Equals, expectedURL)
 	ch.Assert(string(got.HTML), check.Equals, expectedURL)
 }
+
 func (s *ModelsSuite) TestEmailRequestGenerateEmptySubject(ch *check.C) {
 	smtp := SMTP{
 		FromAddress: "from@example.com",

@@ -42,7 +42,7 @@ func (im *Monitor) start(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		default:
-			dbusers, err := models.GetUsers() //Slice of all user ids. Each user gets their own IMAP monitor routine.
+			dbusers, err := models.GetUsers() // Slice of all user ids. Each user gets their own IMAP monitor routine.
 			if err != nil {
 				log.Error(err)
 				break
@@ -116,7 +116,8 @@ func (im *Monitor) Shutdown() error {
 }
 
 // checkForNewEmails logs into an IMAP account and checks unread emails
-//  for the rid campaign identifier.
+//
+//	for the rid campaign identifier.
 func checkForNewEmails(im models.IMAP) {
 	im.Host = im.Host + ":" + strconv.Itoa(int(im.Port)) // Append port
 	mailServer := Mailbox{
@@ -152,7 +153,6 @@ func checkForNewEmails(im models.IMAP) {
 			}
 
 			rids, err := matchEmail(m.Email) // Search email Text, HTML, and each attachment for rid parameters
-
 			if err != nil {
 				log.Errorf("Error searching email for rids from user '%s': %s", m.Email.From, err.Error())
 				continue

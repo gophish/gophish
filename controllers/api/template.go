@@ -22,7 +22,7 @@ func (as *Server) Templates(w http.ResponseWriter, r *http.Request) {
 			log.Error(err)
 		}
 		JSONResponse(w, ts, http.StatusOK)
-	//POST: Create a new template and return it as JSON
+	// POST: Create a new template and return it as JSON
 	case r.Method == "POST":
 		t := models.Template{}
 		// Put the request into a template
@@ -36,7 +36,8 @@ func (as *Server) Templates(w http.ResponseWriter, r *http.Request) {
 			JSONResponse(w, models.Response{Success: false, Message: "Template name already in use"}, http.StatusConflict)
 			return
 		}
-		t.ModifiedDate = time.Now().UTC()
+		now := time.Now().UTC()
+		t.ModifiedDate = &now
 		t.UserId = ctx.Get(r, "user_id").(int64)
 		err = models.PostTemplate(&t)
 		if err == models.ErrTemplateNameNotSpecified {
@@ -85,7 +86,8 @@ func (as *Server) Template(w http.ResponseWriter, r *http.Request) {
 			JSONResponse(w, models.Response{Success: false, Message: "Error: /:id and template_id mismatch"}, http.StatusBadRequest)
 			return
 		}
-		t.ModifiedDate = time.Now().UTC()
+		now := time.Now().UTC()
+		t.ModifiedDate = &now
 		t.UserId = ctx.Get(r, "user_id").(int64)
 		err = models.PutTemplate(&t)
 		if err != nil {

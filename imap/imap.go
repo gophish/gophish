@@ -61,7 +61,8 @@ func Validate(s *models.IMAP) error {
 		IgnoreCertErrors: s.IgnoreCertErrors,
 		User:             s.Username,
 		Pwd:              s.Password,
-		Folder:           s.Folder}
+		Folder:           s.Folder,
+	}
 
 	imapClient, err := mailServer.newClient()
 	if err != nil {
@@ -91,7 +92,6 @@ func (mbox *Mailbox) MarkAsUnread(seqs []uint32) error {
 	}
 
 	return nil
-
 }
 
 // DeleteEmails will delete emails from the supplied slice of SeqNums
@@ -162,7 +162,7 @@ func (mbox *Mailbox) GetUnread(markAsRead, delete bool) ([]Email, error) {
 			break // There should only ever be one item in this map, but I'm not 100% sure
 		}
 
-		//Remove CR characters, see https://github.com/jordan-wright/email/issues/106
+		// Remove CR characters, see https://github.com/jordan-wright/email/issues/106
 		tmp := string(buf)
 		re := regexp.MustCompile(`\r`)
 		tmp = re.ReplaceAllString(tmp, "")
