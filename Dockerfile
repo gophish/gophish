@@ -42,4 +42,4 @@ RUN touch config.json.tmp
 
 EXPOSE 3333 8080 8443 80
 
-CMD ["./docker/run.sh"]
+ENTRYPOINT ["./docker/run.sh"]
