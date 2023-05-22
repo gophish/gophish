@@ -31,9 +31,15 @@ jobs:
 
     - name: Build
       run: go build -v .
+      env:
+        GOPATH: /home/runner/work/gophish/go
     
     - name: Format
       run: diff -u <(echo -n) <(gofmt -d .)
+      env:
+        GOPATH: /home/runner/work/gophish/go
     
     - name: Test
       run: go test -v ./...
+      env:
+        GOPATH: /home/runner/work/gophish/go
