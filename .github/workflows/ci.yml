@@ -11,35 +11,24 @@ jobs:
 
     steps:
     - name: Set up Go ${{ matrix.goVer }}
-      uses: actions/setup-go@v3
+      uses: actions/setup-go@v1
       with:
         go-version: ${{ matrix.goVer }}
       id: go
 
     - name: Check out code into the Go module directory
-      uses: actions/checkout@v3
-      with:
-        fetch-depth: 1
-        path: go/src/github.com/gophish/gophish
+      uses: actions/checkout@v2
 
     - name: Get dependencies
       run: |
         go get -v -t -d ./...
         go get gopkg.in/check.v1
-      env:
-        GOPATH: /home/runner/work/gophish/go
-
+        
     - name: Build
       run: go build -v .
-      env:
-        GOPATH: /home/runner/work/gophish/go
-    
+      
     - name: Format
       run: diff -u <(echo -n) <(gofmt -d .)
-      env:
-        GOPATH: /home/runner/work/gophish/go
     
     - name: Test
       run: go test -v ./...
-      env:
-        GOPATH: /home/runner/work/gophish/go
