@@ -11,9 +11,10 @@ jobs:
 
     steps:
     - name: Set up Go ${{ matrix.goVer }}
-      uses: actions/setup-go@v1
+      uses: actions/setup-go@v4
       with:
         go-version: ${{ matrix.goVer }}
+        go-path: ${{ runner.workspace }}/go
       id: go
 
     - name: Check out code into the Go module directory
