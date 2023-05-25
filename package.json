@@ -52,6 +52,7 @@
     "sweetalert2": "^11.7.3",
     "topojson": "^3.0.2",
     "ua-parser": "^0.3.5",
+    "useragent": "^2.3.0",
     "zxcvbn": "^4.4.2"
   }
 }
