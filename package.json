@@ -45,7 +45,6 @@
     "highcharts": "^10.3.3",
     "jquery-ui": "^1.13.2",
     "jquery.iframe-transport": "^1.0.0",
-    "jquery.js": "^0.0.2-security",
     "moment": "^2.29.4",
     "papaparse": "^5.4.0",
     "select2": "^4.1.0-rc.0",
