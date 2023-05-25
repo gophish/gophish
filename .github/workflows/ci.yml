@@ -14,7 +14,8 @@ jobs:
       uses: actions/setup-go@v4
       with:
         go-version: ${{ matrix.goVer }}
-        go-path: ${{ runner.workspace }}/go
+      env:
+        GOPATH: ${{ github.workspace }}/go
       id: go
 
     - name: Check out code into the Go module directory
