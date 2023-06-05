@@ -22,7 +22,7 @@ require (
 	github.com/jordan-wright/email v4.0.1-0.20200824153738-3f5bafa1cd84+incompatible
 	github.com/jordan-wright/unindexed v0.0.0-20181209214434-78fa79113c0f
 	github.com/kylelemons/go-gypsy v0.0.0-20160905020020-08cad365cd28 // indirect
-	github.com/mattn/go-sqlite3 v1.14.16
+	github.com/mattn/go-sqlite3 v1.14.17
 	github.com/oschwald/maxminddb-golang v1.10.0
 	github.com/sirupsen/logrus v1.9.3
 	github.com/ziutek/mymysql v1.5.4 // indirect
