@@ -23,7 +23,7 @@ FROM debian:stable-slim
 RUN useradd -m -d /opt/gophish -s /bin/bash app
 
 RUN apt-get update && \
-	apt-get install --no-install-recommends -y jq libcap2-bin && \
+	apt-get install --no-install-recommends -y jq libcap2-bin ca-certificates && \
 	apt-get clean && \
 	rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
