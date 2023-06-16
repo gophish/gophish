@@ -36,7 +36,7 @@ func (s *ModelsSuite) TestNewTemplateContext(c *check.C) {
 	}
 
 	qrc, _ := qrcode.New(fmt.Sprintf("%s?rid=%s", ctx.URL, r.RId))
-	url_qr := qrc.GetUnicodeStr()
+	url_qr := qrc.GetHtmlStr()
 
 	expected := PhishingTemplateContext{
 		URL:           fmt.Sprintf("%s?rid=%s", ctx.URL, r.RId),

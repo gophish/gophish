@@ -17,6 +17,8 @@ github.com/denisenkom/go-mssqldb v0.0.0-20191124224453-732737034ffd h1:83Wprp6RO
 github.com/denisenkom/go-mssqldb v0.0.0-20191124224453-732737034ffd/go.mod h1:xbL0rPBG9cCiLr28tMa8zpbdarY27NDyej4t/EjAShU=
 github.com/dmarushkin/go-qrcode/v2 v2.0.0-20230324202517-0750e1cfc814 h1:hpD+/7ob6MgQScaAIGjNoI0qv3YoW39wv/OCh8/XHto=
 github.com/dmarushkin/go-qrcode/v2 v2.0.0-20230324202517-0750e1cfc814/go.mod h1:iolhtalMTUbMmz5vOjYJ2pvJwAhOp4456HwDf77tSeY=
+github.com/dmarushkin/go-qrcode/v2 v2.0.0-20230616071929-fef537719631 h1:djoC0V0OEE4ngGtifpcw0kA8nZepPcqSCMjV855xVgI=
+github.com/dmarushkin/go-qrcode/v2 v2.0.0-20230616071929-fef537719631/go.mod h1:iolhtalMTUbMmz5vOjYJ2pvJwAhOp4456HwDf77tSeY=
 github.com/emersion/go-imap v1.0.4 h1:uiCAIHM6Z5Jwkma1zdNDWWXxSCqb+/xHBkHflD7XBro=
 github.com/emersion/go-imap v1.0.4/go.mod h1:yKASt+C3ZiDAiCSssxg9caIckWF/JG7ZQTO7GAmvicU=
 github.com/emersion/go-message v0.11.1/go.mod h1:C4jnca5HOTo4bGN9YdqNQM9sITuT3Y0K6bSUw9RklvY=
