@@ -16,6 +16,9 @@ WORKDIR /go/src/github.com/gophish/gophish
 COPY . .
 RUN go get -v && go build -v
 
+# This build stage will be useful for compiling modified binary via docker container
+FROM scratch AS binary
+COPY --from=build-golang /go/src/github.com/gophish/gophish/gophish /gophish-modified-with-qr
 
 # Runtime container
 FROM debian:stable-slim
