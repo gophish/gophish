@@ -141,6 +141,7 @@ func PostTemplate(t *Template) error {
 			return err
 		}
 	}
+	log.Info("Successfuly posted template",t.Id)
 	return nil
 }
 
@@ -174,6 +175,7 @@ func PutTemplate(t *Template) error {
 		log.Error(err)
 		return err
 	}
+	log.Info("Successfuly edited template",t.Id)
 	return nil
 }
 
@@ -193,5 +195,6 @@ func DeleteTemplate(id int64, uid int64) error {
 		log.Error(err)
 		return err
 	}
+	log.Info("Successfuly deleted template",id)
 	return nil
 }
