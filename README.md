@@ -20,7 +20,25 @@ To build Gophish from source, simply run ```git clone https://github.com/gophish
 
 ### Docker
 You can also use Gophish via the official Docker container [here](https://hub.docker.com/r/gophish/gophish/).
-
+Installing Gophish using docker.
+## Pulling the Docker Image:
+To get started, you'll need Docker installed on your system. If you don't have it already, you can download it from docker.com. Once you have Docker up and running, open your terminal and execute the following command:
+```
+docker pull gophish/gophish
+```
+This command fetches the Gophish Docker image from Docker Hub and prepares it for use.
+## Running Gophish in Docker:
+With the image pulled, you're just a step away from launching Gophish. Run the following command in your terminal:
+```
+docker run -p 3333:3333 gophish/gophish
+```
+This command starts a Gophish instance inside a Docker container and maps port 3333 of the container to port 3333 on your host system. Now, you can access Gophish by opening your web browser and navigating to https://localhost:3333.
+## Accessing the Gophish Dashboard:
+Once you're on the Gophish login page, use the default username and password as indicated in the log output:
+```
+Username: admin
+Password: 4304d5255378177d
+```
 ### Setup
 After running the Gophish binary, open an Internet browser to https://localhost:3333 and login with the default username and password listed in the log output.
 e.g.
