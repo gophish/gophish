@@ -212,6 +212,7 @@ func Setup(c *config.Config) error {
 			Role:                   adminRole,
 			RoleID:                 adminRole.ID,
 			PasswordChangeRequired: true,
+			LastLogin:              time.Now().UTC(),
 		}
 
 		if envToken := os.Getenv(InitialAdminApiToken); envToken != "" {
