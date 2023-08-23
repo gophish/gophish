@@ -71,8 +71,8 @@ func GetContext(handler http.Handler) http.HandlerFunc {
 	}
 }
 
-// RequireAPIKey ensures that a valid API key is set as either the api_key GET
-// parameter, or a Bearer token.
+// RequireAPIKey ensures that a valid login cookie or API key is set (either 
+// the api_key GET parameter, or a Bearer token)
 func RequireAPIKey(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -93,8 +93,15 @@ func RequireAPIKey(handler http.Handler) http.Handler {
 				ak = strings.TrimPrefix(ak, "Bearer ")
 			}
 		}
+		// If we can't get the API key, we'll also check if user is logged in
+		// via the web interface
 		if ak == "" {
-			JSONError(w, http.StatusUnauthorized, "API Key not set")
+			if u := ctx.Get(r, "user"); u != nil {
+				ak = u.(models.User).ApiKey
+			}
+		}
+		if ak == "" {
+			JSONError(w, http.StatusUnauthorized, "Not logged in") //API Key not set
 			return
 		}
 		u, err := models.GetUserByAPIKey(ak)
