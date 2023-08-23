@@ -66,6 +66,14 @@ if [ -n "${CONTACT_ADDRESS+set}" ] ; then
         cat config.json.tmp > config.json
 fi
 
+# db_name has to be changed to mysql for mysql connection to work
+if [ -n "${DB_NAME+set}" ] ; then
+    jq -r \
+        --arg DB_NAME "${DB_NAME}" \
+        '.db_name = $DB_NAME' config.json > config.json.tmp && \
+        cat config.json.tmp > config.json
+fi
+
 if [ -n "${DB_FILE_PATH+set}" ] ; then
     jq -r \
         --arg DB_FILE_PATH "${DB_FILE_PATH}" \
