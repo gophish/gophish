@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        goVer: [1.16, 1.17, 1.18]
+        goVer: [1.20]
 
     steps:
     - name: Set up Go ${{ matrix.goVer }}
@@ -17,16 +17,16 @@ jobs:
       id: go
 
     - name: Check out code into the Go module directory
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Get dependencies
       run: |
         go get -v -t -d ./...
         go get gopkg.in/check.v1
-
+        
     - name: Build
       run: go build -v .
-    
+      
     - name: Format
       run: diff -u <(echo -n) <(gofmt -d .)
     
