@@ -255,6 +255,12 @@ var api = {
             return query("/users/" + id, "DELETE", {}, true)
         }
     },
+    eventId:{
+        //marks an event as false positiv in the database
+        falsepositive: function (eventid, rid) {
+            return query("/falsepositive/" + eventid + "/rid/" + rid, "GET", {}, true)
+        }
+    },
     webhooks: {
         get: function() {
             return query("/webhooks/", "GET", {}, false)
