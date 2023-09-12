@@ -7,7 +7,7 @@ name: Docker
 
 on:
   push:
-    branches: [ "envolve" ]
+    branches: [ "evolve" ]
 
 env:
   # github.repository as <account>/<repo>
