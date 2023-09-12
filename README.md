@@ -1,3 +1,6 @@
+# evait security (evolve) Edition
+This repo contains custom features, bug fixes and merged open PRs from the official repo, as it is no longer maintained. The `evolve` branch will automatically build and deploy to docker-hub using this repo: https://hub.docker.com/r/evait/gophish
+
 ![gophish logo](https://raw.github.com/gophish/gophish/master/static/images/gophish_purple.png)
 
 Gophish
