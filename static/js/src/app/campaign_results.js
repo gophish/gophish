@@ -415,7 +415,13 @@ var renderDevice = function (event_details) {
         '<i class="fa fa-' + escapeHtml(browserIcon) + ' fa-stack-1x"></i></span> ' +
         deviceBrowser + ' ' + browserVersion + '</div>'
 
+    var _device_ip_adr = details.browser['address'];
+    var ipaddrString ='<div class="timeline-device-browser"><span class="fa fa-stack">' + '<i class="fa fa-info-circle'+ ' fa-stack-1x"></i></span> ' + _device_ip_adr + '</div>';
+    var UAfullString ='<div class="timeline-device-browser"><span class="fa fa-stack">' + '<i class="fa fa-code'+ ' fa-stack-1x"></i></span> ' + details.browser['user-agent'] + '</div>';
+
     detailsString += browserString
+    detailsString += ipaddrString;
+    detailsString += UAfullString;
     detailsString += '</div>'
     return detailsString
 }
