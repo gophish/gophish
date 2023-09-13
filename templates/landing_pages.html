@@ -76,11 +76,28 @@
                         Be careful with this!
                     </div>
                 </div>
-                <div id="redirect_url">
-                    <label class="control-label" for="redirect_url_input">Redirect to: <i class="fa fa-question-circle"
-                            data-toggle="tooltip" data-placement="right" title="This option lets you redirect the user to a page after credentials are submitted."></i></label>
-                    <div class="form-group">
-                        <input id="redirect_url_input" class="form-control" placeholder="http://example.com" />
+                <div id="after-submit" style="display: none">
+                    <input type="radio" name="redirect_choice" id="redirect_url_radio" value="url" checked>
+                    <label for="redirect_url_radio">Redirect to URL</label><br>
+                    <input type="radio" name="redirect_choice" id="redirect_html_radio" value="html">
+                    <label for="redirect_html_radio">Redirect to HTML</label>
+                    <div id="redirect_url">
+                        <label class="control-label" for="redirect_url_input">Redirect to: <i class="fa fa-question-circle"
+                                data-toggle="tooltip" data-placement="right" title="This option lets you redirect the user to a page after credentials are submitted."></i></label>
+                        <div class="form-group">
+                            <input id="redirect_url_input" class="form-control" placeholder="http://example.com" />
+                        </div>
+                    </div>
+                    <div id="redirect_html" style="display:none;">
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li class="active" role="redirect_html_tab"><a href="#redirect_html_tab" aria-controls="redirect_html_tab" role="tab" data-toggle="tab">Redirect HTML</a></li>
+                        </ul>
+                        <!-- Tab panes -->
+                        <div class="tab-content">
+                            <div role="tabpanel" class="tab-pane active" id="redirect_html_tab">
+                                <textarea id="redirect_html_editor"></textarea>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
