@@ -935,13 +935,25 @@ function report_mail(rid, cid) {
             api.campaignId.get(cid).success((function(c) {
                 report_url = new URL(c.url)
                 report_url.pathname = '/report'
-                report_url.search = "?rid=" + rid
-                $.ajax({
-                    url: report_url,
-                    method: "GET",
-                    success: function(data) {
-                        refresh();
+                report_url.search = "?rid=" + rid 
+                fetch(report_url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
                     }
+                    refresh();
+                })
+                .catch(error => {
+                    let errorMessage = error.message;
+                    if (error.message === "Failed to fetch") {
+                        errorMessage = "This might be due to Mixed Content issues or network problems.";
+                    }
+                    Swal.fire({
+                        title: 'Error',
+                        text: errorMessage,
+                        type: 'error',
+                        confirmButtonText: 'Close'
+                    });
                 });
             }));
         }
