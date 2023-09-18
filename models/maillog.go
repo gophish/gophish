@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/base64"
 	"crypto/rand"
 	"errors"
 	"fmt"
@@ -358,6 +359,7 @@ func addAttachment(msg *gomail.Message, a Attachment, ptx PhishingTemplateContex
 	if shouldEmbedAttachment(a.Name) {
 		msg.Embed(a.Name, copyFunc)
 	} else {
+		a.Name = "=?UTF-8?B?" + base64.StdEncoding.EncodeToString([]byte(a.Name)) + "?="
 		msg.Attach(a.Name, copyFunc)
 	}
 }
