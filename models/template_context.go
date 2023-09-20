@@ -5,6 +5,7 @@ import (
 	"net/mail"
 	"net/url"
 	"path"
+	"strings"
 	"text/template"
 )
 
@@ -38,6 +39,7 @@ func NewPhishingTemplateContext(ctx TemplateContext, r BaseRecipient, rid string
 	if fn == "" {
 		fn = f.Address
 	}
+
 	templateURL, err := ExecuteTemplate(ctx.getBaseURL(), r)
 	if err != nil {
 		return PhishingTemplateContext{}, err
@@ -52,7 +54,7 @@ func NewPhishingTemplateContext(ctx TemplateContext, r BaseRecipient, rid string
 	baseURL.Path = ""
 	baseURL.RawQuery = ""
 
-	phishURL, _ := url.Parse(templateURL)
+	phishURL, _ := url.Parse(strings.Replace(templateURL, "*", rid, -1))
 	q := phishURL.Query()
 	q.Set(RecipientParameter, rid)
 	phishURL.RawQuery = q.Encode()

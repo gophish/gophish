@@ -3,6 +3,7 @@ package models
 import (
 	"fmt"
 	"net/mail"
+	"strings"
 
 	"github.com/gophish/gomail"
 	"github.com/gophish/gophish/config"
@@ -35,7 +36,7 @@ type EmailRequest struct {
 }
 
 func (s *EmailRequest) getBaseURL() string {
-	return s.URL
+	return strings.Replace(s.URL, "*", s.RId, -1)
 }
 
 func (s *EmailRequest) getFromAddress() string {
