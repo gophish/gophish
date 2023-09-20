@@ -24,6 +24,7 @@ type PhishingTemplateContext struct {
 	TrackingURL string
 	RId         string
 	BaseURL     string
+	FromEmail   string
 	BaseRecipient
 }
 
@@ -35,6 +36,7 @@ func NewPhishingTemplateContext(ctx TemplateContext, r BaseRecipient, rid string
 		return PhishingTemplateContext{}, err
 	}
 	fn := f.Name
+	fa := f.Address
 	if fn == "" {
 		fn = f.Address
 	}
@@ -69,6 +71,7 @@ func NewPhishingTemplateContext(ctx TemplateContext, r BaseRecipient, rid string
 		Tracker:       "<img alt='' style='display: none' src='" + trackingURL.String() + "'/>",
 		From:          fn,
 		RId:           rid,
+		FromEmail:     fa,
 	}, nil
 }
 
