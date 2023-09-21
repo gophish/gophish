@@ -241,12 +241,16 @@ function load() {
                         escapeHtml(group.name),
                         escapeHtml(group.num_targets),
                         moment(group.modified_date).format('MMMM Do YYYY, h:mm:ss a'),
-                        "<div class='pull-right'><button class='btn btn-primary' data-toggle='modal' data-backdrop='static' data-target='#modal' onclick='edit(" + group.id + ")'>\
-                    <i class='fa fa-pencil'></i>\
-                    </button>\
-                    <button class='btn btn-danger' onclick='deleteGroup(" + group.id + ")'>\
-                    <i class='fa fa-trash-o'></i>\
-                    </button></div>"
+                        "<div class='pull-right'>\
+                        <button class='btn btn-info' id='exportGroupButton" + group.id + "' onclick='exportGroupAsCSV(" + group.id + ',\"' + group.name +"\")'>\
+                        <i class='fa fa-file-excel-o'></i>\
+                        </button>\
+                        <button class='btn btn-primary' data-toggle='modal' data-backdrop='static' data-target='#modal' onclick='edit(" + group.id + ")'>\
+                        <i class='fa fa-pencil'></i>\
+                        </button>\
+                        <button class='btn btn-danger' onclick='deleteGroup(" + group.id + ")'>\
+                        <i class='fa fa-trash-o'></i>\
+                        </button></div>"
                     ])
                 })
                 groupTable.rows.add(groupRows).draw()
@@ -294,3 +298,33 @@ $(document).ready(function () {
     });
     $("#csv-template").click(downloadCSVTemplate)
 });
+
+// Exports group contents as a CSV file
+function exportGroupAsCSV(groupId, groupName) {
+    var exportHTML = $("#exportGroupButton"+groupId).html()
+    var filename = groupName +  '.csv'
+    var groupDetails = api.groupId.get(groupId)
+    if (!groupDetails) {
+        return
+    }
+    $("#exportGroupButton"+groupId).html('<i class="fa fa-spinner fa-spin"></i>')
+    var csvString = Papa.unparse(groupDetails.responseJSON.targets, {
+        'escapeFormulae': true
+    })
+
+    var csvData = new Blob([csvString], {
+        type: 'text/csv;charset=utf-8;'
+    });
+    if (navigator.msSaveBlob) {
+        navigator.msSaveBlob(csvData, filename);
+    } else {
+        var csvURL = window.URL.createObjectURL(csvData);
+        var dlLink = document.createElement('a');
+        dlLink.href = csvURL;
+        dlLink.setAttribute('download', filename)
+        document.body.appendChild(dlLink)
+        dlLink.click();
+        document.body.removeChild(dlLink)
+    }
+    $("#exportGroupButton"+groupId).html(exportHTML)
+}
