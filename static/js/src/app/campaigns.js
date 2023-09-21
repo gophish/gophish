@@ -396,6 +396,7 @@ $(document).ready(function () {
                     </button></div>"
                     ]
                     if (campaign.status == 'Completed') {
+                        row.splice(2, 0, moment(campaign.completed_date).format('MMMM Do YYYY, h:mm:ss a'));
                         rows['archived'].push(row)
                     } else {
                         rows['active'].push(row)

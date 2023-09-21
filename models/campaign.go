@@ -666,5 +666,10 @@ func CompleteCampaign(id int64, uid int64) error {
 	if err != nil {
 		log.Error(err)
 	}
+	// Add event
+	err = AddEvent(&Event{Message: "Campaign Completed"}, c.Id)
+	if err != nil {
+		log.Error(err)
+	}
 	return err
 }
