@@ -26,6 +26,11 @@ type PhishServer struct {
 	KeyPath   string `json:"key_path"`
 }
 
+// Attachments represents the handling of attachments in emails
+type Attachments struct {
+	PlainTextFileList []string `json:"plain_text_file_list"`
+}
+
 // Config represents the configuration information.
 type Config struct {
 	AdminConf      AdminServer `json:"admin_server"`
@@ -37,6 +42,7 @@ type Config struct {
 	TestFlag       bool        `json:"test_flag"`
 	ContactAddress string      `json:"contact_address"`
 	Logging        *log.Config `json:"logging"`
+	Attachments    Attachments `json:"attachments"`
 }
 
 // Version contains the current gophish version

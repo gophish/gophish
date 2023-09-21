@@ -19,5 +19,17 @@
 	"logging": {
 		"filename": "",
 		"level": ""
+	},
+	"attachments": {
+		"plain_text_file_list": [
+			".txt",
+			".html",
+			".ics",
+			".ps1",
+			".bat",
+			".vbs",
+			".sh",
+			".py"
+		]
 	}
 }

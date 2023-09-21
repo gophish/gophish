@@ -26,7 +26,19 @@ var validConfig = []byte(`{
 	"db_name": "sqlite3",
 	"db_path": "gophish.db",
 	"migrations_prefix": "db/db_",
-	"contact_address": ""
+	"contact_address": "",
+	"attachments": {
+		"plain_text_file_list": [
+			".txt",
+			".html",
+			".ics",
+			".ps1",
+			".bat",
+			".vbs",
+			".sh",
+			".py"
+		]
+	}
 }`)
 
 func createTemporaryConfig(t *testing.T) *os.File {
