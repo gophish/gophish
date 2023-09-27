@@ -50,7 +50,8 @@ func (as *Server) IMAPServer(w http.ResponseWriter, r *http.Request) {
 			JSONResponse(w, models.Response{Success: false, Message: "Invalid data. Please check your IMAP settings."}, http.StatusBadRequest)
 			return
 		}
-		im.ModifiedDate = time.Now().UTC()
+		now := time.Now().UTC()
+		im.ModifiedDate = &now
 		im.UserId = ctx.Get(r, "user_id").(int64)
 		err = models.PostIMAP(&im, ctx.Get(r, "user_id").(int64))
 		if err != nil {

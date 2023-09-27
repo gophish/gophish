@@ -13,24 +13,24 @@ import (
 
 // Campaign is a struct representing a created campaign
 type Campaign struct {
-	Id            int64     `json:"id"`
-	UserId        int64     `json:"-"`
-	Name          string    `json:"name" sql:"not null"`
-	CreatedDate   time.Time `json:"created_date"`
-	LaunchDate    time.Time `json:"launch_date"`
-	SendByDate    time.Time `json:"send_by_date"`
-	CompletedDate time.Time `json:"completed_date"`
-	TemplateId    int64     `json:"-"`
-	Template      Template  `json:"template"`
-	PageId        int64     `json:"-"`
-	Page          Page      `json:"page"`
-	Status        string    `json:"status"`
-	Results       []Result  `json:"results,omitempty"`
-	Groups        []Group   `json:"groups,omitempty"`
-	Events        []Event   `json:"timeline,omitempty"`
-	SMTPId        int64     `json:"-"`
-	SMTP          SMTP      `json:"smtp"`
-	URL           string    `json:"url"`
+	Id            int64      `json:"id"`
+	UserId        int64      `json:"-"`
+	Name          string     `json:"name" sql:"not null"`
+	CreatedDate   time.Time  `json:"created_date"`
+	LaunchDate    time.Time  `json:"launch_date"`
+	SendByDate    *time.Time `json:"send_by_date" gorm:"autoCreateTime:false"`
+	CompletedDate *time.Time `json:"completed_date" gorm:"autoCreateTime:false"`
+	TemplateId    int64      `json:"-"`
+	Template      Template   `json:"template"`
+	PageId        int64      `json:"-"`
+	Page          Page       `json:"page"`
+	Status        string     `json:"status"`
+	Results       []Result   `json:"results,omitempty"`
+	Groups        []Group    `json:"groups,omitempty"`
+	Events        []Event    `json:"timeline,omitempty"`
+	SMTPId        int64      `json:"-"`
+	SMTP          SMTP       `json:"smtp"`
+	URL           string     `json:"url"`
 }
 
 // CampaignResults is a struct representing the results from a campaign
@@ -52,9 +52,9 @@ type CampaignSummaries struct {
 type CampaignSummary struct {
 	Id            int64         `json:"id"`
 	CreatedDate   time.Time     `json:"created_date"`
-	LaunchDate    time.Time     `json:"launch_date"`
-	SendByDate    time.Time     `json:"send_by_date"`
-	CompletedDate time.Time     `json:"completed_date"`
+	LaunchDate    *time.Time    `json:"launch_date"`
+	SendByDate    *time.Time    `json:"send_by_date" gorm:"autoCreateTime:false"`
+	CompletedDate *time.Time    `json:"completed_date" gorm:"autoCreateTime:false"`
 	Status        string        `json:"status"`
 	Name          string        `json:"name"`
 	Stats         CampaignStats `json:"stats"`
@@ -131,6 +131,10 @@ const RecipientParameter = "rid"
 
 // Validate checks to make sure there are no invalid fields in a submitted campaign
 func (c *Campaign) Validate() error {
+	if c.SendByDate == nil {
+		c.SendByDate = &c.LaunchDate
+	}
+
 	switch {
 	case c.Name == "":
 		return ErrCampaignNameNotSpecified
@@ -457,15 +461,15 @@ func PostCampaign(c *Campaign, uid int64) error {
 	// Fill in the details
 	c.UserId = uid
 	c.CreatedDate = time.Now().UTC()
-	c.CompletedDate = time.Time{}
 	c.Status = CampaignQueued
 	if c.LaunchDate.IsZero() {
 		c.LaunchDate = c.CreatedDate
 	} else {
 		c.LaunchDate = c.LaunchDate.UTC()
 	}
-	if !c.SendByDate.IsZero() {
-		c.SendByDate = c.SendByDate.UTC()
+	if c.SendByDate != nil || c.SendByDate.IsZero() {
+		sendBy := c.SendByDate.UTC()
+		c.SendByDate = &sendBy
 	}
 	if c.LaunchDate.Before(c.CreatedDate) || c.LaunchDate.Equal(c.CreatedDate) {
 		c.Status = CampaignInProgress
@@ -609,7 +613,7 @@ func PostCampaign(c *Campaign, uid int64) error {
 	return tx.Commit().Error
 }
 
-//DeleteCampaign deletes the specified campaign
+// DeleteCampaign deletes the specified campaign
 func DeleteCampaign(id int64) error {
 	log.WithFields(logrus.Fields{
 		"campaign_id": id,
@@ -659,7 +663,8 @@ func CompleteCampaign(id int64, uid int64) error {
 		return nil
 	}
 	// Mark the campaign as complete
-	c.CompletedDate = time.Now().UTC()
+	now := time.Now().UTC()
+	c.CompletedDate = &now
 	c.Status = CampaignComplete
 	err = db.Model(&Campaign{}).Where("id=? and user_id=?", id, uid).
 		Select([]string{"completed_date", "status"}).UpdateColumns(&c).Error
