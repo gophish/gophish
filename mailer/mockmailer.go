@@ -104,7 +104,7 @@ type mockMessage struct {
 	from         string
 	to           []string
 	message      []byte
-	sendAt       time.Time
+	sendAt       *time.Time
 	backoffCount int
 	getdialer    func() (Dialer, error)
 	err          error
@@ -114,11 +114,12 @@ type mockMessage struct {
 func newMockMessage(from string, to []string, msg io.WriterTo) *mockMessage {
 	buff := &bytes.Buffer{}
 	msg.WriteTo(buff)
+	now := time.Now()
 	mm := &mockMessage{
 		from:    from,
 		to:      to,
 		message: buff.Bytes(),
-		sendAt:  time.Now(),
+		sendAt:  &now,
 	}
 	mm.getdialer = mm.defaultDialer
 	return mm

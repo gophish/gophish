@@ -46,6 +46,7 @@ func (s *ModelsSuite) TestResultSendingStatus(ch *check.C) {
 		ch.Assert(r.ModifiedDate, check.Equals, c.CreatedDate)
 	}
 }
+
 func (s *ModelsSuite) TestResultScheduledStatus(ch *check.C) {
 	c := s.createCampaignDependencies(ch)
 	c.LaunchDate = time.Now().UTC().Add(time.Hour * time.Duration(1))
@@ -61,7 +62,8 @@ func (s *ModelsSuite) TestResultScheduledStatus(ch *check.C) {
 func (s *ModelsSuite) TestResultVariableStatus(ch *check.C) {
 	c := s.createCampaignDependencies(ch)
 	c.LaunchDate = time.Now().UTC()
-	c.SendByDate = c.LaunchDate.Add(2 * time.Minute)
+	d := c.LaunchDate.Add(2 * time.Minute)
+	c.SendByDate = &d
 	ch.Assert(PostCampaign(&c, c.UserId), check.Equals, nil)
 
 	// The campaign has a window smaller than our group size, so we expect some

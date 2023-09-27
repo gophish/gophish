@@ -46,7 +46,8 @@ func (s *ModelsSuite) TestGenerateSendDate(c *check.C) {
 	// correctly.
 	campaign = s.createCampaignDependencies(c)
 	campaign.LaunchDate = time.Now().UTC()
-	campaign.SendByDate = campaign.LaunchDate.Add(2 * time.Minute)
+	sendBy := campaign.LaunchDate.Add(2 * time.Minute)
+	campaign.SendByDate = &sendBy
 	err = PostCampaign(&campaign, campaign.UserId)
 	c.Assert(err, check.Equals, nil)
 
@@ -76,17 +77,19 @@ func (s *ModelsSuite) TestCampaignDateValidation(c *check.C) {
 	c.Assert(err, check.Equals, nil)
 
 	// If the send date is greater than the launch date, then there's no
-	//problem
+	// problem
 	campaign = s.createCampaignDependencies(c)
 	campaign.LaunchDate = time.Now().UTC()
-	campaign.SendByDate = campaign.LaunchDate.Add(1 * time.Minute)
+	sendBy := campaign.LaunchDate.Add(1 * time.Minute)
+	campaign.SendByDate = &sendBy
 	err = campaign.Validate()
 	c.Assert(err, check.Equals, nil)
 
 	// If the send date is less than the launch date, then there's an issue
 	campaign = s.createCampaignDependencies(c)
 	campaign.LaunchDate = time.Now().UTC()
-	campaign.SendByDate = campaign.LaunchDate.Add(-1 * time.Minute)
+	sendBy = campaign.LaunchDate.Add(-1 * time.Minute)
+	campaign.SendByDate = &sendBy
 	err = campaign.Validate()
 	c.Assert(err, check.Equals, ErrInvalidSendByDate)
 }
@@ -204,7 +207,7 @@ func setupCampaign(b *testing.B, size int) Campaign {
 	campaign.Template = Template{Name: "Test Template"}
 	campaign.Page = Page{Name: "Test Page"}
 	campaign.SMTP = SMTP{Name: "Test Page"}
-	campaign.Groups = []Group{Group{Name: "Test Group"}}
+	campaign.Groups = []Group{{Name: "Test Group"}}
 	PostCampaign(&campaign, 1)
 	return campaign
 }
@@ -219,7 +222,7 @@ func BenchmarkCampaign100(b *testing.B) {
 		campaign.Template = Template{Name: "Test Template"}
 		campaign.Page = Page{Name: "Test Page"}
 		campaign.SMTP = SMTP{Name: "Test Page"}
-		campaign.Groups = []Group{Group{Name: "Test Group"}}
+		campaign.Groups = []Group{{Name: "Test Group"}}
 
 		b.StartTimer()
 		err := PostCampaign(&campaign, 1)
@@ -244,7 +247,7 @@ func BenchmarkCampaign1000(b *testing.B) {
 		campaign.Template = Template{Name: "Test Template"}
 		campaign.Page = Page{Name: "Test Page"}
 		campaign.SMTP = SMTP{Name: "Test Page"}
-		campaign.Groups = []Group{Group{Name: "Test Group"}}
+		campaign.Groups = []Group{{Name: "Test Group"}}
 
 		b.StartTimer()
 		err := PostCampaign(&campaign, 1)
@@ -269,7 +272,7 @@ func BenchmarkCampaign10000(b *testing.B) {
 		campaign.Template = Template{Name: "Test Template"}
 		campaign.Page = Page{Name: "Test Page"}
 		campaign.SMTP = SMTP{Name: "Test Page"}
-		campaign.Groups = []Group{Group{Name: "Test Group"}}
+		campaign.Groups = []Group{{Name: "Test Group"}}
 
 		b.StartTimer()
 		err := PostCampaign(&campaign, 1)

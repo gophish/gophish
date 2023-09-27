@@ -49,7 +49,8 @@ func TestRateLimitCleanup(t *testing.T) {
 	if !exists {
 		t.Fatalf("doesn't exist for some reason")
 	}
-	bucket.lastSeen = bucket.lastSeen.Add(-limiter.expiry)
+	newLastSeen := bucket.lastSeen.Add(-limiter.expiry)
+	bucket.lastSeen = &newLastSeen
 	limiter.Cleanup()
 	_, exists = limiter.visitors["127.0.0.1"]
 	if exists {

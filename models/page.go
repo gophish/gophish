@@ -11,14 +11,14 @@ import (
 
 // Page contains the fields used for a Page model
 type Page struct {
-	Id                 int64     `json:"id" gorm:"column:id; primary_key:yes"`
-	UserId             int64     `json:"-" gorm:"column:user_id"`
-	Name               string    `json:"name"`
-	HTML               string    `json:"html" gorm:"column:html"`
-	CaptureCredentials bool      `json:"capture_credentials" gorm:"column:capture_credentials"`
-	CapturePasswords   bool      `json:"capture_passwords" gorm:"column:capture_passwords"`
-	RedirectURL        string    `json:"redirect_url" gorm:"column:redirect_url"`
-	ModifiedDate       time.Time `json:"modified_date"`
+	Id                 int64      `json:"id" gorm:"column:id; primary_key:yes"`
+	UserId             int64      `json:"-" gorm:"column:user_id"`
+	Name               string     `json:"name"`
+	HTML               string     `json:"html" gorm:"column:html"`
+	CaptureCredentials bool       `json:"capture_credentials" gorm:"column:capture_credentials"`
+	CapturePasswords   bool       `json:"capture_passwords" gorm:"column:capture_passwords"`
+	RedirectURL        string     `json:"redirect_url" gorm:"column:redirect_url"`
+	ModifiedDate       *time.Time `json:"modified_date"`
 }
 
 // ErrPageNameNotSpecified is thrown if the name of the landing page is blank.

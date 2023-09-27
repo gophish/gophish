@@ -22,7 +22,7 @@ func (as *Server) SendingProfiles(w http.ResponseWriter, r *http.Request) {
 			log.Error(err)
 		}
 		JSONResponse(w, ss, http.StatusOK)
-	//POST: Create a new SMTP and return it as JSON
+	// POST: Create a new SMTP and return it as JSON
 	case r.Method == "POST":
 		s := models.SMTP{}
 		// Put the request into a page

@@ -24,7 +24,7 @@ const DefaultExpiry = 10 * time.Minute
 
 type bucket struct {
 	limiter  *rate.Limiter
-	lastSeen time.Time
+	lastSeen *time.Time
 }
 
 // PostLimiter is a simple rate limiting middleware which only allows n POST
@@ -91,7 +91,7 @@ func (limiter *PostLimiter) Cleanup() {
 	limiter.Lock()
 	defer limiter.Unlock()
 	for ip, bucket := range limiter.visitors {
-		if time.Since(bucket.lastSeen) >= limiter.expiry {
+		if time.Since(*bucket.lastSeen) >= limiter.expiry {
 			delete(limiter.visitors, ip)
 		}
 	}
@@ -119,7 +119,8 @@ func (limiter *PostLimiter) allow(ip string) bool {
 	// Update the lastSeen for this bucket to assist with cleanup
 	limiter.Lock()
 	defer limiter.Unlock()
-	bucket.lastSeen = time.Now()
+	now := time.Now()
+	bucket.lastSeen = &now
 	return bucket.limiter.Allow()
 }
 

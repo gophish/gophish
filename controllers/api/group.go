@@ -24,7 +24,7 @@ func (as *Server) Groups(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		JSONResponse(w, gs, http.StatusOK)
-	//POST: Create a new group and return it as JSON
+	// POST: Create a new group and return it as JSON
 	case r.Method == "POST":
 		g := models.Group{}
 		// Put the request into a group
@@ -38,7 +38,8 @@ func (as *Server) Groups(w http.ResponseWriter, r *http.Request) {
 			JSONResponse(w, models.Response{Success: false, Message: "Group name already in use"}, http.StatusConflict)
 			return
 		}
-		g.ModifiedDate = time.Now().UTC()
+		now := time.Now().UTC()
+		g.ModifiedDate = now
 		g.UserId = ctx.Get(r, "user_id").(int64)
 		err = models.PostGroup(&g)
 		if err != nil {
@@ -96,7 +97,8 @@ func (as *Server) Group(w http.ResponseWriter, r *http.Request) {
 			JSONResponse(w, models.Response{Success: false, Message: "Error: /:id and group_id mismatch"}, http.StatusInternalServerError)
 			return
 		}
-		g.ModifiedDate = time.Now().UTC()
+		now := time.Now().UTC()
+		g.ModifiedDate = now
 		g.UserId = ctx.Get(r, "user_id").(int64)
 		err = models.PutGroup(&g)
 		if err != nil {

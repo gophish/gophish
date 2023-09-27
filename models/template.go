@@ -18,7 +18,7 @@ type Template struct {
 	Subject        string       `json:"subject"`
 	Text           string       `json:"text"`
 	HTML           string       `json:"html" gorm:"column:html"`
-	ModifiedDate   time.Time    `json:"modified_date"`
+	ModifiedDate   *time.Time   `json:"modified_date"`
 	Attachments    []Attachment `json:"attachments"`
 }
 
@@ -150,15 +150,14 @@ func PutTemplate(t *Template) error {
 	if err := t.Validate(); err != nil {
 		return err
 	}
+
 	// Delete all attachments, and replace with new ones
 	err := db.Where("template_id=?", t.Id).Delete(&Attachment{}).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		log.Error(err)
 		return err
 	}
-	if err == gorm.ErrRecordNotFound {
-		err = nil
-	}
+
 	for i := range t.Attachments {
 		t.Attachments[i].TemplateId = t.Id
 		err := db.Save(&t.Attachments[i]).Error
@@ -174,6 +173,7 @@ func PutTemplate(t *Template) error {
 		log.Error(err)
 		return err
 	}
+
 	return nil
 }
 
