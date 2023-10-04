@@ -200,7 +200,7 @@ function completeCampaign() {
 }
 
 // Exports campaign results as a CSV file
-function exportAsCSV(scope) {
+function exportAsCleanCSV(scope) {
     exportHTML = $("#exportButton").html()
     var csvScope = null
     var filename = campaign.name + ' - ' + capitalize(scope) + '.csv'
