@@ -49,6 +49,44 @@ func (as *Server) ImportGroup(w http.ResponseWriter, r *http.Request) {
 	JSONResponse(w, ts, http.StatusOK)
 }
 
+// ImportEmailFile allows for the importing of email.
+// Returns a Message object
+func (as *Server) ImportEmailFile(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method != "POST" {
+		JSONResponse(w, models.Response{Success: false, Message: "Method not allowed"}, http.StatusBadRequest)
+		return
+	}
+	mr, nil := r.MultipartReader()
+	part, nil := mr.NextPart()
+	e, err := email.NewEmailFromReader(part)
+	if err != nil {
+		log.Error(err)
+	}
+	d, err := goquery.NewDocumentFromReader(bytes.NewReader(e.HTML))
+	if err != nil {
+		JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
+		return
+	}
+	d.Find("a").Each(func(i int, a *goquery.Selection) {
+		a.SetAttr("href", "{{.URL}}")
+	})
+	h, err := d.Html()
+	if err != nil {
+		JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
+		return
+	}
+	e.HTML = []byte(h)
+
+	er := emailResponse{
+		Subject: e.Subject,
+		Text:    string(e.Text),
+		HTML:    string(e.HTML),
+	}
+	JSONResponse(w, er, http.StatusOK)
+	return
+}
+
 // ImportEmail allows for the importing of email.
 // Returns a Message object
 func (as *Server) ImportEmail(w http.ResponseWriter, r *http.Request) {

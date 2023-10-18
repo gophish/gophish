@@ -222,6 +222,36 @@ function edit(idx) {
             .remove()
             .draw();
     })
+
+    // Handle file uploads
+    $("#emlupload").fileupload({
+        url: "/api/import/emailfile",
+        dataType: "json",
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader('Authorization', 'Bearer ' + user.api_key);
+        },
+        add: function (e, data) {
+            $("#modal\\.flashes").empty()
+            var acceptFileTypes = /(eml)$/i;
+            var filename = data.originalFiles[0]['name']
+            if (filename && !acceptFileTypes.test(filename.split(".").pop())) {
+                modalError("Unsupported file extension (use .eml)")
+                return false;
+            }
+            data.submit();
+        },
+        success: function (data) {
+            $("#text_editor").val(data.text)
+            $("#html_editor").val(data.html)
+            $("#subject").val(data.subject)
+            // If the HTML is provided, let's open that view in the editor
+            if (data.html) {
+                CKEDITOR.instances["html_editor"].setMode('wysiwyg')
+                $('.nav-tabs a[href="#html"]').click()
+            }
+            $("#importEmailModal").modal("hide")
+        }
+    })
 }
 
 function copy(idx) {

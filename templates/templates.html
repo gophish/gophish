@@ -52,8 +52,11 @@
                 </div>
                 <div class="form-group">
                     <button class="btn btn-danger" data-toggle="modal" data-backdrop="static" data-target="#importEmailModal"><i
-                            class="fa fa-envelope"></i>
-                        Import Email</button>
+                            class="fa fa-paste"></i>
+                        Paste Raw Email</button>
+                    <button class="btn btn-danger btn-file" data-toggle="tooltip" data-placement="right" title="Supports EML files" id="fileUpload"><i
+                            class="fa fa-file"></i>
+                        Import Email File<input type="file" id="emlupload"></button>
                 </div>
                 <label class="control-label" for="envelope-sender">Envelope Sender: <i class="fa fa-question-circle" data-toggle="tooltip" data-placement="right" title="This sender is shown to the user by most email clients. Defaults to the SMTP From as defined in the Sending Profile."></i></label>
                 <div class="form-group">
