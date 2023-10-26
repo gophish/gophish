@@ -742,3 +742,9 @@ table.dataTable {
 #password-strength-container {
     height: 40px;
 }
+.ms-1 {
+    margin-left: 1em;
+}
+.mt-1 {
+    margin-top: 1em;
+}
