@@ -71,6 +71,12 @@ type CampaignStats struct {
 	Error         int64 `json:"error"`
 }
 
+// CampaignGroup is used for a many-to-many relationship between 1..* Campaigns and 1..* Groups
+type CampaignGroup struct {
+	CampaignId  int64 `json:"-"`
+	GroupId int64 `json:"-"`
+}
+
 // Event contains the fields for an event
 // that occurs during the campaign
 type Event struct {
@@ -527,15 +533,34 @@ func PostCampaign(c *Campaign, uid int64) error {
 	c.SMTP = s
 	c.SMTPId = s.Id
 	// Insert into the DB
-	err = db.Save(c).Error
+	tx := db.Begin()
+	err = tx.Save(c).Error
+	if err != nil {
+		log.Error(err)
+		tx.Rollback()
+		return err
+	}
+
+	// Add the associated groups to the Campaign's group assignments
+	for _, g := range c.Groups {
+		err = InsertGroupIntoCampaign(tx, g.Id, c)
+		if err != nil {
+			log.Error(err)
+			return err
+		}
+	}
+
+	err = tx.Commit().Error
 	if err != nil {
 		log.Error(err)
 		return err
 	}
+
 	err = AddEvent(&Event{Message: "Campaign Created"}, c.Id)
 	if err != nil {
 		log.Error(err)
 	}
+
 	// Import the users
 	return UpdateUsers(c, totalRecipients)
 }
@@ -673,4 +698,19 @@ func UpdateUsers(c *Campaign, totalRecipients int) error {
 	}
 
 	return tx.Commit().Error
+}
+
+// InsertGroupIntoCampaign inserts the specified group into the Campaign's group assignments.
+func InsertGroupIntoCampaign(tx *gorm.DB, gid int64, c *Campaign) error {
+	// ToDo: Handle duplicate entries
+	
+	err := tx.Save(&CampaignGroup{CampaignId: c.Id, GroupId: gid}).Error
+
+	if err != nil {
+		log.Error(err)
+		tx.Rollback()
+		return err
+	}
+
+	return nil
 }
