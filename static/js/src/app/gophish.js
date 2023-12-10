@@ -104,6 +104,10 @@ var api = {
         complete: function (id) {
             return query("/campaigns/" + id + "/complete", "GET", {}, true)
         },
+        // updateUsers() - Upates a campaign's user assignments at POST /campaigns/:id/update_users
+        updateUsers: function(id) {
+            return query("/campaigns/" + id + "/update_users", "GET", {}, true);
+        },
         // summary() - Queries the API for GET /campaigns/summary
         summary: function (id) {
             return query("/campaigns/" + id + "/summary", "GET", {}, true)
