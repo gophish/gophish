@@ -664,7 +664,6 @@ func GetCampaignGroups(cid int64) ([]Group, error) {
 
 // UpdateCampaignUsers creates maillogs and result entries for all group members assigned to the specified campaign
 func UpdateCampaignUsers(c *Campaign) (error) {
-	// ToDo: Prevent duplicates
 	if len(c.Groups) == 0 {
 		gs, err := GetCampaignGroups(c.Id)
 		if err != nil {
@@ -680,9 +679,19 @@ func UpdateCampaignUsers(c *Campaign) (error) {
 		totalRecipients += len(c.Groups[i].Targets)
 	}
 
+	tx := db.Begin()
+
+	userExists := func(email string) (bool) {
+		err := tx.Table("results").Where("campaign_id = ? AND email = ?", c.Id, email).First(&Result{}).Error
+		if err == gorm.ErrRecordNotFound {
+			return false
+		}
+
+		return true
+	}
+
 	resultMap := make(map[string]bool)
 	recipientIndex := 0
-	tx := db.Begin()
 	for _, g := range c.Groups {
 		// Insert a result for each target in the group
 		for _, t := range g.Targets {
@@ -691,6 +700,12 @@ func UpdateCampaignUsers(c *Campaign) (error) {
 			if _, ok := resultMap[t.Email]; ok {
 				continue
 			}
+
+			// Skip the user if they already exist for this campaign
+			if userExists(t.Email) {
+				continue
+			}
+
 			resultMap[t.Email] = true
 			sendDate := c.generateSendDate(recipientIndex, totalRecipients)
 			r := &Result{
