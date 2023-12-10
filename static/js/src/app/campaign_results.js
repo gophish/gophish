@@ -203,11 +203,11 @@ function completeCampaign() {
 function updateCampaignUserAssignment() {
     Swal.fire({
         title: "Are you sure?",
-        text: "This will update the campaign's user assignments.",
+        text: "This will update the users assigned to this campaign.",
         type: "warning",
         animation: false,
         showCancelButton: true,
-        confirmButtonText: "Update user assignments",
+        confirmButtonText: "Update Users",
         confirmButtonColor: "#428bca",
         reverseButtons: true,
         allowOutsideClick: false,
@@ -226,8 +226,8 @@ function updateCampaignUserAssignment() {
     }).then(function (result) {
         if(result.value){
             Swal.fire(
-                'Campaign User assignment Updated!',
-                'This campaign\'s user assignment has been updated!',
+                'Campaign Users Updated!',
+                'This campaign has been successfully updated!',
                 'success'
             );
         }

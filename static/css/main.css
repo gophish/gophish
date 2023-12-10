@@ -654,6 +654,16 @@ table.dataTable {
     background-color: #64a1d6;
 }
 
+.btn-orange {
+    color: #fff;
+    background-color: #FFAC1C;
+    border-color: #FFAC1C;
+}
+
+.btn-orange:hover {
+    background-color: #FFD580;
+}
+
 .select2-container--bootstrap .select2-selection--single .select2-selection__rendered {
     font-size: 15px !important;
 }

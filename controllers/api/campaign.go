@@ -121,7 +121,7 @@ func (as *Server) CampaignUpdateUsers(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == "GET" {
-		JSONResponse(w, models.Response{Success: true, Message: "Campaign user assignment updated successfully!"}, http.StatusOK)
+		JSONResponse(w, models.Response{Success: true, Message: "Users updated successfully!"}, http.StatusOK)
 		return
 	}
 }
