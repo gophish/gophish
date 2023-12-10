@@ -122,6 +122,7 @@ func GetGroups(uid int64) ([]Group, error) {
 	return gs, nil
 }
 
+// GetGroupById returns a group by its id.
 func GetGroupById(gid int64) (Group, error) {
 	g := Group{}
 	err := db.Where("id=?", gid).Find(&g).Error

@@ -112,7 +112,7 @@ func (as *Server) CampaignUpdateUsers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = models.UpdateCampaignUsersFromGroups(&c);
+	err = models.UpdateCampaignUsers(&c);
 	
 	if err != nil {
 		log.Error(err);

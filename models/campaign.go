@@ -562,7 +562,7 @@ func PostCampaign(c *Campaign, uid int64) error {
 	}
 
 	// Import the users
-	return UpdateUsers(c, totalRecipients)
+	return UpdateCampaignUsers(c);
 }
 
 //DeleteCampaign deletes the specified campaign
@@ -625,80 +625,6 @@ func CompleteCampaign(id int64, uid int64) error {
 	return err
 }
 
-// UpdateUsers updates the specified campaign's user assignments.
-func UpdateUsers(c *Campaign, totalRecipients int) error {
-	resultMap := make(map[string]bool)
-	recipientIndex := 0
-	tx := db.Begin()
-	for _, g := range c.Groups {
-		// Insert a result for each target in the group
-		for _, t := range g.Targets {
-			// Remove duplicate results - we should only
-			// send emails to unique email addresses.
-			if _, ok := resultMap[t.Email]; ok {
-				continue
-			}
-			resultMap[t.Email] = true
-			sendDate := c.generateSendDate(recipientIndex, totalRecipients)
-			r := &Result{
-				BaseRecipient: BaseRecipient{
-					Email:     t.Email,
-					Position:  t.Position,
-					FirstName: t.FirstName,
-					LastName:  t.LastName,
-				},
-				Status:       StatusScheduled,
-				CampaignId:   c.Id,
-				UserId:       c.UserId,
-				SendDate:     sendDate,
-				Reported:     false,
-				ModifiedDate: c.CreatedDate,
-			}
-			err := r.GenerateId(tx)
-			if err != nil {
-				log.Error(err)
-				tx.Rollback()
-				return err
-			}
-			processing := false
-			if r.SendDate.Before(c.CreatedDate) || r.SendDate.Equal(c.CreatedDate) {
-				r.Status = StatusSending
-				processing = true
-			}
-			err = tx.Save(r).Error
-			if err != nil {
-				log.WithFields(logrus.Fields{
-					"email": t.Email,
-				}).Errorf("error creating result: %v", err)
-				tx.Rollback()
-				return err
-			}
-			c.Results = append(c.Results, *r)
-			log.WithFields(logrus.Fields{
-				"email":     r.Email,
-				"send_date": sendDate,
-			}).Debug("creating maillog")
-			m := &MailLog{
-				UserId:     c.UserId,
-				CampaignId: c.Id,
-				RId:        r.RId,
-				SendDate:   sendDate,
-				Processing: processing,
-			}
-			err = tx.Save(m).Error
-			if err != nil {
-				log.WithFields(logrus.Fields{
-					"email": t.Email,
-				}).Errorf("error creating maillog entry: %v", err)
-				tx.Rollback()
-				return err
-			}
-			recipientIndex++
-		}
-	}
-
-	return tx.Commit().Error
-}
 
 // InsertGroupIntoCampaign inserts the specified group into the Campaign's group assignments.
 func InsertGroupIntoCampaign(tx *gorm.DB, gid int64, c *Campaign) error {
@@ -736,16 +662,19 @@ func GetCampaignGroups(cid int64) ([]Group, error) {
 	return gs, nil	
 }
 
-// UpdateCampaignUsersFromGroups creates maillogs and result entries for all group members assigned to the specified campaign
-func UpdateCampaignUsersFromGroups(c *Campaign) (error) {
+// UpdateCampaignUsers creates maillogs and result entries for all group members assigned to the specified campaign
+func UpdateCampaignUsers(c *Campaign) (error) {
 	// ToDo: Prevent duplicates
-	gs, err := GetCampaignGroups(c.Id)
-	if err != nil {
-		log.Error(err)
-		return err
-	}
-	c.Groups = gs
+	if len(c.Groups) == 0 {
+		gs, err := GetCampaignGroups(c.Id)
+		if err != nil {
+			log.Error(err)
+			return err
+		}
 
+		c.Groups = gs	
+	}
+	
 	totalRecipients := 0
 	for i, _ := range c.Groups {
 		totalRecipients += len(c.Groups[i].Targets)
