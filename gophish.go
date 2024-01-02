@@ -59,12 +59,15 @@ var (
 
 func main() {
 	// Load the version
-
-	version, err := ioutil.ReadFile("./VERSION")
-	if err != nil {
-		log.Fatal(err)
+	version := os.Getenv("GOPHISH_VERSION")
+	if version == "" {
+		versionBytes, err := ioutil.ReadFile("./VERSION")
+		if err != nil {
+			log.Fatal(err)
+		}
+		version = string(versionBytes)
 	}
-	kingpin.Version(string(version))
+	kingpin.Version(version)
 
 	// Parse the CLI flags and load the config
 	kingpin.CommandLine.HelpFlag.Short('h')
