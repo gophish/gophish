@@ -26,7 +26,7 @@ const (
 
 	// SignatureHeader is the name of the HTTP header which contains the
 	// webhook signature
-	SignatureHeader = "X-Gophish-Signature"
+	SignatureHeader = "X-Signature"
 
 	// Sha256Prefix is the prefix that specifies the hashing algorithm used
 	// for the signature
