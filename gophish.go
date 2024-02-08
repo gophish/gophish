@@ -95,6 +95,12 @@ func main() {
 	}
 
 	// Provide the option to disable the built-in mailer
+    // uncomment the following line to disable the mailer
+
+	// i:=true
+	// disableMailer :=&i
+
+
 	// Setup the global variables and settings
 	err = models.Setup(conf)
 	if err != nil {
