@@ -1,7 +1,6 @@
-![gophish logo](https://raw.github.com/gophish/gophish/master/static/images/gophish_purple.png)
+![gophish logo](https://raw.github.com/gophish/gophish/master/static/images/nphish_purple.png)
 
-Gophish
-=======
+# Gophish
 
 ![Build Status](https://github.com/gophish/gophish/workflows/CI/badge.svg) [![GoDoc](https://godoc.org/github.com/gophish/gophish?status.svg)](https://godoc.org/github.com/gophish/gophish)
 
@@ -14,16 +13,20 @@ Gophish: Open-Source Phishing Toolkit
 Installation of Gophish is dead-simple - just download and extract the zip containing the [release for your system](https://github.com/gophish/gophish/releases/), and run the binary. Gophish has binary releases for Windows, Mac, and Linux platforms.
 
 ### Building From Source
+
 **If you are building from source, please note that Gophish requires Go v1.10 or above!**
 
-To build Gophish from source, simply run ```git clone https://github.com/gophish/gophish.git``` and ```cd``` into the project source directory. Then, run ```go build```. After this, you should have a binary called ```gophish``` in the current directory.
+To build Gophish from source, simply run `git clone https://github.com/gophish/gophish.git` and `cd` into the project source directory. Then, run `go build`. After this, you should have a binary called `gophish` in the current directory.
 
 ### Docker
+
 You can also use Gophish via the official Docker container [here](https://hub.docker.com/r/gophish/gophish/).
 
 ### Setup
+
 After running the Gophish binary, open an Internet browser to https://localhost:3333 and login with the default username and password listed in the log output.
 e.g.
+
 ```
 time="2020-07-29T01:24:08Z" level=info msg="Please login with the username admin and the password 4304d5255378177d"
 ```
@@ -39,6 +42,7 @@ Documentation can be found on our [site](http://getgophish.com/documentation). F
 Find a bug? Want more features? Find something missing in the documentation? Let us know! Please don't hesitate to [file an issue](https://github.com/gophish/gophish/issues/new) and we'll get right on it.
 
 ### License
+
 ```
 Gophish - Open-Source Phishing Framework
 
