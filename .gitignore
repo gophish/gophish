@@ -29,3 +29,5 @@ gophish_admin.key
 *.exe
 gophish.db*
 gophish
+
+local-data/
