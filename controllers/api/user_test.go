@@ -168,7 +168,7 @@ func TestUnauthorizedListUsers(t *testing.T) {
 	}
 }
 
-// TestUnauthorizedModifyUsers verifies that users without ModifySystem
+// TestUnauthorizedGetUser verifies that users without ModifySystem
 // permission (a "standard" user) can only get or modify their own information.
 func TestUnauthorizedGetUser(t *testing.T) {
 	testCtx := setupTest(t)
@@ -187,7 +187,7 @@ func TestUnauthorizedGetUser(t *testing.T) {
 	}
 }
 
-// TestUnauthorizedModifyRole ensures that users without the ModifySystem
+// TestUnauthorizedSetRole ensures that users without the ModifySystem
 // privilege are unable to modify their own role, preventing a potential
 // privilege escalation issue.
 func TestUnauthorizedSetRole(t *testing.T) {
