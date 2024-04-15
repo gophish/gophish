@@ -23,6 +23,7 @@ type User struct {
 	PasswordChangeRequired bool      `json:"password_change_required"`
 	AccountLocked          bool      `json:"account_locked"`
 	LastLogin              time.Time `json:"last_login"`
+	LastActivity           time.Time `json:"last_activity"`
 }
 
 // GetUser returns the user that the given id corresponds to. If no user is found, an

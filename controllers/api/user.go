@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gophish/gophish/auth"
 	ctx "github.com/gophish/gophish/context"
@@ -29,11 +30,12 @@ var ErrInsufficientPermission = errors.New("Permission denied")
 
 // userRequest is the payload which represents the creation of a new user.
 type userRequest struct {
-	Username               string `json:"username"`
-	Password               string `json:"password"`
-	Role                   string `json:"role"`
-	PasswordChangeRequired bool   `json:"password_change_required"`
-	AccountLocked          bool   `json:"account_locked"`
+	Username               string    `json:"username"`
+	Password               string    `json:"password"`
+	Role                   string    `json:"role"`
+	PasswordChangeRequired bool      `json:"password_change_required"`
+	AccountLocked          bool      `json:"account_locked"`
+	LastActivity           time.Time `json:"last_acitvity"`
 }
 
 func (ur *userRequest) Validate(existingUser *models.User) error {
@@ -109,7 +111,9 @@ func (as *Server) Users(w http.ResponseWriter, r *http.Request) {
 			Role:                   role,
 			RoleID:                 role.ID,
 			PasswordChangeRequired: ur.PasswordChangeRequired,
+			LastActivity 			ur.LastActivity,
 		}
+		
 		err = models.PutUser(&user)
 		if err != nil {
 			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)

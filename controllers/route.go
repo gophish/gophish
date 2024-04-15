@@ -123,6 +123,7 @@ func (as *AdminServer) Shutdown() error {
 func (as *AdminServer) registerRoutes() {
 	router := mux.NewRouter()
 	// Base Front-end routes
+	router.Use(mid.UserActivityHandler)
 	router.HandleFunc("/", mid.Use(as.Base, mid.RequireLogin))
 	router.HandleFunc("/login", mid.Use(as.Login, as.limiter.Limit))
 	router.HandleFunc("/logout", mid.Use(as.Logout, mid.RequireLogin))
