@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	ctx "github.com/gophish/gophish/context"
+	log "github.com/gophish/gophish/logger"
 	"github.com/gophish/gophish/models"
 	"github.com/gorilla/csrf"
 )
@@ -37,6 +39,24 @@ func Use(handler http.HandlerFunc, mid ...func(http.Handler) http.HandlerFunc) h
 		handler = m(handler)
 	}
 	return handler
+}
+
+func UserActivityHandler(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Update the LastActivity timestamp for the logged-in user
+		if u := ctx.Get(r, "user"); u != nil {
+			currentUser := u.(models.User)
+			currentUser.LastActivity = time.Now()
+			if err := models.PutUser(&currentUser); err != nil {
+				// Handle error
+				log.Errorf("Failed to update user last activity: %v", err)
+				http.Error(w, "Failed to update user last activity", http.StatusInternalServerError)
+				return
+			}
+		}
+		// Call the next handler in the chain
+		next.ServeHTTP(w, r)
+	})
 }
 
 // GetContext wraps each request in a function which fills in the context for a given request.
