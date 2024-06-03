@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"testing"
 
 	"golang.org/x/crypto/bcrypt"
 
@@ -13,9 +14,11 @@ import (
 	"github.com/gophish/gophish/models"
 )
 
-func (s *APISuite) createUnpriviledgedUser(slug string) *models.User {
+func createUnpriviledgedUser(t *testing.T, slug string) *models.User {
 	role, err := models.GetRoleBySlug(slug)
-	s.Nil(err)
+	if err != nil {
+		t.Fatalf("error getting role by slug: %v", err)
+	}
 	unauthorizedUser := &models.User{
 		Username: "foo",
 		Hash:     "bar",
@@ -24,56 +27,82 @@ func (s *APISuite) createUnpriviledgedUser(slug string) *models.User {
 		RoleID:   role.ID,
 	}
 	err = models.PutUser(unauthorizedUser)
-	s.Nil(err)
+	if err != nil {
+		t.Fatalf("error saving unpriviledged user: %v", err)
+	}
 	return unauthorizedUser
 }
 
-func (s *APISuite) TestGetUsers() {
+func TestGetUsers(t *testing.T) {
+	testCtx := setupTest(t)
 	r := httptest.NewRequest(http.MethodGet, "/api/users", nil)
-	r = ctx.Set(r, "user", s.admin)
+	r = ctx.Set(r, "user", testCtx.admin)
 	w := httptest.NewRecorder()
 
-	s.apiServer.Users(w, r)
-	s.Equal(w.Code, http.StatusOK)
+	testCtx.apiServer.Users(w, r)
+	expected := http.StatusOK
+	if w.Code != expected {
+		t.Fatalf("unexpected error code received. expected %d got %d", expected, w.Code)
+	}
 
 	got := []models.User{}
 	err := json.NewDecoder(w.Body).Decode(&got)
-	s.Nil(err)
+	if err != nil {
+		t.Fatalf("error decoding users data: %v", err)
+	}
 
 	// We only expect one user
-	s.Equal(1, len(got))
+	expectedUsers := 1
+	if len(got) != expectedUsers {
+		t.Fatalf("unexpected number of users returned. expected %d got %d", expectedUsers, len(got))
+	}
 	// And it should be the admin user
-	s.Equal(s.admin.Id, got[0].Id)
+	if testCtx.admin.Id != got[0].Id {
+		t.Fatalf("unexpected user received. expected %d got %d", testCtx.admin.Id, got[0].Id)
+	}
 }
 
-func (s *APISuite) TestCreateUser() {
+func TestCreateUser(t *testing.T) {
+	testCtx := setupTest(t)
 	payload := &userRequest{
 		Username: "foo",
-		Password: "bar",
+		Password: "validpassword",
 		Role:     models.RoleUser,
 	}
 	body, err := json.Marshal(payload)
-	s.Nil(err)
+	if err != nil {
+		t.Fatalf("error marshaling userRequest payload: %v", err)
+	}
 
 	r := httptest.NewRequest(http.MethodPost, "/api/users", bytes.NewBuffer(body))
 	r.Header.Set("Content-Type", "application/json")
-	r = ctx.Set(r, "user", s.admin)
+	r = ctx.Set(r, "user", testCtx.admin)
 	w := httptest.NewRecorder()
 
-	s.apiServer.Users(w, r)
-	s.Equal(w.Code, http.StatusOK)
+	testCtx.apiServer.Users(w, r)
+	expected := http.StatusOK
+	if w.Code != expected {
+		t.Fatalf("unexpected error code received. expected %d got %d", expected, w.Code)
+	}
 
 	got := &models.User{}
 	err = json.NewDecoder(w.Body).Decode(got)
-	s.Nil(err)
-	s.Equal(got.Username, payload.Username)
-	s.Equal(got.Role.Slug, payload.Role)
+	if err != nil {
+		t.Fatalf("error decoding user payload: %v", err)
+	}
+	if got.Username != payload.Username {
+		t.Fatalf("unexpected username received. expected %s got %s", payload.Username, got.Username)
+	}
+	if got.Role.Slug != payload.Role {
+		t.Fatalf("unexpected role received. expected %s got %s", payload.Role, got.Role.Slug)
+	}
 }
 
 // TestModifyUser tests that a user with the appropriate access is able to
 // modify their username and password.
-func (s *APISuite) TestModifyUser() {
-	unpriviledgedUser := s.createUnpriviledgedUser(models.RoleUser)
+func TestModifyUser(t *testing.T) {
+	testCtx := setupTest(t)
+	unpriviledgedUser := createUnpriviledgedUser(t, models.RoleUser)
 	newPassword := "new-password"
 	newUsername := "new-username"
 	payload := userRequest{
@@ -82,33 +111,48 @@ func (s *APISuite) TestModifyUser() {
 		Role:     unpriviledgedUser.Role.Slug,
 	}
 	body, err := json.Marshal(payload)
-	s.Nil(err)
+	if err != nil {
+		t.Fatalf("error marshaling userRequest payload: %v", err)
+	}
 	url := fmt.Sprintf("/api/users/%d", unpriviledgedUser.Id)
 	r := httptest.NewRequest(http.MethodPut, url, bytes.NewBuffer(body))
 	r.Header.Set("Content-Type", "application/json")
 	r.Header.Set("Authorization", fmt.Sprintf("Bearer %s", unpriviledgedUser.ApiKey))
 	w := httptest.NewRecorder()
 
-	s.apiServer.ServeHTTP(w, r)
+	testCtx.apiServer.ServeHTTP(w, r)
 	response := &models.User{}
 	err = json.NewDecoder(w.Body).Decode(response)
-	s.Nil(err)
-	s.Equal(w.Code, http.StatusOK)
-	s.Equal(response.Username, newUsername)
+	if err != nil {
+		t.Fatalf("error decoding user payload: %v", err)
+	}
+	expected := http.StatusOK
+	if w.Code != expected {
+		t.Fatalf("unexpected error code received. expected %d got %d", expected, w.Code)
+	}
+	if response.Username != newUsername {
+		t.Fatalf("unexpected username received. expected %s got %s", newUsername, response.Username)
+	}
 	got, err := models.GetUser(unpriviledgedUser.Id)
-	s.Nil(err)
-	s.Equal(response.Username, got.Username)
-	s.Equal(newUsername, got.Username)
+	if err != nil {
+		t.Fatalf("error getting unpriviledged user: %v", err)
+	}
+	if response.Username != got.Username {
+		t.Fatalf("unexpected username received. expected %s got %s", response.Username, got.Username)
+	}
 	err = bcrypt.CompareHashAndPassword([]byte(got.Hash), []byte(newPassword))
-	s.Nil(err)
+	if err != nil {
+		t.Fatalf("incorrect hash received for created user. expected %s got %s", []byte(newPassword), []byte(got.Hash))
+	}
 }
 
 // TestUnauthorizedListUsers ensures that users without the ModifySystem
 // permission are unable to list the users registered in Gophish.
-func (s *APISuite) TestUnauthorizedListUsers() {
+func TestUnauthorizedListUsers(t *testing.T) {
+	testCtx := setupTest(t)
 	// First, let's create a standard user which doesn't
 	// have ModifySystem permissions.
-	unauthorizedUser := s.createUnpriviledgedUser(models.RoleUser)
+	unauthorizedUser := createUnpriviledgedUser(t, models.RoleUser)
 	// We'll try to make a request to the various users API endpoints to
 	// ensure that they fail. Previously, we could hit the handlers directly
 	// but we need to go through the router for this test to ensure the
@@ -117,72 +161,99 @@ func (s *APISuite) TestUnauthorizedListUsers() {
 	r.Header.Set("Authorization", fmt.Sprintf("Bearer %s", unauthorizedUser.ApiKey))
 	w := httptest.NewRecorder()
 
-	s.apiServer.ServeHTTP(w, r)
-	s.Equal(w.Code, http.StatusForbidden)
+	testCtx.apiServer.ServeHTTP(w, r)
+	expected := http.StatusForbidden
+	if w.Code != expected {
+		t.Fatalf("unexpected error code received. expected %d got %d", expected, w.Code)
+	}
 }
 
 // TestUnauthorizedModifyUsers verifies that users without ModifySystem
 // permission (a "standard" user) can only get or modify their own information.
-func (s *APISuite) TestUnauthorizedGetUser() {
+func TestUnauthorizedGetUser(t *testing.T) {
+	testCtx := setupTest(t)
 	// First, we'll make sure that a user with the "user" role is unable to
 	// get the information of another user (in this case, the main admin).
-	unauthorizedUser := s.createUnpriviledgedUser(models.RoleUser)
-	url := fmt.Sprintf("/api/users/%d", s.admin.Id)
+	unauthorizedUser := createUnpriviledgedUser(t, models.RoleUser)
+	url := fmt.Sprintf("/api/users/%d", testCtx.admin.Id)
 	r := httptest.NewRequest(http.MethodGet, url, nil)
 	r.Header.Set("Authorization", fmt.Sprintf("Bearer %s", unauthorizedUser.ApiKey))
 	w := httptest.NewRecorder()
 
-	s.apiServer.ServeHTTP(w, r)
-	s.Equal(w.Code, http.StatusForbidden)
+	testCtx.apiServer.ServeHTTP(w, r)
+	expected := http.StatusForbidden
+	if w.Code != expected {
+		t.Fatalf("unexpected error code received. expected %d got %d", expected, w.Code)
+	}
 }
 
 // TestUnauthorizedModifyRole ensures that users without the ModifySystem
 // privilege are unable to modify their own role, preventing a potential
 // privilege escalation issue.
-func (s *APISuite) TestUnauthorizedSetRole() {
-	unauthorizedUser := s.createUnpriviledgedUser(models.RoleUser)
+func TestUnauthorizedSetRole(t *testing.T) {
+	testCtx := setupTest(t)
+	unauthorizedUser := createUnpriviledgedUser(t, models.RoleUser)
 	url := fmt.Sprintf("/api/users/%d", unauthorizedUser.Id)
 	payload := &userRequest{
 		Username: unauthorizedUser.Username,
 		Role:     models.RoleAdmin,
 	}
 	body, err := json.Marshal(payload)
-	s.Nil(err)
+	if err != nil {
+		t.Fatalf("error marshaling userRequest payload: %v", err)
+	}
 	r := httptest.NewRequest(http.MethodPut, url, bytes.NewBuffer(body))
 	r.Header.Set("Authorization", fmt.Sprintf("Bearer %s", unauthorizedUser.ApiKey))
 	w := httptest.NewRecorder()
 
-	s.apiServer.ServeHTTP(w, r)
-	s.Equal(w.Code, http.StatusBadRequest)
+	testCtx.apiServer.ServeHTTP(w, r)
+	expected := http.StatusBadRequest
+	if w.Code != expected {
+		t.Fatalf("unexpected error code received. expected %d got %d", expected, w.Code)
+	}
 	response := &models.Response{}
 	err = json.NewDecoder(w.Body).Decode(response)
-	s.Nil(err)
-	s.Equal(response.Message, ErrInsufficientPermission.Error())
+	if err != nil {
+		t.Fatalf("error decoding response payload: %v", err)
+	}
+	if response.Message != ErrInsufficientPermission.Error() {
+		t.Fatalf("incorrect error received when setting role. expected %s got %s", ErrInsufficientPermission.Error(), response.Message)
+	}
 }
 
 // TestModifyWithExistingUsername verifies that it's not possible to modify
 // an user's username to one which already exists.
-func (s *APISuite) TestModifyWithExistingUsername() {
-	unauthorizedUser := s.createUnpriviledgedUser(models.RoleUser)
+func TestModifyWithExistingUsername(t *testing.T) {
+	testCtx := setupTest(t)
+	unauthorizedUser := createUnpriviledgedUser(t, models.RoleUser)
 	payload := &userRequest{
-		Username: s.admin.Username,
+		Username: testCtx.admin.Username,
 		Role:     unauthorizedUser.Role.Slug,
 	}
 	body, err := json.Marshal(payload)
-	s.Nil(err)
+	if err != nil {
+		t.Fatalf("error marshaling userRequest payload: %v", err)
+	}
 	url := fmt.Sprintf("/api/users/%d", unauthorizedUser.Id)
 	r := httptest.NewRequest(http.MethodPut, url, bytes.NewReader(body))
 	r.Header.Set("Authorization", fmt.Sprintf("Bearer %s", unauthorizedUser.ApiKey))
 	w := httptest.NewRecorder()
 
-	s.apiServer.ServeHTTP(w, r)
-	s.Equal(w.Code, http.StatusBadRequest)
-	expected := &models.Response{
+	testCtx.apiServer.ServeHTTP(w, r)
+	expected := http.StatusBadRequest
+	if w.Code != expected {
+		t.Fatalf("unexpected error code received. expected %d got %d", expected, w.Code)
+	}
+	expectedResponse := &models.Response{
 		Message: ErrUsernameTaken.Error(),
 		Success: false,
 	}
 	got := &models.Response{}
 	err = json.NewDecoder(w.Body).Decode(got)
-	s.Nil(err)
-	s.Equal(got.Message, expected.Message)
+	if err != nil {
+		t.Fatalf("error decoding response payload: %v", err)
+	}
+	if got.Message != expectedResponse.Message {
+		t.Fatalf("incorrect error received when setting role. expected %s got %s", expectedResponse.Message, got.Message)
+	}
 }

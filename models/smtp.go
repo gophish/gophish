@@ -5,11 +5,13 @@ import (
 	"errors"
 	"net/mail"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/gophish/gomail"
+	"github.com/gophish/gophish/dialer"
 	log "github.com/gophish/gophish/logger"
 	"github.com/gophish/gophish/mailer"
 	"github.com/jinzhu/gorm"
@@ -56,6 +58,10 @@ type Header struct {
 // specified in the SMTP configuration
 var ErrFromAddressNotSpecified = errors.New("No From Address specified")
 
+// ErrInvalidFromAddress is thrown when the SMTP From field in the sending
+// profiles containes a value that is not an email address
+var ErrInvalidFromAddress = errors.New("Invalid SMTP From address because it is not an email address")
+
 // ErrHostNotSpecified is thrown when there is no Host specified
 // in the SMTP configuration
 var ErrHostNotSpecified = errors.New("No SMTP Host specified")
@@ -75,6 +81,8 @@ func (s *SMTP) Validate() error {
 		return ErrFromAddressNotSpecified
 	case s.Host == "":
 		return ErrHostNotSpecified
+	case !validateFromAddress(s.FromAddress):
+		return ErrInvalidFromAddress
 	}
 	_, err := mail.ParseAddress(s.FromAddress)
 	if err != nil {
@@ -94,6 +102,12 @@ func (s *SMTP) Validate() error {
 	return err
 }
 
+// validateFromAddress validates
+func validateFromAddress(email string) bool {
+	r, _ := regexp.Compile("^([a-zA-Z0-9_\\-\\.]+)@([a-zA-Z0-9_\\-\\.]+)\\.([a-zA-Z]{2,18})$")
+	return r.MatchString(email)
+}
+
 // GetDialer returns a dialer for the given SMTP profile
 func (s *SMTP) GetDialer() (mailer.Dialer, error) {
 	// Setup the message and dial
@@ -101,6 +115,7 @@ func (s *SMTP) GetDialer() (mailer.Dialer, error) {
 	if len(hp) < 2 {
 		hp = append(hp, "25")
 	}
+	host := hp[0]
 	// Any issues should have been caught in validation, but we'll
 	// double check here.
 	port, err := strconv.Atoi(hp[1])
@@ -108,9 +123,10 @@ func (s *SMTP) GetDialer() (mailer.Dialer, error) {
 		log.Error(err)
 		return nil, err
 	}
-	d := gomail.NewDialer(hp[0], port, s.Username, s.Password)
+	dialer := dialer.Dialer()
+	d := gomail.NewWithDialer(dialer, host, port, s.Username, s.Password)
 	d.TLSConfig = &tls.Config{
-		ServerName:         s.Host,
+		ServerName:         host,
 		InsecureSkipVerify: s.IgnoreCertErrors,
 	}
 	hostname, err := os.Hostname()

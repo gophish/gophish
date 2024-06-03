@@ -7,7 +7,7 @@
 var gulp = require('gulp'),
     rename = require('gulp-rename'),
     concat = require('gulp-concat'),
-    uglify = require('gulp-uglify'),
+    uglify = require('gulp-uglify-es').default,
     cleanCSS = require('gulp-clean-css'),
     babel = require('gulp-babel'),
 
@@ -61,6 +61,9 @@ scripts = function () {
             app_directory + 'settings.js',
             app_directory + 'templates.js',
             app_directory + 'gophish.js',
+            app_directory + 'users.js',
+            app_directory + 'webhooks.js',
+            app_directory + 'passwords.js'
         ])
         .pipe(rename({
             suffix: '.min'

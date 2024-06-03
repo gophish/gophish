@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"net/http"
+	"net/mail"
 
 	ctx "github.com/gophish/gophish/context"
 	log "github.com/gophish/gophish/logger"
@@ -93,7 +94,19 @@ func (as *Server) SendTestEmail(w http.ResponseWriter, r *http.Request) {
 		}
 		s.SMTP = smtp
 	}
-	s.FromAddress = s.SMTP.FromAddress
+
+	_, err = mail.ParseAddress(s.Template.EnvelopeSender)
+	if err != nil {
+		_, err = mail.ParseAddress(s.SMTP.FromAddress)
+		if err != nil {
+			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
+			return
+		} else {
+			s.FromAddress = s.SMTP.FromAddress
+		}
+	} else {
+		s.FromAddress = s.Template.EnvelopeSender
+	}
 
 	// Validate the given request
 	if err = s.Validate(); err != nil {
@@ -118,5 +131,4 @@ func (as *Server) SendTestEmail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	JSONResponse(w, models.Response{Success: true, Message: "Email Sent"}, http.StatusOK)
-	return
 }

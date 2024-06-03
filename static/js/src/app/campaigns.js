@@ -13,7 +13,7 @@ var campaign = {}
 
 // Launch attempts to POST to /campaigns/
 function launch() {
-    swal({
+    Swal.fire({
         title: "Are you sure?",
         text: "This will schedule the campaign to be launched.",
         type: "question",
@@ -62,16 +62,18 @@ function launch() {
                     .error(function (data) {
                         $("#modal\\.flashes").empty().append("<div style=\"text-align:center\" class=\"alert alert-danger\">\
             <i class=\"fa fa-exclamation-circle\"></i> " + data.responseJSON.message + "</div>")
-                        swal.close()
+                        Swal.close()
                     })
             })
         }
-    }).then(function () {
-        swal(
-            'Campaign Scheduled!',
-            'This campaign has been scheduled for launch!',
-            'success'
-        );
+    }).then(function (result) {
+        if (result.value){
+            Swal.fire(
+                'Campaign Scheduled!',
+                'This campaign has been scheduled for launch!',
+                'success'
+            );
+        }
         $('button:contains("OK")').on('click', function () {
             window.location = "/campaigns/" + campaign.id.toString()
         })
@@ -124,7 +126,7 @@ function dismiss() {
 }
 
 function deleteCampaign(idx) {
-    swal({
+    Swal.fire({
         title: "Are you sure?",
         text: "This will delete the campaign. This can't be undone!",
         type: "warning",
@@ -145,12 +147,14 @@ function deleteCampaign(idx) {
                     })
             })
         }
-    }).then(function () {
-        swal(
-            'Campaign Deleted!',
-            'This campaign has been deleted!',
-            'success'
-        );
+    }).then(function (result) {
+        if (result.value){
+            Swal.fire(
+                'Campaign Deleted!',
+                'This campaign has been deleted!',
+                'success'
+            );
+        }
         $('button:contains("OK")').on('click', function () {
             location.reload()
         })
@@ -158,16 +162,19 @@ function deleteCampaign(idx) {
 }
 
 function setupOptions() {
-    api.groups.get()
-        .success(function (groups) {
+    api.groups.summary()
+        .success(function (summaries) {
+            groups = summaries.groups
             if (groups.length == 0) {
                 modalError("No groups found!")
                 return false;
             } else {
                 var group_s2 = $.map(groups, function (obj) {
                     obj.text = obj.name
+                    obj.title = obj.num_targets + " targets"
                     return obj
                 });
+                console.log(group_s2)
                 $("#users.form-control").select2({
                     placeholder: "Select Groups",
                     data: group_s2,
@@ -250,6 +257,7 @@ function copy(idx) {
         .success(function (campaign) {
             $("#name").val("Copy of " + campaign.name)
             if (!campaign.template.id) {
+                $("#template").val("").change();
                 $("#template").select2({
                     placeholder: campaign.template.name
                 });
@@ -258,6 +266,7 @@ function copy(idx) {
                 $("#template").trigger("change.select2")
             }
             if (!campaign.page.id) {
+                $("#page").val("").change();
                 $("#page").select2({
                     placeholder: campaign.page.name
                 });
@@ -266,6 +275,7 @@ function copy(idx) {
                 $("#page").trigger("change.select2")
             }
             if (!campaign.smtp.id) {
+                $("#profile").val("").change();
                 $("#profile").select2({
                     placeholder: campaign.smtp.name
                 });
@@ -336,7 +346,7 @@ $(document).ready(function () {
                 $("#campaignTable").show()
                 $("#campaignTableArchive").show()
 
-                campaignTableOriginal = $("#campaignTable").DataTable({
+                activeCampaignsTable = $("#campaignTable").DataTable({
                     columnDefs: [{
                         orderable: false,
                         targets: "no-sort"
@@ -345,7 +355,7 @@ $(document).ready(function () {
                         [1, "desc"]
                     ]
                 });
-                campaignTableArchive = $("#campaignTableArchive").DataTable({
+                archivedCampaignsTable = $("#campaignTableArchive").DataTable({
                     columnDefs: [{
                         orderable: false,
                         targets: "no-sort"
@@ -354,12 +364,11 @@ $(document).ready(function () {
                         [1, "desc"]
                     ]
                 });
+                rows = {
+                    'active': [],
+                    'archived': []
+                }
                 $.each(campaigns, function (i, campaign) {
-                    campaignTable = campaignTableOriginal
-                    if (campaign.status === "Completed") {
-                        campaignTable = campaignTableArchive
-                    }
-
                     label = labels[campaign.status] || "label-default";
 
                     //section for tooltips on the status of a campaign to show some quick stats
@@ -369,10 +378,10 @@ $(document).ready(function () {
                         var quickStats = launchDate + "<br><br>" + "Number of recipients: " + campaign.stats.total
                     } else {
                         launchDate = "Launch Date: " + moment(campaign.launch_date).format('MMMM Do YYYY, h:mm:ss a')
-                        var quickStats = launchDate + "<br><br>" + "Number of recipients: " + campaign.stats.total + "<br><br>" + "Emails opened: " + campaign.stats.opened + "<br><br>" + "Emails clicked: " + campaign.stats.clicked + "<br><br>" + "Submitted Credentials: " + campaign.stats.submitted_data + "<br><br>" + "Errors : " + campaign.stats.error + "Reported : " + campaign.stats.reported
+                        var quickStats = launchDate + "<br><br>" + "Number of recipients: " + campaign.stats.total + "<br><br>" + "Emails opened: " + campaign.stats.opened + "<br><br>" + "Emails clicked: " + campaign.stats.clicked + "<br><br>" + "Submitted Credentials: " + campaign.stats.submitted_data + "<br><br>" + "Errors : " + campaign.stats.error + "<br><br>" + "Reported : " + campaign.stats.email_reported
                     }
 
-                    campaignTable.row.add([
+                    var row = [
                         escapeHtml(campaign.name),
                         moment(campaign.created_date).format('MMMM Do YYYY, h:mm:ss a'),
                         "<span class=\"label " + label + "\" data-toggle=\"tooltip\" data-placement=\"right\" data-html=\"true\" title=\"" + quickStats + "\">" + campaign.status + "</span>",
@@ -385,9 +394,16 @@ $(document).ready(function () {
                     <button class='btn btn-danger' onclick='deleteCampaign(" + i + ")' data-toggle='tooltip' data-placement='left' title='Delete Campaign'>\
                     <i class='fa fa-trash-o'></i>\
                     </button></div>"
-                    ]).draw()
-                    $('[data-toggle="tooltip"]').tooltip()
+                    ]
+                    if (campaign.status == 'Completed') {
+                        rows['archived'].push(row)
+                    } else {
+                        rows['active'].push(row)
+                    }
                 })
+                activeCampaignsTable.rows.add(rows['active']).draw()
+                archivedCampaignsTable.rows.add(rows['archived']).draw()
+                $('[data-toggle="tooltip"]').tooltip()
             } else {
                 $("#emptyMessage").show()
             }
