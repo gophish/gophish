@@ -82,19 +82,20 @@ func WithContactAddress(addr string) PhishingServerOption {
 }
 
 // Start launches the phishing server, listening on the configured address.
-func (ps *PhishingServer) Start() error {
+func (ps *PhishingServer) Start() {
 	if ps.config.UseTLS {
+		// Only support TLS 1.2 and above - ref #1691, #1689
+		ps.server.TLSConfig = defaultTLSConfig
 		err := util.CheckAndCreateSSL(ps.config.CertPath, ps.config.KeyPath)
 		if err != nil {
 			log.Fatal(err)
-			return err
 		}
 		log.Infof("Starting phishing server at https://%s", ps.config.ListenURL)
-		return ps.server.ListenAndServeTLS(ps.config.CertPath, ps.config.KeyPath)
+		log.Fatal(ps.server.ListenAndServeTLS(ps.config.CertPath, ps.config.KeyPath))
 	}
 	// If TLS isn't configured, just listen on HTTP
 	log.Infof("Starting phishing server at http://%s", ps.config.ListenURL)
-	return ps.server.ListenAndServe()
+	log.Fatal(ps.server.ListenAndServe())
 }
 
 // Shutdown attempts to gracefully shutdown the server.
@@ -119,6 +120,10 @@ func (ps *PhishingServer) registerRoutes() {
 	// Setup GZIP compression
 	gzipWrapper, _ := gziphandler.NewGzipLevelHandler(gzip.BestCompression)
 	phishHandler := gzipWrapper(router)
+
+	// Respect X-Forwarded-For and X-Real-IP headers in case we're behind a
+	// reverse proxy.
+	phishHandler = handlers.ProxyHeaders(phishHandler)
 
 	// Setup logging
 	phishHandler = handlers.CombinedLoggingHandler(log.Writer(), phishHandler)
@@ -161,6 +166,7 @@ func (ps *PhishingServer) TrackHandler(w http.ResponseWriter, r *http.Request) {
 // ReportHandler tracks emails as they are reported, updating the status for the given Result
 func (ps *PhishingServer) ReportHandler(w http.ResponseWriter, r *http.Request) {
 	r, err := setupContext(r)
+	w.Header().Set("Access-Control-Allow-Origin", "*") // To allow Chrome extensions (or other pages) to report a campaign without violating CORS
 	if err != nil {
 		// Log the error if it wasn't something we can safely ignore
 		if err != ErrInvalidRequest && err != ErrCampaignComplete {
@@ -203,6 +209,7 @@ func (ps *PhishingServer) PhishHandler(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
+	w.Header().Set("X-Server", config.ServerName) // Useful for checking if this is a GoPhish server (e.g. for campaign reporting plugins)
 	var ptx models.PhishingTemplateContext
 	// Check for a preview
 	if preview, ok := ctx.Get(r, "result").(models.EmailRequest); ok {
@@ -353,12 +360,7 @@ func setupContext(r *http.Request) (*http.Request, error) {
 	}
 	ip, _, err := net.SplitHostPort(r.RemoteAddr)
 	if err != nil {
-		log.Error(err)
-		return r, err
-	}
-	// Respect X-Forwarded headers
-	if fips := r.Header.Get("X-Forwarded-For"); fips != "" {
-		ip = strings.Split(fips, ", ")[0]
+		ip = r.RemoteAddr
 	}
 	// Handle post processing such as GeoIP
 	err = rs.UpdateGeo(ip)

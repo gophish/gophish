@@ -125,7 +125,7 @@ function dismiss() {
 
 // Deletes a campaign after prompting the user
 function deleteCampaign() {
-    swal({
+    Swal.fire({
         title: "Are you sure?",
         text: "This will delete the campaign. This can't be undone!",
         type: "warning",
@@ -147,12 +147,14 @@ function deleteCampaign() {
                     })
             })
         }
-    }).then(function () {
-        swal(
-            'Campaign Deleted!',
-            'This campaign has been deleted!',
-            'success'
-        );
+    }).then(function (result) {
+        if(result.value){
+            Swal.fire(
+                'Campaign Deleted!',
+                'This campaign has been deleted!',
+                'success'
+            );
+        }
         $('button:contains("OK")').on('click', function () {
             location.href = '/campaigns'
         })
@@ -161,7 +163,7 @@ function deleteCampaign() {
 
 // Completes a campaign after prompting the user
 function completeCampaign() {
-    swal({
+    Swal.fire({
         title: "Are you sure?",
         text: "Gophish will stop processing events for this campaign",
         type: "warning",
@@ -183,15 +185,17 @@ function completeCampaign() {
                     })
             })
         }
-    }).then(function () {
-        swal(
-            'Campaign Completed!',
-            'This campaign has been completed!',
-            'success'
-        );
-        $('#complete_button')[0].disabled = true;
-        $('#complete_button').text('Completed!')
-        doPoll = false;
+    }).then(function (result) {
+        if (result.value){
+            Swal.fire(
+                'Campaign Completed!',
+                'This campaign has been completed!',
+                'success'
+            );
+            $('#complete_button')[0].disabled = true;
+            $('#complete_button').text('Completed!')
+            doPoll = false;
+        }
     })
 }
 
@@ -212,7 +216,9 @@ function exportAsCSV(scope) {
         return
     }
     $("#exportButton").html('<i class="fa fa-spinner fa-spin"></i>')
-    var csvString = Papa.unparse(csvScope, {})
+    var csvString = Papa.unparse(csvScope, {
+        'escapeFormulae': true
+    })
     var csvData = new Blob([csvString], {
         type: 'text/csv;charset=utf-8;'
     });
@@ -253,7 +259,7 @@ function replay(event_idx) {
     })
     /* Ensure we know where to send the user */
     // Prompt for the URL
-    swal({
+    Swal.fire({
         title: 'Where do you want the credentials submitted to?',
         input: 'text',
         showCancelButton: true,
@@ -269,8 +275,10 @@ function replay(event_idx) {
             });
         }
     }).then(function (result) {
-        url = result
-        submitForm()
+        if (result.value){
+            url = result.value
+            submitForm()
+        }
     })
     return
     submitForm()
@@ -632,15 +640,6 @@ function poll() {
                 var event_date = moment.utc(event.time).local()
                 timeline_series_data.push({
                     email: event.email,
-                    x: event_date.valueOf(),
-                    y: 1
-                })
-            })
-            var timeline_series_data = []
-            $.each(campaign.timeline, function (i, event) {
-                var event_date = moment.utc(event.time).local()
-                timeline_series_data.push({
-                    email: event.email,
                     message: event.message,
                     x: event_date.valueOf(),
                     y: 1,
@@ -780,7 +779,7 @@ function load() {
                                     if (reported) {
                                         return "<i class='fa fa-check-circle text-center text-success'></i>"
                                     }
-                                    return "<i class='fa fa-times-circle text-center text-muted'></i>"
+                                    return "<i role='button' class='fa fa-times-circle text-center text-muted' onclick='report_mail(\"" + row[0] + "\", \"" + campaign.id + "\");'></i>"
                                 }
                                 return reported
                             },
@@ -919,7 +918,47 @@ function refresh() {
     setRefresh = setTimeout(refresh, 60000)
 };
 
-
+function report_mail(rid, cid) {
+    Swal.fire({
+        title: "Are you sure?",
+        text: "This result will be flagged as reported (RID: " + rid + ")",
+        type: "question",
+        animation: false,
+        showCancelButton: true,
+        confirmButtonText: "Continue",
+        confirmButtonColor: "#428bca",
+        reverseButtons: true,
+        allowOutsideClick: false,
+        showLoaderOnConfirm: true
+    }).then(function (result) {
+        if (result.value){
+            api.campaignId.get(cid).success((function(c) {
+                report_url = new URL(c.url)
+                report_url.pathname = '/report'
+                report_url.search = "?rid=" + rid 
+                fetch(report_url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    refresh();
+                })
+                .catch(error => {
+                    let errorMessage = error.message;
+                    if (error.message === "Failed to fetch") {
+                        errorMessage = "This might be due to Mixed Content issues or network problems.";
+                    }
+                    Swal.fire({
+                        title: 'Error',
+                        text: errorMessage,
+                        type: 'error',
+                        confirmButtonText: 'Close'
+                    });
+                });
+            }));
+        }
+    })
+}
 
 $(document).ready(function () {
     Highcharts.setOptions({

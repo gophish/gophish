@@ -77,7 +77,7 @@ func RequireAPIKey(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		if r.Method == "OPTIONS" {
-			w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
+			w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 			w.Header().Set("Access-Control-Max-Age", "1000")
 			w.Header().Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
 			return
@@ -114,13 +114,21 @@ func RequireAPIKey(handler http.Handler) http.Handler {
 func RequireLogin(handler http.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if u := ctx.Get(r, "user"); u != nil {
+			// If a password change is required for the user, then redirect them
+			// to the login page
+			currentUser := u.(models.User)
+			if currentUser.PasswordChangeRequired && r.URL.Path != "/reset_password" {
+				q := r.URL.Query()
+				q.Set("next", r.URL.Path)
+				http.Redirect(w, r, fmt.Sprintf("/reset_password?%s", q.Encode()), http.StatusTemporaryRedirect)
+				return
+			}
 			handler.ServeHTTP(w, r)
 			return
 		}
 		q := r.URL.Query()
 		q.Set("next", r.URL.Path)
 		http.Redirect(w, r, fmt.Sprintf("/login?%s", q.Encode()), http.StatusTemporaryRedirect)
-		return
 	}
 }
 
@@ -165,6 +173,17 @@ func RequirePermission(perm string) func(http.Handler) http.HandlerFunc {
 			}
 			next.ServeHTTP(w, r)
 		}
+	}
+}
+
+// ApplySecurityHeaders applies various security headers according to best-
+// practices.
+func ApplySecurityHeaders(next http.Handler) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		csp := "frame-ancestors 'none';"
+		w.Header().Set("Content-Security-Policy", csp)
+		w.Header().Set("X-Frame-Options", "DENY")
+		next.ServeHTTP(w, r)
 	}
 }
 

@@ -5,7 +5,9 @@
             {{.Title}}
         </h1>
     </div>
-    <div id="flashes" class="row"></div>
+    <div id="flashes" class="row">
+        {{template "flashes" .Flashes}}
+    </div>
     <div class="row">
         <button type="button" class="btn btn-primary" id="new_button" data-toggle="modal" data-backdrop="static"
             data-user-id="-1" data-target="#modal">
@@ -21,6 +23,7 @@
                 <tr>
                     <th>Username</th>
                     <th>Role</th>
+                    <th>Last Login</th>
                     <th class="col-md-2 no-sort"></th>
                 </tr>
             </thead>
@@ -37,7 +40,7 @@
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
-                <h4 class="modal-title" id="groupModalLabel">New User</h4>
+                <h4 class="modal-title" id="userModalLabel">New User</h4>
             </div>
             <div class="modal-body" id="modal_body">
                 <div class="row" id="modal.flashes"></div>
@@ -47,12 +50,26 @@
                 </div>
                 <label class="control-label" for="password">Password:</label>
                 <div class="form-group">
-                    <input type="password" class="form-control" placeholder="Password" id="password" required />
+                    <input type="password" class="form-control" autocomplete="new-password" placeholder="Password" id="password" required />
+                    <div class="hidden" id="password-strength-container">
+                        <div class="progress" id="password-strength">
+                            <div id="password-strength-bar" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <span id="password-strength-description"></span>
+                    </div>
                 </div>
                 <label class="control-label" for="confirm_password">Confirm Password:</label>
                 <div class="form-group">
                     <input type="password" class="form-control" placeholder="Confirm Password" id="confirm_password"
                         required />
+                </div>
+                <div class="checkbox checkbox-primary">
+                    <input id="force_password_change_checkbox" type="checkbox" checked>
+                    <label for="force_password_change_checkbox">Require the user to set a new password</label>
+                </div>
+                <div class="checkbox checkbox-primary">
+                    <input id="account_locked_checkbox" type="checkbox">
+                    <label for="account_locked_checkbox">Account Locked</label>
                 </div>
                 <label class="control-label" for="role">Role:</label>
                 <div class="form-group" id="role-select">
@@ -70,5 +87,6 @@
     </div>
 </div>
 {{end}} {{define "scripts"}}
+<script src="/js/dist/app/passwords.min.js"></script>
 <script src="/js/dist/app/users.min.js"></script>
 {{end}}

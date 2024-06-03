@@ -39,10 +39,6 @@ type Result struct {
 }
 
 func (r *Result) createEvent(status string, details interface{}) (*Event, error) {
-	c, err := GetCampaign(r.CampaignId, r.UserId)
-	if err != nil {
-		return nil, err
-	}
 	e := &Event{Email: r.Email, Message: status}
 	if details != nil {
 		dj, err := json.Marshal(details)
@@ -51,7 +47,7 @@ func (r *Result) createEvent(status string, details interface{}) (*Event, error)
 		}
 		e.Details = string(dj)
 	}
-	c.AddEvent(e)
+	AddEvent(e, r.CampaignId)
 	return e, nil
 }
 
@@ -189,7 +185,7 @@ func generateResultId() (string, error) {
 
 // GenerateId generates a unique key to represent the result
 // in the database
-func (r *Result) GenerateId() error {
+func (r *Result) GenerateId(tx *gorm.DB) error {
 	// Keep trying until we generate a unique key (shouldn't take more than one or two iterations)
 	for {
 		rid, err := generateResultId()
@@ -197,7 +193,7 @@ func (r *Result) GenerateId() error {
 			return err
 		}
 		r.RId = rid
-		err = db.Table("results").Where("r_id=?", r.RId).First(&Result{}).Error
+		err = tx.Table("results").Where("r_id=?", r.RId).First(&Result{}).Error
 		if err == gorm.ErrRecordNotFound {
 			break
 		}

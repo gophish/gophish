@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	mid "github.com/gophish/gophish/middleware"
+	"github.com/gophish/gophish/middleware/ratelimit"
 	"github.com/gophish/gophish/models"
 	"github.com/gophish/gophish/worker"
 	"github.com/gorilla/mux"
@@ -19,14 +20,17 @@ type ServerOption func(*Server)
 type Server struct {
 	handler http.Handler
 	worker  worker.Worker
+	limiter *ratelimit.PostLimiter
 }
 
 // NewServer returns a new instance of the API handler with the provided
 // options applied.
 func NewServer(options ...ServerOption) *Server {
 	defaultWorker, _ := worker.New()
+	defaultLimiter := ratelimit.NewPostLimiter()
 	as := &Server{
-		worker: defaultWorker,
+		worker:  defaultWorker,
+		limiter: defaultLimiter,
 	}
 	for _, opt := range options {
 		opt(as)
@@ -42,12 +46,20 @@ func WithWorker(w worker.Worker) ServerOption {
 	}
 }
 
+func WithLimiter(limiter *ratelimit.PostLimiter) ServerOption {
+	return func(as *Server) {
+		as.limiter = limiter
+	}
+}
+
 func (as *Server) registerRoutes() {
 	root := mux.NewRouter()
 	root = root.StrictSlash(true)
 	router := root.PathPrefix("/api/").Subrouter()
 	router.Use(mid.RequireAPIKey)
 	router.Use(mid.EnforceViewOnly)
+	router.HandleFunc("/imap/", as.IMAPServer)
+	router.HandleFunc("/imap/validate", as.IMAPServerValidate)
 	router.HandleFunc("/reset", as.Reset)
 	router.HandleFunc("/campaigns/", as.Campaigns)
 	router.HandleFunc("/campaigns/summary", as.CampaignsSummary)
@@ -71,6 +83,9 @@ func (as *Server) registerRoutes() {
 	router.HandleFunc("/import/group", as.ImportGroup)
 	router.HandleFunc("/import/email", as.ImportEmail)
 	router.HandleFunc("/import/site", as.ImportSite)
+	router.HandleFunc("/webhooks/", mid.Use(as.Webhooks, mid.RequirePermission(models.PermissionModifySystem)))
+	router.HandleFunc("/webhooks/{id:[0-9]+}/validate", mid.Use(as.ValidateWebhook, mid.RequirePermission(models.PermissionModifySystem)))
+	router.HandleFunc("/webhooks/{id:[0-9]+}", mid.Use(as.Webhook, mid.RequirePermission(models.PermissionModifySystem)))
 	as.handler = router
 }
 

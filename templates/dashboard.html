@@ -6,7 +6,8 @@
     <div id="loading">
         <i class="fa fa-spinner fa-spin fa-4x"></i>
     </div>
-    <div id="emptyMessage" class="row" style="display:none;">
+    {{template "flashes" .Flashes}}
+    <div id="emptyMessage" style="display:none;">
         <div class="alert alert-info">
             No campaigns created yet. Let's create one!
         </div>

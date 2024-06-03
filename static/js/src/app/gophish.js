@@ -10,6 +10,26 @@ function successFlash(message) {
         <i class=\"fa fa-check-circle\"></i> " + message + "</div>")
 }
 
+// Fade message after n seconds
+function errorFlashFade(message, fade) {
+    $("#flashes").empty()
+    $("#flashes").append("<div style=\"text-align:center\" class=\"alert alert-danger\">\
+        <i class=\"fa fa-exclamation-circle\"></i> " + message + "</div>")
+    setTimeout(function(){ 
+        $("#flashes").empty() 
+    }, fade * 1000);
+}
+// Fade message after n seconds
+function successFlashFade(message, fade) {  
+    $("#flashes").empty()
+    $("#flashes").append("<div style=\"text-align:center\" class=\"alert alert-success\">\
+        <i class=\"fa fa-check-circle\"></i> " + message + "</div>")
+    setTimeout(function(){ 
+        $("#flashes").empty() 
+    }, fade * 1000);
+
+}
+
 function modalError(message) {
     $("#modal\\.flashes").empty().append("<div style=\"text-align:center\" class=\"alert alert-danger\">\
         <i class=\"fa fa-exclamation-circle\"></i> " + message + "</div>")
@@ -197,6 +217,18 @@ var api = {
             return query("/smtp/" + id, "DELETE", {}, false)
         }
     },
+    // IMAP containts the endpoints for /imap/
+    IMAP: {
+        get: function() {
+            return query("/imap/", "GET", {}, !1)
+        },
+        post: function(e) {
+            return query("/imap/", "POST", e, !1)
+        },
+        validate: function(e) {
+            return query("/imap/validate", "POST", e, true)
+        }
+    },
     // users contains the endpoints for /users
     users: {
         // get() - Queries the API for GET /users
@@ -222,6 +254,28 @@ var api = {
         delete: function (id) {
             return query("/users/" + id, "DELETE", {}, true)
         }
+    },
+    webhooks: {
+        get: function() {
+            return query("/webhooks/", "GET", {}, false)
+        },
+        post: function(webhook) {
+            return query("/webhooks/", "POST", webhook, false)
+        },
+    },
+    webhookId: {
+        get: function(id) {
+            return query("/webhooks/" + id, "GET", {}, false)
+        },
+        put: function(webhook) {
+            return query("/webhooks/" + webhook.id, "PUT", webhook, true)
+        },
+        delete: function(id) {
+            return query("/webhooks/" + id, "DELETE", {}, false)
+        },
+        ping: function(id) {
+            return query("/webhooks/" + id + "/validate", "POST", {}, true)
+        },
     },
     // import handles all of the "import" functions in the api
     import_email: function (req) {

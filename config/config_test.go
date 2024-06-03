@@ -4,15 +4,11 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"os"
+	"reflect"
 	"testing"
 
-	"github.com/stretchr/testify/suite"
+	log "github.com/gophish/gophish/logger"
 )
-
-type ConfigSuite struct {
-	suite.Suite
-	ConfigFile *os.File
-}
 
 var validConfig = []byte(`{
 	"admin_server": {
@@ -33,36 +29,50 @@ var validConfig = []byte(`{
 	"contact_address": ""
 }`)
 
-func (s *ConfigSuite) SetupTest() {
+func createTemporaryConfig(t *testing.T) *os.File {
 	f, err := ioutil.TempFile("", "gophish-config")
-	s.Nil(err)
-	s.ConfigFile = f
+	if err != nil {
+		t.Fatalf("unable to create temporary config: %v", err)
+	}
+	return f
 }
 
-func (s *ConfigSuite) TearDownTest() {
-	err := s.ConfigFile.Close()
-	s.Nil(err)
+func removeTemporaryConfig(t *testing.T, f *os.File) {
+	err := f.Close()
+	if err != nil {
+		t.Fatalf("unable to remove temporary config: %v", err)
+	}
 }
 
-func (s *ConfigSuite) TestLoadConfig() {
-	_, err := s.ConfigFile.Write(validConfig)
-	s.Nil(err)
+func TestLoadConfig(t *testing.T) {
+	f := createTemporaryConfig(t)
+	defer removeTemporaryConfig(t, f)
+	_, err := f.Write(validConfig)
+	if err != nil {
+		t.Fatalf("error writing config to temporary file: %v", err)
+	}
 	// Load the valid config
-	conf, err := LoadConfig(s.ConfigFile.Name())
-	s.Nil(err)
+	conf, err := LoadConfig(f.Name())
+	if err != nil {
+		t.Fatalf("error loading config from temporary file: %v", err)
+	}
 
 	expectedConfig := &Config{}
 	err = json.Unmarshal(validConfig, &expectedConfig)
-	s.Nil(err)
+	if err != nil {
+		t.Fatalf("error unmarshaling config: %v", err)
+	}
 	expectedConfig.MigrationsPath = expectedConfig.MigrationsPath + expectedConfig.DBName
 	expectedConfig.TestFlag = false
-	s.Equal(expectedConfig, conf)
+	expectedConfig.AdminConf.CSRFKey = ""
+	expectedConfig.Logging = &log.Config{}
+	if !reflect.DeepEqual(expectedConfig, conf) {
+		t.Fatalf("invalid config received. expected %#v got %#v", expectedConfig, conf)
+	}
 
 	// Load an invalid config
-	conf, err = LoadConfig("bogusfile")
-	s.NotNil(err)
-}
-
-func TestConfigSuite(t *testing.T) {
-	suite.Run(t, new(ConfigSuite))
+	_, err = LoadConfig("bogusfile")
+	if err == nil {
+		t.Fatalf("expected error when loading invalid config, but got %v", err)
+	}
 }

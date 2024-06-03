@@ -5,106 +5,126 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"testing"
 
 	"github.com/PuerkitoBio/goquery"
 )
 
-func (s *ControllersSuite) TestLoginCSRF() {
-	resp, err := http.PostForm(fmt.Sprintf("%s/login", s.adminServer.URL),
+func attemptLogin(t *testing.T, ctx *testContext, client *http.Client, username, password, optionalPath string) *http.Response {
+	resp, err := http.Get(fmt.Sprintf("%s/login", ctx.adminServer.URL))
+	if err != nil {
+		t.Fatalf("error requesting the /login endpoint: %v", err)
+	}
+	got := resp.StatusCode
+	expected := http.StatusOK
+	if got != expected {
+		t.Fatalf("invalid status code received. expected %d got %d", expected, got)
+	}
+
+	doc, err := goquery.NewDocumentFromResponse(resp)
+	if err != nil {
+		t.Fatalf("error parsing /login response body")
+	}
+	elem := doc.Find("input[name='csrf_token']").First()
+	token, ok := elem.Attr("value")
+	if !ok {
+		t.Fatal("unable to find csrf_token value in login response")
+	}
+	if client == nil {
+		client = &http.Client{}
+	}
+
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/login%s", ctx.adminServer.URL, optionalPath), strings.NewReader(url.Values{
+		"username":   {username},
+		"password":   {password},
+		"csrf_token": {token},
+	}.Encode()))
+	if err != nil {
+		t.Fatalf("error creating new /login request: %v", err)
+	}
+
+	req.Header.Set("Cookie", resp.Header.Get("Set-Cookie"))
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+
+	resp, err = client.Do(req)
+	if err != nil {
+		t.Fatalf("error requesting the /login endpoint: %v", err)
+	}
+	return resp
+}
+
+func TestLoginCSRF(t *testing.T) {
+	ctx := setupTest(t)
+	defer tearDown(t, ctx)
+	resp, err := http.PostForm(fmt.Sprintf("%s/login", ctx.adminServer.URL),
 		url.Values{
 			"username": {"admin"},
 			"password": {"gophish"},
 		})
 
-	s.Equal(resp.StatusCode, http.StatusForbidden)
-	fmt.Println(err)
+	if err != nil {
+		t.Fatalf("error requesting the /login endpoint: %v", err)
+	}
+
+	got := resp.StatusCode
+	expected := http.StatusForbidden
+	if got != expected {
+		t.Fatalf("invalid status code received. expected %d got %d", expected, got)
+	}
 }
 
-func (s *ControllersSuite) TestInvalidCredentials() {
-	resp, err := http.Get(fmt.Sprintf("%s/login", s.adminServer.URL))
-	s.Equal(err, nil)
-	s.Equal(resp.StatusCode, http.StatusOK)
-
-	doc, err := goquery.NewDocumentFromResponse(resp)
-	s.Equal(err, nil)
-	elem := doc.Find("input[name='csrf_token']").First()
-	token, ok := elem.Attr("value")
-	s.Equal(ok, true)
-
-	client := &http.Client{}
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s/login", s.adminServer.URL), strings.NewReader(url.Values{
-		"username":   {"admin"},
-		"password":   {"invalid"},
-		"csrf_token": {token},
-	}.Encode()))
-	s.Equal(err, nil)
-
-	req.Header.Set("Cookie", resp.Header.Get("Set-Cookie"))
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-
-	resp, err = client.Do(req)
-	s.Equal(err, nil)
-	s.Equal(resp.StatusCode, http.StatusUnauthorized)
+func TestInvalidCredentials(t *testing.T) {
+	ctx := setupTest(t)
+	defer tearDown(t, ctx)
+	resp := attemptLogin(t, ctx, nil, "admin", "bogus", "")
+	got := resp.StatusCode
+	expected := http.StatusUnauthorized
+	if got != expected {
+		t.Fatalf("invalid status code received. expected %d got %d", expected, got)
+	}
 }
 
-func (s *ControllersSuite) TestSuccessfulLogin() {
-	resp, err := http.Get(fmt.Sprintf("%s/login", s.adminServer.URL))
-	s.Equal(err, nil)
-	s.Equal(resp.StatusCode, http.StatusOK)
-
-	doc, err := goquery.NewDocumentFromResponse(resp)
-	s.Equal(err, nil)
-	elem := doc.Find("input[name='csrf_token']").First()
-	token, ok := elem.Attr("value")
-	s.Equal(ok, true)
-
-	client := &http.Client{}
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s/login", s.adminServer.URL), strings.NewReader(url.Values{
-		"username":   {"admin"},
-		"password":   {"gophish"},
-		"csrf_token": {token},
-	}.Encode()))
-	s.Equal(err, nil)
-
-	req.Header.Set("Cookie", resp.Header.Get("Set-Cookie"))
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-
-	resp, err = client.Do(req)
-	s.Equal(err, nil)
-	s.Equal(resp.StatusCode, http.StatusOK)
+func TestSuccessfulLogin(t *testing.T) {
+	ctx := setupTest(t)
+	defer tearDown(t, ctx)
+	resp := attemptLogin(t, ctx, nil, "admin", "gophish", "")
+	got := resp.StatusCode
+	expected := http.StatusOK
+	if got != expected {
+		t.Fatalf("invalid status code received. expected %d got %d", expected, got)
+	}
 }
 
-func (s *ControllersSuite) TestSuccessfulRedirect() {
+func TestSuccessfulRedirect(t *testing.T) {
+	ctx := setupTest(t)
+	defer tearDown(t, ctx)
 	next := "/campaigns"
-	resp, err := http.Get(fmt.Sprintf("%s/login", s.adminServer.URL))
-	s.Equal(err, nil)
-	s.Equal(resp.StatusCode, http.StatusOK)
-
-	doc, err := goquery.NewDocumentFromResponse(resp)
-	s.Equal(err, nil)
-	elem := doc.Find("input[name='csrf_token']").First()
-	token, ok := elem.Attr("value")
-	s.Equal(ok, true)
-
 	client := &http.Client{
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			return http.ErrUseLastResponse
-		},
+		}}
+	resp := attemptLogin(t, ctx, client, "admin", "gophish", fmt.Sprintf("?next=%s", next))
+	got := resp.StatusCode
+	expected := http.StatusFound
+	if got != expected {
+		t.Fatalf("invalid status code received. expected %d got %d", expected, got)
 	}
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s/login?next=%s", s.adminServer.URL, next), strings.NewReader(url.Values{
-		"username":   {"admin"},
-		"password":   {"gophish"},
-		"csrf_token": {token},
-	}.Encode()))
-	s.Equal(err, nil)
-
-	req.Header.Set("Cookie", resp.Header.Get("Set-Cookie"))
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-
-	resp, err = client.Do(req)
-	s.Equal(err, nil)
-	s.Equal(resp.StatusCode, http.StatusFound)
 	url, err := resp.Location()
-	s.Equal(err, nil)
-	s.Equal(url.Path, next)
+	if err != nil {
+		t.Fatalf("error parsing response Location header: %v", err)
+	}
+	if url.Path != next {
+		t.Fatalf("unexpected Location header received. expected %s got %s", next, url.Path)
+	}
+}
+
+func TestAccountLocked(t *testing.T) {
+	ctx := setupTest(t)
+	defer tearDown(t, ctx)
+	resp := attemptLogin(t, ctx, nil, "houdini", "gophish", "")
+	got := resp.StatusCode
+	expected := http.StatusUnauthorized
+	if got != expected {
+		t.Fatalf("invalid status code received. expected %d got %d", expected, got)
+	}
 }

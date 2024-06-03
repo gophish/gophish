@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/gophish/gophish/dialer"
 	log "github.com/gophish/gophish/logger"
 	"github.com/gophish/gophish/models"
 	"github.com/gophish/gophish/util"
@@ -46,7 +47,6 @@ func (as *Server) ImportGroup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	JSONResponse(w, ts, http.StatusOK)
-	return
 }
 
 // ImportEmail allows for the importing of email.
@@ -94,7 +94,6 @@ func (as *Server) ImportEmail(w http.ResponseWriter, r *http.Request) {
 		HTML:    string(e.HTML),
 	}
 	JSONResponse(w, er, http.StatusOK)
-	return
 }
 
 // ImportSite allows for the importing of HTML from a website
@@ -115,7 +114,9 @@ func (as *Server) ImportSite(w http.ResponseWriter, r *http.Request) {
 		JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
 		return
 	}
+	restrictedDialer := dialer.Dialer()
 	tr := &http.Transport{
+		DialContext: restrictedDialer.DialContext,
 		TLSClientConfig: &tls.Config{
 			InsecureSkipVerify: true,
 		},
@@ -153,5 +154,4 @@ func (as *Server) ImportSite(w http.ResponseWriter, r *http.Request) {
 	}
 	cs := cloneResponse{HTML: h}
 	JSONResponse(w, cs, http.StatusOK)
-	return
 }
