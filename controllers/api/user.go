@@ -109,6 +109,7 @@ func (as *Server) Users(w http.ResponseWriter, r *http.Request) {
 			Role:                   role,
 			RoleID:                 role.ID,
 			PasswordChangeRequired: ur.PasswordChangeRequired,
+			AccountLocked: 			ur.AccountLocked,
 		}
 		err = models.PutUser(&user)
 		if err != nil {
