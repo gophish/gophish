@@ -100,7 +100,7 @@ var api = {
         results: function (id) {
             return query("/campaigns/" + id + "/results", "GET", {}, true)
         },
-        // complete() - Completes a campaign at POST /campaigns/:id/complete
+        // complete() - Completes a campaign at GET /campaigns/:id/complete
         complete: function (id) {
             return query("/campaigns/" + id + "/complete", "GET", {}, true)
         },
