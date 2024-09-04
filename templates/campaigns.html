@@ -111,6 +111,27 @@
                             <input type="text" class="form-control" id="send_by_date" autocomplete="random-data"/> <!--Chrome ignores autocomplete="off".-->
                         </div>
                     </div>
+ 
+                    <div class="row">
+                        <div class="col-md-6"></div>
+                        <div class="col-md-6">
+                            <label class="control-label" for="delay">Send Rate (Optional)
+                                <i class="fa fa-question-circle" data-toggle="tooltip" data-placement="right" title="How frequently to send emails"></i>
+                            </label>
+                            <select class="form-control" id="select_send_rate">
+                                <option value=0>As fast as possible</option>
+                                <option value=5>Every 5 seconds</option>
+                                <option value=30>Every 30 seconds</option>
+                                <option value=60>Every minute</option>
+                                <option value=300>Every five minutes</option>
+                                <option value=-1>Add Custom</option>
+                              </select>
+
+                        </div>
+                    </div>
+
+
+                    <!--<div id="rate" align="right">Rate: Sending 1 email every 180 seconds</div> -->
                     <label class="control-label" for="profile">Sending Profile:</label>
                     <div class="input-group">
                         <select class="form-control" placeholder="Sending Profile" id="profile" />
@@ -124,6 +145,7 @@
                     </div>
                     <label class="control-label" for="users">Groups:</label>
                     <select class="form-control" id="users" multiple="multiple"></select>
+
                 </div>
             </div>
             <div class="modal-footer">
@@ -134,6 +156,42 @@
         </div>
     </div>
 </div>
+
+<!-- Select Custom Rate Modal -->
+<div class="modal" id="selectCustomRateModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <!-- New Email Modal -->
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="selectCustomRateModal">Select custom sending rate</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-4 text-right">
+                        <label class="control-label" for="to">Send an email every</label> 
+                    </div>
+                    <div class="col-sm-4 text-centre" >
+                        <input type="number" id="customsendrate" class="form-control" placeholder="1" name="custom_send_rate">
+                    </div>
+                    <div class="col-sm-4 text-left">
+                        <label class="control-label" for="to">seconds</label> 
+                    </div>
+                              
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" data-dismiss="modal" class="btn btn-default">Cancel</button>
+                <button type="button" data-dismiss="modal" class="btn btn-primary" onclick="setcustomrate()">Save changes</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <!-- Send Test Email Modal -->
 <div class="modal" id="sendTestEmailModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel">
     <div class="modal-dialog" role="document">

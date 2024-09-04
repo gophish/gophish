@@ -508,3 +508,121 @@ $(document).ready(function() {
     });
   });
 });
+
+/* PoC Support for custom throttling of email sending
+*   
+*/
+lastEdited = "bycal" //Rate vs Calendar last edited. Take priority when recalculating as groups are added or removed.
+
+//Groups added or removed
+$("#users").change(function() {
+    if ($("#users").val() == null) {
+        $("#select_send_rate").val(0)
+        $("#send_by_date").val("")
+
+    } else {
+        rate_update(lastEdited)
+    }
+});
+
+//Calendar send by date changed
+$("#send_by_date").on("dp.change", function(e) {
+    if ($("#send_by_date") != ""){
+        lastEdited = "bycal"
+        rate_update("bycal")
+    }
+});
+
+//Sending rate Select changed
+$("#select_send_rate").change(function() { 
+    lastEdited = "byrate"
+    rate = $("#select_send_rate").val()
+    if (rate == 0){
+        $("#send_by_date").val("")
+        rate_update("byrate")
+    } else if (rate == -1) {
+        $("#selectCustomRateModal").modal();
+    } else{
+        rate_update("byrate")
+    }
+
+});
+
+//Choose a custom rate to send emails at
+function setcustomrate(){
+    csr = $("#customsendrate").val()
+    $("#select_send_rate").val(csr);
+
+    $('#select_send_rate').append($('<option>', {
+        value: csr,
+        text: 'Every ' + csr + ' seconds'
+    }));
+    $("#select_send_rate").val(csr);
+
+    rate_update("byrate")
+}
+
+
+//Update the 'send by' calendar or the rate at which to send emails
+function rate_update(method){
+
+    ld = moment($("#launch_date").val(), "MMMM Do YYYY, h:mm a")//.utc()
+
+    total = 0
+    loaded_groups = $('#users').val() //Array of group IDs to send campaign to
+    if (loaded_groups == null) {
+        return
+    }
+
+    var group_count = {};
+    api.groups.summary()
+    .success(function (g) {
+
+        //Calcualte total number of emails to be send
+        g.groups.forEach(function (item, index) {
+        group_count[item.id] = item.num_targets;
+        });
+        loaded_groups.forEach(function (item, index) {
+        if (item in group_count){
+            total = total + group_count[item]
+        }
+        });
+
+        if (method == "bycal") { //User selected calendar option so we update the send rate field
+            sbd = moment($("#send_by_date").val(), "MMMM Do YYYY, h:mm a").utc()
+            campaign_duration = moment.duration(sbd.diff(ld)).asSeconds()
+            send_rate = Math.ceil(campaign_duration / total)
+            console.log("Total emails: " + total + ". Duration: " + campaign_duration + " seconds. Sending an email every " + send_rate + " seconds.")
+            if (send_rate <=1 ){
+                $("#select_send_rate").val(0);
+                $("#send_by_date").val("") //88 miles an hour, it's too fast
+            } else {
+                $('#select_send_rate').append($('<option>', {
+                    value: send_rate,
+                    text: 'Every ' + send_rate + ' seconds'
+                }));
+                $("#select_send_rate").val(send_rate);
+            }
+        } else if (method == "byrate") { // Else user chose a rate to send at, update the calendar to show when campaign will likely finish
+            send_rate = $('#select_send_rate').val()
+            total_seconds = total * send_rate
+            var tmp = ld
+            tmp = tmp.add(total_seconds, 'seconds').format("MMMM Do YYYY, h:mm a")//.utc()
+
+            if (send_rate <=1 ){
+                $("#select_send_rate").val(0);
+                $("#send_by_date").val("") //88 miles an hour, it's too fast
+            } else {
+                $("#send_by_date").val(tmp)
+                console.log("Total emails: " + total + ". Duration: " + total_seconds + " seconds. Send rate: sending an email every " + send_rate + " seconds. Updating calender to " +tmp)
+            }
+        }
+        else {
+            errorFlash("Error updating sending rates")
+        }
+
+    })
+    .error(function () {
+        errorFlash("Error fetching Group settings")
+    })
+}
