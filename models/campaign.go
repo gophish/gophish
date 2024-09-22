@@ -609,7 +609,7 @@ func PostCampaign(c *Campaign, uid int64) error {
 	return tx.Commit().Error
 }
 
-//DeleteCampaign deletes the specified campaign
+// DeleteCampaign deletes the specified campaign
 func DeleteCampaign(id int64) error {
 	log.WithFields(logrus.Fields{
 		"campaign_id": id,
