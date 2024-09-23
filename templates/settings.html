@@ -4,12 +4,15 @@
         <h1 class="page-header">Settings</h1>
     </div>
     <div id="flashes" class="row"></div>
+    {{template "flashes" .Flashes}}
     <!-- Nav tabs -->
     <ul class="nav nav-tabs" role="tablist">
         <li class="active" role="mainSettings"><a href="#mainSettings" aria-controls="mainSettings" role="tab"
                 data-toggle="tab">Account Settings</a></li>
         <li role="uiSettings"><a href="#uiSettings" aria-controls="uiSettings" role="tab" data-toggle="tab">UI
                 Settings</a></li>
+        <li role="reportingSettings"><a href="#reportingSettings" aria-controls="reportingSettings" role="tab" id="reporttab"
+            data-toggle="tab">Reporting Settings</a></li>
     </ul>
     <!-- Tab Panes -->
     <div class="tab-content">
@@ -56,8 +59,15 @@
                 <div class="row">
                     <label for="new_password" class="col-sm-2 control-label form-label">New Password:</label>
                     <div class="col-md-6">
-                        <input type="password" id="new_password" name="new_password" autocomplete="off"
+                        <input type="password" id="password" name="new_password" autocomplete="new-password"
                             class="form-control" />
+                        <div class="hidden" id="password-strength-container">
+                            <div class="progress" id="password-strength">
+                                <div id="password-strength-bar" class="progress-bar" role="progressbar"
+                                    aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <span id="password-strength-description"></span>
+                        </div>
                     </div>
                 </div>
                 <br />
@@ -82,8 +92,158 @@
                 <label for="use_map">Show campaign results map</label>
             </div>
         </div>
+        <!-- Reporting Settings Begin -->
+        <div role="tabpanel" class="tab-pane" id="reportingSettings">
+            <form id="imapForm" >
+            <br />
+            <div class="row">
+                <div class="col-md-6">
+                    Monitor an IMAP account for emails reported by users.
+                </div>
+             </div>
+            <br />
+
+            <div class="row">
+                <div class="col-md-6">
+                <div class="checkbox checkbox-primary">
+                    <input id="use_imap" type="checkbox">
+                    <label for="use_imap">Enable Email Account Monitoring</label>
+                </div>
+                </div>
+             </div>
+            <br />
+
+            
+            <div class="row">
+                <label for="imaphost" class="col-sm-2 control-label form-label">IMAP Host:</label>
+                <div class="col-md-6">
+                    <input type="text" id="imaphost" name="imaphost" placeholder="imap.example.com"
+                        class="form-control" />
+                </div>
+            </div>
+            <br />
+
+            <div class="row">
+                <label for="imapport" class="col-sm-2 control-label form-label">IMAP Port:</label>
+                <div class="col-md-6">
+                    <input type="text" id="imapport" name="imapport" placeholder="993"
+                        class="form-control" />
+                </div>
+            </div>
+            <br />
+
+            <div class="row">
+                <label for="imapusername" class="col-sm-2 control-label form-label">IMAP Username:</label>
+                <div class="col-md-6">
+                    <input type="text" id="imapusername" name="imapusername" placeholder="Username"
+                        class="form-control" />
+                </div>
+            </div>
+            <br />
+
+            <div class="row">
+                <label for="imappassword" class="col-sm-2 control-label form-label">IMAP Password:</label>
+                <div class="col-md-6">
+                    <input type="password" id="imappassword" name="imappassword" placeholder="Password" autocomplete="off"
+                        class="form-control" />
+                </div>
+            </div>
+            <br />
+
+
+            <div class="row">
+                <label for="use_tls" class="col-sm-2 control-label form-label">Use TLS:</label>
+                <div class="col-md-6">
+                    <div class="checkbox checkbox-primary">
+                        <input id="use_tls" type="checkbox">
+                        <label for="use_tls"></label>
+                    </div>
+                    
+                </div>
+            </div>
+
+             <!-- Advanced Settings-->
+            <div id="advancedarea" style="display: none;">
+                <hr>
+                <div class="row">
+                <label for="folder" class="col-sm-2 control-label form-label">Folder:</label>
+                    <div class="col-md-6">
+                        <input type="text" id="folder" name="folder" placeholder="Leave blank for default of INBOX."
+                            class="form-control" />
+                    </div>
+                </div>
+                <br />
+
+                <div class="row">
+                    <label for="folder" class="col-sm-2 control-label form-label" data-toggle="tooltip" title="How often to check for new emails. 30 seconds minimum.">Polling frequency:</label>
+                        <div class="col-md-6">
+                            <input type="number" id="imapfreq" name="imapfreq" placeholder="Leave blank for default of every 60 seconds."
+                                class="form-control" />
+                        </div>
+                    </div>
+                    <br />
+        
+                <div class="row">
+                    <label for="restrictdomain" class="col-sm-2 control-label form-label" data-toggle="tooltip" title="Only check emails reported from the supplied domain.">Restrict to domain:</label>
+                    <div class="col-md-6">
+                        <input type="text" id="restrictdomain" name="restrictdomain" placeholder="e.g. widgets.com. Leave blank for all domains."
+                            class="form-control" />
+                    </div>
+                </div>
+                <br />
+
+                <div class="row">
+                    <label for="ignorecerterrors" class="col-sm-2 control-label form-label" data-toggle="tooltip" title="Ignore common certificate errors such as self-signed certs (exposes you to MiTM attacks - use carefully!)">Ignore Certificate Errors:</label>
+                    <div class="col-md-6">
+                        <div class="checkbox checkbox-primary">
+                            <input id="ignorecerterrors" type="checkbox">
+                            <label for="ignorecerterrors"></label>
+                        </div>
+                    </div>
+                </div>
+                <br />
+
+                <div class="row">
+                    <label for="deletecampaign" class="col-sm-2 control-label form-label" data-toggle="tooltip" title="Delete campaign emails after they've been reported.">Delete campaigns emails:</label>
+                    <div class="col-md-6">
+                        <div class="checkbox checkbox-primary">
+                            <input id="deletecampaign" type="checkbox">
+                            <label for="deletecampaign"></label>
+                        </div>
+                        
+                    </div>
+                </div>
+                <br />
+        
+                <div class="row" id="lastlogindiv">
+                <label for="lastlogin" class="col-sm-2 control-label form-label">Last succesful login:</label>
+                <div class="col-md-6">
+                    <input type="text" id="lastlogin" name="lastlogin" placeholder="Checking..." disabled
+                        class="form-control border-0" />
+                    </div>
+                </div>
+                <br />
+                <input type="hidden" id="lastloginraw" name="lastloginraw" value="">
+
+            </div>
+
+            <div class="row">
+                <label for="advancedsettings" class="col-sm-2 control-label form-label"></label>
+                <div class="col-md-6 text-right">
+                    <button class="btn-xs btn-link" id="advanced" type="button">Advanced Settings</button>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" id ="savesettings" type="button"><i class="fa fa-save"></i> Save</button>
+            <button class="btn btn-primary" id="validateimap" type="button"><i class="fa fa-wrench"></i> Test Settings</button>
+
+
+        </form>
+        </div>
+        <!-- Reporting Settings End -->
     </div>
 </div>
 {{end}} {{define "scripts"}}
+<script src="/js/dist/app/passwords.min.js"></script>
 <script src="/js/dist/app/settings.min.js"></script>
 {{end}}

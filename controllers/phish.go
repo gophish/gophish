@@ -82,19 +82,20 @@ func WithContactAddress(addr string) PhishingServerOption {
 }
 
 // Start launches the phishing server, listening on the configured address.
-func (ps *PhishingServer) Start() error {
+func (ps *PhishingServer) Start() {
 	if ps.config.UseTLS {
+		// Only support TLS 1.2 and above - ref #1691, #1689
+		ps.server.TLSConfig = defaultTLSConfig
 		err := util.CheckAndCreateSSL(ps.config.CertPath, ps.config.KeyPath)
 		if err != nil {
 			log.Fatal(err)
-			return err
 		}
 		log.Infof("Starting phishing server at https://%s", ps.config.ListenURL)
-		return ps.server.ListenAndServeTLS(ps.config.CertPath, ps.config.KeyPath)
+		log.Fatal(ps.server.ListenAndServeTLS(ps.config.CertPath, ps.config.KeyPath))
 	}
 	// If TLS isn't configured, just listen on HTTP
 	log.Infof("Starting phishing server at http://%s", ps.config.ListenURL)
-	return ps.server.ListenAndServe()
+	log.Fatal(ps.server.ListenAndServe())
 }
 
 // Shutdown attempts to gracefully shutdown the server.
@@ -119,6 +120,10 @@ func (ps *PhishingServer) registerRoutes() {
 	// Setup GZIP compression
 	gzipWrapper, _ := gziphandler.NewGzipLevelHandler(gzip.BestCompression)
 	phishHandler := gzipWrapper(router)
+
+	// Respect X-Forwarded-For and X-Real-IP headers in case we're behind a
+	// reverse proxy.
+	phishHandler = handlers.ProxyHeaders(phishHandler)
 
 	// Setup logging
 	phishHandler = handlers.CombinedLoggingHandler(log.Writer(), phishHandler)
@@ -355,12 +360,7 @@ func setupContext(r *http.Request) (*http.Request, error) {
 	}
 	ip, _, err := net.SplitHostPort(r.RemoteAddr)
 	if err != nil {
-		log.Error(err)
-		return r, err
-	}
-	// Respect X-Forwarded headers
-	if fips := r.Header.Get("X-Forwarded-For"); fips != "" {
-		ip = strings.Split(fips, ", ")[0]
+		ip = r.RemoteAddr
 	}
 	// Handle post processing such as GeoIP
 	err = rs.UpdateGeo(ip)

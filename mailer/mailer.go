@@ -55,6 +55,7 @@ type Mail interface {
 	Success() error
 	Generate(msg *gomail.Message) error
 	GetDialer() (Dialer, error)
+	GetSmtpFrom() (string, error)
 }
 
 // MailWorker is the worker that receives slices of emails
@@ -160,7 +161,14 @@ func sendMail(ctx context.Context, dialer Dialer, ms []Mail) {
 			m.Error(err)
 			continue
 		}
-		err = gomail.Send(sender, message)
+
+		smtp_from, err := m.GetSmtpFrom()
+		if err != nil {
+			m.Error(err)
+			continue
+		}
+
+		err = gomail.SendCustomFrom(sender, smtp_from, message)
 		if err != nil {
 			if te, ok := err.(*textproto.Error); ok {
 				switch {
@@ -215,7 +223,9 @@ func sendMail(ctx context.Context, dialer Dialer, ms []Mail) {
 			}
 		}
 		log.WithFields(logrus.Fields{
-			"email": message.GetHeader("To")[0],
+			"smtp_from":     smtp_from,
+			"envelope_from": message.GetHeader("From")[0],
+			"email":         message.GetHeader("To")[0],
 		}).Info("Email sent")
 		m.Success()
 	}

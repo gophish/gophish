@@ -64,22 +64,24 @@ function edit(id) {
         save(id)
     })
     if (id == -1) {
+        $("#groupModalLabel").text("New Group");
         var group = {}
     } else {
+        $("#groupModalLabel").text("Edit Group");
         api.groupId.get(id)
             .success(function (group) {
                 $("#name").val(group.name)
+                targetRows = []
                 $.each(group.targets, function (i, record) {
-                    targets.DataTable()
-                        .row.add([
-                            escapeHtml(record.first_name),
-                            escapeHtml(record.last_name),
-                            escapeHtml(record.email),
-                            escapeHtml(record.position),
-                            '<span style="cursor:pointer;"><i class="fa fa-trash-o"></i></span>'
-                        ]).draw()
+                  targetRows.push([
+                      escapeHtml(record.first_name),
+                      escapeHtml(record.last_name),
+                      escapeHtml(record.email),
+                      escapeHtml(record.position),
+                      '<span style="cursor:pointer;"><i class="fa fa-trash-o"></i></span>'
+                  ])
                 });
-
+                targets.DataTable().rows.add(targetRows).draw()
             })
             .error(function () {
                 errorFlash("Error fetching group")
@@ -233,8 +235,9 @@ function load() {
                     }]
                 });
                 groupTable.clear();
+                groupRows = []
                 $.each(groups, function (i, group) {
-                    groupTable.row.add([
+                    groupRows.push([
                         escapeHtml(group.name),
                         escapeHtml(group.num_targets),
                         moment(group.modified_date).format('MMMM Do YYYY, h:mm:ss a'),
@@ -244,8 +247,9 @@ function load() {
                     <button class='btn btn-danger' onclick='deleteGroup(" + group.id + ")'>\
                     <i class='fa fa-trash-o'></i>\
                     </button></div>"
-                    ]).draw()
+                    ])
                 })
+                groupTable.rows.add(groupRows).draw()
             } else {
                 $("#emptyMessage").show()
             }

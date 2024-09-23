@@ -87,6 +87,11 @@ func (as *Server) Group(w http.ResponseWriter, r *http.Request) {
 		// Change this to get from URL and uid (don't bother with id in r.Body)
 		g = models.Group{}
 		err = json.NewDecoder(r.Body).Decode(&g)
+		if err != nil {
+			log.Errorf("error decoding group: %v", err)
+			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
+			return
+		}
 		if g.Id != id {
 			JSONResponse(w, models.Response{Success: false, Message: "Error: /:id and group_id mismatch"}, http.StatusInternalServerError)
 			return

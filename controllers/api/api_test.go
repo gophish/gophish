@@ -6,23 +6,20 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"testing"
 
 	"github.com/gophish/gophish/config"
 	"github.com/gophish/gophish/models"
-	"github.com/stretchr/testify/suite"
 )
 
-type APISuite struct {
-	suite.Suite
+type testContext struct {
 	apiKey    string
 	config    *config.Config
 	apiServer *Server
 	admin     models.User
 }
 
-func (s *APISuite) SetupSuite() {
+func setupTest(t *testing.T) *testContext {
 	conf := &config.Config{
 		DBName:         "sqlite3",
 		DBPath:         ":memory:",
@@ -30,39 +27,22 @@ func (s *APISuite) SetupSuite() {
 	}
 	err := models.Setup(conf)
 	if err != nil {
-		s.T().Fatalf("Failed creating database: %v", err)
+		t.Fatalf("Failed creating database: %v", err)
 	}
-	s.config = conf
-	s.Nil(err)
+	ctx := &testContext{}
+	ctx.config = conf
 	// Get the API key to use for these tests
 	u, err := models.GetUser(1)
-	s.Nil(err)
-	s.apiKey = u.ApiKey
-	s.admin = u
-	// Move our cwd up to the project root for help with resolving
-	// static assets
-	err = os.Chdir("../")
-	s.Nil(err)
-	s.apiServer = NewServer()
+	if err != nil {
+		t.Fatalf("error getting admin user: %v", err)
+	}
+	ctx.apiKey = u.ApiKey
+	ctx.admin = u
+	ctx.apiServer = NewServer()
+	return ctx
 }
 
-func (s *APISuite) TearDownTest() {
-	campaigns, _ := models.GetCampaigns(1)
-	for _, campaign := range campaigns {
-		models.DeleteCampaign(campaign.Id)
-	}
-	// Cleanup all users except the original admin
-	users, _ := models.GetUsers()
-	for _, user := range users {
-		if user.Id == 1 {
-			continue
-		}
-		err := models.DeleteUser(user.Id)
-		s.Nil(err)
-	}
-}
-
-func (s *APISuite) SetupTest() {
+func createTestData(t *testing.T) {
 	// Add a group
 	group := models.Group{Name: "Test Group"}
 	group.Targets = []models.Target{
@@ -73,12 +53,12 @@ func (s *APISuite) SetupTest() {
 	models.PostGroup(&group)
 
 	// Add a template
-	t := models.Template{Name: "Test Template"}
-	t.Subject = "Test subject"
-	t.Text = "Text text"
-	t.HTML = "<html>Test</html>"
-	t.UserId = 1
-	models.PostTemplate(&t)
+	template := models.Template{Name: "Test Template"}
+	template.Subject = "Test subject"
+	template.Text = "Text text"
+	template.HTML = "<html>Test</html>"
+	template.UserId = 1
+	models.PostTemplate(&template)
 
 	// Add a landing page
 	p := models.Page{Name: "Test Page"}
@@ -97,7 +77,7 @@ func (s *APISuite) SetupTest() {
 	// Set the status such that no emails are attempted
 	c := models.Campaign{Name: "Test campaign"}
 	c.UserId = 1
-	c.Template = t
+	c.Template = template
 	c.Page = p
 	c.SMTP = smtp
 	c.Groups = []models.Group{group}
@@ -105,12 +85,13 @@ func (s *APISuite) SetupTest() {
 	c.UpdateStatus(models.CampaignEmailsSent)
 }
 
-func (s *APISuite) TestSiteImportBaseHref() {
+func TestSiteImportBaseHref(t *testing.T) {
+	ctx := setupTest(t)
 	h := "<html><head></head><body><img src=\"/test.png\"/></body></html>"
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, h)
 	}))
-	hr := fmt.Sprintf("<html><head><base href=\"%s\"/></head><body><img src=\"/test.png\"/>\n</body></html>", ts.URL)
+	expected := fmt.Sprintf("<html><head><base href=\"%s\"/></head><body><img src=\"/test.png\"/>\n</body></html>", ts.URL)
 	defer ts.Close()
 	req := httptest.NewRequest(http.MethodPost, "/api/import/site",
 		bytes.NewBuffer([]byte(fmt.Sprintf(`
@@ -121,13 +102,13 @@ func (s *APISuite) TestSiteImportBaseHref() {
 		`, ts.URL))))
 	req.Header.Set("Content-Type", "application/json")
 	response := httptest.NewRecorder()
-	s.apiServer.ImportSite(response, req)
+	ctx.apiServer.ImportSite(response, req)
 	cs := cloneResponse{}
 	err := json.NewDecoder(response.Body).Decode(&cs)
-	s.Nil(err)
-	s.Equal(cs.HTML, hr)
-}
-
-func TestAPISuite(t *testing.T) {
-	suite.Run(t, new(APISuite))
+	if err != nil {
+		t.Fatalf("error decoding response: %v", err)
+	}
+	if cs.HTML != expected {
+		t.Fatalf("unexpected response received. expected %s got %s", expected, cs.HTML)
+	}
 }

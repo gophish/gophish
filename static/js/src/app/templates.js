@@ -20,6 +20,7 @@ function save(idx) {
     }
     template.name = $("#name").val()
     template.subject = $("#subject").val()
+    template.envelope_sender = $("#envelope-sender").val()
     template.html = CKEDITOR.instances["html_editor"].getData();
     // Fix the URL Scheme added by CKEditor (until we can remove it from the plugin)
     template.html = template.html.replace(/https?:\/\/{{\.URL}}/gi, "{{.URL}}")
@@ -186,28 +187,34 @@ function edit(idx) {
         attachments: []
     }
     if (idx != -1) {
+        $("#templateModalLabel").text("Edit Template")
         template = templates[idx]
         $("#name").val(template.name)
         $("#subject").val(template.subject)
+        $("#envelope-sender").val(template.envelope_sender)
         $("#html_editor").val(template.html)
         $("#text_editor").val(template.text)
+        attachmentRows = []
         $.each(template.attachments, function (i, file) {
             var icon = icons[file.type] || "fa-file-o"
             // Add the record to the modal
-            attachmentsTable.row.add([
+            attachmentRows.push([
                 '<i class="fa ' + icon + '"></i>',
                 escapeHtml(file.name),
                 '<span class="remove-row"><i class="fa fa-trash-o"></i></span>',
                 file.content,
                 file.type || "application/octet-stream"
-            ]).draw()
+            ])
         })
+        attachmentsTable.rows.add(attachmentRows).draw()
         if (template.html.indexOf("{{.Tracker}}") != -1) {
             $("#use_tracker_checkbox").prop("checked", true)
         } else {
             $("#use_tracker_checkbox").prop("checked", false)
         }
 
+    } else {
+        $("#templateModalLabel").text("New Template")
     }
     // Handle Deletion
     $("#attachmentsTable").unbind('click').on("click", "span>i.fa-trash-o", function () {
@@ -245,6 +252,7 @@ function copy(idx) {
     template = templates[idx]
     $("#name").val("Copy of " + template.name)
     $("#subject").val(template.subject)
+    $("#envelope-sender").val(template.envelope_sender)
     $("#html_editor").val(template.html)
     $("#text_editor").val(template.text)
     $.each(template.attachments, function (i, file) {
@@ -316,8 +324,9 @@ function load() {
                     }]
                 });
                 templateTable.clear()
+                templateRows = []
                 $.each(templates, function (i, template) {
-                    templateTable.row.add([
+                    templateRows.push([
                         escapeHtml(template.name),
                         moment(template.modified_date).format('MMMM Do YYYY, h:mm:ss a'),
                         "<div class='pull-right'><span data-toggle='modal' data-backdrop='static' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Edit Template' onclick='edit(" + i + ")'>\
@@ -329,8 +338,9 @@ function load() {
                     <button class='btn btn-danger' data-toggle='tooltip' data-placement='left' title='Delete Template' onclick='deleteTemplate(" + i + ")'>\
                     <i class='fa fa-trash-o'></i>\
                     </button></div>"
-                    ]).draw()
+                    ])
                 })
+                templateTable.rows.add(templateRows).draw()
                 $('[data-toggle="tooltip"]').tooltip()
             } else {
                 $("#emptyMessage").show()

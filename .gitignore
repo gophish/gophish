@@ -13,6 +13,7 @@ node_modules
 # Architecture specific extensions/prefixes
 *.[568vq]
 [568vq].out
+.DS_Store
 
 *.cgo1.go
 *.cgo2.c

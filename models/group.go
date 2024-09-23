@@ -196,13 +196,26 @@ func PostGroup(g *Group) error {
 		return err
 	}
 	// Insert the group into the DB
-	err := db.Save(g).Error
+	tx := db.Begin()
+	err := tx.Save(g).Error
 	if err != nil {
+		tx.Rollback()
 		log.Error(err)
 		return err
 	}
 	for _, t := range g.Targets {
-		insertTargetIntoGroup(t, g.Id)
+		err = insertTargetIntoGroup(tx, t, g.Id)
+		if err != nil {
+			tx.Rollback()
+			log.Error(err)
+			return err
+		}
+	}
+	err = tx.Commit().Error
+	if err != nil {
+		log.Error(err)
+		tx.Rollback()
+		return err
 	}
 	return nil
 }
@@ -213,7 +226,6 @@ func PutGroup(g *Group) error {
 		return err
 	}
 	// Fetch group's existing targets from database.
-	ts := []Target{}
 	ts, err := GetTargets(g.Id)
 	if err != nil {
 		log.WithFields(logrus.Fields{
@@ -221,48 +233,63 @@ func PutGroup(g *Group) error {
 		}).Error("Error getting targets from group")
 		return err
 	}
-	// Check existing targets, removing any that are no longer in the group.
-	tExists := false
+	// Preload the caches
+	cacheNew := make(map[string]int64, len(g.Targets))
+	for _, t := range g.Targets {
+		cacheNew[t.Email] = t.Id
+	}
+
+	cacheExisting := make(map[string]int64, len(ts))
 	for _, t := range ts {
-		tExists = false
-		// Is the target still in the group?
-		for _, nt := range g.Targets {
-			if t.Email == nt.Email {
-				tExists = true
-				break
-			}
+		cacheExisting[t.Email] = t.Id
+	}
+
+	tx := db.Begin()
+	// Check existing targets, removing any that are no longer in the group.
+	for _, t := range ts {
+		if _, ok := cacheNew[t.Email]; ok {
+			continue
 		}
+
 		// If the target does not exist in the group any longer, we delete it
-		if !tExists {
-			err := db.Where("group_id=? and target_id=?", g.Id, t.Id).Delete(&GroupTarget{}).Error
-			if err != nil {
-				log.WithFields(logrus.Fields{
-					"email": t.Email,
-				}).Error("Error deleting email")
-			}
+		err := tx.Where("group_id=? and target_id=?", g.Id, t.Id).Delete(&GroupTarget{}).Error
+		if err != nil {
+			tx.Rollback()
+			log.WithFields(logrus.Fields{
+				"email": t.Email,
+			}).Error("Error deleting email")
 		}
 	}
 	// Add any targets that are not in the database yet.
 	for _, nt := range g.Targets {
-		// Check and see if the target already exists in the db
-		tExists = false
-		for _, t := range ts {
-			if t.Email == nt.Email {
-				tExists = true
-				nt.Id = t.Id
-				break
+		// If the target already exists in the database, we should just update
+		// the record with the latest information.
+		if id, ok := cacheExisting[nt.Email]; ok {
+			nt.Id = id
+			err = UpdateTarget(tx, nt)
+			if err != nil {
+				log.Error(err)
+				tx.Rollback()
+				return err
 			}
+			continue
 		}
-		// Add target if not in database, otherwise update target information.
-		if !tExists {
-			insertTargetIntoGroup(nt, g.Id)
-		} else {
-			UpdateTarget(nt)
+		// Otherwise, add target if not in database
+		err = insertTargetIntoGroup(tx, nt, g.Id)
+		if err != nil {
+			log.Error(err)
+			tx.Rollback()
+			return err
 		}
 	}
-	err = db.Save(g).Error
+	err = tx.Save(g).Error
 	if err != nil {
 		log.Error(err)
+		return err
+	}
+	err = tx.Commit().Error
+	if err != nil {
+		tx.Rollback()
 		return err
 	}
 	return nil
@@ -285,55 +312,42 @@ func DeleteGroup(g *Group) error {
 	return err
 }
 
-func insertTargetIntoGroup(t Target, gid int64) error {
+func insertTargetIntoGroup(tx *gorm.DB, t Target, gid int64) error {
 	if _, err := mail.ParseAddress(t.Email); err != nil {
 		log.WithFields(logrus.Fields{
 			"email": t.Email,
 		}).Error("Invalid email")
 		return err
 	}
-	trans := db.Begin()
-	err := trans.Where(t).FirstOrCreate(&t).Error
+	err := tx.Where(t).FirstOrCreate(&t).Error
 	if err != nil {
 		log.WithFields(logrus.Fields{
 			"email": t.Email,
 		}).Error(err)
-		trans.Rollback()
 		return err
 	}
-	err = trans.Where("group_id=? and target_id=?", gid, t.Id).Find(&GroupTarget{}).Error
-	if err == gorm.ErrRecordNotFound {
-		err = trans.Save(&GroupTarget{GroupId: gid, TargetId: t.Id}).Error
-		if err != nil {
-			log.Error(err)
-			trans.Rollback()
-			return err
-		}
+	err = tx.Save(&GroupTarget{GroupId: gid, TargetId: t.Id}).Error
+	if err != nil {
+		log.Error(err)
+		return err
 	}
 	if err != nil {
 		log.WithFields(logrus.Fields{
 			"email": t.Email,
 		}).Error("Error adding many-many mapping")
-		trans.Rollback()
-		return err
-	}
-	err = trans.Commit().Error
-	if err != nil {
-		trans.Rollback()
-		log.Error("Error committing db changes")
 		return err
 	}
 	return nil
 }
 
 // UpdateTarget updates the given target information in the database.
-func UpdateTarget(target Target) error {
+func UpdateTarget(tx *gorm.DB, target Target) error {
 	targetInfo := map[string]interface{}{
 		"first_name": target.FirstName,
 		"last_name":  target.LastName,
 		"position":   target.Position,
 	}
-	err := db.Model(&target).Where("id = ?", target.Id).Updates(targetInfo).Error
+	err := tx.Model(&target).Where("id = ?", target.Id).Updates(targetInfo).Error
 	if err != nil {
 		log.WithFields(logrus.Fields{
 			"email": target.Email,

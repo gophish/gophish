@@ -8,6 +8,8 @@
 				fa-exclamation-triangle
 			{{else if eq .Type "success"}}
 				fa-check-circle
+			{{else if eq .Type "info"}}
+				fa-info-circle
 			{{end}}"></i>
 			{{.Message}}
 		</div>

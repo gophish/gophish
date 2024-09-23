@@ -36,7 +36,7 @@ function sendTestEmail() {
         })
         .error(function (data) {
             $("#sendTestEmailModal\\.flashes").empty().append("<div style=\"text-align:center\" class=\"alert alert-danger\">\
-	    <i class=\"fa fa-exclamation-circle\"></i> " + data.responseJSON.message + "</div>")
+	    <i class=\"fa fa-exclamation-circle\"></i> " + escapeHtml(data.responseJSON.message) + "</div>")
             $("#sendTestModalSubmit").html(btnHtml)
         })
 }
@@ -153,6 +153,7 @@ function edit(idx) {
     })
     var profile = {}
     if (idx != -1) {
+        $("#profileModalLabel").text("Edit Sending Profile")
         profile = profiles[idx]
         $("#name").val(profile.name)
         $("#interface_type").val(profile.interface_type)
@@ -164,6 +165,8 @@ function edit(idx) {
         $.each(profile.headers, function (i, record) {
             addCustomHeader(record.key, record.value)
         });
+    } else {
+        $("#profileModalLabel").text("New Sending Profile")
     }
 }
 
@@ -200,8 +203,9 @@ function load() {
                     }]
                 });
                 profileTable.clear()
+                profileRows = []
                 $.each(profiles, function (i, profile) {
-                    profileTable.row.add([
+                    profileRows.push([
                         escapeHtml(profile.name),
                         profile.interface_type,
                         moment(profile.modified_date).format('MMMM Do YYYY, h:mm:ss a'),
@@ -214,8 +218,9 @@ function load() {
                     <button class='btn btn-danger' data-toggle='tooltip' data-placement='left' title='Delete Profile' onclick='deleteProfile(" + i + ")'>\
                     <i class='fa fa-trash-o'></i>\
                     </button></div>"
-                    ]).draw()
+                    ])
                 })
+                profileTable.rows.add(profileRows).draw()
                 $('[data-toggle="tooltip"]').tooltip()
             } else {
                 $("#emptyMessage").show()
@@ -305,7 +310,7 @@ $(document).ready(function () {
         dismissSendTestEmailModal()
     })
     // Code to deal with custom email headers
-    $("#headersForm").on('submit', function () {
+    $("#addCustomHeader").on('click', function () {
         headerKey = $("#headerKey").val();
         headerValue = $("#headerValue").val();
 
@@ -314,7 +319,8 @@ $(document).ready(function () {
         }
         addCustomHeader(headerKey, headerValue);
         // Reset user input.
-        $("#headersForm>div>input").val('');
+        $("#headerKey").val('');
+        $("#headerValue").val('');
         $("#headerKey").focus();
         return false;
     });

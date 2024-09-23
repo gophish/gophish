@@ -1,6 +1,9 @@
 package models
 
 import (
+	"fmt"
+	"testing"
+
 	"github.com/jinzhu/gorm"
 	"gopkg.in/check.v1"
 )
@@ -169,4 +172,122 @@ func (s *ModelsSuite) TestPutGroupEmptyAttribute(c *check.C) {
 	c.Assert(targets[1].Email, check.Equals, "test2@example.com")
 	c.Assert(targets[1].FirstName, check.Equals, "Second")
 	c.Assert(targets[1].LastName, check.Equals, "Example")
+}
+
+func benchmarkPostGroup(b *testing.B, iter, size int) {
+	b.StopTimer()
+	g := &Group{
+		Name: fmt.Sprintf("Group-%d", iter),
+	}
+	for i := 0; i < size; i++ {
+		g.Targets = append(g.Targets, Target{
+			BaseRecipient: BaseRecipient{
+				FirstName: "User",
+				LastName:  fmt.Sprintf("%d", i),
+				Email:     fmt.Sprintf("test-%d@test.com", i),
+			},
+		})
+	}
+	b.StartTimer()
+	err := PostGroup(g)
+	if err != nil {
+		b.Fatalf("error posting group: %v", err)
+	}
+}
+
+// benchmarkPutGroup modifies half of the group to simulate a large change
+func benchmarkPutGroup(b *testing.B, iter, size int) {
+	b.StopTimer()
+	// First, we need to create the group
+	g := &Group{
+		Name: fmt.Sprintf("Group-%d", iter),
+	}
+	for i := 0; i < size; i++ {
+		g.Targets = append(g.Targets, Target{
+			BaseRecipient: BaseRecipient{
+				FirstName: "User",
+				LastName:  fmt.Sprintf("%d", i),
+				Email:     fmt.Sprintf("test-%d@test.com", i),
+			},
+		})
+	}
+	err := PostGroup(g)
+	if err != nil {
+		b.Fatalf("error posting group: %v", err)
+	}
+	// Now we need to change half of the group.
+	for i := 0; i < size/2; i++ {
+		g.Targets[i].Email = fmt.Sprintf("test-modified-%d@test.com", i)
+	}
+	b.StartTimer()
+	err = PutGroup(g)
+	if err != nil {
+		b.Fatalf("error modifying group: %v", err)
+	}
+}
+
+func BenchmarkPostGroup100(b *testing.B) {
+	setupBenchmark(b)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		benchmarkPostGroup(b, i, 100)
+		b.StopTimer()
+		resetBenchmark(b)
+	}
+	tearDownBenchmark(b)
+}
+
+func BenchmarkPostGroup1000(b *testing.B) {
+	setupBenchmark(b)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		benchmarkPostGroup(b, i, 1000)
+		b.StopTimer()
+		resetBenchmark(b)
+	}
+	tearDownBenchmark(b)
+}
+
+func BenchmarkPostGroup10000(b *testing.B) {
+	setupBenchmark(b)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		benchmarkPostGroup(b, i, 10000)
+		b.StopTimer()
+		resetBenchmark(b)
+	}
+	tearDownBenchmark(b)
+}
+
+func BenchmarkPutGroup100(b *testing.B) {
+	setupBenchmark(b)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		benchmarkPutGroup(b, i, 100)
+		b.StopTimer()
+		resetBenchmark(b)
+	}
+	tearDownBenchmark(b)
+}
+
+func BenchmarkPutGroup1000(b *testing.B) {
+	setupBenchmark(b)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		benchmarkPutGroup(b, i, 1000)
+		b.StopTimer()
+		resetBenchmark(b)
+	}
+	tearDownBenchmark(b)
+}
+
+func BenchmarkPutGroup10000(b *testing.B) {
+	setupBenchmark(b)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		benchmarkPutGroup(b, i, 10000)
+		b.StopTimer()
+		resetBenchmark(b)
+	}
+	tearDownBenchmark(b)
 }

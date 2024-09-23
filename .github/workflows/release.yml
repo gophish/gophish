@@ -1,0 +1,153 @@
+name: Build Gophish Release
+on:
+    release:
+        types: [created]
+
+jobs:
+    build:
+        name: Build Binary
+        runs-on: ${{ matrix.os }}
+        strategy:
+            matrix:
+                os: [windows-latest, ubuntu-latest, macos-latest]
+                arch: ['386', amd64]
+                # We sometimes use different verbiage for things (e.g. "darwin"
+                # for the GOOS build flag and "osx" in the actual release ZIP).
+                # We need to specify those here.
+                include:
+                    - os: windows-latest
+                      goos: windows
+                      bin: 'gophish.exe'
+                      releaseos: windows
+                    - os: ubuntu-latest
+                      goos: linux
+                      bin: 'gophish'
+                      releaseos: linux
+                    - os: macos-latest
+                      goos: darwin
+                      bin: 'gophish'
+                      releaseos: osx
+                # Don't build windows-32bit due to missing MinGW dependencies
+                # Don't build osx-32bit due to eventual drop in Go support
+                exclude:
+                    - os: windows-latest
+                      arch: '386'
+                    - os: macos-latest
+                      arch: '386'
+        steps:
+            - name: Set up Go
+              uses: actions/setup-go@v2
+              with:
+                go-version: 1.22
+            - if: matrix.os == 'ubuntu-latest'
+              run: sudo apt-get update && sudo apt-get install -y gcc-multilib
+            - if: matrix.arch == '386'
+              run: echo "RELEASE=gophish-${{ github.event.release.tag_name }}-${{ matrix.releaseos }}-32bit" >> $GITHUB_ENV
+            - if: matrix.arch == 'amd64'
+              run: echo "RELEASE=gophish-${{ github.event.release.tag_name }}-${{ matrix.releaseos }}-64bit" >> $GITHUB_ENV
+            - if: matrix.os == 'windows-latest'
+              run: echo "RELEASE=gophish-${{ github.event.release.tag_name }}-${{ matrix.releaseos }}-64bit" | Out-File -FilePath $env:GITHUB_ENV -Append # https://github.com/actions/runner/issues/1636
+            - uses: actions/checkout@v4
+            - name: Build ${{ matrix.goos }}/${{ matrix.arch }}
+              run: go build -o ${{ matrix.bin }}
+              env:
+                GOOS: ${{ matrix.goos }}
+                GOARCH: ${{ matrix.arch }}
+                CGO_ENABLED: 1
+            - name: Upload to artifacts
+              uses: actions/upload-artifact@v4
+              with:
+                name: ${{ env.RELEASE }}
+                path: ${{ matrix.bin }}
+
+    package:
+        name: Package Assets
+        runs-on: ubuntu-latest
+        needs: build
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/download-artifact@v4
+              with:
+                path: bin
+            - name: Package Releases
+              run: |
+                mkdir releases;
+                for RELEASE_DIR in bin/*
+                do
+                  echo "Creating release $RELEASE_DIR"
+                  for BINARY in $RELEASE_DIR/*
+                  do
+                    cp $BINARY .;
+                    zip -r releases/$(basename $RELEASE_DIR).zip \
+                      $(basename ${BINARY}) \
+                      static/js/dist \
+                      static/js/src/vendor/ckeditor \
+                      static/css/dist \
+                      static/images \
+                      static/font \
+                      static/db \
+                      db \
+                      templates \
+                      README.md \
+                      VERSION \
+                      LICENSE \
+                      config.json;
+                    rm $BINARY;
+                  done
+                done
+            - name: Upload to artifacts
+              uses: actions/upload-artifact@v4
+              with:
+                name: releases
+                path: releases/*.zip
+    
+    upload:
+        name: Upload to the Release
+        runs-on: ubuntu-latest
+        needs: package
+        steps:
+            - uses: actions/download-artifact@v4
+              with:
+                name: releases
+                path: releases/
+            # I would love to use @actions/upload-release-asset, but they don't
+            # support wildcards in the asset path. Ref #9, #24, and #47
+            - name: Upload Archives to Release
+              env:
+                UPLOAD_URL: ${{ github.event.release.upload_url }}
+                API_HEADER: "Accept: application/vnd.github.v3+json"
+                AUTH_HEADER: "Authorization: token ${{ secrets.GITHUB_TOKEN }}"
+              run: |
+                UPLOAD_URL=$(echo -n $UPLOAD_URL | sed s/\{.*//g)
+                for FILE in releases/*
+                do
+                  echo "Uploading ${FILE}";
+                  curl \
+                    -H "${API_HEADER}" \
+                    -H "${AUTH_HEADER}" \
+                    -H "Content-Type: $(file -b --mime-type ${FILE})" \
+                    --data-binary "@${FILE}" \
+                    "${UPLOAD_URL}?name=$(basename ${FILE})";
+                done
+            - name: Generate SHA256 Hashes
+              env:
+                API_HEADER: "Accept: application/vnd.github.v3+json"
+                AUTH_HEADER: "Authorization: token ${{ secrets.GITHUB_TOKEN }}"
+                RELEASE_URL: ${{ github.event.release.url }}
+              run: |
+                HASH_TABLE="| SHA256 Hash | Filename |"
+                HASH_TABLE="${HASH_TABLE}\n|-----|-----|\n"
+                for FILE in releases/*
+                do
+                  FILENAME=$(basename ${FILE})
+                  HASH=$(sha256sum ${FILE} | cut -d ' ' -f 1)
+                  HASH_TABLE="${HASH_TABLE}|${HASH}|${FILENAME}|\n"
+                done
+                echo "${HASH_TABLE}"
+                curl \
+                  -XPATCH \
+                  -H "${API_HEADER}" \
+                  -H "${AUTH_HEADER}" \
+                  -H "Content-Type: application/json" \
+                  -d "{\"body\": \"${HASH_TABLE}\"}" \
+                  "${RELEASE_URL}";

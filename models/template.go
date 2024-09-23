@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"net/mail"
 	"time"
 
 	log "github.com/gophish/gophish/logger"
@@ -10,14 +11,15 @@ import (
 
 // Template models hold the attributes for an email template to be sent to targets
 type Template struct {
-	Id           int64        `json:"id" gorm:"column:id; primary_key:yes"`
-	UserId       int64        `json:"-" gorm:"column:user_id"`
-	Name         string       `json:"name"`
-	Subject      string       `json:"subject"`
-	Text         string       `json:"text"`
-	HTML         string       `json:"html" gorm:"column:html"`
-	ModifiedDate time.Time    `json:"modified_date"`
-	Attachments  []Attachment `json:"attachments"`
+	Id             int64        `json:"id" gorm:"column:id; primary_key:yes"`
+	UserId         int64        `json:"-" gorm:"column:user_id"`
+	Name           string       `json:"name"`
+	EnvelopeSender string       `json:"envelope_sender"`
+	Subject        string       `json:"subject"`
+	Text           string       `json:"text"`
+	HTML           string       `json:"html" gorm:"column:html"`
+	ModifiedDate   time.Time    `json:"modified_date"`
+	Attachments    []Attachment `json:"attachments"`
 }
 
 // ErrTemplateNameNotSpecified is thrown when a template name is not specified
@@ -33,6 +35,11 @@ func (t *Template) Validate() error {
 		return ErrTemplateNameNotSpecified
 	case t.Text == "" && t.HTML == "":
 		return ErrTemplateMissingParameter
+	case t.EnvelopeSender != "":
+		_, err := mail.ParseAddress(t.EnvelopeSender)
+		if err != nil {
+			return err
+		}
 	}
 	if err := ValidateTemplate(t.HTML); err != nil {
 		return err
@@ -40,6 +47,12 @@ func (t *Template) Validate() error {
 	if err := ValidateTemplate(t.Text); err != nil {
 		return err
 	}
+	for _, a := range t.Attachments {
+		if err := a.Validate(); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 

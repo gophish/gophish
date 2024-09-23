@@ -1,0 +1,78 @@
+{{define "body"}}
+<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+    <h1 class="page-header">
+        {{.Title}}
+    </h1>
+    <div id="flashes" class="row"></div>
+    <div class="row">
+        <button type="button" class="btn btn-primary" id="new_button" data-toggle="modal" data-backdrop="static"
+            data-webhook-id="-1" data-target="#modal">
+            <i class="fa fa-plus"></i> New Webhook</button>
+    </div>
+    &nbsp;
+    <div id="loading">
+        <i class="fa fa-spinner fa-spin fa-4x"></i>
+    </div>
+    <div class="row">
+        <table id="webhookTable" class="table" style="display:none;">
+            <thead>
+                <tr>
+                    <th class="col-md-2 no-sort">Title</th>
+                    <th class="col-md-2 no-sort">Url</th>
+                    <th class="col-md-2 no-">Is active</th>
+                    <th class="col-md-2 no-sort"></th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="webhookModalLabel">Add or Edit Webhook</h4>
+            </div>
+            <div class="modal-body" id="modal_body">
+                <div class="row" id="modal.flashes"></div>
+                <label class="control-label" for="title">Name:</label>
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="Name" id="name" required autofocus />
+                </div>
+
+                <label class="control-label" for="url">URL:</label>
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="https://example.com/webhook1" id="url" required />
+                </div>
+
+                <label class="control-label" for="secret">Secret:</label>
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="Secret" id="secret" required />
+                </div>
+
+                <div class="checkbox checkbox-primary">
+                    <input type="checkbox" id="is_active" value="true" />
+                    <label for="is_active">Is active <i class="fa fa-question-circle"
+                            data-toggle="tooltip" data-placement="right"
+                            title="Data is sent only to the active webhooks"></i>
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="modalSubmit">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{{end}} {{define "scripts"}}
+<script src="/js/dist/app/webhooks.min.js"></script>
+{{end}}

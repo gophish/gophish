@@ -44,27 +44,30 @@
             </div>
             <div class="modal-body">
                 <div class="row" id="modal.flashes"></div>
-                <div class="form-group">
-                    <label class="control-label" for="name">Name:</label>
-                    <input type="text" class="form-control" placeholder="Profile name" id="name" autofocus />
-                    <label class="control-label" for="interface_type">Interface Type:</label>
-                    <input type="text" class="form-control" value="SMTP" id="interface_type" disabled />
-                    <label class="control-label" for="from">From:</label>
-                    <input type="text" class="form-control" placeholder="First Last <test@example.com>" id="from"
-                        required />
-                    <label class="control-label" for="host">Host:</label>
-                    <input type="text" class="form-control" placeholder="smtp.example.com:25" id="host" required />
-                    <label class="control-label" for="username">Username:</label>
-                    <input type="text" class="form-control" placeholder="Username" id="username" />
-                    <label class="control-label" for="password">Password:</label>
-                    <input type="password" class="form-control" placeholder="Password" id="password" />
-                    <div class="checkbox checkbox-primary">
-                        <input id="ignore_cert_errors" type="checkbox" checked>
-                        <label for="ignore_cert_errors">Ignore Certificate Errors <i class="fa fa-question-circle"
-                                data-toggle="tooltip" data-placement="right" title="Ignore common certificate errors such as self-signed certs (exposes you to MiTM attacks - use carefully!)"></i></label>
+                <form>
+                    <div class="form-group">
+                        <label class="control-label" for="name">Name:</label>
+                        <input type="text" class="form-control" placeholder="Profile name" id="name" autofocus />
+                        <label class="control-label" for="interface_type">Interface Type:</label>
+                        <input type="text" class="form-control" value="SMTP" id="interface_type" disabled />
+                        <label class="control-label" for="from">SMTP From: <i class="fa fa-question-circle"
+                                data-toggle="tooltip" data-placement="right" title="Set this to an email address from your sending domain to bypass SPF-checks. You can set the Envelope Sender in Email Templates. The Envelope Sender is shown to the user."></i></label>
+                        <input type="text" class="form-control" placeholder="test@example.com" id="from"
+                            required />
+                        <label class="control-label" for="host">Host:</label>
+                        <input type="text" class="form-control" placeholder="smtp.example.com:25" id="host" required />
+                        <label class="control-label" for="username">Username:</label>
+                        <input type="text" class="form-control" placeholder="Username" id="username" />
+                        <label class="control-label" for="password">Password:</label>
+                        <input type="password" class="form-control" placeholder="Password" id="password" />
+                        <div class="checkbox checkbox-primary">
+                            <input id="ignore_cert_errors" type="checkbox" checked>
+                            <label for="ignore_cert_errors">Ignore Certificate Errors <i class="fa fa-question-circle"
+                                    data-toggle="tooltip" data-placement="right" title="Ignore common certificate errors such as self-signed certs (exposes you to MiTM attacks - use carefully!)"></i></label>
+                        </div>
                     </div>
-                    <label class="control-label" for="headersForm">Email Headers:</label>
-                    <form id="headersForm">
+                    <fieldset class="form-group">
+                        <label class="control-label input-group">Email Headers:</label>
                         <div class="col-md-4">
                             <input type="text" class="form-control" name="headerKey" id="headerKey" placeholder="X-Custom-Header">
                         </div>
@@ -72,12 +75,10 @@
                             <input type="text" class="form-control" name="headerValue" id="headerValue" placeholder='{{"{{"}}.URL{{"}}"}}-gophish'>
                         </div>
                         <div class="col-md-2">
-                            <button class="btn btn-danger btn-headers" type="submit"><i class="fa fa-plus"></i> Add
+                            <button id="addCustomHeader" class="btn btn-danger btn-headers" type="button"><i class="fa fa-plus"></i> Add
                                 Custom Header</button>
                         </div>
-                    </form>
-                    <br />
-                    <br />
+                    </fieldset>
                     <table id="headersTable" class="table table-hover table-striped table-condensed">
                         <thead>
                             <tr>
@@ -91,7 +92,7 @@
                     </table>
                     <button type="button" data-toggle="modal" data-backdrop="static" data-target="#sendTestEmailModal"
                         class="btn btn-primary"><i class="fa fa-envelope"></i> Send Test Email</button>
-                </div>
+                </form>
             </div>
             <div class="modal-footer">
                 <button type="button" data-dismiss="modal" class="btn btn-default" onclick="dismiss()">Cancel</button>

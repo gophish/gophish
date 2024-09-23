@@ -113,6 +113,7 @@ function edit(idx) {
     setupAutocomplete(CKEDITOR.instances["html_editor"])
     var page = {}
     if (idx != -1) {
+        $("#modalLabel").text("Edit Landing Page")
         page = pages[idx]
         $("#name").val(page.name)
         $("#html_editor").val(page.html)
@@ -123,6 +124,8 @@ function edit(idx) {
             $("#capture_passwords").show()
             $("#redirect_url").show()
         }
+    } else {
+        $("#modalLabel").text("New Landing Page")
     }
 }
 
@@ -157,8 +160,9 @@ function load() {
                     }]
                 });
                 pagesTable.clear()
+                pageRows = []
                 $.each(pages, function (i, page) {
-                    pagesTable.row.add([
+                    pageRows.push([
                         escapeHtml(page.name),
                         moment(page.modified_date).format('MMMM Do YYYY, h:mm:ss a'),
                         "<div class='pull-right'><span data-toggle='modal' data-backdrop='static' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Edit Page' onclick='edit(" + i + ")'>\
@@ -170,8 +174,9 @@ function load() {
                     <button class='btn btn-danger' data-toggle='tooltip' data-placement='left' title='Delete Page' onclick='deletePage(" + i + ")'>\
                     <i class='fa fa-trash-o'></i>\
                     </button></div>"
-                    ]).draw()
+                    ])
                 })
+                pagesTable.rows.add(pageRows).draw()
                 $('[data-toggle="tooltip"]').tooltip()
             } else {
                 $("#emptyMessage").show()

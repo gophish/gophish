@@ -3,11 +3,17 @@ enable_ufw_firewall: true
 install_packages:
   - postfix
   - unzip
+  - libcap2-bin
+  - python-is-python3
+  - python3-pip
 
 hostname: gophish
 gophish_user: ubuntu
 postfix_hostname: gophish
 postfix_inet_interfaces: 127.0.0.1
-
+gophish_domain: gophish.local
+gophish_ssl_cert_path: /etc/ssl/private/gophish.pem
+gophish_csr_path: /etc/ssl/csr/gophish.csr
+gophish_crt_path: /etc/ssl/crt/gophish.crt
 # Required if changing /etc/hostname to something different.
 reboot_box: true
