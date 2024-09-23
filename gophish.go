@@ -51,6 +51,7 @@ const (
 )
 
 var (
+	wd            = kingpin.Flag("working-directory", "Working directory for service.").Default(".").String()
 	configPath    = kingpin.Flag("config", "Location of config.json.").Default("./config.json").String()
 	disableMailer = kingpin.Flag("disable-mailer", "Disable the mailer (for use with multi-system deployments)").Bool()
 	mode          = kingpin.Flag("mode", fmt.Sprintf("Run the binary in one of the modes (%s, %s or %s)", modeAll, modeAdmin, modePhish)).
@@ -66,9 +67,14 @@ func main() {
 	}
 	kingpin.Version(string(version))
 
-	// Parse the CLI flags and load the config
+	// Parse the CLI flags, set working directory, and load the config
 	kingpin.CommandLine.HelpFlag.Short('h')
 	kingpin.Parse()
+
+	err := os.Chdir(*wd)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// Load the config
 	conf, err := config.LoadConfig(*configPath)
