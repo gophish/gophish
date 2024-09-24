@@ -8,6 +8,7 @@ require (
 	github.com/PuerkitoBio/goquery v1.5.0
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751 // indirect
 	github.com/alecthomas/units v0.0.0-20190924025748-f65c72e2690d // indirect
+	github.com/dmarushkin/go-qrcode/v2 v2.0.0-20230618192502-f9c05d185bc5
 	github.com/emersion/go-imap v1.0.4
 	github.com/emersion/go-message v0.12.0
 	github.com/go-sql-driver/mysql v1.5.0

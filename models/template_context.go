@@ -6,6 +6,8 @@ import (
 	"net/url"
 	"path"
 	"text/template"
+
+	"github.com/dmarushkin/go-qrcode/v2"
 )
 
 // TemplateContext is an interface that allows both campaigns and email
@@ -20,6 +22,7 @@ type TemplateContext interface {
 type PhishingTemplateContext struct {
 	From        string
 	URL         string
+	URL_QR      string
 	Tracker     string
 	TrackingURL string
 	RId         string
@@ -57,6 +60,9 @@ func NewPhishingTemplateContext(ctx TemplateContext, r BaseRecipient, rid string
 	q.Set(RecipientParameter, rid)
 	phishURL.RawQuery = q.Encode()
 
+	qrc, _ := qrcode.New(phishURL.String())
+	url_qr := qrc.GetHtmlStr()
+
 	trackingURL, _ := url.Parse(templateURL)
 	trackingURL.Path = path.Join(trackingURL.Path, "/track")
 	trackingURL.RawQuery = q.Encode()
@@ -65,6 +71,7 @@ func NewPhishingTemplateContext(ctx TemplateContext, r BaseRecipient, rid string
 		BaseRecipient: r,
 		BaseURL:       baseURL.String(),
 		URL:           phishURL.String(),
+		URL_QR:        url_qr,
 		TrackingURL:   trackingURL.String(),
 		Tracker:       "<img alt='' style='display: none' src='" + trackingURL.String() + "'/>",
 		From:          fn,
