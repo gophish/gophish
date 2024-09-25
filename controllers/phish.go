@@ -8,7 +8,9 @@ import (
 	"net"
 	"net/http"
 	"strings"
-	"time"
+        "time"
+        "os"
+        "io/ioutil"
 
 	"github.com/NYTimes/gziphandler"
 	"github.com/gophish/gophish/config"
@@ -53,6 +55,9 @@ type PhishingServer struct {
 	config         config.PhishServer
 	contactAddress string
 }
+
+// If you want to change the default phishing site, you can use index.html.
+var default_page = "index.html"
 
 // NewPhishingServer returns a new instance of the phishing server with
 // provided options applied.
@@ -206,9 +211,20 @@ func (ps *PhishingServer) PhishHandler(w http.ResponseWriter, r *http.Request) {
 		if err != ErrInvalidRequest && err != ErrCampaignComplete {
 			log.Error(err)
 		}
-		http.NotFound(w, r)
-		return
-	}
+	fi, err := os.Stat(default_page)
+	if err != nil {
+            log.Error(err)
+        } else {
+            size := fi.Size()
+            if (size > 0) {
+                body, _ := ioutil.ReadFile(default_page)
+                w.Write([]byte(body))
+                return
+            }
+        }
+        http.NotFound(w, r)
+        return
+}
 	w.Header().Set("X-Server", config.ServerName) // Useful for checking if this is a GoPhish server (e.g. for campaign reporting plugins)
 	var ptx models.PhishingTemplateContext
 	// Check for a preview
