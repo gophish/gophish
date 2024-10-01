@@ -38,7 +38,9 @@ RUN setcap 'cap_net_bind_service=+ep' /opt/gophish/gophish
 
 USER app
 RUN sed -i 's/127.0.0.1/0.0.0.0/g' config.json
+RUN sed -i 's/"gophish.db"/"data\/gophish.db"/g' config.json
 RUN touch config.json.tmp
+RUN mkdir data
 
 EXPOSE 3333 8080 8443 80
 
