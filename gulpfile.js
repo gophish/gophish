@@ -13,33 +13,18 @@ var gulp = require('gulp'),
 
     js_directory = 'static/js/src/',
     css_directory = 'static/css/',
-    vendor_directory = js_directory + 'vendor/',
     app_directory = js_directory + 'app/',
     dest_js_directory = 'static/js/dist/',
     dest_css_directory = 'static/css/dist/';
 
 vendorjs = function () {
-    return gulp.src([
-            vendor_directory + 'jquery.js',
-            vendor_directory + 'bootstrap.min.js',
-            vendor_directory + 'moment.min.js',
-            vendor_directory + 'papaparse.min.js',
-            vendor_directory + 'd3.min.js',
-            vendor_directory + 'topojson.min.js',
-            vendor_directory + 'datamaps.min.js',
-            vendor_directory + 'jquery.dataTables.min.js',
-            vendor_directory + 'dataTables.bootstrap.js',
-            vendor_directory + 'datetime-moment.js',
-            vendor_directory + 'jquery.ui.widget.js',
-            vendor_directory + 'jquery.fileupload.js',
-            vendor_directory + 'jquery.iframe-transport.js',
-            vendor_directory + 'sweetalert2.min.js',
-            vendor_directory + 'bootstrap-datetime.js',
-            vendor_directory + 'select2.min.js',
-            vendor_directory + 'core.min.js',
-            vendor_directory + 'highcharts.js',
-            vendor_directory + 'ua-parser.min.js'
-        ])
+    const pkg = require('./package.json');
+    const libs = Object.keys(pkg.dependencies);
+    return gulp.src(
+        libs.map(function(lib) {
+            return './node_modules/' + lib + '/**/*.js';
+        })
+    )
         .pipe(concat('vendor.js'))
         .pipe(rename({
             suffix: '.min'
