@@ -122,6 +122,23 @@ func GetGroups(uid int64) ([]Group, error) {
 	return gs, nil
 }
 
+// GetGroupById returns a group by its id.
+func GetGroupById(gid int64) (Group, error) {
+	g := Group{}
+	err := db.Where("id=?", gid).Find(&g).Error
+	if err != nil {
+		log.Error(err)
+		return g, err
+	}
+
+	g.Targets, err = GetTargets(g.Id)
+	if err != nil {
+		log.Error(err)
+	}
+
+	return g, nil
+}
+
 // GetGroupSummaries returns the summaries for the groups
 // created by the given uid.
 func GetGroupSummaries(uid int64) (GroupSummaries, error) {

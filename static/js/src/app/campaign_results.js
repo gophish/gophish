@@ -199,6 +199,44 @@ function completeCampaign() {
     })
 }
 
+// Updates a campaign's user assignments after prompting the user
+function updateCampaignUserAssignment() {
+    Swal.fire({
+        title: "Are you sure?",
+        text: "This will update the users assigned to this campaign.",
+        type: "warning",
+        animation: false,
+        showCancelButton: true,
+        confirmButtonText: "Update Users",
+        confirmButtonColor: "#428bca",
+        reverseButtons: true,
+        allowOutsideClick: false,
+        showLoaderOnConfirm: true,
+        preConfirm: function () {
+            return new Promise(function (resolve, reject) {
+                api.campaignId.updateUsers(campaign.id)
+                    .success(function (msg) {
+                        resolve()
+                    })
+                    .error(function (data) {
+                        reject(data.responseJSON.message)
+                    })
+            })
+        }
+    }).then(function (result) {
+        if(result.value){
+            Swal.fire(
+                'Campaign Users Updated!',
+                'This campaign has been successfully updated!',
+                'success'
+            );
+        }
+        $('button:contains("OK")').on('click', function () {
+            location.href = '/campaigns/' + campaign.id;
+        })
+    })
+}
+
 // Exports campaign results as a CSV file
 function exportAsCSV(scope) {
     exportHTML = $("#exportButton").html()

@@ -100,6 +100,32 @@ func (as *Server) CampaignResults(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// CampaignUpdateUsers updates the users assigned to this campaign
+func (as *Server) CampaignUpdateUsers(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, _ := strconv.ParseInt(vars["id"], 0, 64)
+	c, err := models.GetCampaign(id, ctx.Get(r, "user_id").(int64))
+
+	if err != nil {
+		log.Error(err);
+		JSONResponse(w, models.Response{Success: false, Message: "Campaign not found"}, http.StatusNotFound)
+		return
+	}
+
+	err = models.UpdateCampaignUsers(&c);
+	
+	if err != nil {
+		log.Error(err);
+		JSONResponse(w, models.Response{Success: false, Message: "Unable to update campaign users"}, http.StatusInternalServerError)
+		return
+	}
+
+	if r.Method == "GET" {
+		JSONResponse(w, models.Response{Success: true, Message: "Users updated successfully!"}, http.StatusOK)
+		return
+	}
+}
+
 // CampaignSummary returns the summary for a given campaign.
 func (as *Server) CampaignSummary(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
