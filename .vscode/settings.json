@@ -1,0 +1,7 @@
+{
+    "go.toolsEnvVars": {
+        "GOPRIVATE": "",
+        "GOPATH": "/go"
+    },
+    "python.analysis.typeCheckingMode": "basic"
+}

@@ -1,0 +1,58 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/alpine
+{
+	"name": "Alpine",
+	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+	"image": "mcr.microsoft.com/devcontainers/base:alpine-3.17",
+	"features": {
+		"ghcr.io/devcontainers-contrib/features/act:1": {
+			"version": "latest"
+		},
+		"ghcr.io/devcontainers-contrib/features/act-asdf:2": {
+			"version": "latest"
+		},
+		"ghcr.io/devcontainers-contrib/features/age-keygen:1": {
+			"version": "latest"
+		},
+		"ghcr.io/dhoeric/features/act:1": {},
+		"ghcr.io/flexwie/devcontainer-features/op:1": {},
+		"ghcr.io/devcontainers/features/anaconda:1": {
+			"version": "latest"
+		},
+		"ghcr.io/devcontainers-contrib/features/alp-asdf:2": {
+			"version": "latest"
+		},
+		"ghcr.io/akhildevelops/devcontainer-features/android-cli:0": {},
+		"ghcr.io/akhildevelops/devcontainer-features/apt:0": {},
+		"ghcr.io/jarrodcolburn/features/android-sdk:0": {
+			"emulator": true,
+			"platforms": "33",
+			"build-tools": "33.0.2"
+		},
+		"ghcr.io/gmkonan/feature/airplane:1": {}
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"golang.go",
+				"ms-vscode.cpptools",
+				"GitHub.copilot"
+			]
+		}
+	}
+
+	// Features to add to the dev container. More info: https://containers.dev/features.
+	// "features": {},
+
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// "forwardPorts": [],
+
+	// Use 'postCreateCommand' to run commands after the container is created.
+	// "postCreateCommand": "uname -a",
+
+	// Configure tool-specific properties.
+	// "customizations": {},
+
+	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+	// "remoteUser": "root"
+}
