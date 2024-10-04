@@ -606,6 +606,7 @@ func PostCampaign(c *Campaign, uid int64) error {
 			recipientIndex++
 		}
 	}
+	log.Info("Successfuly posted campaign",c.Id)
 	return tx.Commit().Error
 }
 
@@ -635,6 +636,7 @@ func DeleteCampaign(id int64) error {
 	if err != nil {
 		log.Error(err)
 	}
+	log.Info("Successfuly deleted campaign",id)
 	return err
 }
 
@@ -666,5 +668,6 @@ func CompleteCampaign(id int64, uid int64) error {
 	if err != nil {
 		log.Error(err)
 	}
+	log.Info("Campaign",c.Id,"ended successfully")
 	return err
 }
