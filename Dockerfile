@@ -5,7 +5,7 @@ RUN npm install gulp gulp-cli -g
 
 WORKDIR /build
 COPY . .
-RUN npm install --only=dev
+RUN npm install --loglevel=error --only=dev
 RUN gulp
 
 
@@ -42,4 +42,4 @@ RUN touch config.json.tmp
 
 EXPOSE 3333 8080 8443 80
 
-CMD ["./docker/run.sh"]
+ENTRYPOINT ["./docker/run.sh"]
