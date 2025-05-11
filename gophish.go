@@ -31,6 +31,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 
 	"gopkg.in/alecthomas/kingpin.v2"
 
@@ -58,6 +59,17 @@ var (
 )
 
 func main() {
+	// Cd the current progress to executable's dir
+	exe, err := os.Executable()
+	if err != nil {
+		log.Fatalf("Failed to get executable path: %v", err)
+	}
+	dir := filepath.Dir(exe)
+	err = os.Chdir(dir)
+	if err != nil {
+		log.Fatalf("Failed to change working directory: %v", err)
+	}
+
 	// Load the version
 
 	version, err := ioutil.ReadFile("./VERSION")
