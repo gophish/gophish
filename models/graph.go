@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"mime"
+	"mime/multipart"
 	"net/http"
 	"net/mail"
 	"net/url"
@@ -163,17 +165,48 @@ func (s *GraphAPISender) Send(from string, to []string, msg io.WriterTo) error {
 		return fmt.Errorf("error reading message: %v", err)
 	}
 
-	// Log the message being sent
-	messageStr := buf.String()
-	log.Infof("Preparing to send message with length: %d bytes", len(messageStr))
-	
-	// Extract subject from message if possible
-	subject := "Test Email from Gophish"
-	if lines := strings.Split(messageStr, "\n"); len(lines) > 0 {
-		for _, line := range lines {
-			if strings.HasPrefix(strings.ToLower(line), "subject:") {
-				subject = strings.TrimSpace(strings.TrimPrefix(line, "Subject:"))
-				break
+	// Parse the email message
+	email, err := mail.ReadMessage(strings.NewReader(buf.String()))
+	if err != nil {
+		return fmt.Errorf("error parsing email: %v", err)
+	}
+
+	// Extract subject
+	subject := email.Header.Get("Subject")
+	if subject == "" {
+		subject = "No Subject"
+	}
+
+	// Get the message body
+	body, err := ioutil.ReadAll(email.Body)
+	if err != nil {
+		return fmt.Errorf("error reading body: %v", err)
+	}
+
+	// Parse the multipart message to get HTML content
+	htmlContent := string(body)
+	contentType := email.Header.Get("Content-Type")
+	if strings.Contains(contentType, "multipart/alternative") {
+		mediaType, params, err := mime.ParseMediaType(contentType)
+		if err == nil && strings.HasPrefix(mediaType, "multipart/") {
+			mr := multipart.NewReader(bytes.NewReader(body), params["boundary"])
+			for {
+				p, err := mr.NextPart()
+				if err == io.EOF {
+					break
+				}
+				if err != nil {
+					continue
+				}
+				
+				// Look for the HTML part
+				if strings.Contains(p.Header.Get("Content-Type"), "text/html") {
+					content, err := ioutil.ReadAll(p)
+					if err == nil {
+						htmlContent = string(content)
+						break
+					}
+				}
 			}
 		}
 	}
@@ -203,7 +236,7 @@ func (s *GraphAPISender) Send(from string, to []string, msg io.WriterTo) error {
 	// Prepare the message
 	graphMessage.Message.Subject = subject
 	graphMessage.Message.Body.ContentType = "HTML"
-	graphMessage.Message.Body.Content = messageStr
+	graphMessage.Message.Body.Content = htmlContent
 	graphMessage.Message.From.EmailAddress.Address = s.fromAddress
 	graphMessage.SaveToSentItems = false
 
