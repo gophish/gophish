@@ -186,7 +186,9 @@ func (s *GraphAPISender) Send(from string, to []string, msg io.WriterTo) error {
 	// Parse the multipart message to get HTML content
 	htmlContent := string(body)
 	contentType := email.Header.Get("Content-Type")
-	if strings.Contains(contentType, "multipart/alternative") {
+	
+	// Handle multipart messages
+	if strings.Contains(contentType, "multipart/") {
 		mediaType, params, err := mime.ParseMediaType(contentType)
 		if err == nil && strings.HasPrefix(mediaType, "multipart/") {
 			mr := multipart.NewReader(bytes.NewReader(body), params["boundary"])
@@ -199,8 +201,9 @@ func (s *GraphAPISender) Send(from string, to []string, msg io.WriterTo) error {
 					continue
 				}
 				
-				// Look for the HTML part
-				if strings.Contains(p.Header.Get("Content-Type"), "text/html") {
+				// Look for HTML part
+				partContentType := p.Header.Get("Content-Type")
+				if strings.Contains(partContentType, "text/html") {
 					content, err := ioutil.ReadAll(p)
 					if err == nil {
 						htmlContent = string(content)
@@ -209,6 +212,14 @@ func (s *GraphAPISender) Send(from string, to []string, msg io.WriterTo) error {
 				}
 			}
 		}
+	} else if strings.Contains(contentType, "text/html") {
+		// Handle single-part HTML messages
+		htmlContent = string(body)
+	}
+
+	// Ensure HTML content is properly preserved
+	if !strings.Contains(htmlContent, "<!DOCTYPE") && !strings.Contains(htmlContent, "<html") {
+		htmlContent = fmt.Sprintf("<!DOCTYPE html><html><body>%s</body></html>", htmlContent)
 	}
 
 	// Convert the email message to Graph API format
