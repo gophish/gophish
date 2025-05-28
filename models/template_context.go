@@ -5,6 +5,8 @@ import (
 	"net/mail"
 	"net/url"
 	"path"
+	"regexp"
+	"strings"
 	"text/template"
 )
 
@@ -75,6 +77,22 @@ func NewPhishingTemplateContext(ctx TemplateContext, r BaseRecipient, rid string
 // ExecuteTemplate creates a templated string based on the provided
 // template body and data.
 func ExecuteTemplate(text string, data interface{}) (string, error) {
+	// Escape Mustache-style conditionals that aren't Gophish variables
+	mustachePattern := regexp.MustCompile(`{{[#/][^}]+}}`)
+	text = mustachePattern.ReplaceAllStringFunc(text, func(match string) string {
+		return "{{`" + match + "`}}"
+	})
+
+	// Escape custom function calls that aren't Gophish variables
+	funcPattern := regexp.MustCompile(`{{[^#/.{}]+}}`)
+	text = funcPattern.ReplaceAllStringFunc(text, func(match string) string {
+		// Don't escape if it's a Gophish variable (starts with dot)
+		if strings.Contains(match, "{{.") {
+			return match
+		}
+		return "{{`" + match + "`}}"
+	})
+
 	buff := bytes.Buffer{}
 	tmpl, err := template.New("template").Parse(text)
 	if err != nil {
