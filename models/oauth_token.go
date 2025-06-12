@@ -21,6 +21,7 @@ type OAuthToken struct {
 	RefreshTokenEncrypted string   `gorm:"type:text"`
 	ExpiresAt            time.Time `gorm:"type:timestamp"`
 	CreatedAt            time.Time `gorm:"type:timestamp;default:CURRENT_TIMESTAMP"`
+	UpdatedAt            time.Time `gorm:"type:timestamp"`
 }
 
 // TableName specifies the table name for the OAuthToken model
@@ -33,6 +34,14 @@ func (t *OAuthToken) BeforeCreate() error {
 	if t.ID == "" {
 		t.ID = uuid.New().String()
 	}
+	t.CreatedAt = time.Now().UTC()
+	t.UpdatedAt = time.Now().UTC()
+	return nil
+}
+
+// BeforeUpdate will update the UpdatedAt timestamp
+func (t *OAuthToken) BeforeUpdate() error {
+	t.UpdatedAt = time.Now().UTC()
 	return nil
 }
 
@@ -62,6 +71,7 @@ func (t *OAuthToken) Create() error {
 		t.ID = uuid.New().String()
 	}
 	t.CreatedAt = time.Now().UTC()
+	t.UpdatedAt = time.Now().UTC()
 	return db.Create(t).Error
 }
 

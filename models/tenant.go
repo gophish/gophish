@@ -17,6 +17,7 @@ type Tenant struct {
 	ID        string    `gorm:"type:text;primary_key"`
 	Name      string    `gorm:"type:text"`
 	CreatedAt time.Time `gorm:"type:timestamp"`
+	UpdatedAt time.Time `gorm:"type:timestamp"`
 }
 
 // BeforeCreate will set a UUID rather than numeric ID.
@@ -24,6 +25,14 @@ func (t *Tenant) BeforeCreate() error {
 	if t.ID == "" {
 		t.ID = uuid.New().String()
 	}
+	t.CreatedAt = time.Now().UTC()
+	t.UpdatedAt = time.Now().UTC()
+	return nil
+}
+
+// BeforeUpdate will update the UpdatedAt timestamp
+func (t *Tenant) BeforeUpdate() error {
+	t.UpdatedAt = time.Now().UTC()
 	return nil
 }
 
@@ -47,6 +56,7 @@ func (t *Tenant) Create() error {
 		t.ID = uuid.New().String()
     }
     t.CreatedAt = time.Now().UTC()
+    t.UpdatedAt = time.Now().UTC()
     return db.Create(t).Error
 }
 

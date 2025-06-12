@@ -25,8 +25,8 @@ func init() {
 	// Set logger output to stdout
 	Logger.SetOutput(os.Stdout)
 	
-	// Set debug level
-	Logger.SetLevel(logrus.DebugLevel)
+	// Set default level to info instead of debug
+	Logger.SetLevel(logrus.InfoLevel)
 	
 	// Set formatter to show all fields
 	Logger.SetFormatter(&logrus.TextFormatter{

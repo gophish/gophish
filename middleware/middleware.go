@@ -83,7 +83,6 @@ func GetContext(handler http.Handler) http.HandlerFunc {
 		// reuse the values in different handlers
 		r = ctx.Set(r, "session", session)
 		if id, ok := session.Values["id"]; ok {
-			log.Debug("Found user ID in session:", id)
 			u, err := models.GetUser(id.(int64))
 			if err != nil {
 				r = ctx.Set(r, "user", nil)
@@ -96,41 +95,18 @@ func GetContext(handler http.Handler) http.HandlerFunc {
 				// Set tenant in context if it exists
 				if u.Tenant != nil {
 					r = ctx.Set(r, "tenant", u.Tenant)
-					log.Debugf("Set tenant in context - ID: %s, Name: %s", u.Tenant.ID, u.Tenant.Name)
 				}
 
 				// Set provider tenants in context if they exist
 				if len(u.ProviderTenants) > 0 {
 					r = ctx.Set(r, "provider_tenants", u.ProviderTenants)
-					for _, pt := range u.ProviderTenants {
-						log.Debugf("Provider tenant in context - ID: %s, Type: %s", pt.ID, pt.ProviderType)
-					}
 				}
 
-				// Log individual user fields
-				log.Debugf("User details - ID: %d", u.Id)
-				log.Debugf("User details - Username: %s", u.Username)
-				log.Debugf("User details - Role: %s", u.Role.Slug)
-				log.Debugf("User details - Role ID: %d", u.RoleID)
-				log.Debugf("User details - API Key: %s", u.ApiKey)
-				log.Debugf("User details - Account Locked: %v", u.AccountLocked)
-				log.Debugf("User details - Password Change Required: %v", u.PasswordChangeRequired)
-				log.Debugf("User details - Last Login: %v", u.LastLogin)
-				log.Debugf("User details - Tenant ID: %s", u.TenantID)
-				if u.Tenant != nil {
-					log.Debugf("User details - Tenant Name: %s", u.Tenant.Name)
-				}
-				if len(u.ProviderTenants) > 0 {
-					for _, pt := range u.ProviderTenants {
-						log.Debugf("User details - Provider Tenant ID: %s, Type: %s", pt.ID, pt.ProviderType)
-					}
-				}
 			}
 		} else {
 			r = ctx.Set(r, "user", nil)
 			r = ctx.Set(r, "tenant", nil)
 			r = ctx.Set(r, "provider_tenants", nil)
-			log.Debug("No user ID in session")
 		}
 		handler.ServeHTTP(w, r)
 		// Remove context contents
@@ -190,15 +166,11 @@ func RequireAPIKey(handler http.Handler) http.Handler {
 		// Set tenant in context if it exists
 		if u.Tenant != nil {
 			r = ctx.Set(r, "tenant", u.Tenant)
-			log.Debugf("Set tenant in context for API request - ID: %s, Name: %s", u.Tenant.ID, u.Tenant.Name)
 		}
 
 		// Set provider tenants in context if they exist
 		if len(u.ProviderTenants) > 0 {
 			r = ctx.Set(r, "provider_tenants", u.ProviderTenants)
-			for _, pt := range u.ProviderTenants {
-				log.Debugf("Provider tenant in context for API request - ID: %s, Type: %s", pt.ID, pt.ProviderType)
-			}
 		}
 
 		handler.ServeHTTP(w, r)

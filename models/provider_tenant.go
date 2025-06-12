@@ -34,6 +34,7 @@ type ProviderTenant struct {
 	DisplayName      string       `gorm:"type:text"`
 	Region           string       `json:"region"`
 	CreatedAt        time.Time    `gorm:"type:timestamp"`
+	UpdatedAt        time.Time    `gorm:"type:timestamp"`
 	Tenant           *Tenant      `json:"tenant" gorm:"foreignkey:TenantID"`
 }
 
@@ -42,6 +43,14 @@ func (pt *ProviderTenant) BeforeCreate() error {
 	if pt.ID == "" {
 		pt.ID = uuid.New().String()
 	}
+	pt.CreatedAt = time.Now().UTC()
+	pt.UpdatedAt = time.Now().UTC()
+	return nil
+}
+
+// BeforeUpdate will update the UpdatedAt timestamp
+func (pt *ProviderTenant) BeforeUpdate() error {
+	pt.UpdatedAt = time.Now().UTC()
 	return nil
 }
 
@@ -71,7 +80,6 @@ func (pt *ProviderTenant) Create() error {
 	if _, err := GetTenant(pt.TenantID); err != nil {
 		return errors.New("parent tenant not found")
 	}
-	pt.CreatedAt = time.Now().UTC()
 	return db.Create(pt).Error
 }
 

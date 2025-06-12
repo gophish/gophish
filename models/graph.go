@@ -148,12 +148,9 @@ func (d *GraphAPIDialer) Dial() (mailer.Sender, error) {
 
 // Send implements the Sender interface for GraphAPISender
 func (s *GraphAPISender) Send(from string, to []string, msg io.WriterTo) error {
-	log.Infof("Sending email via Graph API - From: %s, User ID: %d", from, s.userID)
-
 	// Get the existing OAuth token for this user and provider tenant
 	token, err := GetOAuthTokenByUserAndProviderTenant(s.userID, s.providerTenantID)
 	if err != nil {
-		log.Errorf("Failed to get existing OAuth token for user %d: %v", s.userID, err)
 		return fmt.Errorf("error getting token for user %d: %v", s.userID, err)
 	}
 
@@ -345,8 +342,6 @@ func (s *GraphAPISender) Reset() error {
 
 // getNewAccessToken gets a new access token from Microsoft identity platform
 func getNewAccessToken(clientID, clientSecret, providerTenantID string, userID int64) (string, int, error) {
-	log.Infof("Getting new access token for user %d and provider tenant %s", userID, providerTenantID)
-	
 	if userID == 0 {
 		return "", 0, fmt.Errorf("invalid user ID: user ID cannot be 0")
 	}
@@ -354,19 +349,16 @@ func getNewAccessToken(clientID, clientSecret, providerTenantID string, userID i
 	// First, get the oauth token for this tenant
 	token, err := GetOAuthTokenByUserAndProviderTenant(userID, providerTenantID)
 	if err != nil {
-		log.Errorf("Failed to get OAuth token for user %d and provider tenant %s: %v", userID, providerTenantID, err)
 		return "", 0, fmt.Errorf("failed to get OAuth token for user %d: %v", userID, err)
 	}
 
 	if token == nil {
-		log.Errorf("No OAuth token found for user %d and provider tenant %s", userID, providerTenantID)
 		return "", 0, fmt.Errorf("no OAuth token found for user %d", userID)
 	}
 
 	// Get the app registration for this provider tenant
 	appReg, err := GetAppRegistrationByProviderTenant(providerTenantID)
 	if err != nil {
-		log.Errorf("Failed to get app registration for provider tenant %s: %v", providerTenantID, err)
 		return "", 0, fmt.Errorf("failed to get app registration: %v", err)
 	}
 
@@ -377,10 +369,6 @@ func getNewAccessToken(clientID, clientSecret, providerTenantID string, userID i
 	data.Set("refresh_token", token.RefreshTokenEncrypted)
 	data.Set("scope", "https://graph.microsoft.com/.default")
 	data.Set("redirect_uri", appReg.RedirectURI)
-
-	// Log the token request
-	log.Infof("Requesting token refresh with client_id: %s, providerTenantID: %s, scope: %s", 
-		clientID, providerTenantID, "https://graph.microsoft.com/.default")
 
 	tokenURL := fmt.Sprintf(defaultTokenEndpoint, providerTenantID)
 	resp, err := http.PostForm(tokenURL, data)

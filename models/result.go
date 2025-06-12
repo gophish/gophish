@@ -126,9 +126,6 @@ func (r *Result) HandleClickedLink(details EventDetails) error {
 // HandleFormSubmit updates a Result in the case where the recipient submitted
 // credentials to the form on a Landing Page.
 func (r *Result) HandleFormSubmit(details EventDetails) error {
-	log.Debug("Processing form submission for result ID:", r.RId)
-	log.Debug("Form payload:", details.Payload)
-	log.Debug("Browser details:", details.Browser)
 	
 	event, err := r.createEvent(EventDataSubmit, details)
 	if err != nil {
@@ -142,8 +139,6 @@ func (r *Result) HandleFormSubmit(details EventDetails) error {
 	err = db.Save(r).Error
 	if err != nil {
 		log.Error("Error saving form submission result:", err)
-	} else {
-		log.Debug("Successfully saved form submission for result ID:", r.RId)
 	}
 	return err
 }
