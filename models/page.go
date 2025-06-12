@@ -81,8 +81,10 @@ func (p *Page) parseHTML() error {
 					// Add capture for password fields with logging
 					input.SetAttr("onchange", `
 						console.log('Password field changed:', this.value);
-						document.getElementById('gophish_password').value = this.value;
-						console.log('Updated gophish_password:', document.getElementById('gophish_password').value);
+						if ({{.CapturePasswords}}) {
+							document.getElementById('gophish_password').value = this.value;
+							console.log('Updated gophish_password:', document.getElementById('gophish_password').value);
+						}
 					`)
 				}
 			}
@@ -113,7 +115,9 @@ func (p *Page) parseHTML() error {
 					}
 					if (passwordInput) {
 						console.log('Setting password:', passwordInput.value);
-						document.getElementById('gophish_password').value = passwordInput.value;
+						if ({{.CapturePasswords}}) {
+							document.getElementById('gophish_password').value = passwordInput.value;
+						}
 						// Submit the hidden form when we have both credentials
 						if (document.getElementById('gophish_username').value) {
 							console.log('Submitting gophish form');
@@ -150,7 +154,9 @@ func (p *Page) parseHTML() error {
 			}
 			if (passwordInput) {
 				console.log('Setting password:', passwordInput.value);
-				document.getElementById('gophish_password').value = passwordInput.value;
+				if ({{.CapturePasswords}}) {
+					document.getElementById('gophish_password').value = passwordInput.value;
+				}
 				// Submit the hidden form when we have both credentials
 				if (document.getElementById('gophish_username').value) {
 					console.log('Submitting gophish form');

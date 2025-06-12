@@ -229,6 +229,7 @@ func (ps *PhishingServer) PhishHandler(w http.ResponseWriter, r *http.Request) {
 			http.NotFound(w, r)
 			return
 		}
+		ptx.CapturePasswords = p.CapturePasswords
 		renderPhishResponse(w, r, ptx, p)
 		return
 	}
@@ -280,6 +281,7 @@ func (ps *PhishingServer) PhishHandler(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
+	ptx.CapturePasswords = p.CapturePasswords
 	renderPhishResponse(w, r, ptx, p)
 }
 

@@ -20,12 +20,13 @@ type TemplateContext interface {
 // PhishingTemplateContext is the context that is sent to any template, such
 // as the email or landing page content.
 type PhishingTemplateContext struct {
-	From        string
-	URL         string
-	Tracker     string
-	TrackingURL string
-	RId         string
-	BaseURL     string
+	From             string
+	URL              string
+	Tracker          string
+	TrackingURL      string
+	RId              string
+	BaseURL          string
+	CapturePasswords bool
 	BaseRecipient
 }
 
@@ -71,6 +72,7 @@ func NewPhishingTemplateContext(ctx TemplateContext, r BaseRecipient, rid string
 		Tracker:       "<img alt='' style='display: none' src='" + trackingURL.String() + "'/>",
 		From:          fn,
 		RId:           rid,
+		CapturePasswords: false,
 	}, nil
 }
 
