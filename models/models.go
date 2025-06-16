@@ -17,6 +17,7 @@ import (
 	"github.com/gophish/gophish/auth"
 	"github.com/gophish/gophish/config"
 
+	"github.com/google/uuid"
 	log "github.com/gophish/gophish/logger"
 	"github.com/jinzhu/gorm"
 	_ "github.com/mattn/go-sqlite3" // Blank import needed to import sqlite3
@@ -27,18 +28,14 @@ var conf *config.Config
 
 const MaxDatabaseConnectionAttempts int = 10
 
-// DefaultAdminUsername is the default username for the administrative user
-const DefaultAdminUsername = "admin"
-
-// InitialAdminPassword is the environment variable that specifies which
-// password to use for the initial root login instead of generating one
-// randomly
-const InitialAdminPassword = "GOPHISH_INITIAL_ADMIN_PASSWORD"
-
-// InitialAdminApiToken is the environment variable that specifies the
-// API token to seed the initial root login instead of generating one
-// randomly
-const InitialAdminApiToken = "GOPHISH_INITIAL_ADMIN_API_TOKEN"
+// Default values
+const (
+	DefaultAdminUsername      = "admin"
+	DefaultSystemTenantAdmin  = "0sysadmin"
+	DefaultSystemTenantUser   = "0sysuser"
+	InitialAdminApiToken     = "GOPHISH_INITIAL_ADMIN_API_TOKEN"
+	InitialAdminPassword     = "GOPHISH_INITIAL_ADMIN_PASSWORD"
+)
 
 const (
 	CampaignInProgress string = "In progress"
@@ -198,21 +195,58 @@ func Setup(c *config.Config) error {
 		log.Error(err)
 		return err
 	}
-	// Create the admin user if it doesn't exist
-	var userCount int64
-	var adminUser User
-	db.Model(&User{}).Count(&userCount)
+
+	// Get admin role
 	adminRole, err := GetRoleBySlug(RoleAdmin)
 	if err != nil {
 		log.Error(err)
 		return err
 	}
+
+	// Create default admin tenant if it doesn't exist
+	adminTenant := &Tenant{
+		ID:        uuid.New().String(),
+		Name:      DefaultSystemTenantAdmin,
+		CreatedAt: time.Now().UTC(),
+	}
+
+	// More robust tenant existence check and creation
+	var existingAdminTenant Tenant
+	err = db.Where("name = ?", DefaultSystemTenantAdmin).First(&existingAdminTenant).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			// Create new admin tenant
+			if err := db.Create(adminTenant).Error; err != nil {
+				log.Error(err)
+				return err
+			}
+			log.Infof("Created default admin tenant: %s", adminTenant.Name)
+		} else {
+			log.Error(err)
+			return err
+		}
+	} else {
+		// Use existing admin tenant
+		adminTenant = &existingAdminTenant
+	}
+
+	// Check if admin user exists
+	userCount := 0
+	err = db.Model(&User{}).Count(&userCount).Error
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+
+	var adminUser User
+	// If there are no users, create the admin user
 	if userCount == 0 {
-		adminUser := User{
+		adminUser = User{
 			Username:               DefaultAdminUsername,
 			Role:                   adminRole,
 			RoleID:                 adminRole.ID,
 			PasswordChangeRequired: true,
+			TenantID:              adminTenant.ID,
 		}
 
 		if envToken := os.Getenv(InitialAdminApiToken); envToken != "" {
@@ -221,12 +255,25 @@ func Setup(c *config.Config) error {
 			adminUser.ApiKey = auth.GenerateSecureKey(auth.APIKeyLength)
 		}
 
-		err = db.Save(&adminUser).Error
+		// Create admin user with explicit tenant
+		err = db.Create(&adminUser).Error
 		if err != nil {
 			log.Error(err)
 			return err
 		}
+		
+		// Double-check and update tenant if needed
+		if adminUser.TenantID == "" {
+			adminUser.TenantID = adminTenant.ID
+			err = db.Model(&adminUser).Update("tenant_id", adminTenant.ID).Error
+			if err != nil {
+				log.Error(err)
+				return err
+			}
+			log.Infof("Updated admin user with tenant ID: %s", adminTenant.ID)
+		}
 	}
+
 	// If this is the first time the user is installing Gophish, then we will
 	// generate a temporary password for the admin user.
 	//

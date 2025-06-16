@@ -322,13 +322,19 @@ func (as *AdminServer) handleInvalidLogin(w http.ResponseWriter, r *http.Request
 	params.Flashes = session.Flashes()
 	session.Save(r, w)
 	templates := template.New("template")
-	_, err := templates.ParseFiles("templates/login.html", "templates/flashes.html")
+	_, err := templates.ParseFiles("templates/base.html", "templates/nav.html", "templates/login.html", "templates/flashes.html")
 	if err != nil {
 		log.Error(err)
+		http.Error(w, "Error loading templates", http.StatusInternalServerError)
+		return
 	}
-	// w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.WriteHeader(http.StatusUnauthorized)
-	template.Must(templates, err).ExecuteTemplate(w, "base", params)
+	err = templates.ExecuteTemplate(w, "base", params)
+	if err != nil {
+		log.Error(err)
+		http.Error(w, "Error executing template", http.StatusInternalServerError)
+		return
+	}
 }
 
 // Webhooks is an admin-only handler that handles webhooks

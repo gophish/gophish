@@ -10,6 +10,7 @@ import (
 
 	"github.com/google/uuid"
 	ctx "github.com/gophish/gophish/context"
+	log "github.com/gophish/gophish/logger"
 	"github.com/gophish/gophish/middleware"
 	"github.com/gophish/gophish/models"
 	"github.com/gorilla/mux"
@@ -191,7 +192,7 @@ func OAuth2Callback(w http.ResponseWriter, r *http.Request) {
 	// Create or get existing tenant
 	tenant := &models.Tenant{
 		ID:   uuid.New().String(),
-		Name: models.DefaultSystemTenantName,
+		Name: models.DefaultSystemTenantUser,  // Use default user tenant name
 	}
 
 	// Try to get existing tenant first
@@ -206,15 +207,18 @@ func OAuth2Callback(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, fmt.Sprintf("Error creating tenant: %v", err), http.StatusInternalServerError)
 			return
 		}
+		log.Infof("Created new user tenant: %s", tenant.Name)
 	}
 
 	// Update user with tenant ID
 	user.TenantID = tenant.ID
+	user.Tenant = tenant  // Set the tenant reference
 	err = models.PutUser(user)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error updating user with tenant: %v", err), http.StatusInternalServerError)
 		return
 	}
+	log.Infof("Updated user %s with tenant ID %s", user.Username, tenant.ID)
 
 	// Create provider tenant if it doesn't exist
 	providerTenant := &models.ProviderTenant{
