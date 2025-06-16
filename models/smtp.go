@@ -252,24 +252,44 @@ func (s *SMTP) GetDialer() (mailer.Dialer, error) {
 	if s.Interface == "GRAPH" {
 		log.Infof("Creating dialer for Graph API sending profile - User ID: %d", s.UserId)
 		
-		// If we have temporary credentials (for test emails), use those directly
+		// If we have temporary credentials (for test emails), use the existing app registration
 		if s.ClientID != "" && s.ClientSecret != "" {
-			log.Infof("Using provided client credentials for Graph API - User ID: %d", s.UserId)
+			log.Infof("Using provided client credentials for Graph API test - User ID: %d", s.UserId)
 			
 			// Check if we have a provider tenant from context
 			if s.ProviderTenant == nil {
 				return nil, fmt.Errorf("provider tenant context is required for Graph API dialer")
 			}
-			
+
+			// If we have an existing app registration, use it
+			if s.AppRegistrationID != "" {
+				_, err := GetAppRegistration(s.AppRegistrationID)
+				if err != nil {
+					return nil, fmt.Errorf("failed to get app registration: %v", err)
+				}
+
+				g := GraphAPI{
+					FromAddress:    s.FromAddress,
+					ClientID:       s.ClientID,        // Use test credentials
+					ClientSecret:   s.ClientSecret,    // Use test credentials
+					InterfaceType: s.Interface,
+					UserId:        s.UserId,
+					ProviderTenant: s.ProviderTenant,
+				}
+				log.Infof("Using existing app registration for test with User ID: %d", g.UserId)
+				return g.GetDialer()
+			}
+
+			// For test emails without app registration, use temporary credentials
 			g := GraphAPI{
 				FromAddress:    s.FromAddress,
 				ClientID:       s.ClientID,
 				ClientSecret:   s.ClientSecret,
 				InterfaceType: s.Interface,
 				UserId:        s.UserId,
-				ProviderTenant: s.ProviderTenant,  // Pass provider tenant from context
+				ProviderTenant: s.ProviderTenant,
 			}
-			log.Infof("Created GraphAPI instance with User ID: %d", g.UserId)
+			log.Infof("Using temporary credentials for test with User ID: %d", g.UserId)
 			return g.GetDialer()
 		}
 
@@ -285,7 +305,7 @@ func (s *SMTP) GetDialer() (mailer.Dialer, error) {
 			ClientSecret:   appReg.ClientSecretEncrypted,
 			InterfaceType: s.Interface,
 			UserId:        s.UserId,
-			ProviderTenant: s.ProviderTenant,  // Pass provider tenant from context
+			ProviderTenant: s.ProviderTenant,
 		}
 		log.Infof("Created GraphAPI instance with User ID: %d", g.UserId)
 		return g.GetDialer()
@@ -503,9 +523,52 @@ func PutSMTP(s *SMTP) error {
 			"modified_date": time.Now().UTC(),
 		}
 		
-		// Add Graph API specific fields if provided
-		if s.AppRegistrationID != "" {
-			updateFields["app_registration_id"] = s.AppRegistrationID
+		// Handle app registration updates
+		if existing.AppRegistrationID != "" {
+			// Get the existing app registration
+			appReg, err := GetAppRegistration(existing.AppRegistrationID)
+			if err != nil {
+				log.Errorf("Failed to get app registration for SMTP profile %d: %v", s.Id, err)
+				return fmt.Errorf("failed to get app registration: %v", err)
+			}
+			
+			// If we have new client credentials, update the app registration
+			if s.ClientID != "" && s.ClientSecret != "" {
+				appReg.ClientID = s.ClientID
+				appReg.ClientSecretEncrypted = s.ClientSecret
+				
+				// Save the app registration
+				if err := appReg.Update(); err != nil {
+					log.Errorf("Failed to update app registration for SMTP profile %d: %v", s.Id, err)
+					return fmt.Errorf("failed to update app registration: %v", err)
+				}
+			}
+			
+			// Keep the existing app registration ID
+			updateFields["app_registration_id"] = existing.AppRegistrationID
+		} else if s.ClientID != "" && s.ClientSecret != "" {
+			// Create new app registration if we have credentials but no existing one
+			appReg := &AppRegistration{
+				ProviderTenantID: s.ProviderTenant.ID,
+				ClientID: s.ClientID,
+				ClientSecretEncrypted: s.ClientSecret,
+				RedirectURI: "https://localhost:3333",
+			}
+			
+			// Set default Graph API scopes
+			appReg.SetScopes([]string{
+				"https://graph.microsoft.com/Mail.Send",
+				"https://graph.microsoft.com/Mail.Send.Shared",
+				"https://graph.microsoft.com/User.Read",
+			})
+			
+			// Create the app registration
+			if err := appReg.Create(); err != nil {
+				log.Errorf("Failed to create app registration for SMTP profile %d: %v", s.Id, err)
+				return fmt.Errorf("failed to create app registration: %v", err)
+			}
+			
+			updateFields["app_registration_id"] = appReg.ID
 		}
 		
 		// Update in the database
@@ -513,25 +576,6 @@ func PutSMTP(s *SMTP) error {
 		if err != nil {
 			log.Error(err)
 			return err
-		}
-		
-		// If we have new client credentials, update the app registration
-		if s.ClientID != "" && s.ClientSecret != "" && existing.AppRegistrationID != "" {
-			// Get the app registration
-			appReg, err := GetAppRegistration(existing.AppRegistrationID)
-			if err != nil {
-				log.Errorf("Failed to get app registration for SMTP profile %d: %v", s.Id, err)
-			} else {
-				// Update client credentials
-				appReg.ClientID = s.ClientID
-				appReg.ClientSecretEncrypted = s.ClientSecret
-				
-				// Save the app registration
-				err = db.Save(appReg).Error
-				if err != nil {
-					log.Errorf("Failed to update app registration for SMTP profile %d: %v", s.Id, err)
-				}
-			}
 		}
 		
 		// Delete all custom headers, and replace with new ones
@@ -596,34 +640,22 @@ func DeleteSMTP(id int64, uid int64) error {
 		return err
 	}
 
-	// If this is a Graph API profile, delete the associated resources
+	// If this is a Graph API profile, delete the associated app registration
 	if smtp.Interface == "GRAPH" && smtp.AppRegistrationID != "" {
-		log.Infof("Deleting resources for Graph API SMTP profile %d", id)
+		log.Infof("Deleting app registration for Graph API SMTP profile %d", id)
 
 		// Get the app registration
 		appReg, err := GetAppRegistration(smtp.AppRegistrationID)
 		if err != nil {
 			log.Errorf("Failed to get app registration for SMTP profile %d: %v", id, err)
-			return err
-		}
-
-		// Delete associated features
-		features, err := GetFeaturesByAppRegistration(appReg.ID)
-		if err != nil {
-			log.Errorf("Failed to get features for app registration %s: %v", appReg.ID, err)
-			return err
-		}
-		for _, feature := range features {
-			if err := feature.Delete(); err != nil {
-				log.Errorf("Failed to delete feature %s: %v", feature.ID, err)
-				return err
+			// Continue with deletion even if app registration not found
+		} else {
+			// Delete the app registration
+			if err := appReg.Delete(); err != nil {
+				log.Errorf("Failed to delete app registration %s: %v", appReg.ID, err)
+				return fmt.Errorf("failed to delete app registration: %v", err)
 			}
-		}
-
-		// Delete the app registration
-		if err := appReg.Delete(); err != nil {
-			log.Errorf("Failed to delete app registration %s: %v", appReg.ID, err)
-			return err
+			log.Infof("Successfully deleted app registration %s", appReg.ID)
 		}
 	}
 
