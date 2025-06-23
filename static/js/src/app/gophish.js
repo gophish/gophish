@@ -104,6 +104,9 @@ var api = {
         complete: function (id) {
             return query("/campaigns/" + id + "/complete", "GET", {}, true)
         },
+            resendAll: function (id) {
+        return query("/campaigns/" + id + "/resendall", "POST", {}, true)
+        },
         // summary() - Queries the API for GET /campaigns/summary
         summary: function (id) {
             return query("/campaigns/" + id + "/summary", "GET", {}, true)
