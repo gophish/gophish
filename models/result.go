@@ -208,3 +208,49 @@ func GetResult(rid string) (Result, error) {
 	err := db.Where("r_id=?", rid).First(&r).Error
 	return r, err
 }
+
+// ResendResultByRId finds a specific result by its public RId and requeues it for sending.
+func ResendResultByRId(rid string, user_id int64) error {
+	// GetResult uses the string RId, which is what we need. This function already existed.
+	r, err := GetResult(rid)
+	if err != nil {
+		return errors.New("Result not found")
+	}
+
+	// Verify the user has access to this campaign
+	_, err = GetCampaign(r.CampaignId, user_id)
+	if err != nil {
+		return errors.New("Access denied")
+	}
+
+	// Create a new MailLog entry to trigger the send operation by the mailer.
+	m := &MailLog{
+		CampaignId: r.CampaignId,
+		UserId:     r.UserId, // This is the recipient's ID
+		SendDate:   time.Now().UTC(),
+		RId:        r.RId,
+	}
+	return db.Create(m).Error
+}
+
+// ResendAllResults finds all results for a given campaign and requeues them.
+func ResendAllResults(campaign_id int64) error {
+	results := []Result{}
+	err := db.Where("campaign_id = ?", campaign_id).Find(&results).Error
+	if err != nil {
+		return err
+	}
+	for _, r := range results {
+		m := &MailLog{
+			CampaignId: r.CampaignId,
+			UserId:     r.UserId,
+			SendDate:   time.Now().UTC(),
+			RId:        r.RId,
+		}
+		err = db.Create(m).Error
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
