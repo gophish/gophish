@@ -31,10 +31,10 @@ func OAuth2Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get OAuth2 config from environment variables
-	tenantID := os.Getenv("OAUTH2_PROVIDER_TENANT_ID")
-	redirectURI := os.Getenv("OAUTH2_REDIRECT_URI")
-	clientID := os.Getenv("TEST_CLIENT_ID")
-	clientSecret := os.Getenv("TEST_CLIENT_SECRET")
+	tenantID := os.Getenv("GOPHISH_OAUTH_PROVIDER_TENANT_ID")
+	redirectURI := os.Getenv("GOPHISH_OAUTH_ENTRYPOINT_REDIRECT_URI")
+	clientID := os.Getenv("GOPHISH_OAUTH_ENTRYPOINT_CLIENT_ID")
+	clientSecret := os.Getenv("GOPHISH_OAUTH_ENTRYPOINT_CLIENT_SECRET")
 	if tenantID == "" || redirectURI == "" || clientID == "" || clientSecret == "" {
 		http.Error(w, "Missing OAuth2 configuration", http.StatusInternalServerError)
 		return
@@ -89,10 +89,10 @@ func OAuth2Callback(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get OAuth2 config using environment variables
-	providerTenantID := os.Getenv("OAUTH2_PROVIDER_TENANT_ID")
-	redirectURI := os.Getenv("OAUTH2_REDIRECT_URI")
-	clientID := os.Getenv("TEST_CLIENT_ID")
-	clientSecret := os.Getenv("TEST_CLIENT_SECRET")
+	providerTenantID := os.Getenv("GOPHISH_OAUTH_PROVIDER_TENANT_ID")
+	redirectURI := os.Getenv("GOPHISH_OAUTH_ENTRYPOINT_REDIRECT_URI")
+	clientID := os.Getenv("GOPHISH_OAUTH_ENTRYPOINT_CLIENT_ID")
+	clientSecret := os.Getenv("GOPHISH_OAUTH_ENTRYPOINT_CLIENT_SECRET")
 	if providerTenantID == "" || redirectURI == "" || clientID == "" || clientSecret == "" {
 		http.Error(w, "Missing OAuth2 configuration", http.StatusInternalServerError)
 		return
