@@ -104,12 +104,18 @@ var api = {
         complete: function (id) {
             return query("/campaigns/" + id + "/complete", "GET", {}, true)
         },
-            resendAll: function (id) {
+        // resendAll() - Resends the Campaign at POST /campgaigns/:id/resendall
+        resendAll: function (id) {
         return query("/campaigns/" + id + "/resendall", "POST", {}, true)
         },
         // summary() - Queries the API for GET /campaigns/summary
         summary: function (id) {
             return query("/campaigns/" + id + "/summary", "GET", {}, true)
+        }
+    },
+    resultId: {
+        resend: function(id) { 
+            return query("/results/" + id + "/resend", "POST", {}, true)
         }
     },
     // groups contains the endpoints for /groups

@@ -688,9 +688,12 @@ function report_mail(rid, cid) {
 }
 
 function resendAll() {
+    var count = campaign.results ? campaign.results.length : 0;
+    var message = "This will resend emails to all " + count + " recipient(s) in this campaign.";
+
     Swal.fire({
         title: "Are you sure?",
-        text: "This will resend emails to ALL recipients in this campaign.",
+        text: message,
         type: "warning",
         animation: false,
         showCancelButton: true,
@@ -712,15 +715,21 @@ function resendAll() {
             );
         }
     }).catch(function(err) {
-        Swal.fire("Error", "An error occurred", "error");
+        var message = "An error occurred";
+        if (err && err.responseJSON && err.responseJSON.message) {
+            message = err.responseJSON.message;
+        }
+        Swal.fire("Error", message, "error");
     });
 }
 
 // Function for the individual "Resend" button
-function resendResult(result_id) {
+function resendResult(result_id, email) {
+    var message = "This will resend the email to " + escapeHtml(email) + ".";
+
     Swal.fire({
         title: "Are you sure?",
-        text: "This will resend the email to this specific recipient.",
+        text: message,
         type: "warning",
         animation: false,
         showCancelButton: true,
@@ -742,7 +751,11 @@ function resendResult(result_id) {
             );
         }
     }).catch(function(err) {
-        Swal.fire("Error", "An error occurred", "error");
+        var message = "An error occurred";
+        if (err && err.responseJSON && err.responseJSON.message) {
+            message = err.responseJSON.message;
+        }
+        Swal.fire("Error", message, "error");
     });
 }
 
