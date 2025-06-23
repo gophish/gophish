@@ -1,3 +1,69 @@
+// This is the complete, final code for campaign_results.js
+
+// Function for the main "Resend All" button
+function resendAll() {
+    var count = campaign.results ? campaign.results.length : 0;
+    var message = "This will resend emails to all " + count + " recipient(s) in this campaign.";
+    Swal.fire({
+        title: "Are you sure?",
+        text: message,
+        type: "warning",
+        animation: false,
+        showCancelButton: true,
+        confirmButtonText: "Yes, Resend All",
+        confirmButtonColor: "#428bca",
+        reverseButtons: true,
+        allowOutsideClick: false,
+        showLoaderOnConfirm: true,
+        preConfirm: function () {
+            return api.campaignId.resendAll(campaign.id);
+        }
+    }).then(function (result) {
+        if (result.value) {
+            Swal.fire(
+                'Emails Queued!',
+                'The emails have been queued for resending.',
+                'success'
+            );
+        }
+    }).catch(function(err) {
+        Swal.fire("Error", "An error occurred", "error");
+    });
+}
+
+// Function for the individual "Resend" button
+function resendResult(result_id, email) {
+    var message = "This will resend the email to " + escapeHtml(email) + ".";
+    Swal.fire({
+        title: "Are you sure?",
+        text: message,
+        type: "warning",
+        animation: false,
+        showCancelButton: true,
+        confirmButtonText: "Yes, Resend",
+        confirmButtonColor: "#428bca",
+        reverseButtons: true,
+        allowOutsideClick: false,
+        showLoaderOnConfirm: true,
+        preConfirm: function () {
+            return api.resultId.resend(result_id);
+        }
+    }).then(function (result) {
+        if (result.value) {
+            Swal.fire(
+                'Email Queued!',
+                'The email has been queued for resending.',
+                'success'
+            );
+        }
+    }).catch(function(err) {
+        Swal.fire("Error", "An error occurred", "error");
+    });
+}
+
+
+// Original Gophish Code Starts Here
+
 var map = null
 var doPoll = true;
 
@@ -42,7 +108,6 @@ var statuses = {
         icon: "fa-exclamation",
         point: "ct-point-clicked"
     },
-    //not a status, but is used for the campaign timeline and user timeline
     "Email Reported": {
         color: "#45d6ef",
         label: "label-info",
@@ -105,8 +170,6 @@ var statusMapping = {
     "Email Reported": "reported",
 }
 
-// This is an underwhelming attempt at an enum
-// until I have time to refactor this appropriately.
 var progressListing = [
     "Email Sent",
     "Email Opened",
@@ -123,7 +186,6 @@ function dismiss() {
     $("#resultsTable").dataTable().DataTable().clear().draw()
 }
 
-// Deletes a campaign after prompting the user
 function deleteCampaign() {
     Swal.fire({
         title: "Are you sure?",
@@ -161,7 +223,6 @@ function deleteCampaign() {
     })
 }
 
-// Completes a campaign after prompting the user
 function completeCampaign() {
     Swal.fire({
         title: "Are you sure?",
@@ -199,7 +260,6 @@ function completeCampaign() {
     })
 }
 
-// Exports campaign results as a CSV file
 function exportAsCSV(scope) {
     exportHTML = $("#exportButton").html()
     var csvScope = null
@@ -244,7 +304,6 @@ function replay(event_idx) {
         method: 'POST',
         target: '_blank',
     })
-    /* Create a form object and submit it */
     $.each(Object.keys(details.payload), function (i, param) {
         if (param == "rid") {
             return true;
@@ -257,8 +316,6 @@ function replay(event_idx) {
             name: param,
         }).val(details.payload[param]).appendTo(form);
     })
-    /* Ensure we know where to send the user */
-    // Prompt for the URL
     Swal.fire({
         title: 'Where do you want the credentials submitted to?',
         input: 'text',
@@ -291,31 +348,20 @@ function replay(event_idx) {
     }
 }
 
-/**
- * Returns an HTML string that displays the OS and browser that clicked the link
- * or submitted credentials.
- * 
- * @param {object} event_details - The "details" parameter for a campaign
- *  timeline event
- * 
- */
 var renderDevice = function (event_details) {
     var ua = UAParser(details.browser['user-agent'])
     var detailsString = '<div class="timeline-device-details">'
-
     var deviceIcon = 'laptop'
     if (ua.device.type) {
         if (ua.device.type == 'tablet' || ua.device.type == 'mobile') {
             deviceIcon = ua.device.type
         }
     }
-
     var deviceVendor = ''
     if (ua.device.vendor) {
         deviceVendor = ua.device.vendor.toLowerCase()
         if (deviceVendor == 'microsoft') deviceVendor = 'windows'
     }
-
     var deviceName = 'Unknown'
     if (ua.os.name) {
         deviceName = ua.os.name
@@ -328,25 +374,19 @@ var renderDevice = function (event_details) {
             deviceName = ua.device.vendor + ' ' + ua.device.model
         }
     }
-
     if (ua.os.version) {
         deviceName = deviceName + ' (OS Version: ' + ua.os.version + ')'
     }
-
     deviceString = '<div class="timeline-device-os"><span class="fa fa-stack">' +
         '<i class="fa fa-' + escapeHtml(deviceIcon) + ' fa-stack-2x"></i>' +
         '<i class="fa fa-vendor-icon fa-' + escapeHtml(deviceVendor) + ' fa-stack-1x"></i>' +
         '</span> ' + escapeHtml(deviceName) + '</div>'
-
     detailsString += deviceString
-
     var deviceBrowser = 'Unknown'
     var browserIcon = 'info-circle'
     var browserVersion = ''
-
     if (ua.browser && ua.browser.name) {
         deviceBrowser = ua.browser.name
-        // Handle the "mobile safari" case
         deviceBrowser = deviceBrowser.replace('Mobile ', '')
         if (deviceBrowser) {
             browserIcon = deviceBrowser.toLowerCase()
@@ -354,11 +394,9 @@ var renderDevice = function (event_details) {
         }
         browserVersion = '(Version: ' + ua.browser.version + ')'
     }
-
     var browserString = '<div class="timeline-device-browser"><span class="fa fa-stack">' +
         '<i class="fa fa-' + escapeHtml(browserIcon) + ' fa-stack-1x"></i></span> ' +
         deviceBrowser + ' ' + browserVersion + '</div>'
-
     detailsString += browserString
     detailsString += '</div>'
     return detailsString
@@ -382,14 +420,13 @@ function renderTimeline(data) {
         '<div class="timeline-graph col-sm-6">'
     $.each(campaign.timeline, function (i, event) {
         if (!event.email || event.email == record.email) {
-            // Add the event
             results += '<div class="timeline-entry">' +
                 '    <div class="timeline-bar"></div>'
             results +=
                 '    <div class="timeline-icon ' + statuses[event.message].label + '">' +
                 '    <i class="fa ' + statuses[event.message].icon + '"></i></div>' +
                 '    <div class="timeline-message">' + escapeHtml(event.message) +
-                '    <span class="timeline-date">' + moment.utc(event.time).local().format('MMMM Do YYYY h:mm:ss a') + '</span>'
+                '    <span class="timeline-date">' + moment.utc(event.time).local().format('MMMM Do YYYY, h:mm:ss a') + '</span>'
             if (event.details) {
                 details = JSON.parse(event.details)
                 if (event.message == "Clicked Link" || event.message == "Submitted Data") {
@@ -429,7 +466,6 @@ function renderTimeline(data) {
             results += '</div></div>'
         }
     })
-    // Add the scheduled send event at the bottom
     if (record.status == "Scheduled" || record.status == "Retrying") {
         results += '<div class="timeline-entry">' +
             '    <div class="timeline-bar"></div>'
@@ -444,147 +480,41 @@ function renderTimeline(data) {
 
 var renderTimelineChart = function (chartopts) {
     return Highcharts.chart('timeline_chart', {
-        chart: {
-            zoomType: 'x',
-            type: 'line',
-            height: "200px"
-        },
-        title: {
-            text: 'Campaign Timeline'
-        },
-        xAxis: {
-            type: 'datetime',
-            dateTimeLabelFormats: {
-                second: '%l:%M:%S',
-                minute: '%l:%M',
-                hour: '%l:%M',
-                day: '%b %d, %Y',
-                week: '%b %d, %Y',
-                month: '%b %Y'
-            }
-        },
-        yAxis: {
-            min: 0,
-            max: 2,
-            visible: false,
-            tickInterval: 1,
-            labels: {
-                enabled: false
-            },
-            title: {
-                text: ""
-            }
-        },
-        tooltip: {
-            formatter: function () {
-                return Highcharts.dateFormat('%A, %b %d %l:%M:%S %P', new Date(this.x)) +
-                    '<br>Event: ' + this.point.message + '<br>Email: <b>' + this.point.email + '</b>'
-            }
-        },
-        legend: {
-            enabled: false
-        },
-        plotOptions: {
-            series: {
-                marker: {
-                    enabled: true,
-                    symbol: 'circle',
-                    radius: 3
-                },
-                cursor: 'pointer',
-            },
-            line: {
-                states: {
-                    hover: {
-                        lineWidth: 1
-                    }
-                }
-            }
-        },
-        credits: {
-            enabled: false
-        },
-        series: [{
-            data: chartopts['data'],
-            dashStyle: "shortdash",
-            color: "#cccccc",
-            lineWidth: 1,
-            turboThreshold: 0
-        }]
+        chart: { zoomType: 'x', type: 'line', height: "200px" },
+        title: { text: 'Campaign Timeline' },
+        xAxis: { type: 'datetime', dateTimeLabelFormats: { second: '%l:%M:%S', minute: '%l:%M', hour: '%l:%M', day: '%b %d, %Y', week: '%b %d, %Y', month: '%b %Y' } },
+        yAxis: { min: 0, max: 2, visible: false, tickInterval: 1, labels: { enabled: false }, title: { text: "" } },
+        tooltip: { formatter: function () { return Highcharts.dateFormat('%A, %b %d %l:%M:%S %P', new Date(this.x)) + '<br>Event: ' + this.point.message + '<br>Email: <b>' + this.point.email + '</b>' } },
+        legend: { enabled: false },
+        plotOptions: { series: { marker: { enabled: true, symbol: 'circle', radius: 3 }, cursor: 'pointer', }, line: { states: { hover: { lineWidth: 1 } } } },
+        credits: { enabled: false },
+        series: [{ data: chartopts['data'], dashStyle: "shortdash", color: "#cccccc", lineWidth: 1, turboThreshold: 0 }]
     })
 }
 
-/* Renders a pie chart using the provided chartops */
 var renderPieChart = function (chartopts) {
     return Highcharts.chart(chartopts['elemId'], {
-        chart: {
-            type: 'pie',
-            events: {
-                load: function () {
-                    var chart = this,
-                        rend = chart.renderer,
-                        pie = chart.series[0],
-                        left = chart.plotLeft + pie.center[0],
-                        top = chart.plotTop + pie.center[1];
-                    this.innerText = rend.text(chartopts['data'][0].count, left, top).
-                    attr({
-                        'text-anchor': 'middle',
-                        'font-size': '24px',
-                        'font-weight': 'bold',
-                        'fill': chartopts['colors'][0],
-                        'font-family': 'Helvetica,Arial,sans-serif'
-                    }).add();
-                },
-                render: function () {
-                    this.innerText.attr({
-                        text: chartopts['data'][0].count
-                    })
-                }
-            }
-        },
-        title: {
-            text: chartopts['title']
-        },
-        plotOptions: {
-            pie: {
-                innerSize: '80%',
-                dataLabels: {
-                    enabled: false
-                }
-            }
-        },
-        credits: {
-            enabled: false
-        },
-        tooltip: {
-            formatter: function () {
-                if (this.key == undefined) {
-                    return false
-                }
-                return '<span style="color:' + this.color + '">\u25CF</span>' + this.point.name + ': <b>' + this.y + '%</b><br/>'
-            }
-        },
-        series: [{
-            data: chartopts['data'],
-            colors: chartopts['colors'],
-        }]
+        chart: { type: 'pie', events: {
+            load: function () {
+                var chart = this, rend = chart.renderer, pie = chart.series[0], left = chart.plotLeft + pie.center[0], top = chart.plotTop + pie.center[1];
+                this.innerText = rend.text(chartopts['data'][0].count, left, top).
+                attr({ 'text-anchor': 'middle', 'font-size': '24px', 'font-weight': 'bold', 'fill': chartopts['colors'][0], 'font-family': 'Helvetica,Arial,sans-serif' }).add();
+            },
+            render: function () { this.innerText.attr({ text: chartopts['data'][0].count }) }
+        }},
+        title: { text: chartopts['title'] },
+        plotOptions: { pie: { innerSize: '80%', dataLabels: { enabled: false } } },
+        credits: { enabled: false },
+        tooltip: { formatter: function () { if (this.key == undefined) { return false } return '<span style="color:' + this.color + '">\u25CF</span>' + this.point.name + ': <b>' + this.y + '%</b><br/>'}},
+        series: [{ data: chartopts['data'], colors: chartopts['colors'], }]
     })
 }
 
-/* Updates the bubbles on the map
-
-@param {campaign.result[]} results - The campaign results to process
-*/
 var updateMap = function (results) {
-    if (!map) {
-        return
-    }
+    if (!map) { return }
     bubbles = []
     $.each(campaign.results, function (i, result) {
-        // Check that it wasn't an internal IP
-        if (result.latitude == 0 && result.longitude == 0) {
-            return true;
-        }
+        if (result.latitude == 0 && result.longitude == 0) { return true; }
         newIP = true
         $.each(bubbles, function (i, bubble) {
             if (bubble.ip == result.ip) {
@@ -593,28 +523,14 @@ var updateMap = function (results) {
                 return false
             }
         })
-        if (newIP) {
-            bubbles.push({
-                latitude: result.latitude,
-                longitude: result.longitude,
-                name: result.ip,
-                fillKey: "point",
-                radius: 2
-            })
-        }
+        if (newIP) { bubbles.push({ latitude: result.latitude, longitude: result.longitude, name: result.ip, fillKey: "point", radius: 2 }) }
     })
     map.bubbles(bubbles)
 }
 
-/**
- * Creates a status label for use in the results datatable
- * @param {string} status 
- * @param {moment(datetime)} send_date 
- */
 function createStatusLabel(status, send_date) {
     var label = statuses[status].label || "label-default";
     var statusColumn = "<span class=\"label " + label + "\">" + status + "</span>"
-    // Add the tooltip if the email is scheduled to be sent
     if (status == "Scheduled" || status == "Retrying") {
         var sendDateMessage = "Scheduled to send at " + send_date
         statusColumn = "<span class=\"label " + label + "\" data-toggle=\"tooltip\" data-placement=\"top\" data-html=\"true\" title=\"" + sendDateMessage + "\">" + status + "</span>"
@@ -622,74 +538,33 @@ function createStatusLabel(status, send_date) {
     return statusColumn
 }
 
-/* poll - Queries the API and updates the UI with the results
- *
- * Updates:
- * * Timeline Chart
- * * Email (Donut) Chart
- * * Map Bubbles
- * * Datatables
- */
 function poll() {
     api.campaignId.results(campaign.id)
         .success(function (c) {
             campaign = c
-            /* Update the timeline */
             var timeline_series_data = []
             $.each(campaign.timeline, function (i, event) {
                 var event_date = moment.utc(event.time).local()
-                timeline_series_data.push({
-                    email: event.email,
-                    message: event.message,
-                    x: event_date.valueOf(),
-                    y: 1,
-                    marker: {
-                        fillColor: statuses[event.message].color
-                    }
-                })
+                timeline_series_data.push({ email: event.email, message: event.message, x: event_date.valueOf(), y: 1, marker: { fillColor: statuses[event.message].color } })
             })
             var timeline_chart = $("#timeline_chart").highcharts()
-            timeline_chart.series[0].update({
-                data: timeline_series_data
-            })
-            /* Update the results donut chart */
+            timeline_chart.series[0].update({ data: timeline_series_data })
             var email_series_data = {}
-            // Load the initial data
-            Object.keys(statusMapping).forEach(function (k) {
-                email_series_data[k] = 0
-            });
+            Object.keys(statusMapping).forEach(function (k) { email_series_data[k] = 0 });
             $.each(campaign.results, function (i, result) {
                 email_series_data[result.status]++;
-                if (result.reported) {
-                    email_series_data['Email Reported']++
-                }
-                // Backfill status values
+                if (result.reported) { email_series_data['Email Reported']++ }
                 var step = progressListing.indexOf(result.status)
-                for (var i = 0; i < step; i++) {
-                    email_series_data[progressListing[i]]++
-                }
+                for (var i = 0; i < step; i++) { email_series_data[progressListing[i]]++ }
             })
             $.each(email_series_data, function (status, count) {
                 var email_data = []
-                if (!(status in statusMapping)) {
-                    return true
-                }
-                email_data.push({
-                    name: status,
-                    y: Math.floor((count / campaign.results.length) * 100),
-                    count: count
-                })
-                email_data.push({
-                    name: '',
-                    y: 100 - Math.floor((count / campaign.results.length) * 100)
-                })
+                if (!(status in statusMapping)) { return true }
+                email_data.push({ name: status, y: Math.floor((count / campaign.results.length) * 100), count: count })
+                email_data.push({ name: '', y: 100 - Math.floor((count / campaign.results.length) * 100) })
                 var chart = $("#" + statusMapping[status] + "_chart").highcharts()
-                chart.series[0].update({
-                    data: email_data
-                })
+                chart.series[0].update({ data: email_data })
             })
-
-            /* Update the datatable */
             resultsTable = $("#resultsTable").DataTable()
             resultsTable.rows().every(function (i, tableLoop, rowLoop) {
                 var row = this.row(i)
@@ -711,7 +586,6 @@ function poll() {
                 })
             })
             resultsTable.draw(false)
-            /* Update the map information */
             updateMap(campaign.results)
             $('[data-toggle="tooltip"]').tooltip()
             $("#refresh_message").hide()
@@ -729,16 +603,13 @@ function load() {
                 $("title").text(c.name + " - Gophish")
                 $("#loading").hide()
                 $("#campaignResults").show()
-                // Set the title
                 $("#page-title").text("Results for " + c.name)
                 if (c.status == "Completed") {
                     $('#complete_button')[0].disabled = true;
                     $('#complete_button').text('Completed!');
                     doPoll = false;
                 }
-                // Setup viewing the details of a result
                 $("#resultsTable").on("click", ".timeline-event-details", function () {
-                    // Show the parameters
                     payloadResults = $(this).parent().find(".timeline-event-results")
                     if (payloadResults.is(":visible")) {
                         $(this).find("i").removeClass("fa-caret-down")
@@ -750,58 +621,18 @@ function load() {
                         payloadResults.show()
                     }
                 })
-                // Setup the results table
                 resultsTable = $("#resultsTable").DataTable({
-                    destroy: true,
-                    "order": [
-                        [2, "asc"]
-                    ],
-                    columnDefs: [{
-                            orderable: false,
-                            targets: "no-sort"
-                        }, {
-                            className: "details-control",
-                            "targets": [1]
-                        }, {
-                            "visible": false,
-                            "targets": [0, 8]
-                        },
-                        {
-                            "render": function (data, type, row) {
-                                return createStatusLabel(data, row[8])
-                            },
-                            "targets": [6]
-                        },
-                        {
-                            className: "text-center",
-                            "render": function (reported, type, row) {
-                                if (type == "display") {
-                                    if (reported) {
-                                        return "<i class='fa fa-check-circle text-center text-success'></i>"
-                                    }
-                                    return "<i role='button' class='fa fa-times-circle text-center text-muted' onclick='report_mail(\"" + row[0] + "\", \"" + campaign.id + "\");'></i>"
-                                }
-                                return reported
-                            },
-                            "targets": [7]
-                        },
-                        {
-                            orderable: false,
-                            "render": function(data, type, row) {
-                                if (row[6] == "Email Sent") {
-                                    return '<button class="btn btn-primary btn-xs" onclick="resendResult(\'' + row[0] + '\', \'' + row[4] + '\')">Resend</button>';
-                                }
-                            },
-                            "targets": [9]
-                        }
+                    destroy: true, "order": [ [2, "asc"] ],
+                    columnDefs: [{ orderable: false, targets: "no-sort" }, { className: "details-control", "targets": [1] }, { "visible": false, "targets": [0, 8] },
+                        { "render": function (data, type, row) { return createStatusLabel(data, row[8]) }, "targets": [6] },
+                        { className: "text-center", "render": function (reported, type, row) { if (type == "display") { if (reported) { return "<i class='fa fa-check-circle text-center text-success'></i>" } return "<i role='button' class='fa fa-times-circle text-center text-muted' onclick='report_mail(\"" + row[0] + "\", \"" + campaign.id + "\");'></i>" } return reported }, "targets": [7] },
+                        { orderable: false, "render": function(data, type, row) { if (row[6] == "Email Sent") { return '<button class="btn btn-primary btn-xs" onclick="resendResult(\'' + row[0] + '\', \'' + row[4] + '\')">Resend</button>'; } }, "targets": [9] }
                     ]
                 });
                 resultsTable.clear();
                 var email_series_data = {}
                 var timeline_series_data = []
-                Object.keys(statusMapping).forEach(function (k) {
-                    email_series_data[k] = 0
-                });
+                Object.keys(statusMapping).forEach(function (k) { email_series_data[k] = 0 });
                 $.each(campaign.results, function (i, result) {
                     resultsTable.row.add([
                         result.id,
@@ -812,97 +643,52 @@ function load() {
                         escapeHtml(result.position) || "",
                         result.status,
                         result.reported,
-                        moment(result.send_date).format('MMMM Do YYYY, h:mm:ss a')
+                        moment(result.send_date).format('MMMM Do YYYY, h:mm:ss a'),
+                        ""
                     ])
                     email_series_data[result.status]++;
-                    if (result.reported) {
-                        email_series_data['Email Reported']++
-                    }
-                    // Backfill status values
+                    if (result.reported) { email_series_data['Email Reported']++ }
                     var step = progressListing.indexOf(result.status)
-                    for (var i = 0; i < step; i++) {
-                        email_series_data[progressListing[i]]++
-                    }
+                    for (var i = 0; i < step; i++) { email_series_data[progressListing[i]]++ }
                 })
                 resultsTable.draw();
-                // Setup tooltips
                 $('[data-toggle="tooltip"]').tooltip()
-                // Setup the individual timelines
                 $('#resultsTable tbody').on('click', 'td.details-control', function () {
                     var tr = $(this).closest('tr');
                     var row = resultsTable.row(tr);
                     if (row.child.isShown()) {
-                        // This row is already open - close it
                         row.child.hide();
                         tr.removeClass('shown');
                         $(this).find("i").removeClass("fa-caret-down")
                         $(this).find("i").addClass("fa-caret-right")
                     } else {
-                        // Open this row
                         $(this).find("i").removeClass("fa-caret-right")
                         $(this).find("i").addClass("fa-caret-down")
                         row.child(renderTimeline(row.data())).show();
                         tr.addClass('shown');
                     }
                 });
-                // Setup the graphs
                 $.each(campaign.timeline, function (i, event) {
-                    if (event.message == "Campaign Created") {
-                        return true
-                    }
+                    if (event.message == "Campaign Created") { return true }
                     var event_date = moment.utc(event.time).local()
-                    timeline_series_data.push({
-                        email: event.email,
-                        message: event.message,
-                        x: event_date.valueOf(),
-                        y: 1,
-                        marker: {
-                            fillColor: statuses[event.message].color
-                        }
-                    })
+                    timeline_series_data.push({ email: event.email, message: event.message, x: event_date.valueOf(), y: 1, marker: { fillColor: statuses[event.message].color } })
                 })
-                renderTimelineChart({
-                    data: timeline_series_data
-                })
+                renderTimelineChart({ data: timeline_series_data })
                 $.each(email_series_data, function (status, count) {
                     var email_data = []
-                    if (!(status in statusMapping)) {
-                        return true
-                    }
-                    email_data.push({
-                        name: status,
-                        y: Math.floor((count / campaign.results.length) * 100),
-                        count: count
-                    })
-                    email_data.push({
-                        name: '',
-                        y: 100 - Math.floor((count / campaign.results.length) * 100)
-                    })
-                    var chart = renderPieChart({
-                        elemId: statusMapping[status] + '_chart',
-                        title: status,
-                        name: status,
-                        data: email_data,
-                        colors: [statuses[status].color, '#dddddd']
-                    })
+                    if (!(status in statusMapping)) { return true }
+                    email_data.push({ name: status, y: Math.floor((count / campaign.results.length) * 100), count: count })
+                    email_data.push({ name: '', y: 100 - Math.floor((count / campaign.results.length) * 100) })
+                    var chart = renderPieChart({ elemId: statusMapping[status] + '_chart', title: status, name: status, data: email_data, colors: [statuses[status].color, '#dddddd'] })
                 })
-
                 if (use_map) {
                     $("#resultsMapContainer").show()
                     map = new Datamap({
                         element: document.getElementById("resultsMap"),
                         responsive: true,
-                        fills: {
-                            defaultFill: "#ffffff",
-                            point: "#283F50"
-                        },
-                        geographyConfig: {
-                            highlightFillColor: "#1abc9c",
-                            borderColor: "#283F50"
-                        },
-                        bubblesConfig: {
-                            borderColor: "#283F50"
-                        }
+                        fills: { defaultFill: "#ffffff", point: "#283F50" },
+                        geographyConfig: { highlightFillColor: "#1abc9c", borderColor: "#283F50" },
+                        bubblesConfig: { borderColor: "#283F50" }
                     });
                 }
                 updateMap(campaign.results)
@@ -917,9 +703,7 @@ function load() {
 var setRefresh
 
 function refresh() {
-    if (!doPoll) {
-        return;
-    }
+    if (!doPoll) { return; }
     $("#refresh_message").show()
     $("#refresh_btn").hide()
     poll()
@@ -969,68 +753,6 @@ function report_mail(rid, cid) {
     })
 }
 
-function resendAll() {
-    // Get the number of recipients from the campaign object
-    var count = campaign.results ? campaign.results.length : 0;
-    var message = "This will resend emails to all " + count + " recipient(s) in this campaign.";
-
-    Swal.fire({
-        title: "Are you sure?",
-        text: message, // Use our new message with the count
-        type: "warning",
-        animation: false,
-        showCancelButton: true,
-        confirmButtonText: "Yes, Resend All",
-        confirmButtonColor: "#428bca",
-        reverseButtons: true,
-        allowOutsideClick: false,
-        showLoaderOnConfirm: true,
-        preConfirm: function () {
-            return api.campaignId.resendAll(campaign.id);
-        }
-    }).then(function (result) {
-        if (result.value) {
-            Swal.fire(
-                'Emails Queued!',
-                'The emails have been queued for resending.',
-                'success'
-            );
-        }
-    }).catch(function(err) {
-        Swal.fire("Error", "An error occurred", "error");
-    });
-}
-
-// Function for the individual "Resend" button
-function resendResult(result_id) {
-    Swal.fire({
-        title: "Are you sure?",
-        text: "This will resend the email to this specific recipient.",
-        type: "warning",
-        animation: false,
-        showCancelButton: true,
-        confirmButtonText: "Yes, Resend",
-        confirmButtonColor: "#428bca",
-        reverseButtons: true,
-        allowOutsideClick: false,
-        showLoaderOnConfirm: true,
-        preConfirm: function () {
-            // This now uses the correct, authenticated API object method
-            return api.resultId.resend(result_id);
-        }
-    }).then(function (result) {
-        if (result.value) {
-            Swal.fire(
-                'Email Queued!',
-                'The email has been queued for resending.',
-                'success'
-            );
-        }
-    }).catch(function(err) {
-        Swal.fire("Error", "An error occurred", "error");
-    });
-}
-
 $(document).ready(function () {
     Highcharts.setOptions({
         global: {
@@ -1038,7 +760,5 @@ $(document).ready(function () {
         }
     })
     load();
-
-    // Start the polling loop
     setRefresh = setTimeout(refresh, 60000)
 })
