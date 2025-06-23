@@ -135,3 +135,53 @@ func (as *Server) CampaignComplete(w http.ResponseWriter, r *http.Request) {
 		JSONResponse(w, models.Response{Success: true, Message: "Campaign completed successfully!"}, http.StatusOK)
 	}
 }
+
+// ResendAll resends all the emails in a campaign.
+func (as *Server) ResendAll(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodPost:
+		vars := mux.Vars(r)
+		user := ctx.Get(r, "user").(models.User)
+		id, err := strconv.ParseInt(vars["id"], 10, 64)
+		if err != nil {
+			JSONResponse(w, models.Response{Success: false, Message: "Invalid campaign ID"}, http.StatusBadRequest)
+			return
+		}
+
+		_, err = models.GetCampaign(id, user.Id)
+		if err != nil {
+			JSONResponse(w, models.Response{Success: false, Message: "Campaign not found or access denied"}, http.StatusNotFound)
+			return
+		}
+
+		err = models.ResendAllResults(id)
+		if err != nil {
+			JSONResponse(w, models.Response{Success: false, Message: "Error queueing emails for resending"}, http.StatusInternalServerError)
+			return
+		}
+		JSONResponse(w, models.Response{Success: true, Message: "Emails successfully queued for resending"}, http.StatusOK)
+	default:
+		JSONResponse(w, models.Response{Success: false, Message: "Method not allowed"}, http.StatusMethodNotAllowed)
+	}
+}
+
+// Resend resends a single email from a campaign.
+func (as *Server) Resend(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodPost:
+		vars := mux.Vars(r)
+		user := ctx.Get(r, "user").(models.User)
+		rid := vars["rid"] // Get the string "rid" from the URL
+
+		// We will now create a new function in our model to handle this
+		err := models.ResendResultByRId(rid, user.Id)
+		if err != nil {
+			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
+			return
+		}
+		JSONResponse(w, models.Response{Success: true, Message: "Email successfully queued for resending"}, http.StatusOK)
+	default:
+		JSONResponse(w, models.Response{Success: false, Message: "Method not allowed"}, http.StatusMethodNotAllowed)
+	}
+}
+

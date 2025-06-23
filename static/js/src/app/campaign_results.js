@@ -784,6 +784,15 @@ function load() {
                                 return reported
                             },
                             "targets": [7]
+                        },
+                        {
+                            orderable: false,
+                            "render": function(data, type, row) {
+                                if (row[6] == "Email Sent") {
+                                    return '<button class="btn btn-primary btn-xs" onclick="resendResult(\'' + row[0] + '\', \'' + row[4] + '\')">Resend</button>';
+                                }
+                            },
+                            "targets": [9]
                         }
                     ]
                 });
@@ -958,6 +967,68 @@ function report_mail(rid, cid) {
             }));
         }
     })
+}
+
+function resendAll() {
+    // Get the number of recipients from the campaign object
+    var count = campaign.results ? campaign.results.length : 0;
+    var message = "This will resend emails to all " + count + " recipient(s) in this campaign.";
+
+    Swal.fire({
+        title: "Are you sure?",
+        text: message, // Use our new message with the count
+        type: "warning",
+        animation: false,
+        showCancelButton: true,
+        confirmButtonText: "Yes, Resend All",
+        confirmButtonColor: "#428bca",
+        reverseButtons: true,
+        allowOutsideClick: false,
+        showLoaderOnConfirm: true,
+        preConfirm: function () {
+            return api.campaignId.resendAll(campaign.id);
+        }
+    }).then(function (result) {
+        if (result.value) {
+            Swal.fire(
+                'Emails Queued!',
+                'The emails have been queued for resending.',
+                'success'
+            );
+        }
+    }).catch(function(err) {
+        Swal.fire("Error", "An error occurred", "error");
+    });
+}
+
+// Function for the individual "Resend" button
+function resendResult(result_id) {
+    Swal.fire({
+        title: "Are you sure?",
+        text: "This will resend the email to this specific recipient.",
+        type: "warning",
+        animation: false,
+        showCancelButton: true,
+        confirmButtonText: "Yes, Resend",
+        confirmButtonColor: "#428bca",
+        reverseButtons: true,
+        allowOutsideClick: false,
+        showLoaderOnConfirm: true,
+        preConfirm: function () {
+            // This now uses the correct, authenticated API object method
+            return api.resultId.resend(result_id);
+        }
+    }).then(function (result) {
+        if (result.value) {
+            Swal.fire(
+                'Email Queued!',
+                'The email has been queued for resending.',
+                'success'
+            );
+        }
+    }).catch(function(err) {
+        Swal.fire("Error", "An error occurred", "error");
+    });
 }
 
 $(document).ready(function () {

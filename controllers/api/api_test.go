@@ -112,3 +112,82 @@ func TestSiteImportBaseHref(t *testing.T) {
 		t.Fatalf("unexpected response received. expected %s got %s", expected, cs.HTML)
 	}
 }
+
+func TestResendCampaign(t *testing.T) {
+	ctx := setupTest(t)
+	createTestData(t)
+
+	t.Run("Test ResendAll Success", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodPost, "/api/campaigns/1/resendall", nil)
+		req.Header.Set("Authorization", "Bearer "+ctx.apiKey)
+
+		rr := httptest.NewRecorder()
+		ctx.apiServer.ServeHTTP(rr, req)
+
+		assert.Equal(t, http.StatusOK, rr.Code)
+		count, _ := models.CountMailLogs(1)
+		assert.Equal(t, int64(4), count, "Expected 4 total mail logs after resend")
+	})
+
+	t.Run("Test ResendAll Authorization Failure", func(t *testing.T) {
+		otherUser := models.User{Username: "other", Role: models.Role{Name: models.RoleUser}}
+		models.PutUser(&otherUser)
+		otherCampaign := models.Campaign{Name: "Other Campaign", UserId: otherUser.Id}
+		models.PostCampaign(&otherCampaign, otherUser.Id)
+
+		req := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/api/campaigns/%d/resendall", otherCampaign.Id), nil)
+		req.Header.Set("Authorization", "Bearer "+ctx.apiKey)
+
+		rr := httptest.NewRecorder()
+		ctx.apiServer.ServeHTTP(rr, req)
+
+		assert.Equal(t, http.StatusNotFound, rr.Code)
+	})
+}
+
+func TestResendResult(t *testing.T) {
+	ctx := setupTest(t)
+	createTestData(t)
+
+	t.Run("Test Resend Single Result Success", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodPost, "/api/results/1/resend", nil)
+		req.Header.Set("Authorization", "Bearer "+ctx.apiKey)
+
+		rr := httptest.NewRecorder()
+		ctx.apiServer.ServeHTTP(rr, req)
+
+		assert.Equal(t, http.StatusOK, rr.Code, "Expected Status OK")
+
+		count, _ := models.CountMailLogs(1)
+		assert.Equal(t, int64(3), count, "Expected 3 total mail logs after single resend")
+	})
+
+	t.Run("Test Resend Single Result Authorization Failure", func(t *testing.T) {
+		otherUser := models.User{Username: "other2", Role: models.Role{Name: models.RoleUser}}
+		models.PutUser(&otherUser)
+
+		otherGroup := models.Group{Name: "Other Group", UserId: otherUser.Id}
+		otherGroup.Targets = []models.Target{{BaseRecipient: models.BaseRecipient{Email: "someone@else.com"}}}
+		models.PostGroup(&otherGroup)
+
+		otherCampaign := models.Campaign{
+			Name:     "Other Campaign 2",
+			UserId:   otherUser.Id,
+			Groups:   []models.Group{otherGroup},
+			Template: models.Template{Id: 1},
+			Page:     models.Page{Id: 1},
+			SMTP:     models.SMTP{Id: 1},
+		}
+		models.PostCampaign(&otherCampaign, otherUser.Id)
+
+		resultToTest, _ := models.GetFirstResultForCampaign(otherCampaign.Id)
+
+		req := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/api/results/%d/resend", resultToTest.Id), nil)
+		req.Header.Set("Authorization", "Bearer "+ctx.apiKey)
+
+		rr := httptest.NewRecorder()
+		ctx.apiServer.ServeHTTP(rr, req)
+
+		assert.Equal(t, http.StatusInternalServerError, rr.Code)
+	})
+}

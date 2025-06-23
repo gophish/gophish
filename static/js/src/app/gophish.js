@@ -139,6 +139,12 @@ var api = {
             return query("/groups/" + id, "DELETE", {}, false)
         }
     },
+     // resultID contains the id of the result from resend
+    resultId: {
+        resend: function(id) {
+            return query("/results/" + id + "/resend", "POST", {}, true)
+        }
+    },
     // templates contains the endpoints for /templates
     templates: {
         // get() - Queries the API for GET /templates

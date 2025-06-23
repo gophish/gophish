@@ -35,6 +35,9 @@
             <button id="refresh_btn" type="button" class="btn btn-blue" data-toggle="tooltip" onclick="refresh()">
                 <i class="fa fa-refresh fa-lg"></i> Refresh
             </button>
+            <button type="button" class="btn btn-primary" onclick="resendAll">
+                <i class="fa fa-paper-plane"></i> Resend All
+            </button>
             <span id="refresh_message">
                 <i class="fa fa-spin fa-spinner"></i> Refreshing
             </span>
@@ -77,6 +80,8 @@
                         <th>Position</th>
                         <th>Status</th>
                         <th class="text-center">Reported</th>
+                        <th></th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -87,5 +92,6 @@
     <div id="flashes" class="row"></div>
 </div>
 {{end}} {{define "scripts"}}
+<script src="/js/dist/app/gophish.min.js"></script>
 <script src="/js/dist/app/campaign_results.min.js"></script>
 {{end}}
