@@ -106,7 +106,7 @@ var api = {
         },
         // resendAll() - Resends the Campaign at POST /campgaigns/:id/resendall
         resendAll: function (id) {
-        return query("/campaigns/" + id + "/resendall", "POST", {}, true)
+            return query("/campaigns/" + id + "/resendall", "POST", {}, true)
         },
         // summary() - Queries the API for GET /campaigns/summary
         summary: function (id) {
@@ -114,7 +114,7 @@ var api = {
         }
     },
     resultId: {
-        resend: function(id) { 
+        resend: function(id) {
             return query("/results/" + id + "/resend", "POST", {}, true)
         }
     },

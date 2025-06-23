@@ -173,7 +173,6 @@ func (as *Server) Resend(w http.ResponseWriter, r *http.Request) {
 		user := ctx.Get(r, "user").(models.User)
 		rid := vars["rid"] // Get the string "rid" from the URL
 
-		// We will now create a new function in our model to handle this
 		err := models.ResendResultByRId(rid, user.Id)
 		if err != nil {
 			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
@@ -184,4 +183,3 @@ func (as *Server) Resend(w http.ResponseWriter, r *http.Request) {
 		JSONResponse(w, models.Response{Success: false, Message: "Method not allowed"}, http.StatusMethodNotAllowed)
 	}
 }
-

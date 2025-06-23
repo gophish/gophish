@@ -560,6 +560,7 @@ function load() {
                     columnDefs: [{ orderable: false, targets: "no-sort" }, { className: "details-control", "targets": [1] }, { "visible": false, "targets": [0, 8] },
                         { "render": function (data, type, row) { return createStatusLabel(data, row[8]) }, "targets": [6] },
                         { className: "text-center", "render": function (reported, type, row) { if (type == "display") { if (reported) { return "<i class='fa fa-check-circle text-center text-success'></i>" } return "<i role='button' class='fa fa-times-circle text-center text-muted' onclick='report_mail(\"" + row[0] + "\", \"" + campaign.id + "\");'></i>" } return reported }, "targets": [7] },
+                        { orderable: false, "render": function(data, type, row) { if (row[6] === "Email Sent") { return '<button class="btn btn-primary btn-xs" onclick="resendResult(\'' + row[0] + '\', \'' + row[4] + '\')">Resend</button>'; } return ''; }, "targets": [9] },
                         { orderable: false, "render": function(data, type, row) { if (row[6] == "Email Sent") { return '<button class="btn btn-primary btn-xs" onclick="resendResult(\'' + row[0] + '\', \'' + row[4] + '\')">Resend</button>'; } }, "targets": [9] }
                     ]
                 });
@@ -703,7 +704,6 @@ function resendAll() {
         allowOutsideClick: false,
         showLoaderOnConfirm: true,
         preConfirm: function () {
-            // This now uses the correct, authenticated API object method
             return api.campaignId.resendAll(campaign.id);
         }
     }).then(function (result) {
@@ -739,7 +739,6 @@ function resendResult(result_id, email) {
         allowOutsideClick: false,
         showLoaderOnConfirm: true,
         preConfirm: function () {
-            // This now uses the correct, authenticated API object method
             return api.resultId.resend(result_id);
         }
     }).then(function (result) {

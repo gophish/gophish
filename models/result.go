@@ -212,7 +212,6 @@ func GetResult(rid string) (Result, error) {
 
 // ResendResultByRId finds a specific result by its public RId and requeues it for sending.
 func ResendResultByRId(rid string, user_id int64) error {
-	// GetResult uses the string RId, which is what we need. This function already existed.
 	r, err := GetResult(rid)
 	if err != nil {
 		return errors.New("Result not found")
@@ -227,7 +226,7 @@ func ResendResultByRId(rid string, user_id int64) error {
 	// Create a new MailLog entry to trigger the send operation by the mailer.
 	m := &MailLog{
 		CampaignId: r.CampaignId,
-		UserId:     r.UserId, // This is the recipient's ID
+		UserId:     r.UserId,
 		SendDate:   time.Now().UTC(),
 		RId:        r.RId,
 	}
