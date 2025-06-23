@@ -1,69 +1,3 @@
-// This is the complete, final code for campaign_results.js
-
-// Function for the main "Resend All" button
-function resendAll() {
-    var count = campaign.results ? campaign.results.length : 0;
-    var message = "This will resend emails to all " + count + " recipient(s) in this campaign.";
-    Swal.fire({
-        title: "Are you sure?",
-        text: message,
-        type: "warning",
-        animation: false,
-        showCancelButton: true,
-        confirmButtonText: "Yes, Resend All",
-        confirmButtonColor: "#428bca",
-        reverseButtons: true,
-        allowOutsideClick: false,
-        showLoaderOnConfirm: true,
-        preConfirm: function () {
-            return api.campaignId.resendAll(campaign.id);
-        }
-    }).then(function (result) {
-        if (result.value) {
-            Swal.fire(
-                'Emails Queued!',
-                'The emails have been queued for resending.',
-                'success'
-            );
-        }
-    }).catch(function(err) {
-        Swal.fire("Error", "An error occurred", "error");
-    });
-}
-
-// Function for the individual "Resend" button
-function resendResult(result_id, email) {
-    var message = "This will resend the email to " + escapeHtml(email) + ".";
-    Swal.fire({
-        title: "Are you sure?",
-        text: message,
-        type: "warning",
-        animation: false,
-        showCancelButton: true,
-        confirmButtonText: "Yes, Resend",
-        confirmButtonColor: "#428bca",
-        reverseButtons: true,
-        allowOutsideClick: false,
-        showLoaderOnConfirm: true,
-        preConfirm: function () {
-            return api.resultId.resend(result_id);
-        }
-    }).then(function (result) {
-        if (result.value) {
-            Swal.fire(
-                'Email Queued!',
-                'The email has been queued for resending.',
-                'success'
-            );
-        }
-    }).catch(function(err) {
-        Swal.fire("Error", "An error occurred", "error");
-    });
-}
-
-
-// Original Gophish Code Starts Here
-
 var map = null
 var doPoll = true;
 
@@ -751,6 +685,80 @@ function report_mail(rid, cid) {
             }));
         }
     })
+}
+
+function resendAll() {
+    // Get the recipient count from the global campaign object
+    var count = campaign.results ? campaign.results.length : 0;
+    var message = "This will resend emails to all " + count + " recipient(s) in this campaign.";
+
+    Swal.fire({
+        title: "Are you sure?",
+        text: message, // Use our new message with the count
+        type: "warning",
+        animation: false,
+        showCancelButton: true,
+        confirmButtonText: "Yes, Resend All",
+        confirmButtonColor: "#428bca",
+        reverseButtons: true,
+        allowOutsideClick: false,
+        showLoaderOnConfirm: true,
+        preConfirm: function () {
+            // Use the clean API method we defined in gophish.js
+            return api.campaignId.resendAll(campaign.id);
+        }
+    }).then(function (result) {
+        if (result.value) {
+            Swal.fire(
+                'Emails Queued!',
+                'The emails have been queued for resending.',
+                'success'
+            );
+        }
+    }).catch(function(err) {
+        var message = "An error occurred";
+        if (err && err.responseJSON && err.responseJSON.message) {
+            message = err.responseJSON.message;
+        }
+        Swal.fire("Error", message, "error");
+    });
+}
+
+// Note: We rename resendOne to resendResult to match the button's onclick handler
+function resendResult(result_id, email) {
+    // Create the confirmation message with the recipient's email
+    var message = "This will resend the email to " + escapeHtml(email) + ".";
+
+    Swal.fire({
+        title: "Are you sure?",
+        text: message, // Use our new message with the email
+        type: "warning",
+        animation: false,
+        showCancelButton: true,
+        confirmButtonText: "Yes, Resend",
+        confirmButtonColor: "#428bca",
+        reverseButtons: true,
+        allowOutsideClick: false,
+        showLoaderOnConfirm: true,
+        preConfirm: function () {
+            // Use the clean API method we defined in gophish.js
+            return api.resultId.resend(result_id);
+        }
+    }).then(function (result) {
+        if (result.value) {
+            Swal.fire(
+                'Email Queued!',
+                'The email has been queued for resending.',
+                'success'
+            );
+        }
+    }).catch(function(err) {
+        var message = "An error occurred";
+        if (err && err.responseJSON && err.responseJSON.message) {
+            message = err.responseJSON.message;
+        }
+        Swal.fire("Error", message, "error");
+    });
 }
 
 $(document).ready(function () {
