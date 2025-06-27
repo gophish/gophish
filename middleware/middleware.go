@@ -55,8 +55,8 @@ func init() {
 	gob.Register(&models.Tenant{})
 	gob.Register(&models.ProviderTenant{})
 	Store.Options.HttpOnly = true
-	// This sets the maxAge to 5 days for all cookies
-	Store.MaxAge(86400 * 5)
+	// This sets the maxAge to 1 hour to match Microsoft token expiration
+	Store.MaxAge(3600)
 	// Set logger to debug level
 	log.Logger.SetLevel(logrus.DebugLevel)
 }
