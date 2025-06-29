@@ -31,6 +31,7 @@ type Campaign struct {
 	SMTPId        int64     `json:"-"`
 	SMTP          SMTP      `json:"smtp"`
 	URL           string    `json:"url"`
+	SendInterval  int       `json:"send_interval"`
 }
 
 // CampaignResults is a struct representing the results from a campaign
@@ -242,24 +243,25 @@ func (c *Campaign) getFromAddress() string {
 }
 
 // generateSendDate creates a sendDate
+// @Littlebuddha 2025-06-29
+// added a custom send interval to the campaign.
 func (c *Campaign) generateSendDate(idx int, totalRecipients int) time.Time {
-	// If no send date is specified, just return the launch date
-	if c.SendByDate.IsZero() || c.SendByDate.Equal(c.LaunchDate) {
-		return c.LaunchDate
+	// 1. If interval is set and > 0, use it (regardless of SendByDate)
+	if c.SendInterval > 0 {
+		offset := c.SendInterval * idx
+		return c.LaunchDate.Add(time.Duration(offset) * time.Minute)
 	}
-	// Otherwise, we can calculate the range of minutes to send emails
-	// (since we only poll once per minute)
-	totalMinutes := c.SendByDate.Sub(c.LaunchDate).Minutes()
 
-	// Next, we can determine how many minutes should elapse between emails
-	minutesPerEmail := totalMinutes / float64(totalRecipients)
+	// 2. If SendByDate is set and after LaunchDate, spread emails evenly
+	if !c.SendByDate.IsZero() && c.SendByDate.After(c.LaunchDate) && totalRecipients > 0 {
+		totalMinutes := int(c.SendByDate.Sub(c.LaunchDate).Minutes())
+		minutesPerEmail := totalMinutes / totalRecipients
+		offset := minutesPerEmail * idx
+		return c.LaunchDate.Add(time.Duration(offset) * time.Minute)
+	}
 
-	// Then, we can calculate the offset for this particular email
-	offset := int(minutesPerEmail * float64(idx))
-
-	// Finally, we can just add this offset to the launch date to determine
-	// when the email should be sent
-	return c.LaunchDate.Add(time.Duration(offset) * time.Minute)
+	// 3. Otherwise, send all at LaunchDate
+	return c.LaunchDate
 }
 
 // getCampaignStats returns a CampaignStats object for the campaign with the given campaign ID.

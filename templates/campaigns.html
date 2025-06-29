@@ -110,6 +110,12 @@
                             </label>
                             <input type="text" class="form-control" id="send_by_date" autocomplete="random-data"/> <!--Chrome ignores autocomplete="off".-->
                         </div>
+                          <!-- Adding rate limiting button -->
+                          <div class="col-md-6">
+                            <label class="control-label" for="send_interval">Set interval time (in Mins)</label>
+                            <input type="number" min="0" class="form-control" id="send_interval" />
+                        </div>
+                        <!-- End -->
                     </div>
                     <label class="control-label" for="profile">Sending Profile:</label>
                     <div class="input-group">
