@@ -92,7 +92,7 @@ styles = function () {
         .pipe(cleanCSS({
             compatibilty: 'ie9'
         }))
-        .pipe(concat('gophish.css'))
+        .pipe(concat('sec_manager.css'))
         .pipe(gulp.dest(dest_css_directory));
 }
 
