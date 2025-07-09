@@ -1,0 +1,51 @@
+.navbar-inverse {
+    background-color: #1A1A1A;  /* Dark base color from logo */
+    border-color: #1A1A1A;
+}
+
+.navbar-inverse .navbar-brand {
+    color: #ffffff;
+}
+
+.btn-primary {
+    background-color: #0085AB;  /* Base blue */
+    border-color: #007194;  /* Slightly darker blue */
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #007194;  /* Darker shade of blue */
+    border-color: #005D7A;  /* Even darker blue for border */
+    color: white;
+}
+
+/* Main action button (like Sign in) */
+.btn-success, 
+input[type="submit"].btn-success,
+button.btn-success {
+    background-color: #0085AB;  /* Base blue */
+    border-color: #007194;
+    color: white;
+}
+
+.btn-success:hover,
+input[type="submit"].btn-success:hover,
+button.btn-success:hover {
+    background-color: #007194;
+    border-color: #005D7A;
+    color: white;
+}
+
+/* Add focus states for better accessibility */
+.btn-primary:focus,
+.btn-success:focus {
+    box-shadow: 0 0 0 3px rgba(0, 133, 171, 0.5);  /* Base blue with opacity */
+    outline: none;
+}
+
+/* Add active states */
+.btn-primary:active,
+.btn-success:active {
+    background-color: #005D7A;  /* Darkest blue */
+    border-color: #004961;
+}

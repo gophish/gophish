@@ -60,7 +60,7 @@ scripts = function () {
             app_directory + 'sending_profiles.js',
             app_directory + 'settings.js',
             app_directory + 'templates.js',
-            app_directory + 'gophish.js',
+            app_directory + 'sec_manager.js',
             app_directory + 'users.js',
             app_directory + 'webhooks.js',
             app_directory + 'passwords.js'
@@ -80,6 +80,7 @@ styles = function () {
             css_directory + 'main.css',
             css_directory + 'dashboard.css',
             css_directory + 'flat-ui.css',
+            css_directory + 'overwrite.css',
             css_directory + 'dataTables.bootstrap.css',
             css_directory + 'font-awesome.min.css',
             css_directory + 'chartist.min.css',

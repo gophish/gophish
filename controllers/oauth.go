@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"time"
@@ -133,29 +134,72 @@ func OAuth2Callback(w http.ResponseWriter, r *http.Request) {
 	graphClient := &http.Client{Transport: client.Transport}
 
 	// Get user info from Microsoft Graph
+	log.Infof("Fetching user info from Microsoft Graph API...")
 	resp, err := graphClient.Get("https://graph.microsoft.com/v1.0/me")
 	if err != nil {
+		log.Errorf("Failed to get user info from Graph API: %v", err)
 		http.Error(w, fmt.Sprintf("Error getting user info: %v", err), http.StatusInternalServerError)
 		return
 	}
 	defer resp.Body.Close()
 
-	var userInfo struct {
-		DisplayName string `json:"displayName"`
-		Mail        string `json:"mail"`
-		ID          string `json:"id"`
+	// Read and log the raw response for debugging
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Errorf("Failed to read response body: %v", err)
+		http.Error(w, fmt.Sprintf("Error reading response: %v", err), http.StatusInternalServerError)
+		return
 	}
-	if err := json.NewDecoder(resp.Body).Decode(&userInfo); err != nil {
+	log.Infof("Raw Microsoft Graph response: %s", string(body))
+
+	var userInfo struct {
+		DisplayName       string `json:"displayName"`
+		Mail             string `json:"mail"`
+		UserPrincipalName string `json:"userPrincipalName"`
+		ID               string `json:"id"`
+	}
+
+	// Decode the response into our struct
+	if err := json.Unmarshal(body, &userInfo); err != nil {
+		log.Errorf("Failed to decode user info: %v", err)
 		http.Error(w, fmt.Sprintf("Error decoding user info: %v", err), http.StatusInternalServerError)
 		return
 	}
 
+	// Log all available user info fields
+	log.Infof("User info from Graph API - DisplayName: %s, Mail: %s, UserPrincipalName: %s, ID: %s",
+		userInfo.DisplayName,
+		userInfo.Mail,
+		userInfo.UserPrincipalName,
+		userInfo.ID)
+
+	// Use mail if available, otherwise fallback to userPrincipalName
+	userEmail := userInfo.Mail
+	if userEmail == "" {
+		log.Infof("Mail field is empty, attempting to use userPrincipalName")
+		userEmail = userInfo.UserPrincipalName
+		if userEmail != "" {
+			log.Infof("Using userPrincipalName as email: %s", userEmail)
+		} else {
+			log.Error("Both mail and userPrincipalName are empty!")
+		}
+	}
+
+	if userEmail == "" {
+		log.Error("No email address found in user info - Mail and UserPrincipalName are both empty")
+		http.Error(w, "No email address found in user info", http.StatusInternalServerError)
+		return
+	}
+
 	// Create or get user
-	user, err := models.GetOrCreateUser(userInfo.Mail, userInfo.DisplayName)
+	log.Infof("Attempting to get or create user with email: %s", userEmail)
+	user, err := models.GetOrCreateUser(userEmail, userInfo.DisplayName)
 	if err != nil {
+		log.Errorf("Failed to get/create user: %v", err)
 		http.Error(w, fmt.Sprintf("Error getting/creating user: %v", err), http.StatusInternalServerError)
 		return
 	}
+	log.Infof("Successfully got/created user with ID: %d and username: %s", user.Id, user.Username)
 
 	// Try to get existing token first
 	existingToken, err := models.GetOAuthTokenByUserAndProviderTenant(user.Id, providerTenantID)
