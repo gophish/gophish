@@ -35,6 +35,7 @@ type Result struct {
 	SendDate     time.Time `json:"send_date"`
 	Reported     bool      `json:"reported" sql:"not null"`
 	ModifiedDate time.Time `json:"modified_date"`
+	URLInvalidated bool    `json:"url_invalidated" sql:"default:false"`
 	BaseRecipient
 }
 
@@ -126,7 +127,6 @@ func (r *Result) HandleClickedLink(details EventDetails) error {
 // HandleFormSubmit updates a Result in the case where the recipient submitted
 // credentials to the form on a Landing Page.
 func (r *Result) HandleFormSubmit(details EventDetails) error {
-	
 	event, err := r.createEvent(EventDataSubmit, details)
 	if err != nil {
 		log.Error("Error creating form submission event:", err)
@@ -135,6 +135,7 @@ func (r *Result) HandleFormSubmit(details EventDetails) error {
 	
 	r.Status = EventDataSubmit
 	r.ModifiedDate = event.Time
+	r.URLInvalidated = true  // Invalidate URL after form submission
 	
 	err = db.Save(r).Error
 	if err != nil {

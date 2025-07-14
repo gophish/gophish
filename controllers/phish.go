@@ -383,6 +383,15 @@ func setupContext(r *http.Request) (*http.Request, error) {
 		return r, err
 	}
 	log.Debug("Found result for ID:", id)
+
+	// Check if URL has been invalidated
+	// Only block if it's invalidated AND either:
+	// 1. It's a GET request (no more viewing the page)
+	// 2. OR it's a POST request but they already submitted data (no more submissions)
+	if rs.URLInvalidated && (r.Method == "GET" || rs.Status == models.EventDataSubmit) {
+		log.Info("Attempt to access invalidated URL for result ID:", id)
+		return r, ErrInvalidRequest
+	}
 	
 	c, err := models.GetCampaign(rs.CampaignId, rs.UserId)
 	if err != nil {
