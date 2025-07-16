@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>React App</title>
+    <script>
+        window.__INITIAL_STATE__ = {{
+            user = {
+                id = 123,
+                name = "John Doe",
+                email = "john@example.com"
+            },
+            config = {
+                apiUrl = "https://api.example.com",
+                version = "1.0.0"
+            }
+        }};
+    </script>
+</head>
+<body>
+    <div id="root">
+        <div class="app">
+            <header>
+                <h1>{{appTitle = 'My React App'}}</h1>
+            </header>
+            <main>
+                <div class="component" data-props="{{componentProps = '{\"visible\": true}'}}">
+                    Loading...
+                </div>
+            </main>
+        </div>
+    </div>
+    <script>
+        // Template literals with problematic syntax
+        const template = `{{templateVar = 'value'}}`;
+        const config = {{nested = { deep = { value = 'test' } } }};
+    </script>
+</body>
+</html>

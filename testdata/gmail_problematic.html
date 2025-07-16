@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en-US" dir="ltr">
+<head>
+    <base href="">
+    <style>
+        :root {
+            --primary-color: {{theme.primary = '#4285f4'}};
+            --secondary-color: {{theme.secondary = '#34a853'}};
+        }
+        .button {
+            background: {{buttonColor = 'blue'}};
+        }
+    </style>
+    <script>
+        var config = {{
+            apiKey = "AIzaSyBOti4mM-6x9WDnZIjIeyEU21OpBXqWBgw",
+            authDomain = "example.firebaseapp.com"
+        }};
+        window.templateData = {{userSettings = {theme: 'dark'}}};
+    </script>
+</head>
+<body>
+    <div id="app">
+        <h1>{{pageTitle = 'Gmail Sign In'}}</h1>
+        <form action="/login" method="post">
+            <input type="email" name="email" placeholder="{{emailPlaceholder = 'Enter your email'}}">
+            <input type="password" name="password" placeholder="{{passwordPlaceholder = 'Password'}}">
+            <button type="submit">{{submitText = 'Sign In'}}</button>
+        </form>
+    </div>
+</body>
+</html>

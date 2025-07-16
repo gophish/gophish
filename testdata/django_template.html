@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% if title = 'Home' %}Welcome{% endif %}</title>
+    <style>
+        .content {
+            display: {% if show_content = true %}block{% else %}none{% endif %};
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        {% if user = authenticated %}
+            <h1>Welcome, {% name = user.username %}!</h1>
+        {% endif %}
+        
+        <form method="post">
+            {% csrf_token %}
+            <input type="text" name="query" value="{% search_term = 'default' %}">
+            <button type="submit">{% submit_text = 'Search' %}</button>
+        </form>
+        
+        {% for item = items %}
+            <div class="item">{% item_name = item.title %}</div>
+        {% endfor %}
+    </div>
+</body>
+</html>

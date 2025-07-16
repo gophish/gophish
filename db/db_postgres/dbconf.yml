@@ -1,0 +1,11 @@
+development:
+    driver: postgres
+    open: $DB_PATH
+
+production:
+    driver: postgres
+    open: $DB_PATH
+
+test:
+    driver: postgres
+    open: $DB_PATH

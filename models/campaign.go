@@ -99,16 +99,16 @@ type EventError struct {
 var ErrCampaignNameNotSpecified = errors.New("Campaign name not specified")
 
 // ErrGroupNotSpecified indicates there was no template given by the user
-var ErrGroupNotSpecified = errors.New("No groups specified")
+var ErrGroupNotSpecified = errors.New("no groups specified")
 
 // ErrTemplateNotSpecified indicates there was no template given by the user
-var ErrTemplateNotSpecified = errors.New("No email template specified")
+var ErrTemplateNotSpecified = errors.New("no email template specified")
 
 // ErrPageNotSpecified indicates a landing page was not provided for the campaign
-var ErrPageNotSpecified = errors.New("No landing page specified")
+var ErrPageNotSpecified = errors.New("no landing page specified")
 
 // ErrSMTPNotSpecified indicates a sending profile was not provided for the campaign
-var ErrSMTPNotSpecified = errors.New("No sending profile specified")
+var ErrSMTPNotSpecified = errors.New("no sending profile specified")
 
 // ErrTemplateNotFound indicates the template specified does not exist in the database
 var ErrTemplateNotFound = errors.New("Template not found")
@@ -120,11 +120,11 @@ var ErrGroupNotFound = errors.New("Group not found")
 var ErrPageNotFound = errors.New("Page not found")
 
 // ErrSMTPNotFound indicates a sending profile specified by the user does not exist in the database
-var ErrSMTPNotFound = errors.New("Sending profile not found")
+var ErrSMTPNotFound = errors.New("sending profile not found")
 
 // ErrInvalidSendByDate indicates that the user specified a send by date that occurs before the
 // launch date
-var ErrInvalidSendByDate = errors.New("The launch date must be before the \"send emails by\" date")
+var ErrInvalidSendByDate = errors.New("the launch date must be before the \"send emails by\" date")
 
 // RecipientParameter is the URL parameter that points to the result ID for a recipient.
 const RecipientParameter = "rid"
@@ -272,17 +272,8 @@ func getCampaignStats(cid int64) (CampaignStats, error) {
 		return s, err
 	}
 	query.Where("status=?", EventDataSubmit).Count(&s.SubmittedData)
-	if err != nil {
-		return s, err
-	}
 	query.Where("status=?", EventClicked).Count(&s.ClickedLink)
-	if err != nil {
-		return s, err
-	}
 	query.Where("reported=?", true).Count(&s.EmailReported)
-	if err != nil {
-		return s, err
-	}
 	// Every submitted data event implies they clicked the link
 	s.ClickedLink += s.SubmittedData
 	err = query.Where("status=?", EventOpened).Count(&s.OpenedEmail).Error

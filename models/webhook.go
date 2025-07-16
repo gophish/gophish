@@ -19,7 +19,7 @@ type Webhook struct {
 var ErrURLNotSpecified = errors.New("URL can't be empty")
 
 // ErrNameNotSpecified indicates there was no name specified
-var ErrNameNotSpecified = errors.New("Name can't be empty")
+var ErrNameNotSpecified = errors.New("name can't be empty")
 
 // GetWebhooks returns the webhooks
 func GetWebhooks() ([]Webhook, error) {

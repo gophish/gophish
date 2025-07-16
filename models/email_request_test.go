@@ -131,6 +131,7 @@ func (s *ModelsSuite) TestGetSmtpFrom(ch *check.C) {
 
 	msg := gomail.NewMessage()
 	err := req.Generate(msg)
+	ch.Assert(err, check.Equals, nil)
 	smtp_from, err := req.GetSmtpFrom()
 
 	ch.Assert(err, check.Equals, nil)
@@ -214,6 +215,8 @@ func (s *ModelsSuite) TestEmailRequestGenerateEmptySubject(ch *check.C) {
 	got, err := email.NewEmailFromReader(msgBuff)
 	ch.Assert(err, check.Equals, nil)
 	ch.Assert(got.Subject, check.Equals, expected.Subject)
+	ch.Assert(got.Text, check.DeepEquals, expected.Text)
+	ch.Assert(got.HTML, check.DeepEquals, expected.HTML)
 }
 
 func (s *ModelsSuite) TestPostSendTestEmailRequest(ch *check.C) {

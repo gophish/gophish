@@ -10,7 +10,7 @@ import (
 // ErrModifyingOnlyAdmin occurs when there is an attempt to modify the only
 // user account with the Admin role in such a way that there will be no user
 // accounts left in Gophish with that role.
-var ErrModifyingOnlyAdmin = errors.New("Cannot remove the only administrator")
+var ErrModifyingOnlyAdmin = errors.New("cannot remove the only administrator")
 
 // User represents the user model for gophish.
 type User struct {

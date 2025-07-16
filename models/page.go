@@ -80,6 +80,10 @@ func (p *Page) Validate() error {
 		p.CaptureCredentials = true
 	}
 	if err := ValidateTemplate(p.HTML); err != nil {
+		// Provide user-friendly error messages for template syntax issues
+		if strings.Contains(err.Error(), "bad character") {
+			return errors.New("imported HTML contains invalid template syntax ({{}} patterns) that conflicts with Go templates. Please re-import the page or manually escape template delimiters")
+		}
 		return err
 	}
 	if err := ValidateTemplate(p.RedirectURL); err != nil {

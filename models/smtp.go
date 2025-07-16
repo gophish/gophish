@@ -56,18 +56,18 @@ type Header struct {
 
 // ErrFromAddressNotSpecified is thrown when there is no "From" address
 // specified in the SMTP configuration
-var ErrFromAddressNotSpecified = errors.New("No From Address specified")
+var ErrFromAddressNotSpecified = errors.New("no From Address specified")
 
 // ErrInvalidFromAddress is thrown when the SMTP From field in the sending
 // profiles containes a value that is not an email address
-var ErrInvalidFromAddress = errors.New("Invalid SMTP From address because it is not an email address")
+var ErrInvalidFromAddress = errors.New("invalid SMTP From address because it is not an email address")
 
 // ErrHostNotSpecified is thrown when there is no Host specified
 // in the SMTP configuration
-var ErrHostNotSpecified = errors.New("No SMTP Host specified")
+var ErrHostNotSpecified = errors.New("no SMTP Host specified")
 
 // ErrInvalidHost indicates that the SMTP server string is invalid
-var ErrInvalidHost = errors.New("Invalid SMTP server address")
+var ErrInvalidHost = errors.New("invalid SMTP server address")
 
 // TableName specifies the database tablename for Gorm to use
 func (s SMTP) TableName() string {
@@ -104,7 +104,7 @@ func (s *SMTP) Validate() error {
 
 // validateFromAddress validates
 func validateFromAddress(email string) bool {
-	r, _ := regexp.Compile("^([a-zA-Z0-9_\\-\\.]+)@([a-zA-Z0-9_\\-\\.]+)\\.([a-zA-Z]{2,18})$")
+	r, _ := regexp.Compile(`^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,18})$`)
 	return r.MatchString(email)
 }
 

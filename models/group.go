@@ -86,13 +86,13 @@ func (t *Target) FormatAddress() string {
 }
 
 // ErrEmailNotSpecified is thrown when no email is specified for the Target
-var ErrEmailNotSpecified = errors.New("No email address specified")
+var ErrEmailNotSpecified = errors.New("no email address specified")
 
 // ErrGroupNameNotSpecified is thrown when a group name is not specified
 var ErrGroupNameNotSpecified = errors.New("Group name not specified")
 
 // ErrNoTargetsSpecified is thrown when no targets are specified by the user
-var ErrNoTargetsSpecified = errors.New("No targets specified")
+var ErrNoTargetsSpecified = errors.New("no targets specified")
 
 // Validate performs validation on a group given by the user
 func (g *Group) Validate() error {
@@ -327,10 +327,6 @@ func insertTargetIntoGroup(tx *gorm.DB, t Target, gid int64) error {
 		return err
 	}
 	err = tx.Save(&GroupTarget{GroupId: gid, TargetId: t.Id}).Error
-	if err != nil {
-		log.Error(err)
-		return err
-	}
 	if err != nil {
 		log.WithFields(logrus.Fields{
 			"email": t.Email,

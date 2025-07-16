@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Gophish Landing Page</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .form-container { max-width: 400px; margin: 50px auto; }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h2>Welcome {{.FirstName}} {{.LastName}}</h2>
+        <p>Please sign in with your credentials.</p>
+        
+        <form action="" method="post">
+            <div>
+                <label>Email:</label>
+                <input type="email" name="email" required>
+            </div>
+            <div>
+                <label>Password:</label>
+                <input type="password" name="password" required>
+            </div>
+            <button type="submit">Sign In</button>
+        </form>
+        
+        <p>If you have issues, contact support at {{.URL}}</p>
+        {{.Tracker}}
+    </div>
+</body>
+</html>

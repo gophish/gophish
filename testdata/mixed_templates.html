@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mixed Template Patterns</title>
+    <style>
+        /* CSS custom properties that break Go templates */
+        :root {
+            --theme-color: {{theme = 'blue'}};
+            --font-size: {{fontSize = '16px'}};
+        }
+        
+        /* Valid CSS that shouldn't be touched */
+        .container {
+            color: var(--theme-color);
+            font-size: var(--font-size);
+        }
+    </style>
+    <script>
+        // Problematic JavaScript
+        var appConfig = {{
+            api_endpoint = "https://api.example.com",
+            debug_mode = true,
+            user_preferences = {
+                theme = "dark",
+                language = "en"
+            }
+        }};
+        
+        // More complex nested patterns
+        window.data = {{outer = { inner = { value = 'nested' } } }};
+    </script>
+</head>
+<body>
+    <!-- Valid Gophish templates that should work -->
+    <div class="header">
+        <h1>Hello {{.FirstName}}!</h1>
+        <p>Visit: {{.URL}}</p>
+    </div>
+    
+    <!-- Django-style templates -->
+    <div class="content">
+        {% if user_type = 'admin' %}
+            <p>Admin panel available</p>
+        {% endif %}
+        
+        {% for item = user.items %}
+            <div>{% item_name = item.title %}</div>
+        {% endfor %}
+    </div>
+    
+    <!-- Form with mixed patterns -->
+    <form action="" method="post">
+        <input type="hidden" name="csrf" value="{% csrf_token = generate_token() %}">
+        <input type="text" name="username" placeholder="{{usernamePlaceholder = 'Enter username'}}">
+        <input type="password" name="password">
+        <button type="submit">{{submitButtonText = 'Login'}}</button>
+    </form>
+    
+    <!-- Valid Gophish tracker -->
+    {{.Tracker}}
+</body>
+</html>

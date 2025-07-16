@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"encoding/base64"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
@@ -29,7 +29,7 @@ func (s *ModelsSuite) TestAttachment(c *check.C) {
 		RId:         "1234567",
 	}
 
-	files, err := ioutil.ReadDir("testdata")
+	files, err := os.ReadDir("testdata")
 	if err != nil {
 		log.Fatalf("Failed to open attachment folder 'testdata': %v\n", err)
 	}
@@ -51,7 +51,7 @@ func (s *ModelsSuite) TestAttachment(c *check.C) {
 			c.Assert(a.vanillaFile, check.Not(check.Equals), strings.Contains(fname, "with-vars"))
 
 			// Verfify template was applied as expected
-			tt, err := ioutil.ReadAll(t)
+			tt, err := io.ReadAll(t)
 			if err != nil {
 				log.Fatalf("Failed to parse templated file '%s': %v\n", fname, err)
 			}
@@ -68,7 +68,7 @@ func readFile(fname string) string {
 		log.Fatalf("Failed to open file '%s': %v\n", fname, err)
 	}
 	reader := bufio.NewReader(f)
-	content, err := ioutil.ReadAll(reader)
+	content, err := io.ReadAll(reader)
 	if err != nil {
 		log.Fatalf("Failed to read file '%s': %v\n", fname, err)
 	}

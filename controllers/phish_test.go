@@ -4,9 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
+	"os"
 	"reflect"
 	"testing"
 
@@ -48,11 +49,11 @@ func openEmail(t *testing.T, ctx *testContext, rid string) {
 		t.Fatalf("error requesting /track endpoint: %v", err)
 	}
 	defer resp.Body.Close()
-	got, err := ioutil.ReadAll(resp.Body)
+	got, err := io.ReadAll(resp.Body)
 	if err != nil {
 		t.Fatalf("error reading response body from /track endpoint: %v", err)
 	}
-	expected, err := ioutil.ReadFile("static/images/pixel.png")
+	expected, err := os.ReadFile("static/images/pixel.png")
 	if err != nil {
 		t.Fatalf("error reading local transparent pixel: %v", err)
 	}
@@ -104,7 +105,7 @@ func clickLink(t *testing.T, ctx *testContext, rid string, expectedHTML string) 
 		t.Fatalf("error requesting / endpoint: %v", err)
 	}
 	defer resp.Body.Close()
-	got, err := ioutil.ReadAll(resp.Body)
+	got, err := io.ReadAll(resp.Body)
 	if err != nil {
 		t.Fatalf("error reading payload from / endpoint response: %v", err)
 	}
@@ -303,7 +304,7 @@ func TestRobotsHandler(t *testing.T) {
 		t.Fatalf("invalid status code received for /track endpoint. expected %d got %d", expectedStatus, got)
 	}
 	expected := []byte("User-agent: *\nDisallow: /\n")
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		t.Fatalf("error reading response body from /robots.txt endpoint: %v", err)
 	}

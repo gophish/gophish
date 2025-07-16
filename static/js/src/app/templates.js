@@ -28,11 +28,20 @@ function save(idx) {
     if ($("#use_tracker_checkbox").prop("checked")) {
         if (template.html.indexOf("{{.Tracker}}") == -1 &&
             template.html.indexOf("{{.TrackingUrl}}") == -1) {
-            template.html = template.html.replace("</body>", "{{.Tracker}}</body>")
+            // Check if </body> tag exists
+            if (template.html.toLowerCase().indexOf("</body>") !== -1) {
+                // Case-insensitive replacement to handle </BODY>, </Body>, etc.
+                template.html = template.html.replace(/<\/body>/gi, "{{.Tracker}}</body>")
+            } else {
+                // If no body tag, append tracker at the end
+                template.html = template.html + "{{.Tracker}}"
+            }
         }
     } else {
-        // Otherwise, remove the tracker
-        template.html = template.html.replace("{{.Tracker}}</body>", "</body>")
+        // Otherwise, remove the tracker (handle all variations)
+        template.html = template.html.replace(/{{\.Tracker}}(<\/body>)?/gi, function(match, bodyTag) {
+            return bodyTag || '';
+        })
     }
     template.text = $("#text_editor").val()
     // Add the attachments
@@ -391,9 +400,28 @@ $(document).ready(function () {
                 }
             }, this));
     };
-    // Scrollbar fix - https://stackoverflow.com/questions/19305821/multiple-modals-overlay
+    // Improved modal scrolling fix
     $(document).on('hidden.bs.modal', '.modal', function () {
-        $('.modal:visible').length && $(document.body).addClass('modal-open');
+        // Check if any modals are still visible
+        if ($('.modal:visible').length) {
+            // Maintain modal-open class to preserve scrollbar behavior
+            $(document.body).addClass('modal-open');
+        }
+        
+        // Force recalculation of scrollbar to fix potential glitches
+        var scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+        if (scrollbarWidth > 0 && $('.modal:visible').length) {
+            $(document.body).css('padding-right', scrollbarWidth + 'px');
+        } else {
+            $(document.body).css('padding-right', '');
+        }
+    });
+    
+    // Additional fix for modal show events
+    $(document).on('shown.bs.modal', '.modal', function () {
+        // Ensure proper scrolling within modals
+        $(this).find('.modal-body').css('max-height', $(window).height() * 0.7);
+        $(this).find('.modal-body').css('overflow-y', 'auto');
     });
     $('#modal').on('hidden.bs.modal', function (event) {
         dismiss()
@@ -416,6 +444,33 @@ $(document).ready(function () {
             infoTab.get('linkType').hidden = true;
         }
     });
+    
+    // Handle tracking checkbox changes with CKEditor sync
+    $(document).on('change', '#use_tracker_checkbox', function() {
+        if (CKEDITOR.instances["html_editor"]) {
+            var editor = CKEDITOR.instances["html_editor"];
+            var html = editor.getData();
+            
+            if ($(this).prop("checked")) {
+                // Add tracker if not present
+                if (html.indexOf("{{.Tracker}}") == -1 && html.indexOf("{{.TrackingUrl}}") == -1) {
+                    if (html.toLowerCase().indexOf("</body>") !== -1) {
+                        html = html.replace(/<\/body>/gi, "{{.Tracker}}</body>");
+                    } else {
+                        html = html + "{{.Tracker}}";
+                    }
+                    editor.setData(html);
+                }
+            } else {
+                // Remove tracker if present
+                html = html.replace(/{{\.Tracker}}(<\/body>)?/gi, function(match, bodyTag) {
+                    return bodyTag || '';
+                });
+                editor.setData(html);
+            }
+        }
+    });
+    
     load()
 
 })

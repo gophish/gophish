@@ -96,6 +96,22 @@ func (as *Server) ImportEmail(w http.ResponseWriter, r *http.Request) {
 	JSONResponse(w, er, http.StatusOK)
 }
 
+// sanitizeTemplateContent escapes Go template syntax in HTML content
+// to prevent template parsing errors when importing from external sites.
+// This function converts template delimiters that could be interpreted
+// as Go template syntax into HTML entities.
+func sanitizeTemplateContent(html string) string {
+	// Escape Go template delimiters {{ and }}
+	html = strings.ReplaceAll(html, "{{", "&#123;&#123;")
+	html = strings.ReplaceAll(html, "}}", "&#125;&#125;")
+	
+	// Also handle Django/Jinja2 template patterns for completeness
+	html = strings.ReplaceAll(html, "{%", "&#123;%")
+	html = strings.ReplaceAll(html, "%}", "%&#125;")
+	
+	return html
+}
+
 // ImportSite allows for the importing of HTML from a website
 // Without "include_resources" set, it will merely place a "base" tag
 // so that all resources can be loaded relative to the given URL.
@@ -152,6 +168,8 @@ func (as *Server) ImportSite(w http.ResponseWriter, r *http.Request) {
 		JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
 		return
 	}
+	// Sanitize HTML to prevent Go template parsing errors from imported content
+	h = sanitizeTemplateContent(h)
 	cs := cloneResponse{HTML: h}
 	JSONResponse(w, cs, http.StatusOK)
 }
