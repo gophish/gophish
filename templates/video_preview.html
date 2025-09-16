@@ -1,0 +1,16 @@
+{{ define "body" }}
+<div class="content">
+  <div class="row">
+    <div class="col-sm-12">
+      <h1 class="page-header">Preview: {{ .Video.Title }}</h1>
+      <video width="100%" controls poster="{{ .Video.Thumbnail }}">
+        <source src="{{ .Video.Filename }}" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+      <br><br>
+      <a class="btn btn-default" href="/videos">Back</a>
+    </div>
+  </div>
+</div>
+{{ end }}
+

@@ -1,0 +1,41 @@
+{{ define "body" }}
+<div class="content">
+  <div class="row">
+    <div class="col-sm-12">
+      <h1 class="page-header">{{ if .Video }}Edit Video{{ else }}New Video{{ end }}</h1>
+      <form method="post" action="{{ if .Video }}/videos/{{ .Video.ID }}{{ else }}/videos{{ end }}" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ .Token }}">
+        <div class="form-group">
+          <label>Title</label>
+          <input class="form-control" name="title" value="{{ if .Video }}{{ .Video.Title }}{{ end }}" required>
+        </div>
+        <div class="form-group">
+          <label>Slug (optional)</label>
+          <input class="form-control" name="slug" value="{{ if .Video }}{{ .Video.Slug }}{{ end }}">
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea class="form-control" name="description" rows="3">{{ if .Video }}{{ .Video.Description }}{{ end }}</textarea>
+        </div>
+        <div class="form-group">
+          <label>Duration (seconds)</label>
+          <input class="form-control" name="duration_seconds" type="number" min="0" value="{{ if .Video }}{{ .Video.DurationSeconds }}{{ else }}0{{ end }}">
+        </div>
+        <div class="form-group">
+          <label>Video File (.mp4)</label>
+          {{ if .Video }}
+            <p class="text-muted">Current: {{ .Video.Filename }}</p>
+            <input class="form-control" type="file" name="file" accept=".mp4">
+            <small>Leave empty to keep current file</small>
+          {{ else }}
+            <input class="form-control" type="file" name="file" accept=".mp4" required>
+          {{ end }}
+        </div>
+        <button class="btn btn-primary" type="submit">{{ if .Video }}Update{{ else }}Create{{ end }}</button>
+        <a class="btn btn-default" href="/videos">Cancel</a>
+      </form>
+    </div>
+  </div>
+</div>
+{{ end }}
+

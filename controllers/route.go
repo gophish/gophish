@@ -144,6 +144,15 @@ func (as *AdminServer) registerRoutes() {
 	)
 	router.PathPrefix("/api/").Handler(api)
 
+	// Video Manager
+	router.HandleFunc("/videos",      mid.Use(as.Videos,      mid.RequireLogin))
+	router.HandleFunc("/videos/new",  mid.Use(as.VideoNew,    mid.RequireLogin))
+	router.HandleFunc("/videos",      mid.Use(as.VideoCreate, mid.RequireLogin)).Methods("POST")
+	router.HandleFunc("/videos/{id:[0-9]+}/edit", mid.Use(as.VideoEdit,   mid.RequireLogin))
+	router.HandleFunc("/videos/{id:[0-9]+}",      mid.Use(as.VideoUpdate, mid.RequireLogin)).Methods("POST")
+	router.HandleFunc("/videos/{id:[0-9]+}/delete", mid.Use(as.VideoDelete, mid.RequireLogin)).Methods("POST")
+	router.HandleFunc("/videos/{id:[0-9]+}/preview", mid.Use(as.VideoPreview, mid.RequireLogin))
+
 	// Setup static file serving
 	router.PathPrefix("/").Handler(http.FileServer(unindexed.Dir("./static/")))
 

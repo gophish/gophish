@@ -1,0 +1,67 @@
+{{ define "body" }}
+<div class="training-container">
+  <h2>{{ .Video.Title }}</h2>
+  <p>{{ .Video.Description }}</p>
+
+  <video id="trainingVideo" width="100%" controls poster="{{ .Video.Thumbnail }}">
+    <source src="{{ .Video.Filename }}" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+
+  <div>
+    <small>진행률: <span id="percentLabel">0%</span></small>
+    <button id="downloadCert" style="display:none">수료증 출력</button>
+  </div>
+</div>
+
+<script>
+  const enrollmentId = {{ .Enrollment.ID }};
+  const videoEl = document.getElementById('trainingVideo');
+  let duration = 0;
+  const heartbeatInterval = 5000; // 5s
+  let hbTimer = null;
+
+  function sendProgress(eventType) {
+    if (!duration || !enrollmentId) return;
+    const payload = {
+      enrollment_id: enrollmentId,
+      current_time: Math.floor(videoEl.currentTime),
+      duration: Math.floor(duration),
+      event: eventType || 'progress'
+    };
+    fetch('/api/training/progress', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    }).then(r => r.json()).then(data => {
+      if (data.percent_played !== undefined) {
+        document.getElementById('percentLabel').innerText = Math.round(data.percent_played) + '%';
+        if (data.completed) {
+          document.getElementById('downloadCert').style.display = 'inline-block';
+        }
+      }
+    }).catch(console.error);
+  }
+
+  videoEl.addEventListener('loadedmetadata', function(){
+    duration = videoEl.duration;
+    // resume position from server if last_position exists via enrollment object
+    const lastPos = {{ .Enrollment.LastPositionSec | default 0 }};
+    if (lastPos && lastPos > 0 && lastPos < duration - 2) {
+      videoEl.currentTime = lastPos;
+    }
+  });
+  videoEl.addEventListener('play', function(){ sendProgress('play'); hbTimer = setInterval(()=>sendProgress('progress'), heartbeatInterval); });
+  videoEl.addEventListener('pause', function(){ sendProgress('pause'); if (hbTimer) clearInterval(hbTimer); });
+  videoEl.addEventListener('timeupdate', function(){
+    const pct = duration ? (videoEl.currentTime / duration * 100) : 0;
+    document.getElementById('percentLabel').innerText = Math.round(pct) + '%';
+  });
+  videoEl.addEventListener('ended', function(){ sendProgress('ended'); if (hbTimer) clearInterval(hbTimer); });
+
+  document.getElementById('downloadCert').addEventListener('click', function(){
+    window.open('/training/certificate?enrollment_id=' + enrollmentId, '_blank');
+  });
+</script>
+{{ end }}
+

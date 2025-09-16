@@ -125,6 +125,11 @@ func (ps *PhishingServer) registerRoutes() {
 	router.HandleFunc("/report-form", ps.ReportFormGet).Methods("GET")
 	router.HandleFunc("/report-form", ps.ReportFormPost).Methods("POST")
 
+	// 교육(수신자) 라우트 추가 — 같은 패키지이므로 접두사 없이 함수명만 씀
+	router.HandleFunc("/training/landing", TrainingLandingHandler).Methods("GET")
+	router.HandleFunc("/api/training/progress", TrainingProgressAPI).Methods("POST")
+	router.HandleFunc("/training/certificate", TrainingCertificateHandler).Methods("GET")
+
 	// 루트("/") 처리
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 	    rid := r.URL.Query().Get(models.RecipientParameter)

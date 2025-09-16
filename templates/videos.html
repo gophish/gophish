@@ -1,0 +1,45 @@
+{{ define "body" }}
+<div class="content">
+  <div class="row">
+    <div class="col-sm-12">
+      <h1 class="page-header">Videos</h1>
+      <a class="btn btn-primary" href="/videos/new"><i class="fa fa-plus"></i> New Video</a>
+      <hr/>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th style="width:60px;">ID</th>
+            <th>Title</th>
+            <th>Slug</th>
+            <th>Duration</th>
+            <th>Filename</th>
+            <th style="width:220px;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{ range .Videos }}
+          <tr>
+            <td>{{ .ID }}</td>
+            <td>{{ .Title }}</td>
+            <td>{{ .Slug }}</td>
+            <td>{{ .DurationSeconds }}s</td>
+            <td style="max-width:360px;word-break:break-all;">{{ .Filename }}</td>
+            <td>
+              <a class="btn btn-xs btn-default" href="/videos/{{ .ID }}/preview">Preview</a>
+              <a class="btn btn-xs btn-info" href="/videos/{{ .ID }}/edit">Edit</a>
+              <form method="post" action="/videos/{{ .ID }}/delete" style="display:inline" onsubmit="return confirm('Delete this video?');">
+                <input type="hidden" name="csrf_token" value="{{ .Token }}">
+                <button class="btn btn-xs btn-danger" type="submit">Delete</button>
+              </form>
+            </td>
+          </tr>
+          {{ else }}
+          <tr><td colspan="6" class="text-muted">No videos yet.</td></tr>
+          {{ end }}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{{ end }}
+
