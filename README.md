@@ -1,6 +1,6 @@
-![gophish logo](https://raw.github.com/gophish/gophish/master/static/images/gophish_purple.png)
+![mjphish logo](https://github.com/Mauldin-Jenkins/mjphish/blob/89d68bf3a86228db197bcf0234c3d10601c0c101/reports/assets/images/mjlogo.png)
 
-Gophish
+MJphish
 =======
 
 ![Build Status](https://github.com/gophish/gophish/workflows/CI/badge.svg) [![GoDoc](https://godoc.org/github.com/gophish/gophish?status.svg)](https://godoc.org/github.com/gophish/gophish)
