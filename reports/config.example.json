@@ -1,0 +1,18 @@
+{
+  "gophish_url": "http://localhost:3333",
+  "api_key": "your_gophish_api_key_here",
+  "report_settings": {
+    "company_name": "Your Company Name",
+    "company_address_1": "123 Main Street",
+    "company_address_2": "City, State 12345",
+    "default_impersonated": "IT Department",
+    "signature_name": "Security Team",
+    "signature_location": "Your City, State"
+  },
+  "branding": {
+    "use_custom_fonts": true,
+    "use_custom_images": true,
+    "primary_color": "#379095",
+    "secondary_color": "#2f3d4c"
+  }
+}

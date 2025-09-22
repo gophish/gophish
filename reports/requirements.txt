@@ -1,0 +1,9 @@
+chardet==5.2.0
+pexpect==4.9.0
+Pillow==11.2.1
+pyOpenSSL==25.0.0
+pycryptodome==3.22.0
+pypdf==5.4.0
+reportlab==4.4.0
+qrcode==8.1
+requests==2.31.0
