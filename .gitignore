@@ -33,6 +33,6 @@ gophish
 *.venv
 reports/output/*
 reports/config.json
-config.json
 *__pycache__
 
+config.json
