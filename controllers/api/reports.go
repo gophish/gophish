@@ -53,19 +53,19 @@ type ClickEntry struct {
 
 // ReportStats contains campaign statistics
 type ReportStats struct {
-	TotalTargets    int64 `json:"total_targets"`
-	EmailsSent      int64 `json:"emails_sent"`
-	EmailsOpened    int64 `json:"emails_opened"`
-	LinksClicked    int64 `json:"links_clicked"`
-	CredSubmitted   int64 `json:"cred_submitted"`
-	EmailsReported  int64 `json:"emails_reported"`
+	TotalTargets   int64 `json:"total_targets"`
+	EmailsSent     int64 `json:"emails_sent"`
+	EmailsOpened   int64 `json:"emails_opened"`
+	LinksClicked   int64 `json:"links_clicked"`
+	CredSubmitted  int64 `json:"cred_submitted"`
+	EmailsReported int64 `json:"emails_reported"`
 }
 
 // CampaignExportData exports campaign data in a format suitable for MJSET report generation
 func (as *Server) CampaignExportData(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.ParseInt(vars["id"], 0, 64)
-	
+
 	// Get campaign with all related data
 	c, err := models.GetCampaign(id, ctx.Get(r, "user_id").(int64))
 	if err != nil {
@@ -101,7 +101,7 @@ func (as *Server) CampaignExportData(w http.ResponseWriter, r *http.Request) {
 	for _, result := range c.Results {
 		// Add target email
 		exportData.Targets = append(exportData.Targets, result.Email)
-		
+
 		if result.Reported {
 			exportData.Stats.EmailsReported++
 		}
@@ -109,6 +109,9 @@ func (as *Server) CampaignExportData(w http.ResponseWriter, r *http.Request) {
 
 	// Process events for both detailed data AND statistics
 	for _, event := range c.Events {
+		// Debug: Log all event messages to help troubleshoot
+		log.Info(fmt.Sprintf("Processing event: '%s' for email: %s", event.Message, event.Email))
+
 		// Count statistics based on events (not just final status)
 		switch event.Message {
 		case models.EventSent:
@@ -120,7 +123,7 @@ func (as *Server) CampaignExportData(w http.ResponseWriter, r *http.Request) {
 		case models.EventDataSubmit:
 			exportData.Stats.CredSubmitted++
 		}
-		
+
 		// Process detailed event data
 		switch event.Message {
 		case models.EventDataSubmit:
@@ -136,7 +139,7 @@ func (as *Server) CampaignExportData(w http.ResponseWriter, r *http.Request) {
 					if passwords, ok := payload["password"]; ok && len(passwords) > 0 {
 						password = passwords[0]
 					}
-					
+
 					// Find the corresponding result for IP address
 					ip := ""
 					for _, result := range c.Results {
@@ -145,7 +148,7 @@ func (as *Server) CampaignExportData(w http.ResponseWriter, r *http.Request) {
 							break
 						}
 					}
-					
+
 					exportData.Credentials = append(exportData.Credentials, CredentialEntry{
 						Email:     event.Email,
 						Username:  username,
@@ -164,7 +167,7 @@ func (as *Server) CampaignExportData(w http.ResponseWriter, r *http.Request) {
 					break
 				}
 			}
-			
+
 			exportData.Clicks = append(exportData.Clicks, ClickEntry{
 				Email:     event.Email,
 				IP:        ip,
@@ -180,7 +183,7 @@ func (as *Server) CampaignExportData(w http.ResponseWriter, r *http.Request) {
 func (as *Server) GenerateReports(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.ParseInt(vars["id"], 0, 64)
-	
+
 	// Verify campaign exists and user has access
 	_, err := models.GetCampaign(id, ctx.Get(r, "user_id").(int64))
 	if err != nil {
@@ -199,7 +202,7 @@ func (as *Server) GenerateReports(w http.ResponseWriter, r *http.Request) {
 
 	// Path to the Python bridge script
 	scriptPath := filepath.Join(workDir, "reports", "gophish_bridge.py")
-	
+
 	// Check if script exists
 	if _, err := os.Stat(scriptPath); os.IsNotExist(err) {
 		log.Error("Python bridge script not found at: " + scriptPath)
@@ -210,7 +213,7 @@ func (as *Server) GenerateReports(w http.ResponseWriter, r *http.Request) {
 	// Execute the Python script
 	cmd := exec.Command("python3", scriptPath, strconv.FormatInt(id, 10))
 	cmd.Dir = filepath.Join(workDir, "reports")
-	
+
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		log.Error(fmt.Sprintf("Report generation failed: %s, Output: %s", err.Error(), string(output)))
@@ -227,7 +230,7 @@ func (as *Server) DownloadReport(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.ParseInt(vars["id"], 0, 64)
 	reportType := vars["type"]
-	
+
 	// Verify campaign exists and user has access
 	_, err := models.GetCampaign(id, ctx.Get(r, "user_id").(int64))
 	if err != nil {
@@ -239,7 +242,7 @@ func (as *Server) DownloadReport(w http.ResponseWriter, r *http.Request) {
 	// Determine file path based on report type
 	workDir, _ := os.Getwd()
 	reportsDir := filepath.Join(workDir, "reports", "output", fmt.Sprintf("campaign_%d", id))
-	
+
 	var fileName string
 	switch reportType {
 	case "executive":
@@ -254,7 +257,7 @@ func (as *Server) DownloadReport(w http.ResponseWriter, r *http.Request) {
 	}
 
 	filePath := filepath.Join(reportsDir, fileName)
-	
+
 	// Check if file exists
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
 		JSONResponse(w, models.Response{Success: false, Message: "Report file not found"}, http.StatusNotFound)
