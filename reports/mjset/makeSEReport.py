@@ -360,32 +360,37 @@ class makeSEReport(PdfReport):
         os.makedirs(template_dir, exist_ok=True)
         
         with open(self.leaderFile, 'w') as f:
-            f.write("#HEADER#Executive Summary\n\n")
-            f.write("This report presents the results of a social engineering assessment conducted for <Client_Name> on <Date_of_Test>.\n\n")
-            f.write("The assessment targeted <Email_List_Length> employees using <How_Test_Performed>.\n\n")
+            f.write("To the Management of <Client_Name>:\n\n")
+            f.write("#HEADER#Purpose:\n\n")
+            f.write("The purpose of Social Engineering Testing is to evaluate the extent to which employees comply with the security policies and protocols set by management. Through testing, an organization can gather insights into the potential susceptibility of its employees to unauthorized access attempts, breach of security protocols, or disclosure of sensitive information.\n\n")
+            
+            f.write("#HEADER#Scope:\n\n")
+            f.write("Mauldin & Jenkins, LLC. performed a Social Engineering Phishing Campaign against <Client_Name>'s network and employees on <Date_of_Test>. The process was designed to initially test the technical controls in place to block this attack vector, then focus on the employees and their adherence to policies, procedures and training. The test was performed <How_Test_Performed>.\n\n")
+            
+            f.write("#HEADER#Procedures:\n\n")
+            f.write("Using an internally developed, custom social engineering tool, the auditor created an email phishing campaign designed to lure <Client_Name>'s employees into navigating to our 'malicious' site. <Client_Name> provided us with a list of <Email_List_Length> employees and their email addresses.\n\n")
+            f.write("We posed as <Impersonated_Employee_Group>, and directed the employees to visit our site by <Nav_Vector>. The auditor sent communications to <Email_List_Length> of <Client_Name>'s employees.\n\n")
+            
+            f.write("#IMAGE#<Email_Image_Here>\n")
+            f.write("Figure 1 – Phishing Email Example\n\n")
+            
+            f.write("The auditor configured the following website <Malicious_Domain> containing a sign-in prompt to support the pre-determined attack vector, as shown in Figure 2. The auditor's communications <was_or_was_not> initially blocked by <Client_Name>'s existing network defenses.\n\n")
+            
+            f.write("#IMAGE#<Website_Image_Here>\n")
+            f.write("Figure 2 – Phishing Website Screenshot\n\n")
+            
             f.write("#HEADER#Results Overview\n\n")
             f.write("• Total employees targeted: <Email_List_Length>\n")
             f.write("• Employees who clicked the link: <User_Click_Count> (<userClickPercentage>%)\n")
             f.write("• Employees who submitted credentials: <Employees_Who_Entered_Credentials_Count> (<credPercent>%)\n")
             f.write("• Total credentials collected: <Credentials_Collected_Count>\n\n")
-            f.write("#SUCCESS#Password Analysis\n\n")
+            
+            f.write("#SUCCESS##HEADER#Password Analysis\n\n")
             f.write("#SUCCESS#A total of <NumberOfPWs> passwords were collected during this assessment.\n\n")
+            
             f.write("#HEADER#Detailed Results\n\n")
             f.write("The following table shows the detailed click and credential submission data:\n\n")
             f.write("#TABLE#<Click_By_User_Details_Here>\n\n")
-            f.write("#HEADER#Screenshots\n\n")
-            f.write("Email Template:\n")
-            f.write("#IMAGE#<Email_Image_Here>\n")
-            f.write("Figure 1: Email template used in the assessment\n\n")
-            f.write("Landing Page:\n")
-            f.write("#IMAGE#<Website_Image_Here>\n")
-            f.write("Figure 2: Landing page used to collect credentials\n\n")
-            f.write("#HEADER#Recommendations\n\n")
-            f.write("Based on the results of this assessment, we recommend:\n\n")
-            f.write("1. Implement regular security awareness training\n")
-            f.write("2. Conduct periodic phishing simulations\n")
-            f.write("3. Implement multi-factor authentication\n")
-            f.write("4. Establish clear incident reporting procedures\n\n")
 
     def printTable(self, passed_list):
         """Print a data table in the report"""

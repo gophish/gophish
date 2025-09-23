@@ -167,11 +167,34 @@ class GophishBridge:
         # Set default values that would normally be prompted
         report_generator.cA1 = "Client Address Line 1"
         report_generator.cA2 = "Client Address Line 2"
-        report_generator.initialBlocked = 'n'  # Assume not initially blocked
-        report_generator.testMethod = "externally using email links"
-        report_generator.navVecString = 'clicking on a link'
-        report_generator.blockedString = 'were not initially'
-        report_generator.impersonated = 'Unknown Organization'
+        
+        # Use user customizations if available, otherwise use defaults
+        if hasattr(self, 'user_customizations'):
+            customizations = self.user_customizations
+            report_generator.testMethod = customizations['test_method']
+            report_generator.initialBlocked = customizations['blocked']
+            report_generator.impersonated = customizations['impersonated']
+            report_generator.blockedString = 'were initially' if customizations['blocked'] == 'y' else 'were not initially'
+        else:
+            # Default values
+            report_generator.initialBlocked = 'n'
+            report_generator.testMethod = "externally using email links"
+            report_generator.blockedString = 'were not initially'
+            
+            # Try to extract sender info from campaign data or use default
+            campaign_url = data['campaign'].get('url', 'Unknown Domain')
+            if 'training.' in campaign_url:
+                report_generator.impersonated = 'IT Training Department'
+            elif 'bank' in campaign_url.lower():
+                report_generator.impersonated = 'Banking Institution'
+            else:
+                report_generator.impersonated = 'IT Department'
+        
+        # Set navigation vector based on test method
+        if 'QR' in report_generator.testMethod:
+            report_generator.navVecString = 'scanning QR codes'
+        else:
+            report_generator.navVecString = 'clicking on a link'
         
         # Set up file paths
         report_generator.credCSVFile = os.path.join(report_generator.clientFolder, 'cred.csv')
@@ -201,12 +224,61 @@ class GophishBridge:
             f.write(png_data)
 
 
+def get_user_input_for_report():
+    """Get user input for report customization"""
+    print("\n" + "="*60)
+    print("REPORT CUSTOMIZATION")
+    print("="*60)
+    
+    # Get test method
+    print("\nComplete the sentence 'The test was performed ' with one of the following options:")
+    print("     1) externally using email links")
+    print("     2) externally using QR Codes") 
+    print("     3) externally using email links and QR Codes")
+    print("     4) internally using email links")
+    print("     5) internally using QR Codes")
+    print("     6) internally using email links and QR Codes")
+    
+    while True:
+        choice = input("\nEnter choice (1-6): ").strip()
+        test_methods = {
+            '1': 'externally using email links',
+            '2': 'externally using QR Codes',
+            '3': 'externally using email links and QR Codes', 
+            '4': 'internally using email links',
+            '5': 'internally using QR Codes',
+            '6': 'internally using email links and QR Codes'
+        }
+        if choice in test_methods:
+            test_method = test_methods[choice]
+            break
+        print("Invalid choice. Please enter 1-6.")
+    
+    # Get blocking status
+    while True:
+        blocked = input("\nWas the attack initially blocked by client defenses? (y/n): ").strip().lower()
+        if blocked in ['y', 'n']:
+            break
+        print("Please enter 'y' or 'n'")
+    
+    # Get impersonated entity
+    impersonated = input("\nWho did you impersonate? (e.g., 'IT Department', 'HR Team'): ").strip()
+    if not impersonated:
+        impersonated = 'IT Department'
+    
+    return {
+        'test_method': test_method,
+        'blocked': blocked,
+        'impersonated': impersonated
+    }
+
 def main():
-    if len(sys.argv) != 2:
-        print("Usage: python3 gophish_bridge.py <campaign_id>")
+    if len(sys.argv) < 2:
+        print("Usage: python3 gophish_bridge.py <campaign_id> [--interactive]")
         sys.exit(1)
     
     campaign_id = sys.argv[1]
+    interactive = '--interactive' in sys.argv
     
     try:
         # Create bridge instance
@@ -215,6 +287,12 @@ def main():
         # Fetch campaign data from Gophish
         print(f"Fetching campaign data for campaign {campaign_id}...")
         data = bridge.fetch_campaign_data()
+        
+        # Get user customizations if interactive mode
+        if interactive:
+            user_input = get_user_input_for_report()
+            # Store user input for use in report generation
+            bridge.user_customizations = user_input
         
         # Generate reports
         print("Generating reports...")
