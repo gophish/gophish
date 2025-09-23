@@ -202,19 +202,124 @@ class GophishBridge:
         report_generator.hitsReportTextFile = os.path.join(report_generator.clientFolder, 'hits_report.txt')
         report_generator.scanDataFile = os.path.join(report_generator.clientFolder, 'scandata.txt')
         
-        # Create dummy screenshot files (these would normally be provided by user)
-        dummy_screenshot = os.path.join(report_generator.clientFolder, 'screenshot.png')
-        dummy_email = os.path.join(report_generator.clientFolder, 'email.png')
-        
-        # Create minimal 1x1 pixel PNG files as placeholders
-        self._create_dummy_image(dummy_screenshot)
-        self._create_dummy_image(dummy_email)
-        
-        report_generator.screenshotFile = dummy_screenshot
-        report_generator.emailScreenshot = dummy_email
+        # Handle screenshots
+        self._handle_screenshots(report_generator, data)
         
         # Process the data as MJSET would
         report_generator._process_mjset_data()
+    
+    def _handle_screenshots(self, report_generator, data):
+        """Handle screenshot acquisition - either automatic or manual"""
+        screenshot_dir = report_generator.clientFolder
+        email_screenshot = os.path.join(screenshot_dir, 'email.png')
+        website_screenshot = os.path.join(screenshot_dir, 'website.png')
+        
+        # First, try to get screenshots automatically from Gophish data
+        auto_screenshots = self._try_automatic_screenshots(data, screenshot_dir)
+        
+        # If in interactive mode and auto screenshots not found, prompt user
+        if hasattr(self, 'interactive_mode') and self.interactive_mode:
+            if not auto_screenshots['email']:
+                email_screenshot = self._prompt_for_screenshot('email', screenshot_dir)
+            else:
+                email_screenshot = auto_screenshots['email']
+                
+            if not auto_screenshots['website']:
+                website_screenshot = self._prompt_for_screenshot('landing page', screenshot_dir)
+            else:
+                website_screenshot = auto_screenshots['website']
+        else:
+            # Non-interactive: use auto screenshots or create placeholders
+            if auto_screenshots['email']:
+                email_screenshot = auto_screenshots['email']
+            else:
+                self._create_dummy_image(email_screenshot)
+                print("Note: No email screenshot found. Using placeholder.")
+                
+            if auto_screenshots['website']:
+                website_screenshot = auto_screenshots['website']
+            else:
+                self._create_dummy_image(website_screenshot)
+                print("Note: No website screenshot found. Using placeholder.")
+        
+        report_generator.emailScreenshot = email_screenshot
+        report_generator.screenshotFile = website_screenshot
+    
+    def _try_automatic_screenshots(self, data, screenshot_dir):
+        """Try to get screenshots from Gophish campaign data"""
+        screenshots = {'email': None, 'website': None}
+        
+        # Check if campaign has template with HTML content
+        try:
+            # This would need to be implemented based on how Gophish stores templates
+            # For now, check common screenshot locations
+            common_paths = [
+                ('email', ['email_screenshot.png', 'email.png', 'template.png']),
+                ('website', ['website_screenshot.png', 'landing.png', 'page.png'])
+            ]
+            
+            for screenshot_type, filenames in common_paths:
+                for filename in filenames:
+                    filepath = os.path.join(screenshot_dir, filename)
+                    if os.path.exists(filepath):
+                        screenshots[screenshot_type] = filepath
+                        print(f"Found existing {screenshot_type} screenshot: {filename}")
+                        break
+        except Exception as e:
+            print(f"Could not auto-detect screenshots: {e}")
+        
+        return screenshots
+    
+    def _prompt_for_screenshot(self, screenshot_type, screenshot_dir):
+        """Prompt user to provide a screenshot file"""
+        print(f"\n{'-'*60}")
+        print(f"SCREENSHOT REQUIRED: {screenshot_type.upper()}")
+        print(f"{'-'*60}")
+        
+        while True:
+            print(f"\nPlease provide the {screenshot_type} screenshot:")
+            print("Options:")
+            print("1. Enter full path to existing screenshot file")
+            print("2. Copy screenshot to: " + screenshot_dir)
+            print("3. Skip (use placeholder)")
+            
+            choice = input("\nEnter your choice (1-3): ").strip()
+            
+            if choice == '1':
+                filepath = input("Enter full path to screenshot: ").strip()
+                if os.path.exists(filepath):
+                    # Copy the file to our directory
+                    import shutil
+                    filename = f"{screenshot_type.replace(' ', '_')}_screenshot.png"
+                    dest_path = os.path.join(screenshot_dir, filename)
+                    shutil.copy2(filepath, dest_path)
+                    print(f"Screenshot copied successfully!")
+                    return dest_path
+                else:
+                    print("File not found. Please try again.")
+                    
+            elif choice == '2':
+                filename = f"{screenshot_type.replace(' ', '_')}_screenshot.png"
+                expected_path = os.path.join(screenshot_dir, filename)
+                print(f"\nPlease copy your screenshot to:")
+                print(f"  {expected_path}")
+                input("\nPress Enter when done...")
+                
+                if os.path.exists(expected_path):
+                    print("Screenshot found!")
+                    return expected_path
+                else:
+                    print("File not found at expected location.")
+                    
+            elif choice == '3':
+                # Create placeholder
+                placeholder_path = os.path.join(screenshot_dir, f"{screenshot_type}_placeholder.png")
+                self._create_dummy_image(placeholder_path)
+                print(f"Using placeholder for {screenshot_type} screenshot.")
+                return placeholder_path
+            
+            else:
+                print("Invalid choice. Please enter 1, 2, or 3.")
     
     def _create_dummy_image(self, filepath):
         """Create a minimal PNG file as placeholder"""
@@ -283,6 +388,7 @@ def main():
     try:
         # Create bridge instance
         bridge = GophishBridge(campaign_id)
+        bridge.interactive_mode = interactive
         
         # Fetch campaign data from Gophish
         print(f"Fetching campaign data for campaign {campaign_id}...")
