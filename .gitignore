@@ -34,5 +34,5 @@ gophish
 reports/output/*
 reports/config.json
 *__pycache__
-
+reports/templates/*
 config.json
