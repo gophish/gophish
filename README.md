@@ -15,7 +15,7 @@ Details on setting up MJphish on a new system can be found in the [MJSET_INTEGRA
 
 ### Setup
 
-Simply run ./mjphish and navigate to https://localhost:3333 in your browser. MJphish includes user management, so if you need a user account, please ask and one will be created for you.
+Simply run `./mjphish` and navigate to https://localhost:3333 in your browser. MJphish includes user management, so if you need a user account, please ask and one will be created for you.
 
 ### Documentation
 
