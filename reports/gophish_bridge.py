@@ -21,7 +21,7 @@ from mjset.makeSEReport import makeSEReport
 
 
 class GophishBridge:
-    def __init__(self, campaign_id, gophish_url="http://localhost:3333", api_key=None):
+    def __init__(self, campaign_id, gophish_url="https://localhost:3333", api_key=None):
         self.campaign_id = campaign_id
         self.gophish_url = gophish_url.rstrip('/')
         self.api_key = api_key or self._get_api_key()
