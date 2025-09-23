@@ -176,6 +176,14 @@ func (as *Server) CampaignExportData(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// Apply the same logic as the dashboard for calculating opened emails
+	// Every clicked link implies they opened the email
+	exportData.Stats.EmailsOpened += exportData.Stats.LinksClicked
+	// Every submitted data implies they clicked the link  
+	exportData.Stats.LinksClicked += exportData.Stats.CredSubmitted
+	// Every opened email implies the email was sent
+	exportData.Stats.EmailsSent += exportData.Stats.EmailsOpened
+
 	JSONResponse(w, exportData, http.StatusOK)
 }
 
