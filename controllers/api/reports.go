@@ -97,13 +97,20 @@ func (as *Server) CampaignExportData(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	// Process results and events
+	// Process results to get target emails and reported count
 	for _, result := range c.Results {
 		// Add target email
 		exportData.Targets = append(exportData.Targets, result.Email)
 		
-		// Update stats based on result status
-		switch result.Status {
+		if result.Reported {
+			exportData.Stats.EmailsReported++
+		}
+	}
+
+	// Process events for both detailed data AND statistics
+	for _, event := range c.Events {
+		// Count statistics based on events (not just final status)
+		switch event.Message {
 		case models.EventSent:
 			exportData.Stats.EmailsSent++
 		case models.EventOpened:
@@ -114,13 +121,7 @@ func (as *Server) CampaignExportData(w http.ResponseWriter, r *http.Request) {
 			exportData.Stats.CredSubmitted++
 		}
 		
-		if result.Reported {
-			exportData.Stats.EmailsReported++
-		}
-	}
-
-	// Process events for detailed credential and click data
-	for _, event := range c.Events {
+		// Process detailed event data
 		switch event.Message {
 		case models.EventDataSubmit:
 			// Parse credential submission
