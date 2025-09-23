@@ -29,8 +29,10 @@ gophish_admin.key
 *.exe
 gophish.db*
 gophish
-*.vscode/*
-*.venv/*
+*.vscode
+*.venv
 reports/output/*
 reports/config.json
+config.json
+*__pycache__
 
