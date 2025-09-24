@@ -11,8 +11,11 @@
 }
 
 .navbar-logo {
-    margin: 4px 0px;
+    height: 40px;
+    width: auto;
+    margin: 5px 10px 5px 0px;
     float: left;
+    vertical-align: middle;
 }
 
 #navbar-login {
