@@ -1,6 +1,6 @@
 {
   "gophish_url": "http://localhost:3333",
-  "api_key": "753e4fbc3146568ff5d9851810236a951e3d0b8ac2d8ccf5953472cb0ec2ed3a",
+  "api_key": "<API_KEY>",
   "report_settings": {
     "company_name": "Your Company Name",
     "company_address_1": "123 Main Street",
