@@ -40,6 +40,120 @@
             </span>
         </div>
         <br />
+        <!-- MJSET Report Generation Section -->
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <i class="fa fa-file-pdf-o"></i> MJSET Report Generation
+                        </h4>
+                    </div>
+                    <div class="panel-body">
+                        <button id="showMJSETForm" class="btn btn-primary" onclick="showMJSETForm()">
+                            <i class="fa fa-file-text"></i> Generate MJSET Report
+                        </button>
+                        
+                        <!-- Report Configuration Form (Hidden by default) -->
+                        <div id="mjsetFormContainer" style="display:none; margin-top:20px;">
+                            <form id="mjsetReportForm">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="testMethod">Test Method</label>
+                                            <select id="testMethod" name="testMethod" class="form-control" required>
+                                                <option value="">Select Test Method...</option>
+                                                <option value="Malicious link that directed the individual to a falsified website">Malicious link to falsified website</option>
+                                                <option value="Malicious link that attempted to execute malicious code">Malicious link with code execution</option>
+                                                <option value="Malicious attachment that attempted to execute malicious code">Malicious attachment with code execution</option>
+                                                <option value="Link to cloud-based file sharing service containing malicious file">Cloud file sharing with malicious file</option>
+                                                <option value="Request for sensitive information via email">Request for sensitive information</option>
+                                                <option value="Request to take action via email">Request to take action</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="impersonatedEntity">Impersonated Entity</label>
+                                            <input type="text" id="impersonatedEntity" name="impersonatedEntity" class="form-control" 
+                                                   placeholder="e.g., Microsoft, IT Department, CEO" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="attackBlocked">Was Attack Blocked?</label>
+                                            <select id="attackBlocked" name="attackBlocked" class="form-control" required>
+                                                <option value="No">No</option>
+                                                <option value="Yes">Yes</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Report Types to Generate</label>
+                                            <div class="checkbox">
+                                                <label>
+                                                    <input type="checkbox" name="reportTypes" value="executive" checked> Executive Summary
+                                                </label>
+                                            </div>
+                                            <div class="checkbox">
+                                                <label>
+                                                    <input type="checkbox" name="reportTypes" value="confidential"> Confidential Report
+                                                </label>
+                                            </div>
+                                            <div class="checkbox">
+                                                <label>
+                                                    <input type="checkbox" name="reportTypes" value="internal"> Internal Report
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="emailScreenshot">Email Screenshot (Optional)</label>
+                                            <input type="file" id="emailScreenshot" name="emailScreenshot" class="form-control" accept="image/*">
+                                            <small class="help-block">Upload a screenshot of the phishing email</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="landingScreenshot">Landing Page Screenshot (Optional)</label>
+                                            <input type="file" id="landingScreenshot" name="landingScreenshot" class="form-control" accept="image/*">
+                                            <small class="help-block">Upload a screenshot of the landing page</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <button type="button" class="btn btn-success" onclick="generateMJSETReport()">
+                                            <i class="fa fa-cog"></i> Generate Reports
+                                        </button>
+                                        <button type="button" class="btn btn-default" onclick="hideMJSETForm()">
+                                            <i class="fa fa-times"></i> Cancel
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <!-- Status and Download Links -->
+                        <div id="mjsetStatus" style="display:none; margin-top:20px;">
+                            <div class="alert alert-info">
+                                <i class="fa fa-spin fa-spinner"></i> <span id="mjsetStatusText">Generating reports...</span>
+                            </div>
+                        </div>
+                        <div id="mjsetDownloads" style="margin-top:20px;">
+                            <!-- Download links will be added here dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br />
         <div class="row">
             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                 <div class="row">

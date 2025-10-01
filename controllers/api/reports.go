@@ -187,7 +187,7 @@ func (as *Server) CampaignExportData(w http.ResponseWriter, r *http.Request) {
 	JSONResponse(w, exportData, http.StatusOK)
 }
 
-// GenerateReports triggers the Python report generation process
+// GenerateReports triggers the Python report generation process with form data
 func (as *Server) GenerateReports(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.ParseInt(vars["id"], 0, 64)
@@ -200,11 +200,96 @@ func (as *Server) GenerateReports(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get the current working directory to find the reports script
+	// Parse multipart form data (max 10MB)
+	err = r.ParseMultipartForm(10 << 20)
+	if err != nil {
+		log.Error(err)
+		JSONResponse(w, models.Response{Success: false, Message: "Failed to parse form data"}, http.StatusBadRequest)
+		return
+	}
+
+	// Extract form fields
+	testMethod := r.FormValue("testMethod")
+	impersonatedEntity := r.FormValue("impersonatedEntity")
+	attackBlocked := r.FormValue("attackBlocked")
+	reportTypesJSON := r.FormValue("reportTypes")
+
+	// Validate required fields
+	if testMethod == "" || impersonatedEntity == "" {
+		JSONResponse(w, models.Response{Success: false, Message: "Missing required fields"}, http.StatusBadRequest)
+		return
+	}
+
+	// Get the current working directory
 	workDir, err := os.Getwd()
 	if err != nil {
 		log.Error(err)
 		JSONResponse(w, models.Response{Success: false, Message: "Unable to determine working directory"}, http.StatusInternalServerError)
+		return
+	}
+
+	// Create output directory for this campaign
+	outputDir := filepath.Join(workDir, "reports", "output", fmt.Sprintf("campaign_%d", id))
+	err = os.MkdirAll(outputDir, 0755)
+	if err != nil {
+		log.Error(err)
+		JSONResponse(w, models.Response{Success: false, Message: "Failed to create output directory"}, http.StatusInternalServerError)
+		return
+	}
+
+	// Handle screenshot uploads
+	emailScreenshotPath := ""
+	if file, _, err := r.FormFile("emailScreenshot"); err == nil {
+		defer file.Close()
+		emailScreenshotPath = filepath.Join(outputDir, "email_screenshot.png")
+		outFile, err := os.Create(emailScreenshotPath)
+		if err == nil {
+			defer outFile.Close()
+			_, err = outFile.ReadFrom(file)
+			if err != nil {
+				log.Error("Failed to save email screenshot: " + err.Error())
+			}
+		}
+	}
+
+	landingScreenshotPath := ""
+	if file, _, err := r.FormFile("landingScreenshot"); err == nil {
+		defer file.Close()
+		landingScreenshotPath = filepath.Join(outputDir, "landing_screenshot.png")
+		outFile, err := os.Create(landingScreenshotPath)
+		if err == nil {
+			defer outFile.Close()
+			_, err = outFile.ReadFrom(file)
+			if err != nil {
+				log.Error("Failed to save landing screenshot: " + err.Error())
+			}
+		}
+	}
+
+	// Create configuration file for Python script
+	configData := map[string]interface{}{
+		"campaign_id":          id,
+		"test_method":          testMethod,
+		"impersonated_entity":  impersonatedEntity,
+		"attack_blocked":       attackBlocked,
+		"report_types":         reportTypesJSON,
+		"email_screenshot":     emailScreenshotPath,
+		"landing_screenshot":   landingScreenshotPath,
+		"output_dir":           outputDir,
+	}
+
+	configJSON, err := json.Marshal(configData)
+	if err != nil {
+		log.Error(err)
+		JSONResponse(w, models.Response{Success: false, Message: "Failed to create configuration"}, http.StatusInternalServerError)
+		return
+	}
+
+	configPath := filepath.Join(outputDir, "config.json")
+	err = os.WriteFile(configPath, configJSON, 0644)
+	if err != nil {
+		log.Error(err)
+		JSONResponse(w, models.Response{Success: false, Message: "Failed to save configuration"}, http.StatusInternalServerError)
 		return
 	}
 
@@ -218,14 +303,21 @@ func (as *Server) GenerateReports(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Execute the Python script
-	cmd := exec.Command("python3", scriptPath, strconv.FormatInt(id, 10))
+	// Get current user's API key from context
+	user := ctx.Get(r, "user").(models.User)
+
+	// Execute the Python script with config file
+	cmd := exec.Command("python3", scriptPath, strconv.FormatInt(id, 10), "--config", configPath)
 	cmd.Dir = filepath.Join(workDir, "reports")
+	cmd.Env = append(os.Environ(),
+		"GOPHISH_API_KEY="+user.ApiKey,
+		"PYTHONPATH="+filepath.Join(workDir, "reports", "mjset"),
+	)
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		log.Error(fmt.Sprintf("Report generation failed: %s, Output: %s", err.Error(), string(output)))
-		JSONResponse(w, models.Response{Success: false, Message: "Report generation failed: " + err.Error()}, http.StatusInternalServerError)
+		JSONResponse(w, models.Response{Success: false, Message: "Report generation failed: " + string(output)}, http.StatusInternalServerError)
 		return
 	}
 

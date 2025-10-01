@@ -378,27 +378,63 @@ def get_user_input_for_report():
     }
 
 def main():
-    if len(sys.argv) < 2:
-        print("Usage: python3 gophish_bridge.py <campaign_id> [--interactive]")
-        sys.exit(1)
+    import argparse
     
-    campaign_id = sys.argv[1]
-    interactive = '--interactive' in sys.argv
+    parser = argparse.ArgumentParser(description='Generate MJSET reports from Gophish campaign data')
+    parser.add_argument('campaign_id', type=str, help='Campaign ID')
+    parser.add_argument('--interactive', action='store_true', help='Run in interactive mode')
+    parser.add_argument('--config', type=str, help='Path to configuration JSON file')
+    
+    args = parser.parse_args()
     
     try:
         # Create bridge instance
-        bridge = GophishBridge(campaign_id)
-        bridge.interactive_mode = interactive
+        bridge = GophishBridge(args.campaign_id)
+        
+        # Check if we have a config file (GUI mode)
+        if args.config and os.path.exists(args.config):
+            print(f"Loading configuration from {args.config}...")
+            with open(args.config, 'r') as f:
+                config = json.load(f)
+            
+            # Parse report types
+            report_types = json.loads(config.get('report_types', '["executive"]'))
+            
+            # Store configuration for use in report generation
+            bridge.user_customizations = {
+                'test_method': config.get('test_method', ''),
+                'impersonated_entity': config.get('impersonated_entity', ''),
+                'attack_blocked': config.get('attack_blocked', 'No'),
+                'report_types': report_types,
+                'email_screenshot': config.get('email_screenshot', ''),
+                'landing_screenshot': config.get('landing_screenshot', ''),
+            }
+            
+            # Set output directory if specified
+            if config.get('output_dir'):
+                bridge.output_dir = config['output_dir']
+            
+            bridge.interactive_mode = False
+            
+        # Interactive mode
+        elif args.interactive:
+            bridge.interactive_mode = True
+            user_input = get_user_input_for_report()
+            bridge.user_customizations = user_input
+        
+        # Non-interactive mode (defaults)
+        else:
+            bridge.interactive_mode = False
+            bridge.user_customizations = {
+                'test_method': 'Malicious link that directed the individual to a falsified website',
+                'impersonated_entity': 'Unknown',
+                'attack_blocked': 'No',
+                'report_types': ['executive'],
+            }
         
         # Fetch campaign data from Gophish
-        print(f"Fetching campaign data for campaign {campaign_id}...")
+        print(f"Fetching campaign data for campaign {args.campaign_id}...")
         data = bridge.fetch_campaign_data()
-        
-        # Get user customizations if interactive mode
-        if interactive:
-            user_input = get_user_input_for_report()
-            # Store user input for use in report generation
-            bridge.user_customizations = user_input
         
         # Generate reports
         print("Generating reports...")
@@ -409,6 +445,8 @@ def main():
         
     except Exception as e:
         print(f"Error: {e}")
+        import traceback
+        traceback.print_exc()
         sys.exit(1)
 
 

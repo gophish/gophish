@@ -960,6 +960,140 @@ function report_mail(rid, cid) {
     })
 }
 
+// MJSET Report Functions
+function showMJSETForm() {
+    $('#mjsetFormContainer').slideDown();
+    $('#showMJSETForm').hide();
+}
+
+function hideMJSETForm() {
+    $('#mjsetFormContainer').slideUp();
+    $('#showMJSETForm').show();
+    $('#mjsetReportForm')[0].reset();
+}
+
+function generateMJSETReport() {
+    // Validate form
+    var testMethod = $('#testMethod').val();
+    var impersonatedEntity = $('#impersonatedEntity').val();
+    var attackBlocked = $('#attackBlocked').val();
+    
+    if (!testMethod || !impersonatedEntity) {
+        Swal.fire({
+            title: 'Validation Error',
+            text: 'Please fill in all required fields',
+            type: 'error',
+            confirmButtonText: 'OK'
+        });
+        return;
+    }
+    
+    // Check at least one report type is selected
+    var reportTypes = [];
+    $('input[name="reportTypes"]:checked').each(function() {
+        reportTypes.push($(this).val());
+    });
+    
+    if (reportTypes.length === 0) {
+        Swal.fire({
+            title: 'Validation Error',
+            text: 'Please select at least one report type',
+            type: 'error',
+            confirmButtonText: 'OK'
+        });
+        return;
+    }
+    
+    // Show status
+    $('#mjsetStatus').show();
+    $('#mjsetStatusText').text('Generating reports...');
+    $('#mjsetDownloads').empty();
+    
+    // Prepare form data with file uploads
+    var formData = new FormData();
+    formData.append('testMethod', testMethod);
+    formData.append('impersonatedEntity', impersonatedEntity);
+    formData.append('attackBlocked', attackBlocked);
+    formData.append('reportTypes', JSON.stringify(reportTypes));
+    
+    // Add file uploads if present
+    var emailFile = $('#emailScreenshot')[0].files[0];
+    if (emailFile) {
+        formData.append('emailScreenshot', emailFile);
+    }
+    
+    var landingFile = $('#landingScreenshot')[0].files[0];
+    if (landingFile) {
+        formData.append('landingScreenshot', landingFile);
+    }
+    
+    // Make API call
+    $.ajax({
+        url: '/api/campaigns/' + campaign.id + '/reports/generate',
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        headers: {
+            'Authorization': 'Bearer ' + user.api_key
+        },
+        success: function(response) {
+            $('#mjsetStatus').hide();
+            
+            if (response.success) {
+                // Hide form and show success
+                hideMJSETForm();
+                
+                // Add download links for each generated report
+                var downloadsHtml = '<div class="alert alert-success">' +
+                    '<i class="fa fa-check-circle"></i> Reports generated successfully!</div>' +
+                    '<div class="list-group">';
+                
+                reportTypes.forEach(function(type) {
+                    var typeLabel = type.charAt(0).toUpperCase() + type.slice(1);
+                    var downloadUrl = '/api/campaigns/' + campaign.id + '/reports/download/' + type;
+                    
+                    downloadsHtml += '<a href="' + downloadUrl + '" class="list-group-item" target="_blank">' +
+                        '<i class="fa fa-download"></i> Download ' + typeLabel + ' Report' +
+                        '</a>';
+                });
+                
+                downloadsHtml += '</div>';
+                $('#mjsetDownloads').html(downloadsHtml);
+                
+                Swal.fire({
+                    title: 'Success',
+                    text: 'Reports generated successfully!',
+                    type: 'success',
+                    confirmButtonText: 'OK'
+                });
+            } else {
+                Swal.fire({
+                    title: 'Error',
+                    text: response.message || 'Failed to generate reports',
+                    type: 'error',
+                    confirmButtonText: 'OK'
+                });
+            }
+        },
+        error: function(xhr) {
+            $('#mjsetStatus').hide();
+            
+            var errorMsg = 'Failed to generate reports';
+            if (xhr.responseJSON && xhr.responseJSON.message) {
+                errorMsg = xhr.responseJSON.message;
+            }
+            
+            Swal.fire({
+                title: 'Error',
+                text: errorMsg,
+                type: 'error',
+                confirmButtonText: 'OK'
+            });
+        }
+    });
+}
+
 $(document).ready(function () {
     Highcharts.setOptions({
         global: {
