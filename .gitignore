@@ -36,3 +36,5 @@ reports/config.json
 *__pycache__
 reports/templates/*
 config.json
+reports/config.json
+reports/output/*
