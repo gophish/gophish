@@ -966,6 +966,100 @@ function showMJSETForm() {
     $('#showMJSETForm').hide();
 }
 
+function downloadMJSETReport(campaignId, reportType, reportLabel) {
+    var downloadUrl = '/api/campaigns/' + campaignId + '/reports/download/' + reportType;
+    
+    // Use native XMLHttpRequest instead of jQuery for blob downloads
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', downloadUrl, true);
+    xhr.setRequestHeader('Authorization', 'Bearer ' + user.api_key);
+    xhr.responseType = 'blob';
+    
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            // Success - download the file
+            var blob = xhr.response;
+            var url = window.URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            
+            // Determine filename based on report type
+            var filename;
+            if (reportType === 'executive') {
+                filename = 'SocialEngExecReport.pdf';
+            } else if (reportType === 'confidential') {
+                filename = 'Confidential_Report.pdf';
+            } else if (reportType === 'internal') {
+                filename = 'Internal_Use.pdf';
+            } else {
+                filename = reportLabel + '_Report.pdf';
+            }
+            
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        } else {
+            // Error - try to parse error message
+            var errorMsg = 'Failed to download report';
+            
+            if (xhr.response && xhr.response.size > 0) {
+                // Response is a blob, convert to text to read error
+                var reader = new FileReader();
+                reader.onload = function() {
+                    try {
+                        var errorResponse = JSON.parse(reader.result);
+                        if (errorResponse.message) {
+                            errorMsg = errorResponse.message;
+                        }
+                    } catch (e) {
+                        errorMsg = reader.result;
+                    }
+                    
+                    console.error('Download error:', xhr.status, xhr.statusText, errorMsg);
+                    
+                    Swal.fire({
+                        title: 'Download Error',
+                        text: errorMsg,
+                        type: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                };
+                reader.readAsText(xhr.response);
+            } else {
+                // No response body
+                if (xhr.status === 404) {
+                    errorMsg = 'Report file not found. Please regenerate the report.';
+                } else if (xhr.status === 401 || xhr.status === 403) {
+                    errorMsg = 'Authentication failed. Please refresh the page and try again.';
+                }
+                
+                console.error('Download error:', xhr.status, xhr.statusText);
+                
+                Swal.fire({
+                    title: 'Download Error',
+                    text: errorMsg,
+                    type: 'error',
+                    confirmButtonText: 'OK'
+                });
+            }
+        }
+    };
+    
+    xhr.onerror = function() {
+        console.error('Network error while downloading report');
+        Swal.fire({
+            title: 'Download Error',
+            text: 'Network error occurred while downloading the report',
+            type: 'error',
+            confirmButtonText: 'OK'
+        });
+    };
+    
+    xhr.send();
+}
+
 function hideMJSETForm() {
     $('#mjsetFormContainer').slideUp();
     $('#showMJSETForm').show();
@@ -988,21 +1082,8 @@ function generateMJSETReport() {
         return;
     }
     
-    // Check at least one report type is selected
-    var reportTypes = [];
-    $('input[name="reportTypes"]:checked').each(function() {
-        reportTypes.push($(this).val());
-    });
-    
-    if (reportTypes.length === 0) {
-        Swal.fire({
-            title: 'Validation Error',
-            text: 'Please select at least one report type',
-            type: 'error',
-            confirmButtonText: 'OK'
-        });
-        return;
-    }
+    // Set report type to executive (only supported type)
+    var reportTypes = ['executive'];
     
     // Show status
     $('#mjsetStatus').show();
@@ -1051,9 +1132,8 @@ function generateMJSETReport() {
                 
                 reportTypes.forEach(function(type) {
                     var typeLabel = type.charAt(0).toUpperCase() + type.slice(1);
-                    var downloadUrl = '/api/campaigns/' + campaign.id + '/reports/download/' + type;
                     
-                    downloadsHtml += '<a href="' + downloadUrl + '" class="list-group-item" target="_blank">' +
+                    downloadsHtml += '<a href="#" class="list-group-item" onclick="downloadMJSETReport(' + campaign.id + ', \'' + type + '\', \'' + typeLabel + '\'); return false;">' +
                         '<i class="fa fa-download"></i> Download ' + typeLabel + ' Report' +
                         '</a>';
                 });

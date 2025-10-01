@@ -92,22 +92,12 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label>Report Types to Generate</label>
-                                            <div class="checkbox">
-                                                <label>
-                                                    <input type="checkbox" name="reportTypes" value="executive" checked> Executive Summary
-                                                </label>
-                                            </div>
-                                            <div class="checkbox">
-                                                <label>
-                                                    <input type="checkbox" name="reportTypes" value="confidential"> Confidential Report
-                                                </label>
-                                            </div>
-                                            <div class="checkbox">
-                                                <label>
-                                                    <input type="checkbox" name="reportTypes" value="internal"> Internal Report
-                                                </label>
-                                            </div>
+                                            <label>Report Type</label>
+                                            <p class="form-control-static">
+                                                <i class="fa fa-file-pdf-o"></i> Executive Summary Report
+                                                <input type="hidden" name="reportTypes" value="executive">
+                                            </p>
+                                            <small class="help-block">Only Executive Summary reports are currently supported</small>
                                         </div>
                                     </div>
                                 </div>

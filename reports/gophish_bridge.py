@@ -171,10 +171,15 @@ class GophishBridge:
         # Use user customizations if available, otherwise use defaults
         if hasattr(self, 'user_customizations'):
             customizations = self.user_customizations
-            report_generator.testMethod = customizations['test_method']
-            report_generator.initialBlocked = customizations['blocked']
-            report_generator.impersonated = customizations['impersonated']
-            report_generator.blockedString = 'were initially' if customizations['blocked'] == 'y' else 'were not initially'
+            report_generator.testMethod = customizations.get('test_method', 'externally using email links')
+            
+            # Handle attack_blocked - convert "Yes"/"No" to 'y'/'n' for MJSET compatibility
+            attack_blocked = customizations.get('attack_blocked', 'No')
+            report_generator.initialBlocked = 'y' if attack_blocked == 'Yes' else 'n'
+            report_generator.blockedString = 'were initially' if attack_blocked == 'Yes' else 'were not initially'
+            
+            # Handle impersonated entity
+            report_generator.impersonated = customizations.get('impersonated_entity', 'Unknown Entity')
         else:
             # Default values
             report_generator.initialBlocked = 'n'
@@ -361,10 +366,13 @@ def get_user_input_for_report():
     
     # Get blocking status
     while True:
-        blocked = input("\nWas the attack initially blocked by client defenses? (y/n): ").strip().lower()
-        if blocked in ['y', 'n']:
+        blocked_input = input("\nWas the attack initially blocked by client defenses? (y/n): ").strip().lower()
+        if blocked_input in ['y', 'n']:
             break
         print("Please enter 'y' or 'n'")
+    
+    # Convert y/n to Yes/No for consistency with GUI
+    attack_blocked = 'Yes' if blocked_input == 'y' else 'No'
     
     # Get impersonated entity
     impersonated = input("\nWho did you impersonate? (e.g., 'IT Department', 'HR Team'): ").strip()
@@ -373,8 +381,8 @@ def get_user_input_for_report():
     
     return {
         'test_method': test_method,
-        'blocked': blocked,
-        'impersonated': impersonated
+        'attack_blocked': attack_blocked,
+        'impersonated_entity': impersonated
     }
 
 def main():
