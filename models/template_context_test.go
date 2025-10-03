@@ -37,6 +37,7 @@ func (s *ModelsSuite) TestNewTemplateContext(c *check.C) {
 		BaseURL:       ctx.URL,
 		BaseRecipient: r.BaseRecipient,
 		TrackingURL:   fmt.Sprintf("%s/track?rid=%s", ctx.URL, r.RId),
+		Domain:        "bar.com",
 		From:          "From Address",
 		RId:           r.RId,
 	}

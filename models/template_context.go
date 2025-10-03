@@ -5,6 +5,7 @@ import (
 	"net/mail"
 	"net/url"
 	"path"
+	"strings"
 	"text/template"
 )
 
@@ -22,6 +23,7 @@ type PhishingTemplateContext struct {
 	URL         string
 	Tracker     string
 	TrackingURL string
+	Domain      string
 	RId         string
 	BaseURL     string
 	BaseRecipient
@@ -61,11 +63,17 @@ func NewPhishingTemplateContext(ctx TemplateContext, r BaseRecipient, rid string
 	trackingURL.Path = path.Join(trackingURL.Path, "/track")
 	trackingURL.RawQuery = q.Encode()
 
+	domain := ""
+	if parts := strings.SplitN(r.Email, "@", 2); len(parts) == 2 {
+		domain = parts[1]
+	}
+
 	return PhishingTemplateContext{
 		BaseRecipient: r,
 		BaseURL:       baseURL.String(),
 		URL:           phishURL.String(),
 		TrackingURL:   trackingURL.String(),
+		Domain:        domain,
 		Tracker:       "<img alt='' style='display: none' src='" + trackingURL.String() + "'/>",
 		From:          fn,
 		RId:           rid,
