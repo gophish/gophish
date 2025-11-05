@@ -1,0 +1,57 @@
+name: Build & Deploy Gophish (with Nginx front) to Azure
+
+on:
+  push:
+    branches:
+      - master
+      - ACR-deploy
+  workflow_dispatch:
+
+env:
+  CONTAINER_APP_NAME: fairplay-gophish
+  ACR_LOGIN_SERVER: fpdcontainerregistry.azurecr.io
+  IMAGE_NAME: gophish
+  IMAGE_TAG: latest
+  RESOURCE_GROUP: FairPlay-GoPhish
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Docker login to ACR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.ACR_LOGIN_SERVER }}
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+
+      - name: Build & push image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ env.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+            ${{ env.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          # Use a federated credential or a json service principal secret:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy to Azure Container Apps
+        uses: azure/container-apps-deploy-action@v1
+        with:
+          imageToDeploy: ${{ env.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          resourceGroup: ${{ env.RESOURCE_GROUP }}
+          containerAppName: ${{ env.CONTAINER_APP_NAME }}
+          environmentVariables: |
+            FP_ENVIRONMENT=Test

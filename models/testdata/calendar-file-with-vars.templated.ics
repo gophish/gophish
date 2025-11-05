@@ -30,18 +30,8 @@ DTEND;TZID=Europe/London:20210306T190000
 SUMMARY:Gophish Test Calendar
 UID:20210306T182251Z-89336450000@fe80:0:0:0:31:49ff:fec9:f252ens5
 TZID:Europe/London
-DESCRIPTION:Glenn Wilkinson is inviting you to a scheduled Zoom meeting.\
- n\nJoin Zoom Meeting\nhttp://testurl.com/?rid=1234567\n\nMeeting ID: 893 3645 9466\nPasscode: 31337\
- nOne tap mobile\n+442039017895\,\,89336450000#\,\,\,\,*509879# United Ki
- ngdom\n+441314601196\,\,89336450000#\,\,\,\,*509879# United Kingdom\n\nD
- ial by your location\n        +44 203 901 7895 United Kingdom\n        +
- 44 131 460 1196 United Kingdom\n        +44 203 051 2874 United Kingdom\
- n        +44 203 481 5237 United Kingdom\n        +44 203 481 5240 Unite
- d Kingdom\n        +1 253 215 8782 US (Tacoma)\n        +1 301 715 8592 
- US (Washington DC)\n        +1 312 626 6799 US (Chicago)\n        +1 346
-  248 7799 US (Houston)\n        +1 646 558 8656 US (New York)\n        +
- 1 669 900 9128 US https://us02web.zoom.us/u/kpXDbMrN\n\n
-LOCATION:http://testurl.com/?rid=1234567
+DESCRIPTION:Glenn Wilkinson is inviting you to a scheduled Zoom meeting.\n\nJoin Zoom Meeting\nhttp://testurl.com/?keyname=1234567\n\nMeeting ID: 893 3645 9466\nPasscode: 31337\nOne tap mobile\n+442039017895\,\,89336450000#\,\,\,\,*509879# United Kingdom\n+441314601196\,\,89336450000#\,\,\,\,*509879# United Kingdom\n\nDial by your location\n        +44 203 901 7895 United Kingdom\n        +44 131 460 1196 United Kingdom\n        +44 203 051 2874 United Kingdom\n        +44 203 481 5237 United Kingdom\n        +44 203 481 5240 United Kingdom\n        +1 253 215 8782 US (Tacoma)\n        +1 301 715 8592 US (Washington DC)\n        +1 312 626 6799 US (Chicago)\n        +1 346 248 7799 US (Houston)\n        +1 646 558 8656 US (New York)\n        +1 669 900 9128 US https://us02web.zoom.us/u/kpXDbMrN\n\n
+LOCATION:http://testurl.com/?keyname=1234567
 BEGIN:VALARM
 TRIGGER:-PT10M
 ACTION:DISPLAY

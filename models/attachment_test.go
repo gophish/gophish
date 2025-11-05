@@ -2,12 +2,14 @@ package models
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/base64"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"gopkg.in/check.v1"
@@ -22,9 +24,9 @@ func (s *ModelsSuite) TestAttachment(c *check.C) {
 			Position:  "Space Janitor",
 		},
 		BaseURL:     "http://testurl.com",
-		URL:         "http://testurl.com/?rid=1234567",
-		TrackingURL: "http://testurl.local/track?rid=1234567",
-		Tracker:     "<img alt='' style='display: none' src='http://testurl.local/track?rid=1234567'/>",
+		URL:         "http://testurl.com/?keyname=1234567",
+		TrackingURL: "http://testurl.local/track?keyname=1234567",
+		Tracker:     "<img alt='' style='display: none' src='http://testurl.local/track?keyname=1234567'/>",
 		From:        "From Address",
 		RId:         "1234567",
 	}
@@ -55,9 +57,22 @@ func (s *ModelsSuite) TestAttachment(c *check.C) {
 			if err != nil {
 				log.Fatalf("Failed to parse templated file '%s': %v\n", fname, err)
 			}
-			templatedFile := base64.StdEncoding.EncodeToString(tt)
-			expectedOutput := readFile("testdata/" + strings.TrimSuffix(ff.Name(), filepath.Ext(ff.Name())) + ".templated" + filepath.Ext(ff.Name())) // e.g text-file-with-vars.templated.txt
-			c.Assert(templatedFile, check.Equals, expectedOutput)
+			templatedB64 := base64.StdEncoding.EncodeToString(tt)
+			expectedB64 := readFile("testdata/" + strings.TrimSuffix(ff.Name(), filepath.Ext(ff.Name())) + ".templated" + filepath.Ext(ff.Name()))
+
+			if filepath.Ext(fname) == ".ics" {
+				gotRaw, err := base64.StdEncoding.DecodeString(templatedB64)
+				c.Assert(err, check.IsNil)
+				wantRaw, err := base64.StdEncoding.DecodeString(expectedB64)
+				c.Assert(err, check.IsNil)
+				c.Assert(normalizeICS(string(gotRaw)), check.Equals, normalizeICS(string(wantRaw)))
+			} else {
+				gotRaw, err := base64.StdEncoding.DecodeString(templatedB64)
+				c.Assert(err, check.IsNil)
+				wantRaw, err := base64.StdEncoding.DecodeString(expectedB64)
+				c.Assert(err, check.IsNil)
+				c.Assert(trimEOFNL(gotRaw), check.DeepEquals, trimEOFNL(wantRaw))
+			}
 		}
 	}
 }
@@ -79,4 +94,24 @@ func readFile(fname string) string {
 		data = base64.StdEncoding.EncodeToString(content)
 	}
 	return data
+}
+
+var tzidRe = regexp.MustCompile(`(?m)^TZID:\s+`)
+
+func normalizeICS(s string) string {
+	// RFC 5545 allows folded lines indicated by CRLF followed by space or tab.
+	s = strings.ReplaceAll(s, "\r\n", "\n")
+	s = strings.ReplaceAll(s, "\n ", "")
+	s = strings.ReplaceAll(s, "\n\t", "")
+	return tzidRe.ReplaceAllString(s, "TZID:")
+}
+
+func trimEOFNL(b []byte) []byte {
+	if bytes.HasSuffix(b, []byte("\r\n")) {
+		return b[:len(b)-2]
+	}
+	if len(b) > 0 && b[len(b)-1] == '\n' {
+		return b[:len(b)-1]
+	}
+	return b
 }

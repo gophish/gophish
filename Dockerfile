@@ -1,45 +1,40 @@
-# Minify client side assets (JavaScript)
-FROM node:latest AS build-js
+# syntax=docker/dockerfile:1
 
-RUN npm install gulp gulp-cli -g
+### Build stage
+FROM golang:1.22-bullseye AS build
+WORKDIR /src
 
-WORKDIR /build
+# Install gcc + sqlite3 dev libs for CGO support
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends gcc libsqlite3-dev && \
+    rm -rf /var/lib/apt/lists/*
+
+COPY go.mod go.sum ./
+RUN go mod download
 COPY . .
-RUN npm install --only=dev
-RUN gulp
 
+# Build for linux/amd64 (App Service) with CGO enabled
+ENV CGO_ENABLED=1
+RUN GOOS=linux GOARCH=amd64 go build -o gophish
 
-# Build Golang binary
-FROM golang:1.15.2 AS build-golang
-
-WORKDIR /go/src/github.com/gophish/gophish
-COPY . .
-RUN go get -v && go build -v
-
-
-# Runtime container
+### Runtime stage
 FROM debian:stable-slim
-
-RUN useradd -m -d /opt/gophish -s /bin/bash app
+WORKDIR /opt/gophish
 
 RUN apt-get update && \
-	apt-get install --no-install-recommends -y jq libcap2-bin ca-certificates && \
-	apt-get clean && \
-	rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    apt-get install -y --no-install-recommends \
+        ca-certificates tzdata nginx supervisor libsqlite3-0 && \
+    rm -rf /var/lib/apt/lists/* && \
+    rm -f /etc/nginx/sites-enabled/default
 
-WORKDIR /opt/gophish
-COPY --from=build-golang /go/src/github.com/gophish/gophish/ ./
-COPY --from=build-js /build/static/js/dist/ ./static/js/dist/
-COPY --from=build-js /build/static/css/dist/ ./static/css/dist/
-COPY --from=build-golang /go/src/github.com/gophish/gophish/config.json ./
-RUN chown app. config.json
+# App + supervisor config + entrypoint
+COPY --from=build /src/ /opt/gophish/
+COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY docker/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
-RUN setcap 'cap_net_bind_service=+ep' /opt/gophish/gophish
+# App Service exposes ONE HTTP port; we use 8080
+EXPOSE 8080
+ENV FRONT_PORT=8080 ADMIN_PORT=3333 PHISH_PORT=8081 ADMIN_USE_TLS=false PHISH_USE_TLS=false
 
-USER app
-RUN sed -i 's/127.0.0.1/0.0.0.0/g' config.json
-RUN touch config.json.tmp
-
-EXPOSE 3333 8080 8443 80
-
-CMD ["./docker/run.sh"]
+ENTRYPOINT ["/entrypoint.sh"]

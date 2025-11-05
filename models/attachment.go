@@ -12,6 +12,8 @@ import (
 	"strings"
 )
 
+var tzidWhitespace = regexp.MustCompile(`(?m)^TZID:\s+`)
+
 // Attachment contains the fields and methods for
 // an email attachment
 type Attachment struct {
@@ -144,6 +146,9 @@ func (a *Attachment) ApplyTemplate(ptx PhishingTemplateContext) (io.Reader, erro
 		processedAttachment, err := ExecuteTemplate(string(b), ptx)
 		if err != nil {
 			return nil, err
+		}
+		if strings.Contains(processedAttachment, "TZID:") {
+			processedAttachment = tzidWhitespace.ReplaceAllString(processedAttachment, "TZID:")
 		}
 		if processedAttachment == string(b) {
 			a.vanillaFile = true

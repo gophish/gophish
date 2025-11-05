@@ -78,8 +78,8 @@ func (s *ModelsSuite) TestEmailRequestGenerate(ch *check.C) {
 
 	s.config.ContactAddress = "test@test.com"
 	expectedHeaders := map[string]string{
-		"X-Mailer":          config.ServerName,
-		"X-Gophish-Contact": s.config.ContactAddress,
+		"X-Mailer":  config.ServerName,
+		"X-Contact": s.config.ContactAddress,
 	}
 
 	msg := gomail.NewMessage()

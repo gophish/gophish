@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Page Not Found</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f7f7f7; color: #333; }
+        .container { max-width: 600px; margin: 10% auto; background: #fff; padding: 40px; box-shadow: 0 2px 6px rgba(0,0,0,0.15); border-radius: 8px; }
+        h1 { margin-top: 0; font-size: 2em; }
+        p { line-height: 1.6; }
+        .path { font-family: monospace; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Page Not Found</h1>
+        <p>The page you were looking for could not be found.</p>
+        {{ if .RequestPath }}<p class="path">Requested URL: {{ .RequestPath }}</p>{{ end }}
+    </div>
+</body>
+</html>
