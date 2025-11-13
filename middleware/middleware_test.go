@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/gophish/gophish/config"
@@ -195,17 +196,43 @@ func TestPasswordResetRequired(t *testing.T) {
 }
 
 func TestApplySecurityHeaders(t *testing.T) {
-	expected := map[string]string{
-		"Content-Security-Policy": "frame-ancestors 'none';",
-		"X-Frame-Options":         "DENY",
+	// Test that the expected security headers are present
+	expectedHeaders := []string{
+		"Content-Security-Policy",
+		"X-Frame-Options",
+		"X-Content-Type-Options",
+		"X-XSS-Protection",
+		"Referrer-Policy",
+		"Permissions-Policy",
 	}
+
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	response := httptest.NewRecorder()
 	ApplySecurityHeaders(successHandler).ServeHTTP(response, req)
-	for header, value := range expected {
+
+	// Check that all expected headers are present
+	for _, header := range expectedHeaders {
 		got := response.Header().Get(header)
-		if got != value {
-			t.Fatalf("incorrect security header received for %s: expected %s got %s", header, value, got)
+		if got == "" {
+			t.Fatalf("expected security header %s not found", header)
+		}
+	}
+
+	// Verify specific header values
+	if got := response.Header().Get("X-Frame-Options"); got != "DENY" {
+		t.Fatalf("incorrect X-Frame-Options header. expected DENY got %s", got)
+	}
+
+	if got := response.Header().Get("X-Content-Type-Options"); got != "nosniff" {
+		t.Fatalf("incorrect X-Content-Type-Options header. expected nosniff got %s", got)
+	}
+
+	// Verify CSP contains key directives
+	csp := response.Header().Get("Content-Security-Policy")
+	requiredDirectives := []string{"default-src", "frame-ancestors 'none'", "base-uri"}
+	for _, directive := range requiredDirectives {
+		if !strings.Contains(csp, directive) {
+			t.Fatalf("CSP missing required directive %s. Got: %s", directive, csp)
 		}
 	}
 }

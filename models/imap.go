@@ -103,7 +103,7 @@ func (im *IMAP) Validate() error {
 // GetIMAP returns the IMAP server owned by the given user.
 func GetIMAP(uid int64) ([]IMAP, error) {
 	im := []IMAP{}
-	count := 0
+	var count int64
 	err := db.Where("user_id=?", uid).Find(&im).Count(&count).Error
 
 	if err != nil {

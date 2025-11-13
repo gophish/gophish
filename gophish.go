@@ -82,6 +82,9 @@ func main() {
 	}
 	config.Version = string(version)
 
+	// Set config for middleware (for CORS validation)
+	middleware.SetConfig(conf)
+
 	// Configure our various upstream clients to make sure that we restrict
 	// outbound connections as needed.
 	dialer.SetAllowedHosts(conf.AdminConf.AllowedInternalHosts)

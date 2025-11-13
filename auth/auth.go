@@ -5,34 +5,53 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"strings"
+	"unicode"
 
 	"golang.org/x/crypto/bcrypt"
 )
 
-// MinPasswordLength is the minimum number of characters required in a password
-const MinPasswordLength = 8
+// Password policy constants
+const (
+	MinPasswordLength = 12  // Increased from 8 for better security
+	MaxPasswordLength = 128
+)
 
 // APIKeyLength is the length of Gophish API keys
 const APIKeyLength = 32
 
-// ErrInvalidPassword is thrown when a user provides an incorrect password.
-var ErrInvalidPassword = errors.New("Invalid Password")
+// Common passwords to blacklist (expandable list)
+var commonPasswords = map[string]bool{
+	"password":     true,
+	"password123":  true,
+	"admin":        true,
+	"admin123":     true,
+	"gophish":      true,
+	"changeme":     true,
+	"welcome":      true,
+	"123456":       true,
+	"12345678":     true,
+	"123456789":    true,
+	"qwerty":       true,
+	"letmein":      true,
+	"trustno1":     true,
+}
 
-// ErrPasswordMismatch is thrown when a user provides a mismatching password
-// and confirmation password.
-var ErrPasswordMismatch = errors.New("Passwords do not match")
-
-// ErrReusedPassword is thrown when a user attempts to change their password to
-// the existing password
-var ErrReusedPassword = errors.New("Cannot reuse existing password")
-
-// ErrEmptyPassword is thrown when a user provides a blank password to the register
-// or change password functions
-var ErrEmptyPassword = errors.New("No password provided")
-
-// ErrPasswordTooShort is thrown when a user provides a password that is less
-// than MinPasswordLength
-var ErrPasswordTooShort = fmt.Errorf("Password must be at least %d characters", MinPasswordLength)
+// Enhanced error messages
+var (
+	ErrInvalidPassword      = errors.New("Invalid Password")
+	ErrPasswordMismatch     = errors.New("Passwords do not match")
+	ErrReusedPassword       = errors.New("Cannot reuse existing password")
+	ErrEmptyPassword        = errors.New("No password provided")
+	ErrPasswordTooShort     = fmt.Errorf("Password must be at least %d characters", MinPasswordLength)
+	ErrPasswordTooLong      = errors.New("Password exceeds maximum length")
+	ErrPasswordNoUppercase  = errors.New("Password must contain at least one uppercase letter")
+	ErrPasswordNoLowercase  = errors.New("Password must contain at least one lowercase letter")
+	ErrPasswordNoNumber     = errors.New("Password must contain at least one number")
+	ErrPasswordNoSpecial    = errors.New("Password must contain at least one special character")
+	ErrPasswordCommon       = errors.New("Password is too common and easily guessable")
+	ErrPasswordRepeating    = errors.New("Password contains too many repeating characters")
+)
 
 // GenerateSecureKey returns the hex representation of key generated from n
 // random bytes
@@ -52,21 +71,93 @@ func GeneratePasswordHash(password string) (string, error) {
 	return string(h), nil
 }
 
-// CheckPasswordPolicy ensures the provided password is valid according to our
-// password policy.
-//
-// The current password policy is simply a minimum of 8 characters, though this
-// may change in the future (see #1538).
+// CheckPasswordPolicy ensures the provided password is valid according to security best practices.
+// Requirements:
+// - At least 12 characters long
+// - Contains uppercase letter
+// - Contains lowercase letter
+// - Contains number
+// - Contains special character
+// - Not in common passwords list
+// - No excessive repeating characters
 func CheckPasswordPolicy(password string) error {
-	switch {
-	// Admittedly, empty passwords are a subset of too short passwords, but it
-	// helps to provide a more specific error message
-	case password == "":
+	// Check length
+	if password == "" {
 		return ErrEmptyPassword
-	case len(password) < MinPasswordLength:
+	}
+	if len(password) < MinPasswordLength {
 		return ErrPasswordTooShort
 	}
+	if len(password) > MaxPasswordLength {
+		return ErrPasswordTooLong
+	}
+
+	// Check for common passwords (case-insensitive)
+	if commonPasswords[strings.ToLower(password)] {
+		return ErrPasswordCommon
+	}
+
+	// Check character requirements
+	var (
+		hasUpper   bool
+		hasLower   bool
+		hasNumber  bool
+		hasSpecial bool
+	)
+
+	for _, char := range password {
+		switch {
+		case unicode.IsUpper(char):
+			hasUpper = true
+		case unicode.IsLower(char):
+			hasLower = true
+		case unicode.IsNumber(char):
+			hasNumber = true
+		case unicode.IsPunct(char) || unicode.IsSymbol(char):
+			hasSpecial = true
+		}
+	}
+
+	if !hasUpper {
+		return ErrPasswordNoUppercase
+	}
+	if !hasLower {
+		return ErrPasswordNoLowercase
+	}
+	if !hasNumber {
+		return ErrPasswordNoNumber
+	}
+	if !hasSpecial {
+		return ErrPasswordNoSpecial
+	}
+
+	// Check for repeating characters (e.g., "aaaa")
+	if hasRepeatingChars(password, 4) {
+		return ErrPasswordRepeating
+	}
+
 	return nil
+}
+
+// hasRepeatingChars checks if password has n or more consecutive repeating characters
+func hasRepeatingChars(s string, n int) bool {
+	if len(s) < n {
+		return false
+	}
+
+	for i := 0; i <= len(s)-n; i++ {
+		allSame := true
+		for j := 1; j < n; j++ {
+			if s[i+j] != s[i] {
+				allSame = false
+				break
+			}
+		}
+		if allSame {
+			return true
+		}
+	}
+	return false
 }
 
 // ValidatePassword validates that the provided password matches the provided

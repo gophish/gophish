@@ -5,6 +5,7 @@ import (
 
 	"github.com/gophish/gophish/config"
 	"gopkg.in/check.v1"
+	"gorm.io/gorm"
 )
 
 // Hook up gocheck into the "go test" runner.
@@ -32,18 +33,19 @@ func (s *ModelsSuite) SetUpSuite(c *check.C) {
 func (s *ModelsSuite) TearDownTest(c *check.C) {
 	// Clear database tables between each test. If new tables are
 	// used in this test suite they will need to be cleaned up here.
-	db.Delete(Group{})
-	db.Delete(Target{})
-	db.Delete(GroupTarget{})
-	db.Delete(SMTP{})
-	db.Delete(Page{})
-	db.Delete(Result{})
-	db.Delete(MailLog{})
-	db.Delete(Campaign{})
+	// Use Session with AllowGlobalUpdate to delete all records (GORM v2 requirement)
+	db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&Group{})
+	db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&Target{})
+	db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&GroupTarget{})
+	db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&SMTP{})
+	db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&Page{})
+	db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&Result{})
+	db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&MailLog{})
+	db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&Campaign{})
 
 	// Reset users table to default state.
-	db.Not("id", 1).Delete(User{})
-	db.Model(User{}).Update("username", "admin")
+	db.Where("id != ?", 1).Delete(&User{})
+	db.Model(&User{}).Where("id = ?", 1).Update("username", "admin")
 }
 
 func (s *ModelsSuite) createCampaignDependencies(ch *check.C, optional ...string) Campaign {
@@ -117,23 +119,27 @@ func setupBenchmark(b *testing.B) {
 }
 
 func tearDownBenchmark(b *testing.B) {
-	err := db.Close()
+	sqlDB, err := db.DB()
+	if err != nil {
+		b.Fatalf("error getting database connection: %v", err)
+	}
+	err = sqlDB.Close()
 	if err != nil {
 		b.Fatalf("error closing database: %v", err)
 	}
 }
 
 func resetBenchmark(b *testing.B) {
-	db.Delete(Group{})
-	db.Delete(Target{})
-	db.Delete(GroupTarget{})
-	db.Delete(SMTP{})
-	db.Delete(Page{})
-	db.Delete(Result{})
-	db.Delete(MailLog{})
-	db.Delete(Campaign{})
+	db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&Group{})
+	db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&Target{})
+	db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&GroupTarget{})
+	db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&SMTP{})
+	db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&Page{})
+	db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&Result{})
+	db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&MailLog{})
+	db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&Campaign{})
 
 	// Reset users table to default state.
-	db.Not("id", 1).Delete(User{})
-	db.Model(User{}).Update("username", "admin")
+	db.Where("id != ?", 1).Delete(&User{})
+	db.Model(&User{}).Where("id = ?", 1).Update("username", "admin")
 }

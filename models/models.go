@@ -17,8 +17,10 @@ import (
 	"github.com/gophish/gophish/config"
 
 	log "github.com/gophish/gophish/logger"
-	"github.com/jinzhu/gorm"
-	_ "github.com/mattn/go-sqlite3" // Blank import needed to import sqlite3
+	mysqlDriver "gorm.io/driver/mysql"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 var db *gorm.DB
@@ -169,10 +171,25 @@ func Setup(c *config.Config) error {
 		}
 	}
 
-	// Open our database connection
+	// Configure GORM logger - use Silent mode to match original db.LogMode(false)
+	gormLogger := logger.Default.LogMode(logger.Silent)
+
+	// Create the appropriate dialector for the database type
+	var dialector gorm.Dialector
+	switch conf.DBName {
+	case "mysql":
+		dialector = mysqlDriver.Open(conf.DBPath)
+	default:
+		// Default to sqlite3
+		dialector = sqlite.Open(conf.DBPath)
+	}
+
+	// Open our database connection with retry logic
 	i := 0
 	for {
-		db, err = gorm.Open(conf.DBName, conf.DBPath)
+		db, err = gorm.Open(dialector, &gorm.Config{
+			Logger: gormLogger,
+		})
 		if err == nil {
 			break
 		}
@@ -184,15 +201,16 @@ func Setup(c *config.Config) error {
 		log.Warn("waiting for database to be up...")
 		time.Sleep(5 * time.Second)
 	}
-	db.LogMode(false)
-	db.SetLogger(log.Logger)
-	db.DB().SetMaxOpenConns(1)
+
+	// Configure connection pool
+	sqlDB, err := db.DB()
 	if err != nil {
 		log.Error(err)
 		return err
 	}
+	sqlDB.SetMaxOpenConns(1)
 	// Migrate up to the latest version
-	err = goose.RunMigrationsOnDb(migrateConf, migrateConf.MigrationsDir, latest, db.DB())
+	err = goose.RunMigrationsOnDb(migrateConf, migrateConf.MigrationsDir, latest, sqlDB)
 	if err != nil {
 		log.Error(err)
 		return err

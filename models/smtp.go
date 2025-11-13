@@ -14,7 +14,7 @@ import (
 	"github.com/gophish/gophish/dialer"
 	log "github.com/gophish/gophish/logger"
 	"github.com/gophish/gophish/mailer"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 // Dialer is a wrapper around a standard gomail.Dialer in order

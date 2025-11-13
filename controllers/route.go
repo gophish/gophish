@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/NYTimes/gziphandler"
+	"github.com/gophish/gophish/audit"
 	"github.com/gophish/gophish/auth"
 	"github.com/gophish/gophish/config"
 	ctx "github.com/gophish/gophish/context"
@@ -375,9 +376,14 @@ func (as *AdminServer) Login(w http.ResponseWriter, r *http.Request) {
 	case r.Method == "POST":
 		// Find the user with the provided username
 		username, password := r.FormValue("username"), r.FormValue("password")
+		ipAddress := r.RemoteAddr
+		userAgent := r.Header.Get("User-Agent")
+
 		u, err := models.GetUserByUsername(username)
 		if err != nil {
 			log.Error(err)
+			// Audit log: failed login attempt (invalid username)
+			audit.LogLogin(username, ipAddress, userAgent, false, "Invalid username")
 			as.handleInvalidLogin(w, r, "Invalid Username/Password")
 			return
 		}
@@ -385,10 +391,30 @@ func (as *AdminServer) Login(w http.ResponseWriter, r *http.Request) {
 		err = auth.ValidatePassword(password, u.Hash)
 		if err != nil {
 			log.Error(err)
+			// Audit log: failed login attempt (invalid password)
+			audit.Log(audit.AuditEvent{
+				EventType: audit.EventLoginFailed,
+				UserID:    u.Id,
+				Username:  u.Username,
+				IPAddress: ipAddress,
+				UserAgent: userAgent,
+				Success:   false,
+				Message:   "Invalid password",
+			})
 			as.handleInvalidLogin(w, r, "Invalid Username/Password")
 			return
 		}
 		if u.AccountLocked {
+			// Audit log: account locked login attempt
+			audit.Log(audit.AuditEvent{
+				EventType: audit.EventLoginFailed,
+				UserID:    u.Id,
+				Username:  u.Username,
+				IPAddress: ipAddress,
+				UserAgent: userAgent,
+				Success:   false,
+				Message:   "Account locked",
+			})
 			as.handleInvalidLogin(w, r, "Account Locked")
 			return
 		}
@@ -397,6 +423,16 @@ func (as *AdminServer) Login(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Error(err)
 		}
+		// Audit log: successful login
+		audit.Log(audit.AuditEvent{
+			EventType: audit.EventLogin,
+			UserID:    u.Id,
+			Username:  u.Username,
+			IPAddress: ipAddress,
+			UserAgent: userAgent,
+			Success:   true,
+			Message:   "Login successful",
+		})
 		// If we've logged in, save the session and redirect to the dashboard
 		session.Values["id"] = u.Id
 		session.Save(r, w)
@@ -445,8 +481,21 @@ func (as *AdminServer) ResetPassword(w http.ResponseWriter, r *http.Request) {
 	case r.Method == http.MethodPost:
 		newPassword := r.FormValue("password")
 		confirmPassword := r.FormValue("confirm_password")
+		ipAddress := r.RemoteAddr
+		userAgent := r.Header.Get("User-Agent")
+
 		newHash, err := auth.ValidatePasswordChange(u.Hash, newPassword, confirmPassword)
 		if err != nil {
+			// Audit log: failed password change
+			audit.Log(audit.AuditEvent{
+				EventType: audit.EventPasswordChange,
+				UserID:    u.Id,
+				Username:  u.Username,
+				IPAddress: ipAddress,
+				UserAgent: userAgent,
+				Success:   false,
+				Message:   "Password change validation failed: " + err.Error(),
+			})
 			Flash(w, r, "danger", err.Error())
 			params.Flashes = session.Flashes()
 			session.Save(r, w)
@@ -457,6 +506,16 @@ func (as *AdminServer) ResetPassword(w http.ResponseWriter, r *http.Request) {
 		u.PasswordChangeRequired = false
 		u.Hash = newHash
 		if err = models.PutUser(&u); err != nil {
+			// Audit log: failed to save password
+			audit.Log(audit.AuditEvent{
+				EventType: audit.EventPasswordChange,
+				UserID:    u.Id,
+				Username:  u.Username,
+				IPAddress: ipAddress,
+				UserAgent: userAgent,
+				Success:   false,
+				Message:   "Failed to save password: " + err.Error(),
+			})
 			Flash(w, r, "danger", err.Error())
 			params.Flashes = session.Flashes()
 			session.Save(r, w)
@@ -464,6 +523,16 @@ func (as *AdminServer) ResetPassword(w http.ResponseWriter, r *http.Request) {
 			getTemplate(w, "reset_password").ExecuteTemplate(w, "base", params)
 			return
 		}
+		// Audit log: successful password change
+		audit.Log(audit.AuditEvent{
+			EventType: audit.EventPasswordChange,
+			UserID:    u.Id,
+			Username:  u.Username,
+			IPAddress: ipAddress,
+			UserAgent: userAgent,
+			Success:   true,
+			Message:   "Password changed successfully (forced reset)",
+		})
 		// TODO: We probably want to flash a message here that the password was
 		// changed successfully. The problem is that when the user resets their
 		// password on first use, they will see two flashes on the dashboard-

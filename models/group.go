@@ -7,8 +7,9 @@ import (
 	"time"
 
 	log "github.com/gophish/gophish/logger"
-	"github.com/jinzhu/gorm"
+	"github.com/gophish/gophish/validation"
 	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 )
 
 // Group contains the fields needed for a user -> group mapping
@@ -18,7 +19,7 @@ type Group struct {
 	UserId       int64     `json:"-"`
 	Name         string    `json:"name"`
 	ModifiedDate time.Time `json:"modified_date"`
-	Targets      []Target  `json:"targets" sql:"-"`
+	Targets      []Target  `json:"targets" gorm:"-"`
 }
 
 // GroupSummaries is a struct representing the overview of Groups.
@@ -102,6 +103,38 @@ func (g *Group) Validate() error {
 	case len(g.Targets) == 0:
 		return ErrNoTargetsSpecified
 	}
+
+	// Input validation: check group name
+	if err := validation.ValidateName(g.Name); err != nil {
+		return fmt.Errorf("group name: %w", err)
+	}
+	if err := validation.ValidateNoSQLInjection(g.Name); err != nil {
+		return fmt.Errorf("group name: %w", err)
+	}
+
+	// Input validation: check each target email
+	for i, target := range g.Targets {
+		if err := validation.ValidateEmail(target.Email); err != nil {
+			return fmt.Errorf("target %d email: %w", i+1, err)
+		}
+		// Validate other target fields
+		if target.FirstName != "" {
+			if err := validation.ValidateLength(target.FirstName, validation.MaxNameLength); err != nil {
+				return fmt.Errorf("target %d first name: %w", i+1, err)
+			}
+		}
+		if target.LastName != "" {
+			if err := validation.ValidateLength(target.LastName, validation.MaxNameLength); err != nil {
+				return fmt.Errorf("target %d last name: %w", i+1, err)
+			}
+		}
+		if target.Position != "" {
+			if err := validation.ValidateLength(target.Position, validation.MaxNameLength); err != nil {
+				return fmt.Errorf("target %d position: %w", i+1, err)
+			}
+		}
+	}
+
 	return nil
 }
 
@@ -319,14 +352,29 @@ func insertTargetIntoGroup(tx *gorm.DB, t Target, gid int64) error {
 		}).Error("Invalid email")
 		return err
 	}
-	err := tx.Where(t).FirstOrCreate(&t).Error
+	// GORM v2: FirstOrCreate - first arg is WHERE condition, second is attributes to set on create
+	target := Target{
+		BaseRecipient: BaseRecipient{
+			Email: t.Email,
+		},
+	}
+	err := tx.FirstOrCreate(&target, Target{
+		BaseRecipient: BaseRecipient{
+			Email:     t.Email,
+			FirstName: t.FirstName,
+			LastName:  t.LastName,
+			Position:  t.Position,
+		},
+	}).Error
 	if err != nil {
 		log.WithFields(logrus.Fields{
 			"email": t.Email,
 		}).Error(err)
 		return err
 	}
-	err = tx.Save(&GroupTarget{GroupId: gid, TargetId: t.Id}).Error
+	// Use the found/created target ID for the group-target association
+	// Use Create() instead of Save() as GroupTarget has no primary key (GORM v2 requirement)
+	err = tx.Create(&GroupTarget{GroupId: gid, TargetId: target.Id}).Error
 	if err != nil {
 		log.Error(err)
 		return err

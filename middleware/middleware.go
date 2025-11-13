@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/gophish/gophish/config"
 	ctx "github.com/gophish/gophish/context"
 	"github.com/gophish/gophish/models"
 	"github.com/gorilla/csrf"
@@ -14,6 +15,14 @@ import (
 // CSRFExemptPrefixes are a list of routes that are exempt from CSRF protection
 var CSRFExemptPrefixes = []string{
 	"/api",
+}
+
+// appConfig holds the application configuration for middleware use
+var appConfig *config.Config
+
+// SetConfig sets the configuration for middleware
+func SetConfig(conf *config.Config) {
+	appConfig = conf
 }
 
 // CSRFExceptions is a middleware that prevents CSRF checks on routes listed in
@@ -71,15 +80,36 @@ func GetContext(handler http.Handler) http.HandlerFunc {
 	}
 }
 
+// isOriginAllowed checks if an origin is in the trusted origins list
+func isOriginAllowed(origin string, allowedOrigins []string) bool {
+	if len(allowedOrigins) == 0 {
+		// If no origins configured, deny all for security
+		return false
+	}
+	for _, allowed := range allowedOrigins {
+		if origin == allowed {
+			return true
+		}
+	}
+	return false
+}
+
 // RequireAPIKey ensures that a valid API key is set as either the api_key GET
 // parameter, or a Bearer token.
 func RequireAPIKey(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
+		// Secure CORS handling - only allow trusted origins
+		origin := r.Header.Get("Origin")
+		if appConfig != nil && isOriginAllowed(origin, appConfig.AdminConf.TrustedOrigins) {
+			w.Header().Set("Access-Control-Allow-Origin", origin)
+			w.Header().Set("Access-Control-Allow-Credentials", "true")
+		}
+
 		if r.Method == "OPTIONS" {
 			w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 			w.Header().Set("Access-Control-Max-Age", "1000")
-			w.Header().Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
+			w.Header().Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization")
+			w.WriteHeader(http.StatusOK)
 			return
 		}
 		r.ParseForm()
@@ -176,14 +206,70 @@ func RequirePermission(perm string) func(http.Handler) http.HandlerFunc {
 	}
 }
 
-// ApplySecurityHeaders applies various security headers according to best-
-// practices.
+// ApplySecurityHeaders applies comprehensive security headers according to best practices
 func ApplySecurityHeaders(next http.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		csp := "frame-ancestors 'none';"
-		w.Header().Set("Content-Security-Policy", csp)
+		// Content Security Policy - comprehensive protection against XSS
+		cspDirectives := []string{
+			"default-src 'self'",
+			"script-src 'self' 'unsafe-inline' 'unsafe-eval'", // TODO: Remove unsafe-* after audit
+			"style-src 'self' 'unsafe-inline'",
+			"img-src 'self' data: https:",
+			"font-src 'self' data:",
+			"connect-src 'self'",
+			"form-action 'self'",
+			"frame-ancestors 'none'",
+			"base-uri 'self'",
+			"upgrade-insecure-requests",
+		}
+		w.Header().Set("Content-Security-Policy", strings.Join(cspDirectives, "; "))
+
+		// Frame protection (defense in depth with CSP)
 		w.Header().Set("X-Frame-Options", "DENY")
+
+		// HTTP Strict Transport Security (HSTS) - only set if using HTTPS
+		if r.TLS != nil {
+			w.Header().Set("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
+		}
+
+		// Prevent MIME sniffing
+		w.Header().Set("X-Content-Type-Options", "nosniff")
+
+		// XSS Protection (legacy but still useful for older browsers)
+		w.Header().Set("X-XSS-Protection", "1; mode=block")
+
+		// Referrer Policy - control referrer information
+		w.Header().Set("Referrer-Policy", "strict-origin-when-cross-origin")
+
+		// Permissions Policy - restrict browser features
+		permissionDirectives := []string{
+			"geolocation=()",
+			"microphone=()",
+			"camera=()",
+			"payment=()",
+			"usb=()",
+			"magnetometer=()",
+			"accelerometer=()",
+			"gyroscope=()",
+		}
+		w.Header().Set("Permissions-Policy", strings.Join(permissionDirectives, ", "))
+
+		// Remove server identification headers
+		w.Header().Del("Server")
+		w.Header().Del("X-Powered-By")
+
 		next.ServeHTTP(w, r)
+	}
+}
+
+// MaxBodySize limits the size of request bodies to prevent DoS attacks
+func MaxBodySize(maxSize int64) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			// Set max bytes for request body
+			r.Body = http.MaxBytesReader(w, r.Body, maxSize)
+			next.ServeHTTP(w, r)
+		})
 	}
 }
 

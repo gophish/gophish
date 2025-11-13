@@ -75,7 +75,7 @@ func GetRoleBySlug(slug string) (Role, error) {
 // permission.
 func (u *User) HasPermission(slug string) (bool, error) {
 	perm := []Permission{}
-	err := db.Model(Role{ID: u.RoleID}).Where("slug=?", slug).Association("Permissions").Find(&perm).Error
+	err := db.Model(Role{ID: u.RoleID}).Where("slug=?", slug).Association("Permissions").Find(&perm)
 	if err != nil {
 		return false, err
 	}

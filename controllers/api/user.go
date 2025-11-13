@@ -3,15 +3,18 @@ package api
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 
+	"github.com/gophish/gophish/audit"
 	"github.com/gophish/gophish/auth"
 	ctx "github.com/gophish/gophish/context"
 	log "github.com/gophish/gophish/logger"
 	"github.com/gophish/gophish/models"
+	"github.com/gophish/gophish/validation"
 	"github.com/gorilla/mux"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 // ErrUsernameTaken is thrown when a user attempts to register a username that is taken.
@@ -43,6 +46,18 @@ func (ur *userRequest) Validate(existingUser *models.User) error {
 	case ur.Role == "":
 		return ErrEmptyRole
 	}
+
+	// Input validation: check username for dangerous patterns
+	if err := validation.ValidateLength(ur.Username, validation.MaxNameLength); err != nil {
+		return fmt.Errorf("username: %w", err)
+	}
+	if err := validation.ValidateNoSQLInjection(ur.Username); err != nil {
+		return fmt.Errorf("username: %w", err)
+	}
+	if err := validation.ValidateNoXSS(ur.Username); err != nil {
+		return fmt.Errorf("username: %w", err)
+	}
+
 	// Verify that the username isn't already taken. We consider two cases:
 	// * We're creating a new user, in which case any match is a conflict
 	// * We're modifying a user, in which case any match with a different ID is
@@ -116,6 +131,22 @@ func (as *Server) Users(w http.ResponseWriter, r *http.Request) {
 			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
 			return
 		}
+		// Audit log: user created
+		currentUser := ctx.Get(r, "user").(models.User)
+		audit.Log(audit.AuditEvent{
+			EventType: audit.EventUserCreated,
+			UserID:    currentUser.Id,
+			Username:  currentUser.Username,
+			IPAddress: r.RemoteAddr,
+			UserAgent: r.Header.Get("User-Agent"),
+			Success:   true,
+			Message:   "User created: " + user.Username,
+			Details: map[string]interface{}{
+				"new_user_id":       user.Id,
+				"new_user_username": user.Username,
+				"new_user_role":     role.Slug,
+			},
+		})
 		JSONResponse(w, user, http.StatusOK)
 		return
 	}
@@ -154,6 +185,20 @@ func (as *Server) User(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		log.Infof("Deleted user account for %s", existingUser.Username)
+		// Audit log: user deleted
+		audit.Log(audit.AuditEvent{
+			EventType: audit.EventUserDeleted,
+			UserID:    currentUser.Id,
+			Username:  currentUser.Username,
+			IPAddress: r.RemoteAddr,
+			UserAgent: r.Header.Get("User-Agent"),
+			Success:   true,
+			Message:   "User deleted: " + existingUser.Username,
+			Details: map[string]interface{}{
+				"deleted_user_id":       existingUser.Id,
+				"deleted_user_username": existingUser.Username,
+			},
+		})
 		JSONResponse(w, models.Response{Success: true, Message: "User deleted Successfully!"}, http.StatusOK)
 	case r.Method == "PUT":
 		ur := &userRequest{}

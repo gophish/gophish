@@ -5,11 +5,12 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/gophish/gophish/audit"
 	ctx "github.com/gophish/gophish/context"
 	log "github.com/gophish/gophish/logger"
 	"github.com/gophish/gophish/models"
 	"github.com/gorilla/mux"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 // Campaigns returns a list of campaigns if requested via GET.
@@ -36,6 +37,22 @@ func (as *Server) Campaigns(w http.ResponseWriter, r *http.Request) {
 			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
 			return
 		}
+		// Audit log: campaign created
+		currentUser := ctx.Get(r, "user").(models.User)
+		audit.Log(audit.AuditEvent{
+			EventType: audit.EventCampaignLaunched,
+			UserID:    currentUser.Id,
+			Username:  currentUser.Username,
+			IPAddress: r.RemoteAddr,
+			UserAgent: r.Header.Get("User-Agent"),
+			Success:   true,
+			Message:   "Campaign created: " + c.Name,
+			Details: map[string]interface{}{
+				"campaign_id":     c.Id,
+				"campaign_name":   c.Name,
+				"campaign_status": c.Status,
+			},
+		})
 		// If the campaign is scheduled to launch immediately, send it to the worker.
 		// Otherwise, the worker will pick it up at the scheduled time
 		if c.Status == models.CampaignInProgress {

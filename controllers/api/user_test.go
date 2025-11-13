@@ -66,7 +66,7 @@ func TestCreateUser(t *testing.T) {
 	testCtx := setupTest(t)
 	payload := &userRequest{
 		Username: "foo",
-		Password: "validpassword",
+		Password: "ValidP@ssw0rd123",  // Updated to meet new password policy
 		Role:     models.RoleUser,
 	}
 	body, err := json.Marshal(payload)
@@ -103,7 +103,7 @@ func TestCreateUser(t *testing.T) {
 func TestModifyUser(t *testing.T) {
 	testCtx := setupTest(t)
 	unpriviledgedUser := createUnpriviledgedUser(t, models.RoleUser)
-	newPassword := "new-password"
+	newPassword := "NewP@ssw0rd123"  // Updated to meet new password policy
 	newUsername := "new-username"
 	payload := userRequest{
 		Username: newUsername,
