@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"math/rand"
 	"net/url"
 	"time"
 
@@ -10,6 +11,15 @@ import (
 	"github.com/jinzhu/gorm"
 	"github.com/sirupsen/logrus"
 )
+
+// Shuffle function for maillogs
+func shuffleTargets(targets []Target) {
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	for i := len(targets) - 1; i > 0; i-- {
+		j := r.Intn(i + 1)
+		targets[i], targets[j] = targets[j], targets[i]
+	}
+}
 
 // Campaign is a struct representing a created campaign
 type Campaign struct {
@@ -541,8 +551,15 @@ func PostCampaign(c *Campaign, uid int64) error {
 	recipientIndex := 0
 	tx := db.Begin()
 	for _, g := range c.Groups {
-		// Insert a result for each target in the group
-		for _, t := range g.Targets {
+		// Make an in-memory copy of the group's targets
+		tmp := make([]Target, len(g.Targets))
+		copy(tmp, g.Targets)
+
+		// Shuffle temporary slice
+		shuffleTargets(tmp)
+
+		// Insert a result for each target in the shuffled order
+		for _, t := range tmp {
 			// Remove duplicate results - we should only
 			// send emails to unique email addresses.
 			if _, ok := resultMap[t.Email]; ok {
