@@ -19,5 +19,10 @@
 	"logging": {
 		"filename": "",
 		"level": ""
+	},
+	"oauth": {
+		"enabled": false,
+		"callback_url": "https://yourdomain.example.com/oauth/callback",
+		"providers": []
 	}
 }

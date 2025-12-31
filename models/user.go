@@ -23,6 +23,8 @@ type User struct {
 	PasswordChangeRequired bool      `json:"password_change_required"`
 	AccountLocked          bool      `json:"account_locked"`
 	LastLogin              time.Time `json:"last_login"`
+	OAuthProvider          string    `json:"oauth_provider,omitempty" gorm:"column:oauth_provider"` // OAuth provider name (e.g., "google", "azure")
+	OAuthSubject           string    `json:"oauth_subject,omitempty" gorm:"column:oauth_subject"`   // OAuth subject (unique identifier at provider)
 }
 
 // GetUser returns the user that the given id corresponds to. If no user is found, an
@@ -56,9 +58,31 @@ func GetUserByUsername(username string) (User, error) {
 	return u, err
 }
 
+// GetUserByOAuthSubject returns the user that matches the given OAuth provider and subject.
+// If no user is found, an error is thrown.
+func GetUserByOAuthSubject(provider, subject string) (User, error) {
+	u := User{}
+	err := db.Preload("Role").Where("oauth_provider = ? AND oauth_subject = ?", provider, subject).First(&u).Error
+	return u, err
+}
+
 // PutUser updates the given user
 func PutUser(u *User) error {
+	// If the user doesn't have an API key, generate one
+	if u.ApiKey == "" {
+		u.ApiKey = generateSecureKey()
+	}
 	err := db.Save(u).Error
+	return err
+}
+
+// PostUser creates a new user account
+func PostUser(u *User) error {
+	// Generate an API key if not present
+	if u.ApiKey == "" {
+		u.ApiKey = generateSecureKey()
+	}
+	err := db.Create(u).Error
 	return err
 }
 

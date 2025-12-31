@@ -19,6 +19,7 @@ import (
 	mid "github.com/gophish/gophish/middleware"
 	"github.com/gophish/gophish/middleware/ratelimit"
 	"github.com/gophish/gophish/models"
+	"github.com/gophish/gophish/oauth"
 	"github.com/gophish/gophish/util"
 	"github.com/gophish/gophish/worker"
 	"github.com/gorilla/csrf"
@@ -35,10 +36,14 @@ type AdminServerOption func(*AdminServer)
 // AdminServer is an HTTP server that implements the administrative Gophish
 // handlers, including the dashboard and REST API.
 type AdminServer struct {
-	server  *http.Server
-	worker  worker.Worker
-	config  config.AdminServer
-	limiter *ratelimit.PostLimiter
+	server        *http.Server
+	worker        worker.Worker
+	config        config.AdminServer
+	limiter       *ratelimit.PostLimiter
+	oauthRegistry *oauth.ProviderRegistry
+	oauthHandler  *oauth.Handler
+	callbackURL   string         // OAuth callback URL
+	fullConfig    *config.Config // Full config for OAuth reload
 }
 
 var defaultTLSConfig = &tls.Config{
@@ -71,19 +76,41 @@ func WithWorker(w worker.Worker) AdminServerOption {
 
 // NewAdminServer returns a new instance of the AdminServer with the
 // provided config and options applied.
-func NewAdminServer(config config.AdminServer, options ...AdminServerOption) *AdminServer {
+func NewAdminServer(adminConfig config.AdminServer, fullConfig *config.Config, options ...AdminServerOption) *AdminServer {
 	defaultWorker, _ := worker.New()
 	defaultServer := &http.Server{
 		ReadTimeout: 10 * time.Second,
-		Addr:        config.ListenURL,
+		Addr:        adminConfig.ListenURL,
 	}
 	defaultLimiter := ratelimit.NewPostLimiter()
 	as := &AdminServer{
-		worker:  defaultWorker,
-		server:  defaultServer,
-		limiter: defaultLimiter,
-		config:  config,
+		worker:     defaultWorker,
+		server:     defaultServer,
+		limiter:    defaultLimiter,
+		config:     adminConfig,
+		fullConfig: fullConfig,
 	}
+	
+	// Initialize OAuth if configured
+	if fullConfig != nil && fullConfig.OAuth != nil {
+		as.callbackURL = fullConfig.OAuth.CallbackURL
+		ctx := context.Background()
+		registry, err := oauth.NewProviderRegistry(ctx, fullConfig.OAuth)
+		if err != nil {
+			log.Warnf("Failed to initialize OAuth provider registry: %v", err)
+		} else if registry.IsEnabled() {
+			as.oauthRegistry = registry
+			// Initialize state manager with CSRF key
+			csrfKey := []byte(adminConfig.CSRFKey)
+			if len(csrfKey) == 0 {
+				csrfKey = []byte(auth.GenerateSecureKey(auth.APIKeyLength))
+			}
+			stateManager := oauth.NewStateManager(csrfKey)
+			as.oauthHandler = oauth.NewHandler(registry, stateManager)
+			log.Info("OAuth authentication initialized")
+		}
+	}
+	
 	for _, opt := range options {
 		opt(as)
 	}
@@ -127,6 +154,11 @@ func (as *AdminServer) registerRoutes() {
 	router.HandleFunc("/login", mid.Use(as.Login, as.limiter.Limit))
 	router.HandleFunc("/logout", mid.Use(as.Logout, mid.RequireLogin))
 	router.HandleFunc("/reset_password", mid.Use(as.ResetPassword, mid.RequireLogin))
+	// OAuth routes (with rate limiting to prevent abuse)
+	if as.oauthHandler != nil {
+		router.HandleFunc("/oauth/login", mid.Use(as.oauthHandler.Login, mid.GetContext, as.limiter.Limit))
+		router.HandleFunc("/oauth/callback", mid.Use(as.oauthHandler.Callback, mid.GetContext, as.limiter.Limit))
+	}
 	router.HandleFunc("/campaigns", mid.Use(as.Campaigns, mid.RequireLogin))
 	router.HandleFunc("/campaigns/{id:[0-9]+}", mid.Use(as.CampaignID, mid.RequireLogin))
 	router.HandleFunc("/templates", mid.Use(as.Templates, mid.RequireLogin))
@@ -135,12 +167,14 @@ func (as *AdminServer) registerRoutes() {
 	router.HandleFunc("/sending_profiles", mid.Use(as.SendingProfiles, mid.RequireLogin))
 	router.HandleFunc("/settings", mid.Use(as.Settings, mid.RequireLogin))
 	router.HandleFunc("/users", mid.Use(as.UserManagement, mid.RequirePermission(models.PermissionModifySystem), mid.RequireLogin))
+	router.HandleFunc("/oauth_providers", mid.Use(as.OAuthProviders, mid.RequirePermission(models.PermissionModifySystem), mid.RequireLogin))
 	router.HandleFunc("/webhooks", mid.Use(as.Webhooks, mid.RequirePermission(models.PermissionModifySystem), mid.RequireLogin))
 	router.HandleFunc("/impersonate", mid.Use(as.Impersonate, mid.RequirePermission(models.PermissionModifySystem), mid.RequireLogin))
 	// Create the API routes
 	api := api.NewServer(
 		api.WithWorker(as.worker),
 		api.WithLimiter(as.limiter),
+		api.WithOAuthReloadCallback(as.reloadOAuthProviders),
 	)
 	router.PathPrefix("/api/").Handler(api)
 
@@ -170,6 +204,24 @@ func (as *AdminServer) registerRoutes() {
 	// Setup logging
 	adminHandler = handlers.CombinedLoggingHandler(log.Writer(), adminHandler)
 	as.server.Handler = adminHandler
+}
+
+// reloadOAuthProviders dynamically reloads OAuth providers from the database
+func (as *AdminServer) reloadOAuthProviders() error {
+	if as.oauthRegistry == nil {
+		log.Warn("Attempted to reload OAuth providers but registry is not initialized")
+		return nil
+	}
+
+	ctx := context.Background()
+	err := as.oauthRegistry.Reload(ctx, as.callbackURL)
+	if err != nil {
+		log.Errorf("Failed to reload OAuth providers: %v", err)
+		return err
+	}
+
+	log.Info("OAuth providers reloaded successfully")
+	return nil
 }
 
 type templateParams struct {
@@ -334,6 +386,13 @@ func (as *AdminServer) Webhooks(w http.ResponseWriter, r *http.Request) {
 	getTemplate(w, "webhooks").ExecuteTemplate(w, "base", params)
 }
 
+// OAuthProviders is an admin-only handler for managing OAuth providers
+func (as *AdminServer) OAuthProviders(w http.ResponseWriter, r *http.Request) {
+	params := newTemplateParams(r)
+	params.Title = "OAuth Providers"
+	getTemplate(w, "oauth_providers").ExecuteTemplate(w, "base", params)
+}
+
 // Impersonate allows an admin to login to a user account without needing the password
 func (as *AdminServer) Impersonate(w http.ResponseWriter, r *http.Request) {
 
@@ -355,12 +414,30 @@ func (as *AdminServer) Impersonate(w http.ResponseWriter, r *http.Request) {
 // Login handles the authentication flow for a user. If credentials are valid,
 // a session is created
 func (as *AdminServer) Login(w http.ResponseWriter, r *http.Request) {
+	type OAuthProvider struct {
+		Name        string
+		DisplayName string
+	}
 	params := struct {
-		User    models.User
-		Title   string
-		Flashes []interface{}
-		Token   string
+		User           models.User
+		Title          string
+		Flashes        []interface{}
+		Token          string
+		OAuthProviders []OAuthProvider
+		OAuthEnabled   bool
 	}{Title: "Login", Token: csrf.Token(r)}
+	
+	// Add OAuth providers if available
+	if as.oauthRegistry != nil && as.oauthRegistry.IsEnabled() {
+		params.OAuthEnabled = true
+		for _, p := range as.oauthRegistry.ListProviders() {
+			params.OAuthProviders = append(params.OAuthProviders, OAuthProvider{
+				Name:        p.Name(),
+				DisplayName: p.DisplayName(),
+			})
+		}
+	}
+	
 	session := ctx.Get(r, "session").(*sessions.Session)
 	switch {
 	case r.Method == "GET":

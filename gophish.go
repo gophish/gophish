@@ -36,6 +36,7 @@ import (
 
 	"github.com/gophish/gophish/config"
 	"github.com/gophish/gophish/controllers"
+	"github.com/gophish/gophish/crypto"
 	"github.com/gophish/gophish/dialer"
 	"github.com/gophish/gophish/imap"
 	log "github.com/gophish/gophish/logger"
@@ -94,6 +95,12 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// Initialize encryption for OAuth secrets
+	err = crypto.InitSecretEncryption()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	// Provide the option to disable the built-in mailer
 	// Setup the global variables and settings
 	err = models.Setup(conf)
@@ -114,7 +121,7 @@ func main() {
 		adminOptions = append(adminOptions, controllers.WithWorker(nil))
 	}
 	adminConfig := conf.AdminConf
-	adminServer := controllers.NewAdminServer(adminConfig, adminOptions...)
+	adminServer := controllers.NewAdminServer(adminConfig, conf, adminOptions...)
 	middleware.Store.Options.Secure = adminConfig.UseTLS
 
 	phishConfig := conf.PhishConf

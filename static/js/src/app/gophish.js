@@ -277,6 +277,30 @@ var api = {
             return query("/webhooks/" + id + "/validate", "POST", {}, true)
         },
     },
+    oauthProviders: {
+        get: function() {
+            return query("/oauth/providers/", "GET", {}, false)
+        },
+        post: function(provider) {
+            return query("/oauth/providers/", "POST", provider, false)
+        },
+    },
+    oauthProviderId: {
+        get: function(id) {
+            return query("/oauth/providers/" + id, "GET", {}, false)
+        },
+        put: function(id, provider) {
+            return query("/oauth/providers/" + id, "PUT", provider, true)
+        },
+        delete: function(id) {
+            return query("/oauth/providers/" + id, "DELETE", {}, false)
+        },
+    },
+    oauthProvidersReload: {
+        post: function() {
+            return query("/oauth/providers/reload", "POST", {}, false)
+        },
+    },
     // import handles all of the "import" functions in the api
     import_email: function (req) {
         return query("/import/email", "POST", req, false)

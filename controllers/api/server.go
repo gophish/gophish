@@ -13,14 +13,22 @@ import (
 // ServerOption is an option to apply to the API server.
 type ServerOption func(*Server)
 
+// WithOAuthReloadCallback sets the callback function for reloading OAuth providers
+func WithOAuthReloadCallback(callback func() error) ServerOption {
+	return func(as *Server) {
+		as.reloadOAuthCallback = callback
+	}
+}
+
 // Server represents the routes and functionality of the Gophish API.
 // It's not a server in the traditional sense, in that it isn't started and
 // stopped. Rather, it's meant to be used as an http.Handler in the
 // AdminServer.
 type Server struct {
-	handler http.Handler
-	worker  worker.Worker
-	limiter *ratelimit.PostLimiter
+	handler             http.Handler
+	worker              worker.Worker
+	limiter             *ratelimit.PostLimiter
+	reloadOAuthCallback func() error // Callback to reload OAuth providers in admin server
 }
 
 // NewServer returns a new instance of the API handler with the provided
@@ -86,6 +94,10 @@ func (as *Server) registerRoutes() {
 	router.HandleFunc("/webhooks/", mid.Use(as.Webhooks, mid.RequirePermission(models.PermissionModifySystem)))
 	router.HandleFunc("/webhooks/{id:[0-9]+}/validate", mid.Use(as.ValidateWebhook, mid.RequirePermission(models.PermissionModifySystem)))
 	router.HandleFunc("/webhooks/{id:[0-9]+}", mid.Use(as.Webhook, mid.RequirePermission(models.PermissionModifySystem)))
+	// OAuth provider management endpoints (admin only)
+	router.HandleFunc("/oauth/providers/", mid.Use(as.OAuthProviders, mid.RequirePermission(models.PermissionModifySystem)))
+	router.HandleFunc("/oauth/providers/reload", mid.Use(as.OAuthProvidersReload, mid.RequirePermission(models.PermissionModifySystem)))
+	router.HandleFunc("/oauth/providers/{id:[0-9]+}", mid.Use(as.OAuthProvider, mid.RequirePermission(models.PermissionModifySystem)))
 	as.handler = router
 }
 
