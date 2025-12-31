@@ -36,6 +36,7 @@ import (
 
 	"github.com/gophish/gophish/config"
 	"github.com/gophish/gophish/controllers"
+	"github.com/gophish/gophish/crypto"
 	"github.com/gophish/gophish/dialer"
 	"github.com/gophish/gophish/imap"
 	log "github.com/gophish/gophish/logger"
@@ -90,6 +91,12 @@ func main() {
 	})
 
 	err = log.Setup(conf.Logging)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Initialize encryption for OAuth secrets
+	err = crypto.InitSecretEncryption()
 	if err != nil {
 		log.Fatal(err)
 	}

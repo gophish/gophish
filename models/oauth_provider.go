@@ -5,6 +5,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/gophish/gophish/crypto"
 	"github.com/jinzhu/gorm"
 )
 
@@ -33,6 +34,15 @@ var ErrOAuthProviderNameExists = errors.New("OAuth provider with this name alrea
 
 // BeforeSave is a GORM hook that runs before saving to convert ScopesList to JSON
 func (p *OAuthProvider) BeforeSave(scope *gorm.DB) error {
+	// Encrypt client secret if present and not masked
+	if p.ClientSecret != "" && p.ClientSecret != MaskedSecret {
+		encrypted, err := crypto.EncryptSecret(p.ClientSecret)
+		if err != nil {
+			return err
+		}
+		p.ClientSecret = encrypted
+	}
+
 	if len(p.ScopesList) > 0 {
 		scopesJSON, err := json.Marshal(p.ScopesList)
 		if err != nil {
@@ -51,6 +61,15 @@ func (p *OAuthProvider) BeforeSave(scope *gorm.DB) error {
 
 // AfterFind is a GORM hook that runs after loading from DB to parse Scopes JSON
 func (p *OAuthProvider) AfterFind(scope *gorm.DB) error {
+	// Decrypt client secret
+	if p.ClientSecret != "" {
+		decrypted, err := crypto.DecryptSecret(p.ClientSecret)
+		if err != nil {
+			return err
+		}
+		p.ClientSecret = decrypted
+	}
+
 	if p.Scopes != "" {
 		return json.Unmarshal([]byte(p.Scopes), &p.ScopesList)
 	}
