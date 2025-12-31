@@ -114,7 +114,7 @@ func main() {
 		adminOptions = append(adminOptions, controllers.WithWorker(nil))
 	}
 	adminConfig := conf.AdminConf
-	adminServer := controllers.NewAdminServer(adminConfig, adminOptions...)
+	adminServer := controllers.NewAdminServer(adminConfig, conf, adminOptions...)
 	middleware.Store.Options.Secure = adminConfig.UseTLS
 
 	phishConfig := conf.PhishConf
