@@ -1,0 +1,258 @@
+{{define "body"}}
+<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+    <h1 class="page-header">
+        {{.Title}}
+    </h1>
+    <div id="flashes" class="row"></div>
+    <div class="row">
+        <button type="button" class="btn btn-primary" onclick="editProvider()">
+            <i class="fa fa-plus"></i> New Provider
+        </button>
+    </div>
+    &nbsp;
+    <div id="loading">
+        <i class="fa fa-spinner fa-spin fa-4x"></i>
+    </div>
+    <div id="emptyMessage" class="alert alert-info" style="display:none;">
+        <i class="fa fa-info-circle"></i>
+        No OAuth providers configured. Click "New Provider" to add one.
+    </div>
+    <div class="row">
+        <table id="providersTable" class="table table-striped table-bordered" style="display:none;">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Display Name</th>
+                    <th>Issuer URL</th>
+                    <th>Status</th>
+                    <th class="col-md-2 no-sort"></th>
+                </tr>
+            </thead>
+            <tbody id="providersTableBody">
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="providerModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+                <h4 class="modal-title" id="providerModalLabel">New OAuth Provider</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" id="modal.flashes"></div>
+                <form id="providerForm">
+                    <input type="hidden" id="providerId" />
+                    
+                    <div class="form-group">
+                        <label for="providerName">Provider Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="providerName" required 
+                               placeholder="e.g., google, azure, okta" pattern="^[a-z0-9_-]+$">
+                        <small class="form-text text-muted">
+                            Lowercase letters, numbers, hyphens, and underscores only. Cannot be changed after creation.
+                        </small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="providerDisplayName">Display Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="providerDisplayName" required 
+                               placeholder="e.g., Google, Microsoft, Okta">
+                        <small class="form-text text-muted">
+                            Human-readable name shown on the login page.
+                        </small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="providerClientId">Client ID <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="providerClientId" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="providerClientSecret">Client Secret <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control" id="providerClientSecret" required>
+                        <small class="form-text text-muted">
+                            Leave blank when editing to keep the existing secret.
+                        </small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="providerIssuerUrl">Issuer URL <span class="text-danger">*</span></label>
+                        <input type="url" class="form-control" id="providerIssuerUrl" required 
+                               placeholder="https://accounts.google.com">
+                        <small class="form-text text-muted">
+                            The OIDC discovery endpoint URL (must be HTTPS).
+                        </small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="providerScopes">Scopes</label>
+                        <input type="text" class="form-control" id="providerScopes" 
+                               placeholder="openid profile email">
+                        <small class="form-text text-muted">
+                            Space-separated list of OAuth scopes to request.
+                        </small>
+                    </div>
+                    
+                    <div class="checkbox checkbox-primary">
+                        <input type="checkbox" id="providerEnabled" checked />
+                        <label for="providerEnabled">Enabled</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveProvider()">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{end}}
+
+{{define "scripts"}}
+<script>
+    let providers = [];
+    
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    function loadProviders() {
+        $('#loading').show();
+        $('#emptyMessage').hide();
+        $('#providersTable').hide();
+        
+        api.oauthProviders.get()
+            .success(function(data) {
+                providers = data;
+                renderProviders();
+                $('#loading').hide();
+                
+                if (providers.length === 0) {
+                    $('#emptyMessage').show();
+                } else {
+                    $('#providersTable').show();
+                }
+            })
+            .error(function(data) {
+                $('#loading').hide();
+                errorFlash(data.responseJSON ? data.responseJSON.message : 'Failed to load providers');
+            });
+    }
+    
+    function renderProviders() {
+        const tbody = $('#providersTableBody');
+        tbody.empty();
+        
+        providers.forEach(function(provider) {
+            const statusBadge = provider.enabled 
+                ? '<span class="label label-success">Enabled</span>'
+                : '<span class="label label-default">Disabled</span>';
+            
+            const row = $('<tr>');
+            row.append($('<td>').text(provider.name));
+            row.append($('<td>').text(provider.display_name));
+            row.append($('<td>').text(provider.issuer_url));
+            row.append($('<td>').html(statusBadge));
+            
+            const actions = $('<td>');
+            actions.append(
+                $('<button>').addClass('btn btn-sm btn-primary').attr('onclick', 'editProvider(' + provider.id + ')')
+                    .html('<i class="fa fa-edit"></i> Edit')
+            );
+            actions.append(' ');
+            actions.append(
+                $('<button>').addClass('btn btn-sm btn-danger').attr('onclick', 'deleteProvider(' + provider.id + ')')
+                    .html('<i class="fa fa-trash"></i> Delete')
+            );
+            row.append(actions);
+            
+            tbody.append(row);
+        });
+    }
+    
+    function editProvider(id) {
+        if (id) {
+            let provider = providers.find(p => p.id === id);
+            $('#providerModalLabel').text('Edit OAuth Provider');
+            $('#providerId').val(provider.id);
+            $('#providerName').val(provider.name).prop('readonly', true);
+            $('#providerDisplayName').val(provider.display_name);
+            $('#providerClientId').val(provider.client_id);
+            $('#providerClientSecret').val('');
+            $('#providerClientSecret').prop('required', false);
+            $('#providerIssuerUrl').val(provider.issuer_url);
+            $('#providerScopes').val((provider.scopes || []).join(' '));
+            $('#providerEnabled').prop('checked', provider.enabled);
+        } else {
+            $('#providerModalLabel').text('New OAuth Provider');
+            $('#providerForm')[0].reset();
+            $('#providerId').val('');
+            $('#providerName').prop('readonly', false);
+            $('#providerClientSecret').prop('required', true);
+            $('#providerScopes').val('openid profile email');
+            $('#providerEnabled').prop('checked', true);
+        }
+        
+        $('#providerModal').modal('show');
+    }
+    
+    function saveProvider() {
+        if (!$('#providerForm')[0].checkValidity()) {
+            $('#providerForm')[0].reportValidity();
+            return;
+        }
+        
+        let id = $('#providerId').val();
+        let data = {
+            name: $('#providerName').val().trim(),
+            display_name: $('#providerDisplayName').val().trim(),
+            client_id: $('#providerClientId').val().trim(),
+            client_secret: $('#providerClientSecret').val(),
+            issuer_url: $('#providerIssuerUrl').val().trim(),
+            scopes: $('#providerScopes').val().trim().split(/\s+/).filter(s => s),
+            enabled: $('#providerEnabled').is(':checked')
+        };
+        
+        let request = id 
+            ? api.oauthProviderId.put(id, data)
+            : api.oauthProviders.post(data);
+        
+        request.success(function() {
+            $('#providerModal').modal('hide');
+            successFlash(id ? 'Provider updated successfully!' : 'Provider created successfully!');
+            loadProviders();
+            api.oauthProvidersReload.post();
+        }).error(function(data) {
+            modalError(data.responseJSON ? data.responseJSON.message : 'Failed to save provider');
+        });
+    }
+    
+    function deleteProvider(id) {
+        let provider = providers.find(p => p.id === id);
+        if (!confirm('Are you sure you want to delete the OAuth provider "' + provider.display_name + '"?')) {
+            return;
+        }
+        
+        api.oauthProviderId.delete(id)
+            .success(function() {
+                successFlash('Provider deleted successfully!');
+                loadProviders();
+                api.oauthProvidersReload.post();
+            })
+            .error(function(data) {
+                errorFlash(data.responseJSON ? data.responseJSON.message : 'Failed to delete provider');
+            });
+    }
+    
+    $(document).ready(function() {
+        loadProviders();
+    });
+</script>
+{{end}}

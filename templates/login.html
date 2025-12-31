@@ -45,6 +45,23 @@
             <img id="logo" src="/images/logo_purple.png" />
             <h2 class="form-signin-heading">Please sign in</h2>
             {{template "flashes" .Flashes}}
+            
+            {{if .OAuthEnabled}}
+            <!-- OAuth Login Buttons -->
+            <div class="oauth-buttons" style="margin-bottom: 20px;">
+                {{range .OAuthProviders}}
+                <a href="/oauth/login?provider={{.Name}}" class="btn btn-default btn-block" style="margin-bottom: 10px;">
+                    <i class="fa fa-sign-in"></i> Sign in with {{.DisplayName}}
+                </a>
+                {{end}}
+            </div>
+            
+            <div style="text-align: center; margin: 20px 0;">
+                <span style="background: white; padding: 0 10px; color: #999;">OR</span>
+                <hr style="margin-top: -12px; border-color: #ddd;" />
+            </div>
+            {{end}}
+            
             <input type="text" name="username" class="form-control top-input" placeholder="Username" required autofocus>
             <input type="password" name="password" class="form-control bottom-input" placeholder="Password" autocomplete="off" required>
             <input type="hidden" name="csrf_token" value="{{.Token}}" />
