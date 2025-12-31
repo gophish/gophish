@@ -18,6 +18,24 @@ type AdminServer struct {
 	TrustedOrigins       []string `json:"trusted_origins"`
 }
 
+// OAuthProviderConfig represents a single OAuth/OIDC provider configuration
+type OAuthProviderConfig struct {
+	Name         string   `json:"name"`          // Provider identifier (e.g., "google", "azure", "okta")
+	DisplayName  string   `json:"display_name"`  // Human-readable name for UI
+	ClientID     string   `json:"client_id"`     // OAuth client ID
+	ClientSecret string   `json:"client_secret"` // OAuth client secret
+	IssuerURL    string   `json:"issuer_url"`    // OIDC issuer URL (for discovery)
+	Scopes       []string `json:"scopes"`        // OAuth scopes to request
+	Enabled      bool     `json:"enabled"`       // Whether this provider is active
+}
+
+// OAuthConfig represents OAuth/OIDC configuration
+type OAuthConfig struct {
+	Enabled     bool                  `json:"enabled"`      // Master switch for OAuth
+	CallbackURL string                `json:"callback_url"` // OAuth callback URL (e.g., "https://gophish.example.com/oauth/callback")
+	Providers   []OAuthProviderConfig `json:"providers"`    // List of configured providers
+}
+
 // PhishServer represents the Phish server configuration details
 type PhishServer struct {
 	ListenURL string `json:"listen_url"`
@@ -37,6 +55,7 @@ type Config struct {
 	TestFlag       bool        `json:"test_flag"`
 	ContactAddress string      `json:"contact_address"`
 	Logging        *log.Config `json:"logging"`
+	OAuth          *OAuthConfig `json:"oauth"` // OAuth/OIDC configuration
 }
 
 // Version contains the current gophish version
