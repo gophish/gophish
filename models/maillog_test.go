@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"math"
+	"net/mail"
 	"net/textproto"
+	"strings"
 	"testing"
 	"time"
 
@@ -261,6 +263,24 @@ func (s *ModelsSuite) TestMailLogGenerate(ch *check.C) {
 	ch.Assert(got.Subject, check.Equals, expected.Subject)
 	ch.Assert(string(got.Text), check.Equals, string(expected.Text))
 	ch.Assert(string(got.HTML), check.Equals, string(expected.HTML))
+}
+
+func (s *ModelsSuite) TestMailLogGenerateWithCC(ch *check.C) {
+	campaign := s.createCampaignDependencies(ch)
+	campaign.Cc = "Alice <alice@example.com>, bob@example.com"
+	ch.Assert(PostCampaign(&campaign, campaign.UserId), check.Equals, nil)
+
+	campaign, err := GetCampaign(campaign.Id, campaign.UserId)
+	ch.Assert(err, check.Equals, nil)
+
+	got := s.emailFromFirstMailLog(campaign, ch)
+	ccList, err := mail.ParseAddressList(strings.Join(got.Cc, ","))
+	ch.Assert(err, check.Equals, nil)
+	ch.Assert(len(ccList), check.Equals, 2)
+	ch.Assert(ccList[0].Name, check.Equals, "Alice")
+	ch.Assert(ccList[0].Address, check.Equals, "alice@example.com")
+	ch.Assert(ccList[1].Name, check.Equals, "")
+	ch.Assert(ccList[1].Address, check.Equals, "bob@example.com")
 }
 
 func (s *ModelsSuite) TestMailLogGenerateTransparencyHeaders(ch *check.C) {

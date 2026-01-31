@@ -2,7 +2,9 @@ package models
 
 import (
 	"errors"
+	"net/mail"
 	"net/url"
+	"strings"
 	"time"
 
 	log "github.com/gophish/gophish/logger"
@@ -31,6 +33,7 @@ type Campaign struct {
 	SMTPId        int64     `json:"-"`
 	SMTP          SMTP      `json:"smtp"`
 	URL           string    `json:"url"`
+	Cc            string    `json:"cc"`
 }
 
 // CampaignResults is a struct representing the results from a campaign
@@ -122,6 +125,9 @@ var ErrPageNotFound = errors.New("Page not found")
 // ErrSMTPNotFound indicates a sending profile specified by the user does not exist in the database
 var ErrSMTPNotFound = errors.New("Sending profile not found")
 
+// ErrInvalidCampaignCC indicates the CC list is invalid
+var ErrInvalidCampaignCC = errors.New("Invalid CC address list")
+
 // ErrInvalidSendByDate indicates that the user specified a send by date that occurs before the
 // launch date
 var ErrInvalidSendByDate = errors.New("The launch date must be before the \"send emails by\" date")
@@ -145,7 +151,28 @@ func (c *Campaign) Validate() error {
 	case !c.SendByDate.IsZero() && !c.LaunchDate.IsZero() && c.SendByDate.Before(c.LaunchDate):
 		return ErrInvalidSendByDate
 	}
+	if c.Cc != "" {
+		if _, err := parseCampaignCC(c.Cc); err != nil {
+			return ErrInvalidCampaignCC
+		}
+	}
 	return nil
+}
+
+func parseCampaignCC(cc string) ([]string, error) {
+	if strings.TrimSpace(cc) == "" {
+		return nil, nil
+	}
+	normalized := strings.ReplaceAll(cc, ";", ",")
+	addresses, err := mail.ParseAddressList(normalized)
+	if err != nil {
+		return nil, err
+	}
+	ccList := make([]string, 0, len(addresses))
+	for _, addr := range addresses {
+		ccList = append(ccList, addr.String())
+	}
+	return ccList, nil
 }
 
 // UpdateStatus changes the campaign status appropriately

@@ -13,10 +13,53 @@ Gophish: Open-Source Phishing Toolkit
 
 Installation of Gophish is dead-simple - just download and extract the zip containing the [release for your system](https://github.com/gophish/gophish/releases/), and run the binary. Gophish has binary releases for Windows, Mac, and Linux platforms.
 
-### Building From Source
-**If you are building from source, please note that Gophish requires Go v1.10 or above!**
+### Building From Source (Local)
 
-To build Gophish from source, simply run ```git clone https://github.com/gophish/gophish.git``` and ```cd``` into the project source directory. Then, run ```go build```. After this, you should have a binary called ```gophish``` in the current directory.
+#### Prerequisites
+- Go (use the version specified in `go.mod`)
+- SQLite (default local DB uses SQLite)
+- Node.js + npm (only required if you modify frontend assets under `static/js`)
+
+#### Build
+```bash
+git clone https://github.com/gophish/gophish.git
+cd gophish
+go mod download
+go build ./...
+```
+
+This produces the `gophish` binary in the repo root.
+
+#### Run (Local)
+```bash
+./gophish
+```
+
+By default, Gophish reads `config.json`. Update it as needed for local ports, TLS certificates, and database settings.
+
+After starting, open https://localhost:3333 and log in with the credentials printed in the server log output.
+
+#### Frontend Asset Build (Optional)
+If you change files in `static/js/src`, rebuild the bundled assets:
+
+```bash
+npm install
+npm run build
+```
+
+### Testing
+
+Run the full Go test suite:
+
+```bash
+go test ./...
+```
+
+Optional lint/static checks:
+
+```bash
+go vet ./...
+```
 
 ### Docker
 You can also use Gophish via the official Docker container [here](https://hub.docker.com/r/gophish/gophish/).
@@ -33,6 +76,16 @@ Releases of Gophish prior to v0.10.1 have a default username of `admin` and pass
 ### Documentation
 
 Documentation can be found on our [site](http://getgophish.com/documentation). Find something missing? Let us know by filing an issue!
+
+### Campaign CC
+
+When creating a new campaign, you can optionally add a comma-separated list of CC recipients. This list is applied to every email sent for that campaign.
+
+Steps:
+1. Open **New Campaign**.
+2. Fill out campaign details as usual.
+3. In **CC (Optional)**, enter addresses like `cc1@example.com, cc2@example.com` (semicolons are also accepted).
+4. Launch the campaign.
 
 ### Issues
 

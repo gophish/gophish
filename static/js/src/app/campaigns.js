@@ -49,6 +49,7 @@ function launch() {
                     smtp: {
                         name: $("#profile").select2("data")[0].text
                     },
+                    cc: $("#cc").val(),
                     launch_date: moment($("#launch_date").val(), "MMMM Do YYYY, h:mm a").utc().format(),
                     send_by_date: send_by_date || null,
                     groups: groups,
@@ -121,6 +122,7 @@ function dismiss() {
     $("#page").val("").change();
     $("#url").val("");
     $("#profile").val("").change();
+    $("#cc").val("");
     $("#users").val("").change();
     $("#modal").modal('hide');
 }
@@ -284,6 +286,7 @@ function copy(idx) {
                 $("#profile").trigger("change.select2")
             }
             $("#url").val(campaign.url)
+            $("#cc").val(campaign.cc || "")
         })
         .error(function (data) {
             $("#modal\\.flashes").empty().append("<div style=\"text-align:center\" class=\"alert alert-danger\">\

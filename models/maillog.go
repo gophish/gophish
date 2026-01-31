@@ -237,6 +237,15 @@ func (m *MailLog) Generate(msg *gomail.Message) error {
 	}
 
 	msg.SetHeader("To", r.FormatAddress())
+	if c.Cc != "" {
+		ccAddresses, err := parseCampaignCC(c.Cc)
+		if err != nil {
+			return err
+		}
+		if len(ccAddresses) > 0 {
+			msg.SetHeader("Cc", ccAddresses...)
+		}
+	}
 	if c.Template.Text != "" {
 		text, err := ExecuteTemplate(c.Template.Text, ptx)
 		if err != nil {

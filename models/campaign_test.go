@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"net/mail"
 	"testing"
 	"time"
 
@@ -89,6 +90,51 @@ func (s *ModelsSuite) TestCampaignDateValidation(c *check.C) {
 	campaign.SendByDate = campaign.LaunchDate.Add(-1 * time.Minute)
 	err = campaign.Validate()
 	c.Assert(err, check.Equals, ErrInvalidSendByDate)
+}
+
+func (s *ModelsSuite) TestParseCampaignCC(c *check.C) {
+	cc := "Alice <alice@example.com>, bob@example.com; Carol <carol@example.com>"
+	addresses, err := parseCampaignCC(cc)
+	c.Assert(err, check.Equals, nil)
+	c.Assert(len(addresses), check.Equals, 3)
+	addr0, err := mail.ParseAddress(addresses[0])
+	c.Assert(err, check.Equals, nil)
+	addr1, err := mail.ParseAddress(addresses[1])
+	c.Assert(err, check.Equals, nil)
+	addr2, err := mail.ParseAddress(addresses[2])
+	c.Assert(err, check.Equals, nil)
+	c.Assert(addr0.Name, check.Equals, "Alice")
+	c.Assert(addr0.Address, check.Equals, "alice@example.com")
+	c.Assert(addr1.Name, check.Equals, "")
+	c.Assert(addr1.Address, check.Equals, "bob@example.com")
+	c.Assert(addr2.Name, check.Equals, "Carol")
+	c.Assert(addr2.Address, check.Equals, "carol@example.com")
+
+	addresses, err = parseCampaignCC("  ")
+	c.Assert(err, check.Equals, nil)
+	c.Assert(len(addresses), check.Equals, 0)
+}
+
+func (s *ModelsSuite) TestCampaignCCValidation(c *check.C) {
+	campaign := s.createCampaignDependencies(c)
+	campaign.Cc = "invalid-email"
+	err := campaign.Validate()
+	c.Assert(err, check.Equals, ErrInvalidCampaignCC)
+
+	campaign.Cc = "cc1@example.com, cc2@example.com"
+	err = campaign.Validate()
+	c.Assert(err, check.Equals, nil)
+}
+
+func (s *ModelsSuite) TestCampaignCCPersisted(c *check.C) {
+	campaign := s.createCampaignDependencies(c)
+	campaign.Cc = "cc1@example.com, cc2@example.com"
+	err := PostCampaign(&campaign, campaign.UserId)
+	c.Assert(err, check.Equals, nil)
+
+	got, err := GetCampaign(campaign.Id, campaign.UserId)
+	c.Assert(err, check.Equals, nil)
+	c.Assert(got.Cc, check.Equals, campaign.Cc)
 }
 
 func (s *ModelsSuite) TestLaunchCampaignMaillogStatus(c *check.C) {
