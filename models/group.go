@@ -7,18 +7,18 @@ import (
 	"time"
 
 	log "github.com/gophish/gophish/logger"
-	"github.com/jinzhu/gorm"
 	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 )
 
 // Group contains the fields needed for a user -> group mapping
 // Groups contain 1..* Targets
 type Group struct {
-	Id           int64     `json:"id"`
+	Id           int64     `json:"id" gorm:"primaryKey"`
 	UserId       int64     `json:"-"`
-	Name         string    `json:"name"`
+	Name         string    `json:"name" gorm:"not null"`
+	Targets      []Target  `json:"targets" gorm:"many2many:group_targets;foreignKey:Id;joinForeignKey:GroupId;References:Id;joinReferences:TargetId"`
 	ModifiedDate time.Time `json:"modified_date"`
-	Targets      []Target  `json:"targets" sql:"-"`
 }
 
 // GroupSummaries is a struct representing the overview of Groups.
@@ -146,16 +146,8 @@ func GetGroupSummaries(uid int64) (GroupSummaries, error) {
 // GetGroup returns the group, if it exists, specified by the given id and user_id.
 func GetGroup(id int64, uid int64) (Group, error) {
 	g := Group{}
-	err := db.Where("user_id=? and id=?", uid, id).Find(&g).Error
-	if err != nil {
-		log.Error(err)
-		return g, err
-	}
-	g.Targets, err = GetTargets(g.Id)
-	if err != nil {
-		log.Error(err)
-	}
-	return g, nil
+	err := db.Preload("Targets").Where("id = ? AND user_id = ?", id, uid).First(&g).Error
+	return g, err
 }
 
 // GetGroupSummary returns the summary for the requested group
@@ -176,17 +168,9 @@ func GetGroupSummary(id int64, uid int64) (GroupSummary, error) {
 }
 
 // GetGroupByName returns the group, if it exists, specified by the given name and user_id.
-func GetGroupByName(n string, uid int64) (Group, error) {
+func GetGroupByName(name string, uid int64) (Group, error) {
 	g := Group{}
-	err := db.Where("user_id=? and name=?", uid, n).Find(&g).Error
-	if err != nil {
-		log.Error(err)
-		return g, err
-	}
-	g.Targets, err = GetTargets(g.Id)
-	if err != nil {
-		log.Error(err)
-	}
+	err := db.Preload("Targets").Where("user_id = ? AND name = ?", uid, name).First(&g).Error
 	return g, err
 }
 
@@ -326,10 +310,13 @@ func insertTargetIntoGroup(tx *gorm.DB, t Target, gid int64) error {
 		}).Error(err)
 		return err
 	}
-	err = tx.Save(&GroupTarget{GroupId: gid, TargetId: t.Id}).Error
-	if err != nil {
-		log.Error(err)
-		return err
+	var count int64
+	tx.Model(&GroupTarget{}).Where("group_id = ? AND target_id = ?", gid, t.Id).Count(&count)
+	if count == 0 {
+		// Nur wenn sie nicht existiert, fügen wir sie ein
+		err = tx.Create(&GroupTarget{GroupId: gid, TargetId: t.Id}).Error
+	} else {
+		err = nil
 	}
 	if err != nil {
 		log.WithFields(logrus.Fields{

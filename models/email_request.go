@@ -23,7 +23,7 @@ type EmailRequest struct {
 	TemplateId  int64        `json:"-"`
 	Page        Page         `json:"page"`
 	PageId      int64        `json:"-"`
-	SMTP        SMTP         `json:"smtp"`
+	SMTP        SMTP         `json:"smtp" gorm:"-"`
 	URL         string       `json:"url"`
 	Tracker     string       `json:"tracker" gorm:"-"`
 	TrackingURL string       `json:"tracking_url" gorm:"-"`

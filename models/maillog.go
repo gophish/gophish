@@ -300,7 +300,8 @@ func LockMailLogs(ms []*MailLog, lock bool) error {
 // in the database. This is intended to be called when Gophish is started
 // so that any previously locked maillogs can resume processing.
 func UnlockAllMailLogs() error {
-	return db.Model(&MailLog{}).Update("processing", false).Error
+	err := db.Model(&MailLog{}).Where("1 = 1").Update("processing", false).Error
+	return err
 }
 
 var maxBigInt = big.NewInt(math.MaxInt64)

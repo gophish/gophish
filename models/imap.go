@@ -87,7 +87,7 @@ func (im *IMAP) Validate() error {
 	}
 
 	// Make sure 1 >= port <= 65535
-	if im.Port < 1 || im.Port > 65535 {
+	if im.Port < 1 {
 		return ErrInvalidIMAPPort
 	}
 
@@ -103,7 +103,7 @@ func (im *IMAP) Validate() error {
 // GetIMAP returns the IMAP server owned by the given user.
 func GetIMAP(uid int64) ([]IMAP, error) {
 	im := []IMAP{}
-	count := 0
+	var count int64
 	err := db.Where("user_id=?", uid).Find(&im).Count(&count).Error
 
 	if err != nil {

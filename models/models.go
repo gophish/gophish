@@ -10,15 +10,18 @@ import (
 	"os"
 	"time"
 
-	"bitbucket.org/liamstask/goose/lib/goose"
+	"github.com/pressly/goose/v3"
 
 	mysql "github.com/go-sql-driver/mysql"
 	"github.com/gophish/gophish/auth"
 	"github.com/gophish/gophish/config"
 
 	log "github.com/gophish/gophish/logger"
-	"github.com/jinzhu/gorm"
-	_ "github.com/mattn/go-sqlite3" // Blank import needed to import sqlite3
+
+	gormmysql "gorm.io/driver/mysql"
+	gormsqlite "gorm.io/driver/sqlite"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 var db *gorm.DB
@@ -81,23 +84,6 @@ func generateSecureKey() string {
 	return fmt.Sprintf("%x", k)
 }
 
-func chooseDBDriver(name, openStr string) goose.DBDriver {
-	d := goose.DBDriver{Name: name, OpenStr: openStr}
-
-	switch name {
-	case "mysql":
-		d.Import = "github.com/go-sql-driver/mysql"
-		d.Dialect = &goose.MySqlDialect{}
-
-	// Default database is sqlite3
-	default:
-		d.Import = "github.com/mattn/go-sqlite3"
-		d.Dialect = &goose.Sqlite3Dialect{}
-	}
-
-	return d
-}
-
 func createTemporaryPassword(u *User) error {
 	var temporaryPassword string
 	if envPassword := os.Getenv(InitialAdminPassword); envPassword != "" {
@@ -124,27 +110,9 @@ func createTemporaryPassword(u *User) error {
 }
 
 // Setup initializes the database and runs any needed migrations.
-//
-// First, it establishes a connection to the database, then runs any migrations
-// newer than the version the database is on.
-//
-// Once the database is up-to-date, we create an admin user (if needed) that
-// has a randomly generated API key and password.
 func Setup(c *config.Config) error {
 	// Setup the package-scoped config
 	conf = c
-	// Setup the goose configuration
-	migrateConf := &goose.DBConf{
-		MigrationsDir: conf.MigrationsPath,
-		Env:           "production",
-		Driver:        chooseDBDriver(conf.DBName, conf.DBPath),
-	}
-	// Get the latest possible migration
-	latest, err := goose.GetMostRecentDBVersion(migrateConf.MigrationsDir)
-	if err != nil {
-		log.Error(err)
-		return err
-	}
 
 	// Register certificates for tls encrypted db connections
 	if conf.DBSSLCaPath != "" {
@@ -172,11 +140,22 @@ func Setup(c *config.Config) error {
 	// Open our database connection
 	i := 0
 	for {
-		db, err = gorm.Open(conf.DBName, conf.DBPath)
+		var dialector gorm.Dialector
+		if conf.DBName == "mysql" {
+			dialector = gormmysql.Open(conf.DBPath)
+		} else {
+			dialector = gormsqlite.Open(conf.DBPath)
+		}
+
+		var err error
+		db, err = gorm.Open(dialector, &gorm.Config{
+			Logger: logger.Default.LogMode(logger.Warn),
+		})
+
 		if err == nil {
 			break
 		}
-		if err != nil && i >= MaxDatabaseConnectionAttempts {
+		if i >= MaxDatabaseConnectionAttempts {
 			log.Error(err)
 			return err
 		}
@@ -184,23 +163,38 @@ func Setup(c *config.Config) error {
 		log.Warn("waiting for database to be up...")
 		time.Sleep(5 * time.Second)
 	}
-	db.LogMode(false)
-	db.SetLogger(log.Logger)
-	db.DB().SetMaxOpenConns(1)
+
+	// Get generic database object sql.DB to use its functions
+	sqlDB, err := db.DB()
 	if err != nil {
 		log.Error(err)
 		return err
 	}
+	sqlDB.SetMaxOpenConns(1)
+
+	// Setup and run Goose migrations (v3)
+	dialect := conf.DBName
+	if dialect != "mysql" {
+		dialect = "sqlite3"
+	}
+	if err := goose.SetDialect(dialect); err != nil {
+		log.Error(err)
+		return err
+	}
+
 	// Migrate up to the latest version
-	err = goose.RunMigrationsOnDb(migrateConf, migrateConf.MigrationsDir, latest, db.DB())
+	err = goose.Up(sqlDB, conf.MigrationsPath)
 	if err != nil {
 		log.Error(err)
 		return err
 	}
+
 	// Create the admin user if it doesn't exist
 	var userCount int64
 	var adminUser User
+
 	db.Model(&User{}).Count(&userCount)
+
 	adminRole, err := GetRoleBySlug(RoleAdmin)
 	if err != nil {
 		log.Error(err)
@@ -226,16 +220,8 @@ func Setup(c *config.Config) error {
 			return err
 		}
 	}
-	// If this is the first time the user is installing Gophish, then we will
-	// generate a temporary password for the admin user.
-	//
-	// We do this here instead of in the block above where the admin is created
-	// since there's the chance the user executes Gophish and has some kind of
-	// error, then tries restarting it. If they didn't grab the password out of
-	// the logs, then they would have lost it.
-	//
-	// By doing the temporary password here, we will regenerate that temporary
-	// password until the user is able to reset the admin password.
+
+	// Ensure temporary password logic for fresh installs
 	if adminUser.Username == "" {
 		adminUser, err = GetUserByUsername(DefaultAdminUsername)
 		if err != nil {

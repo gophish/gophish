@@ -3,7 +3,7 @@ package models
 import (
 	"fmt"
 
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 
 	check "gopkg.in/check.v1"
 )

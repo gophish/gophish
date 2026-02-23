@@ -10,7 +10,7 @@ import (
 	log "github.com/gophish/gophish/logger"
 	"github.com/gophish/gophish/models"
 	"github.com/gorilla/mux"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 // Groups returns a list of groups if requested via GET.
@@ -33,7 +33,7 @@ func (as *Server) Groups(w http.ResponseWriter, r *http.Request) {
 			JSONResponse(w, models.Response{Success: false, Message: "Invalid JSON structure"}, http.StatusBadRequest)
 			return
 		}
-		_, err = models.GetGroupByName(g.Name, ctx.Get(r, "user_id").(int64))
+		_, err = models."gorm.io/gorm"(g.Name, ctx.Get(r, "user_id").(int64))
 		if err != gorm.ErrRecordNotFound {
 			JSONResponse(w, models.Response{Success: false, Message: "Group name already in use"}, http.StatusConflict)
 			return

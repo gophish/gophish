@@ -11,7 +11,7 @@ import (
 	log "github.com/gophish/gophish/logger"
 	"github.com/gophish/gophish/models"
 	"github.com/gorilla/mux"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 // ErrUsernameTaken is thrown when a user attempts to register a username that is taken.

@@ -32,18 +32,20 @@ func (s *ModelsSuite) SetUpSuite(c *check.C) {
 func (s *ModelsSuite) TearDownTest(c *check.C) {
 	// Clear database tables between each test. If new tables are
 	// used in this test suite they will need to be cleaned up here.
-	db.Delete(Group{})
-	db.Delete(Target{})
-	db.Delete(GroupTarget{})
-	db.Delete(SMTP{})
-	db.Delete(Page{})
-	db.Delete(Result{})
-	db.Delete(MailLog{})
-	db.Delete(Campaign{})
+	db.Unscoped().Where("1 = 1").Delete(&Target{})
+	db.Unscoped().Where("1 = 1").Delete(&GroupTarget{}) // (Oder was auch immer vorher in Zeile 37 stand)
+	db.Unscoped().Where("1 = 1").Delete(&SMTP{})
+	db.Unscoped().Where("1 = 1").Delete(&Page{})
+	db.Unscoped().Where("1 = 1").Delete(&Result{})
+	db.Unscoped().Where("1 = 1").Delete(&MailLog{})
+	db.Unscoped().Where("1 = 1").Delete(&Group{})
+	db.Unscoped().Where("1 = 1").Delete(&Campaign{})
+	db.Unscoped().Where("1 = 1").Delete(&Template{})
+	db.Unscoped().Where("1 = 1").Delete(&Attachment{})
 
 	// Reset users table to default state.
 	db.Not("id", 1).Delete(User{})
-	db.Model(User{}).Update("username", "admin")
+	db.Model(User{}).Where("1 = 1").Update("username", "admin")
 }
 
 func (s *ModelsSuite) createCampaignDependencies(ch *check.C, optional ...string) Campaign {
@@ -117,7 +119,10 @@ func setupBenchmark(b *testing.B) {
 }
 
 func tearDownBenchmark(b *testing.B) {
-	err := db.Close()
+	sqlDB, err := db.DB()
+	if err == nil {
+		sqlDB.Close()
+	}
 	if err != nil {
 		b.Fatalf("error closing database: %v", err)
 	}

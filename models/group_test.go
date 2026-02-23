@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/jinzhu/gorm"
 	"gopkg.in/check.v1"
+	"gorm.io/gorm"
 )
 
 func (s *ModelsSuite) TestPostGroup(c *check.C) {

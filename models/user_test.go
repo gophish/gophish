@@ -1,8 +1,8 @@
 package models
 
 import (
-	"github.com/jinzhu/gorm"
 	"gopkg.in/check.v1"
+	"gorm.io/gorm"
 )
 
 func (s *ModelsSuite) TestGetUserExists(c *check.C) {

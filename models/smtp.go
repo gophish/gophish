@@ -14,7 +14,7 @@ import (
 	"github.com/gophish/gophish/dialer"
 	log "github.com/gophish/gophish/logger"
 	"github.com/gophish/gophish/mailer"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 // Dialer is a wrapper around a standard gomail.Dialer in order
@@ -104,7 +104,7 @@ func (s *SMTP) Validate() error {
 
 // validateFromAddress validates
 func validateFromAddress(email string) bool {
-	r, _ := regexp.Compile("^([a-zA-Z0-9_\\-\\.]+)@([a-zA-Z0-9_\\-\\.]+)\\.([a-zA-Z]{2,18})$")
+	r, _ := regexp.Compile(`^([a-zA-Z0-9_\-.]+)@([a-zA-Z0-9_\-.]+)\.([a-zA-Z]{2,18})$`)
 	return r.MatchString(email)
 }
 
@@ -141,7 +141,7 @@ func (s *SMTP) GetDialer() (mailer.Dialer, error) {
 // GetSMTPs returns the SMTPs owned by the given user.
 func GetSMTPs(uid int64) ([]SMTP, error) {
 	ss := []SMTP{}
-	err := db.Where("user_id=?", uid).Find(&ss).Error
+	err := db.Where("user_id = ?", uid).Find(&ss).Error
 	if err != nil {
 		log.Error(err)
 		return ss, err
@@ -159,23 +159,14 @@ func GetSMTPs(uid int64) ([]SMTP, error) {
 // GetSMTP returns the SMTP, if it exists, specified by the given id and user_id.
 func GetSMTP(id int64, uid int64) (SMTP, error) {
 	s := SMTP{}
-	err := db.Where("user_id=? and id=?", uid, id).Find(&s).Error
-	if err != nil {
-		log.Error(err)
-		return s, err
-	}
-	err = db.Where("smtp_id=?", s.Id).Find(&s.Headers).Error
-	if err != nil && err != gorm.ErrRecordNotFound {
-		log.Error(err)
-		return s, err
-	}
+	err := db.Where("id = ? AND user_id = ?", id, uid).First(&s).Error
 	return s, err
 }
 
 // GetSMTPByName returns the SMTP, if it exists, specified by the given name and user_id.
 func GetSMTPByName(n string, uid int64) (SMTP, error) {
 	s := SMTP{}
-	err := db.Where("user_id=? and name=?", uid, n).Find(&s).Error
+	err := db.Where("name = ? AND user_id = ?", n, uid).First(&s).Error
 	if err != nil {
 		log.Error(err)
 		return s, err

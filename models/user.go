@@ -70,7 +70,7 @@ func EnsureEnoughAdmins() error {
 	if err != nil {
 		return err
 	}
-	var adminCount int
+	var adminCount int64
 	err = db.Model(&User{}).Where("role_id=?", role.ID).Count(&adminCount).Error
 	if err != nil {
 		return err

@@ -7,8 +7,8 @@ import (
 
 	log "github.com/gophish/gophish/logger"
 	"github.com/gophish/gophish/webhook"
-	"github.com/jinzhu/gorm"
 	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 )
 
 // Campaign is a struct representing a created campaign
@@ -26,7 +26,7 @@ type Campaign struct {
 	Page          Page      `json:"page"`
 	Status        string    `json:"status"`
 	Results       []Result  `json:"results,omitempty"`
-	Groups        []Group   `json:"groups,omitempty"`
+	Groups        []Group   `json:"groups" gorm:"-"` // Das gorm:"-" verhindert die Suche nach einer Tabelle
 	Events        []Event   `json:"timeline,omitempty"`
 	SMTPId        int64     `json:"-"`
 	SMTP          SMTP      `json:"smtp"`
@@ -181,12 +181,12 @@ func AddEvent(e *Event, campaignID int64) error {
 // an error is returned. Otherwise, the attribute name is set to [Deleted],
 // indicating the user deleted the attribute (template, smtp, etc.)
 func (c *Campaign) getDetails() error {
-	err := db.Model(c).Related(&c.Results).Error
+	err := db.Model(c).Association("Results").Find(&c.Results)
 	if err != nil {
 		log.Warnf("%s: results not found for campaign", err)
 		return err
 	}
-	err = db.Model(c).Related(&c.Events).Error
+	err = db.Model(c).Association("Events").Find(&c.Events)
 	if err != nil {
 		log.Warnf("%s: events not found for campaign", err)
 		return err
@@ -271,15 +271,15 @@ func getCampaignStats(cid int64) (CampaignStats, error) {
 	if err != nil {
 		return s, err
 	}
-	query.Where("status=?", EventDataSubmit).Count(&s.SubmittedData)
+	err = query.Where("status=?", EventDataSubmit).Count(&s.SubmittedData).Error
 	if err != nil {
 		return s, err
 	}
-	query.Where("status=?", EventClicked).Count(&s.ClickedLink)
+	err = query.Where("status=?", EventClicked).Count(&s.ClickedLink).Error
 	if err != nil {
 		return s, err
 	}
-	query.Where("reported=?", true).Count(&s.EmailReported)
+	err = query.Where("reported=?", true).Count(&s.EmailReported).Error
 	if err != nil {
 		return s, err
 	}
@@ -304,7 +304,7 @@ func getCampaignStats(cid int64) (CampaignStats, error) {
 // GetCampaigns returns the campaigns owned by the given user.
 func GetCampaigns(uid int64) ([]Campaign, error) {
 	cs := []Campaign{}
-	err := db.Model(&User{Id: uid}).Related(&cs).Error
+	err := db.Where("user_id = ?", uid).Find(&cs).Error
 	if err != nil {
 		log.Error(err)
 	}
@@ -371,7 +371,11 @@ func GetCampaignSummary(id int64, uid int64) (CampaignSummary, error) {
 // ref: #1726
 func GetCampaignMailContext(id int64, uid int64) (Campaign, error) {
 	c := Campaign{}
-	err := db.Where("id = ?", id).Where("user_id = ?", uid).Find(&c).Error
+	err := db.Where("id = ? AND user_id = ?", id, uid).First(&c).Error
+	if err != nil {
+		return c, err
+	}
+	err = db.Preload("Attachments").Where("id = ?", c.TemplateId).First(&c.Template).Error
 	if err != nil {
 		return c, err
 	}
@@ -397,7 +401,7 @@ func GetCampaignMailContext(id int64, uid int64) (Campaign, error) {
 // GetCampaign returns the campaign, if it exists, specified by the given id and user_id.
 func GetCampaign(id int64, uid int64) (Campaign, error) {
 	c := Campaign{}
-	err := db.Where("id = ?", id).Where("user_id = ?", uid).Find(&c).Error
+	err := db.Where("id = ? AND user_id = ?", id, uid).First(&c).Error
 	if err != nil {
 		log.Errorf("%s: campaign not found", err)
 		return c, err

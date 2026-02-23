@@ -6,7 +6,7 @@ import (
 	"time"
 
 	log "github.com/gophish/gophish/logger"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 // Template models hold the attributes for an email template to be sent to targets
@@ -19,7 +19,7 @@ type Template struct {
 	Text           string       `json:"text"`
 	HTML           string       `json:"html" gorm:"column:html"`
 	ModifiedDate   time.Time    `json:"modified_date"`
-	Attachments    []Attachment `json:"attachments"`
+	Attachments    []Attachment `json:"attachments" gorm:"foreignKey:TemplateId;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 
 // ErrTemplateNameNotSpecified is thrown when a template name is not specified
