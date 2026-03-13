@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
+	"time"
 
 	ctx "github.com/gophish/gophish/context"
 	log "github.com/gophish/gophish/logger"
@@ -98,6 +99,53 @@ func (as *Server) CampaignResults(w http.ResponseWriter, r *http.Request) {
 		JSONResponse(w, cr, http.StatusOK)
 		return
 	}
+}
+
+// CampaignRangeStats returns event-derived historical stats for a requested
+// window together with the current dashboard rollup.
+func (as *Server) CampaignRangeStats(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		return
+	}
+	vars := mux.Vars(r)
+	id, _ := strconv.ParseInt(vars["id"], 0, 64)
+
+	start, err := parseRFC3339Pointer(r.URL.Query().Get("start"))
+	if err != nil {
+		JSONResponse(w, models.Response{Success: false, Message: "Invalid start date. Use RFC3339."}, http.StatusBadRequest)
+		return
+	}
+	end, err := parseRFC3339Pointer(r.URL.Query().Get("end"))
+	if err != nil {
+		JSONResponse(w, models.Response{Success: false, Message: "Invalid end date. Use RFC3339."}, http.StatusBadRequest)
+		return
+	}
+
+	stats, err := models.GetCampaignRangeStats(id, ctx.Get(r, "user_id").(int64), start, end, r.URL.Query().Get("mode"))
+	if err != nil {
+		switch err {
+		case gorm.ErrRecordNotFound:
+			JSONResponse(w, models.Response{Success: false, Message: "Campaign not found"}, http.StatusNotFound)
+		case models.ErrCampaignStatsInvalidMode, models.ErrCampaignStatsEndRequired, models.ErrCampaignStatsStartRequired, models.ErrCampaignStatsInvalidRange:
+			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
+		default:
+			JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusInternalServerError)
+		}
+		return
+	}
+	JSONResponse(w, stats, http.StatusOK)
+}
+
+func parseRFC3339Pointer(raw string) (*time.Time, error) {
+	if raw == "" {
+		return nil, nil
+	}
+	parsed, err := time.Parse(time.RFC3339, raw)
+	if err != nil {
+		return nil, err
+	}
+	parsed = parsed.UTC()
+	return &parsed, nil
 }
 
 // CampaignSummary returns the summary for a given campaign.

@@ -152,6 +152,46 @@ func (s *ModelsSuite) TestCampaignGetResults(c *check.C) {
 	c.Assert(len(campaign.Results), check.Equals, len(got.Results))
 }
 
+func (s *ModelsSuite) TestGetCampaignResultsOrdersEvents(c *check.C) {
+	campaign := s.createCampaign(c)
+
+	err := db.Where("campaign_id=?", campaign.Id).Delete(&Event{}).Error
+	c.Assert(err, check.Equals, nil)
+
+	baseTime := time.Date(2026, time.January, 1, 12, 0, 0, 0, time.UTC)
+	events := []Event{
+		{
+			CampaignId: campaign.Id,
+			Email:      campaign.Results[0].Email,
+			Time:       baseTime.Add(2 * time.Hour),
+			Message:    EventClicked,
+		},
+		{
+			CampaignId: campaign.Id,
+			Email:      campaign.Results[0].Email,
+			Time:       baseTime,
+			Message:    EventSent,
+		},
+		{
+			CampaignId: campaign.Id,
+			Email:      campaign.Results[0].Email,
+			Time:       baseTime.Add(1 * time.Hour),
+			Message:    EventOpened,
+		},
+	}
+	for i := range events {
+		err = db.Save(&events[i]).Error
+		c.Assert(err, check.Equals, nil)
+	}
+
+	got, err := GetCampaignResults(campaign.Id, campaign.UserId)
+	c.Assert(err, check.Equals, nil)
+	c.Assert(len(got.Events), check.Equals, len(events))
+	c.Assert(got.Events[0].Message, check.Equals, EventSent)
+	c.Assert(got.Events[1].Message, check.Equals, EventOpened)
+	c.Assert(got.Events[2].Message, check.Equals, EventClicked)
+}
+
 func setupCampaignDependencies(b *testing.B, size int) {
 	group := Group{Name: "Test Group"}
 	// Create a large group of 5000 members

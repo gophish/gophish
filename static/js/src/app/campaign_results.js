@@ -116,6 +116,13 @@ var progressListing = [
 
 var campaign = {}
 var bubbles = []
+var rangeView = {
+    enabled: false,
+    source: "dashboard",
+    mode: "snapshot",
+    start: null,
+    end: null
+}
 
 function dismiss() {
     $("#modal\\.flashes").empty()
@@ -571,6 +578,314 @@ var renderPieChart = function (chartopts) {
     })
 }
 
+function buildDashboardStatsFromCampaign(results) {
+    var stats = {
+        total: results.length,
+        sent: 0,
+        opened: 0,
+        clicked: 0,
+        submitted_data: 0,
+        email_reported: 0,
+        error: 0
+    }
+    $.each(results, function (i, result) {
+        switch (result.status) {
+            case "Submitted Data":
+                stats.submitted_data++
+                stats.clicked++
+                stats.opened++
+                stats.sent++
+                break
+            case "Clicked Link":
+                stats.clicked++
+                stats.opened++
+                stats.sent++
+                break
+            case "Email Opened":
+                stats.opened++
+                stats.sent++
+                break
+            case "Email Sent":
+                stats.sent++
+                break
+            case "Error":
+                stats.error++
+                break
+        }
+        if (result.reported) {
+            stats.email_reported++
+        }
+    })
+    return stats
+}
+
+function getChartCountsFromStats(stats) {
+    return {
+        "Email Sent": stats.sent || 0,
+        "Email Opened": stats.opened || 0,
+        "Clicked Link": stats.clicked || 0,
+        "Submitted Data": stats.submitted_data || 0,
+        "Email Reported": stats.email_reported || 0
+    }
+}
+
+function getPieChartData(count, total, status) {
+    var safeTotal = total || 0
+    var pct = 0
+    if (safeTotal > 0) {
+        pct = Math.floor((count / safeTotal) * 100)
+    }
+    return [{
+        name: status,
+        y: pct,
+        count: count
+    }, {
+        name: '',
+        y: 100 - pct
+    }]
+}
+
+function updatePieChartsFromStats(stats) {
+    var chartCounts = getChartCountsFromStats(stats)
+    var total = stats.total || campaign.results.length
+    $.each(chartCounts, function (status, count) {
+        var chart = $("#" + statusMapping[status] + "_chart").highcharts()
+        if (!chart) {
+            return true
+        }
+        chart.series[0].update({
+            data: getPieChartData(count, total, status)
+        })
+    })
+}
+
+function eventInSelectedWindow(eventMoment, startMoment, endMoment) {
+    if (startMoment && eventMoment.isBefore(startMoment)) {
+        return false
+    }
+    if (endMoment && eventMoment.isAfter(endMoment)) {
+        return false
+    }
+    return true
+}
+
+function buildTimelineSeries(startMoment, endMoment) {
+    var timelineSeriesData = []
+    $.each(campaign.timeline, function (i, event) {
+        if (event.message == "Campaign Created") {
+            return true
+        }
+        var eventDate = moment.utc(event.time).local()
+        if (!eventInSelectedWindow(eventDate, startMoment, endMoment)) {
+            return true
+        }
+        timelineSeriesData.push({
+            email: event.email,
+            message: event.message,
+            x: eventDate.valueOf(),
+            y: 1,
+            marker: {
+                fillColor: statuses[event.message].color
+            }
+        })
+    })
+    return timelineSeriesData
+}
+
+function updateTimelineChartWindow(startMoment, endMoment) {
+    var timelineChart = $("#timeline_chart").highcharts()
+    if (!timelineChart) {
+        return
+    }
+    timelineChart.series[0].update({
+        data: buildTimelineSeries(startMoment, endMoment)
+    })
+}
+
+function formatSummaryDate(value) {
+    if (!value) {
+        return ""
+    }
+    return moment.utc(value).local().format('MMMM Do YYYY, h:mm:ss a')
+}
+
+function renderStatsSummary(response) {
+    if ($("#range_view_source").val() !== "actual") {
+        $("#range_stats_summary").hide().empty()
+        return
+    }
+    var modeLabel = response.mode == "range" ? "First reached within range" : "Snapshot at end"
+    var windowLabel = "End: " + formatSummaryDate(response.end_date)
+    if (response.mode == "range") {
+        windowLabel = "Start: " + formatSummaryDate(response.start_date) + "<br>End: " + formatSummaryDate(response.end_date)
+    }
+    var actual = response.actual
+    var dashboard = response.dashboard
+    var html = "<strong>Historical Events View</strong><br>"
+    html += "Mode: " + modeLabel + "<br>"
+    html += windowLabel + "<br><br>"
+    html += "Charts now show event-derived counts. Dashboard counts are shown below for comparison.<br><br>"
+    html += "<table class=\"table table-condensed table-bordered\" style=\"margin-bottom: 0; background: #fff;\">"
+    html += "<thead><tr><th>Source</th><th>Sent</th><th>Opened</th><th>Clicked</th><th>Submitted</th><th>Reported</th><th>Error</th></tr></thead>"
+    html += "<tbody>"
+    html += "<tr><td>Historical Events</td><td>" + actual.sent + "</td><td>" + actual.opened + "</td><td>" + actual.clicked + "</td><td>" + actual.submitted_data + "</td><td>" + actual.email_reported + "</td><td>" + actual.error + "</td></tr>"
+    html += "<tr><td>Current Dashboard</td><td>" + dashboard.sent + "</td><td>" + dashboard.opened + "</td><td>" + dashboard.clicked + "</td><td>" + dashboard.submitted_data + "</td><td>" + dashboard.email_reported + "</td><td>" + dashboard.error + "</td></tr>"
+    html += "</tbody></table>"
+    $("#range_stats_summary").html(html).show()
+}
+
+function setDatePickerEnabled(pickerSelector, enabled) {
+    var picker = $(pickerSelector).data("DateTimePicker")
+    if (!picker) {
+        return
+    }
+    if (enabled) {
+        picker.enable()
+    } else {
+        picker.disable()
+    }
+}
+
+function syncRangeControls() {
+    var source = $("#range_view_source").val()
+    var mode = $("#range_view_mode").val()
+    var useHistorical = source == "actual"
+    $("#range_view_mode").prop("disabled", !useHistorical)
+    setDatePickerEnabled("#range_end_picker", useHistorical)
+    setDatePickerEnabled("#range_start_picker", useHistorical && mode == "range")
+}
+
+function readRangeControlState() {
+    var source = $("#range_view_source").val()
+    var mode = $("#range_view_mode").val()
+    var startDate = $("#range_start_picker").data("DateTimePicker").date()
+    var endDate = $("#range_end_picker").data("DateTimePicker").date()
+    return {
+        source: source,
+        mode: mode,
+        start: startDate,
+        end: endDate
+    }
+}
+
+function applyDashboardView() {
+    rangeView.enabled = false
+    rangeView.source = "dashboard"
+    rangeView.mode = "snapshot"
+    rangeView.start = null
+    rangeView.end = null
+    updatePieChartsFromStats(buildDashboardStatsFromCampaign(campaign.results))
+    updateTimelineChartWindow(null, null)
+    $("#range_stats_summary").hide().empty()
+}
+
+function applyHistoricalView(triggerFlash) {
+    var state = readRangeControlState()
+    if (state.source != "actual") {
+        applyDashboardView()
+        return
+    }
+    if (!state.end) {
+        if (triggerFlash !== false) {
+            errorFlash("End date is required for historical analysis")
+        }
+        return
+    }
+    if (state.mode == "range" && !state.start) {
+        if (triggerFlash !== false) {
+            errorFlash("Start date is required for range analysis")
+        }
+        return
+    }
+    if (state.start && state.end && state.start.isAfter(state.end)) {
+        if (triggerFlash !== false) {
+            errorFlash("Start date must be before end date")
+        }
+        return
+    }
+    var params = {
+        mode: state.mode,
+        end: state.end.clone().utc().toISOString()
+    }
+    if (state.mode == "range" && state.start) {
+        params.start = state.start.clone().utc().toISOString()
+    }
+    api.campaignId.rangeStats(campaign.id, params)
+        .success(function (response) {
+            rangeView.enabled = true
+            rangeView.source = state.source
+            rangeView.mode = state.mode
+            rangeView.start = state.start ? state.start.clone() : null
+            rangeView.end = state.end.clone()
+            updatePieChartsFromStats(response.actual)
+            updateTimelineChartWindow(rangeView.mode == "range" ? rangeView.start : null, rangeView.end)
+            renderStatsSummary(response)
+        })
+        .error(function (data) {
+            if (triggerFlash !== false) {
+                errorFlash(data.responseJSON.message || "Error loading historical analysis")
+            }
+        })
+}
+
+function isZeroCampaignDate(raw) {
+    if (!raw) {
+        return true
+    }
+    var candidate = moment.utc(raw)
+    return !candidate.isValid() || candidate.year() <= 1
+}
+
+function initializeRangeControls() {
+    if ($("#range_start_picker").data("DateTimePicker")) {
+        return
+    }
+    $("#range_start_picker").datetimepicker({
+        widgetPositioning: {
+            vertical: "bottom"
+        },
+        showTodayButton: true,
+        useCurrent: false,
+        format: "MMMM Do YYYY, h:mm:ss a"
+    })
+    $("#range_end_picker").datetimepicker({
+        widgetPositioning: {
+            vertical: "bottom"
+        },
+        showTodayButton: true,
+        useCurrent: false,
+        format: "MMMM Do YYYY, h:mm:ss a"
+    })
+    $("#range_view_source").on("change", function () {
+        syncRangeControls()
+    })
+    $("#range_view_mode").on("change", function () {
+        syncRangeControls()
+    })
+    $("#range_apply").on("click", function () {
+        applyHistoricalView()
+    })
+    $("#range_reset").on("click", function () {
+        $("#range_view_source").val("dashboard")
+        $("#range_view_mode").val("snapshot")
+        syncRangeControls()
+        applyDashboardView()
+    })
+}
+
+function setRangeControlDefaults() {
+    var defaultStart = isZeroCampaignDate(campaign.launch_date) ? moment() : moment.utc(campaign.launch_date).local()
+    var defaultEnd = moment()
+    if (!isZeroCampaignDate(campaign.completed_date)) {
+        defaultEnd = moment.utc(campaign.completed_date).local()
+    }
+    $("#range_view_source").val("dashboard")
+    $("#range_view_mode").val("snapshot")
+    $("#range_start_picker").data("DateTimePicker").date(defaultStart)
+    $("#range_end_picker").data("DateTimePicker").date(defaultEnd)
+    syncRangeControls()
+}
+
 /* Updates the bubbles on the map
 
 @param {campaign.result[]} results - The campaign results to process
@@ -634,61 +949,6 @@ function poll() {
     api.campaignId.results(campaign.id)
         .success(function (c) {
             campaign = c
-            /* Update the timeline */
-            var timeline_series_data = []
-            $.each(campaign.timeline, function (i, event) {
-                var event_date = moment.utc(event.time).local()
-                timeline_series_data.push({
-                    email: event.email,
-                    message: event.message,
-                    x: event_date.valueOf(),
-                    y: 1,
-                    marker: {
-                        fillColor: statuses[event.message].color
-                    }
-                })
-            })
-            var timeline_chart = $("#timeline_chart").highcharts()
-            timeline_chart.series[0].update({
-                data: timeline_series_data
-            })
-            /* Update the results donut chart */
-            var email_series_data = {}
-            // Load the initial data
-            Object.keys(statusMapping).forEach(function (k) {
-                email_series_data[k] = 0
-            });
-            $.each(campaign.results, function (i, result) {
-                email_series_data[result.status]++;
-                if (result.reported) {
-                    email_series_data['Email Reported']++
-                }
-                // Backfill status values
-                var step = progressListing.indexOf(result.status)
-                for (var i = 0; i < step; i++) {
-                    email_series_data[progressListing[i]]++
-                }
-            })
-            $.each(email_series_data, function (status, count) {
-                var email_data = []
-                if (!(status in statusMapping)) {
-                    return true
-                }
-                email_data.push({
-                    name: status,
-                    y: Math.floor((count / campaign.results.length) * 100),
-                    count: count
-                })
-                email_data.push({
-                    name: '',
-                    y: 100 - Math.floor((count / campaign.results.length) * 100)
-                })
-                var chart = $("#" + statusMapping[status] + "_chart").highcharts()
-                chart.series[0].update({
-                    data: email_data
-                })
-            })
-
             /* Update the datatable */
             resultsTable = $("#resultsTable").DataTable()
             resultsTable.rows().every(function (i, tableLoop, rowLoop) {
@@ -711,6 +971,12 @@ function poll() {
                 })
             })
             resultsTable.draw(false)
+            if (rangeView.enabled && rangeView.source == "actual") {
+                applyHistoricalView(false)
+            } else {
+                updatePieChartsFromStats(buildDashboardStatsFromCampaign(campaign.results))
+                updateTimelineChartWindow(null, null)
+            }
             /* Update the map information */
             updateMap(campaign.results)
             $('[data-toggle="tooltip"]').tooltip()
@@ -725,12 +991,14 @@ function load() {
     api.campaignId.results(campaign.id)
         .success(function (c) {
             campaign = c
-            if (campaign) {
-                $("title").text(c.name + " - Gophish")
-                $("#loading").hide()
-                $("#campaignResults").show()
-                // Set the title
-                $("#page-title").text("Results for " + c.name)
+	            if (campaign) {
+	                $("title").text(c.name + " - Gophish")
+	                $("#loading").hide()
+	                $("#campaignResults").show()
+                    initializeRangeControls()
+                    setRangeControlDefaults()
+	                // Set the title
+	                $("#page-title").text("Results for " + c.name)
                 if (c.status == "Completed") {
                     $('#complete_button')[0].disabled = true;
                     $('#complete_button').text('Completed!');
@@ -787,35 +1055,21 @@ function load() {
                         }
                     ]
                 });
-                resultsTable.clear();
-                var email_series_data = {}
-                var timeline_series_data = []
-                Object.keys(statusMapping).forEach(function (k) {
-                    email_series_data[k] = 0
-                });
-                $.each(campaign.results, function (i, result) {
-                    resultsTable.row.add([
-                        result.id,
+	                resultsTable.clear();
+	                $.each(campaign.results, function (i, result) {
+	                    resultsTable.row.add([
+	                        result.id,
                         "<i id=\"caret\" class=\"fa fa-caret-right\"></i>",
                         escapeHtml(result.first_name) || "",
                         escapeHtml(result.last_name) || "",
                         escapeHtml(result.email) || "",
                         escapeHtml(result.position) || "",
-                        result.status,
-                        result.reported,
-                        moment(result.send_date).format('MMMM Do YYYY, h:mm:ss a')
-                    ])
-                    email_series_data[result.status]++;
-                    if (result.reported) {
-                        email_series_data['Email Reported']++
-                    }
-                    // Backfill status values
-                    var step = progressListing.indexOf(result.status)
-                    for (var i = 0; i < step; i++) {
-                        email_series_data[progressListing[i]]++
-                    }
-                })
-                resultsTable.draw();
+	                        result.status,
+	                        result.reported,
+	                        moment(result.send_date).format('MMMM Do YYYY, h:mm:ss a')
+	                    ])
+	                })
+	                resultsTable.draw();
                 // Setup tooltips
                 $('[data-toggle="tooltip"]').tooltip()
                 // Setup the individual timelines
@@ -836,49 +1090,26 @@ function load() {
                         tr.addClass('shown');
                     }
                 });
-                // Setup the graphs
-                $.each(campaign.timeline, function (i, event) {
-                    if (event.message == "Campaign Created") {
-                        return true
-                    }
-                    var event_date = moment.utc(event.time).local()
-                    timeline_series_data.push({
-                        email: event.email,
-                        message: event.message,
-                        x: event_date.valueOf(),
-                        y: 1,
-                        marker: {
-                            fillColor: statuses[event.message].color
+	                // Setup the graphs
+	                renderTimelineChart({
+	                    data: buildTimelineSeries(null, null)
+	                })
+                    var dashboardStats = buildDashboardStatsFromCampaign(campaign.results)
+                    var chartCounts = getChartCountsFromStats(dashboardStats)
+                    $.each(chartCounts, function (status, count) {
+                        if (!(status in statusMapping)) {
+                            return true
                         }
+                        renderPieChart({
+                            elemId: statusMapping[status] + '_chart',
+                            title: status,
+                            name: status,
+                            data: getPieChartData(count, dashboardStats.total, status),
+                            colors: [statuses[status].color, '#dddddd']
+                        })
                     })
-                })
-                renderTimelineChart({
-                    data: timeline_series_data
-                })
-                $.each(email_series_data, function (status, count) {
-                    var email_data = []
-                    if (!(status in statusMapping)) {
-                        return true
-                    }
-                    email_data.push({
-                        name: status,
-                        y: Math.floor((count / campaign.results.length) * 100),
-                        count: count
-                    })
-                    email_data.push({
-                        name: '',
-                        y: 100 - Math.floor((count / campaign.results.length) * 100)
-                    })
-                    var chart = renderPieChart({
-                        elemId: statusMapping[status] + '_chart',
-                        title: status,
-                        name: status,
-                        data: email_data,
-                        colors: [statuses[status].color, '#dddddd']
-                    })
-                })
 
-                if (use_map) {
+	                if (use_map) {
                     $("#resultsMapContainer").show()
                     map = new Datamap({
                         element: document.getElementById("resultsMap"),

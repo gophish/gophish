@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/gophish/gophish/config"
 	"github.com/gophish/gophish/models"
@@ -110,5 +111,54 @@ func TestSiteImportBaseHref(t *testing.T) {
 	}
 	if cs.HTML != expected {
 		t.Fatalf("unexpected response received. expected %s got %s", expected, cs.HTML)
+	}
+}
+
+func TestCampaignRangeStats(t *testing.T) {
+	testCtx := setupTest(t)
+	createTestData(t)
+
+	campaigns, err := models.GetCampaigns(testCtx.admin.Id)
+	if err != nil {
+		t.Fatalf("error getting campaigns: %v", err)
+	}
+	if len(campaigns) == 0 {
+		t.Fatalf("expected at least one campaign")
+	}
+	campaign := campaigns[0]
+	results := campaign.Results
+	if len(results) < 2 {
+		t.Fatalf("expected at least two campaign results")
+	}
+
+	if err := results[0].HandleEmailOpened(models.EventDetails{}); err != nil {
+		t.Fatalf("error opening first result: %v", err)
+	}
+	time.Sleep(1100 * time.Millisecond)
+	cutoff := time.Now().UTC()
+	time.Sleep(1100 * time.Millisecond)
+	if err := results[1].HandleClickedLink(models.EventDetails{}); err != nil {
+		t.Fatalf("error clicking second result: %v", err)
+	}
+
+	url := fmt.Sprintf("/api/campaigns/%d/range-stats?mode=snapshot&end=%s", campaign.Id, cutoff.Format(time.RFC3339))
+	r := httptest.NewRequest(http.MethodGet, url, nil)
+	r.Header.Set("Authorization", fmt.Sprintf("Bearer %s", testCtx.apiKey))
+	w := httptest.NewRecorder()
+
+	testCtx.apiServer.ServeHTTP(w, r)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("unexpected status code received. expected %d got %d", http.StatusOK, w.Code)
+	}
+	response := &models.CampaignRangeStats{}
+	if err := json.NewDecoder(w.Body).Decode(response); err != nil {
+		t.Fatalf("error decoding response: %v", err)
+	}
+	if response.Actual.OpenedEmail != 1 {
+		t.Fatalf("unexpected actual opened count received. expected %d got %d", 1, response.Actual.OpenedEmail)
+	}
+	if response.Dashboard.OpenedEmail != 2 {
+		t.Fatalf("unexpected dashboard opened count received. expected %d got %d", 2, response.Dashboard.OpenedEmail)
 	}
 }

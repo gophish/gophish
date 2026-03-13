@@ -42,6 +42,69 @@
         <br />
         <div class="row">
             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">Historical Analysis</div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                                <label for="range_view_source">View</label>
+                                <select id="range_view_source" class="form-control">
+                                    <option value="dashboard">Current Dashboard</option>
+                                    <option value="actual">Historical Events</option>
+                                </select>
+                            </div>
+                            <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                                <label for="range_view_mode">Analysis Mode</label>
+                                <select id="range_view_mode" class="form-control">
+                                    <option value="snapshot">Snapshot At End</option>
+                                    <option value="range">First Reached In Range</option>
+                                </select>
+                            </div>
+                            <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                                <label for="range_start">Start</label>
+                                <div class="input-group date" id="range_start_picker">
+                                    <input id="range_start" type="text" class="form-control" />
+                                    <span class="input-group-addon">
+                                        <span class="fa fa-calendar"></span>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                                <label for="range_end">End</label>
+                                <div class="input-group date" id="range_end_picker">
+                                    <input id="range_end" type="text" class="form-control" />
+                                    <span class="input-group-addon">
+                                        <span class="fa fa-calendar"></span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <br />
+                        <div class="row">
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                <button id="range_apply" type="button" class="btn btn-primary">
+                                    <i class="fa fa-filter"></i> Apply Historical View
+                                </button>
+                                <button id="range_reset" type="button" class="btn btn-default">
+                                    <i class="fa fa-undo"></i> Reset To Dashboard
+                                </button>
+                                <span class="help-block" style="margin-top: 10px; margin-bottom: 0;">
+                                    Historical Events uses the earliest matching event per target. Current Dashboard uses the live final-status rollup.
+                                </span>
+                            </div>
+                        </div>
+                        <br />
+                        <div class="row">
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                <div id="range_stats_summary" class="alert alert-info" style="display:none; margin-bottom: 0;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                 <div class="row">
                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                         <div id="timeline_chart"></div>

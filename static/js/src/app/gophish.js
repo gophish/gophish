@@ -49,6 +49,23 @@ function query(endpoint, method, data, async) {
     })
 }
 
+function queryParams(endpoint, method, params, async) {
+    var url = "/api" + endpoint
+    if (params && Object.keys(params).length > 0) {
+        url += "?" + $.param(params)
+    }
+    return $.ajax({
+        url: url,
+        async: async,
+        method: method,
+        dataType: "json",
+        contentType: "application/json",
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader('Authorization', 'Bearer ' + user.api_key);
+        }
+    })
+}
+
 function escapeHtml(text) {
     return $("<div/>").text(text).html()
 }
@@ -99,6 +116,10 @@ var api = {
         // results() - Queries the API for GET /campaigns/:id/results
         results: function (id) {
             return query("/campaigns/" + id + "/results", "GET", {}, true)
+        },
+        // rangeStats() - Queries the API for GET /campaigns/:id/range-stats
+        rangeStats: function (id, params) {
+            return queryParams("/campaigns/" + id + "/range-stats", "GET", params, true)
         },
         // complete() - Completes a campaign at POST /campaigns/:id/complete
         complete: function (id) {
