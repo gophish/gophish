@@ -422,7 +422,7 @@ func GetCampaignResults(id int64, uid int64) (CampaignResults, error) {
 		log.Errorf("%s: results not found for campaign", err)
 		return cr, err
 	}
-	err = db.Table("events").Where("campaign_id=?", cr.Id).Find(&cr.Events).Error
+	err = db.Table("events").Where("campaign_id=?", cr.Id).Order("time asc, id asc").Find(&cr.Events).Error
 	if err != nil {
 		log.Errorf("%s: events not found for campaign", err)
 		return cr, err

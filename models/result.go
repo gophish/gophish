@@ -47,7 +47,9 @@ func (r *Result) createEvent(status string, details interface{}) (*Event, error)
 		}
 		e.Details = string(dj)
 	}
-	AddEvent(e, r.CampaignId)
+	if err := AddEvent(e, r.CampaignId); err != nil {
+		return nil, err
+	}
 	return e, nil
 }
 

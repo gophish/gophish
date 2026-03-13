@@ -75,6 +75,28 @@ func (s *ModelsSuite) TestResultVariableStatus(ch *check.C) {
 	}
 }
 
+func (s *ModelsSuite) TestHandleEmailOpenedDoesNotUpdateResultWhenEventSaveFails(ch *check.C) {
+	campaign := s.createCampaign(ch)
+	result := campaign.Results[0]
+	originalStatus := result.Status
+	originalModifiedDate := result.ModifiedDate
+
+	err := db.Exec("ALTER TABLE events RENAME TO events_backup").Error
+	ch.Assert(err, check.Equals, nil)
+	defer func() {
+		restoreErr := db.Exec("ALTER TABLE events_backup RENAME TO events").Error
+		ch.Assert(restoreErr, check.Equals, nil)
+	}()
+
+	err = result.HandleEmailOpened(EventDetails{})
+	ch.Assert(err, check.NotNil)
+
+	freshResult, err := GetResult(result.RId)
+	ch.Assert(err, check.Equals, nil)
+	ch.Assert(freshResult.Status, check.Equals, originalStatus)
+	ch.Assert(freshResult.ModifiedDate, check.Equals, originalModifiedDate)
+}
+
 func (s *ModelsSuite) TestDuplicateResults(ch *check.C) {
 	group := Group{Name: "Test Group"}
 	group.Targets = []Target{
