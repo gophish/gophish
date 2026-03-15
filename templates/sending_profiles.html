@@ -65,6 +65,9 @@
                             <label for="ignore_cert_errors">Ignore Certificate Errors <i class="fa fa-question-circle"
                                     data-toggle="tooltip" data-placement="right" title="Ignore common certificate errors such as self-signed certs (exposes you to MiTM attacks - use carefully!)"></i></label>
                         </div>
+                        <label class="control-label" for="send_rate">Send Rate (emails/sec): <i class="fa fa-question-circle"
+                                data-toggle="tooltip" data-placement="right" title="Maximum number of emails sent per second. Set to 0 for unlimited. Use this to respect your SMTP gateway limits."></i></label>
+                        <input type="number" class="form-control" placeholder="0 (Unlimited)" id="send_rate" min="0" value="0" />
                     </div>
                     <fieldset class="form-group">
                         <label class="control-label input-group">Email Headers:</label>

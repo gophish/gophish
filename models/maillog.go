@@ -164,6 +164,19 @@ func (m *MailLog) GetSmtpFrom() (string, error) {
 	return f.Address, err
 }
 
+// GetSendRate returns the send rate (emails/sec) from the cached campaign's SMTP profile.
+// Returns 0 if no rate limit is configured.
+func (m *MailLog) GetSendRate() int {
+	if m.cachedCampaign != nil {
+		return m.cachedCampaign.SMTP.SendRate
+	}
+	c, err := GetCampaignMailContext(m.CampaignId, m.UserId)
+	if err != nil {
+		return 0
+	}
+	return c.SMTP.SendRate
+}
+
 // Generate fills in the details of a gomail.Message instance with
 // the correct headers and body from the campaign and recipient listed in
 // the maillog. We accept the gomail.Message as an argument so that the caller

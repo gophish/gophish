@@ -41,6 +41,7 @@ type SMTP struct {
 	Password         string    `json:"password,omitempty"`
 	FromAddress      string    `json:"from_address"`
 	IgnoreCertErrors bool      `json:"ignore_cert_errors"`
+	SendRate         int       `json:"send_rate"`
 	Headers          []Header  `json:"headers"`
 	ModifiedDate     time.Time `json:"modified_date"`
 }

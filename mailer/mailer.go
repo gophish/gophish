@@ -9,6 +9,7 @@ import (
 	"github.com/gophish/gomail"
 	log "github.com/gophish/gophish/logger"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/time/rate"
 )
 
 // MaxReconnectAttempts is the maximum number of times we should reconnect to a server
@@ -56,6 +57,7 @@ type Mail interface {
 	Generate(msg *gomail.Message) error
 	GetDialer() (Dialer, error)
 	GetSmtpFrom() (string, error)
+	GetSendRate() int
 }
 
 // MailWorker is the worker that receives slices of emails
@@ -146,6 +148,19 @@ func sendMail(ctx context.Context, dialer Dialer, ms []Mail) {
 		return
 	}
 	defer sender.Close()
+
+	// Set up per-profile rate limiter based on the sending profile's SendRate
+	var limiter *rate.Limiter
+	if len(ms) > 0 {
+		sendRate := ms[0].GetSendRate()
+		if sendRate > 0 {
+			limiter = rate.NewLimiter(rate.Limit(float64(sendRate)), 1)
+			log.WithFields(logrus.Fields{
+				"send_rate": sendRate,
+			}).Info("Rate limiting enabled for this batch")
+		}
+	}
+
 	message := gomail.NewMessage()
 	for i, m := range ms {
 		select {
@@ -153,6 +168,13 @@ func sendMail(ctx context.Context, dialer Dialer, ms []Mail) {
 			return
 		default:
 			break
+		}
+		// Enforce send rate limit before sending each email
+		if limiter != nil {
+			if err := limiter.Wait(ctx); err != nil {
+				log.Warn(err)
+				return
+			}
 		}
 		message.Reset()
 		err = m.Generate(message)

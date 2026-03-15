@@ -166,6 +166,10 @@ func (mm *mockMessage) GetSmtpFrom() (string, error) {
 	return mm.from, nil
 }
 
+func (mm *mockMessage) GetSendRate() int {
+	return 0
+}
+
 func (mm *mockMessage) Success() error {
 	mm.finished = true
 	return nil

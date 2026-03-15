@@ -181,3 +181,8 @@ func (s *EmailRequest) Generate(msg *gomail.Message) error {
 func (s *EmailRequest) GetDialer() (mailer.Dialer, error) {
 	return s.SMTP.GetDialer()
 }
+
+// GetSendRate returns the send rate from the SMTP profile.
+func (s *EmailRequest) GetSendRate() int {
+	return s.SMTP.SendRate
+}

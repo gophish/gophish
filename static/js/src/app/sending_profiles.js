@@ -59,6 +59,7 @@ function save(idx) {
     profile.username = $("#username").val()
     profile.password = $("#password").val()
     profile.ignore_cert_errors = $("#ignore_cert_errors").prop("checked")
+    profile.send_rate = parseInt($("#send_rate").val()) || 0
     if (idx != -1) {
         profile.id = profiles[idx].id
         api.SMTPId.put(profile)
@@ -93,6 +94,7 @@ function dismiss() {
     $("#username").val("")
     $("#password").val("")
     $("#ignore_cert_errors").prop("checked", true)
+    $("#send_rate").val("0")
     $("#headersTable").dataTable().DataTable().clear().draw()
     $("#modal").modal('hide')
 }
@@ -162,6 +164,7 @@ function edit(idx) {
         $("#username").val(profile.username)
         $("#password").val(profile.password)
         $("#ignore_cert_errors").prop("checked", profile.ignore_cert_errors)
+        $("#send_rate").val(profile.send_rate || 0)
         $.each(profile.headers, function (i, record) {
             addCustomHeader(record.key, record.value)
         });
@@ -183,6 +186,7 @@ function copy(idx) {
     $("#username").val(profile.username)
     $("#password").val(profile.password)
     $("#ignore_cert_errors").prop("checked", profile.ignore_cert_errors)
+    $("#send_rate").val(profile.send_rate || 0)
 }
 
 function load() {
