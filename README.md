@@ -30,6 +30,15 @@ time="2020-07-29T01:24:08Z" level=info msg="Please login with the username admin
 
 Releases of Gophish prior to v0.10.1 have a default username of `admin` and password of `gophish`.
 
+### Database Support
+
+Gophish supports three database backends:
+- **SQLite3** (default) - No setup required, uses a local file
+- **MySQL** - For production deployments requiring scalability
+- **PostgreSQL** - For production deployments requiring advanced features
+
+See [DATABASE.md](DATABASE.md) for detailed configuration instructions.
+
 ### Documentation
 
 Documentation can be found on our [site](http://getgophish.com/documentation). Find something missing? Let us know by filing an issue!

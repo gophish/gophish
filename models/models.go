@@ -18,6 +18,7 @@ import (
 
 	log "github.com/gophish/gophish/logger"
 	"github.com/jinzhu/gorm"
+	_ "github.com/lib/pq"           // Blank import needed to import postgres
 	_ "github.com/mattn/go-sqlite3" // Blank import needed to import sqlite3
 )
 
@@ -89,6 +90,10 @@ func chooseDBDriver(name, openStr string) goose.DBDriver {
 		d.Import = "github.com/go-sql-driver/mysql"
 		d.Dialect = &goose.MySqlDialect{}
 
+	case "postgres":
+		d.Import = "github.com/lib/pq"
+		d.Dialect = &goose.PostgresDialect{}
+
 	// Default database is sqlite3
 	default:
 		d.Import = "github.com/mattn/go-sqlite3"
@@ -147,6 +152,9 @@ func Setup(c *config.Config) error {
 	}
 
 	// Register certificates for tls encrypted db connections
+	// Note: PostgreSQL SSL configuration is handled directly in the connection string
+	// using parameters like sslmode=verify-ca and sslrootcert=/path/to/ca.crt
+	// The db_sslca_path field is only used for MySQL
 	if conf.DBSSLCaPath != "" {
 		switch conf.DBName {
 		case "mysql":
