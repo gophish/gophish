@@ -2,10 +2,14 @@ package models
 
 import (
 	"bytes"
+	"encoding/base64"
 	"net/mail"
 	"net/url"
 	"path"
 	"text/template"
+
+	log "github.com/gophish/gophish/logger"
+	qrcode "github.com/skip2/go-qrcode"
 )
 
 // TemplateContext is an interface that allows both campaigns and email
@@ -20,11 +24,21 @@ type TemplateContext interface {
 type PhishingTemplateContext struct {
 	From        string
 	URL         string
+	QR          string
 	Tracker     string
 	TrackingURL string
 	RId         string
 	BaseURL     string
 	BaseRecipient
+}
+
+func buildQRCodeHTML(phishURL string) (string, error) {
+	// Support Quishing simulations with an inline QR code image payload.
+	png, err := qrcode.Encode(phishURL, qrcode.Medium, 256)
+	if err != nil {
+		return "", err
+	}
+	return "<img src=\"data:image/png;base64," + base64.StdEncoding.EncodeToString(png) + "\" alt=\"QR Code\">", nil
 }
 
 // NewPhishingTemplateContext returns a populated PhishingTemplateContext,
@@ -57,6 +71,12 @@ func NewPhishingTemplateContext(ctx TemplateContext, r BaseRecipient, rid string
 	q.Set(RecipientParameter, rid)
 	phishURL.RawQuery = q.Encode()
 
+	qrCodeHTML, err := buildQRCodeHTML(phishURL.String())
+	if err != nil {
+		log.Warnf("failed to generate inline QR code for rid %s: %v", rid, err)
+		qrCodeHTML = ""
+	}
+
 	trackingURL, _ := url.Parse(templateURL)
 	trackingURL.Path = path.Join(trackingURL.Path, "/track")
 	trackingURL.RawQuery = q.Encode()
@@ -65,6 +85,7 @@ func NewPhishingTemplateContext(ctx TemplateContext, r BaseRecipient, rid string
 		BaseRecipient: r,
 		BaseURL:       baseURL.String(),
 		URL:           phishURL.String(),
+		QR:            qrCodeHTML,
 		TrackingURL:   trackingURL.String(),
 		Tracker:       "<img alt='' style='display: none' src='" + trackingURL.String() + "'/>",
 		From:          fn,

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math"
 	"net/textproto"
+	"strings"
 	"testing"
 	"time"
 
@@ -339,6 +340,26 @@ func (s *ModelsSuite) TestURLTemplateRendering(ch *check.C) {
 	ch.Assert(got.Subject, check.Equals, expectedURL)
 	ch.Assert(string(got.Text), check.Equals, expectedURL)
 	ch.Assert(string(got.HTML), check.Equals, expectedURL)
+}
+
+func (s *ModelsSuite) TestMailLogGenerateQR(ch *check.C) {
+	template := Template{
+		Name:    "QRTemplate",
+		UserId:  1,
+		HTML:    "{{.QR}}",
+		Subject: "QR",
+	}
+	ch.Assert(PostTemplate(&template), check.Equals, nil)
+
+	campaign := s.createCampaignDependencies(ch)
+	campaign.Template = template
+
+	ch.Assert(PostCampaign(&campaign, campaign.UserId), check.Equals, nil)
+
+	got := s.emailFromFirstMailLog(campaign, ch)
+	ch.Assert(string(got.HTML), check.Not(check.Equals), "")
+	ch.Assert(strings.Contains(string(got.HTML), "<img src=\"data:image/png;base64,"), check.Equals, true)
+	ch.Assert(strings.Contains(string(got.HTML), "\" alt=\"QR Code\">"), check.Equals, true)
 }
 
 func (s *ModelsSuite) TestMailLogGenerateEmptySubject(ch *check.C) {
