@@ -137,6 +137,11 @@ func (as *AdminServer) registerRoutes() {
 	router.HandleFunc("/users", mid.Use(as.UserManagement, mid.RequirePermission(models.PermissionModifySystem), mid.RequireLogin))
 	router.HandleFunc("/webhooks", mid.Use(as.Webhooks, mid.RequirePermission(models.PermissionModifySystem), mid.RequireLogin))
 	router.HandleFunc("/impersonate", mid.Use(as.Impersonate, mid.RequirePermission(models.PermissionModifySystem), mid.RequireLogin))
+	// SSO login endpoint - validates an HMAC token and creates a session
+	router.HandleFunc("/sso_login", as.SSOLogin)
+	// API endpoint for exchanging an upstream JWT (from Cyberassured) for a
+	// short-lived Gophish token. Protected by API key middleware.
+	router.Handle("/api/sso/exchange", mid.RequireAPIKey(http.HandlerFunc(as.SSOExchange)))
 	// Create the API routes
 	api := api.NewServer(
 		api.WithWorker(as.worker),
@@ -157,7 +162,11 @@ func (as *AdminServer) registerRoutes() {
 		csrf.Secure(as.config.UseTLS),
 		csrf.TrustedOrigins(as.config.TrustedOrigins))
 	adminHandler := csrfHandler(router)
-	adminHandler = mid.Use(adminHandler.ServeHTTP, mid.CSRFExceptions, mid.GetContext, mid.ApplySecurityHeaders)
+	// Include AutoSSOMiddleware so pages can accept ?sso_token=... and create a session
+	// Ensure GetContext runs before AutoSSOMiddleware so the session and user
+	// values are available in the request context. GetContext must be the
+	// outermost wrapper (last argument) so it executes before AutoSSOMiddleware.
+	adminHandler = mid.Use(adminHandler.ServeHTTP, mid.CSRFExceptions, mid.ApplySecurityHeaders, AutoSSOMiddleware, mid.GetContext)
 
 	// Setup GZIP compression
 	gzipWrapper, _ := gziphandler.NewGzipLevelHandler(gzip.BestCompression)

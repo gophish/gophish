@@ -23,6 +23,7 @@ type User struct {
 	PasswordChangeRequired bool      `json:"password_change_required"`
 	AccountLocked          bool      `json:"account_locked"`
 	LastLogin              time.Time `json:"last_login"`
+	CustomerId			 int64     `json:"customer_id" sql:"not null;default:0"`
 }
 
 // GetUser returns the user that the given id corresponds to. If no user is found, an
@@ -159,4 +160,14 @@ func DeleteUser(id int64) error {
 	// Finally, delete the user
 	err = db.Where("id=?", id).Delete(&User{}).Error
 	return err
+}
+
+// HasCustomerID returns true if any user exists with the provided customer id.
+func GetUserByCustomerId(customerID int64) (User, error) {
+	
+	u := User{
+		CustomerId: customerID,
+	}
+	err := db.Preload("Role").Where("customer_id = ?", customerID).First(&u).Error
+	return u, err
 }

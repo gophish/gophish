@@ -34,6 +34,7 @@ type userRequest struct {
 	Role                   string `json:"role"`
 	PasswordChangeRequired bool   `json:"password_change_required"`
 	AccountLocked          bool   `json:"account_locked"`
+	CustomerId				int64  `json:"customer_id"`
 }
 
 func (ur *userRequest) Validate(existingUser *models.User) error {
@@ -110,6 +111,7 @@ func (as *Server) Users(w http.ResponseWriter, r *http.Request) {
 			RoleID:                 role.ID,
 			PasswordChangeRequired: ur.PasswordChangeRequired,
 			AccountLocked:          ur.AccountLocked,
+			CustomerId:             ur.CustomerId,
 		}
 		err = models.PutUser(&user)
 		if err != nil {

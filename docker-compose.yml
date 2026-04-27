@@ -1,0 +1,26 @@
+services:
+  gophish:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cyberassured-gophish
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - DB_FILE_PATH={{DB_FILE_PATH}}
+    ports:
+      - "3333:3333"   # Interface Admin
+      - "8080:80"     # Servidor de Phishing (acesso externo pela 8080)
+    volumes:
+      - ./data:/opt/gophish/data
+      - ./db:/opt/gophish/db          # ← Essencial para as migrações
+    networks:
+      - mimesure-net
+
+networks:
+  mimesure-net:
+      external: true
+      
+volumes:
+  gophish_data:

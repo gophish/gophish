@@ -29,3 +29,7 @@ gophish_admin.key
 *.exe
 gophish.db*
 gophish
+
+.env
+gophish.crt
+gophish.key
