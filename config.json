@@ -19,5 +19,6 @@
 	"logging": {
 		"filename": "",
 		"level": ""
-	}
+	},
+	"audit_log_path": "gophish_audit.log"
 }

@@ -34,6 +34,7 @@ import (
 
 	"gopkg.in/alecthomas/kingpin.v2"
 
+	"github.com/gophish/gophish/audit"
 	"github.com/gophish/gophish/config"
 	"github.com/gophish/gophish/controllers"
 	"github.com/gophish/gophish/dialer"
@@ -93,6 +94,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	audit.SetLogPath(conf.AuditLogPath)
 
 	// Provide the option to disable the built-in mailer
 	// Setup the global variables and settings
