@@ -37,6 +37,7 @@ type Config struct {
 	TestFlag       bool        `json:"test_flag"`
 	ContactAddress string      `json:"contact_address"`
 	Logging        *log.Config `json:"logging"`
+	AuditLogPath   string      `json:"audit_log_path"`
 }
 
 // Version contains the current gophish version
@@ -59,6 +60,9 @@ func LoadConfig(filepath string) (*Config, error) {
 	}
 	if config.Logging == nil {
 		config.Logging = &log.Config{}
+	}
+	if config.AuditLogPath == "" {
+		config.AuditLogPath = "gophish_audit.log"
 	}
 	// Choosing the migrations directory based on the database used.
 	config.MigrationsPath = config.MigrationsPath + config.DBName
