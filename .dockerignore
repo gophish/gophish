@@ -1,0 +1,8 @@
+.git
+.github
+node_modules
+gophish.db
+gophish.db-journal
+gophish_admin.crt
+gophish_admin.key
+*.exe

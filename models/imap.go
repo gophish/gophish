@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/json"
 	"errors"
 	"net"
 	"time"
@@ -28,6 +29,23 @@ type IMAP struct {
 	LastLogin                   time.Time `json:"last_login,omitempty"`
 	ModifiedDate                time.Time `json:"modified_date"`
 	IMAPFreq                    uint32    `json:"imap_freq,string,omitempty"`
+}
+
+// MarshalJSON customizes JSON serialization so the stored IMAP password is
+// never included in API responses (CVE-2024-55196). The password is still
+// accepted on input: the struct tag governs json.Unmarshal, which this method
+// does not affect. The type alias drops IMAP's methods to avoid recursion; the
+// outer Password field shadows the embedded one (shallower field wins) and is
+// omitted when empty.
+func (im IMAP) MarshalJSON() ([]byte, error) {
+	type Alias IMAP
+	return json.Marshal(&struct {
+		Alias
+		Password string `json:"password,omitempty"`
+	}{
+		Alias:    (Alias)(im),
+		Password: "",
+	})
 }
 
 // ErrIMAPHostNotSpecified is thrown when there is no Host specified

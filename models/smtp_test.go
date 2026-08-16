@@ -1,7 +1,9 @@
 package models
 
 import (
+	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/jinzhu/gorm"
 
@@ -102,6 +104,35 @@ func (s *ModelsSuite) TestSMTPGetDialer(ch *check.C) {
 func (s *ModelsSuite) TestGetInvalidSMTP(ch *check.C) {
 	_, err := GetSMTP(-1, 1)
 	ch.Assert(err, check.Equals, gorm.ErrRecordNotFound)
+}
+
+// TestSMTPMarshalHidesPassword verifies the CVE-2024-55196 fix: marshaling an
+// SMTP object never leaks the stored password (neither the value nor the
+// "password" key).
+func (s *ModelsSuite) TestSMTPMarshalHidesPassword(ch *check.C) {
+	smtp := SMTP{
+		Name:     "Test SMTP",
+		Host:     "1.1.1.1:25",
+		Username: "user@example.com",
+		Password: "SUPER_SECRET",
+	}
+	b, err := json.Marshal(smtp)
+	ch.Assert(err, check.Equals, nil)
+	out := string(b)
+	ch.Assert(strings.Contains(out, "SUPER_SECRET"), check.Equals, false)
+	ch.Assert(strings.Contains(out, "\"password\""), check.Equals, false)
+	// Non-secret fields must still be present.
+	ch.Assert(strings.Contains(out, "\"username\":\"user@example.com\""), check.Equals, true)
+}
+
+// TestSMTPUnmarshalAcceptsPassword verifies input is unaffected: a "password"
+// in the request body still populates the struct.
+func (s *ModelsSuite) TestSMTPUnmarshalAcceptsPassword(ch *check.C) {
+	body := `{"name":"Test SMTP","host":"1.1.1.1:25","password":"SUPER_SECRET"}`
+	smtp := SMTP{}
+	err := json.Unmarshal([]byte(body), &smtp)
+	ch.Assert(err, check.Equals, nil)
+	ch.Assert(smtp.Password, check.Equals, "SUPER_SECRET")
 }
 
 func (s *ModelsSuite) TestDefaultDeniedDial(ch *check.C) {
