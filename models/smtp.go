@@ -2,6 +2,7 @@ package models
 
 import (
 	"crypto/tls"
+	"encoding/json"
 	"errors"
 	"net/mail"
 	"os"
@@ -43,6 +44,23 @@ type SMTP struct {
 	IgnoreCertErrors bool      `json:"ignore_cert_errors"`
 	Headers          []Header  `json:"headers"`
 	ModifiedDate     time.Time `json:"modified_date"`
+}
+
+// MarshalJSON customizes JSON serialization so the stored SMTP password is
+// never included in API responses (CVE-2024-55196). The password is still
+// accepted on input: the struct tag governs json.Unmarshal, which this method
+// does not affect. The type alias drops SMTP's methods to avoid recursion; the
+// outer Password field shadows the embedded one (shallower field wins) and is
+// omitted when empty.
+func (s SMTP) MarshalJSON() ([]byte, error) {
+	type Alias SMTP
+	return json.Marshal(&struct {
+		Alias
+		Password string `json:"password,omitempty"`
+	}{
+		Alias:    (Alias)(s),
+		Password: "",
+	})
 }
 
 // Header contains the fields and methods for a sending profile to have
