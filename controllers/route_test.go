@@ -3,6 +3,7 @@ package controllers
 import (
 	"fmt"
 	"net/http"
+	"net/http/cookiejar"
 	"net/url"
 	"strings"
 	"testing"
@@ -11,7 +12,17 @@ import (
 )
 
 func attemptLogin(t *testing.T, ctx *testContext, client *http.Client, username, password, optionalPath string) *http.Response {
-	resp, err := http.Get(fmt.Sprintf("%s/login", ctx.adminServer.URL))
+	if client == nil {
+		client = &http.Client{}
+	}
+	if client.Jar == nil {
+		jar, err := cookiejar.New(nil)
+		if err != nil {
+			t.Fatalf("error creating cookie jar: %v", err)
+		}
+		client.Jar = jar
+	}
+	resp, err := client.Get(fmt.Sprintf("%s/login", ctx.adminServer.URL))
 	if err != nil {
 		t.Fatalf("error requesting the /login endpoint: %v", err)
 	}
@@ -30,10 +41,6 @@ func attemptLogin(t *testing.T, ctx *testContext, client *http.Client, username,
 	if !ok {
 		t.Fatal("unable to find csrf_token value in login response")
 	}
-	if client == nil {
-		client = &http.Client{}
-	}
-
 	req, err := http.NewRequest("POST", fmt.Sprintf("%s/login%s", ctx.adminServer.URL, optionalPath), strings.NewReader(url.Values{
 		"username":   {username},
 		"password":   {password},
@@ -43,7 +50,6 @@ func attemptLogin(t *testing.T, ctx *testContext, client *http.Client, username,
 		t.Fatalf("error creating new /login request: %v", err)
 	}
 
-	req.Header.Set("Cookie", resp.Header.Get("Set-Cookie"))
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
 	resp, err = client.Do(req)
@@ -56,20 +62,34 @@ func attemptLogin(t *testing.T, ctx *testContext, client *http.Client, username,
 func TestLoginCSRF(t *testing.T) {
 	ctx := setupTest(t)
 	defer tearDown(t, ctx)
-	resp, err := http.PostForm(fmt.Sprintf("%s/login", ctx.adminServer.URL),
-		url.Values{
-			"username": {"admin"},
-			"password": {"gophish"},
-		})
-
-	if err != nil {
-		t.Fatalf("error requesting the /login endpoint: %v", err)
+	crossSiteRequests := []*http.Request{}
+	for _, header := range []struct{ key, value string }{
+		{"Origin", "https://evil.example.com"},
+		{"Sec-Fetch-Site", "cross-site"},
+	} {
+		req, err := http.NewRequest("POST", fmt.Sprintf("%s/login", ctx.adminServer.URL),
+			strings.NewReader(url.Values{
+				"username": {"admin"},
+				"password": {"gophish"},
+			}.Encode()))
+		if err != nil {
+			t.Fatalf("error creating request: %v", err)
+		}
+		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.Header.Add(header.key, header.value)
+		crossSiteRequests = append(crossSiteRequests, req)
 	}
-
-	got := resp.StatusCode
-	expected := http.StatusForbidden
-	if got != expected {
-		t.Fatalf("invalid status code received. expected %d got %d", expected, got)
+	for _, req := range crossSiteRequests {
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			t.Fatalf("error requesting the /login endpoint: %v", err)
+		}
+		got := resp.StatusCode
+		expected := http.StatusForbidden
+		if got != expected {
+			t.Fatalf("invalid status code received for %s: %s. expected %d got %d", req.Header.Get("Origin"), req.Header.Get("Sec-Fetch-Site"), expected, got)
+		}
+		resp.Body.Close()
 	}
 }
 

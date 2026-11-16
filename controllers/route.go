@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	csrf "filippo.io/csrf/gorilla"
 	"github.com/NYTimes/gziphandler"
 	"github.com/gophish/gophish/auth"
 	"github.com/gophish/gophish/config"
@@ -21,7 +22,6 @@ import (
 	"github.com/gophish/gophish/models"
 	"github.com/gophish/gophish/util"
 	"github.com/gophish/gophish/worker"
-	"github.com/gorilla/csrf"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
@@ -42,7 +42,6 @@ type AdminServer struct {
 }
 
 var defaultTLSConfig = &tls.Config{
-	PreferServerCipherSuites: true,
 	CurvePreferences: []tls.CurveID{
 		tls.X25519,
 		tls.CurveP256,
@@ -55,11 +54,18 @@ var defaultTLSConfig = &tls.Config{
 		tls.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,
 		tls.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
 		tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
-
-		// Kept for backwards compatibility with some clients
-		tls.TLS_RSA_WITH_AES_256_GCM_SHA384,
-		tls.TLS_RSA_WITH_AES_128_GCM_SHA256,
 	},
+}
+
+const maxAdminRequestBodySize = 50 << 20
+
+// preserveRemoteAddr stores the original peer address in the request context
+// before any proxy header rewriting takes place.
+func preserveRemoteAddr(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		r = ctx.Set(r, "original_remote_addr", r.RemoteAddr)
+		next.ServeHTTP(w, r)
+	})
 }
 
 // WithWorker is an option that sets the background worker.
@@ -164,8 +170,12 @@ func (as *AdminServer) registerRoutes() {
 	adminHandler = gzipWrapper(adminHandler)
 
 	// Respect X-Forwarded-For and X-Real-IP headers in case we're behind a
-	// reverse proxy.
-	adminHandler = handlers.ProxyHeaders(adminHandler)
+	// reverse proxy. The original peer address is preserved first so that
+	// rate limiting can't be bypassed with spoofed proxy headers.
+	adminHandler = preserveRemoteAddr(handlers.ProxyHeaders(adminHandler))
+
+	// Cap request body sizes to prevent memory exhaustion
+	adminHandler = mid.LimitRequestBody(maxAdminRequestBodySize)(adminHandler)
 
 	// Setup logging
 	adminHandler = handlers.CombinedLoggingHandler(log.Writer(), adminHandler)

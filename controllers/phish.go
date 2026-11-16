@@ -15,12 +15,15 @@ import (
 	ctx "github.com/gophish/gophish/context"
 	"github.com/gophish/gophish/controllers/api"
 	log "github.com/gophish/gophish/logger"
+	mid "github.com/gophish/gophish/middleware"
 	"github.com/gophish/gophish/models"
 	"github.com/gophish/gophish/util"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/jordan-wright/unindexed"
 )
+
+const maxPhishRequestBodySize = 1 << 20
 
 // ErrInvalidRequest is thrown when a request with an invalid structure is
 // received
@@ -124,6 +127,10 @@ func (ps *PhishingServer) registerRoutes() {
 	// Respect X-Forwarded-For and X-Real-IP headers in case we're behind a
 	// reverse proxy.
 	phishHandler = handlers.ProxyHeaders(phishHandler)
+
+	// Cap request body sizes, since this server is exposed to untrusted
+	// clients submitting phishing form data
+	phishHandler = mid.LimitRequestBody(maxPhishRequestBodySize)(phishHandler)
 
 	// Setup logging
 	phishHandler = handlers.CombinedLoggingHandler(log.Writer(), phishHandler)

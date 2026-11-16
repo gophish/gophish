@@ -19,6 +19,31 @@ func TestDefaultDeny(t *testing.T) {
 	}
 }
 
+func TestDefaultDenyInternal(t *testing.T) {
+	control := restrictedControl([]*net.IPNet{})
+	conn := new(syscall.RawConn)
+	internalHosts := []struct {
+		network string
+		address string
+	}{
+		{"tcp4", "127.0.0.1:80"},
+		{"tcp4", "10.0.0.5:80"},
+		{"tcp4", "172.16.0.1:80"},
+		{"tcp4", "192.168.1.2:80"},
+		{"tcp4", "100.64.0.1:80"},
+		{"tcp4", "169.254.169.254:80"},
+		{"tcp6", "[::1]:80"},
+		{"tcp6", "[fe80::1]:80"},
+		{"tcp6", "[fd00::1]:80"},
+	}
+	for _, h := range internalHosts {
+		got := control(h.network, h.address, *conn)
+		if got == nil || !strings.Contains(got.Error(), "upstream connection denied") {
+			t.Fatalf("expected internal host %s to be denied by default, got %v", h.address, got)
+		}
+	}
+}
+
 func TestDefaultAllow(t *testing.T) {
 	control := restrictedControl([]*net.IPNet{})
 	host := "1.1.1.1"
