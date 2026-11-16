@@ -4,11 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 	"strings"
 
+	csrf "filippo.io/csrf/gorilla"
 	ctx "github.com/gophish/gophish/context"
 	"github.com/gophish/gophish/models"
-	"github.com/gorilla/csrf"
 )
 
 // CSRFExemptPrefixes are a list of routes that are exempt from CSRF protection
@@ -93,6 +94,9 @@ func RequireAPIKey(handler http.Handler) http.Handler {
 				ak = strings.TrimPrefix(ak, "Bearer ")
 			}
 		}
+		// Strip the API key from the request so that it isn't leaked into
+		// the access logs, which log the full request URI.
+		redactAPIKey(r)
 		if ak == "" {
 			JSONError(w, http.StatusUnauthorized, "API Key not set")
 			return
@@ -107,6 +111,32 @@ func RequireAPIKey(handler http.Handler) http.Handler {
 		r = ctx.Set(r, "api_key", ak)
 		handler.ServeHTTP(w, r)
 	})
+}
+
+func redactAPIKey(r *http.Request) {
+	if r.Form != nil {
+		r.Form.Del("api_key")
+	}
+	if r.PostForm != nil {
+		r.PostForm.Del("api_key")
+	}
+	if r.URL != nil {
+		q := r.URL.Query()
+		if q.Has("api_key") {
+			q.Del("api_key")
+			r.URL.RawQuery = q.Encode()
+		}
+	}
+	if r.RequestURI != "" {
+		if u, err := url.ParseRequestURI(r.RequestURI); err == nil {
+			q := u.Query()
+			if q.Has("api_key") {
+				q.Del("api_key")
+				u.RawQuery = q.Encode()
+				r.RequestURI = u.RequestURI()
+			}
+		}
+	}
 }
 
 // RequireLogin checks to see if the user is currently logged in.
@@ -183,7 +213,25 @@ func ApplySecurityHeaders(next http.Handler) http.HandlerFunc {
 		csp := "frame-ancestors 'none';"
 		w.Header().Set("Content-Security-Policy", csp)
 		w.Header().Set("X-Frame-Options", "DENY")
+		w.Header().Set("X-Content-Type-Options", "nosniff")
+		w.Header().Set("Referrer-Policy", "strict-origin-when-cross-origin")
+		if r.TLS != nil || r.Header.Get("X-Forwarded-Proto") == "https" {
+			w.Header().Set("Strict-Transport-Security", "max-age=31536000")
+		}
 		next.ServeHTTP(w, r)
+	}
+}
+
+// LimitRequestBody returns a middleware that caps the request body at
+// maxBytes to protect against memory exhaustion from oversized uploads.
+func LimitRequestBody(maxBytes int64) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.Body != nil {
+				r.Body = http.MaxBytesReader(w, r.Body, maxBytes)
+			}
+			next.ServeHTTP(w, r)
+		})
 	}
 }
 

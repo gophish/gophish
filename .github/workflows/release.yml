@@ -36,9 +36,9 @@ jobs:
                       arch: '386'
         steps:
             - name: Set up Go
-              uses: actions/setup-go@v2
+              uses: actions/setup-go@v5
               with:
-                go-version: 1.22
+                go-version: 1.27.x
             - if: matrix.os == 'ubuntu-latest'
               run: sudo apt-get update && sudo apt-get install -y gcc-multilib
             - if: matrix.arch == '386'

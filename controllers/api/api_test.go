@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/gophish/gophish/config"
+	"github.com/gophish/gophish/dialer"
 	"github.com/gophish/gophish/models"
 )
 
@@ -87,6 +88,9 @@ func createTestData(t *testing.T) {
 
 func TestSiteImportBaseHref(t *testing.T) {
 	ctx := setupTest(t)
+	origAllowed := dialer.DefaultDialer.AllowedHosts()
+	dialer.SetAllowedHosts([]string{"127.0.0.1"})
+	defer dialer.SetAllowedHosts(origAllowed)
 	h := "<html><head></head><body><img src=\"/test.png\"/></body></html>"
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, h)

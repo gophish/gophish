@@ -6,6 +6,7 @@ import (
 	"sync"
 	"time"
 
+	ctx "github.com/gophish/gophish/context"
 	log "github.com/gophish/gophish/logger"
 	"golang.org/x/time/rate"
 )
@@ -132,6 +133,17 @@ func (limiter *PostLimiter) Limit(next http.Handler) http.HandlerFunc {
 		clientIP, _, err := net.SplitHostPort(r.RemoteAddr)
 		if err != nil {
 			clientIP = r.RemoteAddr
+		}
+		// If the request went through a proxy header middleware, RemoteAddr
+		// may have been overwritten with a client-supplied value. Prefer the
+		// original peer address captured before that rewriting so the rate
+		// limit cannot be bypassed with spoofed X-Forwarded-For headers.
+		if orig, ok := ctx.Get(r, "original_remote_addr").(string); ok && orig != "" {
+			if ip, _, err := net.SplitHostPort(orig); err == nil {
+				clientIP = ip
+			} else {
+				clientIP = orig
+			}
 		}
 		if r.Method == http.MethodPost && !limiter.allow(clientIP) {
 			log.Error("")

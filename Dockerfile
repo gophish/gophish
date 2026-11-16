@@ -10,11 +10,11 @@ RUN gulp
 
 
 # Build Golang binary
-FROM golang:1.15.2 AS build-golang
+FROM golang:1.27 AS build-golang
 
 WORKDIR /go/src/github.com/gophish/gophish
 COPY . .
-RUN go get -v && go build -v
+RUN go mod download && go build -v
 
 
 # Runtime container

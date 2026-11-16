@@ -2,12 +2,14 @@ package api
 
 import (
 	"bytes"
-	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"html"
 	"net/http"
+	"net/url"
 	"strings"
+	"time"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gophish/gophish/dialer"
@@ -15,6 +17,14 @@ import (
 	"github.com/gophish/gophish/models"
 	"github.com/gophish/gophish/util"
 	"github.com/jordan-wright/email"
+)
+
+const (
+	maxImportGroupRequestSize = 25 << 20
+	maxImportEmailRequestSize = 10 << 20
+	maxImportSiteRequestSize  = 1 << 20
+	maxImportSiteResponseSize = 10 << 20
+	importSiteRequestTimeout  = 30 * time.Second
 )
 
 type cloneRequest struct {
@@ -41,6 +51,7 @@ type emailResponse struct {
 
 // ImportGroup imports a CSV of group members
 func (as *Server) ImportGroup(w http.ResponseWriter, r *http.Request) {
+	r.Body = http.MaxBytesReader(w, r.Body, maxImportGroupRequestSize)
 	ts, err := util.ParseCSV(r)
 	if err != nil {
 		JSONResponse(w, models.Response{Success: false, Message: "Error parsing CSV"}, http.StatusInternalServerError)
@@ -60,6 +71,7 @@ func (as *Server) ImportEmail(w http.ResponseWriter, r *http.Request) {
 		Content      string `json:"content"`
 		ConvertLinks bool   `json:"convert_links"`
 	}{}
+	r.Body = http.MaxBytesReader(w, r.Body, maxImportEmailRequestSize)
 	err := json.NewDecoder(r.Body).Decode(&ir)
 	if err != nil {
 		JSONResponse(w, models.Response{Success: false, Message: "Error decoding JSON Request"}, http.StatusBadRequest)
@@ -105,6 +117,7 @@ func (as *Server) ImportSite(w http.ResponseWriter, r *http.Request) {
 		JSONResponse(w, models.Response{Success: false, Message: "Method not allowed"}, http.StatusBadRequest)
 		return
 	}
+	r.Body = http.MaxBytesReader(w, r.Body, maxImportSiteRequestSize)
 	err := json.NewDecoder(r.Body).Decode(&cr)
 	if err != nil {
 		JSONResponse(w, models.Response{Success: false, Message: "Error decoding JSON Request"}, http.StatusBadRequest)
@@ -114,19 +127,30 @@ func (as *Server) ImportSite(w http.ResponseWriter, r *http.Request) {
 		JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
 		return
 	}
+	parsedURL, err := url.Parse(cr.URL)
+	if err != nil || parsedURL.Host == "" || (parsedURL.Scheme != "http" && parsedURL.Scheme != "https") {
+		JSONResponse(w, models.Response{Success: false, Message: "Invalid URL: only http and https URLs are supported"}, http.StatusBadRequest)
+		return
+	}
 	restrictedDialer := dialer.Dialer()
 	tr := &http.Transport{
 		DialContext: restrictedDialer.DialContext,
-		TLSClientConfig: &tls.Config{
-			InsecureSkipVerify: true,
-		},
 	}
-	client := &http.Client{Transport: tr}
+	client := &http.Client{
+		Transport: tr,
+		Timeout:   importSiteRequestTimeout,
+	}
 	resp, err := client.Get(cr.URL)
 	if err != nil {
 		JSONResponse(w, models.Response{Success: false, Message: err.Error()}, http.StatusBadRequest)
 		return
 	}
+	defer resp.Body.Close()
+	if resp.StatusCode >= http.StatusBadRequest {
+		JSONResponse(w, models.Response{Success: false, Message: fmt.Sprintf("upstream returned status %s", resp.Status)}, http.StatusBadRequest)
+		return
+	}
+	resp.Body = http.MaxBytesReader(w, resp.Body, maxImportSiteResponseSize)
 	// Insert the base href tag to better handle relative resources
 	d, err := goquery.NewDocumentFromResponse(resp)
 	if err != nil {
@@ -135,17 +159,17 @@ func (as *Server) ImportSite(w http.ResponseWriter, r *http.Request) {
 	}
 	// Assuming we don't want to include resources, we'll need a base href
 	if d.Find("head base").Length() == 0 {
-		d.Find("head").PrependHtml(fmt.Sprintf("<base href=\"%s\">", cr.URL))
+		d.Find("head").PrependHtml(fmt.Sprintf("<base href=\"%s\">", html.EscapeString(cr.URL)))
 	}
 	forms := d.Find("form")
 	forms.Each(func(i int, f *goquery.Selection) {
 		// We'll want to store where we got the form from
 		// (the current URL)
-		url := f.AttrOr("action", cr.URL)
-		if !strings.HasPrefix(url, "http") {
-			url = fmt.Sprintf("%s%s", cr.URL, url)
+		formURL := f.AttrOr("action", cr.URL)
+		if !strings.HasPrefix(formURL, "http") {
+			formURL = fmt.Sprintf("%s%s", cr.URL, formURL)
 		}
-		f.PrependHtml(fmt.Sprintf("<input type=\"hidden\" name=\"__original_url\" value=\"%s\"/>", url))
+		f.PrependHtml(fmt.Sprintf("<input type=\"hidden\" name=\"__original_url\" value=\"%s\"/>", html.EscapeString(formURL)))
 	})
 	h, err := d.Html()
 	if err != nil {

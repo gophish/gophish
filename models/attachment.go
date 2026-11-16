@@ -4,6 +4,7 @@ import (
 	"archive/zip"
 	"bytes"
 	"encoding/base64"
+	"errors"
 	"io"
 	"io/ioutil"
 	"net/url"
@@ -11,6 +12,10 @@ import (
 	"regexp"
 	"strings"
 )
+
+// maxAttachmentEntrySize caps the decompressed size of a single entry inside
+// an uploaded zip-based attachment, to protect against zip bombs.
+const maxAttachmentEntrySize = 64 << 20
 
 // Attachment contains the fields and methods for
 // an email attachment
@@ -90,9 +95,12 @@ func (a *Attachment) ApplyTemplate(ptx PhishingTemplateContext) (io.Reader, erro
 				return nil, err
 			}
 			defer ff.Close()
-			contents, err := ioutil.ReadAll(ff)
+			contents, err := ioutil.ReadAll(io.LimitReader(ff, maxAttachmentEntrySize+1))
 			if err != nil {
 				return nil, err
+			}
+			if len(contents) > maxAttachmentEntrySize {
+				return nil, errors.New("attachment entry exceeds the maximum allowed decompressed size")
 			}
 			subFileExtension := filepath.Ext(zipFile.Name)
 			var tFile string
